@@ -1,7 +1,7 @@
 # 元 / 合わせた新しい絵 / 合成 / 判定 を、コマごとに1行ずつ(3倍)  usage: sheet7.py <out.jpg> <folder/name> ...
 import sys
 from PIL import Image
-A='Unity/2ndAction/Assets/Art/'; W='Docs/ClothRevision_2026-10-25/anim/'
+A='Docs/ClothRevision_2026-10-25/ingame/original/Art/'; W='Docs/ClothRevision_2026-10-25/anim/'  # 元の絵は控えから
 rows=[]
 for fn in sys.argv[2:]:
     d,n=fn.split('/')

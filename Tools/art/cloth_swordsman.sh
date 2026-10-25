@@ -8,7 +8,7 @@
 cd "$(dirname "$0")/../.." || exit 1
 A=Unity/2ndAction/Assets/Art
 D=Docs/ClothRevision_2026-10-25/ingame
-files() { (cd "$D/candidate/Art" && find . -name "*.png" | sed 's#^\./##' | sort); }
+files() { (cd "$D/candidate/Art" && find . -mindepth 2 -name "*.png" | sed 's#^\./##' | sort); }
 case "$1" in
   apply|restore)
     src="$D/candidate/Art"; [ "$1" = restore ] && src="$D/original/Art"

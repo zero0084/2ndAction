@@ -5,3 +5,5 @@ PlayerJump_v1/jump_02	--clear 35,311,63,311,63,314.5,35,331
 PlayerLand_v1/land_01	--clear 22,497,88,503,88,532,80,537,70,542,60,548,52,548,22,522
 PlayerRun_v1/run_03	--clear 28,346,82,346,82,360,52,375,28,375
 PlayerRun_v1/run_04	--clear 12,292,42,292,42,316,12,316
+PlayerAttack_v1/attack_01	--clear 85,258,180,258,235,280,235,300,262,330,262,352,85,352
+PlayerAttackLarge_v1/attacklarge_04	--clear 8,404,118,404,118,428,100,446,60,452,8,452

@@ -25,6 +25,20 @@ assert O.shape == N.shape, (O.shape, N.shape)
 N0 = N.copy()  # 新しい絵の全部(範囲指定の所で使う)
 r, g, b, al = O[..., 0], O[..., 1], O[..., 2], O[..., 3]
 warm = (r - np.maximum(g, b) > 8) & (np.abs(g - b) < 20)          # 元のマントらしい赤み(鎧の茶色の縁は含まない)
+# 斬撃などのエフェクト(明るいピンク〜白の光)。古いマントの赤(暗い赤)と区別して、元の画素のまま残す
+# --effects の時だけ(斬撃のある攻撃のコマ)。ピンクの光(赤が強く、緑/青も少しある)から、まわりの明るい所(白い芯)へ広げる。
+# 白っぽいだけの所(古いマントの縁の白い線)は起点にしない
+effO = np.zeros(al.shape, bool)
+if '--effects' in a:
+    pink = (al > 10) & (r > 170) & (r - np.maximum(g, b) > 50) & ((g > 40) | (b > 40))
+    lp, npk = ndimage.label(pink)
+    if npk:
+        szp = ndimage.sum(pink, lp, range(1, npk + 1))
+        pink = np.isin(lp, [i + 1 for i, v in enumerate(szp) if v >= 15])
+    bright = (al > 10) & (np.maximum(np.maximum(r, g), b) > 150)
+    effO = pink.copy()
+    for _ in range(4): effO = ndimage.binary_dilation(effO) & bright
+warm &= ~effO
 cand = (al >= 200) & ~warm                                          # 元の「体かもしれない」所
 nb = body_mask(N.astype(np.uint8)) > 0                              # 新しい絵の体
 nb = ndimage.binary_opening(nb, iterations=1)
@@ -34,6 +48,7 @@ if '--mode' in a and opt(a, '--mode', '') == 'cape':
     # 逆の考え方: 新しい絵にするのは「新しいマント」と「元の古いマントらしい所」だけ。それ以外は元のまま(体の内側に新旧のつなぎ目を作らない)
     nr, ng, nbl = N[..., 0], N[..., 1], N[..., 2]
     ncape = (nr > 40) & (nr > ng * 1.4) & (nr > nbl * 1.4) & (N[..., 3] > 100)
+    if '--effects' in a: ncape &= ~((nr > 170) & ((ng > 70) | (nbl > 70)))  # 新しい絵のエフェクト(明るいピンクの光)はマントにしない
     ncape = ndimage.binary_opening(ncape, iterations=2)  # 細い赤(新しい絵の剣の赤い筋など)はマントにしない
     # 頭(元の中身の上から 20%)では、元の体(赤くない不透明)を優先する(新しい絵の襟や髪の位置のずれで顔を覆わない)
     ysA = np.where(al > 30)[0]; headBand = (np.arange(O.shape[0]) < ysA.min() + 0.20 * (ysA.max() - ysA.min()))[:, None]
@@ -61,7 +76,17 @@ if '--mode' in a and opt(a, '--mode', '') == 'cape':
     # (剣・脚・ブーツの赤い留め具を古いマントと取り違えないため。腰より下に残った古いマントは --clear で範囲指定)
     ys_ = np.where(al > 30)[0]; top_, bot_ = ys_.min(), ys_.max()
     upper = (np.arange(O.shape[0]) < top_ + float(opt(a, '--waist', '0.45')) * (bot_ - top_))[:, None]
-    takeNew = ndimage.binary_dilation(ncape, iterations=1) | (capeLikeO & ~trimsInBody & upper)
+    # 腰より下でも、体より後ろ(左)にある大きな赤い面は古いマント(立ち姿の攻撃では腿まで垂れている)。体の中心の前垂れは残す
+    backCape = np.zeros_like(warm)
+    if wn:
+        bodyX = np.median(np.where(cand)[1]) if cand.any() else O.shape[1] / 2
+        cms = ndimage.center_of_mass(warm & (al > 30), wl, range(1, wn + 1))
+        keepIds = [i + 1 for i, (v, c) in enumerate(zip(wsz, cms)) if v >= max(30, wsz.max() * 0.08) and c[1] < bodyX - 0.08 * O.shape[1]]
+        backCape = np.isin(wl, keepIds)
+    nearBack = ndimage.binary_dilation(backCape, iterations=2)
+    lowerOld = backCape | (nearBack & ((al < 200) | dark) & (dist > near))
+    takeNew = ndimage.binary_dilation(ncape, iterations=1) | (capeLikeO & ~trimsInBody & upper) | (lowerOld & ~trimsInBody)
+    takeNew &= ~effO
     P = (al > 30) & ~takeNew
     # 新しい絵の画素は、マントの所と古いマントの所だけで使う(体のはみ出し分を足すと、元の輪郭の白い縁が内側に取り残されて線になる)
     N = N * takeNew[..., None]
@@ -73,6 +98,7 @@ if n:
     ys2 = np.where(al > 30)[0]; up2 = (np.arange(O.shape[0]) < ys2.min() + float(opt(a, '--waist', '0.45')) * (ys2.max() - ys2.min()))[:, None]
     P = P & ~(small & up2)
 P = ndimage.binary_closing(P, iterations=2) & (al > 30)
+P |= effO  # エフェクトは元のまま(半透明の光も)
 # 範囲指定(--replace x0,y0,x1,y1、何回でも): 範囲の中は新しい絵をそのまま使う(色と位置の判定で残った古いマントの切れ端用。剣なども新しい絵の物になる)
 EB = np.zeros(P.shape, bool)
 for i_, t_ in enumerate(a):
@@ -90,6 +116,17 @@ for i_, t_ in enumerate(a):
         im_ = Image.new('L', (P.shape[1], P.shape[0]), 0); _ID.Draw(im_).polygon(list(zip(v_[0::2], v_[1::2])), fill=255)
         CL |= np.array(im_) > 0
 P &= ~CL
+# 体の本体とつながらず、新しいマントのすぐ近く(8px)にある小さな塊は、古いマントの名残(cape モードだけ)
+if '--mode' in a and opt(a, '--mode', '') == 'cape':
+    solidP = P & (al > 100)
+    lab3, n3 = ndimage.label(solidP, structure=np.ones((3, 3)))
+    if n3 > 1:
+        sz3 = ndimage.sum(solidP, lab3, range(1, n3 + 1)); main = int(np.argmax(sz3)) + 1
+        nearCape = ndimage.binary_dilation(ncape, iterations=8)
+        drop = [i + 1 for i, v in enumerate(sz3) if i + 1 != main and v < sz3.max() * 0.02 and (nearCape & (lab3 == i + 1)).any()]
+        if drop:
+            dm = np.isin(lab3, drop); dm = ndimage.binary_dilation(dm, iterations=1) & ~(lab3 == main)
+            P &= ~dm
 m = ndimage.gaussian_filter(P.astype(float), 0.6)
 m = np.where(P, 1.0, m * (al > 30))[..., None]
 out = N * (1 - m) + O * m

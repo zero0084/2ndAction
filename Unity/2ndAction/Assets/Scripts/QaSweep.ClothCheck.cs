@@ -107,6 +107,8 @@ public partial class QaSweep
             if (i == 162) return ClothHurt();
             return null;
         });
+        // 2026-10-25: 3段のコンボ(1段目 attacksmall / 2段目 attack / 3段目 attacklarge)。前攻撃を続けて入れる
+        yield return ClothRecord("combo", 5f, i => (i % 75 == 6 || i % 75 == 18 || i % 75 == 30) ? ClothInject(F) : null);
         yield return EndRun();
 
         // 2) 暗い洞窟: 走り + 攻撃
