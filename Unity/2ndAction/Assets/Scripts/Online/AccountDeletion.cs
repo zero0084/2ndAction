@@ -27,6 +27,11 @@ public static class AccountDeletion
     [Serializable] class Reply { public bool ok; public int cloudSave; public int leaderboards; public string message; }
 
     public static bool Busy => State == Phase.Checking || State == Phase.Deleting;
+    // 2026-10-26(公開前の案内の整備): アプリの中からサーバーのデータを消せるのは、削除の仕組み(Cloud Code omm_delete_player)を配置して
+    //  本物で確かめた環境だけ。今は development だけ(production は未配置)→ production につながる製品版では、削除のボタンを出さず
+    //  メールでの依頼を案内する(公開中のプライバシーポリシーも「メールで依頼」)。production に配置して確かめたら ProductionReady を true に
+    public const bool ProductionReady = false;
+    public static bool InAppAvailable => UgsEnvironment.Name != "production" || ProductionReady;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     // 開発版の試験だけ: サーバーの代わり(ok = 成功 / fail = サーバーの削除の失敗)。本物のサーバー/アカウントには触れない

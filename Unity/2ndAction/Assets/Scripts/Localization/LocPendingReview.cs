@@ -51,6 +51,23 @@ public static class LocPendingReview
     public const string ResultEscapedOld = "GAME CLEAR";
     public const string LicensesNote = "このゲームで使っている素材の著作権表示とライセンスです(原文のまま掲載しています)。"; // ID 10058
 
+    // ID 10135〜10145(2026-10-26 公開前の案内の整備): 設定の「このゲームについて」(バージョン/制作クレジット/ライセンス/お問い合わせ)。
+    //  © の表記・問い合わせのメールの件名(マスター指定)・ライセンスの本文は訳さない
+    public const string AboutTitle = "このゲームについて";                                                 // ID 10135
+    public const string VersionLabel = "バージョン";                                                       // ID 10136
+    public const string CopyButton = "コピー";                                                            // ID 10137
+    public const string CreditsTitle = "制作クレジット";                                                    // ID 10138(設定の行と画面の見出し)
+    public const string ContactTitle = "お問い合わせ";                                                      // ID 10139
+    public const string ContactOpen = "メールを送る";                                                       // ID 10140
+    public const string ContactNote = "メールアプリが開かない時は、次のアドレスへ送ってください: {0}";             // ID 10141 {0}=アドレス
+    public const string CopyAddress = "アドレスをコピー";                                                   // ID 10142
+    public const string Copied = "コピーしました";                                                         // ID 10143
+    public const string CreditsNote = "このゲームを作った人と、使っている素材です。";                            // ID 10144
+    public const string ContactHint = "件名と、バージョン・利用環境の欄は自動で入ります。";                       // ID 10145
+    // ID 10146 / 10147: サーバーのデータの削除がまだアプリの中からできない環境(production に未配置)の案内
+    public const string DeletionByMailOnly = "アプリの中からの削除は準備中です。削除をご希望の時は、プレイヤーIDを書いて上のアドレスへメールでご依頼ください。"; // ID 10146
+    public const string DeletionNoteByMail = "ランキングの記録など、サーバー上のデータの削除は、メールでご依頼いただけます(この端末のカードや進行は消えません)。";       // ID 10147
+
     // 最高速度の設定(2026-10-24、設定 → 操作)。エステルのレビュー済み・30言語へ反映済み(Tools/loc/keys_extra25.tsv)
     public const string MaxSpeedTitle = "最高速度";                                                     // ID 10063
     public const string MaxSpeedStandardSuffix = "(標準)";                                              // ID 10064(100% の後ろ)

@@ -94,8 +94,9 @@ public class DataDeletionUi : MonoBehaviour
                 if (phase == AccountDeletion.Phase.Failed) y += Line("通信を確認してもう一度試すか、上のメールでご連絡ください。", small, 4f);
             }
 
+            if (!AccountDeletion.InAppAvailable) y += Line(LocPendingReview.DeletionByMailOnly, new GUIStyle(body) { fontStyle = FontStyle.Bold }, 4f); // 2026-10-26: production は未配置
             float bw = (full - 12f) / 2f, by = Mathf.Max(y + 6f, p.yMax - 24f - 52f);
-            bool canDelete = phase == AccountDeletion.Phase.Ready || phase == AccountDeletion.Phase.Failed && hasId;
+            bool canDelete = AccountDeletion.InAppAvailable && (phase == AccountDeletion.Phase.Ready || phase == AccountDeletion.Phase.Failed && hasId);
             string label = phase == AccountDeletion.Phase.Deleting ? Loc.T("削除しています…") : phase == AccountDeletion.Phase.Done ? Loc.T("削除しました") : Loc.T("削除する");
             if (UiKit.Button(new Rect(x, by, bw, 52f), label, 18f, true, false, canDelete) && canDelete) AccountDeletion.AskConfirm();
             if (UiKit.Button(new Rect(x + bw + 12f, by, bw, 52f), "閉じる", 18f, false, false, !busy) && !busy) Close();

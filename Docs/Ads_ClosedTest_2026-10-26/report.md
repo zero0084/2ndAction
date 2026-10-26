@@ -21,7 +21,7 @@
 
 | 種類 | ファイル | 版 | 広告の設定 | 署名 |
 |---|---|---|---|---|
-| クローズドテスト用 製品版(確認用 APK) | `Unity/2ndAction/Builds/ClosedTest/OneMoreMile_ct380_debugsigned.apk` + `OneMoreMile_ct380_build.txt` | versionCode 380 / 2026-10-26 1919 | **テスト広告**(`adsProfile=test`、Google のテスト用ユニット、アプリ ID は実際の ID) | デバッグ鍵(**Google Play には上げられない**) |
+| クローズドテスト用 製品版(確認用 APK) | **`Unity/2ndAction/Builds/ClosedTest/OneMoreMile_ct384_debugsigned.apk`** + `OneMoreMile_ct384_build.txt`(380 の後の修正と著作権・案内の追加を含む最新) | versionCode 384 / 2026-10-26 2111 | **テスト広告**(`adsProfile=test`、Google のテスト用ユニット、アプリ ID は実際の ID) | デバッグ鍵(**Google Play には上げられない**) |
 | 開発版 APK(試験用) | `Unity/2ndAction/Builds/Android/2ndAction.apk` | 381 | テスト広告 | デバッグ鍵 |
 | **AAB(Play へ上げる物)** | **未作成** | — | — | **アップロード鍵が無いため**(4章) |
 
@@ -50,7 +50,7 @@
 | 通信を戻す | 64秒後に報酬広告がまた用意できた |
 | 欧州(EEA)の同意(開発版の検証用の設定で EEA 扱い、エミュレーターだけ) | **公開済みの同意メッセージが実際のアプリ ID で表示された**(「Welcome to One More Mile」、Consent / Do not consent / Manage options)。「Do not consent」→ 広告は要求可能(制限付き)、設定に「Ad Privacy → Privacy Settings」が出る → 押すと同意の画面がまた開き、同意へ変更できた |
 | 製品版 380 | 起動 → テスト広告の設定・AdMob 初期化 → ホームの「広告で1回引く」で **「Test Ad」表示の報酬広告** → 報酬 → カード。パスの画面は「購入の準備中」。DEBUG ボタン・開発版の透かしなし |
-| 自動試験(開発版 381、`-qaAdSdk`) | (再実行の結果は5章) |
+| 自動試験(開発版 381、`-qaAdSdk`) | 上の各項目は通過。失敗 1件: 「MILE 2倍を受け取った後に、同じランでもう一度呼ぶ」と**もう1本広告が出た**(報酬は正しく無視され MILE は増えない。画面のボタンは受け取り後に無効なので、プレイヤーの操作では起きない)。関数の中でも受け取り済みなら広告を出さないように直した → 開発版 383 で再実行し **失敗 0**(全項目通過) |
 
 **本物の SDK で確かめられなかった物**
 - **報酬の前に閉じる**: Google のテスト用の報酬広告は約5秒で報酬が出るため、それより前に閉じる操作が間に合わなかった(戻るキーの時点で「Reward granted」)。報酬の前に閉じた時に何も付かないことは、模擬の試験(Windows)で確認済み。

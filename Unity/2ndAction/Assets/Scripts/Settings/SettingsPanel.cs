@@ -137,7 +137,7 @@ public partial class SettingsPanel : MonoBehaviour
         else if (wide)
         {
             float colW = (view.width - 30f) * 0.5f;
-            contentH = Mathf.Max(drawnH, Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureScreen() + 16f + MeasureProfile() + MeasureTransfer() + MeasureNoAds(), MeasureDisplay() + MeasureControls() + 16f + MeasurePrivacy()));
+            contentH = Mathf.Max(drawnH, Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureScreen() + 16f + MeasureProfile() + MeasureTransfer() + MeasureNoAds(), MeasureDisplay() + MeasureControls() + 16f + MeasurePrivacy() + MeasureAbout()));
             BeginScroll(view, contentH);
             float ya = DrawAudio(0f, 0f, colW, interactive);
             ya = DrawLanguage(0f, ya + 16f, colW, interactive);
@@ -148,12 +148,13 @@ public partial class SettingsPanel : MonoBehaviour
             float y2 = DrawDisplay(colW + 30f, 0f, colW, interactive);
             y2 = DrawControls(colW + 30f, y2 + 16f, colW, interactive);
             y2 = DrawPrivacy(colW + 30f, y2, colW, interactive);
+            y2 = DrawAbout(colW + 30f, y2, colW, interactive);
             EndScroll(view, contentH);
             if (Event.current.type == EventType.Repaint) drawnH = Mathf.Max(ya, y2) + 12f;
         }
         else
         {
-            contentH = Mathf.Max(drawnH, MeasureAudio() + MeasureLanguage() + MeasureScreen() + MeasureDisplay() + MeasureControls() + MeasureProfile() + MeasureTransfer() + MeasureNoAds() + MeasurePrivacy() + 64f);
+            contentH = Mathf.Max(drawnH, MeasureAudio() + MeasureLanguage() + MeasureScreen() + MeasureDisplay() + MeasureControls() + MeasureProfile() + MeasureTransfer() + MeasureNoAds() + MeasurePrivacy() + MeasureAbout() + 64f);
             BeginScroll(view, contentH);
             float y = DrawAudio(0f, 0f, view.width, interactive);
             y = DrawLanguage(0f, y + 16f, view.width, interactive);
@@ -164,6 +165,7 @@ public partial class SettingsPanel : MonoBehaviour
             y = DrawTransfer(0f, y, view.width, interactive);
             y = DrawNoAds(0f, y, view.width, interactive);
             y = DrawPrivacy(0f, y, view.width, interactive);
+            y = DrawAbout(0f, y, view.width, interactive);
             EndScroll(view, contentH);
             if (Event.current.type == EventType.Repaint) drawnH = y + 12f;
         }
@@ -712,7 +714,7 @@ public partial class SettingsPanel : MonoBehaviour
 
     // データとプライバシー(2026-10-19、Google Play の公開準備): プライバシーポリシー(ブラウザで開く)/ オンラインのデータの削除
     bool policyTried;
-    float MeasurePrivacy() => 16f + HeadH + 4f + RowH * 3f + 22f * (policyTried ? 3f : 1f);
+    float MeasurePrivacy() => 16f + HeadH + 4f + RowH * 2f + 22f * (policyTried ? 3f : 1f);
     float DrawPrivacy(float x, float y, float w, bool interactive)
     {
         y = Head(x, y + 16f, w, "データとプライバシー");
@@ -729,11 +731,48 @@ public partial class SettingsPanel : MonoBehaviour
             if (UiKit.Button(new Rect(x + w - 160f, y, 160f, 34f), "URLをコピー", 15f, false, false) && interactive) PrivacyLinks.Copy(PrivacyLinks.PolicyUrl);
             y += 40f;
         }
-        y = Note(x, y, w, "ランキングの記録など、サーバー上のデータを削除できます(この端末のカードや進行は消えません)。");
-        // 2026-10-23: 使っている素材の著作権表示とライセンス(MS Basic など、原文のまま)。削除の説明の後に置く(説明がこの行の物に見えないように)
+        y = Note(x, y, w, AccountDeletion.InAppAvailable ? "ランキングの記録など、サーバー上のデータを削除できます(この端末のカードや進行は消えません)。" : LocPendingReview.DeletionNoteByMail); // 2026-10-26: production は未配置
+        // 2026-10-26: 「ライセンス」の行は「このゲームについて」へ移した(同じ画面を開く。重複して作らない)
+        return y;
+    }
+
+    // このゲームについて(2026-10-26 公開前の案内の整備): バージョン(ビルドの情報から)/ 制作クレジット / ライセンス / お問い合わせ
+    float copiedUntil = -1f; string copiedWhat = "";
+    float MeasureAbout() => 16f + HeadH + 4f + RowH * 4f + 22f * 4f + 44f;
+    float DrawAbout(float x, float y, float w, bool interactive)
+    {
+        y = Head(x, y + 16f, w, LocPendingReview.AboutTitle);
+        // バージョン(問い合わせの時に確かめやすいように、コピーもできる)
+        RowLabel(x, y, LocPendingReview.VersionLabel);
+        float cw = 120f;
+        // 狭い列(横画面の2列)でも版番号まで見えるよう、入らない時は字を小さくする
+        var vst = new GUIStyle(UiKit.Label(17f, TextAnchor.MiddleLeft, false, Color.white));
+        float vw = w - LabelW - cw - 8f;
+        while (vst.fontSize > 11 && vst.CalcSize(new GUIContent(AppInfo.VersionLabel)).x > vw) vst.fontSize--;
+        GUI.Label(new Rect(x + LabelW, y, vw, RowH), AppInfo.VersionLabel, vst);
+        if (UiKit.Button(new Rect(x + w - cw, y + 8f, cw, RowH - 16f), LocPendingReview.CopyButton, 16f, false, false) && interactive) { PrivacyLinks.Copy(AppInfo.VersionLabel); copiedWhat = "version"; copiedUntil = Time.unscaledTime + 2f; }
+        y += RowH;
+        if (copiedWhat == "version" && Time.unscaledTime < copiedUntil) y = Note(x, y, w, LocPendingReview.Copied);
+        // 制作クレジット / ライセンス(同じ画面を2つの内容で使う)
+        RowLabel(x, y, LocPendingReview.CreditsTitle);
+        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), LocPendingReview.LicensesOpen, 19f, false, true) && interactive) LicensesUi.OpenCredits();
+        y += RowH;
+        // 2026-10-23: 使っている素材の著作権表示とライセンス(MS Basic など、原文のまま)
         RowLabel(x, y, LocPendingReview.LicensesTitle);
         if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), LocPendingReview.LicensesOpen, 19f, false, true) && interactive) LicensesUi.Open();
-        return y + RowH;
+        y += RowH;
+        // お問い合わせ(メールアプリを開く。件名・バージョン・利用環境は下書きに入る)
+        RowLabel(x, y, LocPendingReview.ContactTitle);
+        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), LocPendingReview.ContactOpen, 19f, false, true) && interactive) AppInfo.OpenContactMail();
+        y += RowH;
+        y = Note(x, y, w, LocPendingReview.ContactHint);
+        y = Note(x, y, w, LocPendingReview.ContactNote.Replace("{0}", PrivacyLinks.ContactEmail)); // 訳は Loc の型(…{0})で当たる
+        if (UiKit.Button(new Rect(x + w - 200f, y + 2f, 200f, 34f), LocPendingReview.CopyAddress, 15f, false, false) && interactive) { PrivacyLinks.Copy(PrivacyLinks.ContactEmail); copiedWhat = "mail"; copiedUntil = Time.unscaledTime + 2f; }
+        y += 40f;
+        if (copiedWhat == "mail" && Time.unscaledTime < copiedUntil) y = Note(x, y, w, LocPendingReview.Copied);
+        // 著作権の表記(ゲーム自身の ©。素材のライセンスとは別)
+        GUI.Label(new Rect(x, y + 4f, w, 24f), AppInfo.Copyright, UiKit.Label(14f, TextAnchor.MiddleLeft, false, new Color(0.75f, 0.8f, 0.9f)));
+        return y + 28f;
     }
 
     // 遊び方(2026-10-07): 操作の練習をもう一度。ホームでだけ始められる(終わるとホームへ戻る)

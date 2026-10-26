@@ -1,0 +1,91 @@
+﻿it	10135	Informazioni sul gioco
+it	10136	Versione
+it	10137	Copia
+it	10138	Crediti
+it	10139	Contatti
+it	10140	Invia e-mail
+it	10141	Se l'app di posta elettronica non si apre, invia un'e-mail a questo indirizzo: {0}
+it	10142	Copia indirizzo
+it	10143	Copiato
+it	10144	Le persone che hanno creato questo gioco e le risorse utilizzate.
+it	10145	L'oggetto, la versione e le informazioni sul sistema vengono inseriti automaticamente.
+it	10146	La funzione di eliminazione dei dati dall'app è in preparazione. Per richiedere l'eliminazione, invia un'e-mail all'indirizzo indicato sopra, specificando il tuo ID giocatore.
+it	10147	Puoi richiedere via e-mail l'eliminazione dei dati sul server, come i record delle classifiche (le carte e i progressi su questo dispositivo non verranno eliminati).
+ru	10135	Об игре
+ru	10136	Версия
+ru	10137	Копировать
+ru	10138	Авторы игры
+ru	10139	Контакты
+ru	10140	Отправить письмо
+ru	10141	Если почтовое приложение не открывается, отправьте письмо на адрес: {0}
+ru	10142	Копировать адрес
+ru	10143	Скопировано
+ru	10144	Люди, создавшие эту игру, и использованные материалы.
+ru	10145	Тема письма, версия игры и сведения о системе заполняются автоматически.
+ru	10146	Функция удаления данных через приложение пока разрабатывается. Чтобы запросить удаление, отправьте письмо на указанный выше адрес, указав свой ID игрока.
+ru	10147	Вы можете запросить по электронной почте удаление данных с сервера, например записей в таблице лидеров (карты и игровой прогресс на этом устройстве не будут удалены).
+pl	10135	O grze
+pl	10136	Wersja
+pl	10137	Kopiuj
+pl	10138	Twórcy gry
+pl	10139	Kontakt
+pl	10140	Wyślij e-mail
+pl	10141	Jeśli aplikacja pocztowa się nie otwiera, wyślij wiadomość na adres: {0}
+pl	10142	Kopiuj adres
+pl	10143	Skopiowano
+pl	10144	Osoby, które stworzyły tę grę, oraz wykorzystane zasoby.
+pl	10145	Temat wiadomości, wersja gry i informacje o środowisku systemowym są uzupełniane automatycznie.
+pl	10146	Funkcja usuwania danych z poziomu aplikacji jest w przygotowaniu. Aby poprosić o usunięcie danych, wyślij e-mail na powyższy adres, podając swój identyfikator gracza.
+pl	10147	Możesz poprosić e-mailem o usunięcie danych z serwera, takich jak wyniki w rankingu (karty i postępy w grze na tym urządzeniu nie zostaną usunięte).
+tr	10135	Oyun Hakkında
+tr	10136	Sürüm
+tr	10137	Kopyala
+tr	10138	Emeği Geçenler
+tr	10139	İletişim
+tr	10140	E-posta Gönder
+tr	10141	E-posta uygulamanız açılmıyorsa lütfen şu adrese e-posta gönderin: {0}
+tr	10142	Adresi Kopyala
+tr	10143	Kopyalandı
+tr	10144	Bu oyunu geliştiren kişiler ve kullanılan kaynaklar.
+tr	10145	E-posta konusu, sürüm ve sistem ortamı bilgileri otomatik olarak doldurulur.
+tr	10146	Uygulama içinden veri silme özelliği henüz hazırlık aşamasındadır. Verilerinizin silinmesini istiyorsanız oyuncu kimliğinizi belirterek yukarıdaki adrese e-posta gönderin.
+tr	10147	Liderlik tablosu kayıtları gibi sunucuda saklanan verilerin silinmesini e-posta yoluyla talep edebilirsiniz (bu cihazdaki kartlarınız ve oyun ilerlemeniz silinmez).
+uk	10135	Про гру
+uk	10136	Версія
+uk	10137	Копіювати
+uk	10138	Автори гри
+uk	10139	Контакти
+uk	10140	Надіслати лист
+uk	10141	Якщо поштовий застосунок не відкривається, надішліть листа на адресу: {0}
+uk	10142	Копіювати адресу
+uk	10143	Скопійовано
+uk	10144	Люди, які створили цю гру, та використані матеріали.
+uk	10145	Тема листа, версія гри та відомості про систему заповнюються автоматично.
+uk	10146	Функція видалення даних через застосунок ще розробляється. Щоб надіслати запит на видалення, напишіть на вказану вище адресу електронної пошти, зазначивши свій ID гравця.
+uk	10147	Ви можете надіслати електронною поштою запит на видалення даних із сервера, наприклад записів у таблиці лідерів (картки та ігровий прогрес на цьому пристрої не буде видалено).
+cs	10135	O hře
+cs	10136	Verze
+cs	10137	Kopírovat
+cs	10138	Tvůrci hry
+cs	10139	Kontakt
+cs	10140	Odeslat e-mail
+cs	10141	Pokud se e-mailová aplikace neotevře, pošlete zprávu na tuto adresu: {0}
+cs	10142	Kopírovat adresu
+cs	10143	Zkopírováno
+cs	10144	Lidé, kteří vytvořili tuto hru, a použité materiály.
+cs	10145	Předmět e-mailu, verze hry a informace o systémovém prostředí se vyplní automaticky.
+cs	10146	Funkce mazání dat přímo v aplikaci se připravuje. Pokud chcete požádat o smazání dat, pošlete e-mail na výše uvedenou adresu a uveďte své ID hráče.
+cs	10147	O smazání dat na serveru, například záznamů v žebříčku, můžete požádat e-mailem (karty a postup ve hře na tomto zařízení zůstanou zachovány).
+ro	10135	Despre joc
+ro	10136	Versiune
+ro	10137	Copiază
+ro	10138	Credite
+ro	10139	Contact
+ro	10140	Trimite e-mail
+ro	10141	Dacă aplicația de e-mail nu se deschide, trimite un mesaj la adresa: {0}
+ro	10142	Copiază adresa
+ro	10143	Copiat
+ro	10144	Persoanele care au creat acest joc și resursele utilizate.
+ro	10145	Subiectul, versiunea jocului și informațiile despre sistem sunt completate automat.
+ro	10146	Funcția de ștergere a datelor din aplicație este încă în pregătire. Pentru a solicita ștergerea, trimite un e-mail la adresa de mai sus și menționează ID-ul tău de jucător.
+ro	10147	Poți solicita prin e-mail ștergerea datelor de pe server, cum ar fi înregistrările din clasament (cărțile și progresul din joc de pe acest dispozitiv nu vor fi șterse).

@@ -4291,6 +4291,14 @@ public partial class GameManager : MonoBehaviour
             UiBackdrop.Draw(buildRect, 0.35f);
             LocGUI.Label(buildRect, buildText, buildStyle);
         }
+        // 著作権の表記(2026-10-26): タイトル(ホーム)の画面の下の中央に控えめに。ランの中・ほかの画面を開いている間は出さない
+        if (!HasStarted && !AnyOverlayOpen)
+        {
+            float cs = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);
+            var copyStyle = new GUIStyle(GUI.skin.label) { fontSize = Mathf.RoundToInt(13f * cs), alignment = TextAnchor.LowerCenter, normal = { textColor = new Color(1f, 1f, 1f, 0.55f) } };
+            float chh = 22f * cs, cww = 260f * cs;
+            GUI.Label(new Rect((Screen.width - cww) * 0.5f, Screen.height - chh - 4f * cs - StableSafeArea.Rect.y, cww, chh), AppInfo.Copyright, copyStyle);
+        }
 
         // Distance/level/EXP/BEST/hearts are the in-run HUD - meaningless
         // (and, per feedback, just visual clutter) on the title screen or

@@ -1,0 +1,104 @@
+﻿en	10135	About This Game
+en	10136	Version
+en	10137	Copy
+en	10138	Credits
+en	10139	Contact
+en	10140	Send Email
+en	10141	If your email app doesn't open, please send an email to: {0}
+en	10142	Copy Address
+en	10143	Copied
+en	10144	The people who made this game and the assets used.
+en	10145	The subject, version, and system information fields are filled in automatically.
+en	10146	In-app data deletion is coming soon. To request deletion, please email the address above with your Player ID.
+en	10147	You can request deletion of server data, such as leaderboard records, by email (cards and progress on this device will not be deleted).
+zh-Hans	10135	关于本游戏
+zh-Hans	10136	版本
+zh-Hans	10137	复制
+zh-Hans	10138	制作人员名单
+zh-Hans	10139	联系我们
+zh-Hans	10140	发送邮件
+zh-Hans	10141	如果无法打开邮件应用，请发送邮件至以下地址：{0}
+zh-Hans	10142	复制邮箱地址
+zh-Hans	10143	已复制
+zh-Hans	10144	本游戏的制作人员及所使用的素材。
+zh-Hans	10145	邮件主题、版本和运行环境信息将自动填写。
+zh-Hans	10146	应用内数据删除功能正在开发中。如需删除数据，请在邮件中注明玩家ID，并发送至上方邮箱地址。
+zh-Hans	10147	如需删除排行榜记录等服务器上的数据，可通过邮件申请（不会删除此设备上的卡牌和游戏进度）。
+zh-Hant	10135	關於本遊戲
+zh-Hant	10136	版本
+zh-Hant	10137	複製
+zh-Hant	10138	製作人員名單
+zh-Hant	10139	聯絡我們
+zh-Hant	10140	傳送電子郵件
+zh-Hant	10141	如果無法開啟郵件應用程式，請寄送電子郵件至以下地址：{0}
+zh-Hant	10142	複製電子郵件地址
+zh-Hant	10143	已複製
+zh-Hant	10144	本遊戲的製作人員及使用的素材。
+zh-Hant	10145	郵件主旨、版本及使用環境資訊將自動填入。
+zh-Hant	10146	應用程式內的資料刪除功能仍在準備中。如需刪除資料，請在電子郵件中註明玩家ID，並寄至上方地址。
+zh-Hant	10147	如需刪除排行榜紀錄等伺服器上的資料，可透過電子郵件提出申請（不會刪除此裝置上的卡牌及遊戲進度）。
+ko	10135	게임 정보
+ko	10136	버전
+ko	10137	복사
+ko	10138	제작진
+ko	10139	문의하기
+ko	10140	이메일 보내기
+ko	10141	이메일 앱이 열리지 않으면 다음 주소로 보내 주세요: {0}
+ko	10142	주소 복사
+ko	10143	복사 완료
+ko	10144	이 게임을 만든 사람들과 사용된 리소스를 소개합니다.
+ko	10145	이메일 제목과 버전 및 사용 환경 정보는 자동으로 입력됩니다.
+ko	10146	앱 내 데이터 삭제 기능은 준비 중입니다. 삭제를 원하시면 플레이어 ID를 적어 위 이메일 주소로 요청해 주세요.
+ko	10147	랭킹 기록 등 서버에 저장된 데이터는 이메일로 삭제를 요청할 수 있습니다(이 기기의 카드와 게임 진행 상황은 삭제되지 않습니다).
+fr	10135	À propos du jeu
+fr	10136	Version
+fr	10137	Copier
+fr	10138	Crédits
+fr	10139	Contact
+fr	10140	Envoyer un e-mail
+fr	10141	Si votre application de messagerie ne s'ouvre pas, envoyez un e-mail à l'adresse suivante : {0}
+fr	10142	Copier l'adresse
+fr	10143	Copié
+fr	10144	Les personnes ayant créé ce jeu et les ressources utilisées.
+fr	10145	L'objet, la version et les informations sur votre environnement sont renseignés automatiquement.
+fr	10146	La suppression des données depuis l'application est en cours de préparation. Pour demander leur suppression, envoyez un e-mail à l'adresse ci-dessus en indiquant votre identifiant de joueur.
+fr	10147	Vous pouvez demander par e-mail la suppression des données stockées sur le serveur, comme les scores du classement (vos cartes et votre progression sur cet appareil ne seront pas supprimées).
+de	10135	Über dieses Spiel
+de	10136	Version
+de	10137	Kopieren
+de	10138	Mitwirkende
+de	10139	Kontakt
+de	10140	E-Mail senden
+de	10141	Falls sich deine E-Mail-App nicht öffnet, sende bitte eine E-Mail an: {0}
+de	10142	Adresse kopieren
+de	10143	Kopiert
+de	10144	Die Personen, die dieses Spiel entwickelt haben, und die verwendeten Ressourcen.
+de	10145	Betreff, Version und Angaben zur Systemumgebung werden automatisch eingetragen.
+de	10146	Die Datenlöschung direkt in der App ist noch in Vorbereitung. Wenn du deine Daten löschen lassen möchtest, sende bitte eine E-Mail mit deiner Spieler-ID an die oben genannte Adresse.
+de	10147	Du kannst die Löschung von Serverdaten, etwa Ranglisteneinträgen, per E-Mail beantragen (deine Karten und dein Spielfortschritt auf diesem Gerät bleiben erhalten).
+es	10135	Acerca del juego
+es	10136	Versión
+es	10137	Copiar
+es	10138	Créditos
+es	10139	Contacto
+es	10140	Enviar correo
+es	10141	Si no se abre tu aplicación de correo, envía un mensaje a esta dirección: {0}
+es	10142	Copiar dirección
+es	10143	Copiado
+es	10144	Las personas que crearon este juego y los recursos utilizados.
+es	10145	El asunto, la versión y los datos del entorno de uso se rellenan automáticamente.
+es	10146	La eliminación de datos desde la aplicación aún está en preparación. Si deseas solicitarla, envía un correo a la dirección indicada arriba e incluye tu ID de jugador.
+es	10147	Puedes solicitar por correo la eliminación de datos del servidor, como los registros de clasificación (no se borrarán tus cartas ni tu progreso en este dispositivo).
+pt-BR	10135	Sobre o jogo
+pt-BR	10136	Versão
+pt-BR	10137	Copiar
+pt-BR	10138	Créditos
+pt-BR	10139	Contato
+pt-BR	10140	Enviar e-mail
+pt-BR	10141	Se o aplicativo de e-mail não abrir, envie uma mensagem para: {0}
+pt-BR	10142	Copiar endereço
+pt-BR	10143	Copiado
+pt-BR	10144	As pessoas que criaram este jogo e os recursos utilizados.
+pt-BR	10145	O assunto, a versão e as informações do ambiente de uso são preenchidos automaticamente.
+pt-BR	10146	A exclusão de dados pelo aplicativo ainda está em desenvolvimento. Para solicitar a exclusão, envie um e-mail para o endereço acima informando seu ID de jogador.
+pt-BR	10147	Você pode solicitar por e-mail a exclusão de dados do servidor, como registros de classificação (suas cartas e seu progresso neste dispositivo não serão apagados).

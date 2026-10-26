@@ -1,0 +1,91 @@
+﻿id	10135	Tentang Game Ini
+id	10136	Versi
+id	10137	Salin
+id	10138	Kredit
+id	10139	Kontak
+id	10140	Kirim Email
+id	10141	Jika aplikasi email tidak terbuka, silakan kirim email ke alamat berikut: {0}
+id	10142	Salin Alamat
+id	10143	Disalin
+id	10144	Orang-orang yang membuat game ini dan aset yang digunakan.
+id	10145	Subjek email, versi game, dan informasi lingkungan sistem akan terisi secara otomatis.
+id	10146	Fitur penghapusan data dari dalam aplikasi masih dalam persiapan. Untuk meminta penghapusan data, silakan kirim email ke alamat di atas dengan mencantumkan ID pemain Anda.
+id	10147	Anda dapat meminta penghapusan data di server, seperti catatan papan peringkat, melalui email (kartu dan progres game di perangkat ini tidak akan dihapus).
+ms	10135	Tentang Permainan Ini
+ms	10136	Versi
+ms	10137	Salin
+ms	10138	Kredit
+ms	10139	Hubungi Kami
+ms	10140	Hantar E-mel
+ms	10141	Jika aplikasi e-mel tidak dibuka, sila hantar e-mel ke alamat berikut: {0}
+ms	10142	Salin Alamat
+ms	10143	Disalin
+ms	10144	Individu yang menghasilkan permainan ini dan aset yang digunakan.
+ms	10145	Subjek e-mel, versi permainan dan maklumat persekitaran sistem akan diisi secara automatik.
+ms	10146	Fungsi pemadaman data dari dalam aplikasi masih dalam persediaan. Untuk meminta pemadaman data, sila hantar e-mel ke alamat di atas dengan menyertakan ID pemain anda.
+ms	10147	Anda boleh meminta pemadaman data pada pelayan, seperti rekod papan pendahulu, melalui e-mel (kad dan kemajuan permainan pada peranti ini tidak akan dipadamkan).
+fil	10135	Tungkol sa Larong Ito
+fil	10136	Bersyon
+fil	10137	Kopyahin
+fil	10138	Mga Kredito
+fil	10139	Makipag-ugnayan
+fil	10140	Magpadala ng Email
+fil	10141	Kung hindi bumukas ang email app, mangyaring magpadala ng email sa sumusunod na address: {0}
+fil	10142	Kopyahin ang Address
+fil	10143	Nakopya na
+fil	10144	Ang mga taong gumawa ng larong ito at ang mga asset na ginamit.
+fil	10145	Awtomatikong pupunan ang subject ng email, bersyon ng laro, at impormasyon tungkol sa system.
+fil	10146	Inihahanda pa ang feature para mag-delete ng data sa loob ng app. Para humiling ng pagbura ng data, magpadala ng email sa address sa itaas at isama ang iyong Player ID.
+fil	10147	Maaari kang humiling sa pamamagitan ng email na burahin ang data sa server, gaya ng mga rekord sa leaderboard (hindi mabubura ang iyong mga card at progreso sa laro sa device na ito).
+km	10135	អំពីហ្គេមនេះ
+km	10136	កំណែ
+km	10137	ចម្លង
+km	10138	ក្រុមអ្នកបង្កើត
+km	10139	ទំនាក់ទំនង
+km	10140	ផ្ញើអ៊ីមែល
+km	10141	ប្រសិនបើកម្មវិធីអ៊ីមែលមិនបើក សូមផ្ញើអ៊ីមែលទៅអាសយដ្ឋានខាងក្រោម៖ {0}
+km	10142	ចម្លងអាសយដ្ឋាន
+km	10143	បានចម្លង
+km	10144	អ្នកដែលបានបង្កើតហ្គេមនេះ និងធនធានដែលបានប្រើប្រាស់។
+km	10145	ប្រធានបទអ៊ីមែល កំណែហ្គេម និងព័ត៌មានអំពីប្រព័ន្ធនឹងត្រូវបានបំពេញដោយស្វ័យប្រវត្តិ។
+km	10146	មុខងារលុបទិន្នន័យពីក្នុងកម្មវិធីកំពុងត្រូវបានរៀបចំ។ ប្រសិនបើអ្នកចង់ស្នើសុំលុបទិន្នន័យ សូមផ្ញើអ៊ីមែលទៅអាសយដ្ឋានខាងលើ ដោយបញ្ជាក់លេខសម្គាល់អ្នកលេងរបស់អ្នក។
+km	10147	អ្នកអាចស្នើសុំលុបទិន្នន័យនៅលើម៉ាស៊ីនមេ ដូចជាកំណត់ត្រាក្នុងតារាងចំណាត់ថ្នាក់ តាមរយៈអ៊ីមែល (កាត និងវឌ្ឍនភាពហ្គេមនៅលើឧបករណ៍នេះនឹងមិនត្រូវបានលុបទេ)។
+lo	10135	ກ່ຽວກັບເກມນີ້
+lo	10136	ເວີຊັນ
+lo	10137	ຄັດລອກ
+lo	10138	ຜູ້ສ້າງເກມ
+lo	10139	ຕິດຕໍ່
+lo	10140	ສົ່ງອີເມວ
+lo	10141	ຖ້າແອັບອີເມວບໍ່ເປີດ ກະລຸນາສົ່ງອີເມວໄປທີ່ຢູ່ຕໍ່ໄປນີ້: {0}
+lo	10142	ຄັດລອກທີ່ຢູ່
+lo	10143	ຄັດລອກແລ້ວ
+lo	10144	ຜູ້ທີ່ສ້າງເກມນີ້ ແລະ ຊັບພະຍາກອນທີ່ນຳໃຊ້.
+lo	10145	ຫົວຂໍ້ອີເມວ ເວີຊັນເກມ ແລະ ຂໍ້ມູນລະບົບຈະຖືກຕື່ມໃຫ້ອັດຕະໂນມັດ.
+lo	10146	ຟັງຊັນລຶບຂໍ້ມູນພາຍໃນແອັບຍັງຢູ່ໃນຂັ້ນຕອນການກະກຽມ. ຫາກຕ້ອງການຂໍລຶບຂໍ້ມູນ ກະລຸນາສົ່ງອີເມວໄປທີ່ຢູ່ຂ້າງເທິງ ພ້ອມລະບຸ ID ຜູ້ຫຼິ້ນຂອງທ່ານ.
+lo	10147	ທ່ານສາມາດຂໍລຶບຂໍ້ມູນໃນເຊີບເວີ ເຊັ່ນ ບັນທຶກຕາຕະລາງຈັດອັນດັບ ຜ່ານອີເມວໄດ້ (ບັດ ແລະ ຄວາມຄືບໜ້າຂອງເກມໃນອຸປະກອນນີ້ຈະບໍ່ຖືກລຶບ).
+my	10135	ဤဂိမ်းအကြောင်း
+my	10136	ဗားရှင်း
+my	10137	ကူးယူရန်
+my	10138	ဖန်တီးသူများ
+my	10139	ဆက်သွယ်ရန်
+my	10140	အီးမေးလ်ပို့ရန်
+my	10141	အီးမေးလ်အက်ပ် မပွင့်ပါက အောက်ပါလိပ်စာသို့ အီးမေးလ်ပို့ပါ: {0}
+my	10142	လိပ်စာကူးယူရန်
+my	10143	ကူးယူပြီးပါပြီ
+my	10144	ဤဂိမ်းကို ဖန်တီးခဲ့သူများနှင့် အသုံးပြုထားသော အရင်းအမြစ်များ။
+my	10145	အီးမေးလ်ခေါင်းစဉ်၊ ဂိမ်းဗားရှင်းနှင့် စနစ်ပတ်ဝန်းကျင်ဆိုင်ရာ အချက်အလက်များကို အလိုအလျောက် ဖြည့်သွင်းပေးပါမည်။
+my	10146	အက်ပ်အတွင်းမှ ဒေတာဖျက်သိမ်းနိုင်သည့် လုပ်ဆောင်ချက်ကို ပြင်ဆင်နေဆဲဖြစ်ပါသည်။ ဒေတာဖျက်သိမ်းရန် တောင်းဆိုလိုပါက သင်၏ Player ID ကို ဖော်ပြပြီး အထက်ပါလိပ်စာသို့ အီးမေးလ်ပို့ပါ။
+my	10147	အဆင့်သတ်မှတ်ချက်ဇယားမှတ်တမ်းများကဲ့သို့ ဆာဗာပေါ်ရှိ ဒေတာများကို ဖျက်သိမ်းရန် အီးမေးလ်ဖြင့် တောင်းဆိုနိုင်ပါသည် (ဤစက်ပေါ်ရှိ ကတ်များနှင့် ဂိမ်းတိုးတက်မှုများကို ဖျက်သိမ်းမည်မဟုတ်ပါ)။
+sw	10135	Kuhusu Mchezo Huu
+sw	10136	Toleo
+sw	10137	Nakili
+sw	10138	Waliounda Mchezo
+sw	10139	Mawasiliano
+sw	10140	Tuma Barua Pepe
+sw	10141	Ikiwa programu ya barua pepe haifunguki, tafadhali tuma barua pepe kwa anwani ifuatayo: {0}
+sw	10142	Nakili Anwani
+sw	10143	Imenakiliwa
+sw	10144	Watu waliounda mchezo huu na rasilimali zilizotumika.
+sw	10145	Mada ya barua pepe, toleo la mchezo na taarifa za mfumo hujazwa kiotomatiki.
+sw	10146	Kipengele cha kufuta data ndani ya programu bado kinaandaliwa. Ili kuomba data ifutwe, tafadhali tuma barua pepe kwa anwani iliyo hapo juu ukitaja kitambulisho chako cha mchezaji.
+sw	10147	Unaweza kuomba data iliyo kwenye seva, kama vile rekodi za jedwali la wanaoongoza, ifutwe kupitia barua pepe (kadi zako na maendeleo ya mchezo kwenye kifaa hiki hayatafutwa).

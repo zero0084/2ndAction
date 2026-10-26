@@ -1,0 +1,13 @@
+10135	ui	Settings/SettingsPanel.cs このゲームについて 2026-10-26	このゲームについて
+10136	ui	Settings/SettingsPanel.cs このゲームについて 2026-10-26	バージョン
+10137	ui	Settings/SettingsPanel.cs このゲームについて 2026-10-26 (ボタン)	コピー
+10138	ui	Settings/SettingsPanel.cs・LicensesUi.cs このゲームについて 2026-10-26	制作クレジット
+10139	ui	Settings/SettingsPanel.cs このゲームについて 2026-10-26	お問い合わせ
+10140	ui	Settings/SettingsPanel.cs このゲームについて 2026-10-26 (ボタン)	メールを送る
+10141	ui	Settings/SettingsPanel.cs このゲームについて 2026-10-26 {0}=メールアドレス	メールアプリが開かない時は、次のアドレスへ送ってください: {0}
+10142	ui	Settings/SettingsPanel.cs このゲームについて 2026-10-26 (ボタン)	アドレスをコピー
+10143	ui	Settings/SettingsPanel.cs このゲームについて 2026-10-26	コピーしました
+10144	ui	Settings/LicensesUi.cs 制作クレジット 2026-10-26	このゲームを作った人と、使っている素材です。
+10145	ui	Settings/SettingsPanel.cs このゲームについて 2026-10-26	件名と、バージョン・利用環境の欄は自動で入ります。
+10146	ui	Settings/DataDeletionUi.cs データの削除(production 未配置の間) 2026-10-26	アプリの中からの削除は準備中です。削除をご希望の時は、プレイヤーIDを書いて上のアドレスへメールでご依頼ください。
+10147	ui	Settings/SettingsPanel.cs データとプライバシー(production 未配置の間) 2026-10-26	ランキングの記録など、サーバー上のデータの削除は、メールでご依頼いただけます(この端末のカードや進行は消えません)。
