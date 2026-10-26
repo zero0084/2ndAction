@@ -89,7 +89,7 @@ public static class Leaderboard
         bool better = old == null || e.meters > old.meters;
         if (better) { verified.items.RemoveAll(x => SameBoard(x, e)); verified.items.Add(e); Store(VerifiedKey, verified); }
         Log($"verified run {e.stageId} {e.meters}m{(better ? " (new verified best)" : "")}");
-        if (Joined && better) Enqueue(e);
+        if (Joined && better) { Enqueue(e); nextAutoFlush = 0f; } // 2026-10-27: ホームへ戻ったらすぐ送る(30秒の間隔を待たない)
     }
 
     public static Entry VerifiedBest(string stageId) => Load(VerifiedKey).items.Find(x => x.stageId == stageId && !WasSupport(x) && x.env == UgsEnvironment.Name);
@@ -168,6 +168,9 @@ public static class Leaderboard
     }
 
     public static bool Sending { get; private set; }
+    // 2026-10-27: サーバーが返事をした送信の数(受け付けた/短い/重複/拒否)。ランキングの画面は、これが変わったら読み直す
+    //  (APK 386 の実機: 帰還してすぐ画面を開くと、送信より先に読み込みが終わって「記録がありません」のまま残っていた)
+    public static int SentVersion { get; private set; }
     public static string LastSendError { get; private set; } = "";
     static float nextAutoFlush;
 
@@ -210,6 +213,7 @@ public static class Leaderboard
                 Store(PendingKey, q);
                 MarkSent(e.runId);
                 SaveStore.Save();
+                SentVersion++;
                 if (!anyFailed) LastSendError = "";
                 Log($"sent {e.stageId} {e.meters}m to '{e.env}' -> {res.status}{(string.IsNullOrEmpty(res.message) ? "" : " (" + res.message + ")")}");
             }

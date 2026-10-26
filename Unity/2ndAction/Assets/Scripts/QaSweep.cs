@@ -77,6 +77,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaRewardQueue") { mode = "rewardqueue"; dir = a[i + 1]; } // 2026-10-21 後回しのボス報酬の選択が倒した数だけ出るか
             if (a[i] == "-qaKneelShots") { mode = "kneelshots"; dir = a[i + 1]; } // 2026-10-21 大型ボスの膝つきの見た目
             if (a[i] == "-qaPrivacy") { mode = "privacy"; dir = a[i + 1]; } // 2026-10-19 データとプライバシー(削除/ポリシー)
+            if (a[i] == "-qaRankRoute") { mode = "rankroute"; dir = a[i + 1]; } // 2026-10-27 ランキングの実際の経路(脱出 → RESULT → ホーム → 画面)
             if (a[i] == "-qaBossAssist") { mode = "bossassist"; dir = a[i + 1]; }
             if (a[i] == "-qaFinalEvo") { mode = "finalevo"; dir = a[i + 1]; }
             if (a[i] == "-qaFe2") { mode = "fe2"; dir = a[i + 1]; }
@@ -262,6 +263,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "rewardqueue") yield return RewardQueueMode();
         else if (mode == "bossairvideo") yield return BossAirVideoMode();
         else if (mode == "privacy") yield return PrivacyMode();
+        else if (mode == "rankroute") yield return RankRouteMode();
         else if (mode == "bossassist") yield return BossAssistMode();
         else if (mode == "finalevo") yield return FinalEvoMode();
         else if (mode == "fe2") yield return Fe2Mode();

@@ -16,6 +16,7 @@ public class RankingPanel : MonoBehaviour
     readonly Dictionary<string, Leaderboard.Page> cache = new Dictionary<string, Leaderboard.Page>();
     string loadingStage, errorStage, errorText;
     float lastLoadAt = -100f;
+    int seenSentVersion; bool reloadWanted; // 2026-10-27: 送信が終わったら読み直す
     string nameEdit; bool joinStep;
     readonly UiScroll list = new UiScroll();
 
@@ -35,6 +36,7 @@ public class RankingPanel : MonoBehaviour
         open = true; joinStep = false; nameEdit = Codename.Current; tab = Mathf.Clamp(tab, 0, Mathf.Max(0, Tabs().Count - 1));
         list.Reset();
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiOpen);
+        seenSentVersion = Leaderboard.SentVersion;
         if (Leaderboard.Joined) { Load(force: false); _ = Leaderboard.FlushAsync("open"); }
     }
     void Close() { open = false; UiInputGate.LatchUntilRelease(); if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiClose); }
@@ -47,20 +49,37 @@ public class RankingPanel : MonoBehaviour
         return l;
     }
 
-    async void Load(bool force)
+    async void Load(bool force, bool afterSend = false)
     {
         var tabs = Tabs(); if (tabs.Count == 0) return;
         string st = tabs[Mathf.Clamp(tab, 0, tabs.Count - 1)];
-        if (loadingStage == st) return;
+        if (loadingStage == st) { if (afterSend) reloadWanted = true; return; } // 読み込み中に送信が終わった → 終わってからもう一度
         if (!force && cache.ContainsKey(st) && Time.realtimeSinceStartup - lastLoadAt < 20f) return;
-        if (Time.realtimeSinceStartup - lastLoadAt < 2f && force) return; // 連打で API を呼びすぎない
+        if (Time.realtimeSinceStartup - lastLoadAt < 2f && force && !afterSend) return; // 連打で API を呼びすぎない(送信の後の読み直しは別)
         loadingStage = st; errorStage = null; lastLoadAt = Time.realtimeSinceStartup;
         try { var page = await Leaderboard.Backend.Load(st, 50); cache[st] = page; }
         catch (System.Exception e) { errorStage = st; errorText = e.GetType().Name; Debug.LogWarning("[Ranking] load failed: " + e.GetType().Name + ": " + e.Message); }
-        finally { if (loadingStage == st) loadingStage = null; }
+        finally
+        {
+            if (loadingStage == st) loadingStage = null;
+            if (reloadWanted && open) { reloadWanted = false; Load(force: true, afterSend: true); }
+        }
     }
 
-    void Update() { if (!open && (GameManager.Instance == null || !GameManager.Instance.HasStarted)) Leaderboard.Tick(); } // 2026-10-14: 自動の再送はホームでだけ(ラン中に通信しない)
+    void Update()
+    {
+        if (!open && (GameManager.Instance == null || !GameManager.Instance.HasStarted)) Leaderboard.Tick(); // 2026-10-14: 自動の再送はホームでだけ(ラン中に通信しない)
+        // 2026-10-27: 送信が終わった(サーバーが返事をした)ら、ほかのマップの表は古いので捨てて、今のマップを読み直す
+        if (Leaderboard.SentVersion != seenSentVersion && !Leaderboard.Sending)
+        {
+            seenSentVersion = Leaderboard.SentVersion;
+            var keep = new List<string>(cache.Keys);
+            var tabs = Tabs(); string cur = tabs.Count > 0 ? tabs[Mathf.Clamp(tab, 0, tabs.Count - 1)] : "";
+            foreach (var k in keep) if (k != cur) cache.Remove(k);
+            if (open && Leaderboard.Joined) { Debug.Log("[Ranking] reloading the board after a send"); Load(force: true, afterSend: true); }
+            else cache.Remove(cur);
+        }
+    }
 
     float S => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);
 
