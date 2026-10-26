@@ -37,11 +37,13 @@ public static class BuildAndroid
         // to reach that UI at all. Switch back to BuildOptions.None for an
         // actual release build later - this is a real behavior change
         // (larger build, profiler/debugger connectable), not just a flag.
-        BuildReport report = BuildPipeline.BuildPlayer(
-            EditorBuildSettings.scenes,
-            OutputPath,
-            BuildTarget.Android,
-            BuildOptions.Development);
+        BuildReport report;
+        using (new BrandSplashSetup.AndroidScope()) // 起動ロゴは BootSplash(Unity の起動画面は背景色だけ、2026-10-26)
+            report = BuildPipeline.BuildPlayer(
+                EditorBuildSettings.scenes,
+                OutputPath,
+                BuildTarget.Android,
+                BuildOptions.Development);
 
         Debug.Log("BuildAndroid: result=" + report.summary.result +
                    " size=" + report.summary.totalSize +
@@ -64,6 +66,7 @@ public static class BuildAndroid
         {
             EditorUserBuildSettings.buildAppBundle = true;
             PlayerSettings.Android.splitApplicationBinary = true;
+            using var splash = new BrandSplashSetup.AndroidScope();
             var report = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, outPath, BuildTarget.Android, BuildOptions.None);
             Debug.Log("BuildAndroid: store aab result=" + report.summary.result + " path=" + report.summary.outputPath);
         }
@@ -91,6 +94,7 @@ public static class BuildAndroid
         {
             EditorUserBuildSettings.buildAppBundle = aab;
             if (split) PlayerSettings.Android.splitApplicationBinary = true;
+            using var splash = new BrandSplashSetup.AndroidScope();
             var report = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, outPath, BuildTarget.Android, BuildOptions.Development);
             Debug.Log("BuildAndroid: probe result=" + report.summary.result + " size=" + report.summary.totalSize + " path=" + report.summary.outputPath + " split=" + split);
         }
