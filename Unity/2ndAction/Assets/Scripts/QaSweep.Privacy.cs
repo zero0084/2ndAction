@@ -114,11 +114,13 @@ public partial class QaSweep
         L($"[privacy] policy url {PrivacyLinks.PolicyUrl}");
     }
 
+    // 2026-10-26: 環境は送られない名前(development にすると、参加中の送信待ちとしてゲームが本当にサインインして送ってしまい、
+    //  試験のたびに development に空の匿名アカウントが残っていた)
     void SeedRankingKeys()
     {
         SaveStore.SetInt(Leaderboard.JoinedKey, 1);
-        SaveStore.SetString(Leaderboard.PendingKey, "{\"items\":[{\"runId\":\"qa1\",\"stageId\":\"wasteland_road\",\"meters\":1234,\"env\":\"development\"}]}");
-        SaveStore.SetString(Leaderboard.VerifiedKey, "{\"items\":[{\"runId\":\"qa1\",\"stageId\":\"wasteland_road\",\"meters\":1234,\"env\":\"development\"}]}");
+        SaveStore.SetString(Leaderboard.PendingKey, "{\"items\":[{\"runId\":\"qa1\",\"stageId\":\"wasteland_road\",\"meters\":1234,\"env\":\"qa-never-sent\"}]}");
+        SaveStore.SetString(Leaderboard.VerifiedKey, "{\"items\":[{\"runId\":\"qa1\",\"stageId\":\"wasteland_road\",\"meters\":1234,\"env\":\"qa-never-sent\"}]}");
         SaveStore.SetString(Leaderboard.SentKey, "qa0");
         SaveStore.Save();
     }

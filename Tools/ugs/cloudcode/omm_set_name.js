@@ -2,7 +2,7 @@
  * One More Mile - コードネームの変更を、掲載中の自分の記録の表示名へ反映する(Cloud Code, JavaScript)。2026-10-08
  * 距離は変えない(同じ距離・同じ metadata のキャラ/オート/疾走のまま、名前だけ差し替えて書き直す)。
  * Leaderboards の更新の種類は "Keep latest score"(omm_submit_run.js の前提と同じ)。
- * まだ実際のサービスでは動かしていない。
+ * 2026-10-26: development で本物で確認(metadata を頼む修正の後)。
  */
 const { LeaderboardsApi } = require("@unity-services/leaderboards-1.1");
 
@@ -32,9 +32,10 @@ module.exports = async ({ params, context, logger }) => {
   let updated = 0;
   for (const board of STAGES.map(s => "omm_best_" + s)) { // 2026-10-14: ランキングはソロの表だけ
     let entry = null;
-    try { entry = (await lb.getLeaderboardPlayerScore(projectId, board, playerId)).data; } catch (e) { continue; }
+    // 2026-10-26: metadata は頼まないと返らない(development で確認: 名前の変更でキャラ/オート/疾走が消えていた)
+    try { entry = (await lb.getLeaderboardPlayerScore(projectId, board, playerId, { params: { includeMetadata: true } })).data; } catch (e) { continue; }
     let meta = {};
-    try { meta = entry.metadata ? JSON.parse(entry.metadata) : {}; } catch (e) { meta = {}; }
+    try { meta = typeof entry.metadata === "string" ? JSON.parse(entry.metadata) : (entry.metadata || {}); } catch (e) { meta = {}; }
     meta.n = name;
     await lb.addLeaderboardPlayerScore(projectId, board, playerId, { score: entry.score, metadata: meta });
     updated++;

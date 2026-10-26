@@ -36,7 +36,19 @@ public static class AccountDeletion
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     // 開発版の試験だけ: サーバーの代わり(ok = 成功 / fail = サーバーの削除の失敗)。本物のサーバー/アカウントには触れない
     public static string DebugMock;
+    // 開発版の試験だけ(2026-10-26): 本物のサービスで、1回だけ失敗を起こす。次の実行は普段どおり(再試行の確認)
+    //  cloudcode = 無いスクリプトの名前を呼ぶ(Cloud Code が断る → サーバーもアカウントも何も消えない)
+    //  auth      = サーバーのデータを消した後、アカウントの削除の直前にサインアウトする(SDK が断る → アカウントは残り、もう一度消せる)
+    public static string DebugFailOnce;
 #endif
+    static string TakeFailOnce()
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        string f = DebugFailOnce; DebugFailOnce = null; return f ?? "";
+#else
+        return "";
+#endif
+    }
     static bool Mocked(out bool ok)
     {
         ok = false;
@@ -68,7 +80,7 @@ public static class AccountDeletion
         if (State != Phase.Confirm) return;
         if (OnlineServices.InSession || NetSession.IsActive)
         { State = Phase.Failed; Message = "マルチプレイの部屋にいる間は削除できません。部屋を出てから試してください"; return; }
-        State = Phase.Deleting; Message = ""; Runs++;
+        State = Phase.Deleting; Message = ""; Detail = ""; Runs++;
         if (Mocked(out bool mockOk))
         {
             await System.Threading.Tasks.Task.Delay(300);
@@ -82,11 +94,14 @@ public static class AccountDeletion
         {
             if (!await OnlineServices.EnsureReadyAsync()) { Fail("オンラインのサービスに接続できませんでした", OnlineServices.ErrorDetail); return; }
             string before = OnlineServices.PlayerId;
+            string inject = TakeFailOnce();
             // ① サーバーのデータ(本人の分だけ。引数で ID を渡さない)
-            string json = await CloudCodeService.Instance.CallEndpointAsync(DeleteScript, new Dictionary<string, object>());
+            string json = await CloudCodeService.Instance.CallEndpointAsync(inject == "cloudcode" ? DeleteScript + "_qa_missing" : DeleteScript, new Dictionary<string, object>());
             var r = JsonUtility.FromJson<Reply>(string.IsNullOrEmpty(json) ? "{}" : json) ?? new Reply();
             if (!r.ok) { Fail("サーバーのデータを削除できませんでした", "server: " + (r.message ?? "")); return; }
+            Debug.Log($"[PRIVACY] server data deleted (cloud save {r.cloudSave}, leaderboards {r.leaderboards}); deleting the account next");
             // ② 匿名のアカウント
+            if (inject == "auth") AuthenticationService.Instance.SignOut(false); // 試験: サインインの記録は残したまま
             await AuthenticationService.Instance.DeleteAccountAsync();
             var auth = AuthenticationService.Instance;
             if (auth.IsSignedIn) auth.SignOut(true);
