@@ -1,5 +1,6 @@
 # ランキング「脱出しても記録がありません」の修正(2026-10-27)
-nAPK 387(開発版、development へ接続): `Unity/2ndAction/Builds/Android/2ndAction.apk`
+
+APK 387(開発版、development へ接続): `Unity/2ndAction/Builds/Android/2ndAction.apk`
 
 APK 386(development)の実機で、ソロで脱出 → ホーム → ランキングを開くと「記録がありません」と出た件。
 
