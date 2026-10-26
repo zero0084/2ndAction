@@ -1,0 +1,176 @@
+{
+ "raw": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad",
+ "captions": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/text/captions.tsv",
+ "logo": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Art/UI/TitleLogoV2.png",
+ "end": 4.5,
+ "se_gain": 1.0,
+ "bgm": [
+  {
+   "file": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Audio/Placeholder/Bgm/bgm_wasteland_middle_n.wav",
+   "loop": true,
+   "at": 0,
+   "from": 0,
+   "dur": 40.6,
+   "gain": 0.33,
+   "fade_in": 0.2,
+   "fade_out": 1.2
+  },
+  {
+   "file": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Audio/Placeholder/Bgm/bgm_boss_strong_n.wav",
+   "loop": true,
+   "at": 39.8,
+   "from": 0,
+   "dur": 28.2,
+   "gain": 0.36,
+   "fade_in": 0.3,
+   "fade_out": 3.5
+  }
+ ],
+ "cuts": [
+  {
+   "shot": "cap_n_ja/raw/run_day",
+   "in": 6.0,
+   "dur": 2.5,
+   "caption": "cap_run"
+  },
+  {
+   "shot": "cap_n_ja/raw/run_wasteland",
+   "in": 4.0,
+   "dur": 2.5,
+   "caption": "cap_run"
+  },
+  {
+   "shot": "cap_n_ja/raw/dual",
+   "in": 3.8,
+   "dur": 1.6,
+   "caption": "cap_flick"
+  },
+  {
+   "shot": "cap_n_ja/raw/gunslinger",
+   "in": 3.8,
+   "dur": 3.0,
+   "caption": "cap_flick"
+  },
+  {
+   "shot": "cap_n_ja/raw/aerial",
+   "in": 0.75,
+   "dur": 2.0,
+   "caption": "cap_air"
+  },
+  {
+   "shot": "cap_n_ja/raw/boss_fight",
+   "in": 17.5,
+   "dur": 4.5,
+   "caption": "cap_air"
+  },
+  {
+   "shot": "cap_n_ja/raw/cards",
+   "in": 1.2,
+   "dur": 5.2,
+   "caption": "cap_cards",
+   "cap_pos": "top"
+  },
+  {
+   "shot": "cap_n_ja/raw/cave",
+   "in": 2.25,
+   "dur": 2.5,
+   "caption": "cap_chars",
+   "vf": "eq=gamma=1.08:saturation=1.04"
+  },
+  {
+   "shot": "cap_n_ja/raw/sky",
+   "in": 3.0,
+   "dur": 3.0,
+   "caption": "cap_chars"
+  },
+  {
+   "shot": "cap_n_ja/raw/run_day",
+   "in": 11.0,
+   "dur": 3.0,
+   "caption": "cap_maps"
+  },
+  {
+   "shot": "cap_n_ja/raw/run_wasteland",
+   "in": 9.6,
+   "dur": 2.5,
+   "caption": "cap_maps"
+  },
+  {
+   "shot": "cap_n_ja/raw/gunslinger",
+   "in": 0.0,
+   "dur": 2.5,
+   "caption": "cap_maps"
+  },
+  {
+   "shot": "cap_n_ja/raw/cave",
+   "in": 11.4,
+   "dur": 2.2,
+   "caption": "cap_maps",
+   "vf": "eq=gamma=1.08:saturation=1.04"
+  },
+  {
+   "shot": "cap_n_ja/raw/boss_sky_fight",
+   "in": 2.5,
+   "dur": 3.0,
+   "caption": "cap_maps"
+  },
+  {
+   "shot": "cap_n_ja/raw/boss_fight",
+   "in": 4.0,
+   "dur": 3.5,
+   "caption": "cap_boss"
+  },
+  {
+   "shot": "cap_n_ja/raw/boss_sky_fight",
+   "in": 6.0,
+   "dur": 4.0,
+   "caption": "cap_boss"
+  },
+  {
+   "shot": "cap_n_ja/raw/boss_cave_fight",
+   "in": 17.8,
+   "dur": 1.4,
+   "caption": "cap_boss",
+   "vf": "eq=gamma=1.08:saturation=1.04"
+  },
+  {
+   "shot": "cap_n_ja/raw/boss_cave_fight",
+   "in": 10.7,
+   "dur": 2.7,
+   "caption": "cap_boss",
+   "vf": "eq=gamma=1.08:saturation=1.04"
+  },
+  {
+   "shot": "cap_n_ja/raw/boss_fight",
+   "in": 11.0,
+   "dur": 3.0,
+   "caption": "cap_boss"
+  },
+  {
+   "shot": "cap_n_ja/raw/boss_fight",
+   "in": 24.5,
+   "dur": 3.1,
+   "caption": null
+  },
+  {
+   "shot": "cap_n_ja/raw/result_escape",
+   "in": 1.0,
+   "dur": 3.2,
+   "caption": "cap_escape2",
+   "cap_max": 3.2
+  },
+  {
+   "shot": "cap_n_ja/raw/result_escape",
+   "in": 6.0,
+   "dur": 2.6,
+   "caption": null
+  }
+ ],
+ "cap_max": 4.5,
+ "loudness": -14,
+ "logo_scale": 1.2,
+ "tp": -2.8,
+ "limit": 0.79,
+ "end_caption": "cap_choice",
+ "note": "v7 (2026-10-26): 全12人の布の見直しを正式採用した後の撮り直し(cap_n_ja / cap_n_en)。構成・字幕・BGM・ロゴは v6 と同じ。各カットの開始位置は新しい撮影で選び直す"
+}

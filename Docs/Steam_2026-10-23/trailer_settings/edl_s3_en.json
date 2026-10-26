@@ -1,0 +1,92 @@
+{
+ "raw": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad",
+ "captions": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/text/captions_settings.tsv",
+ "logo": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Art/UI/TitleLogoV2.png",
+ "end": 4.5,
+ "logo_scale": 1.2,
+ "se_gain": 1.0,
+ "note": "s3 (2026-10-26): 布の見直しの後の撮り直し(cap_nst_* / cap_nstp_*)。構成・字幕は s2 と同じ",
+ "bgm": [
+  {
+   "file": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Audio/Placeholder/Bgm/bgm_wasteland_middle_n.wav",
+   "loop": true,
+   "at": 0,
+   "from": 0,
+   "dur": 14.7,
+   "gain": 0.33,
+   "fade_in": 0.2,
+   "fade_out": 0.6
+  },
+  {
+   "file": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Audio/Placeholder/Bgm/bgm_wasteland_middle_n.wav",
+   "loop": true,
+   "at": 19.9,
+   "from": 14.7,
+   "dur": 14.5,
+   "gain": 0.33,
+   "fade_in": 0.6,
+   "fade_out": 3.0
+  }
+ ],
+ "cuts": [
+  {
+   "shot": "cap_nst_en/raw/set_auto",
+   "in": 0.0,
+   "dur": 1.4,
+   "caption": "st_hook"
+  },
+  {
+   "shot": "cap_nst_en/raw/set_auto",
+   "in": 1.4,
+   "dur": 3.6,
+   "caption": "st_auto",
+   "cap_pos": "band"
+  },
+  {
+   "shot": "cap_nst_en/raw/set_auto",
+   "in": 5.0,
+   "dur": 4.0,
+   "caption": "st_auto_play"
+  },
+  {
+   "shot": "cap_nsd_en/raw/set_display",
+   "in": 1.9,
+   "dur": 3.4,
+   "caption": "st_display",
+   "cap_pos": "band"
+  },
+  {
+   "shot": "cap_nsd_en/raw/set_display",
+   "in": 5.3,
+   "dur": 2.0,
+   "caption": "st_display"
+  },
+  {
+   "shot": "cap_nst_en/raw/set_volume",
+   "in": 1.2,
+   "dur": 5.7,
+   "caption": "st_volume",
+   "cap_pos": "band",
+   "cap_max": 5.7
+  },
+  {
+   "shot": "cap_nstp2_en/raw/set_portrait",
+   "in": 1.2,
+   "dur": 6.2,
+   "caption": "st_portrait",
+   "pillar": true,
+   "cap_max": 9.8
+  },
+  {
+   "shot": "cap_nstp2_en/raw/set_portrait",
+   "in": 8.6,
+   "dur": 3.6,
+   "caption": "st_portrait",
+   "pillar": true
+  }
+ ],
+ "cap_max": 4.5,
+ "loudness": -14,
+ "tp": -2.8,
+ "end_caption": "st_end"
+}

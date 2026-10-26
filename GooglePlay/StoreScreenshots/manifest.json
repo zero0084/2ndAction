@@ -4,7 +4,7 @@
   "name": "01_Running.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 2867690,
+  "bytes": 2897324,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/ja/omm_ss_01_wasteland_speed.png"
  },
  {
@@ -12,7 +12,7 @@
   "name": "02_AerialCombo.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 3218157,
+  "bytes": 2989820,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/ja/omm_ss_02_aerial_combo.png"
  },
  {
@@ -20,7 +20,7 @@
   "name": "03_BossBattle.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 2641824,
+  "bytes": 2715948,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/ja/omm_ss_05_sky_boss.png"
  },
  {
@@ -28,7 +28,7 @@
   "name": "04_CardSelection.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 2144598,
+  "bytes": 2031987,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/ja/_extra/card_picked.png"
  },
  {
@@ -36,7 +36,7 @@
   "name": "05_AnotherStage.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 2330792,
+  "bytes": 2661014,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/ja/omm_ss_08_cave.png"
  },
  {
@@ -44,15 +44,15 @@
   "name": "06_CharacterSelect.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 1115415,
-  "src": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/cap_gp_cs/stills/charsel_00_charsel.png"
+  "bytes": 1103525,
+  "src": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/cap_ngp_cs_ja/stills/charsel_00_charsel.png"
  },
  {
   "dir": "landscape/ja",
   "name": "08_SpecialScene.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 3082282,
+  "bytes": 3070626,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/ja/omm_ss_03_boss_break.png"
  },
  {
@@ -60,7 +60,7 @@
   "name": "01_Running.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 3012246,
+  "bytes": 2971303,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/en/omm_ss_01_wasteland_speed.png"
  },
  {
@@ -68,7 +68,7 @@
   "name": "02_AerialCombo.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 3205108,
+  "bytes": 3153088,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/en/omm_ss_02_aerial_combo.png"
  },
  {
@@ -76,7 +76,7 @@
   "name": "03_BossBattle.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 2650541,
+  "bytes": 2684518,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/en/omm_ss_05_sky_boss.png"
  },
  {
@@ -84,7 +84,7 @@
   "name": "04_CardSelection.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 2174946,
+  "bytes": 2070875,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/en/_extra/card_picked.png"
  },
  {
@@ -92,7 +92,7 @@
   "name": "05_AnotherStage.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 2604569,
+  "bytes": 2179477,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/en/omm_ss_08_cave.png"
  },
  {
@@ -100,15 +100,15 @@
   "name": "06_CharacterSelect.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 1107665,
-  "src": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/cap_gp_cs_en/stills/charsel_00_charsel.png"
+  "bytes": 1096785,
+  "src": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/cap_ngp_cs_en/stills/charsel_00_charsel.png"
  },
  {
   "dir": "landscape/en",
   "name": "08_SpecialScene.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 3000849,
+  "bytes": 3076494,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/en/omm_ss_03_boss_break.png"
  },
  {
@@ -116,7 +116,7 @@
   "name": "02_AerialCombo_alt_slam.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 3037596,
+  "bytes": 3243517,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/ja/_extra/boss_juggle_slam.png"
  },
  {
@@ -124,7 +124,7 @@
   "name": "03_BossBattle_alt_cave.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 2445446,
+  "bytes": 2355199,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/ja/omm_ss_10_cave_boss.png"
  },
  {
@@ -132,7 +132,7 @@
   "name": "04_CardSelection_alt_choice.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 1995684,
+  "bytes": 1920356,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/ja/omm_ss_04_card_choice.png"
  },
  {
@@ -140,7 +140,7 @@
   "name": "05_AnotherStage_alt_gunslinger.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 3017214,
+  "bytes": 3181298,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/ja/omm_ss_06_gunslinger.png"
  },
  {
@@ -148,7 +148,7 @@
   "name": "08_SpecialScene_alt_escape.png",
   "w": 1920,
   "h": 1080,
-  "bytes": 3081430,
+  "bytes": 2777682,
   "src": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/screenshots/ja/omm_ss_09_escape_decision.png"
  },
  {
@@ -164,23 +164,23 @@
   "name": "01_Running_portrait.png",
   "w": 1080,
   "h": 1920,
-  "bytes": 2346325,
-  "src": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/cap_gp_por/stills/run_wasteland_11_t12.png"
+  "bytes": 2404704,
+  "src": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/cap_ngp_por_ja/stills/run_wasteland_11_t12.png"
  },
  {
   "dir": "portrait/ja",
   "name": "04_CardSelection_portrait.png",
   "w": 1080,
   "h": 1920,
-  "bytes": 1379258,
-  "src": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/cap_gp_por/stills/cards_19_picked.png"
+  "bytes": 1227644,
+  "src": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/cap_ngp_por_ja/stills/cards_15_picked.png"
  },
  {
   "dir": "portrait/ja",
   "name": "06_CharacterSelect_portrait.png",
   "w": 1080,
   "h": 1920,
-  "bytes": 1208041,
-  "src": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/cap_gp_por/stills/charsel_34_charsel.png"
+  "bytes": 1206597,
+  "src": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/cap_ngp_por_ja/stills/charsel_16_charsel.png"
  }
 ]

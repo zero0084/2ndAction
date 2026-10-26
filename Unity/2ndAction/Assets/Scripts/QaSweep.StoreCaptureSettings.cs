@@ -5,7 +5,8 @@ using UnityEngine;
 // 設定紹介の動画(第2トレーラー、2026-10-23)の撮影: -storeCapture <dir> -scShots set_auto,set_volume,set_display[,set_portrait]
 // 実際の設定の画面を開き、項目を切り替える様子(選んだ方が明るくなる)と、閉じた後のプレイを続けて撮る。
 // 切り替えは設定の画面のボタンと同じ処理を呼ぶ(HighSpeedAssist / AudioManager / GameSettings / PortraitRunView の Set)。
-// set_portrait は縦長のウィンドウ(例 608x1080)で撮る(縦画面のラン表示は縦の画面の時だけ効くため)
+// set_portrait は縦長のウィンドウ(例 608x1080)で撮る(縦画面のラン表示は縦の画面の時だけ効くため)。
+// 2026-10-26: 縦画面のラン表示の設定は向きを変えられる環境(Android)だけに出る → set_portrait は -caps android を付けて撮る
 public partial class QaSweep
 {
     static readonly System.Reflection.FieldInfo ScSetScroll = typeof(SettingsPanel).GetField("scroll", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -92,7 +93,8 @@ public partial class QaSweep
         yield return new WaitForSeconds(2f);
         ScRecStart(name);
         yield return ScWait(1.2f);
-        yield return ScOpenSettings(230f, 0.4f); // 画面揺れ〜発光演出が見える所まで
+        // 画面揺れ〜発光演出が見える所まで。2026-10-26: PC では「画面の向き/縦画面のラン表示」の行が無い(PlatformCaps)ので右の列の一番上に来る → 送らない
+        yield return ScOpenSettings(PlatformCaps.SupportsOrientation ? 230f : 0f, 0.4f);
         yield return ScWait(0.6f);
         GameSettings.SetScreenShake(false);
         yield return ScWait(0.6f);
