@@ -53,12 +53,30 @@ public class AdManager : MonoBehaviour
         lock (queue) { if (queue.Count > 0) { run = queue.ToArray(); queue.Clear(); } }
         if (run != null) foreach (var a in run) { try { a(); } catch (Exception e) { Debug.LogException(e); } }
         // 読み込み: 強制/報酬とも1本ずつ用意しておく(在庫が無くても待たせない)
-        if (Monetization.Ads != null && !Showing && Time.frameCount % 120 == 0)
+        // 2026-10-26: 用意できない間の要求は間隔を延ばす(以前は約2秒ごと)。10秒 → 20 → 40 → … 最大 5分、用意できたら元へ
+        if (Monetization.Ads != null && !Showing)
         {
-            if (!Monetization.Ads.IsReady(AdKind.Interstitial) && !NoAdsPass.Owned) Monetization.Ads.Load(AdKind.Interstitial);
-            if (!Monetization.Ads.IsReady(AdKind.Rewarded)) Monetization.Ads.Load(AdKind.Rewarded);
+            KeepLoaded(AdKind.Interstitial, !NoAdsPass.Owned);
+            KeepLoaded(AdKind.Rewarded, true);
         }
     }
+
+    public const float LoadRetryFirst = 10f, LoadRetryMax = 300f;
+    static readonly float[] nextLoadAt = new float[2], loadWait = { LoadRetryFirst, LoadRetryFirst };
+    public static int LoadRequests { get; private set; } // 確認用: 自動の読み込みの要求の回数
+    static void KeepLoaded(AdKind k, bool wanted)
+    {
+        int i = (int)k; float now = Time.realtimeSinceStartup;
+        if (!wanted) return;
+        if (Monetization.Ads.IsReady(k)) { loadWait[i] = LoadRetryFirst; nextLoadAt[i] = now + LoadRetryFirst; return; } // 用意できている: 次に使った後は早めに
+        if (now < nextLoadAt[i]) return;
+        Monetization.Ads.Load(k); LoadRequests++;
+        nextLoadAt[i] = now + loadWait[i];
+        if (loadWait[i] > LoadRetryFirst) Debug.Log($"[Ads] {k} still not ready - next load request in {loadWait[i]:F0}s");
+        loadWait[i] = Mathf.Min(loadWait[i] * 2f, LoadRetryMax);
+    }
+    // 開発版の確認: 待ちの長さ(秒)
+    public static float LoadWaitOf(AdKind k) => loadWait[(int)k];
 
     // 復帰した時: 広告なしパスの状態を確かめる(繋がらなければ控えのまま)。広告の表示中の中断は SDK が続きを出す
     float lastResumeCheck = -999f;

@@ -11,25 +11,30 @@ using UnityEngine;
 public static class MonetizationSetup
 {
     public const string TestAndroidAppId = "ca-app-pub-3940256099942544~3347511713"; // Google のサンプル(テスト用)
-    // 本番のアプリ ID(AdMob で作った後にマスターが決める。空 = テスト用のまま)
-    public const string ProdAndroidAppId = "";
+    // 本番のアプリ ID(2026-10-26 マスターが AdMob で登録: OneMoreMile / Android)。テスト広告の版もこの ID + Google のテスト用広告ユニットで動かす
+    public const string ProdAndroidAppId = "ca-app-pub-2863190967263764~2717237567";
 
     [MenuItem("Tools/OneMoreMile/Monetization: Apply SDK Settings")]
-    public static void Apply()
+    public static void Apply() => ApplyAndReport();
+
+    // 戻り値: アプリ ID を書き換えたか(書き換えた同じ起動の中のビルドには古い ID が入ることがある → BuildClosedTest は作り直しを求める)
+    public static bool ApplyAndReport()
     {
+        bool changed = false;
         var t = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType("GoogleMobileAds.Editor.GoogleMobileAdsSettings")).FirstOrDefault(x => x != null);
-        if (t == null) { Debug.LogError("[MonetizationSetup] Google Mobile Ads plugin not found"); return; }
+        if (t == null) { Debug.LogError("[MonetizationSetup] Google Mobile Ads plugin not found"); return false; }
         var inst = (ScriptableObject)t.GetMethod("LoadInstance", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public).Invoke(null, null);
         var prop = t.GetProperty("GoogleMobileAdsAndroidAppId");
         string want = string.IsNullOrEmpty(ProdAndroidAppId) ? TestAndroidAppId : ProdAndroidAppId;
         if ((string)prop.GetValue(inst) != want)
         {
-            prop.SetValue(inst, want);
+            prop.SetValue(inst, want); changed = true;
             EditorUtility.SetDirty(inst);
             AssetDatabase.SaveAssets();
         }
         Debug.Log($"[MonetizationSetup] AdMob Android app id = {prop.GetValue(inst)}");
         ResolveAndroid();
+        return changed;
     }
 
     public static void ResolveAndroid()

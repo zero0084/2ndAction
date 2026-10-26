@@ -138,6 +138,7 @@ public partial class GameManager
     {
         if (doubleBusy || AdManager.Showing || leavingResult) return; // 連打
         string runId = CurrentRunId; int amount = doubleBase;
+        if (AdRewards.IsDoubled(runId)) return; // 2026-10-26: 受け取り済みのランでは広告を出さない(ボタンは無効だが、呼び出し側に関係なく守る)
         if (pass)
         {
             if (AdRewards.ClaimDouble(runId, amount, "pass")) { doubleNote = ""; PlayCoinSe(); }

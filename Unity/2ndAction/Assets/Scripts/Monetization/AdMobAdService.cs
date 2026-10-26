@@ -19,8 +19,29 @@ public class AdMobAdService : IAdService
     public void Initialize()
     {
         var req = new ConsentRequestParameters();
-#if DEVELOPMENT_BUILD
-        // 開発版: EEA 扱いの同意画面を試す時は DebugGeography を設定する(テスト端末の ID が必要)
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // 開発版だけ(2026-10-26): 欧州(EEA)扱いの同意画面を試す。qa_args.txt / 起動引数で
+        //   -umpGeo eea|other   … 地域を EEA / EEA 以外として扱う(テスト端末だけに効く。エミュレーターは自動でテスト端末)
+        //   -umpTestDevice <ハッシュ ID> … 実機を試す時の端末(ログの「Use new ConsentDebugSettings.Builder().addTestDeviceHashedId(...)」の値)
+        //   -umpReset 1 … 前回の同意を消して最初から(端末の同意の記録だけ。ゲームの保存には触れない)
+        // 製品版(クローズドテストの版を含む)ではこの設定は入らない
+        {
+            string[] qa = QaArgs.All; string geo = null, dev = null; bool reset = false;
+            for (int i = 0; i < qa.Length - 1; i++)
+            {
+                if (qa[i] == "-umpGeo") geo = qa[i + 1];
+                else if (qa[i] == "-umpTestDevice") dev = qa[i + 1];
+                else if (qa[i] == "-umpReset") reset = qa[i + 1] == "1";
+            }
+            if (reset) { ConsentInformation.Reset(); Debug.Log("[AdMob] consent reset (dev)"); }
+            if (geo != null || dev != null)
+            {
+                var dbg = new ConsentDebugSettings { DebugGeography = geo == "eea" ? DebugGeography.EEA : geo == "other" ? DebugGeography.Other : DebugGeography.Disabled };
+                if (dev != null) dbg.TestDeviceHashedIds = new System.Collections.Generic.List<string> { dev };
+                req.ConsentDebugSettings = dbg;
+                Debug.Log($"[AdMob] consent debug geography={dbg.DebugGeography} testDevice={(dev != null ? "set" : "emulator")}");
+            }
+        }
 #endif
         // UMP の通知は Java のスレッドから来る(RaiseAdEventsOnUnityMainThread=false の時)→ 必ず主スレッドへ戻してから次へ
         ConsentInformation.Update(req, err => AdManager.Post(() =>
@@ -50,6 +71,7 @@ public class AdMobAdService : IAdService
     public void Load(AdKind k)
     {
         if (!initialized) return;
+        if (!ConsentInformation.CanRequestAds()) return; // 2026-10-26: 同意で要求できない間(同意を取り消した後など)は要求しない
         if (k == AdKind.Interstitial)
         {
             if (loadingI || IsReady(k)) return;
@@ -93,6 +115,10 @@ public class AdMobAdService : IAdService
         }
     }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 開発版の確認用: 用意できている広告を捨てる(通信なしの時の読み込みの試験)
+    public void DevDropLoaded() { interstitial?.Destroy(); interstitial = null; rewarded?.Destroy(); rewarded = null; Debug.Log("[AdMob] dev: dropped loaded ads"); }
+#endif
     public bool PrivacyOptionsRequired => ConsentInformation.PrivacyOptionsRequirementStatus == PrivacyOptionsRequirementStatus.Required;
     public void ShowPrivacyOptions() => ConsentForm.ShowPrivacyOptionsForm(err => { string m = err?.Message; AdManager.Post(() => { if (m != null) Debug.LogWarning($"[AdMob] privacy options: {m}"); }); });
 }

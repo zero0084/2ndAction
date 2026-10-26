@@ -44,7 +44,8 @@ public interface IStoreService
 
 public static class Monetization
 {
-    public static MonetizationMode Mode { get; private set; } = MonetizationMode.None;
+    public static MonetizationMode Mode { get; private set; } = MonetizationMode.None;
+
     // 2026-10-14: 本物のストアでレシートを検証できる状態か(GooglePlayTangle と OMM_IAP_TANGLE)。できない間は購入させない
     // (払っても検証できず付与されない → Google 側で自動返金、になるのを防ぐ)。模擬/ストアなしは関係ない
     public static bool PurchaseSetupComplete
@@ -87,7 +88,7 @@ public static class Monetization
 #endif
                 break;
         }
-        Debug.Log($"[Monetization] mode={Mode} ads={(Ads != null ? Ads.Name : "none")} store={(Store != null ? Store.Name : "none")} platform={Platform.Name}");
+        Debug.Log($"[Monetization] mode={Mode} ads={(Ads != null ? Ads.Name : "none")} store={(Store != null ? Store.Name : "none")} platform={Platform.Name} adsProfile={MonetizationConfig.AdsProfile}");
         if (Mode == MonetizationMode.None) return; // Steam/PC: 広告の SDK も時刻の確認も始めない
         AdManager.Ensure();
         TrustedClock.Ensure();
@@ -125,10 +126,21 @@ public static class MonetizationConfig
     public const int DayResetUtcOffsetHours = 9;      // 日付の切り替え = 日本時間 0時(世界共通)
     // 本番の値はマスターが登録した後に入れる(未決定)。商品 ID は Play Console で作った後は変えられない
     public static string NoAdsProductId = "noads_pass";
-    public const string TestInterstitialUnit = "ca-app-pub-3940256099942544/1033173712"; // Google のテスト用(本番では使わない)
+    public const string TestInterstitialUnit = "ca-app-pub-3940256099942544/1033173712"; // Google のテスト用(公式のサンプル)
     public const string TestRewardedUnit = "ca-app-pub-3940256099942544/5224354917";
-    public static string ProdInterstitialUnit = "";   // 未設定 = テスト広告のまま
-    public static string ProdRewardedUnit = "";
-    public static string InterstitialUnit => !Debug.isDebugBuild && !string.IsNullOrEmpty(ProdInterstitialUnit) ? ProdInterstitialUnit : TestInterstitialUnit;
-    public static string RewardedUnit => !Debug.isDebugBuild && !string.IsNullOrEmpty(ProdRewardedUnit) ? ProdRewardedUnit : TestRewardedUnit;
+    // 2026-10-26 マスターが AdMob で作った本番の広告ユニット(将来の切り替え用。今は使わない)
+    //  OneMoreMile_Android_Interstitial_GameOver / OneMoreMile_Android_Rewarded(管理画面の報酬の「数量1/項目Reward」は 1 MILE の意味ではない。
+    //  ゲーム内の報酬は MILE 2倍・広告ガチャそれぞれの仕様のまま)
+    public const string ProdInterstitialUnit = "ca-app-pub-2863190967263764/5403818490";
+    public const string ProdRewardedUnit = "ca-app-pub-2863190967263764/3391276558";
+    // 広告の設定(2026-10-26): 既定は「テスト広告」= 実際のアプリ ID + Google のテスト用広告ユニット(クローズドテストの全テスターもこれ)。
+    // 本番広告は、マスターの指示の後に Android の定義へ OMM_ADS_PROD を足した製品版だけ(開発版は常にテスト広告)。
+#if OMM_ADS_PROD && !DEVELOPMENT_BUILD
+    public const bool UseProductionAds = true;
+#else
+    public const bool UseProductionAds = false;
+#endif
+    public static string AdsProfile => UseProductionAds ? "production" : "test";
+    public static string InterstitialUnit => UseProductionAds ? ProdInterstitialUnit : TestInterstitialUnit;
+    public static string RewardedUnit => UseProductionAds ? ProdRewardedUnit : TestRewardedUnit;
 }
