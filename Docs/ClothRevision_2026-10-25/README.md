@@ -420,3 +420,5 @@ For animation, maintain consistent panel count, attachment points, volume, lengt
 候補の一式: `ingame/candidate/Art`(589 枚、全部元と同じ大きさ)。実ゲームの確認と確認用ビルドは `CHECK_ALL12.md`。
 
 確認用ビルド: **APK 374**(全12人の候補入り、2026-10-26)。実ゲームの確認 36 回は失敗 0・例外 0(拳銃士の到着1回は再実行で通過)。詳細と未確認事項は `CHECK_ALL12.md` §4。
+
+**2026-10-26 正式採用**: 全12人の 589 枚をリポジトリの Assets へ反映(通常ビルドに入る)。旧い絵の控えは ingame/original、戻すのは `cloth_swordsman.sh restore --old` だけ。詳細は CHECK_ALL12.md §5。
