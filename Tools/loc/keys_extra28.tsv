@@ -1,0 +1,12 @@
+10148	char	char:luka 名前(13人目、猫。マスターの飼い猫がモデル)	LUKA
+10149	char	char:luka 技の副題	Paw, Pounce, Leap
+10150	char	char:luka 説明(キャラ選択)	A small, brave tabby cat full of energy.\nNo weapon, no armor - just quick paws\nand a fearless pounce.\nSmall enough to slip past danger, light enough to leap high.
+10151	char	char:luka 役割の札	AGILE
+10152	char	char:pentatuttulu 名前(14人目、白い雲のような宇宙人。造語の固有名なので音を写す)	PENTATUTTULU
+10153	char	char:pentatuttulu 技の副題(Poyon = ぽよんと弾む音)	Stretch, Bounce, Poyon
+10154	char	char:pentatuttulu 説明(キャラ選択)	A fluffy, cloud-white visitor from somewhere far away.\nIts arms and legs stretch farther than you think,\nand it bounces off what it stomps on.\nNobody knows where it came from.
+10155	char	char:pentatuttulu 役割の札	STRETCH
+10156	ui	Ultimate/UltimateFx.cs ルカの ULTIMATE の技名(画面に一瞬大きく出る。猫がまっしぐらに突進する)	ねこまっしぐら
+10157	ui	Ultimate/UltimateFx.cs 宇宙人の ULTIMATE の技名(画面に一瞬大きく出る)	ペンタトゥットゥルー・ビッグバン
+10158	ui	Save/UnlockRules.cs ゲームクリアで2人同時に加入した時のお知らせの見出し({0}=LUKA の訳 {1}=PENTATUTTULU の訳)	{0} と {1} が仲間になりました
+10159	ui	Save/UnlockRules.cs 同じお知らせの本文(最後のダンジョンをクリアした人へ)	最後の道を走り抜けたあなたへ。\nキャラ選択で選べます。

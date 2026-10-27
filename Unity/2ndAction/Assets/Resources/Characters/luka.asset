@@ -25,7 +25,7 @@ MonoBehaviour:
 
     Small enough to slip past
     danger, light enough to leap high.'
-  portrait: {fileID: 2800000, guid: 3aa8870ab850f274db8cb55850cf13fd, type: 3}
+  portrait: {fileID: 2800000, guid: 9aa4d11a25fb26244890863161151830, type: 3}
   mainVisual: {fileID: 2800000, guid: 7b41fdd48444f1649ae856733fc1b3f2, type: 3}
   lifeRating: 2
   powerRating: 3
@@ -49,19 +49,30 @@ MonoBehaviour:
   canUseDownAttack: 1
   runFrames:
   - {fileID: 21300000, guid: fc2fe684d5b9ed043af1162e68782412, type: 3}
+  - {fileID: 21300000, guid: 5f2b3557558dca44fbf587d84fd5bbab, type: 3}
+  - {fileID: 21300000, guid: 6181bb0b17084054b87b8f30d2859c9b, type: 3}
+  - {fileID: 21300000, guid: 9c6d1e960c61a0340854c3831926664e, type: 3}
+  - {fileID: 21300000, guid: ccc5abb6b6d1596468bc2e4b1a93d06e, type: 3}
+  - {fileID: 21300000, guid: ad609e6a1d0a17143b058784e386b2e9, type: 3}
+  - {fileID: 21300000, guid: 3fe5a07e131ecdf499d7ffc41c661b4c, type: 3}
+  - {fileID: 21300000, guid: c23a758d92c1f9f468e7a97291b2e98e, type: 3}
   jumpStartFrames:
-  - {fileID: 21300000, guid: c287a8e2cf4e95e409f3e4f76c741163, type: 3}
+  - {fileID: 21300000, guid: 9d1bc0546c3425d4c84e45d24b8c489b, type: 3}
   jumpFrames:
   - {fileID: 21300000, guid: c287a8e2cf4e95e409f3e4f76c741163, type: 3}
-  jumpRiseFrames: []
-  jumpFallFrames: []
+  jumpRiseFrames:
+  - {fileID: 21300000, guid: 9d1bc0546c3425d4c84e45d24b8c489b, type: 3}
+  jumpFallFrames:
+  - {fileID: 21300000, guid: 70f07905d5a89ee499814a8eb7cddbe6, type: 3}
   landFrames:
   - {fileID: 21300000, guid: cc32da62345cfa44394de338b71b4434, type: 3}
   attackFrames:
   - {fileID: 21300000, guid: 4edcef51e0af9b9458e53ed925cd4e3f, type: 3}
+  - {fileID: 21300000, guid: 88a546bcaab97d04894134c4f2ac88cf, type: 3}
+  - {fileID: 21300000, guid: f1ce29e90f382bf4e8c9ff5a37b41a8e, type: 3}
   doubleJumpFrames:
-  - {fileID: 21300000, guid: c287a8e2cf4e95e409f3e4f76c741163, type: 3}
-  runFps: 8
+  - {fileID: 21300000, guid: 9d1bc0546c3425d4c84e45d24b8c489b, type: 3}
+  runFps: 16
   attackFramesSmall: []
   attackFramesLarge: []
   downAttackFrames:
@@ -75,6 +86,8 @@ MonoBehaviour:
   hurtKnockbackMultiplier: 0.8
   hurtFrames:
   - {fileID: 21300000, guid: 82eceb17776100945bd70e6bc3968259, type: 3}
+  - {fileID: 21300000, guid: 29b291f68a3f725418ab081612f4f619, type: 3}
+  - {fileID: 21300000, guid: 5ba0f65745ea123428cadb82c86deead, type: 3}
   recoveryFrames: []
   hurtLeanDegrees: 8
   hurtStaggerDistance: 0.12
@@ -90,16 +103,23 @@ MonoBehaviour:
   highSpeedHitAssistMax: 0.6
   startFrames:
   - {fileID: 21300000, guid: 6ce1613faadaba643bf76256b0767e78, type: 3}
+  - {fileID: 21300000, guid: 3c10b72b773a8324292995a3d5c8640a, type: 3}
+  - {fileID: 21300000, guid: 7285d3b2eaa7aec4d95849ff26af6ed1, type: 3}
+  - {fileID: 21300000, guid: 77741382282c0f644a9ca431cf5c0e9f, type: 3}
   startFps: 0
   startLeanDegrees: 8
   finishShortFrames:
   - {fileID: 21300000, guid: 9210f79436c3bb142b34cc25568be36d, type: 3}
+  - {fileID: 21300000, guid: e3070e0bac3f8f448b9abf4cec8c11e0, type: 3}
   finishMediumFrames:
   - {fileID: 21300000, guid: 48f69beedc969f7408c04c31167dc5d3, type: 3}
+  - {fileID: 21300000, guid: f3f42bd4e99b9524b98536427ac47316, type: 3}
   finishLongFrames:
   - {fileID: 21300000, guid: 15e86d4fb9e0316479af72d7073f7926, type: 3}
+  - {fileID: 21300000, guid: 3b9240b32b37820488f768214d3a674a, type: 3}
   finishExtremeFrames:
   - {fileID: 21300000, guid: 228a753c4aebe8f47bf015af223233b8, type: 3}
+  - {fileID: 21300000, guid: 20af35888ca12df45b47bcf30a373c67, type: 3}
   finishFps: 0
   finishTierCrouchDepth:
   - 0.03
@@ -191,29 +211,46 @@ MonoBehaviour:
   - 0
   deathFrames:
   - {fileID: 21300000, guid: f58162bff6060fa43add492a1e62afdf, type: 3}
+  - {fileID: 21300000, guid: 1ff5a519233ff4343ae5d774a0d7aad3, type: 3}
+  - {fileID: 21300000, guid: e805b986280e9db46a24fe25e93c6c4b, type: 3}
+  - {fileID: 21300000, guid: 3df48d6b4e7c56948a95d3245f5da212, type: 3}
   kit: 8
   kitPoses:
   - name: paw1
     frames:
     - {fileID: 21300000, guid: 4edcef51e0af9b9458e53ed925cd4e3f, type: 3}
+    - {fileID: 21300000, guid: 88a546bcaab97d04894134c4f2ac88cf, type: 3}
+    - {fileID: 21300000, guid: f1ce29e90f382bf4e8c9ff5a37b41a8e, type: 3}
   - name: paw2
     frames:
     - {fileID: 21300000, guid: 72b05deac6339dd4f8085e88f2898fe8, type: 3}
+    - {fileID: 21300000, guid: 171eec2e55838a8448c0216628032dbd, type: 3}
+    - {fileID: 21300000, guid: bdc04d8eba8884f48a8c126045e6c482, type: 3}
   - name: pounce
     frames:
     - {fileID: 21300000, guid: c6fe91c63463871429a80543350a917e, type: 3}
+    - {fileID: 21300000, guid: 47edc941e52f1994cb429c06856932c7, type: 3}
+    - {fileID: 21300000, guid: 40a8d2ac33529fd4e829a39d328739ed, type: 3}
   - name: tail
     frames:
     - {fileID: 21300000, guid: 71b7acffbd8a13c4199a8d862268cd9c, type: 3}
+    - {fileID: 21300000, guid: 022bb0ec1c55bc048bae6470da79f875, type: 3}
+    - {fileID: 21300000, guid: daddbb5acb635b345894592d6bfdcd8d, type: 3}
   - name: leap
     frames:
     - {fileID: 21300000, guid: 9eeb7291c04652844b4edeab61454f8f, type: 3}
+    - {fileID: 21300000, guid: 8f19809de81f07d43ab7c616171e1d8e, type: 3}
+    - {fileID: 21300000, guid: 755b93522dd114b49af55e33c878ae6e, type: 3}
   - name: dive
     frames:
     - {fileID: 21300000, guid: 5fa6cf1abe50bc34bab046cc9d540686, type: 3}
+    - {fileID: 21300000, guid: 2205a8cb0efe88043895235dcbc90cc2, type: 3}
+    - {fileID: 21300000, guid: 7797c4aa2b4f4624a9ed1e1138ae03a9, type: 3}
   - name: scratch
     frames:
     - {fileID: 21300000, guid: b6879e76d0f7a5e4bb6fe2f8f0338010, type: 3}
+    - {fileID: 21300000, guid: 5f71bf11e30441f4388066ccb1fbd291, type: 3}
+    - {fileID: 21300000, guid: 4d6273b6bd5af8145805c57b5fd4938e, type: 3}
   archer:
     chargeMidTime: 0.55
     chargeMaxTime: 1.2

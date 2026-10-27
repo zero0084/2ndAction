@@ -1,0 +1,54 @@
+# ペンタトゥットゥルー星人のコマの一覧(出力の相対パス <TAB> 元の画像 <TAB> 浮かせる px)。元の画像は C:/GameProject/ArtSource_newchar/penta(リポジトリの外)
+# 配置: python frames.py --set <Assets/Art> penta_frames.txt --anchor body --despeck --norm(体の中心でそろえる・伸びる腕で体が跳ばない。離れた小さな効果線は消す・体の面積を走りの1枚目にそろえる)。走り5〜7枚目は左向きで届いたので、元の画像を左右反転して保管(*_orig.png が届いたまま)
+PentaRun_v1/run_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_run_01.png
+PentaRun_v1/run_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_run_02.png
+PentaRun_v1/run_02.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_run_03.png
+PentaRun_v1/run_03.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_run_04.png
+PentaRun_v1/run_04.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_run_05.png
+PentaRun_v1/run_05.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_run_06.png
+PentaRun_v1/run_06.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_run_07.png
+PentaRun_v1/run_07.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_run_08.png
+PentaJumpRise_v1/rise_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_jump_rise.png
+PentaJump_v1/jump_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_jump_apex.png
+PentaJumpFall_v1/fall_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_jump_fall.png
+PentaLand_v1/land_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_land.png
+PentaHurt_v1/hurt_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_hurt_1.png
+PentaHurt_v1/hurt_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_hurt_2.png
+PentaHurt_v1/hurt_02.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_hurt_3.png
+PentaDeath_v1/death_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_down_1.png
+PentaDeath_v1/death_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_down_2.png
+PentaDeath_v1/death_02.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_down_3.png
+PentaDeath_v1/death_03.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_down_4.png
+PentaPoses_v1/stretch1/stretch1_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_stretch1_00.png
+PentaPoses_v1/stretch1/stretch1_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_stretch1_01.png
+PentaPoses_v1/stretch1/stretch1_02.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_stretch1_02.png
+PentaPoses_v1/stretch2/stretch2_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_stretch2_00.png
+PentaPoses_v1/stretch2/stretch2_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_stretch2_01.png
+PentaPoses_v1/stretch2/stretch2_02.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_stretch2_02.png
+PentaPoses_v1/pokapoka/pokapoka_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_pokapoka_00.png
+PentaPoses_v1/pokapoka/pokapoka_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_pokapoka_01.png
+PentaPoses_v1/pokapoka/pokapoka_02.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_pokapoka_02.png
+PentaPoses_v1/bump/bump_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_bump_00.png		keep
+PentaPoses_v1/bump/bump_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_bump_01.png		keep
+PentaPoses_v1/bump/bump_02.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_bump_02.png		keep
+PentaPoses_v1/upreach/upreach_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_upreach_00.png
+PentaPoses_v1/upreach/upreach_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_upreach_01b.png
+PentaPoses_v1/upreach/upreach_02.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_upreach_02.png
+PentaPoses_v1/stomp/stomp_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_stomp_00.png
+PentaPoses_v1/stomp/stomp_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_stomp_01.png
+PentaPoses_v1/stomp/stomp_02.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_stomp_02.png
+PentaPoses_v1/kick/kick_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_kick_00.png
+PentaPoses_v1/kick/kick_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_kick_01.png
+PentaPoses_v1/kick/kick_02.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_pose_kick_02.png
+PentaStart_v1/start_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_start_00.png
+PentaStart_v1/start_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_start_01.png
+PentaStart_v1/start_02.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_start_02.png
+PentaStart_v1/start_03.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_start_03.png
+PentaFinishShort_v1/finishshort_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_finish_short_00.png
+PentaFinishShort_v1/finishshort_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_finish_short_01.png
+PentaFinishMedium_v1/finishmedium_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_finish_medium_00.png
+PentaFinishMedium_v1/finishmedium_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_finish_medium_01.png
+PentaFinishLong_v1/finishlong_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_finish_long_00.png
+PentaFinishLong_v1/finishlong_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_finish_long_01.png
+PentaFinishExtreme_v1/finishextreme_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_finish_extreme_00.png
+PentaFinishExtreme_v1/finishextreme_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_finish_extreme_01.png

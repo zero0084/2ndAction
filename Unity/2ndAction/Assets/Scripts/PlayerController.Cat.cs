@@ -229,7 +229,7 @@ public partial class PlayerController
             kitDiveActive = true;
             kitVerticalVelocity = -p.diveSpeedY;
             lungeVelocityX = p.diveSpeedX;
-            SetKitPose("dive", 0);
+            PlayKitPose("dive", 0.12f, 0.06f, 0, 1); // 0 = 空中で前足を構える(一瞬)→ 1 = 前足を突き出して下へ飛びかかる
             ArmKitBox(new Vector2(0.4f, 0.2f), new Vector2(0.85f, 0.6f), -30f, PlayerAttackKind.Down, p.diveDamageScale, 1.3f, p.diveHitStop);
             if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(2);
             float t = 0f;
@@ -243,7 +243,7 @@ public partial class PlayerController
             kitVerticalVelocity = null;
             lungeVelocityX = 0f;
             DisarmKitBox(token);
-            SetKitPose("dive", 1);
+            SetKitPose("dive", 2); // 2 = 着地して押さえ込む
             KitBlast.Create(transform.position + new Vector3(0.35f, 0.25f, 0f), new KitBlast.Spec { radius = p.diveImpactRadius * AttackRangeMultiplier, active = 0.1f, kind = PlayerAttackKind.DownImpact, damageScale = p.diveImpactDamageScale, knockbackScale = 1.4f, hitStop = p.diveHitStop, fx = KitProjectile.Burst, tint = new Color(1f, 0.88f, 0.65f, 0.9f), fxScale = 0.9f, shake = 0.08f }, owner: this);
             OneShotSpriteEffect.CreateScatterBurst(KitProjectile.Puff, transform.position + new Vector3(0f, 0.08f, 0f), new Color(0.88f, 0.84f, 0.76f, 0.5f), 4, 0.4f, 0.25f, 0.5f, 1.8f, 2.2f, RenderOrder.EnvironmentFx);
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.LandHeavy);

@@ -269,6 +269,8 @@ public class PlayerAnimator : MonoBehaviour
     // 一切関与しない。
     public void ApplyCharacterAnimationSet(CharacterDefinition def)
     {
+        // 2026-10-27: ルカ(小さな四足)はボスと同じ重なり順で、大きなボスの絵に丸ごと隠れていた。体の絵だけカメラ側へ少し寄せて前に描く(既存の12人は0のまま)
+        ApplyVisualDepth(def != null && def.kit == CharacterKit.Cat ? -0.05f : 0f);
         if (!defaultAnimationCaptured)
         {
             defaultAnimationCaptured = true;
@@ -541,6 +543,14 @@ public class PlayerAnimator : MonoBehaviour
     bool puppet;
     State puppetState;
     int puppetFrame, puppetAttackStage = 2, puppetFinishTier;
+
+    // 同じ sortingOrder の絵どうしは、正射影のカメラではカメラに近い(z が小さい)方が前に描かれる
+    void ApplyVisualDepth(float z)
+    {
+        if (visualT == null) return;
+        visualBasePos.z = z;
+        var p = visualT.localPosition; p.z = z; visualT.localPosition = p;
+    }
 
     public void InitPuppet(PlayerAnimator template, CharacterDefinition def)
     {
