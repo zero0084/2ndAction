@@ -34,8 +34,9 @@ public partial class QaSweep
     }
     static string UdRead(string dir, string tag)
     {
-        try { foreach (var l in File.ReadAllLines(Path.Combine(dir, "ids.txt"))) { var p = l.Split('\t'); if (p.Length == 2 && p[0] == tag) return p[1]; } } catch { }
-        return "";
+        string last = ""; // 2026-10-27: 同じ名札が何度も書かれる(試験の繰り返し)ので、最後の物
+        try { foreach (var l in File.ReadAllLines(Path.Combine(dir, "ids.txt"))) { var p = l.Split('\t'); if (p.Length == 2 && p[0] == tag) last = p[1]; } } catch { }
+        return last;
     }
 
     // 起動しただけ / 削除の画面を開いただけでは、サインインもアカウントの作成もしない(新しい端末・削除の後の端末)

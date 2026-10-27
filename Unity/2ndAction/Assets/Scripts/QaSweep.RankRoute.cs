@@ -10,6 +10,8 @@ using UnityEngine;
 //   run    : ランキングに参加(画面の「参加する」と同じ処理)→ ホームの START → 普通に走る(ワープ/無敵なし)→ 長押しの脱出
 //            → RESULT → 「ホームへ」(タップ)→ ホームでランキングの画面を開く → 自分の記録が出るか
 //   reopen : 起動し直して、ランキングの画面だけ開く → 自分の記録(My Best / My Rank)が出るか
+//   cont   : 走る → 途中で中断(ホームへ戻る)→ CONTINUE → 走る → 脱出 → … (-rrPauseAt 既定 180m。-rrRestart 1 なら中断で終わり、次の起動で cont2)
+//   cont2  : 起動し直して CONTINUE → 走る → 脱出 → …
 //  脱出は最初のボスの撃破で使えるようになる。試験では距離 -rrMeters(既定 350m)まで普通に走った後に脱出を使える状態にする
 //  (記録の対象外の印は付かない。ボス戦の分の時間を省くだけ)
 public partial class QaSweep
@@ -26,14 +28,43 @@ public partial class QaSweep
         if (!safe) yield break;
         L($"[rr] phase {phase}: {UgsEnvironment.Describe()} joined={Leaderboard.Joined} pending={Leaderboard.PendingCount} codename='{Codename.Current}'");
 
-        if (phase == "run")
+        if (phase == "run" || phase == "cont" || phase == "cont2")
         {
             if (!Leaderboard.Joined) { Codename.Set("QA Route"); Leaderboard.Join(); }
             float wj = 0f; while (Leaderboard.Sending && wj < 30f) { yield return null; wj += Time.unscaledDeltaTime; }
             StartCoroutine(AutoPickCards());
-            yield return BeginRun("swordsman", "wasteland_road");
             float target = float.Parse(Arg("-rrMeters", "350"), System.Globalization.CultureInfo.InvariantCulture);
             float w = 0f;
+            if (phase != "cont2")
+            {
+                yield return BeginRun("swordsman", "wasteland_road");
+                if (phase == "cont")
+                {
+                    // 2026-10-27: 途中で中断(一時停止 → ホームへ戻る = 中断の保存)→ CONTINUE。-rrRestart 1 ならここで終わり、次の起動の cont2 で続ける
+                    float pauseAt = float.Parse(Arg("-rrPauseAt", "180"), System.Globalization.CultureInfo.InvariantCulture);
+                    while (gm.MaxDistance < pauseAt && !gm.IsGameOver && w < 240f) { yield return null; w += Time.unscaledDeltaTime; }
+                    var r0 = RunLedger.Current;
+                    L($"[rr] interrupting at {gm.MaxDistance:F0}m (run {(r0 != null ? r0.runId.Substring(0, 8) : "-")})");
+                    UdId("RR_cont_run", r0 != null ? r0.runId : "");
+                    stopKeepAlive = true;
+                    yield return ResumeGoHome(); // 一時停止の画面の「ホームへ戻る」と同じ(ReturnToHome = 中断の保存)
+                    Check(gm != null && !gm.HasStarted && RunCheckpoint.HasActiveRun, "cont: back at home with the interrupted run saved (CONTINUE offered)");
+                    if (Arg("-rrRestart", "0") == "1") { L("[rr] interrupted; ending this start (the next start continues)"); yield break; }
+                }
+            }
+            if (phase == "cont" || phase == "cont2")
+            {
+                Check(RunCheckpoint.HasActiveRun, "cont: an interrupted run is waiting (CONTINUE)");
+                yield return ResumeContinue("rank");
+                gm = GameManager.Instance; pc = PlayerController.Instance;
+                stopKeepAlive = false; StartCoroutine(KeepAlive());
+                var r1 = RunLedger.Current;
+                L($"[rr] continued at {gm.MaxDistance:F0}m: ledger run={(r1 != null ? r1.runId.Substring(0, 8) : "-")} legacy={r1?.legacy} debug={r1?.debugUsed}");
+                Check(r1 != null && !r1.legacy && !r1.debugUsed, "cont: the continued run keeps its ledger (official run, not 'legacy')");
+                string before = UdRead(Arg("-udShared", outDir), "RR_cont_run");
+                if (!string.IsNullOrEmpty(before)) Check(r1 != null && r1.runId == before, "cont: same run id as before the interruption");
+                w = 0f;
+            }
             while (gm.MaxDistance < target && !gm.IsGameOver && w < 240f) { yield return null; w += Time.unscaledDeltaTime; }
             var run = RunLedger.Current;
             L($"[rr] ran {gm.MaxDistance:F0}m in {w:F0}s; ledger run={(run != null ? run.runId.Substring(0, 8) : "-")} debug={run?.debugUsed} '{run?.debugWhat}' official={run?.officialStage} test={run?.testProfile} multi={run?.multiplayer} support={run?.Support}");
