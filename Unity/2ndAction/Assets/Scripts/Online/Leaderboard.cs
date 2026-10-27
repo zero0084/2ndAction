@@ -9,7 +9,7 @@ using UnityEngine;
 //  ・2026-10-14(マスター指定): ランキングはソロ(CPU サポートなし)だけ。一度でも CPU サポートを使ったランは、途中で仲間が倒れても投稿しない
 //    (MILE・解放・ローカルの記録は今までどおり)。サポート用の表/スクリプトは作らない。前の版の端末に残ったサポートの送信待ち/自己ベストは
 //    起動時に取り除く(ソロへ振り替えない。PurgeSupportEntries)。
-//  ・対象外: マルチ / 闘技場 / 練習 / Debug Run / テストデータ / デバッグ機能(ワープ・無敵)を使ったラン(途中で OFF に戻しても)/
+//  ・対象外: マルチ / 闘技場 / 練習 / Debug Run / テストデータ(production だけ。2026-10-27)/ デバッグ機能(ワープ・無敵)を使ったラン(途中で OFF に戻しても)/
 //           この仕組みより前の記録・中断データ(成功やデバッグ未使用を確かめられない)/ 開発版の「全部選べる」で選んだ未解放のマップ。
 //  ・オートと疾走出発は使ってよい(使ったかを記録に残し、一覧に印を出す)。
 //  ・参加(公開への同意)は任意。参加しなくても通常プレイとローカルの記録はそのまま。参加した後の対象記録は確定の時に投稿する。
@@ -62,7 +62,10 @@ public static class Leaderboard
         if (r.debugUsed) { why = "debug feature used (" + r.debugWhat + ")"; return false; }
         if (r.legacy) { why = "resumed from an older save (cannot verify)"; return false; }
         if (r.multiplayer) { why = "multiplayer"; return false; }
-        if (r.testProfile) { why = "test data"; return false; }
+        // 2026-10-27: テスト用データ(開発版だけにある)は、公開のランキング(production)にだけ載せない。開発版は production へは送らない
+        //  (UgsEnvironment.MaySubmit)ので、development では普通のランと同じに送る。テスト用データのランキングの参加/自己ベストは
+        //  通常のデータとは別に持つ(SaveProfile の読み替え)。APK 387 の実機: テスト用データで確認していて、どのランも対象外になり送られていなかった
+        if (r.testProfile && UgsEnvironment.IsProduction) { why = "test data"; return false; }
         if (!r.officialStage) { why = "map not officially unlocked (dev selection)"; return false; }
         if (r.Support || !string.IsNullOrEmpty(r.supportIds)) { why = "CPU support used (solo ranking only)"; return false; }
         if (r.maxReached < 1.0) { why = "no distance"; return false; }
@@ -89,6 +92,7 @@ public static class Leaderboard
         bool better = old == null || e.meters > old.meters;
         if (better) { verified.items.RemoveAll(x => SameBoard(x, e)); verified.items.Add(e); Store(VerifiedKey, verified); }
         Log($"verified run {e.stageId} {e.meters}m{(better ? " (new verified best)" : "")}");
+        RankingDiag.Note("VERIFY", $"{e.stageId} {e.meters}m better={better} (before {(old != null ? old.meters + "m" : "none")}) joined={Joined} env={e.env}");
         if (Joined && better) { Enqueue(e); nextAutoFlush = 0f; } // 2026-10-27: ホームへ戻ったらすぐ送る(30秒の間隔を待たない)
     }
 
@@ -206,7 +210,7 @@ public static class Leaderboard
                 var e = q.items.Find(x => !skip.Contains(x.runId) && Sendable(x)); // 別の環境の物は触らない(残す)
                 if (e == null) break;
                 var res = await backend.Submit(e, Codename.Current);
-                if (res.status == SubmitStatus.Failed) { skip.Add(e.runId); anyFailed = true; LastSendError = res.message; Log($"send failed ({why}) {e.stageId}: {res.message} - kept for retry"); continue; }
+                if (res.status == SubmitStatus.Failed) { skip.Add(e.runId); anyFailed = true; LastSendError = res.message; Log($"send failed ({why}) {e.stageId}: {res.message} - kept for retry"); RankingDiag.Note("SEND", $"{BoardId(e.stageId)} {e.meters}m -> FAILED '{res.message}' player={OnlineServices.ShortId(OnlineServices.PlayerId)} env={UgsEnvironment.Name}"); continue; }
                 // 受け付けた/自己ベストより短い/重複/拒否 は、どれも送り直さない
                 q = Load(PendingKey);
                 q.items.RemoveAll(x => x.runId == e.runId);
@@ -216,9 +220,10 @@ public static class Leaderboard
                 SentVersion++;
                 if (!anyFailed) LastSendError = "";
                 Log($"sent {e.stageId} {e.meters}m to '{e.env}' -> {res.status}{(string.IsNullOrEmpty(res.message) ? "" : " (" + res.message + ")")}");
+                RankingDiag.Note("SEND", $"{BoardId(e.stageId)} {e.meters}m -> {res.status}{(string.IsNullOrEmpty(res.message) ? "" : " '" + res.message + "'")} player={OnlineServices.ShortId(OnlineServices.PlayerId)} env={UgsEnvironment.Name}");
             }
         }
-        catch (Exception ex) { LastSendError = ex.GetType().Name; Debug.LogWarning("[Ranking] send error: " + ex.GetType().Name + ": " + ex.Message); }
+        catch (Exception ex) { LastSendError = ex.GetType().Name; Debug.LogWarning("[Ranking] send error: " + ex.GetType().Name + ": " + ex.Message); RankingDiag.Note("SEND", "ERROR " + ex.GetType().Name + ": " + ex.Message); }
         finally { Sending = false; }
     }
 

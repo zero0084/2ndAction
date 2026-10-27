@@ -142,10 +142,10 @@ public static class RunLedger
         var res = new CommitResult();
         LastResult = res;
         var r = Current;
-        if (r == null) { res.skippedWhy = "no run"; return res; }
+        if (r == null) { res.skippedWhy = "no run"; RankingDiag.Note("COMMIT", "not recorded: no run"); return res; }
         if (reachedAtEnd > r.maxReached) r.maxReached = reachedAtEnd;
-        if (DebugRun.WritesBlocked) { res.skippedWhy = "arena/practice/debug run"; return res; }
-        if (r.debugUsed) { res.skippedWhy = "debug feature used (" + r.debugWhat + ")"; Debug.Log("[RunLedger] success not recorded: " + res.skippedWhy); return res; }
+        if (DebugRun.WritesBlocked) { res.skippedWhy = "arena/practice/debug run"; RankingDiag.Note("COMMIT", $"{r.stageId} {r.maxReached:F0}m not recorded: {res.skippedWhy}"); return res; }
+        if (r.debugUsed) { res.skippedWhy = "debug feature used (" + r.debugWhat + ")"; Debug.Log("[RunLedger] success not recorded: " + res.skippedWhy); RankingDiag.Note("COMMIT", $"{r.stageId} {r.maxReached:F0}m not recorded: {res.skippedWhy}"); return res; }
         if (IsCommitted(r.runId)) { res.skippedWhy = "already committed"; Debug.Log("[RunLedger] success already committed (" + r.runId.Substring(0, 8) + ")"); return res; }
 
         // 2026-10-13: 確定したランの ID を最初に書く(この後の SaveStore.Save で記録と一緒に残る。途中で落ちて再開しても二重に足さない)
@@ -163,6 +163,7 @@ public static class RunLedger
         res.rankingEligible = Leaderboard.IsEligible(r, out string why);
         if (res.rankingEligible) Leaderboard.OnSuccessCommitted(r);
         else Debug.Log("[RunLedger] not for ranking: " + why);
+        RankingDiag.Note("COMMIT", $"{stage} {r.maxReached:F1}m ranking={(res.rankingEligible ? "yes" : "NO: " + why)} joined={Leaderboard.Joined} pending={Leaderboard.PendingCount}");
 
         ProgressStats.Flush(false);
         SaveStore.Save();

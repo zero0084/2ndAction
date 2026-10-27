@@ -56,3 +56,67 @@ APK 386(development)の実機で、ソロで脱出 → ホーム → ランキ�
 | クラウド側 | 管理側から読んで、荒野街道 368m・送信の履歴(omm_runs)があることを確認 |
 
 試験で作ったプレイヤー3人は、本物の削除の流れで消した(管理側から見て、ランキング・Cloud Save・アカウントとも無し)。試験用ビルドのレジストリは元に戻した。本物の保存は試験の前後で同一。
+
+---
+
+# 第2報: APK 387 の Android 実機でも記録が載らない件(APK 388)
+
+APK 388(開発版、development へ接続): `Unity/2ndAction/Builds/Android/2ndAction.apk`
+
+## 切り分けの結論
+
+**送信が失敗していたのでも、画面が読めていないのでもなく、「端末が送信しようとしていなかった」。**
+開発版の「テスト用データ」(DEBUG → テストデータ。新規ユーザーと同じ状態で遊べる別のデータ)で遊んだランは、
+ランキングの対象外という決まりがあった(脱出の確定の時に `not for ranking: test data` → 送信待ちに入らない)。
+既存の保存に触れない確認をテスト用データで行っていると、どのランも送られない。テスト用データの印は再起動しても残り、
+テスト用データを最初からにしても同じ(だから「端末データを最初から」でも直らなかった)。
+
+- APK 387 を Android エミュレーターに入れ、テスト用データの状態で同じ実経路(START → 走る → 長押しの脱出 → RESULT → ホーム → ランキング)を通して**再現した**(`[RunLedger] not for ranking: test data`、送信 0)。通常のデータでは同じ APK で送信・表示とも成功
+- Windows の自動試験が通っていたのは、試験が通常のデータ(専用の保存ファイル)で走っていたから。**Android と Windows の違いではなく、「テスト用データかどうか」の違い**だった
+- 第1報の「送信中に画面を開くと空の表が残る」不具合も実際にあった(Android でも再現・修正を確認)
+
+## 修正
+
+1. `Online/Leaderboard.cs` `IsEligible`: テスト用データのランを対象外にするのは **production の時だけ**にした。
+   テスト用データは開発版にしかなく、開発版は production へ送らない(`UgsEnvironment.MaySubmit`)ので、公開のランキングには今までどおり載らない。
+   development では通常のランと同じに送る。テスト用データのランキングの参加/自己ベスト/送信待ちは、通常のデータとは別に持つ(今までどおり)
+2. 開発版だけの診断(`Online/RankingDiag.cs`、ランキングの画面の「DIAG」): 環境 / サービス / サインインと Player ID の先頭6文字 /
+   ランキング ID / 参加・送信待ち / 端末の自己ベスト / 表示中の自分 / **テスト用データ・無敵の ON/OFF** / 最後の確定(対象か、対象外ならその理由)/
+   最後の送信(距離・結果・Player ID・環境)/ 最後の読み込み(件数・自分の順位・Player ID・環境)。
+   アプリのフォルダの `ranking_diag.txt` にも残る(再起動しても読める)。製品版には入らない。秘密・トークン・サービスアカウントの情報は扱わない
+
+## Android(エミュレーター、APK 388、テスト用データ・新しい匿名プレイヤー)での確認
+
+| 確認の点 | 結果 |
+|---|---|
+| 1. Anonymous Authentication | 成功 |
+| 2. Player ID | 取得できている(診断に先頭6文字) |
+| 3. UGS Environment | development |
+| 4. 脱出成功で送信処理 | 呼ばれる(`COMMIT … ranking=yes` → 送信待ち 1) |
+| 5. Map / Leaderboard ID | `wasteland_road` / `omm_best_wasteland_road` |
+| 6. Distance | 371.1m 走って 371m |
+| 7. 送信の返事 | Accepted |
+| 8. Android/IL2CPP 特有の例外 | ランキング・認証・Cloud Code の経路には無し(ログに出ていたのは Play の Asset Pack の確認と広告 SDK の内部の報告で、無関係) |
+| 9. 送信と取得の Player ID | 同じ |
+| 10. 送信と取得の環境 | 同じ(development) |
+| 11. 管理側から development のランキングを直接読む | 荒野街道 371m・送信の履歴(omm_runs)あり |
+| 12. ランキングの画面の My Rank / My Best | 送信中に開いた時は 0件 → 送信の後に自動で読み直して「あなた: #1 371m」 |
+
+診断の記録(実際の順):
+```
+COMMIT wasteland_road 371.1m ranking=yes joined=True pending=1
+LOAD   omm_best_wasteland_road total=0 me=none        (送信中に画面を開いた)
+SEND   omm_best_wasteland_road 371m -> Accepted
+LOAD   omm_best_wasteland_road total=1 me=#1 371m     (送信の後に自動で読み直した)
+```
+画面: `shots/android_388_testdata_panel.png`(診断の表示つき)
+
+試験で作った匿名プレイヤーは、本物の削除の流れで消した(管理側から見て、ランキング・Cloud Save・アカウントとも無し)。
+
+## 実機で確認していただく時
+
+- ランキングの画面の下に緑の字の診断が出る(右上の「DIAG ON」で隠せる)。記録が載らない時は、この画面を撮っていただければ原因が分かる
+  - `test data=ON` は問題なし(今回から development では送る)
+  - `invincible=ON` の時は、そのランは記録されない(開発版の無敵。DEBUG パネルで OFF に)
+  - `last commit … ranking=NO: <理由>` に、対象外の理由が出る
+- 開発版の「無敵」も同じく記録されない決まり(テスト用データでも通常のデータでも)。こちらは仕様のまま

@@ -57,8 +57,16 @@ public class RankingPanel : MonoBehaviour
         if (!force && cache.ContainsKey(st) && Time.realtimeSinceStartup - lastLoadAt < 20f) return;
         if (Time.realtimeSinceStartup - lastLoadAt < 2f && force && !afterSend) return; // 連打で API を呼びすぎない(送信の後の読み直しは別)
         loadingStage = st; errorStage = null; lastLoadAt = Time.realtimeSinceStartup;
-        try { var page = await Leaderboard.Backend.Load(st, 50); cache[st] = page; }
-        catch (System.Exception e) { errorStage = st; errorText = e.GetType().Name; Debug.LogWarning("[Ranking] load failed: " + e.GetType().Name + ": " + e.Message); }
+        try
+        {
+            var page = await Leaderboard.Backend.Load(st, 50); cache[st] = page;
+            RankingDiag.Note("LOAD", $"{Leaderboard.BoardId(st)} total={page.total} me={(page.me != null ? "#" + page.me.rank + " " + page.me.meters + "m" : "none")} player={OnlineServices.ShortId(OnlineServices.PlayerId)} env={OnlineServices.EnvironmentName}");
+        }
+        catch (System.Exception e)
+        {
+            errorStage = st; errorText = e.GetType().Name; Debug.LogWarning("[Ranking] load failed: " + e.GetType().Name + ": " + e.Message);
+            RankingDiag.Note("LOAD", $"{Leaderboard.BoardId(st)} FAILED {e.GetType().Name}: {e.Message} env={OnlineServices.EnvironmentName}");
+        }
         finally
         {
             if (loadingStage == st) loadingStage = null;
@@ -109,6 +117,9 @@ public class RankingPanel : MonoBehaviour
         var body = new Rect(panel.x + 24f, panel.y + 70f, panel.width - 48f, panel.height - 70f - 80f);
         if (!Leaderboard.Joined) DrawJoin(body);
         else DrawBoard(body);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        DrawDiag(panel, body);
+#endif
 
         if (UiKit.Button(new Rect(panel.center.x - 110f, panel.yMax - 68f, 220f, 52f), "閉じる", 22f, true)) Close();
 
@@ -117,6 +128,38 @@ public class RankingPanel : MonoBehaviour
         GUI.matrix = keep;
         PadNav.EndLayer(padLayer);
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 2026-10-27: 開発版だけの診断(APK 387 の実機で記録が載らない件の切り分け)。秘密・トークンは出さない。PlayerId は先頭6文字
+    bool diagOn = true;
+    void DrawDiag(Rect panel, Rect body)
+    {
+        if (GUI.Button(new Rect(panel.xMax - 150f, panel.y + 18f, 70f, 36f), diagOn ? "DIAG ON" : "DIAG")) diagOn = !diagOn;
+        if (!diagOn) return;
+        var tabs = Tabs();
+        string st = tabs.Count > 0 ? tabs[Mathf.Clamp(tab, 0, tabs.Count - 1)] : "-";
+        bool init = Unity.Services.Core.UnityServices.State == Unity.Services.Core.ServicesInitializationState.Initialized;
+        bool signed = init && Unity.Services.Authentication.AuthenticationService.Instance.IsSignedIn;
+        string pid = signed ? OnlineServices.ShortId(Unity.Services.Authentication.AuthenticationService.Instance.PlayerId) : "-";
+        var vb = Leaderboard.VerifiedBest(st);
+        cache.TryGetValue(st, out var page);
+        string[] l =
+        {
+            $"UGS env={UgsEnvironment.Name}  services={(init ? "ok" : Unity.Services.Core.UnityServices.State.ToString())}  auth={(signed ? "signed in" : "not signed in")} {pid}  online={OnlineServices.Status} {OnlineServices.ErrorDetail}",
+            $"board={Leaderboard.BoardId(st)}  joined={Leaderboard.Joined}  pending={Leaderboard.PendingCount} held={Leaderboard.HeldCount} sending={Leaderboard.Sending}  device best(ranking)={(vb != null ? vb.meters + "m" : "none")}  shown me={(page?.me != null ? "#" + page.me.rank + " " + page.me.meters + "m" : page != null ? "none (total " + page.total + ")" : "not loaded")}",
+            $"test data={(SaveProfile.IsTest ? "ON" : "off")}  invincible={(GameManager.Instance != null && GameManager.Instance.InvincibleMode ? "ON (runs are not recorded)" : "off")}",
+            "last commit: " + Short(RankingDiag.LastCommit),
+            "last send:   " + Short(RankingDiag.LastSubmit) + (string.IsNullOrEmpty(Leaderboard.LastSendError) ? "" : "  lastError=" + Leaderboard.LastSendError),
+            "last load:   " + Short(RankingDiag.LastLoad),
+        };
+        var box = new Rect(body.x, body.yMax - 44f - 152f, body.width, 152f); // 下の「更新」などのボタンの上
+        UiKit.Fill(box, new Color(0f, 0f, 0f, 0.82f));
+        var stl = new GUIStyle(GUI.skin.label) { fontSize = 12, wordWrap = false, clipping = TextClipping.Clip };
+        stl.normal.textColor = new Color(0.6f, 1f, 0.7f);
+        for (int i = 0; i < l.Length; i++) GUI.Label(new Rect(box.x + 6f, box.y + 4f + i * 24f, box.width - 12f, 24f), l[i], stl);
+    }
+    static string Short(string s) => string.IsNullOrEmpty(s) ? "(none yet)" : s.Length > 150 ? s.Substring(0, 150) + "…" : s;
+#endif
 
     // ---------------------------------------------------------------- 参加の案内
     void DrawJoin(Rect r)
