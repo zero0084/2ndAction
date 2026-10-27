@@ -166,6 +166,8 @@ public partial class PlayerController
             case CharacterKit.Ninja: return new Vector2(1.1f, 0.6f);
             case CharacterKit.Vampire: return new Vector2(1.05f, 0.65f);
             case CharacterKit.Dragonkin: return new Vector2(1.15f, 0.7f);
+            case CharacterKit.Cat: return new Vector2(0.95f, 0.45f);   // ルカ: 前足の高さ(低い)
+            case CharacterKit.Cloud: return new Vector2(1.6f, 0.5f);   // 宇宙人: 伸びた腕の中ほど
         }
         if (noble && BalanceTuning.NobleMoves) return new Vector2(1.05f, 0.35f); // お嬢様: 空中の薙ぎ払い(前と下)
         return new Vector2(1.1f, 0.55f);                                   // 黒剣士/双剣士: 通常攻撃の箱

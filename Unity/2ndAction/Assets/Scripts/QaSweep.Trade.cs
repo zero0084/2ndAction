@@ -14,7 +14,7 @@ using UnityEngine;
 //     off=改修前(MeleeReach/Contact Graceなし)、on=改修後。
 public partial class QaSweep
 {
-    static readonly string[] TradeChars = { "swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin" };
+    static readonly string[] TradeChars = { "swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin", "luka", "pentatuttulu" };
 
     class TradeRec { public string ch, mode, result; public float kmh, gap; }
     readonly List<TradeRec> tradeRecs = new List<TradeRec>();

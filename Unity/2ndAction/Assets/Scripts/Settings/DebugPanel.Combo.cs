@@ -17,7 +17,7 @@ public partial class DebugPanel
             int col = i % 6, row = i / 6;
             if (UiKit.Button(new Rect(x + col * (cw + 6f), y + row * 30f, cw, 26f), EndgameDebug.UltCharLabel(chars[i]), 10f, EndgameDebug.SelectedComboChar == chars[i], false)) EndgameDebug.SelectedComboChar = chars[i];
         }
-        y += 2 * 30f + 2f;
+        y += ((chars.Length + 5) / 6) * 30f + 2f; // 2026-10-27: 14人
         string[] stages = { "wasteland_road", "natural_cave", "sky_corridor" };
         float sw = (full - 2f * 6f) / 3f;
         for (int i = 0; i < 3; i++) if (UiKit.Button(new Rect(x + i * (sw + 6f), y, sw, 26f), EndgameDebug.StageLabel(stages[i]), 11f, EndgameDebug.SelectedComboStage == stages[i], false)) EndgameDebug.SelectedComboStage = stages[i];

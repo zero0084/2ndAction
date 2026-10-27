@@ -25,6 +25,8 @@ public static class UltimateFx
         "dragonkin" => new Theme { main = new Color(1f, 0.36f, 0.1f), sub = new Color(1f, 0.86f, 0.22f), flash = new Color(1f, 0.52f, 0.2f) },
         "vampire" => new Theme { main = new Color(0.78f, 0.05f, 0.12f), sub = new Color(0.16f, 0f, 0.06f), flash = new Color(1f, 0.22f, 0.28f) },
         "miko" => new Theme { main = new Color(1f, 0.3f, 0.3f), sub = new Color(1f, 1f, 0.95f), flash = new Color(1f, 0.8f, 0.5f) },
+        "luka" => new Theme { main = new Color(1f, 0.7f, 0.35f), sub = new Color(1f, 0.97f, 0.9f), flash = new Color(1f, 0.85f, 0.55f) },         // 2026-10-27: 茶トラ
+        "pentatuttulu" => new Theme { main = new Color(0.62f, 0.85f, 1f), sub = Color.white, flash = new Color(0.85f, 0.95f, 1f) },              // 2026-10-27: 白い雲と薄い水色
         _ => new Theme { main = new Color(1f, 0.8f, 0.3f), sub = Color.white, flash = Color.white },
     };
     public static Color ThemeColor(string ch) { var t = ThemeOf(ch); return ch == "swordsman" || ch == "ninja" || ch == "vampire" ? t.flash : t.main; }
@@ -44,6 +46,8 @@ public static class UltimateFx
         "dragonkin" => "オーバーヒート",
         "vampire" => "ジ・エンド",
         "miko" => "爆撃結界",
+        "luka" => "ねこまっしぐら",
+        "pentatuttulu" => "ペンタトゥットゥルー・ビッグバン",
         _ => "ULTIMATE",
     };
 
@@ -667,7 +671,7 @@ public class UltimateFxLabel : MonoBehaviour
         if (warmedSize == size) return;
         warmedSize = size;
         var sb = new System.Text.StringBuilder("ULTIMATE READY BUFF MULTI× 0123456789.%s!");
-        foreach (var ch in new[] { "swordsman", "noble_lady", "dual_blade", "gunslinger", "dragon_lancer", "mage", "archer", "fighter", "ninja", "dragonkin", "vampire", "miko" }) sb.Append(UltimateFx.ArtName(ch));
+        foreach (var ch in new[] { "swordsman", "noble_lady", "dual_blade", "gunslinger", "dragon_lancer", "mage", "archer", "fighter", "ninja", "dragonkin", "vampire", "miko", "luka", "pentatuttulu" }) sb.Append(UltimateFx.ArtName(ch));
         Font f = GUI.skin.font;
         if (f != null) { f.RequestCharactersInTexture(sb.ToString(), size, FontStyle.Bold); f.RequestCharactersInTexture("カードなし発動中選択中ボス登場中今は使えない被弾中BONUS中準備中", Mathf.RoundToInt(Mathf.Clamp(Screen.height * 0.12f, 84f, 160f) * 0.22f), FontStyle.Bold); }
     }

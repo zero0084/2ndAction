@@ -96,11 +96,11 @@ public class NewChars2AutoTest : MonoBehaviour
 
         L($"[Select] selected={gm.SelectedCharacterId} activeRun={gm.ActiveRunCharacterId} kit={pc.Kit} lives={gm.Lives}/{gm.maxLives}");
         Check(gm.SelectedCharacterId == "miko" && pc.Kit == CharacterKit.Miko, "miko selected via NEW RUN");
-        Check(CharacterDatabase.AllCharacters.Count == 12, $"12 characters in database (got {CharacterDatabase.AllCharacters.Count})");
+        Check(CharacterDatabase.AllCharacters.Count >= 12, $"at least 12 characters in database (got {CharacterDatabase.AllCharacters.Count})"); // 2026-10-27: 14人
         var order = new List<string>();
         foreach (var c in CharacterDatabase.AllCharacters) order.Add(c.characterId);
         L("   order: " + string.Join(",", order));
-        Check(order.Count == 12 && order[9] == "miko" && order[10] == "vampire" && order[11] == "dragonkin", "new three are 10th/11th/12th");
+        Check(order.Count >= 12 && order[9] == "miko" && order[10] == "vampire" && order[11] == "dragonkin", "new three are 10th/11th/12th");
 
         yield return Switch("swordsman");
         baseBodySize = pc.GetComponent<BoxCollider2D>().size;

@@ -406,7 +406,7 @@ public partial class DebugPanel
             int col = i % 4, row = i / 4;
             if (UiKit.Button(new Rect(x + col * (cw + 6f), y + row * 38f, cw, 34f), EndgameDebug.UltCharLabel(chars[i]), 12f, EndgameDebug.SelectedUltChar == chars[i], false)) EndgameDebug.SelectedUltChar = chars[i];
         }
-        y += 3 * 38f + 4f;
+        y += ((chars.Length + 3) / 4) * 38f + 4f; // 2026-10-27: 14人(行の数はキャラの数から)
         int[] lvs = { 1, 5, 9 };
         var stages = new[] { "wasteland_road", "natural_cave", "sky_corridor" };
         float sw = (full - 5f * 6f) / 6f;
@@ -624,7 +624,7 @@ public partial class DebugPanel
             int col = i % 6, row = i / 6;
             if (UiKit.Button(new Rect(x + col * (cw + 6f), y + row * 34f, cw, 30f), EndgameDebug.UltCharLabel(chars[i]), 11f, EndgameDebug.SelectedFeChar == chars[i], false)) EndgameDebug.SelectedFeChar = chars[i];
         }
-        y += 2 * 34f + 4f;
+        y += ((chars.Length + 5) / 6) * 34f + 4f; // 2026-10-27: 14人(行の数はキャラの数から)
         string[] stages = { "wasteland_road", "natural_cave", "sky_corridor" };
         float sw = (full - 2f * 6f) / 3f;
         for (int i = 0; i < 3; i++) if (UiKit.Button(new Rect(x + i * (sw + 6f), y, sw, 30f), EndgameDebug.StageLabel(stages[i]), 12f, EndgameDebug.SelectedFeStage == stages[i], false)) EndgameDebug.SelectedFeStage = stages[i];

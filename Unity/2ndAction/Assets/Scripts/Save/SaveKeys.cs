@@ -27,6 +27,7 @@ public static class SaveKeys
     public const string LifetimeDistance = "LifetimeDistance";          // ゲーム全体の累計走行距離(m、double文字列)
     public const string ReaperMetPrefix = "ReaperMet_";                // + Eldest / Second / Youngest (int 0/1)
     public const string FinalDungeonUnlocked = "FinalDungeonUnlocked"; // int 0/1(一度1になったら戻さない)
+    public const string GameCleared = "GameClearedV1";                 // int 0/1: ソロで三姉妹を倒しエンディングへ到達した(2026-10-27。一度1になったら戻さない)
     public const string BossSeen = "BossSeenV1";
     public const string ArenaConfig = "ArenaConfigV1";                 // 闘技場の最後の構成(JSON。練習の設定なので「設定」。デッキ/所持には書かない)
     public const string SprintGates = "SprintGatesV1";                 // 疾走出発の解放: マップごとに実際に倒した 10,000m 刻みの門番(2026-10-05)
@@ -60,6 +61,7 @@ public static class SaveKeys
         new Entry(ReaperMetPrefix + "Second", SaveCategory.Progress, SaveType.Int, "死神三姉妹 次女と遭遇"),
         new Entry(ReaperMetPrefix + "Youngest", SaveCategory.Progress, SaveType.Int, "死神三姉妹 三女と遭遇"),
         new Entry(FinalDungeonUnlocked, SaveCategory.Progress, SaveType.Int, "ラスダン(LAST CORRIDOR)解放"),
+        new Entry(GameCleared, SaveCategory.Progress, SaveType.Int, "ゲームクリア: ソロで三姉妹を倒しエンディングへ到達(2026-10-27。ルカ/ペンタトゥットゥルー星人の解放の条件。過去の記録から推測しない)"),
         new Entry(BossSeen, SaveCategory.Progress, SaveType.String, "会ったボス(カンマ区切り。ラスダンの節目のボスの抽選に使う)"),
         new Entry(SprintGates, SaveCategory.Progress, SaveType.String, "疾走出発の解放: マップごとに実際に倒した10,000m刻みの門番"),
         new Entry(DevSprintUnlockAll, SaveCategory.Dev, SaveType.Int, "開発版: 疾走出発の行き先を全部選べる"),
@@ -155,7 +157,7 @@ public static class SaveKeys
     }
 
     // 可変のキー: キャラごとのキャラカード枠(CharacterCardSlots.<characterId>、2026-10-02)
-    static readonly string[] KnownCharacterIds = { "swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin" };
+    static readonly string[] KnownCharacterIds = { "swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin", "luka", "pentatuttulu" };
     public static IEnumerable<string> CharacterCardKeys()
     {
         var ids = new HashSet<string>(KnownCharacterIds);

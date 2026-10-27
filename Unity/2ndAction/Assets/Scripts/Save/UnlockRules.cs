@@ -43,6 +43,11 @@ public static class UnlockRules
         new Rule("ninja", Sky, 30000f), new Rule("miko", Sky, 50000f), new Rule("vampire", Sky, 100000f),
     };
     public const string StartCharacter = "swordsman", HiddenCharacter = "dragonkin", NobleLady = "noble_lady";
+    // 2026-10-27: クリア後のご褒美(ソロで三姉妹を倒しエンディングへ到達 = ProgressStats.GameCleared)。2人同時に解放、ホームで1回だけ一緒に知らせる。
+    //  過去の記録からは推測しない(この版より前にクリアしたデータも、もう一度エンディングへ着くと解放)
+    public const string Luka = "luka", Penta = "pentatuttulu";
+    public static readonly string[] ClearRewardCharacters = { Luka, Penta };
+    static bool IsClearReward(string id) => System.Array.IndexOf(ClearRewardCharacters, id) >= 0;
 
     static HashSet<string> stages, chars, notified;
     static readonly Dictionary<string, double> reach = new Dictionary<string, double>();
@@ -272,6 +277,34 @@ public static class UnlockRules
         }
     }
 
+    // ゲームクリアの時(LastDungeonFlow のエンディングの始まり): 記録を書き、2人を解放して、ホームで1回だけ知らせる
+    public static void OnGameCleared()
+    {
+        if (DebugRun.WritesBlocked) return;
+        ProgressStats.MarkGameCleared();
+        EvaluateClearRewards();
+    }
+
+    // クリアの記録があれば2人を解放(起動の時にも呼ぶ。記録の後で落ちても解放を失わない)
+    public static void EvaluateClearRewards()
+    {
+        if (!ProgressStats.GameCleared || DebugRun.WritesBlocked) return;
+        bool any = false;
+        foreach (var c in ClearRewardCharacters) any |= UnlockChar(c, notify: false);
+        if (any) Debug.Log("[Unlock] clear rewards: LUKA + PENTATUTTULU");
+        QueueClearRewardNotice();
+    }
+
+    static void QueueClearRewardNotice()
+    {
+        if (!ProgressStats.GameCleared) return;
+        bool pending = false;
+        foreach (var c in ClearRewardCharacters) if (Chars.Contains(c) && !Notified.Contains("c:" + c)) pending = true;
+        if (!pending) return;
+        NoticeQueue.Enqueue("unlock_clear_rewards", $"{CharName(Luka)} と {CharName(Penta)} が仲間になりました",
+            "最後の道を走り抜けたあなたへ。\nキャラ選択で選べます。", () => { foreach (var c in ClearRewardCharacters) MarkNotified("c:" + c); }, special: true);
+    }
+
     static void EnsureRevealQueued()
     {
         if (!ProgressStats.FinalDungeonUnlocked || SaveStore.GetInt(RevealShownKey, 0) != 0) return;
@@ -286,8 +319,9 @@ public static class UnlockRules
     public static void RequeuePending()
     {
         foreach (var s in Stages) QueueNotice("s:" + s);
-        foreach (var c in Chars) if (c != HiddenCharacter || SaveStore.GetInt(RevealShownKey, 0) != 0) QueueNotice("c:" + c);
+        foreach (var c in Chars) if (!IsClearReward(c) && (c != HiddenCharacter || SaveStore.GetInt(RevealShownKey, 0) != 0)) QueueNotice("c:" + c);
         EvaluateLastDungeon();
+        EvaluateClearRewards(); // クリアのご褒美の2人は一緒に1回だけ
     }
 
     // ---------------------------------------------------------------- 起動時(SaveSystem.Boot)
@@ -302,7 +336,8 @@ public static class UnlockRules
             // 既存のデータ: 今まで全部使えた(解放の仕組みが無かった)ので、取り上げずに全部解放済みにする。お知らせは出さない
             var st = new List<string> { Cave, Sky, Arena };
             var ch = new List<string>();
-            foreach (var c in CharacterDatabase.AllCharacters) if (c != null && c.characterId != StartCharacter) ch.Add(c.characterId);
+            // クリアのご褒美の2人は含めない(この仕組みより前のデータからクリアを推測しない。2026-10-27)
+            foreach (var c in CharacterDatabase.AllCharacters) if (c != null && c.characterId != StartCharacter && !IsClearReward(c.characterId)) ch.Add(c.characterId);
             SaveStore.SetString(StagesKey, string.Join(",", st));
             SaveStore.SetString(CharsKey, string.Join(",", ch));
             var n = new List<string>();

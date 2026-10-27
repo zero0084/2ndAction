@@ -456,7 +456,7 @@ public partial class QaSweep
         // ---------------- H: 縦画面の斜め表示の見え方(全キャラ / 地上・空の敵 / 横画面との比較) ----------------
         if (F5('H'))
         {
-            string[] chars = Arg("-qaFix5Chars", "swordsman,dual_blade,noble_lady,gunslinger,dragon_lancer,archer,mage,fighter,ninja,miko,vampire,dragonkin").Split(',');
+            string[] chars = Arg("-qaFix5Chars", "swordsman,dual_blade,noble_lady,gunslinger,dragon_lancer,archer,mage,fighter,ninja,miko,vampire,dragonkin,luka,pentatuttulu").Split(',');
             foreach (var ch in chars)
                 foreach (var res in new[] { (540, 960), (960, 540) })
                 {

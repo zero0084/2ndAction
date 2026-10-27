@@ -330,6 +330,8 @@ public class CharacterDefinition : ScriptableObject
     public MikoKitParams miko = new MikoKitParams();
     public VampireKitParams vampire = new VampireKitParams();
     public DragonkinKitParams dragonkin = new DragonkinKitParams();
+    public CatKitParams cat = new CatKitParams();       // 13人目 ルカ(2026-10-27)
+    public CloudKitParams cloud = new CloudKitParams(); // 14人目 ペンタトゥットゥルー星人(2026-10-27)
 
     public Sprite[] FindKitPose(string poseName)
     {

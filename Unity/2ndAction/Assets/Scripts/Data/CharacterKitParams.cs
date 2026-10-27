@@ -7,7 +7,8 @@ using UnityEngine;
 // kit=Standard(既定値)のままなので、ここにある値は一切参照されない。
 // 調整値はすべてInspectorで変えられる(CharacterDefinitionの各パラメータ)。
 // 10〜12人目(2026-09-28)は末尾に追加(アセットには番号で保存されるため、既存の並びは変えない)。
-public enum CharacterKit { Standard, Archer, Mage, Fighter, Ninja, Miko, Vampire, Dragonkin }
+// 13・14人目(2026-10-27、クリア後のご褒美): Cat = ルカ / Cloud = ペンタトゥットゥルー星人(末尾に追加)
+public enum CharacterKit { Standard, Archer, Mage, Fighter, Ninja, Miko, Vampire, Dragonkin, Cat, Cloud }
 
 // 攻撃ごとのポーズ(名前で引く)。frames が空なら通常の攻撃絵/走り絵のまま。
 [Serializable]
@@ -315,4 +316,96 @@ public class DragonkinKitParams
     public float burnTick = 0.3f;
     public float burnTickDamageScale = 0.35f;
     [Tooltip("体が大きい=当たり判定が大きい")] public float bodyScale = 1.15f;
+}
+
+// 13人目 ルカ(猫、役割 AGILE / POUNCE、2026-10-27)。四足の小さな体で手数を出し、飛びつきで高い所にも届く。無敵の技は持たない。
+[Serializable]
+public class CatKitParams
+{
+    [Header("前: 猫パンチ → 猫パンチ → 飛びかかり")]
+    public float[] comboWindup = { 0.04f, 0.04f, 0.1f };
+    public float[] comboActive = { 0.07f, 0.07f, 0.14f };
+    public float[] comboRecovery = { 0.09f, 0.09f, 0.3f };
+    public float[] comboReach = { 0.85f, 0.9f, 1.15f };
+    [Tooltip("3段目は前へ跳ぶ(lunge = 前進の距離)")] public float[] comboLunge = { 0.25f, 0.3f, 1.3f };
+    public float[] comboDamageScale = { 0.75f, 0.75f, 1.7f };
+    public float[] comboKnockbackScale = { 0.3f, 0.3f, 1.6f };
+    public float[] comboHitStop = { 0.03f, 0.03f, 0.09f };
+    [Tooltip("飛びかかりの小さな跳び上がり(jumpForce に対する倍率。地上で出した時だけ)")] public float pounceHop = 0.32f;
+    public float comboGrace = 0.32f;
+    [Tooltip("パンチの判定の高さ(足元から。体の中ほど)/ 厚み")] public float hitHeight = 0.42f;
+    public float hitThickness = 0.62f;
+    [Header("後: 小さな後ろ跳び+しっぽ払い(穴へ飛び込まないよう小さく、空中では後ろへ下がらない)")]
+    public float backHopDistance = 0.55f;
+    public float backHopTime = 0.14f;
+    public float backHopUp = 0.25f; // jumpForce に対する倍率(地上の時だけ。わずかに浮く)
+    public float tailReach = 1.05f;
+    public float tailDamageScale = 0.9f;
+    public float tailKnockbackScale = 1.1f;
+    public float backRecovery = 0.18f;
+    [Header("上: 斜め上への飛びつき(空中では1回のジャンプにつき1回)")]
+    public float leapSpeedY = 10.2f;
+    public float leapDistanceX = 1.4f;
+    public float leapTime = 0.16f;
+    public float leapDamageScale = 1.1f;
+    [Header("下: 空中=前脚を突き出して飛びかかり急降下 / 地上=低い引っかき")]
+    public float diveSpeedY = 15f;
+    public float diveSpeedX = 4.5f;
+    public float diveDamageScale = 1.4f;
+    public float diveImpactRadius = 0.95f;
+    public float diveImpactDamageScale = 1.1f;
+    public float diveHitStop = 0.07f;
+    public float scratchReach = 1.0f;
+    public float scratchActive = 0.1f;
+    public float scratchRecovery = 0.18f;
+    public float scratchDamageScale = 1f;
+    [Header("体: 四足の胴体を中心にした当たり判定(足元から。耳としっぽは含めない)")]
+    public Vector2 bodySize = new Vector2(0.95f, 0.6f);
+}
+
+// 14人目 ペンタトゥットゥルー星人(役割 BOUNCE / STRETCH、2026-10-27)。手足が伸びて遠くへ届くが、伸ばす溜めと戻りの隙がある。
+// 飛ばない(普通のジャンプと落下)。下攻撃が敵に当たった時だけ、ぽよんと跳ね返る(1回のジャンプにつき1回)。
+[Serializable]
+public class CloudKitParams
+{
+    [Header("前: のびーるパンチ → 反対の腕 → 両腕でぽかぽか")]
+    public float[] comboWindup = { 0.12f, 0.1f, 0.08f };
+    public float[] comboActive = { 0.1f, 0.1f, 0.18f };
+    public float[] comboRecovery = { 0.18f, 0.16f, 0.3f };
+    public float[] comboReach = { 2.5f, 2.5f, 1.15f }; // 2026-10-27 監査: 2.1 では格闘家(連撃の踏み込み込みで 3.2m)と変わらなかった
+    public float[] comboLunge = { 0f, 0f, 0.35f };
+    public float[] comboDamageScale = { 0.85f, 0.85f, 1.6f };
+    public float[] comboKnockbackScale = { 0.6f, 0.6f, 1.5f };
+    public float[] comboHitStop = { 0.04f, 0.04f, 0.08f };
+    public float comboGrace = 0.34f;
+    [Tooltip("腕の判定の高さ(足元から)/ 太さ")] public float hitHeight = 0.5f;
+    public float hitThickness = 0.42f;
+    [Header("後: もくもくバンプ(体を膨らませて背中側を弾く。ダメージ弱め・ノックバック強め)")]
+    public float bumpWindup = 0.08f;
+    public float bumpActive = 0.14f;
+    public float bumpRecovery = 0.22f;
+    public float bumpReach = 1.2f;
+    public float bumpDamageScale = 0.6f;
+    public float bumpKnockbackScale = 2.4f;
+    [Header("上: 触角がぴんと立つ → 両腕が真上へ伸びる(対空)")]
+    public float upHop = 0.9f;        // jumpForce に対する倍率
+    public float upWindup = 0.06f;
+    public float upActive = 0.18f;
+    public float upReach = 2.2f;      // 上への長さ
+    public float upDamageScale = 1.2f;
+    [Header("下: 空中=丸まってぽよんスタンプ / 地上=のびーるキック")]
+    public float stompSpeedY = 14f;
+    public float stompSpeedX = 2f;
+    public float stompDamageScale = 1.3f;
+    public float stompImpactRadius = 1.25f;
+    public float stompImpactDamageScale = 1.1f;
+    public float stompHitStop = 0.08f;
+    [Tooltip("下攻撃が敵に当たった時の跳ね返り(jumpForce に対する倍率)。1回のジャンプにつき1回")] public float bounceJump = 0.85f;
+    [Tooltip("跳ね返りの上に天井があれば、ここまで弱める(天井へ繰り返しぶつからない)")] public float bounceCeilingMargin = 0.4f;
+    public float kickReach = 1.9f;
+    public float kickActive = 0.12f;
+    public float kickRecovery = 0.24f;
+    public float kickDamageScale = 1f;
+    [Header("体: もくもくの体の当たり判定(足元から。触角・手足の先は含めない)")]
+    public Vector2 bodySize = new Vector2(1.1f, 0.78f);
 }

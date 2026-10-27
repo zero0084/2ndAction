@@ -30,7 +30,7 @@ public class LanRoom
 
 public class LanDiscovery : MonoBehaviour
 {
-    public const int MultiplayerProtocolVersion = 9;   // 2026-10-19: 9 = LOCAL の通信を DTLS で暗号化(LanSecurity)・部屋の案内に HOST の証明書・部屋の名前は汎用(ROOM xxxx)。2026-10-16: 8 = 協力のラッシュの完走報酬を参加者全員へ(SyncRushReward)。2026-10-15: 7 = WANTED の Lv(NetPlayer)と賞金首の印(OpWanted)・協力のボスラッシュ。6 = 撃破の知らせに WANTED の賞金
+    public const int MultiplayerProtocolVersion = 10;  // 2026-10-27: 10 = 13・14人目(ルカ/ペンタトゥットゥルー星人。旧版は知らないキャラを表示できないので、版の違う端末と部屋を混ぜない)。2026-10-19: 9 = LOCAL の通信を DTLS で暗号化(LanSecurity)・部屋の案内に HOST の証明書・部屋の名前は汎用(ROOM xxxx)。2026-10-16: 8 = 協力のラッシュの完走報酬を参加者全員へ(SyncRushReward)。2026-10-15: 7 = WANTED の Lv(NetPlayer)と賞金首の印(OpWanted)・協力のボスラッシュ。6 = 撃破の知らせに WANTED の賞金
     public const int PreviousProtocolVersion = 8;   // 2026-10-12: 4 = 位置/敵の状態を詰めた形・位置の中継を送り先ごとに1件へまとめる(3: 中継を HOST が送り先ごとに行う)
     //   // 2026-10-08: 2 = コードネーム(NetPlayer.CodenameVar)を追加   // 部屋の知らせ+ゲームの同期の版(違えば一覧で VERSION MISMATCH、接続も断る)
     // 知らせに載せる版(開発ビルドだけ -lanProtocol N で変えて、版違いの表示を確かめられる)

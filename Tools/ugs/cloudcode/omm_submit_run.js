@@ -19,7 +19,7 @@ const { LeaderboardsApi } = require("@unity-services/leaderboards-1.1");
 const { DataApi } = require("@unity-services/cloud-save-1.4");
 
 const STAGES = ["wasteland_road", "natural_cave", "sky_corridor", "last_corridor"];
-const CHARACTERS = ["swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin"];
+const CHARACTERS = ["swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin", "luka", "pentatuttulu"]; // 2026-10-27: 13・14人目(旧版の12人の記録もそのまま受け付ける)
 const MAX_METERS = 2000000;
 const MAX_SPEED_MPS = 160 / 3.6;
 const SPEED_SLACK = 1.2, DISTANCE_SLACK = 300;

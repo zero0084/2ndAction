@@ -17,7 +17,7 @@ public partial class QaSweep
         bool safe = FileSaveStore.Active || MemorySaveStore.Active;
         Check(safe, "runs on a dedicated save only");
         if (!safe) yield break;
-        string[] chars = Arg("-tpChars", "swordsman,dual_blade,noble_lady,gunslinger,dragon_lancer,archer,mage,fighter,ninja,miko,vampire,dragonkin").Split(',');
+        string[] chars = Arg("-tpChars", "swordsman,dual_blade,noble_lady,gunslinger,dragon_lancer,archer,mage,fighter,ninja,miko,vampire,dragonkin,luka,pentatuttulu").Split(',');
         string[] autos = Arg("-tpAuto", "0,1").Split(',');
         foreach (var auto in autos)
         {

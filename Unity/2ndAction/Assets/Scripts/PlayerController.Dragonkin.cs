@@ -36,6 +36,16 @@ public partial class PlayerController
         bodyCol.offset = new Vector2(bodyColBaseOffset.x, bodyColBaseOffset.y + (bodyColBaseSize.y * scale - bodyColBaseSize.y) * 0.5f);
     }
 
+    // 2026-10-27(13・14人目): 幅と高さを別々に(ルカ = 四足の胴体、宇宙人 = 横長の体)。足元の位置は変えない
+    void ApplyBodyBox(Vector2 size)
+    {
+        if (bodyCol == null) bodyCol = GetComponent<BoxCollider2D>();
+        if (bodyCol == null) return;
+        if (!bodyColCaptured) { bodyColCaptured = true; bodyColBaseSize = bodyCol.size; bodyColBaseOffset = bodyCol.offset; }
+        bodyCol.size = size;
+        bodyCol.offset = new Vector2(bodyColBaseOffset.x, bodyColBaseOffset.y - bodyColBaseSize.y * 0.5f + size.y * 0.5f);
+    }
+
     void DragonReset()
     {
         dragonGlideTimer = 0f;

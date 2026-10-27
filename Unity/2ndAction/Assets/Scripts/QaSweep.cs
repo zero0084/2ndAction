@@ -78,6 +78,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaKneelShots") { mode = "kneelshots"; dir = a[i + 1]; } // 2026-10-21 大型ボスの膝つきの見た目
             if (a[i] == "-qaPrivacy") { mode = "privacy"; dir = a[i + 1]; } // 2026-10-19 データとプライバシー(削除/ポリシー)
             if (a[i] == "-qaRankRoute") { mode = "rankroute"; dir = a[i + 1]; } // 2026-10-27 ランキングの実際の経路(脱出 → RESULT → ホーム → 画面)
+            if (a[i] == "-qaClearUnlock") { mode = "clearunlock"; dir = a[i + 1]; } // 2026-10-27 クリア後のご褒美の2人の解放
             if (a[i] == "-qaBossAssist") { mode = "bossassist"; dir = a[i + 1]; }
             if (a[i] == "-qaFinalEvo") { mode = "finalevo"; dir = a[i + 1]; }
             if (a[i] == "-qaFe2") { mode = "fe2"; dir = a[i + 1]; }
@@ -193,9 +194,9 @@ public partial class QaSweep : MonoBehaviour
             if (type == LogType.Exception) { anyException = true; excCount++; if (exceptions.Count < 30) exceptions.Add(c + " | " + tr.Split('\n')[0]); }
         };
         // ホームのお知らせ(解放/デッキ12枚 等)は、それを確かめるテスト以外では自動で閉じる(テスト機の古いデータで毎回出るため)
-        NoticeQueue.QaAutoAcknowledge = !(mode == "deck" || mode == "unlock" || mode == "tutorial" || mode == "gacha" || mode == "saverecover");
+        NoticeQueue.QaAutoAcknowledge = !(mode == "deck" || mode == "unlock" || mode == "clearunlock" || mode == "tutorial" || mode == "gacha" || mode == "saverecover");
         // 2026-10-10: マップ/キャラの解放を確かめるテスト以外は、全部を選べるようにする(保存しない)。未解放で別のマップへ黙って替わっていた
-        UnlockRules.QaOverride = !(mode == "unlock" || mode == "tutorial" || mode == "records" || mode == "save" || mode == "saveshots");
+        UnlockRules.QaOverride = !(mode == "unlock" || mode == "clearunlock" || mode == "tutorial" || mode == "records" || mode == "save" || mode == "saveshots");
         if (Arg("-comboLegacy", "0") == "1") { ComboRevision.Legacy = true; L("[qa] ComboRevision.Legacy = true (2026-10-21 のコンボの改修を切った比較)"); }
         yield return new WaitForSecondsRealtime(2f);
         if (mode != "buildlab") StartCoroutine(AutoPickCards()); // ビルド検証はビルドの方針で自分で選ぶ
@@ -264,6 +265,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "bossairvideo") yield return BossAirVideoMode();
         else if (mode == "privacy") yield return PrivacyMode();
         else if (mode == "rankroute") yield return RankRouteMode();
+        else if (mode == "clearunlock") yield return ClearUnlockMode();
         else if (mode == "bossassist") yield return BossAssistMode();
         else if (mode == "finalevo") yield return FinalEvoMode();
         else if (mode == "fe2") yield return Fe2Mode();

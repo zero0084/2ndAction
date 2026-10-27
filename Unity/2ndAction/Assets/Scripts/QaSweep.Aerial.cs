@@ -37,7 +37,7 @@ public partial class QaSweep
     {
         HookBossLogs();
         Random.InitState(20261018);
-        string[] chars = Arg("-aeChars", "swordsman,dual_blade,noble_lady,gunslinger,dragon_lancer,archer,mage,fighter,ninja,miko,vampire,dragonkin").Split(',');
+        string[] chars = Arg("-aeChars", "swordsman,dual_blade,noble_lady,gunslinger,dragon_lancer,archer,mage,fighter,ninja,miko,vampire,dragonkin,luka,pentatuttulu").Split(',');
         float[] speeds = Arg("-aeSpeeds", "18,45,100,150").Split(',').Select(x => float.Parse(x, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
         string[] stages = Arg("-aeStages", "wasteland_road,natural_cave").Split(',');
         string[] timings = Arg("-aeTimings", "early,normal,late").Split(',');
@@ -296,7 +296,7 @@ public partial class QaSweep
     {
         HookBossLogs();
         Random.InitState(20261018);
-        string[] chars = Arg("-avChars", "swordsman,dual_blade,noble_lady,gunslinger,dragon_lancer,archer,mage,fighter,ninja,miko,vampire,dragonkin").Split(',');
+        string[] chars = Arg("-avChars", "swordsman,dual_blade,noble_lady,gunslinger,dragon_lancer,archer,mage,fighter,ninja,miko,vampire,dragonkin,luka,pentatuttulu").Split(',');
         float kmh = float.Parse(Arg("-avKmh", "45"), System.Globalization.CultureInfo.InvariantCulture);
         string[] seq = Arg("-avSeq", "U,F,F,F,U,F,F,F,D,F,F,F,D").Split(',');
         demoDir = System.IO.Path.Combine(outDir, "frames");

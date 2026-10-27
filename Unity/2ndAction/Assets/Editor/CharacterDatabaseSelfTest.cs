@@ -19,7 +19,8 @@ public static class CharacterDatabaseSelfTest
         // ハードコードのままFAILし続けていた - 発見のたび更新すること)。
         // 5人目の竜騎士追加(2026-09-26)で4→5。新4人(弓使い/魔法使い/格闘家/忍者、2026-09-27)で5→9。
         // 追加3人(巫女/吸血鬼/竜人、2026-09-28)で9→12。
-        bool countOk = all.Count == 12;
+        // クリア後のご褒美の2人(ルカ/ペンタトゥットゥルー星人、2026-10-27)で12→14。
+        bool countOk = all.Count == 14 && all[12].characterId == "luka" && all[13].characterId == "pentatuttulu";
         bool orderOk = countOk
             && all[0].characterId == "swordsman"
             && all[1].characterId == "dual_blade"

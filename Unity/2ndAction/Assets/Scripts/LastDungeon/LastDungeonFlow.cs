@@ -236,6 +236,13 @@ public class LastDungeonFlow : MonoBehaviour
     void BeginCredits()
     {
         SetState(State.Credits);
+        // 2026-10-27: ゲームクリアの記録とご褒美の2人の解放(三姉妹を倒してエンディングへ到達した、この時点で保存。
+        //  エンドロールの最後まで待たない = スキップ・中断・再起動でも失わない)。マルチはこの流れを通らない(ShouldRun)。
+        //  ソロだけ(CPU サポートの仲間と一緒のランは数えない。ランキングと同じ「ソロ」)。開発版の機能(ワープ・無敵)を使ったランは
+        //  テスト用データの時だけ数える(通常のデータへ開発の確認のクリアを付けない)
+        var run = RunLedger.Current;
+        if (run != null && !run.Support && string.IsNullOrEmpty(run.supportIds) && (!run.debugUsed || SaveProfile.IsTest)) UnlockRules.OnGameCleared();
+        else Debug.Log($"[Progress] ending reached but not recorded as a clear (run {(run == null ? "none" : $"support={run.Support} debug={run.debugUsed} test={SaveProfile.IsTest}")})");
         var pc = PlayerController.Instance;
         StartCoroutine(EaseSpeedCap(float.PositiveInfinity, creditsSpeed, 3f));
         float startX = pc.transform.position.x + creditsStartAhead;

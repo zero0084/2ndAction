@@ -15,7 +15,7 @@ public partial class EndgameDebug
     static (string ch, int lv, string stage, bool boss)? pendingUlt;
     public bool IsUltimateTest { get; private set; }
 
-    public static readonly string[] UltCharacters = { "swordsman", "noble_lady", "dual_blade", "gunslinger", "dragon_lancer", "mage", "archer", "fighter", "ninja", "dragonkin", "vampire", "miko" };
+    public static readonly string[] UltCharacters = { "swordsman", "noble_lady", "dual_blade", "gunslinger", "dragon_lancer", "mage", "archer", "fighter", "ninja", "dragonkin", "vampire", "miko", "luka", "pentatuttulu" }; // 2026-10-27: 14人
     public static string UltCharLabel(string id) { var d = CharacterDatabase.FindById(id); return d != null && !string.IsNullOrEmpty(d.displayName) ? d.displayName : id; }
     public static string StageLabel(string id) => id switch { "natural_cave" => "自然洞窟", "sky_corridor" => "天空回廊", _ => "荒野街道" };
 

@@ -129,6 +129,9 @@ public class AudioLibrary : ScriptableObject
     public WeaponType WeaponFor(string characterId)
     {
         foreach (var c in characterWeapons) if (c != null && c.characterId == characterId) return c.weapon;
+        // 2026-10-27: 13・14人目(アセットを作り直さなくても): ルカ = 前足の引っかき(爪)、宇宙人 = ぽかぽか(打撃)
+        if (characterId == "luka") return WeaponType.Claw;
+        if (characterId == "pentatuttulu") return WeaponType.Strike;
         return WeaponType.Sword;
     }
 

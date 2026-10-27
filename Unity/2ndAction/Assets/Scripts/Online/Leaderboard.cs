@@ -309,7 +309,7 @@ public static class LeaderboardRules
     public const int MaxMeters = 2000000;          // これより長い記録は受け付けない
     public const float MaxSpeedMps = 160f / 3.6f;   // 自然の上限 100km/h + 補助(130)に余裕を見た値
     public const float SpeedSlack = 1.2f, DistanceSlack = 300f;
-    public static readonly string[] Characters = { "swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin" };
+    public static readonly string[] Characters = { "swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin", "luka", "pentatuttulu" }; // 2026-10-27: 13・14人目を足した(旧版の12人の記録もそのまま受け付ける)
 
     // serverBest: そのプレイヤーの、そのマップの掲載中の記録(無ければ 0)。recentRunIds: サーバーが覚えている送信済みの runId
     public static string Validate(Leaderboard.Entry e, int serverBest, ICollection<string> recentRunIds, long nowUtc)

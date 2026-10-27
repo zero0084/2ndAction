@@ -116,6 +116,18 @@ public static class ProgressStats
     public static bool FinalDungeonUnlocked => SaveStore.GetInt(SaveKeys.FinalDungeonUnlocked, 0) != 0;
     public static void SetFinalDungeonUnlocked() { if (DebugRun.BlocksSave("FinalDungeonUnlocked")) return; SaveStore.SetInt(SaveKeys.FinalDungeonUnlocked, 1); SaveStore.Save(); }
 
+    // 2026-10-27: ゲームクリア(ソロで三姉妹を倒し、エンディングへ到達)。エンドロールの始まりで書く(最後まで待たない。
+    //  スキップ・中断・再起動でも失わない)。一度書いたら戻さない。過去の記録(ラスダンの距離・累計距離)からは推測しない
+    public static bool GameCleared => SaveStore.GetInt(SaveKeys.GameCleared, 0) != 0;
+    public static bool MarkGameCleared()
+    {
+        if (GameCleared || DebugRun.BlocksSave("GameCleared")) return false;
+        SaveStore.SetInt(SaveKeys.GameCleared, 1);
+        SaveStore.Save();
+        Debug.Log("[Progress] GAME CLEARED (three sisters defeated, ending reached) - saved");
+        return true;
+    }
+
     // 解放の判定(一度解放したら戻さない)。2026-10-07: 条件は UnlockRules(通常3マップすべてで死神に遭遇 + 累計1,000,000m)
     public static bool EvaluateFinalDungeon(bool save) => UnlockRules.EvaluateLastDungeon();
 

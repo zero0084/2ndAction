@@ -250,6 +250,7 @@ public static class AudioLibraryBuilder
         CW("mage", WeaponType.Magic); CW("miko", WeaponType.Spirit);
         CW("fighter", WeaponType.Strike); CW("dragonkin", WeaponType.Claw);
         CW("dragon_lancer", WeaponType.Lance); CW("vampire", WeaponType.Blood);
+        CW("luka", WeaponType.Claw); CW("pentatuttulu", WeaponType.Strike); // 2026-10-27: 13・14人目
         // 2026-10-14: ボスの声(BossVoice)
         foreach (var e in SeUpdate20261014.VoiceEntries()) se.Add(e);
         return lib;

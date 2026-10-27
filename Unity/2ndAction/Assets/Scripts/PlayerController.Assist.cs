@@ -22,6 +22,8 @@ public partial class PlayerController
             case CharacterKit.Ninja: return kitDef.ninja.upDashSpeedY;
             case CharacterKit.Vampire: return kitDef.vampire.mistSpeedY;
             case CharacterKit.Dragonkin: return jumpForce * kitDef.dragonkin.flapJump * (airborne ? 0.85f : 1f);
+            case CharacterKit.Cat: return kitDef.cat.leapSpeedY * (airborne ? 0.9f : 1f);
+            case CharacterKit.Cloud: return jumpForce * kitDef.cloud.upHop * (airborne ? 0.9f : 1f);
         }
         return jumpForce;
     }
@@ -98,6 +100,8 @@ public partial class PlayerController
                 case CharacterKit.Fighter: return ArcherPick(kitDef.fighter.comboWindup, 0, 0.05f) * s;
                 case CharacterKit.Vampire: return ArcherPick(kitDef.vampire.comboWindup, 0, 0.05f) * s;
                 case CharacterKit.Dragonkin: return ArcherPick(kitDef.dragonkin.comboWindup, 0, 0.1f) * s;
+                case CharacterKit.Cat: return ArcherPick(kitDef.cat.comboWindup, 0, 0.05f) * s;
+                case CharacterKit.Cloud: return ArcherPick(kitDef.cloud.comboWindup, 0, 0.1f) * s;
                 case CharacterKit.Miko: return kitDef.miko.ofudaWindup * s;
                 case CharacterKit.Ninja: return 0f;
             }
@@ -134,6 +138,8 @@ public partial class PlayerController
                 case CharacterKit.Fighter: return ArcherPick(kitDef.fighter.comboReach, 0, 1f) * (BalanceTuning.FighterReach ? BalanceTuning.FighterReachMul : 1f) + 0.3f;
                 case CharacterKit.Vampire: return ArcherPick(kitDef.vampire.comboReach, 0, 1.1f) + 0.3f;
                 case CharacterKit.Dragonkin: return ArcherPick(kitDef.dragonkin.comboReach, 0, 1.3f) + 0.3f;
+                case CharacterKit.Cat: return ArcherPick(kitDef.cat.comboReach, 0, 0.85f) + 0.2f;
+                case CharacterKit.Cloud: return ArcherPick(kitDef.cloud.comboReach, 0, 2.1f) + 0.3f;
                 case CharacterKit.Ninja: return kitDef.ninja.dashDistance + 0.8f;
             }
             if (isLancerCharacter && lancerDef != null) return lancerDef.lanceReachStart + lancerDef.lanceReach * Pick(lancerDef.lanceComboReachScale, 1, 1f);
@@ -173,6 +179,8 @@ public partial class PlayerController
                 case CharacterKit.Fighter: return ArcherPick(kitDef.fighter.comboDamageScale, 0, 1f);
                 case CharacterKit.Vampire: return ArcherPick(kitDef.vampire.comboDamageScale, 0, 1f);
                 case CharacterKit.Dragonkin: return ArcherPick(kitDef.dragonkin.comboDamageScale, 0, 1f);
+                case CharacterKit.Cat: return ArcherPick(kitDef.cat.comboDamageScale, 0, 1f);
+                case CharacterKit.Cloud: return ArcherPick(kitDef.cloud.comboDamageScale, 0, 1f);
                 case CharacterKit.Ninja: return kitDef.ninja.slashDamageScale;
                 case CharacterKit.Miko: return kitDef.miko.ofudaDamageScale;
             }

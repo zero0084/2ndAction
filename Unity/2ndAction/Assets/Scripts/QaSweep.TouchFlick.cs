@@ -25,7 +25,7 @@ public partial class QaSweep
         while (GameManager.Instance == null && w0 < 10f) { yield return null; w0 += Time.unscaledDeltaTime; }
         yield return new WaitForSecondsRealtime(1.5f);
         gm = GameManager.Instance;
-        string[] chars = Arg("-tfChars", "swordsman,dual_blade,noble_lady,gunslinger,dragon_lancer,archer,mage,fighter,ninja,miko,vampire,dragonkin").Split(',');
+        string[] chars = Arg("-tfChars", "swordsman,dual_blade,noble_lady,gunslinger,dragon_lancer,archer,mage,fighter,ninja,miko,vampire,dragonkin,luka,pentatuttulu").Split(',');
         string[] autos = Arg("-tfAuto", "0,1").Split(',');
         string[] modes = Arg("-tfModes", "ground,air").Split(',');
         string[] speeds = Arg("-tfSpeeds", "slow,fast").Split(',');

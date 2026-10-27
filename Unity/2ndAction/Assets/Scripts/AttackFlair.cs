@@ -82,6 +82,8 @@ public class AttackFlair : MonoBehaviour
             case "miko": return new Color(1f, 0.45f, 0.5f);
             case "vampire": return new Color(1f, 0.25f, 0.35f);
             case "dragonkin": return new Color(1f, 0.55f, 0.2f);
+            case "luka": return new Color(1f, 0.82f, 0.55f);         // 2026-10-27: 茶トラの毛色
+            case "pentatuttulu": return new Color(0.75f, 0.9f, 1f);  // 2026-10-27: 白い体の薄い水色
             default: return new Color(0.6f, 0.9f, 1f);
         }
     }

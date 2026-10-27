@@ -134,6 +134,8 @@ public static class CharacterDatabaseBuilder
         public float reactionPpu;
         public float hurtKnockbackMultiplier;
         public float hurtLeanDegrees;
+        // 2026-10-27(13人目 ルカ): 被弾の硬直と無敵の長さ(0 = PlayerController の既定)
+        public float hurtDuration, hurtInvincibleDuration;
         // 竜騎士は全アニメーションを同じ縮尺(シートごとの基準ポーズで正規化済み)で
         // 用意しているので、全フォルダ共通のPPUを1つだけ持つ。
         public float lancerPpu;
@@ -793,8 +795,53 @@ public static class CharacterDatabaseBuilder
         FillKitArt(ref dragonkin, "Dragonkin", 510f, // 体が大きい(他の583より約14%大きく表示)
              new[] { "claw1", "claw2", "claw3", "tail", "flap", "breath", "glide", "dive" }); // dive: エリアルコンボ改修(2026-10-18)の急降下
 
-        return new[] { swordsman, dualBlade, nobleLady, gunslinger, lancer, archer, mage, fighter, ninja, miko, vampire, dragonkin };
+        // 13人目 ルカ(2026-10-27、クリア後のご褒美): マスターの飼い猫。四足の小さな体で手数を出し、飛びつきで高い所にも届く。
+        // 体が小さく攻撃を避けやすい分、HP は少なめ。被弾の硬直は短く、無敵の合計は他のキャラと同じ(0.12 + 0.83 = 0.25 + 0.7)
+        Spec luka = DefaultBaseline;
+        luka.id = "luka";
+        luka.displayName = "LUKA";
+        luka.subtitle = "Paw, Pounce, Leap";
+        luka.role = "AGILE";
+        luka.flavorText = "A small, brave tabby cat full of energy.\nNo weapon, no armor - just quick paws\nand a fearless pounce.\nSmall enough to slip past danger, light enough to leap high.";
+        luka.lifeRating = 2; luka.powerRating = 3; luka.speedRating = 5; luka.comboRating = 4;
+        luka.sortOrder = 12;
+        luka.belongings = new CharacterDefinition.BelongingItem[0];
+        luka.baseLives = 30; luka.baseMaxLives = 40;
+        luka.attackPower = 20; luka.attackComboCount = 3;
+        luka.jumpForceMultiplier = 1.05f;
+        luka.groundMobilityMultiplier = 1.08f;
+        luka.hurtKnockbackMultiplier = 0.8f;
+        luka.hurtLeanDegrees = 8f;
+        luka.hurtDuration = 0.12f; luka.hurtInvincibleDuration = 0.83f;
+        luka.kit = CharacterKit.Cat;
+        FillKitArt(ref luka, "Luka", LukaPpu, new[] { "paw1", "paw2", "pounce", "tail", "leap", "dive", "scratch" });
+
+        // 14人目 ペンタトゥットゥルー星人(2026-10-27、クリア後のご褒美): マスターのオリジナルキャラ。手足が伸びて遠くへ届くが、溜めと隙がある。
+        // 飛ばない。下攻撃が敵に当たった時だけ、ぽよんと跳ね返る
+        Spec penta = DefaultBaseline;
+        penta.id = "pentatuttulu";
+        penta.displayName = "PENTATUTTULU";
+        penta.subtitle = "Stretch, Bounce, Poyon";
+        penta.role = "STRETCH";
+        penta.flavorText = "A fluffy, cloud-white visitor from somewhere far away.\nIts arms and legs stretch farther than you think,\nand it bounces off what it stomps on.\nNobody knows where it came from.";
+        penta.lifeRating = 4; penta.powerRating = 3; penta.speedRating = 2; penta.comboRating = 3;
+        penta.sortOrder = 13;
+        penta.belongings = new CharacterDefinition.BelongingItem[0];
+        penta.baseLives = 40; penta.baseMaxLives = 50;
+        penta.attackPower = 20; penta.attackComboCount = 3;
+        penta.groundMobilityMultiplier = 0.95f;
+        penta.hurtKnockbackMultiplier = 1.1f;
+        penta.hurtLeanDegrees = 10f;
+        penta.kit = CharacterKit.Cloud;
+        FillKitArt(ref penta, "Penta", PentaPpu, new[] { "stretch1", "stretch2", "pokapoka", "bump", "upreach", "stomp", "kick" });
+
+        return new[] { swordsman, dualBlade, nobleLady, gunslinger, lancer, archer, mage, fighter, ninja, miko, vampire, dragonkin, luka, penta };
     }
+
+    // 13・14人目の縮尺(2026-10-27、マスター決定の案B): ルカ = 人(黒剣士 1.13)の 0.75倍の高さ、宇宙人 = 1.0倍(触角まで)。
+    // 素材は「基準の立ち姿の高さ(px)」を持つ同じ縮尺で描き、その高さが下の高さ(ワールド)になる PPU で読む
+    public const float LukaStandPx = 843f, PentaStandPx = 747f;  // 基準絵(base_v1)の切り抜きの高さ
+    public const float LukaPpu = LukaStandPx / (1.13f * 0.75f), PentaPpu = PentaStandPx / (1.13f * 1.0f);
 
     // 新4人の素材フォルダ(名前は Art/<prefix>Run_v1 等、ポーズは Art/<prefix>Poses_v1/<name>)。
     // まだ無いフォルダは読み込み時に空として扱う(LoadAnimationFolderのIsValidFolderガード)。
@@ -862,6 +909,8 @@ public static class CharacterDatabaseBuilder
             case "ninja": Set(1.1f, 1f, 1.15f, 0f, true, 0.1f, 0.9f); break;          // 瞬身の通過ラインを少し太く
             case "vampire": Set(1.2f, 1f, 1f, 0f, true, 0.1f, 0.9f); break;           // 爪だけ(血のSlashは技の側で除外)
             case "dragonkin": Set(1.2f, 1.1f, 1.05f, 0f, true, 0.1f, 1.0f); break;    // 爪/尾: 広め(体全体までは広げない)
+            case "luka": Set(1f, 1f, 1f, 0.2f, true, 0.08f, 0.6f); break;              // 前足: 間合いは短いまま、体の直前だけ厚く
+            case "pentatuttulu": Set(1f, 1f, 1f, 0f, true, 0.1f, 0.8f); break;         // 伸びる腕: 届く長さはキットの値のまま
             default: Set(1f, 1f, 1f, 0f, false, 0.1f, 0f); break;                     // 拳銃士/弓/魔法/巫女: 飛び道具・範囲はそのまま
         }
     }
@@ -1100,6 +1149,8 @@ public static class CharacterDatabaseBuilder
             def.isLancer = spec.isLancer;
             if (spec.hurtKnockbackMultiplier > 0f) def.hurtKnockbackMultiplier = spec.hurtKnockbackMultiplier;
             if (spec.hurtLeanDegrees > 0f) def.hurtLeanDegrees = spec.hurtLeanDegrees;
+            if (spec.hurtDuration > 0f) def.hurtDuration = spec.hurtDuration;
+            if (spec.hurtInvincibleDuration > 0f) def.hurtInvincibleDuration = spec.hurtInvincibleDuration;
             ApplyLancerFrames(def, spec);
             ApplyKitArt(def, spec);
             ApplyHitAssistPreset(def, spec.id);

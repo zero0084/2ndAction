@@ -99,6 +99,8 @@ public partial class PlayerController
         kitPhaseStarts.Clear();
         // 体の当たり判定: 竜人だけ大きく、他のキャラは元の大きさ(既存キャラは常に1倍=変化なし)
         ApplyBodyScale(kit == CharacterKit.Dragonkin ? def.dragonkin.bodyScale : 1f);
+        if (kit == CharacterKit.Cat) ApplyBodyBox(def.cat.bodySize);        // 13人目 ルカ: 四足の胴体(耳・しっぽは含めない)
+        else if (kit == CharacterKit.Cloud) ApplyBodyBox(def.cloud.bodySize); // 14人目 宇宙人: 横長の体(触角・手足の先は含めない)
         if (sr != null) sr.color = Color.white;
         // 技のポーズ(キットの無いお嬢様の空中攻撃/急降下も使う、2026-10-12)
         if (def.kitPoses != null)
@@ -186,6 +188,7 @@ public partial class PlayerController
         // 10〜12人目: コンボ段/滑空は被弾でも必ず解除(重力の変更を残さない)
         vampireComboStage = 0; vampireNextStage = 1; vampireGraceTimer = 0f;
         DragonReset();
+        CatReset(); CloudReset(); // 13・14人目(2026-10-27)
         if (sr != null && kit == CharacterKit.Vampire) sr.color = Color.white;
     }
 
@@ -295,6 +298,8 @@ public partial class PlayerController
         if (kit == CharacterKit.Archer) ArcherUpdate();
         else if (kit == CharacterKit.Vampire) VampireUpdate();
         else if (kit == CharacterKit.Dragonkin) DragonUpdate();
+        else if (kit == CharacterKit.Cat) CatTick(dt);
+        else if (kit == CharacterKit.Cloud) CloudTick(dt);
     }
 
     // 着地の瞬間(Move()の着地処理から)。
@@ -302,6 +307,7 @@ public partial class PlayerController
     {
         if (!HasKit) return;
         archerDownShotsUsed = 0;
+        if (kit == CharacterKit.Cloud) CloudLanded(); // ぽよん: 着地でまた跳ね返れる
         if (kitDiveActive) { kitDiveLanded = true; return; }
         if (!kitOwnsAttack)
         {
@@ -345,6 +351,8 @@ public partial class PlayerController
             case CharacterKit.Miko: HandleMikoInput(f); break;
             case CharacterKit.Vampire: HandleVampireInput(f); break;
             case CharacterKit.Dragonkin: HandleDragonInput(f); break;
+            case CharacterKit.Cat: HandleCatInput(f); break;
+            case CharacterKit.Cloud: HandleCloudInput(f); break;
         }
     }
 
@@ -359,6 +367,8 @@ public partial class PlayerController
             case CharacterKit.Miko: MikoUpFan(); break;
             case CharacterKit.Vampire: StartCoroutine(VampireMist()); break;
             case CharacterKit.Dragonkin: StartCoroutine(DragonFlap(airborne)); break;
+            case CharacterKit.Cat: StartCoroutine(CatLeap(airborne)); break;
+            case CharacterKit.Cloud: StartCoroutine(CloudUpReach(airborne)); break;
         }
     }
 
