@@ -72,7 +72,7 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 740f : page == 4 || page == 5 || page == 6 || page == 7 || page == 8 || page == 11 || page == 13 ? 600f : 470f, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 740f : page == 1 ? 530f : page == 4 || page == 5 || page == 6 || page == 7 || page == 8 || page == 11 || page == 13 ? 600f : 470f, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
@@ -233,6 +233,14 @@ public partial class DebugPanel
         y += bh + 4f;
         GUI.Label(new Rect(x, y, full, 20f), "解放の条件: 累計1,000,000m + 三姉妹全員と遭遇(一度解放したら戻らない)。「常に選択」は開発版だけ", UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(0.75f, 0.75f, 0.8f)));
         y += 26f;
+
+        // 2026-10-27: クリアのご褒美(ルカ/ペンタトゥットゥルー星人)を実機で試すため。テスト用データの時だけ押せる(本物のデータには書かない)
+        bool cleared = ProgressStats.GameCleared;
+        bool testData = SaveProfile.IsTest;
+        if (UiKit.Button(new Rect(x, y, full, bh), cleared ? "クリア記録: あり(ルカ/宇宙人 解放済み)" : testData ? "クリア記録を付ける(テスト用データだけ・ルカ/宇宙人を解放)" : "クリア記録を付ける: テスト用データに切り替えると押せます", 15f, cleared, false)
+            && testData && !cleared)
+            UnlockRules.OnGameCleared();
+        y += bh + 8f;
 
         // カード全開放(2026-10-02)
         float tw = (full - 16f) / 3f;

@@ -306,8 +306,9 @@ public partial class QaSweep
         string[] p = bk.Split(':'); string fam = p[0], kind = p[1];
         int top = BossRematchTuning.I != null ? BossRematchTuning.I.tiers.Count - 1 : -1; // 終盤の再戦(最終強化再戦)の段階で出す
         DuelRefillHp();
-        int hp0 = gm.Lives, hits0 = 0;
-        System.Action<string, int, int, int> tap = (reason, dmg, before, after) => { hits0++; };
+        int hp0 = gm.Lives, hits0 = 0, chain = 0; float lastHitAt = -99f;
+        // 2026-10-27: 連続被弾(直前の被弾から2秒以内 = 立て直しの直後にまた当たった)も数える。ルカの短い硬直で増えていないかの確認
+        System.Action<string, int, int, int> tap = (reason, dmg, before, after) => { hits0++; if (Time.time - lastHitAt < 2f) chain++; lastHitAt = Time.time; };
         GameManager.QaDamageEvent += tap;
         if (fam == "Cave" && System.Enum.TryParse(kind, out CaveBossKind ck)) bm.DebugCaveEncounter(ck, top);
         else if (fam == "Sky" && System.Enum.TryParse(kind, out SkyBossKind sk)) bm.DebugSkyEncounter(sk, top);
@@ -341,7 +342,7 @@ public partial class QaSweep
         bool killed = boss == null || !(boss as IBossBattleDebug).DebugAlive;
         string reason = killed ? "撃破" : drops == 0 ? "当てられない(HPが減らない)" : (behind > t * 0.4f ? "後ろにいる時間が長い" : above > t * 0.4f ? "頭上にいる時間が長い" : inReach < t * 0.25f ? "届く距離にいる時間が短い" : atkIn < inReach * 0.5f ? "届く距離で攻撃していない" : "火力不足(当たっているが削り切れない)");
         rowsOut.Append($"{ch}\t{deckName}\t{d}\t{bk}\t{maxHp:F0}\t{(killed ? "killed" : "alive")}\t{t:F1}\t{(killed ? 0f : lastFrac):F2}\t{drops}\t{PlayerAttackInfo.SwingCount - swing0}\t{inReach:F1}\t{atkIn:F1}\t{above:F1}\t{behind:F1}\t{hits0}\t{hpLost}\t{reason}\n");
-        L($"[duel] {ch} {deckName} {d:F0} boss {bk}: {(killed ? "killed" : "alive")} in {t:F0}s hpLeft {(killed ? 0f : lastFrac):F2} drops {drops} reach {inReach:F0}s attack {atkIn:F0}s above {above:F0}s behind {behind:F0}s hits {hits0} -> {reason}");
+        L($"[duel] {ch} {deckName} {d:F0} boss {bk}: {(killed ? "killed" : "alive")} in {t:F0}s hpLeft {(killed ? 0f : lastFrac):F2} drops {drops} reach {inReach:F0}s attack {atkIn:F0}s above {above:F0}s behind {behind:F0}s hits {hits0} chain {chain} -> {reason}");
         if (!killed) foreach (var lb in BossBattle.Living.ToList()) if (lb is IBossBattleDebug) Destroy(lb.gameObject);
         yield return new WaitForSeconds(1f);
     }
