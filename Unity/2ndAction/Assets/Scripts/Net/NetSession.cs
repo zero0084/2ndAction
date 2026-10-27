@@ -58,6 +58,8 @@ public class NetSession : MonoBehaviour
     // LAN の部屋へ JOIN した時の結果(2026-10-05): 接続できなかった/断られた理由(VERSION MISMATCH / ROOM FULL / RUN IN PROGRESS / 接続できない)
     public static string LastJoinFailure { get; private set; } = "";
     public static bool JoinPending { get; private set; }
+    // 自分で「退出する」/「部屋を閉じる」を押した(2026-10-27)。この後の切断を「接続が拒否されました」の画面にしない。次の開始で戻す
+    bool leavingByChoice;
     public static ConnectionType Connection { get; set; } = ConnectionType.Local; // ONLINE PLAY(Relay)の時は Online(2026-10-07)
     public static void ClearJoinFailure() => LastJoinFailure = "";
     public string LastHostAddress { get; private set; } = "";
@@ -176,7 +178,7 @@ public class NetSession : MonoBehaviour
         OnlinePlayerIds.Clear();
         NetworkManager nm = EnsureManager();
         if (nm == null || nm.ShutdownInProgress) { StatusText = "通信を開始できませんでした。もう一度試すか、アプリを再起動してください"; return false; }
-        ClearConnectionLost();
+        ClearConnectionLost(); leavingByChoice = false;
         ConfigureRelay(data);
         Application.runInBackground = true;
         bool ok = nm.StartHost();
@@ -189,7 +191,7 @@ public class NetSession : MonoBehaviour
         if (IsActive) return false;
         NetworkManager nm = EnsureManager();
         if (nm == null || nm.ShutdownInProgress) { StatusText = "通信を開始できませんでした。もう一度試すか、アプリを再起動してください"; return false; }
-        ClearConnectionLost();
+        ClearConnectionLost(); leavingByChoice = false;
         LastHostAddress = "relay";
         ConfigureRelay(data);
         Application.runInBackground = true;
@@ -219,7 +221,7 @@ public class NetSession : MonoBehaviour
         if (nm == null) { StatusText = "通信を開始できませんでした。もう一度試すか、アプリを再起動してください"; return false; }
         if (nm.ShutdownInProgress) { StatusText = "前の接続を終了中です。少し待ってから再試行してください"; return false; }
 
-        ClearConnectionLost();
+        ClearConnectionLost(); leavingByChoice = false;
         LastPort = port;
         // 0.0.0.0で待ち受け - 同じWi-Fi/テザリング内の他端末から接続できる。
         if (!ConfigureTransport("127.0.0.1", port, "0.0.0.0"))
@@ -251,7 +253,7 @@ public class NetSession : MonoBehaviour
         if (nm == null) { StatusText = "通信を開始できませんでした。もう一度試すか、アプリを再起動してください"; return false; }
         if (nm.ShutdownInProgress) { StatusText = "前の接続を終了中です。少し待ってから再試行してください"; return false; }
 
-        ClearConnectionLost();
+        ClearConnectionLost(); leavingByChoice = false;
         LastHostAddress = hostAddress;
         LastPort = port;
         if (!LanSecurity.HasHostCert(hostAddress) && LanSecurity.Enabled)
@@ -308,6 +310,7 @@ public class NetSession : MonoBehaviour
     // 自分から切断する(HOSTならセッション終了)。
     public void Leave()
     {
+        leavingByChoice = true;
         if (OnlineServices.InSession) { _ = OnlineServices.LeaveAsync("leave"); return; } // ONLINE: HOST は部屋を消す/JOIN は抜ける(通信もそこで止まる)
         if (Manager == null || !(Manager.IsServer || Manager.IsClient)) return;
         Log(Manager.IsHost ? "Host stopping (local leave)" : "Client leaving");
@@ -396,6 +399,7 @@ public class NetSession : MonoBehaviour
             else RaiseConnectionLost("MULTIPLAYER CONNECTION LOST\n" + (pn > 0 ? Loc.F("{0}が切断しました", NetPlayer.TagOf(pn)) : Loc.T("相手プレイヤーが切断しました")));
             return;
         }
+        if (leavingByChoice) { Log($"Disconnected after local leave (clientId={clientId})"); StatusText = ""; return; } // 自分で抜けた: 切断の画面は出さない
         if (!Manager.IsServer)
         {
             string reason = Manager.DisconnectReason;
@@ -432,7 +436,8 @@ public class NetSession : MonoBehaviour
             case "VERSION MISMATCH": return Loc.T("ゲームのバージョンが違うため参加できません。両方を最新版にしてください");
             case "RUN IN PROGRESS": return Loc.T("この部屋はもう走り始めているため参加できません");
             case "ROOM FULL": return Loc.T("部屋が満員のため参加できません");
-            default: return Loc.T("接続が拒否されました");
+            // 2026-10-27: HOST が部屋を閉じた時など、通信の層の生の理由(TransportShutdown 等)もここへ来る → 「断られた」ではなく「切れた」
+            default: return Loc.T("HOSTとの接続が切れました");
         }
     }
 

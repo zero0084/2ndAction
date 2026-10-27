@@ -224,6 +224,9 @@ public partial class HighSpeedAssist : MonoBehaviour
         engageKmh = Mathf.Clamp(Mathf.Round(kmh / 5f) * 5f, MinEngageKmh, MaxEngageKmh);
         releaseKmh = engageKmh - 10f;
         fullAssistKmh = engageKmh + 30f;
+#if OMM_PROD_VERIFY
+        if (ProdVerifyPilot.On) { engageKmh = 0f; releaseKmh = -1f; fullAssistKmh = 1f; } // production の最終試験の確認用の製品版だけ: 0km/h からオート
+#endif
     }
 
     public void ResetRunState()

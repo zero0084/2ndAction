@@ -99,7 +99,7 @@ public static class UgsProdAudit
         {
             string id = (string)b["id"];
             L($"  {id}: name '{b["name"]}' sort {b["sortOrder"]} update {b["updateType"]} reset {Show(b["resetConfig"])} buckets {Show(b["bucketSize"])} tiers {Show(b["tieringConfig"])}");
-            var top = Get(E("leaderboards/v1", $"leaderboards/{id}/scores?limit=100"));
+            var top = Get(E("leaderboards/v1", $"leaderboards/{id}/scores?limit=100&includeMetadata=true"));
             var rows = top.ok ? (JArray)top.json?["results"] ?? new JArray() : new JArray();
             L($"    entries: {(top.ok ? rows.Count.ToString() : "error " + top.status)}{(top.ok && top.json?["total"] != null ? " (total " + top.json["total"] + ")" : "")}");
             foreach (var x in rows) L($"      {S6((string)x["playerId"])} {x["score"]}m '{x["playerName"]}' {Meta(x)} updated {x["updatedTime"]}");

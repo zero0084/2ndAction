@@ -109,7 +109,8 @@ public class NetDebugUI : MonoBehaviour
             // カード合成改修(2026-09-26) - 合成/デッキ編集/キャラ選択などの全画面
             // オーバーレイ中は、その画面と無関係なLOCAL MULTIボタンを出さない。
             // 開くボタンはGameManagerのホーム右上(OpenPanel)。ここではパネルだけ描く。
-            if (PanelOpen) DrawPanel(w, h);
+            // 2026-10-27: 切断の画面が出ている間はパネルを描かない(パネルが先にクリックを使ってしまい、切断の画面の OK が押せなかった)
+            if (PanelOpen && !BannerVisible) DrawPanel(w, h);
         }
         else if (NetSession.IsActive || NetRunLauncher.IsMultiplayerRun)
         {
