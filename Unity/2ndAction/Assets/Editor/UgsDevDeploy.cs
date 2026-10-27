@@ -11,7 +11,10 @@ using UnityEditor;
 using UnityEngine;
 
 // Unity Gaming Services の設定(Tools/ugs)を「開発用の環境」へ配置する(2026-10-20、マスター依頼: development で本物の確認)。
-//  ・production へは書かない。対象の環境の名前が production なら、どの入り口でも何もせずに止める(コードに production へ書く道が無い)。
+//  ・development 用の入り口は production へ書かない。対象の環境の名前が production なら何もせずに止める。
+//  ・2026-10-27(マスターの「production へ反映してよい」の後): production 専用の入り口 BatchDeployProduction だけが production へ書ける。
+//    -ugsProdConfirm production と -ugsProdConfirm2 OMM-PRODUCTION-DEPLOY の2つが要り、-ugsProdStep leaderboards|access|cloudcode で
+//    1段ずつ(マスターの指定の順: ランキングの表 → Access Control → Cloud Code)。表の設定が違う時は書き換えない・消さない(既存のデータを変えない)
 //  ・認証は Unity エディターにサインインしている人の権限(Unity Hub のサインイン → エディターのトークン → サービスのトークンへ交換)。
 //    サービスアカウントの鍵はここでは使わない・作らない。トークンはログ/ファイルへ出さない(長さも出さない)。
 //  ・配置する物(1か所で管理している物をそのまま使う):
@@ -58,6 +61,8 @@ public static class UgsDevDeploy
     public static void BatchCheck() => Schedule("BatchCheck");
     public static void BatchDeploy() => Schedule("BatchDeploy");
     public static void BatchVerifyPlayers() => Schedule("BatchVerifyPlayers");
+    public static void BatchDeployProduction() => Schedule("BatchDeployProduction");
+    const string ProdConfirm2 = "OMM-PRODUCTION-DEPLOY";
     // 試験で作った記録を消す(開発用の環境だけ。-ugsDeployConfirm <環境> と、1行1つの PlayerId のファイル -ugsPurgePlayers が必要)
     public static void BatchPurgeTestPlayers() => Schedule("BatchPurgeTestPlayers");
 
@@ -88,6 +93,7 @@ public static class UgsDevDeploy
                 case "BatchDeploy": Batch(true); break;
                 case "BatchVerifyPlayers": VerifyPlayers(); break;
                 case "BatchPurgeTestPlayers": PurgeTestPlayers(); break;
+                case "BatchDeployProduction": DeployProduction(); break;
                 default: L("unknown entry " + what); Finish(false); break;
             }
         }
@@ -113,6 +119,30 @@ public static class UgsDevDeploy
         catch (Exception e) { L("ERROR " + e.GetType().Name + ": " + FirstLine(e.Message)); }
         Finish(ok);
     }
+    // production へ1段ずつ書く(既存の表/スクリプトを消す・作り直す道は無い。表は無ければ作るだけ、設定が違えば止める)
+    static void DeployProduction()
+    {
+        report.Clear();
+        bool ok = false;
+        try
+        {
+            string step = Arg("-ugsProdStep", "");
+            if (Arg("-ugsProdConfirm", "") != Production || Arg("-ugsProdConfirm2", "") != ProdConfirm2) L($"refused: -ugsProdConfirm {Production} and -ugsProdConfirm2 {ProdConfirm2} are required");
+            else if (step != "leaderboards" && step != "access" && step != "cloudcode") L("refused: -ugsProdStep leaderboards|access|cloudcode is required");
+            else
+            {
+                var ctx = Connect(Production, allowProduction: true);
+                if (ctx != null)
+                {
+                    L($"PRODUCTION step: {step}");
+                    ok = step == "leaderboards" ? Leaderboards(ctx, true) : step == "access" ? AccessControl(ctx, true) : CloudCode(ctx, true);
+                    SecretCheck(ctx);
+                }
+            }
+        }
+        catch (Exception e) { L("ERROR " + e.GetType().Name + ": " + FirstLine(e.Message)); }
+        Finish(ok);
+    }
     static void Finish(bool ok)
     {
         L(ok ? "RESULT OK" : "RESULT FAILED");
@@ -134,12 +164,12 @@ public static class UgsDevDeploy
         return ok;
     }
 
-    class Ctx { public string projectId, envId, envName, prodId; public HttpClient http; }
+    class Ctx { public string projectId, envId, envName, prodId; public bool allowProduction; public HttpClient http; }
 
-    static Ctx Connect(string envName)
+    static Ctx Connect(string envName, bool allowProduction = false)
     {
         envName = (envName ?? "").Trim().ToLowerInvariant();
-        if (envName == "" || envName == Production) { L($"refused: the target environment '{envName}' is not allowed (this tool never writes to production)"); return null; }
+        if (envName == "" || (envName == Production && !allowProduction)) { L($"refused: the target environment '{envName}' is not allowed (only the production entry writes to production)"); return null; }
         string projectId = CloudProjectSettings.projectId;
         if (string.IsNullOrEmpty(projectId)) projectId = Application.cloudProjectId; // バッチ起動ではエディターの値が空のことがある
         if (string.IsNullOrEmpty(projectId)) { L("refused: the project is not linked to Unity Cloud"); return null; }
@@ -165,15 +195,15 @@ public static class UgsDevDeploy
         }
         L($"project {projectId} ({CloudProjectSettings.projectName}), environments: {string.Join(", ", names)}");
         if (envId == null) { L($"refused: environment '{envName}' does not exist"); return null; }
-        if (envId == prodId) { L("refused: the target is the production environment"); return null; }
+        if (envId == prodId && !allowProduction) { L("refused: the target is the production environment"); return null; }
         L($"TARGET environment = {envName} ({envId})");
-        return new Ctx { projectId = projectId, envId = envId, envName = envName, prodId = prodId, http = http };
+        return new Ctx { projectId = projectId, envId = envId, envName = envName, prodId = prodId, allowProduction = allowProduction && envId == prodId, http = http };
     }
 
     static string EnvPath(Ctx c, string service, string rest)
     {
-        // どの書き込みも、この組み立てだけを通す(production の ID なら例外で止める)
-        if (c.envId == c.prodId || string.IsNullOrEmpty(c.envId)) throw new InvalidOperationException("production environment");
+        // どの書き込みも、この組み立てだけを通す(production の ID なら、production 専用の入り口の時以外は例外で止める)
+        if ((c.envId == c.prodId && !c.allowProduction) || string.IsNullOrEmpty(c.envId)) throw new InvalidOperationException("production environment");
         return $"{Gateway}/{service}/projects/{c.projectId}/environments/{c.envId}/{rest}";
     }
 
@@ -296,7 +326,7 @@ public static class UgsDevDeploy
         foreach (var f in Directory.GetFiles(dir, "*.ac").OrderBy(f => f))
             foreach (var s in (JArray)JObject.Parse(File.ReadAllText(f, Encoding.UTF8))["Statements"]) want.Add(s);
         string url = $"{Gateway}/access/resource-policy/v1/projects/{c.projectId}/environments/{c.envId}/resource-policy";
-        if (c.envId == c.prodId) throw new InvalidOperationException("production environment");
+        if (c.envId == c.prodId && !c.allowProduction) throw new InvalidOperationException("production environment");
         var g = Send(c.http, HttpMethod.Get, url, null);
         var have = new Dictionary<string, JToken>();
         if (g.ok) foreach (var s in (JArray)g.json?["statements"] ?? new JArray()) have[(string)s["Sid"]] = s;
