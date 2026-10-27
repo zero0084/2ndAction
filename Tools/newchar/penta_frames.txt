@@ -1,5 +1,5 @@
 # ペンタトゥットゥルー星人のコマの一覧(出力の相対パス <TAB> 元の画像 <TAB> 浮かせる px)。元の画像は C:/GameProject/ArtSource_newchar/penta(リポジトリの外)
-# 配置: python frames.py --set <Assets/Art> penta_frames.txt --anchor body --despeck --norm(体の中心でそろえる・伸びる腕で体が跳ばない。離れた小さな効果線は消す・体の面積を走りの1枚目にそろえる)。走り5〜7枚目は左向きで届いたので、元の画像を左右反転して保管(*_orig.png が届いたまま)
+# 配置: python frames.py --set <Assets/Art> penta_frames.txt --anchor body --despeck --norm --scale 0.8819(体の中心でそろえる・伸びる腕で体が跳ばない。離れた小さな効果線は消す・体の面積を走りの1枚目にそろえる・--scale = 583 / (747 / 1.13) で既存のキャラと同じ 583 px/m へ)。走り5〜7枚目は左向きで届いたので、元の画像を左右反転して保管(*_orig.png が届いたまま)
 PentaRun_v1/run_00.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_run_01.png
 PentaRun_v1/run_01.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_run_02.png
 PentaRun_v1/run_02.png	C:/GameProject/ArtSource_newchar/penta/nc_penta_run_03.png

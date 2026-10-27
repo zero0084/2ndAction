@@ -3,7 +3,7 @@
   python frames.py <out_dir> <name> [--anchor head|center] [--lift N,N,...] <frame1.png> <frame2.png> ...
 
   ・切り抜き: マゼンタらしさ(min(R,B) - G)で透明に + 縁の色かぶり(ピンク)を抜く
-  ・縮尺はそのまま(エステルに同じ大きさで描いてもらう。基準絵の立ち姿の高さ = CharacterDatabaseBuilder.LukaStandPx / PentaStandPx)
+  ・縮尺: エステルに同じ大きさで描いてもらい、--set の --scale で既存のキャラと同じ解像度へ縮める(CharacterDatabaseBuilder.LukaPpu / PentaPpu = 583)
   ・横の位置: --anchor head = 頭(右上の部分)の位置をそろえる(走り: 体は動いても頭が前後に揺れない)/ center = 体の中心
   ・縦: 足元をキャンバスの下端へ。--lift で、コマごとに下端から浮かせる px(空中のコマ)
   ・幅・高さは 4 の倍数(圧縮が効く)。<out_dir>/<name>_00.png, _01.png ... と、確認の一覧 <out_dir>/../<name>_sheet.jpg
@@ -79,7 +79,7 @@ def body_x(im):
 
 
 def main_set():
-    """--set <art_dir> <list.txt> [--anchor head|body] [--despeck] [--norm]: 1キャラ分の全部のコマを、同じキャンバス・同じ頭の位置で書き出す(状態が変わっても横に跳ばない)。
+    """--set <art_dir> <list.txt> [--anchor head|body] [--despeck] [--norm] [--scale k]: 1キャラ分の全部のコマを、同じキャンバス・同じ頭の位置で書き出す(状態が変わっても横に跳ばない)。
     list.txt の各行: <出力の相対パス>	<元の画像>[	<浮かせる px>[	keep]](keep = --norm で大きさを変えない。縮む/膨らむ演出の絵)   例: LukaRun_v1/run_00.png	C:/.../nc_luka_run_01.png"""
     art, lst = sys.argv[2], sys.argv[3]
     rows = []
@@ -104,27 +104,34 @@ def main_set():
             if abs(k - 1) > 0.04:
                 cuts[n] = c.resize((round(c.width * k), round(c.height * k)), Image.LANCZOS)
                 print(f'  {rows[n][0]}: x{k:.2f}')
+    if '--scale' in sys.argv:
+        # 2026-10-27 容量: 既存のキャラと同じ解像度(583 px/m)へ縮める。CharacterDatabaseBuilder の LukaPpu/PentaPpu と組み(画面の大きさは変わらない)
+        k = float(sys.argv[sys.argv.index('--scale') + 1])
+        cuts = [c.resize((max(1, round(c.width * k)), max(1, round(c.height * k))), Image.LANCZOS) for c in cuts]
+        rows = [(r[0], r[1], round(r[2] * k), r[3]) for r in rows]
     ax = [body_x(c) if anchor == 'body' else head_x(c) for c in cuts]
-    left = max(ax)
-    right = max(c.width - a for c, a in zip(cuts, ax))
-    H = max(c.height + r[2] for c, r in zip(cuts, rows)) + 4
-    # そろえる点(体の中心)をキャンバスの横の中央に置く(ゲームは下端中央を足元の基準にするので、体と当たり判定がずれない)
-    left = right = max(left, right)
-    W = int(left + right) + 8
-    W, H = (W + 3) // 4 * 4, (int(H) + 3) // 4 * 4
-    cleared = set()
-    for (rel, _, lift, _k), c, a in zip(rows, cuts, ax):
-        d = os.path.join(art, os.path.dirname(rel))
-        if d not in cleared:
-            os.makedirs(d, exist_ok=True)
-            for f in os.listdir(d):
-                if f.endswith('.png'):
-                    os.remove(os.path.join(d, f))  # .meta は残す(同じ名前の絵は同じ ID のまま。使わなくなった meta は Unity が片付ける)
-            cleared.add(d)
-        canvas = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-        canvas.alpha_composite(c, (int(round(left - a)) + 4, H - c.height - lift))
-        canvas.save(os.path.join(art, rel))
-    print(f'{len(rows)} frames on a {W}x{H} canvas (anchor {anchor} at x={int(left) + 4}) -> {art}')
+    # キャンバスはフォルダ(走り・技など)ごと。そろえる点(体の中心)を横の中央に置く(ゲームは下端中央を足元の基準にするので、
+    # 体と当たり判定がずれない)。2026-10-27 容量: 全部を1つの大きさにすると、腕が長く伸びる技の幅が走りのコマにまで付いていた
+    groups = {}
+    for n, r in enumerate(rows):
+        groups.setdefault(os.path.dirname(r[0]), []).append(n)
+    sizes = []
+    for d_rel, idx in groups.items():
+        half = max(max(ax[n], cuts[n].width - ax[n]) for n in idx)
+        W = (int(2 * half) + 8 + 3) // 4 * 4
+        H = (int(max(cuts[n].height + rows[n][2] for n in idx)) + 4 + 3) // 4 * 4
+        d = os.path.join(art, d_rel)
+        os.makedirs(d, exist_ok=True)
+        for f in os.listdir(d):
+            if f.endswith('.png'):
+                os.remove(os.path.join(d, f))  # .meta は残す(同じ名前の絵は同じ ID のまま。使わなくなった meta は Unity が片付ける)
+        for n in idx:
+            c = cuts[n]
+            canvas = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+            canvas.alpha_composite(c, (int(round(W / 2 - ax[n])), H - c.height - rows[n][2]))
+            canvas.save(os.path.join(art, rows[n][0]))
+        sizes.append(f'{d_rel} {W}x{H}')
+    print(f'{len(rows)} frames (anchor {anchor} at the horizontal center) -> {art}: ' + ', '.join(sizes))
 
 
 def main():

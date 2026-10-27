@@ -841,7 +841,9 @@ public static class CharacterDatabaseBuilder
     // 13・14人目の縮尺(2026-10-27、マスター決定の案B): ルカ = 人(黒剣士 1.13)の 0.75倍の高さ、宇宙人 = 1.0倍(触角まで)。
     // 素材は「基準の立ち姿の高さ(px)」を持つ同じ縮尺で描き、その高さが下の高さ(ワールド)になる PPU で読む
     public const float LukaStandPx = 843f, PentaStandPx = 747f;  // 基準絵(base_v1)の切り抜きの高さ
-    public const float LukaPpu = LukaStandPx / (1.13f * 0.75f), PentaPpu = PentaStandPx / (1.13f * 1.0f);
+    // 2026-10-27 容量: 本番のコマは Tools/newchar/frames.py --scale で既存のキャラと同じ 583 px/m へ縮めて置く
+    //  (ルカ ×0.5861 = 583 / (843 / (1.13×0.75))、宇宙人 ×0.8819 = 583 / (747 / 1.13))。画面での大きさは変わらない
+    public const float LukaPpu = 583f, PentaPpu = 583f;
 
     // 新4人の素材フォルダ(名前は Art/<prefix>Run_v1 等、ポーズは Art/<prefix>Poses_v1/<name>)。
     // まだ無いフォルダは読み込み時に空として扱う(LoadAnimationFolderのIsValidFolderガード)。

@@ -1,5 +1,5 @@
 # ルカのコマの一覧(出力の相対パス <TAB> 元の画像 <TAB> 浮かせる px)。元の画像は C:/GameProject/ArtSource_newchar/luka(リポジトリの外)
-# 配置: python frames.py --set <Assets/Art> luka_frames.txt --anchor body(胴体の中心でそろえる。頭の位置だと、しっぽが高い絵で体が横に跳ぶ)
+# 配置: python frames.py --set <Assets/Art> luka_frames.txt --anchor body --scale 0.5861(胴体の中心でそろえる。頭の位置だと、しっぽが高い絵で体が横に跳ぶ。--scale = 583 / (843 / (1.13×0.75)) で既存のキャラと同じ 583 px/m へ)
 LukaRun_v1/run_00.png	C:/GameProject/ArtSource_newchar/luka/nc_luka_run_01.png
 LukaRun_v1/run_01.png	C:/GameProject/ArtSource_newchar/luka/nc_luka_run_02.png
 LukaRun_v1/run_02.png	C:/GameProject/ArtSource_newchar/luka/nc_luka_run_03.png
