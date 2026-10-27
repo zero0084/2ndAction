@@ -33,6 +33,10 @@ public static class BuildWindowsProductSandbox
         BuildTo($"Builds/WindowsProductVerify{slot}/OneMoreMile.exe", BuildOptions.None, slot == "1" ? SandboxProductName : SandboxProductName + " 2", new[] { "OMM_PROD_VERIFY" });
     }
 
+    // 2026-10-27 製品版の最終回帰: 製品版そのまま(追加の定義なし = 自動操縦なし)を2つ目の別名でも作る(LOCAL / ONLINE の2人目)
+    //  出力: Builds/WindowsProductSandbox2/OneMoreMile.exe(製品名「One More Mile Test 2」)
+    public static void BuildSlot2() => BuildTo("Builds/WindowsProductSandbox2/OneMoreMile.exe", BuildOptions.None, SandboxProductName + " 2");
+
     static void BuildTo(string path, BuildOptions options, string productName = SandboxProductName, string[] defines = null)
     {
         string dir = Path.GetDirectoryName(path);

@@ -30,11 +30,8 @@ public static class AccountDeletion
     // 2026-10-26(公開前の案内の整備): アプリの中からサーバーのデータを消せるのは、削除の仕組み(Cloud Code omm_delete_player)を配置して
     //  本物で確かめた環境だけ。今は development だけ(production は未配置)→ production につながる製品版では、削除のボタンを出さず
     //  メールでの依頼を案内する(公開中のプライバシーポリシーも「メールで依頼」)。production に配置して確かめたら ProductionReady を true に
-#if OMM_PROD_VERIFY
-    public const bool ProductionReady = true;   // 2026-10-27: 配らない確認用の製品版(BuildWindowsProductSandbox.BuildVerify)だけ。production の最終試験用
-#else
-    public const bool ProductionReady = false;
-#endif
+    // 2026-10-27: production へ配置し、本物のサービスで削除まで確かめた(Docs/ProductionPrep_2026-10-27/final_test_report.md)→ マスターの指示で有効
+    public const bool ProductionReady = true;
     public static bool InAppAvailable => UgsEnvironment.Name != "production" || ProductionReady;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
