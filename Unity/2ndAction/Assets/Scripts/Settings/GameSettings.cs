@@ -95,7 +95,7 @@ public static class UiInputGate
     static bool latch;
     public static bool SprintPanelOpen; // 疾走出発の行き先パネル(2026-10-05)
     public static bool SupportPanelOpen; // CPU サポートの仲間選び(2026-10-14)
-    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen || SprintPanelOpen || SupportPanelOpen || SaveTransferUi.IsOpen || TutorialRun.PanelOpen || FirstRunGuide.Open || NoticeQueue.Open || RankingPanel.IsOpen || AdManager.Showing || MonetizationUi.Open || DataDeletionUi.IsOpen || LoadingScreen.BlocksInput || BootSplash.BlocksInput; // 練習の説明/初回の案内(2026-10-07)、広告の表示中/広告なしパスの画面(2026-10-10)、起動ロゴ(2026-10-24)
+    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen || SprintPanelOpen || SupportPanelOpen || SaveTransferUi.IsOpen || TutorialRun.PanelOpen || FirstRunGuide.Open || NoticeQueue.Open || RankingPanel.IsOpen || AdManager.Showing || MonetizationUi.Open || DataDeletionUi.IsOpen || LoadingScreen.BlocksInput || BootSplash.BlocksInput || ArenaLauncher.Covering; // 闘技場の準備/退出の覆い(2026-10-28)。練習の説明/初回の案内(2026-10-07)、広告の表示中/広告なしパスの画面(2026-10-10)、起動ロゴ(2026-10-24)
 
     // パネルを閉じた: 今押している指が離れるまで背後へ通さない
     public static void LatchUntilRelease() { latch = true; }

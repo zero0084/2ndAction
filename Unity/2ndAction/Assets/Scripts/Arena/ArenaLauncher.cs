@@ -25,7 +25,11 @@ public class ArenaLauncher : MonoBehaviour
     public static float LastCoverSeconds { get; private set; } // 確認用: 覆っていた時間
     static Texture2D coverTex;
     static GUIStyle coverStyle, coverSub;
-    static void BeginCover() { Covering = true; if (Instance != null) Instance.coverSince = Time.unscaledTime; }
+    static void BeginCover() { Covering = true; exitCover = false; if (Instance != null) Instance.coverSince = Time.unscaledTime; }
+    // 2026-10-28: 退出(ホームへ)の時も、押した瞬間から覆う。以前は準備画面を閉じてから暗転が始まり、暗くなるまでの間に
+    //  闘技場の戦闘画面(ダメージ表示/左の操作ボタン)が一瞬見えていた。ホームの読み込みが終わってから外す
+    static bool exitCover;
+    public static int ExitCovers { get; private set; } // 確認用
     static void EndCover()
     {
         if (!Covering) return;
@@ -52,10 +56,15 @@ public class ArenaLauncher : MonoBehaviour
         coverStyle.fontSize = Mathf.RoundToInt(46 * s); coverStyle.normal.textColor = new Color(1f, 0.86f, 0.55f);
         coverSub.fontSize = Mathf.RoundToInt(22 * s); coverSub.normal.textColor = new Color(0.85f, 0.78f, 0.68f);
         int dots = 1 + (int)(Time.unscaledTime * 2.5f) % 3;
-        LocGUI.Label(new Rect(0, Screen.height * 0.5f - 60 * s, Screen.width, 70 * s), Loc.T("闘技場を準備中") + new string('.', dots), coverStyle);
-        LocGUI.Label(new Rect(0, Screen.height * 0.5f + 20 * s, Screen.width, 40 * s), "ARENA", coverSub);
+        if (exitCover) LocGUI.Label(new Rect(0, Screen.height * 0.5f - 35 * s, Screen.width, 70 * s), Loc.T("読み込み中…"), coverStyle);
+        else
+        {
+            LocGUI.Label(new Rect(0, Screen.height * 0.5f - 60 * s, Screen.width, 70 * s), Loc.T("闘技場を準備中") + new string('.', dots), coverStyle);
+            LocGUI.Label(new Rect(0, Screen.height * 0.5f + 20 * s, Screen.width, 40 * s), "ARENA", coverSub);
+        }
         // 覆っている間のタッチ/クリックは下へ通さない
-        if (Event.current != null && (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp)) Event.current.Use();
+        if (Event.current != null && (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag
+            || Event.current.type == EventType.TouchDown || Event.current.type == EventType.TouchUp || Event.current.type == EventType.TouchMove)) Event.current.Use();
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -89,8 +98,28 @@ public class ArenaLauncher : MonoBehaviour
         var gm = GameManager.Instance;
         Debug.Log("[Arena] EXIT to home");
         ArenaConfigStore.Save(ArenaMode.Config);
-        if (gm != null) gm.ReturnToHome(); // ReturnToHome の中の保存(中断データ/累計距離)は Active の間は止まる
+        BeginCover(); exitCover = true; ExitCovers++;
+        if (Instance != null) Instance.StartCoroutine(Instance.ExitCoverSafety());
+        if (gm != null && gm.HasStarted && !gm.IsGameOver) gm.ReturnToHome(); // ReturnToHome の中の保存(中断データ/累計距離)は Active の間は止まる
         else LoadingScreen.ReloadActive("arena");
+    }
+
+    // 退出の覆いを外す: ホームのシーンが読み込まれ、読み込み中の表示が終わってから(その後は読み込み中の表示が薄れてホームが出る)
+    IEnumerator EndExitCoverWhenHomeReady()
+    {
+        yield return null;
+        float t0 = Time.realtimeSinceStartup;
+        while (LoadingScreen.Busy && Time.realtimeSinceStartup - t0 < 10f) yield return null;
+        yield return null;
+        if (Covering && exitCover) EndCover();
+    }
+    // 安全装置: 何かの理由でシーンが読み直されなかった時に、覆ったまま操作できなくならないように
+    IEnumerator ExitCoverSafety()
+    {
+        float t0 = Time.realtimeSinceStartup;
+        while (Time.realtimeSinceStartup - t0 < 15f) { if (!Covering || !exitCover) yield break; yield return null; }
+        Debug.LogWarning("[Arena] exit cover safety: removed after 15s");
+        EndCover();
     }
 
     static void OnSceneLoaded(Scene s, LoadSceneMode m)
@@ -99,6 +128,7 @@ public class ArenaLauncher : MonoBehaviour
         if (!pending)
         {
             // 闘技場以外へ戻った: 闘技場の状態を全部戻す(通常のランへ持ち出さない)
+            if (Covering && exitCover) Instance.StartCoroutine(Instance.EndExitCoverWhenHomeReady());
             if (ArenaMode.Active || ArenaMode.PendingStart)
             {
                 ArenaController.ResetAll(); ResetStatics("left arena");
