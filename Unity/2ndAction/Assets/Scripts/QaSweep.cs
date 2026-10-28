@@ -44,6 +44,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaVisShots") { mode = "visshots"; dir = a[i + 1]; }
             if (a[i] == "-qaScale") { mode = "scale"; dir = a[i + 1]; }
             if (a[i] == "-qaRematch") { mode = "rematch"; dir = a[i + 1]; }
+            if (a[i] == "-qaFix28") { mode = "fix28"; dir = a[i + 1]; }
             if (a[i] == "-qaCardBoss") { mode = "cardboss"; dir = a[i + 1]; }
             if (a[i] == "-qaCharCards") { mode = "charcards"; dir = a[i + 1]; }
             if (a[i] == "-qaScenery") { mode = "scenery"; dir = a[i + 1]; }
@@ -219,6 +220,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "visshots") yield return VisShotsMode();
         else if (mode == "scale") yield return ScaleMode();
         else if (mode == "rematch") yield return RematchMode();
+        else if (mode == "fix28") yield return Fix28Mode();
         else if (mode == "cardboss") yield return CardBossMode();
         else if (mode == "charcards") yield return CharCardsMode();
         else if (mode == "scenery") yield return SceneryMode();

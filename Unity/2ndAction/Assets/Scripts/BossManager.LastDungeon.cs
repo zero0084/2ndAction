@@ -228,6 +228,7 @@ public partial class BossManager
         if (fam == GateFamily.Sky) StartSkyGate((SkyBossKind)kind, 1);
         else if (fam == GateFamily.Cave) StartCaveGate((CaveBossKind)kind, 1);
         else StartWildGate((WildBossKind)kind, 1);
+        AddFormationExtras(key, 1); // 2026-10-28: 30〜89km は距離の予算で追加のボス
     }
 
     // ===================================================================== //

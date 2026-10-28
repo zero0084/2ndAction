@@ -1044,7 +1044,9 @@ public partial class BossManager : MonoBehaviour
         {
             if (!ResolveSkyGate(gateK, out SkyBossKind skyKind, out int skyCount)) { IsBossPhase = false; return; }
             int sk = (int)skyKind; DecideEncounter(GateFamily.Sky, ref sk, ref skyCount); skyKind = (SkyBossKind)sk; // 再戦の抽選(2026-10-02)
-            StartSkyGate(skyKind, skyCount + BossRushExtra());
+            skyCount = FormationClampCount(skyCount + BossRushExtra());
+            StartSkyGate(skyKind, skyCount);
+            AddFormationExtras(Key(GateFamily.Sky, (int)skyKind), skyCount); // 2026-10-28: 距離の予算で追加のボス(30km〜)
             return;
         }
 
@@ -1052,13 +1054,17 @@ public partial class BossManager : MonoBehaviour
         {
             if (!ResolveCaveGate(gateK, out CaveBossKind caveKind, out int caveCount)) { IsBossPhase = false; return; }
             int ck = (int)caveKind; DecideEncounter(GateFamily.Cave, ref ck, ref caveCount); caveKind = (CaveBossKind)ck; // 再戦の抽選(2026-10-02)
-            StartCaveGate(caveKind, caveCount + BossRushExtra());
+            caveCount = FormationClampCount(caveCount + BossRushExtra());
+            StartCaveGate(caveKind, caveCount);
+            AddFormationExtras(Key(GateFamily.Cave, (int)caveKind), caveCount); // 2026-10-28
             return;
         }
 
         if (!ResolveGate(gateK, out WildBossKind gateKind, out int gateCount)) { IsBossPhase = false; return; }
         int wk = (int)gateKind; DecideEncounter(GateFamily.Wild, ref wk, ref gateCount); gateKind = (WildBossKind)wk; // 再戦の抽選(2026-10-02)
-        StartWildGate(gateKind, gateCount + BossRushExtra());
+        gateCount = FormationClampCount(gateCount + BossRushExtra());
+        StartWildGate(gateKind, gateCount);
+        AddFormationExtras(Key(GateFamily.Wild, (int)gateKind), gateCount); // 2026-10-28
     }
 
     // カードバランス v3(2026-10-03): BOSS RUSH - 関門ごとに確率(8%/Lv)でボスがもう1体加わる(追加の Boss Encounter)。
