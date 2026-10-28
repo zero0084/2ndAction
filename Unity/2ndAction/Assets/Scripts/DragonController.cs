@@ -640,13 +640,17 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         float diveX = player != null ? player.position.x : start.x;
         Vector3 divePos = new Vector3(diveX, GroundYAt(diveX) + diveHeight, 0f);
         yield return LerpPosition(start, divePos, diveDuration);
+        // 2026-10-28: 突進の途中で倒された時は、ここで終える(以前は撃破の演出の間も上昇/帰還で位置を動かし、待機の絵へ戻していた。JOIN の絵とも食い違った)
+        if (state == State.Dead) yield break;
 
         SetFrames(Pose("takeoff", idleFrames)); // 打ち上がる(翼を打ち下ろす)
         float riseX = CameraRightEdgeX();
         Vector3 risePos = new Vector3(riseX, GroundYAt(riseX) + riseHeight, 0f);
         yield return LerpPosition(transform.position, risePos, riseDuration);
+        if (state == State.Dead) yield break;
 
         yield return ReturnToHome(chargeReturnDuration);
+        if (state == State.Dead) yield break;
 
         state = State.Idle;
         SetFrames(idleFrames);
@@ -663,7 +667,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         float px0 = player != null ? player.position.x : 0f;
         Vector3 startRel = transform.position - new Vector3(px0, 0f, 0f);
         float t = 0f;
-        while (t < 1f)
+        while (t < 1f && state != State.Dead) // 倒されたら撃破の演出に位置を任せる
         {
             t += Time.deltaTime / Mathf.Max(0.01f, duration);
             Vector3 target = ComputeHomePosition();
@@ -690,6 +694,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         SetFrames(Pose("inhale", chargeFrames)); // 2026-10-28: 吸い込み(溜め)。炎の描かれたコマは吐いている間だけ
 
         yield return new WaitForSeconds(fireWindupDuration);
+        if (state != State.Firing) yield break; // 2026-10-28: 溜めの間に倒された/崩された(以前は撃破の後も吐く絵 → 戻り → 状態を Idle に戻し、倒した竜が生き返った扱いになった)
         SetFrames(fireFrames);
 
         FirePattern pattern = PickFirePattern();
@@ -714,8 +719,10 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
                 break;
         }
 
+        if (state != State.Firing) yield break;
         SetFrames(Pose("fire_end", idleFrames)); // 戻り: 口を閉じる(以前は戻りの間も炎を吐き続けて見えた)
         yield return new WaitForSeconds(fireRecoverDuration);
+        if (state != State.Firing) yield break;
 
         state = State.Idle;
         SetFrames(idleFrames);
@@ -769,7 +776,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     IEnumerator LerpPosition(Vector3 from, Vector3 to, float duration)
     {
         float t = 0f;
-        while (t < 1f)
+        while (t < 1f && state != State.Dead) // 倒されたら撃破の演出に位置を任せる
         {
             t += Time.deltaTime / Mathf.Max(0.01f, duration);
             transform.position = Vector3.Lerp(from, to, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t)));
@@ -1034,7 +1041,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         BossVoice.Growl(this, "Dragon");
         // 上空へ
         float t = 0f;
-        while (t < 0.6f)
+        while (t < 0.6f && state != State.Dead) // 2026-10-28: 必殺技の途中で倒されたら止める(以前は撃破の後も位置を動かし、火球を放ち、最後に状態を Idle に戻していた)
         {
             t += Time.deltaTime;
             Vector3 target = ComputeHomePosition() + new Vector3(1.5f, 1.0f, 0f);
@@ -1050,11 +1057,12 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
             chargeOrb.sprite = FireballController.FireballArt() != null ? FireballController.FireballArt() : BossFx.Orb();
             chargeOrb.sortingOrder = sr.sortingOrder + 2;
         }
+        if (state == State.Dead) yield break;
         chargeOrb.enabled = true;
         SetFrames(Pose("orb_charge", chargeFrames)); // 2026-10-28: 火球を溜める間は口を開けて溜める姿勢(以前はブレスのコマ)
         t = 0f;
         Vector3 mouth = Vector3.Scale((Vector3)fireballSpawnOffset, transform.lossyScale);
-        while (t < 1.5f)
+        while (t < 1.5f && state != State.Dead)
         {
             t += Time.deltaTime;
             transform.position = ComputeHomePosition() + new Vector3(1.5f, 1.0f, 0f);
@@ -1069,6 +1077,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         if (flashOverlay != null) flashOverlay.enabled = false;
         Vector3 from = chargeOrb.transform.position;
         chargeOrb.enabled = false;
+        if (state == State.Dead) yield break;
         // 発射: ゆっくり迫る巨大火球(かわす or 跳ね返す)
         Vector3 aim = player != null ? player.position + new Vector3(0f, 0.6f, 0f) : from + Vector3.left;
         Vector2 dir = ((Vector2)(aim - from)).normalized;
@@ -1085,13 +1094,17 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         state = State.Firing;
         SetFrames(fireFrames); // 放つ瞬間だけ炎のコマ → すぐ待機へ(反撃のチャンスの間にブレスを吐いて見えないように)
         yield return new WaitForSeconds(0.45f);
+        if (state == State.Dead) yield break;
         SetFrames(idleFrames);
         yield return new WaitForSeconds(2.2f - 0.45f);
+        if (state == State.Dead) yield break;
         BossBattle.EndUltimate(this);
         ultimateRunningFlag = false;
         if (skyMode) yield return LowRecovery(2.8f); // 天空: 低空へ降りる(反撃のチャンス)
+        if (state == State.Dead) yield break;
         state = State.Landing;
         yield return ReturnToHome(0.6f);
+        if (state == State.Dead) yield break;
         state = State.Idle;
         SetFrames(idleFrames);
         ScheduleNextAttack();
