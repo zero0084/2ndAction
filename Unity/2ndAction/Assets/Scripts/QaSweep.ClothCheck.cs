@@ -109,6 +109,9 @@ public partial class QaSweep
             yield return ClothRecord($"finish_t{k}", 5.5f, i => i == 15 ? ClothEscape() : null);
             Time.captureFramerate = 0;
             PlayerController.QaEscapeHold = false;
+            // 2026-10-28: 1回だけ win=False になった件の切り分け(確定したか / 終わったか / 理由 / 結果を何回決めたか / 記録)
+            var lc = gm.LastCommit;
+            L($"[cloth] finish tier {k} state: over={gm.IsGameOver} win={gm.IsWin} reason={gm.DeathReason} escapeConfirmed={gm.EscapeConfirmed} finishing={(pc != null && pc.IsFinishing)} FinishRun x{gm.FinishRunCalls} commit={(lc != null && lc.committed)} d={gm.MaxDistance:F0}");
             Check(gm.IsGameOver && gm.IsWin, $"cloth: finish tier {k} reached the result (win={gm.IsWin})");
             yield return EndRun();
         }

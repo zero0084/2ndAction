@@ -1075,15 +1075,13 @@ public partial class NetAutoTest : MonoBehaviour
         if (bossKind.StartsWith("sky:") && Enum.TryParse(bossKind.Substring(4), out SkyBossKind sk))
         {
             bm.DebugSkyEncounter(sk, -1);
-            BossManager.NetTestBossHpOverride = 0;
-            StartCoroutine(DriveCaveBoss());
+            StartCoroutine(DriveCaveBoss()); // HP の上書きは出現の後で戻す(天空のボスは次のフレーム以降に出るので、ここで 0 にすると効かなかった)
             L($"test sky boss spawned ({sk} hp={bossHp})");
             return;
         }
         if (Enum.TryParse(bossKind, out CaveBossKind ck))
         {
             bm.DebugCaveEncounter(ck, -1);
-            BossManager.NetTestBossHpOverride = 0;
             StartCoroutine(DriveCaveBoss());
             L($"test cave boss spawned ({ck} hp={bossHp})");
             return;
@@ -1098,7 +1096,9 @@ public partial class NetAutoTest : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     System.Collections.IEnumerator DriveCaveBoss()
     {
-        yield return new WaitForSeconds(6f);
+        yield return new WaitForSeconds(3f);
+        BossManager.NetTestBossHpOverride = 0;
+        yield return new WaitForSeconds(3f);
         for (int i = 0; i < 3; i++)
         {
             IBossBattleDebug b = EndgameDebug.FirstLivingBoss();

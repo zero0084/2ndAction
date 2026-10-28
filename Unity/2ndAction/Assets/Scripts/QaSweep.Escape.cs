@@ -33,7 +33,7 @@ public partial class QaSweep
     IEnumerator EscapeCase(string cond)
     {
         L($"== {cond} ==");
-        yield return BeginRun("swordsman", "wasteland_road");
+        yield return BeginRun(Arg("-escChar", "swordsman"), "wasteland_road"); // 2026-10-28: キャラを選べる(拳銃士の到着で1回だけ失敗した件の再現の試行)
         stopKeepAlive = true;
         autoPickHold = false;
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false);

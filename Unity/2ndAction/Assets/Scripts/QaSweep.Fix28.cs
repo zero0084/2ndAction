@@ -185,9 +185,28 @@ public partial class QaSweep
                 string kind = h1 == m1 && h0 < m0 && m1 - m0 < h1 - h0 ? "全回復" : h1 - h0 == m1 - m0 && m1 != m0 ? "増えた分だけ" : h1 == h0 ? "変わらない" : "その他";
                 sb.Append($" Lv{lv}: 最大 {m0 / per}→{m1 / per}♥ 現在 {h0 / per}→{h1 / per}♥({kind})");
                 if (lv == 1 || lv == 9) L($"[hpcards] {id} Lv{lv}: max {m0}->{m1} hp {h0}->{h1} ({kind})");
+                // 2026-10-28 夜(案A): 最大HPが増えた Lv だけ全回復。増えない Lv は今のHPのまま(最大を超える分だけ切る)
+                if (m1 > m0) Check(h1 == m1, $"hpcards {id} Lv{lv}: max HP grew ({m0}->{m1}) -> full heal ({h0}->{h1})");
+                else Check(h1 == Mathf.Min(h0, m1), $"hpcards {id} Lv{lv}: max HP did not grow ({m0}->{m1}) -> no heal ({h0}->{h1})");
                 yield return null;
             }
             L($"[hpcards] {id}:{sb}");
+            if (id == "heart_up")
+            {
+                // 上限(ハート99個)で増えなかった時も全回復しない: 上限を今の最大HPに一時的に下げて、もう1枚取る
+                int keepCap = CardRules.MaxHeartsCap;
+                var lvBefore = typeof(GameManager).GetField("cardLevels", NPS)?.GetValue(gm) as System.Collections.Generic.Dictionary<string, int>;
+                if (lvBefore != null && lvBefore.ContainsKey(id)) lvBefore[id] = Mathf.Min(lvBefore[id], 8); // Lv9 の上限で止まらないように1つ戻して作り直す
+                gm.RecomputeCardStats();
+                CardRules.MaxHeartsCap = Mathf.Max(1, gm.maxLives / per); // 上限 = 今の最大HP(次の1枚は上限で増えない)
+                livesSet.Invoke(gm, new object[] { Mathf.Max(per, gm.maxLives - 2 * per) });
+                int cm0 = gm.maxLives, ch0 = gm.Lives;
+                apply.Invoke(gm, new object[] { card });
+                L($"[hpcards] heart_up at the cap: max {cm0}->{gm.maxLives} hp {ch0}->{gm.Lives}");
+                Check(gm.maxLives == cm0 && gm.Lives == ch0, $"hpcards heart_up at the heart cap: no growth -> no heal ({cm0}/{ch0} -> {gm.maxLives}/{gm.Lives})");
+                CardRules.MaxHeartsCap = keepCap;
+                apply.Invoke(gm, new object[] { card }); // 上限を戻して作り直す(以後の計測に影響しないように)
+            }
             // 最終進化(Lv9 の後)
             FinalEvolution.DebugMakeReady(id);
             livesSet.Invoke(gm, new object[] { Mathf.Max(per, gm.maxLives - 2 * per) });
@@ -195,6 +214,18 @@ public partial class QaSweep
             bool ok = FinalEvolution.Activate(id);
             yield return null; yield return null;
             L($"[hpcards] {id} FE activate={ok}: max {fm0 / per}→{gm.maxLives / per}♥ hp {fh0 / per}→{gm.Lives / per}♥ ({gm.Lives - fh0:+0;-0;0} HP / max {gm.maxLives - fm0:+0;-0;0})");
+            if (ok)
+            {
+                // 中断・再開(FE の状態を書き出して読み直す = CONTINUE と同じ経路)で最大HP/今のHPが変わらない
+                int rm = gm.maxLives, rh = gm.Lives;
+                FinalEvolution.Import(FinalEvolution.Export());
+                Check(gm.maxLives == rm && gm.Lives <= gm.maxLives, $"hpcards {id}: FE state reload keeps max/current HP ({rm}/{rh} -> {gm.maxLives}/{gm.Lives})");
+                // 終わり: 最大HPは発動前へ戻り、今のHPは最大を超えない
+                FinalEvolution.DebugEnd(id);
+                yield return null;
+                Check(gm.maxLives == fm0 && gm.Lives <= gm.maxLives, $"hpcards {id}: FE end returns max HP and keeps current <= max ({gm.maxLives}/{fm0}, hp {gm.Lives})");
+                L($"[hpcards] {id} FE end: max {gm.maxLives / per}♥ hp {gm.Lives / per}♥");
+            }
             Time.timeScale = 1f;
             yield return EndRun(); // 次のカードは新しいランで(前のカードの最大HPを持ち越さない)
         }
@@ -210,10 +241,10 @@ public partial class QaSweep
             if (st == BossManager.LastStageId) SaveStore.SetInt(SaveKeys.DevFinalDungeonAlwaysOpen, 1); // 試験用データではラスダンが未解放(試験用の保存だけに書く)
             yield return BeginRun("swordsman", st);
             var bm = BossManager.Instance;
-            foreach (var v in Arg("-f28SimVariants", "0,1,2,3").Split(','))
+            foreach (var v in Arg("-f28SimVariants", "0,4").Split(','))
             {
                 BossManager.DevFormationVariant = int.Parse(v);
-                L($"[formsim] stage {st} (active {gm.ActiveRunStageId}) variant {v} ({(v == "0" ? "採用済み" : v == "1" ? "小ボスの重ね" : v == "2" ? "慣れたボスの割引" : "重ね+割引")}) runs={runs}");
+                L($"[formsim] stage {st} (active {gm.ActiveRunStageId}) variant {v} ({(v == "0" ? "採用済み(慣れたボスの割引)" : v == "4" ? "割引なし(採用前)" : v == "1" ? "+小ボスの重ね" : v == "2" ? "+ラスダンにも割引" : "?")}) runs={runs}");
                 foreach (var line in bm.DevFormationSim(runs).Split('\n')) if (line.Trim().Length > 0) L(line.TrimEnd());
             }
             BossManager.DevFormationVariant = 0;
@@ -284,33 +315,49 @@ public partial class QaSweep
         L("== fight: multi-boss gates with real damage ==");
         string[] kms = Arg("-f28FightKm", "35,65,91").Split(',');
         var deck = DuelDecks["B"];
+        BossManager.DevFormationVariant = int.Parse(Arg("-f28FightVariant", "0")); // 比較用: 4 = 割引なし(採用前の編成)
+        foreach (var st in Arg("-f28FightStages", "wasteland_road").Split(','))   // 2026-10-28 夜: 洞窟/天空でも(慣れたボスの割引の後の実戦)
         foreach (var kmS in kms)
         {
             int km = int.Parse(kmS);
-            yield return BeginRun("swordsman", "wasteland_road");
+            yield return BeginRun("swordsman", st);
             var bm = BossManager.Instance; bm.enabled = true;
             // そこまでの関門を通常どおり倒して来た状態(再戦プール)にする: 疾走出発と同じ扱いで飛ばした関門をプールへ
             bm.SprintMarkSkippedGates(km - 1);
             int flv = int.Parse(Arg("-f28FightLv", "7"));
             foreach (var id in deck.Distinct()) { var c = CardDatabase.FindBaseById(id); if (c != null) gm.DebugApplyRunCard(c, flv); }
             gm.RecomputeCardStats();
-            gm.DebugWarpToDistance(km * 1000f - 60f);
+            // 2026-10-28 夜: 操作する人がいないと、ボス戦の間に穴や壁で倒れていた(9戦中5戦)。闘技場の試験(-qaDuel)と同じく、
+            //  ゲームの補助(HighSpeedAssist: ボス戦の中も自動で避ける/攻撃する)で戦い、足場は平らにする(地形ではなくボスとの戦いを見る)。
+            //  関門の手前 400m へ飛び、そこから先を平らにしてから関門へ走る(関門の場所の地形が生成される前に)
+            gm.DebugWarpToDistance(km * 1000f - 400f);
+            yield return new WaitForSeconds(0.5f);
+            var hsa = HighSpeedAssist.Instance;
+            if (hsa != null) { hsa.SetEnabled(true); hsa.SetAutoInBoss(true); hsa.SetAutoAttack(true); hsa.SetAutoAvoid(true); }
+            var tmf = TerrainManager.Instance;
+            if (tmf != null) { float lx = FloatingOrigin.ToLogical(pc.transform.position.x); tmf.SetResumeFlatZone(lx - 5f, lx + 3000f); }
+            foreach (var ob in FindObjectsByType<ObstacleController>(FindObjectsSortMode.None)) Destroy(ob.gameObject);
+            var os = FindFirstObjectByType<ObstacleSpawner>(); if (os != null) os.enabled = false;
+            if (EncounterDirector.Instance != null) EncounterDirector.Instance.enabled = false; // 雑魚なし(ボスとの戦いだけ)
             float w = 0f;
-            while (!(bm.IsBossPhase && bm.AliveBossCount > 0) && w < 30f) { yield return null; w += Time.unscaledDeltaTime; }
+            while (!(bm.IsBossPhase && bm.AliveBossCount > 0) && w < 60f) { yield return null; w += Time.unscaledDeltaTime; }
             stopKeepAlive = true; // ここから通常の被弾
             typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false);
             var lives = typeof(GameManager).GetProperty("Lives"); lives.GetSetMethod(true).Invoke(gm, new object[] { gm.maxLives });
             int hpStart = gm.Lives, bodies = BossObjectsAlive();
             string form = BossManager.LastFormation;
             float t0 = Time.realtimeSinceStartup;
-            Shot($"fight_{km}km_start");
+            Shot($"fight_{st}_{km}km_start");
             while (bm.IsBossPhase && !gm.IsGameOver && Time.realtimeSinceStartup - t0 < 240f) yield return new WaitForSeconds(0.25f);
-            string res = gm.IsGameOver ? "DOWN" : bm.IsBossPhase ? "TIMEOUT" : "CLEARED";
-            L($"[fight] {km}km {res} in {Time.realtimeSinceStartup - t0:F0}s bodies={bodies} HP {hpStart} -> {gm.Lives}/{gm.maxLives} | {form}");
-            Shot($"fight_{km}km_end");
+            string res = gm.IsGameOver ? "DOWN(" + gm.DeathReason + ")" : bm.IsBossPhase ? "TIMEOUT" : "CLEARED";
+            if (os != null) os.enabled = true;
+            if (EncounterDirector.Instance != null) EncounterDirector.Instance.enabled = true;
+            L($"[fight] {st} {km}km {res} in {Time.realtimeSinceStartup - t0:F0}s bodies={bodies} HP {hpStart} -> {gm.Lives}/{gm.maxLives} | {form}");
+            Shot($"fight_{st}_{km}km_end");
             Check(res != "TIMEOUT", $"fight: {km}km ends within 240s ({res})");
             yield return EndRun();
         }
+        BossManager.DevFormationVariant = 0;
     }
 }
 #endif
