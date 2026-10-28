@@ -190,7 +190,7 @@ public partial class QaSweep
         Check(Mathf.Abs(ar9 - 1.27f) < 0.01f && Mathf.Abs(jp9 - 1.27f) < 0.01f, "ATTACK RANGE UP / JUMP POWER UP Lv9 = +27%");
         Check(Mathf.RoundToInt(hu9) == 140, "HEART UP Lv9 = +9 hearts");
         V3Reset(); V3Apply("heart_up", 9); V3Apply("fortress", 9); V3Apply("the_long_road", 9);
-        Check(gm.maxLives == CardRules.MaxHeartsCap * CombatScale.HpPerHeart, $"max HP cap = 20 hearts ({gm.maxLives})");
+        Check(gm.maxLives == CardRules.MaxHeartsCap * CombatScale.HpPerHeart, $"max HP cap = {CardRules.MaxHeartsCap} hearts ({gm.maxLives})");
         V3Reset(); V3Apply("shield", 1); int s1 = pc.ShieldCapacity; V3Reset(); V3Apply("shield", 4); int s4 = pc.ShieldCapacity; V3Reset(); V3Apply("shield", 9); int s9 = pc.ShieldCapacity;
         Check(s1 == 1 && s4 == 2 && s9 == 3, $"SHIELD Lv1-3=1 / Lv4-6=2 / Lv7-9=3 ({s1},{s4},{s9})");
         V3Reset(); V3Apply("exp_converter", 9); V3Apply("exp_converter", 9);

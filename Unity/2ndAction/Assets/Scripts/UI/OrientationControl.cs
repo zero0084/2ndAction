@@ -159,13 +159,27 @@ public class SafeAreaFitter : MonoBehaviour
         init = true;
         rt = transform as RectTransform;
         baseMin = rt.offsetMin; baseMax = rt.offsetMax;
+        ScanFullBleed();
+    }
+
+    // 2026-10-28: 背景を後から作る画面(カード合成の "Backdrop" は開いた時に EnsureBuilt で作る)は、Awake の時点では
+    //  まだ子が無く、背景が安全領域の内側のまま = 横画面の切り欠き側に縦の帯で後ろ(ダンジョンの背景)が見えていた。
+    //  子の数が変わったら探し直して、画面の端まで敷き直す。
+    int scannedChildren = -1;
+    void ScanFullBleed()
+    {
         var list = new System.Collections.Generic.List<RectTransform>();
         foreach (Transform ch in transform) if (ch.name == "Background" || ch.name == "Backdrop") list.Add(ch as RectTransform);
         fullBleed = list.ToArray();
+        scannedChildren = transform.childCount;
     }
 
     void OnEnable() { Init(); applied = default; Fit(); }
-    void LateUpdate() { if (StableSafeArea.Rect != applied || appliedSize.x != Screen.width || appliedSize.y != Screen.height) Fit(); }
+    void LateUpdate()
+    {
+        if (transform.childCount != scannedChildren) { ScanFullBleed(); applied = default; }
+        if (StableSafeArea.Rect != applied || appliedSize.x != Screen.width || appliedSize.y != Screen.height) Fit();
+    }
 
     void Fit()
     {

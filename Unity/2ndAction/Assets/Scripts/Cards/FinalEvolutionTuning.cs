@@ -147,7 +147,7 @@ public class FinalEvolutionTuning : ScriptableObject
             T("tornado", Module.Wind, 10f, 1.8f, "大竜巻", "10秒間 竜巻の威力が約1.5倍になり、範囲も拡大"),
 
             // ---- DEFENSE(最大HPを増やすだけにしない) ----
-            T("heart_up", Module.Shield, 10f, 1.6f, "鉄の心臓", "10秒間 最大HPの増加×1.6(上限ハート20。終われば戻る)、回復+1", B(EffectType.HealBonusHearts, 1f)),
+            T("heart_up", Module.Shield, 10f, 1.6f, "鉄の心臓", "10秒間 最大HPの増加×1.6(上限ハート99。終われば戻る)、回復+1", B(EffectType.HealBonusHearts, 1f)),
             T("shield", Module.Shield, 10f, 2f, "盾の嵐", "10秒間 Shield の回復間隔が最短8秒に(最大数3は変わらない)"),
             T("counter", Module.Guard, 10f, 2f, "倍返し", "10秒間 Shield で防いだ時の反撃の基本威力が約1.7倍"),
             T("iron_will", Module.HighHp, 10f, 2f, "鋼の意志", "10秒間 満タンの間の攻撃/最大HP×2"),

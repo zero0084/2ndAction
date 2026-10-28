@@ -62,7 +62,52 @@ public partial class GameManager
     }
 
     // ランへ出る時: 見せる分だけ捨てる(カードは所持済み)
-    void ClearGachaPresentation() { gachaRevealQueue.Clear(); gachaRevealNewQ.Clear(); gachaResultOpen = false; gachaCloseArmed = false; gachaMachineShakeTimer = 0f; }
+    void ClearGachaPresentation() { gachaRevealQueue.Clear(); gachaRevealNewQ.Clear(); gachaResultOpen = false; gachaCloseArmed = false; gachaMachineShakeTimer = 0f; StopGachaHold(); }
+
+    // 2026-10-28: 長押しで結果を連続で送る(実機で1枚ずつのタップが大変だった)。
+    //  ・短いタップは今までどおり1枚送る(離した時に閉じる → 次の1枚)。
+    //  ・押し続けて GachaHoldStart 秒で連続送りを始め、GachaHoldInterval 秒ごとに次の1枚へ。離したら止まり、その時のカードを見られる。
+    //  ・最後の1枚で止まる。連続送りした指を離しても閉じない/本体を引かない(同じ押しっぱなしで画面を閉じたり追加で引いたりしない)。
+    //  ・★4以上の登場演出の間は待つ(珍しいカードを見逃さない)。表示だけを進める(カードは引いた時点で所持済み)。
+    public const float GachaHoldStart = 0.4f, GachaHoldInterval = 0.12f;
+    bool gachaHoldActive, gachaHoldRepeating;
+    float gachaHoldStartedAt, gachaHoldNextAt;
+    public bool GachaHoldRepeating => gachaHoldRepeating; // 確認用
+    public static int GachaHoldAdvanced; // 確認用
+    void StopGachaHold() { gachaHoldActive = false; gachaHoldRepeating = false; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public static bool DevGachaHoldDown;
+#endif
+
+    void UpdateGachaHold()
+    {
+        if (!gachaHoldActive) return;
+        bool down = Input.GetMouseButton(0) || Input.touchCount > 0;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        down |= DevGachaHoldDown; // 自動テスト(-qaGacha E): 押し続けている扱い
+#endif
+        if (!down || !gachaResultOpen || gachaDragging) { if (!down) StopGachaHold(); return; }
+        float now = Time.unscaledTime;
+        if (!gachaHoldRepeating)
+        {
+            if (now - gachaHoldStartedAt < GachaHoldStart) return;
+            gachaHoldRepeating = true; gachaHoldNextAt = now;
+            gachaCloseArmed = false; // 離しても閉じない
+        }
+        if (now < gachaHoldNextAt || gachaResultRevealTimer > 0f || gachaRevealQueue.Count == 0) return; // 最後の1枚 / ★4以上の演出中は待つ
+        gachaResultOpen = false;
+        gachaMachineShakeTimer = 0f;
+        RevealNextGachaCard();
+        GachaHoldAdvanced++;
+        gachaHoldNextAt = now + GachaHoldInterval;
+    }
+
+    // 2026-10-28: 結果の確認中に別の画面へ移ったら、残りの確認は済んだことにする(戻った時に続きが出ていた)。
+    //  カードは引いた時点で所持に入っているので、見せる分を捨てるだけ(消える/二重に入る/MILE をもう一度払うことは無い)。
+    bool GachaScreenLeft => AnyOverlayOpen || SettingsPanel.IsVisible || UiInputGate.DebugPanelOpen || UiInputGate.SprintPanelOpen || UiInputGate.SupportPanelOpen
+        || SaveTransferUi.IsOpen || RankingPanel.IsOpen || MonetizationUi.Open || DataDeletionUi.IsOpen || NetDebugUI.PanelOpen || TutorialRun.PanelOpen
+        || (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning); // 画面の切り替え(ワイプ)が始まった時点で
+    public static int GachaDismissedByScreen; // 確認用
 
     void CloseGachaResult()
     {
@@ -75,8 +120,21 @@ public partial class GameManager
     // UpdateHomeRoom から: 揺れが終わったら順番待ちの先頭を見せる
     void UpdateGachaReveal()
     {
+        if ((gachaResultOpen || gachaRevealQueue.Count > 0) && GachaScreenLeft)
+        {
+            Debug.Log($"[Gacha] left the home screen while showing results - remaining {gachaRevealQueue.Count + (gachaResultOpen ? 1 : 0)} reveal(s) marked as seen (cards already owned)");
+            GachaDismissedByScreen++;
+            ClearGachaPresentation();
+            return;
+        }
+        UpdateGachaHold();
         if (gachaMachineShakeTimer > 0f) gachaMachineShakeTimer -= Time.unscaledDeltaTime;
-        if (!gachaResultOpen && gachaMachineShakeTimer <= 0f && gachaRevealQueue.Count > 0)
+        if (!gachaResultOpen && gachaMachineShakeTimer <= 0f && gachaRevealQueue.Count > 0) RevealNextGachaCard();
+        if (gachaResultRevealTimer > 0f) gachaResultRevealTimer -= Time.unscaledDeltaTime;
+    }
+
+    void RevealNextGachaCard()
+    {
         {
             var c = gachaRevealQueue[0];
             gachaRevealQueue.RemoveAt(0);
@@ -89,7 +147,6 @@ public partial class GameManager
             gachaResultOpenedAt = Time.unscaledTime;
             gachaCloseArmed = false;
         }
-        if (gachaResultRevealTimer > 0f) gachaResultRevealTimer -= Time.unscaledDeltaTime;
     }
 
     // OnGUI の最初(ホームのボタンより前)。確認中は本体以外への押下/離しを全部ここで吸い取り、離した時に閉じる。
@@ -114,13 +171,18 @@ public partial class GameManager
             return;
         }
         if (e.type == EventType.MouseDown) { gachaPressPos = e.mousePosition; gachaLastY = e.mousePosition.y; gachaDragging = false; gachaPressInDesc = lastGachaDescRect.Contains(e.mousePosition); }
-        if (e.type == EventType.MouseUp && gachaDragging) { gachaDragging = false; gachaCloseArmed = false; e.Use(); return; } // スクロールした指: 閉じない
+        if (e.type == EventType.MouseUp && gachaDragging) { gachaDragging = false; gachaCloseArmed = false; StopGachaHold(); e.Use(); return; } // スクロールした指: 閉じない
+        if (e.type == EventType.MouseUp && gachaHoldRepeating) { StopGachaHold(); gachaCloseArmed = false; e.Use(); return; } // 連続送りした指: 止めるだけ(閉じない)
         if (lastGachaMachineRect.width > 0f && lastGachaMachineRect.Contains(e.mousePosition)) return; // 本体のボタンが受け取る
         if (e.type == EventType.MouseDown)
         {
-            if (Time.unscaledTime - gachaResultOpenedAt > 0.12f) gachaCloseArmed = true; // 確認を出した指(開いた瞬間に押していた)では閉じない
+            if (Time.unscaledTime - gachaResultOpenedAt > 0.12f)
+            {
+                gachaCloseArmed = true; // 確認を出した指(開いた瞬間に押していた)では閉じない
+                gachaHoldActive = true; gachaHoldRepeating = false; gachaHoldStartedAt = Time.unscaledTime; // 長押しの始まり
+            }
         }
-        else if (gachaCloseArmed) CloseGachaResult();
+        else { StopGachaHold(); if (gachaCloseArmed) CloseGachaResult(); }
         e.Use();
     }
 

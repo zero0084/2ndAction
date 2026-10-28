@@ -171,7 +171,7 @@ public partial class GameManager
         if (levelUpPending || rewardCardSequence == null) return false;
         var pool = SprintCandidates();
         if (pool.Count == 0) { var st = SprintPoolDiagnose(out string why); Debug.Log($"[Sprint] ring bonus: no candidate ({st}: {why}) - nothing to choose"); return false; }
-        for (int i = pool.Count - 1; i > 0; i--) { int j = Random.Range(0, i + 1); (pool[i], pool[j]) = (pool[j], pool[i]); }
+        ShuffleDistinctChoices(pool, "sprint ring"); // 2026-10-28: 同じ強化を2枠に出さない
         int n = Mathf.Min(3, pool.Count);
         pendingChoices = new CardDefinition[n];
         for (int i = 0; i < n; i++) pendingChoices[i] = pool[i];

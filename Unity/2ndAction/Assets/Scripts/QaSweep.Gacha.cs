@@ -123,6 +123,55 @@ public partial class QaSweep
             GameManager.DevForceGachaCard = null;
         }
 
+        // ---- E 長押しで連続送り(2026-10-28)
+        L("== E: hold to fast-forward ==");
+        var close = typeof(GameManager).GetMethod("CloseGachaResult", NP);
+        while (gm.GachaPendingReveals > 0 || gm.GachaResultOpen) { if (gm.GachaResultOpen) close.Invoke(gm, null); yield return null; }
+        gm.AddMile(GameManager.GachaCostMile * 6);
+        int pullsE = gm.GachaPulls, mileE = gm.TotalOwnedMile, ownedE = TotalOwned();
+        for (int i = 0; i < 6; i++) tap.Invoke(gm, null);
+        yield return WaitTut(() => gm.GachaResultOpen, 3f);
+        yield return new WaitForSecondsRealtime(0.3f);
+        // 短いタップ: 1枚だけ送る(今までどおり)
+        SendEvent(input, EventType.MouseDown, new Vector2(40f, 40f));
+        yield return new WaitForSecondsRealtime(0.1f);
+        SendEvent(input, EventType.MouseUp, new Vector2(40f, 40f));
+        Check(!gm.GachaResultOpen && gm.GachaPendingReveals == 5, $"E: a short tap advances one card ({gm.GachaPendingReveals} waiting)");
+        yield return WaitTut(() => gm.GachaResultOpen, 2f);
+        yield return new WaitForSecondsRealtime(0.25f);
+        GameManager.GachaHoldAdvanced = 0;
+        GameManager.DevGachaHoldDown = true;
+        SendEvent(input, EventType.MouseDown, new Vector2(40f, 40f));
+        float t0 = Time.unscaledTime; int at035 = -1;
+        while (Time.unscaledTime - t0 < 2.5f) { if (at035 < 0 && Time.unscaledTime - t0 >= 0.32f) at035 = GameManager.GachaHoldAdvanced; yield return null; }
+        Check(at035 == 0, $"E: nothing happens before the hold threshold ({at035} at 0.32s)");
+        Check(gm.GachaHoldRepeating && gm.GachaPendingReveals == 0 && gm.GachaResultOpen, $"E: holding runs through the cards and stops on the last one (waiting {gm.GachaPendingReveals}, open {gm.GachaResultOpen}, advanced {GameManager.GachaHoldAdvanced})");
+        Shot("gacha_E_hold_last");
+        GameManager.DevGachaHoldDown = false;
+        SendEvent(input, EventType.MouseUp, new Vector2(40f, 40f));
+        yield return null;
+        Check(gm.GachaResultOpen, "E: releasing after the fast-forward keeps the last card on screen (does not close)");
+        Check(gm.GachaPulls == pullsE + 6 && gm.TotalOwnedMile == mileE - GameManager.GachaCostMile * 6 && TotalOwned() == ownedE + 6, "E: the hold neither draws again nor spends MILE (6 pulls, 6 cards)");
+        close.Invoke(gm, null);
+        yield return null;
+
+        // ---- F 結果の途中で別の画面へ → 戻ったら通常のホーム(2026-10-28)
+        L("== F: leave to another screen while showing ==");
+        gm.AddMile(GameManager.GachaCostMile * 4);
+        int ownedF = TotalOwned(), mileF = gm.TotalOwnedMile;
+        for (int i = 0; i < 4; i++) tap.Invoke(gm, null);
+        yield return WaitTut(() => gm.GachaResultOpen, 3f);
+        typeof(GameManager).GetMethod("OpenDeckEdit", NP | BindingFlags.Public).Invoke(gm, null);
+        yield return null; yield return null;
+        Check(!gm.GachaResultOpen && gm.GachaPendingReveals == 0, $"F: the result display ends as soon as the screen change starts ({gm.GachaPendingReveals} left)");
+        yield return new WaitForSecondsRealtime(1.5f);
+        Check(!gm.GachaResultOpen && gm.GachaPendingReveals == 0, $"F: opening deck edit ends the result display ({gm.GachaPendingReveals} left)");
+        typeof(GameManager).GetMethod("CloseDeckEdit", NP | BindingFlags.Public)?.Invoke(gm, null);
+        yield return new WaitForSecondsRealtime(1.5f);
+        Check(!gm.GachaResultOpen && gm.GachaPendingReveals == 0, "F: back at home, only the normal home is shown");
+        Check(TotalOwned() == ownedF + 4 && gm.TotalOwnedMile == mileF - GameManager.GachaCostMile * 4, "F: all 4 cards are owned, MILE spent exactly once each");
+        Shot("gacha_F_home_after");
+
         SaveProfile.Switch(false, true);
         yield return ReloadHome();
     }

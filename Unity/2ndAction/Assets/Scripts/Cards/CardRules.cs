@@ -27,7 +27,7 @@ public static class CardRules
     public static float ExpMultiplierFloor = 0.25f;   // 条件がマイナスの時(SKYBOUND の地上など)の下限(×0.4)
 
     // ---- HP(ハート)。10倍スケール: ハート1つ = CombatScale.HpPerHeart
-    public static int MaxHeartsCap = 20;              // 最大HPの上限(ハート20)
+    public static int MaxHeartsCap = 99;              // 最大HPの上限(画面のハート99個。2026-10-28 マスターの決定で 20 → 99)
     public static int MinHearts = 1;                  // 封印しても最大HPはこれより下がらない
 
     // ---- 吸収/回復

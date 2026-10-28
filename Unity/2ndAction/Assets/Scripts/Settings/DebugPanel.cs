@@ -12,6 +12,7 @@ public partial class DebugPanel : MonoBehaviour
     public static DebugPanel Instance { get; private set; }
     bool open;
     float t;
+    readonly UiScroll scroll = new UiScroll(); // 2026-10-28: 中身が画面に収まらない時の縦スクロール
     bool confirmReset;
     int page;            // 0=一般 / 1=セーブ・進行(2026-10-01) / 2=ラスダン終盤(2026-10-02)
     int confirmSave;     // 0=なし / 1=進行だけ初期化 / 2=完全初期化
@@ -72,11 +73,17 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 740f : page == 1 ? 530f : page == 4 || page == 5 || page == 6 || page == 7 || page == 8 || page == 11 || page == 13 ? 600f : 470f, h - 24f);
+        float naturalH = page == 0 ? 740f : page == 1 ? 530f : page == 4 || page == 5 || page == 6 || page == 7 || page == 8 || page == 11 || page == 13 ? 600f : 470f;
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(naturalH, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
         OrnateUi.DrawPanel(p, 0.95f);
+        // 2026-10-28: 画面が低い時(横画面・小さい窓)は下の項目が見切れていた → 枠は画面に収め、中身は本来の高さで描いてスクロールする
+        //  (指のドラッグ/ホイール/パッド。ドラッグ中はボタンを押さない = UiScroll)。以降の p は中身の座標
+        Rect frame = p;
+        bool scrolling = naturalH > p.height + 0.5f;
+        if (scrolling) { scroll.Begin(frame, naturalH, "debug" + page); p = new Rect(0f, 0f, pw, naturalH); }
         GUI.Label(new Rect(p.x + 24f, p.y + 12f, 300f, 40f), "DEBUG(開発版のみ)", UiKit.Label(24f, TextAnchor.MiddleLeft, true, new Color(1f, 0.55f, 0.45f)));
         // 2026-10-14: 今の UGS の環境(開発版は production を使わない)と、送らずに残しているランキングの送信待ち
         GUI.Label(new Rect(p.x + 24f, p.y + 44f, p.width - 48f, 18f), $"UGS env: {UgsEnvironment.Name} ({UgsEnvironment.Source})  ranking pending {Leaderboard.PendingCount} / held {Leaderboard.HeldCount}" + (UgsEnvironment.Ignored != "" ? "  ignored " + UgsEnvironment.Ignored : ""),
@@ -90,6 +97,7 @@ public partial class DebugPanel : MonoBehaviour
         if (page != 0)
         {
             if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else if (page == 8) DrawComboPage(p); else if (page == 9) DrawFinishPage(p); else if (page == 10) DrawBossFinishPage(p); else if (page == 11) DrawTestDataPage(p); else if (page == 12) DrawScreenLogPage(p); else if (page == 13) DrawMonetizationPage(p); else DrawEndgamePage(p);
+            if (scrolling) scroll.End(frame, naturalH);
             GUI.color = keepColor;
             GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
@@ -169,6 +177,7 @@ public partial class DebugPanel : MonoBehaviour
             if (UiKit.Button(new Rect(x + bw + 12f, y + 24f, bw, 44f), "やめる", 18f, false, false)) confirmReset = false;
         }
 
+        if (scrolling) scroll.End(frame, naturalH);
         GUI.color = keepColor;
         GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
         if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();

@@ -3034,13 +3034,33 @@ public partial class GameManager : MonoBehaviour
     //    (以前は通常のカードが足りないと FE が1枚だけで出ることがあった = 「特別な1枚の提示」にしない)
     //  ・LEVEL UP / ボス報酬の両方(以前はボス報酬には出さなかった)。FE は右端(最後)に並べる
     public static int ChoiceFeOffered, ChoiceFeFilled; // 確認用
-    CardDefinition[] ComposeChoice(List<CardDefinition> pool, string label)
+
+    // 3択の候補を混ぜて、同じ強化を2枠に出さない(2026-10-28、実機で「ATTACK RANGE UP Lv.1→Lv.2」が2枠に出た)。
+    //  原因: 候補はデッキの枠ごとに1つ入る(同じカードを2枚デッキに入れられる)→ 同じカードが2回入り、混ぜた結果の上位3つに両方が来た。
+    //  混ぜてから先に出た方だけ残す = デッキに多く入れたカードほど出やすい点はそのまま(重みを保ったまま重複なしで引く)。
+    //  同じカード(cardId)に加え、合成でない普通のカードは主能力が同じなら同じ強化として1つにする(合成カードは中身が違うので別扱い)。
+    //  候補が足りない時は今までどおり少ない枚数で出す(水増し・引き直しはしない)。
+    public static int ChoiceDupRemoved; // 確認用
+    static void ShuffleDistinctChoices(List<CardDefinition> pool, string label)
     {
         for (int i = pool.Count - 1; i > 0; i--)
         {
             int j = Random.Range(0, i + 1);
             (pool[i], pool[j]) = (pool[j], pool[i]);
         }
+        var seen = new HashSet<string>();
+        int removed = 0;
+        for (int i = 0; i < pool.Count; i++)
+        {
+            string id = pool[i] != null ? pool[i].cardId : null;
+            string key = id == null ? null : CardVariant.IsVariantKey(id) ? id : "main:" + MainAbilityOf(id);
+            if (key == null || !seen.Add(key)) { pool.RemoveAt(i); i--; removed++; }
+        }
+        if (removed > 0) { ChoiceDupRemoved += removed; Debug.Log($"[CardChoice] {label}: removed {removed} duplicate candidate(s), {pool.Count} distinct left"); }
+    }
+    CardDefinition[] ComposeChoice(List<CardDefinition> pool, string label)
+    {
+        ShuffleDistinctChoices(pool, label);
         int feWant = FinalEvolution.CandidateCount > 0 ? Mathf.Max(1, 3 - Mathf.Min(pool.Count, 2)) : 0;
         var fe = FinalEvolution.PickCandidates(feWant);
         int normal = Mathf.Min(pool.Count, 3 - fe.Count);
@@ -5182,7 +5202,9 @@ public partial class GameManager : MonoBehaviour
         // カードバランス v3: 封印したハート(HP犠牲)と Shield の数も出す
         var pcHud = PlayerController.Instance;
         string extra = (SealedHearts > 0 ? $"  封印{SealedHearts}個" : "") + (pcHud != null && (pcHud.ShieldCapacity > 0 || pcHud.ShieldCharges > 0) ? $"  Shield {pcHud.ShieldCharges}" : "");
-        LocGUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 22f, 18f), $"{Lives} / {maxLives}{extra}", numStyle);
+        // 2026-10-28: 最大HPが上限(ハート99個)に届いたら「MAX」を添える(これ以上 HP のカードを取っても増えないことが分かるように)
+        string capMark = maxLives >= CardRules.MaxHeartsCap * CombatScale.HpPerHeart ? " MAX" : "";
+        LocGUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 22f, 18f), $"{Lives} / {maxLives}{capMark}{extra}", numStyle);
 
         float flash = heartDamageFlashDuration > 0f ? Mathf.Clamp01(heartDamageFlashTimer / heartDamageFlashDuration) : 0f;
         float pulse = 1f - flash * 0.08f;

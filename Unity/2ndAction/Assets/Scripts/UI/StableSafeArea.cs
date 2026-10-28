@@ -14,6 +14,9 @@ public static class StableSafeArea
     static int lastW, lastH;
     public static string LastReason = "start";   // OrientationWatcher などが書く(復帰/回転/向きの指定)
     public static int Changes { get; private set; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    static float fakeLeft = -1f;
+#endif
 
     // Screen.safeArea と同じ座標(左下が原点、画素)
     public static Rect Rect
@@ -38,6 +41,11 @@ public static class StableSafeArea
         Rect stable = raw;
 #if UNITY_ANDROID && !UNITY_EDITOR
         stable = FromCutouts();
+#endif
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // 開発版の試験だけ(2026-10-28): -fakeSafeLeft <px> で左に切り欠きがあるつもりにする(PC で背景の漏れを確かめる)
+        if (fakeLeft < 0f) { fakeLeft = 0f; var a = System.Environment.GetCommandLineArgs(); for (int i = 0; i < a.Length - 1; i++) if (a[i] == "-fakeSafeLeft") float.TryParse(a[i + 1], out fakeLeft); }
+        if (fakeLeft > 0f) stable = new Rect(stable.x + fakeLeft, stable.y, Mathf.Max(1f, stable.width - fakeLeft), stable.height);
 #endif
         if (raw != lastRaw || stable != lastStable || Screen.width != lastW || Screen.height != lastH)
         {

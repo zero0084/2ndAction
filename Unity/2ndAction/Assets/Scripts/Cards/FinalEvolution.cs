@@ -298,7 +298,12 @@ public class FinalEvolution : MonoBehaviour
         s.ready = false; s.active = true; s.uses++; s.spent = false;
         s.remaining = DurationOf(e, awake);
         Instance.ApplyEffects(abilityId);
+        var gmHp = GameManager.Instance;
+        int maxBefore = gmHp != null ? gmHp.maxLives : 0;
         RecomputeStats(); // 増幅/追加を能力値へ
+        // 2026-10-28: 最大HPが増える FE(鉄の心臓 heart_up / iron_will)は、増えた分のハートを空のまま出していた
+        //  → 実機で「最大HPがあまり増えない」と見えた。増えた分だけ今のHPも足す(全回復はしない。終われば最大HPと一緒に戻る)
+        if (gmHp != null && gmHp.maxLives > maxBefore) { int add = gmHp.maxLives - maxBefore; gmHp.KitHeal(add); Debug.Log($"[FinalEvo] {abilityId}: max HP {maxBefore} -> {gmHp.maxLives}, HP +{add} -> {gmHp.Lives}"); }
         Activations++;
         Instance.activatedAtUnscaled = Time.unscaledTime;
         Instance.lastActivated = abilityId;
