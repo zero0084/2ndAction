@@ -15,6 +15,22 @@ public static class SceneBuilder
     const string ScenePath = "Assets/Scenes/Main.unity";
     const string OrnateFramePath = "Assets/Art/UI/OrnateFrame.png";
 
+    // 拳銃士の本番の絵: GunslingerArtGenerator が仮の絵を書くフォルダ全部に PNG があり、立ち絵と弾の絵もある
+    static readonly string[] GunslingerArtFolders =
+    {
+        "GunslingerJumpStart_v1", "GunslingerJumpAir_v1", "GunslingerDoubleJump_v1", "GunslingerLand_v1",
+        "GunslingerAttack_v1", "GunslingerUpShot_v1", "GunslingerDownAttack_v1",
+    };
+    static bool GunslingerProductionArtPresent()
+    {
+        foreach (var d in GunslingerArtFolders)
+        {
+            string dir = "Assets/Art/" + d;
+            if (!System.IO.Directory.Exists(dir) || System.IO.Directory.GetFiles(dir, "*.png").Length == 0) return false;
+        }
+        return System.IO.File.Exists("Assets/Art/UI/Characters/gunslinger_portrait.png") && System.IO.File.Exists("Assets/Art/GunslingerBullet.png");
+    }
+
     [MenuItem("Tools/2ndAction/Build Prototype Scene")]
     public static void Build()
     {
@@ -216,7 +232,11 @@ public static class SceneBuilder
         // スホルダー画像生成(CaveEnemyArtGenerator/CaveBossFxと同じ「既存
         // ファイルはスキップ」方式)。CharacterDatabaseBuilder.Buildが読み
         // 込む前に必ず用意しておく必要があるため、ここで先に呼ぶ。
-        GunslingerArtGenerator.Generate();
+        // 2026-10-28(マスターの採用 案①): 本番の絵が入っている時は仮の絵を作らない。以前は GunslingerArtGenerator の中で
+        //  ファイル名だけを見ていたため、本番の絵の名前(attack_00 等)へ差し替えた後もシーンを作り直すたびに仮の絵
+        //  (gunslingerattack_0.png 等)が紛れ込み、攻撃のコマの末尾に1コマ増えていた。判定をこちらへ移した
+        if (!GunslingerProductionArtPresent()) GunslingerArtGenerator.Generate();
+        else Debug.Log("[SceneBuilder] gunslinger production art present - placeholder generation skipped");
         CharacterDatabaseBuilder.Build();
         gameManager.characterSelectUI = BuildCharacterSelectCanvas();
         StageDatabaseBuilder.Build();
