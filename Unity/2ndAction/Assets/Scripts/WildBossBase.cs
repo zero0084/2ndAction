@@ -1021,12 +1021,20 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         var rf = ra != null ? ra.RecoverFor(animVariant) : null;
         if (rf != null) { recoverArtSeconds = Mathf.Clamp(seconds * 0.6f, 0.25f, 0.6f); SetPose(Pose.Recover); }
         else if (fromAttack && ra != null && ra.AttackFor(animVariant) != null) { recoverArtSeconds = Mathf.Clamp(seconds * 0.3f, 0.15f, 0.28f); SetPose(Pose.Recover); } // 2026-10-22: 攻撃の余韻(最後のコマを少し保つ)
+        else if (HasRecoverArt) SetPose(Pose.Recover); // 2026-10-28: コマの連番を持たないボス(天空)の戻りの1枚絵
         yield return Wait(seconds);
+        if (pose == Pose.Recover && rf == null && HasRecoverArt) SetPose(Pose.Idle); // 天空の戻りの絵は戻りの間だけ
+        OnMoveEnded();
     }
+
+    // 2026-10-28: 技ごとの1枚絵(天空のボス)。戻りの絵があるか / 技が終わった(または怯んだ)時に技の絵の指定を外す
+    protected virtual bool HasRecoverArt => false;
+    protected virtual void OnMoveEnded() { }
 
     // 予備動作を中断された時の怯み(後退して隙を見せる)
     protected IEnumerator Stagger(float seconds, float backSpeed = 2.5f)
     {
+        OnMoveEnded();
         interrupted = false;
         facingLocked = false;
         foreach (var hb in hitboxes) if (hb != null) hb.Deactivate();

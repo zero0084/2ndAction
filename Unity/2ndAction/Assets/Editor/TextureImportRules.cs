@@ -20,7 +20,7 @@ public class TextureImportRules : AssetPostprocessor
     // 専用の取り込みが Android の設定まで決めている所(触らない)
     static readonly string[] Owned =
     {
-        "Assets/Resources/BossAnim/", "Assets/Resources/Arena/", "Assets/Resources/Bosses/MechDragon/",
+        "Assets/Resources/BossAnim/", "Assets/Resources/Arena/", "Assets/Resources/Bosses/MechDragon/", "Assets/Resources/BossPose/",
         "Assets/Resources/Effects/Atk/", "Assets/Resources/Effects/HitImpact/", "Assets/Resources/Scenery/",
     };
     static readonly string[] Background =

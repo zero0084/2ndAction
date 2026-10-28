@@ -59,6 +59,7 @@ public partial class BehemothBoss
     IEnumerator ThunderApocalypse()
     {
         if (!StartUlt("THUNDER APOCALYPSE", new Color(0.6f, 0.85f, 1f))) yield break;
+        Art(null, "roar"); // 2026-10-28: 落雷と電撃の波は吠えて呼ぶ
         UltBeat($"start upgraded={Upgraded} RT={RT}");
         CaveDarkness.Set(0.32f);
         yield return MoveToGap(9f, 6f, 1.5f);
@@ -94,6 +95,7 @@ public partial class BehemothBoss
         yield return Wait(1.4f);
         // 雷をまとった高速突進(跳ぶ)
         yield return MoveToGap(11f, 8f, 1.2f);
+        Art(null, null); // 最後の突進は今の構え/突進の絵
         hornGlow.enabled = true;
         StartCoroutine(FollowGlow(hornGlow, 0.9f, 0.55f, 0.6f, 2.2f, 0.9f));
         charge.damageAmount = UltimateDamage;
@@ -124,6 +126,7 @@ public partial class SkyTitanBoss
     {
         handGlow.enabled = true;
         StartCoroutine(FollowGlow(handGlow, 0.55f, 0.78f, 0.4f, 2.6f, 1.0f));
+        Art("raise", "raise"); // 2026-10-28: 槍の雨 = 腕を天へ掲げたまま
         yield return Telegraph(1.0f);
         handGlow.enabled = false;
         float[] rel = { 2.6f, -0.2f, -2.8f };
@@ -137,6 +140,7 @@ public partial class SkyTitanBoss
         // 巨大エネルギー波(跳ぶ)
         LaneWarn(2f, 8f, 0f, 1.1f, 0.7f, LowLaneColor);
         yield return Wait(0.7f);
+        Art(null, "sweep"); PlayAttackPose(0.5f); // 2026-10-28: エネルギー波は腕を振り抜いて放つ(以前は姿勢なし)
         WaveFrom(Mathf.Max(6f, Gap - 2f), 1.8f, 0f, 1.1f, 9f, CaveLook.Lightning, false, 0.72f);
         yield return Recover(1.4f * RecoverMul);
     }
@@ -165,7 +169,7 @@ public partial class SkyTitanBoss
         FloorAt(-3.6f, 2.4f, 1.1f, 0.85f, 0.4f, CaveLook.Lightning);
         yield return Wait(1.4f);
         // 上空から雷の槍(時間差。プレイヤーの位置へは最後=踏み込みでずらす)
-        PlayAttackPose(0.4f);
+        Art(null, "raise"); PlayAttackPose(1.2f); // 2026-10-28: 腕を天へ掲げて呼ぶ
         StrikeAt(-3f, 2.0f, 6f, 1.2f, SkyLightning, SkyStrike.Look.Burst);
         StrikeAt(3f, 2.0f, 6f, 1.5f, SkyLightning, SkyStrike.Look.Burst);
         StrikeAt(0f, 2.0f, 6f, 2.0f, SkyLightning, SkyStrike.Look.Burst);
@@ -175,7 +179,7 @@ public partial class SkyTitanBoss
         LaneWarn(2f, 9f, 0f, 2.3f, 1.0f, TallLaneColor);
         Glow(1.0f, new Color(1f, 0.9f, 0.7f));
         yield return Wait(1.0f);
-        PlayAttackPose(0.4f);
+        Art(null, "sweep"); PlayAttackPose(0.9f); // 2026-10-28: 巨大な手の薙ぎ払い = 腕を横へ振り抜く(以前は姿勢が変わらなかった)
         WaveFrom(OffscreenAheadGap(), 3.2f, 0f, 2.3f, 10f, CaveLook.Rock, true, 0.72f);
         yield return Wait(1.5f);
         // 隙: 巨大な手が足場付近に残る(身をかがめて回廊のすぐ前。腕/胸を攻撃できる)
@@ -184,6 +188,7 @@ public partial class SkyTitanBoss
         minGap = Mathf.Min(minGap, closeGap - 0.5f);
         IsKneeling = true;
         yield return MoveToGap(closeGap, 9f, 1.4f);
+        Art(null, null, "kneel"); // 2026-10-28: 隙 = 片膝をついて手を足場に突いた姿勢
         yield return CaveRecovery(4.0f, "タイタン接近! 攻撃のチャンス!", new Vector2(1f, 0.95f), CaveLook.Rock, new Vector2(0.6f, 0.35f), 2.4f, 1.3f, RiseY - kneelLower);
         IsKneeling = false;
         minGap = keepMin;
@@ -214,6 +219,7 @@ public partial class SkyJellyfishBoss
     {
         coreGlow.enabled = true;
         StartCoroutine(FollowGlow(coreGlow, 0f, 0.55f, 0.5f, 2f, 0.8f));
+        Art(null, "tentacle"); // 2026-10-28: 触手を下と前へ突き刺す
         yield return Telegraph(0.8f);
         coreGlow.enabled = false;
         PlayAttackPose(0.45f); // 2026-10-28: 本体の攻撃の姿勢(波ごと。以前は予備動作のまま固まっていた)
@@ -233,6 +239,7 @@ public partial class SkyJellyfishBoss
     IEnumerator HeavenlyPulse()
     {
         if (!StartUlt("HEAVENLY PULSE", new Color(0.65f, 0.95f, 1f))) yield break;
+        Art(null, "pulse"); // 2026-10-28: 電撃の波と全周の脈動 = 傘が光って触手が放射状に広がる
         yield return MoveToGap(7f, 3f, 1.5f);
         coreGlow.enabled = true;
         StartCoroutine(FollowGlow(coreGlow, 0f, 0.55f, 0.8f, 3.4f, 1.2f));
@@ -263,6 +270,7 @@ public partial class SkyJellyfishBoss
         }
         yield return Wait(1.4f);
         // 全周 Pulse: 低い輪 → 少し遅れて高い輪
+        PlayAttackPose(1.2f); // 全周の脈動
         BandAt(0f, 14f, 0f, 1.0f, 1.0f, 0.35f, CaveLook.Lightning, true);
         BandAt(0f, 14f, 2.2f, 4.2f, 1.0f, 0.35f, CaveLook.Lightning, true);   // CaveBossSafety が床側の後へずらす
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), CenterWorld, Pale, 1.8f, 1f, 14f, 0.8f, 0f, default, 0f, RenderOrder.CombatFx, 0.4f);
@@ -366,6 +374,7 @@ public partial class FenrirBoss
 
     IEnumerator SkyRun()
     {
+        Art(null, "leap", null, "leap", "run"); // 2026-10-28: 空を駆ける = 疾走の絵 → 上からの噛みつき = 跳びかかりの絵
         yield return Telegraph(0.6f);
         freeGap = true;
         yield return SetAltitude(3.4f, 0.4f);
@@ -388,6 +397,7 @@ public partial class FenrirBoss
         freeGap = false;
         SetPose(Pose.Landing);
         yield return Wait(0.9f * RecoverMul);
+        OnMoveEnded();
         yield return MoveToGap(6f, 10f, 2f);
     }
 
@@ -486,6 +496,7 @@ public partial class SkyGolemBoss
 {
     IEnumerator Disassemble()
     {
+        Art(null, "disassemble"); // 2026-10-28: 体の岩がばらばらに浮いて、波と岩を放つ
         yield return Telegraph(0.7f);
         SetAlpha(0.6f);
         LaneWarn(2f, 7f, 0f, 1.1f, 0.6f, LowLaneColor);
@@ -526,16 +537,19 @@ public partial class SkyGolemBoss
         yield return Wait(1.2f);
         // 巨大な拳を再形成 → 前方へ叩きつけ → 衝撃波(跳ぶ)
         SetAlpha(1f); invulnerable = false; SetHurtboxEnabled(true);
+        Art(null, "fist"); // 2026-10-28: 拳の叩きつけ
         fistGlow.enabled = true;
         StartCoroutine(FollowGlow(fistGlow, 0.85f, 0.75f, 0.6f, 2.6f, 1.0f));
         StrikeAt(3.2f, 3f, 2.4f, 1.2f, new Color(0.9f, 0.86f, 0.8f, 1f), SkyStrike.Look.Fist);
         yield return Telegraph(1.0f, fistMark);
         fistGlow.enabled = false;
+        PlayAttackPose(0.8f); // 拳の叩きつけ(以前は予告の後に攻撃の姿勢が無かった)
         yield return Wait(0.2f);
         WaveFrom(1.6f, 1.4f, 0f, 1.1f, 9f, CaveLook.Rock, true, 0.72f);
         yield return Wait(1.1f);
         // Core Beam(低い=跳ぶ)
         coreGlow.enabled = true;
+        Art(null, null); // コア砲は今の構え/攻撃の絵
         beam.damageAmount = UltimateDamage;
         yield return Telegraph(1.2f, beamMark);
         Sfx(SkyBossSfx.Thunder(), 0.7f);
@@ -570,6 +584,7 @@ public partial class PhoenixBoss
     IEnumerator PhoenixRebirthUlt()
     {
         if (!StartUlt("PHOENIX REBIRTH", new Color(1f, 0.55f, 0.2f))) yield break;
+        Art(null, "rebirth"); // 2026-10-28: 炎羽根と炎の壁 = 翼を上へ広げて炎の柱
         yield return SetAltitude(6.5f, 0.6f);
         yield return MoveToGap(6f, 8f, 1f);
         SetBodyTint(new Color(1f, 0.7f, 0.4f));
@@ -594,6 +609,7 @@ public partial class PhoenixBoss
         PlayAttackPose(0.4f);
         WaveFrom(OffscreenAheadGap(), 2.2f, 0f, 1.2f, 13f, CaveLook.Fire, true, 0.7f);
         yield return Wait(1.0f);
+        Art(null, null); // 最後の突進は今の絵
         rush.damageAmount = UltimateDamage;
         yield return FlameRush();
         rush.damageAmount = HitDmg;
@@ -651,6 +667,7 @@ public partial class SkySerpentBoss
         worldX = PlayerX + 6f; yOffset = 1.8f; facing = -1f;
         yield return Appear(0.25f);
         Sfx(SkyBossSfx.Roar(), 1f);
+        Art(null, "roar"); PlayAttackPose(0.6f); // 2026-10-28: 頭を上げて吠える(以前は姿勢なし)
         yield return Wait(0.6f);
         yield return Vanish(0.25f);
         // 落雷(時間差。最後がプレイヤーの位置)
@@ -715,6 +732,7 @@ public partial class CelestialGuardianBoss
     IEnumerator HeavensJudgment()
     {
         if (!StartUlt("HEAVEN'S JUDGMENT", new Color(1f, 0.93f, 0.6f))) yield break;
+        Art("judgment", "judgment"); // 2026-10-28: 光柱 = 大剣を頭上へ掲げて翼を広げる(以前は構えの絵を11秒保っていた)
         yield return SetAltitude(4.5f, 0.4f);
         yield return MoveToGap(6f, 8f, 1f);
         TellAt(0f, 1.3f, CaveTellStyle.Circle, CaveLook.Holy, true, true);   // 巨大な光輪
@@ -728,6 +746,7 @@ public partial class CelestialGuardianBoss
         if (Upgraded) { StrikeAt(-6f, 1.6f, 6f, 2.4f, Holy, SkyStrike.Look.Pillar); StrikeAt(6f, 1.6f, 6f, 2.4f, Holy, SkyStrike.Look.Pillar); }
         yield return Wait(Upgraded ? 2.7f : 2.3f);
         // 光柱の間を高速移動しながら斬撃: 低い(跳ぶ)→ 高い(地面にいる)
+        Art("judgment", "sweep"); // 斬撃の波 = 大剣を振り抜く
         LaneWarn(2f, 8f, 0f, 1.2f, 0.6f, LowLaneColor);
         yield return Wait(0.6f);
         PlayAttackPose(0.45f);
@@ -740,16 +759,17 @@ public partial class CelestialGuardianBoss
         yield return Wait(1.2f);
         // 床一面の光(空中にいる)
         BossBattleHud.Banner("跳べ!", new Color(1f, 0.85f, 0.4f), 0.8f);
-        PlayAttackPose(0.45f);
+        Art("judgment", "judgment"); PlayAttackPose(0.9f); // 床一面の光 = 剣を掲げる
         FloorAt(0f, 7f, 0.9f, 1.0f, 0.7f, CaveLook.Holy, true);
         yield return Wait(1.7f + 0.9f);
         // 巨大斬撃波(背が高い=二段)
         swordGlow.enabled = true;
         StartCoroutine(FollowGlow(swordGlow, 0.1f, 1.0f, 0.6f, 2.8f, 0.9f));
         LaneWarn(2f, 9f, 0f, 2.3f, 0.9f, TallLaneColor);
+        Art("judgment", "sweep"); SetPose(Pose.Windup); // 巨大斬撃の溜め = 剣を掲げる
         yield return Wait(0.9f);
         swordGlow.enabled = false;
-        PlayAttackPose(0.45f);
+        PlayAttackPose(0.8f); // 振り抜く
         WaveFrom(Mathf.Max(4f, Gap - 1f), 2.4f, 0f, 2.3f, 10f, CaveLook.Holy, true, 0.72f);
         yield return Wait(1.6f);
         // 隙: 光輪が消えて降りてくる(長いBREAKのチャンス)

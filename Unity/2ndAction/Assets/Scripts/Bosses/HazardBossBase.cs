@@ -366,6 +366,8 @@ public abstract class HazardBossBase : WildBossBase
         Debug.Log($"[CaveBoss] {bossName} RECOVERY '{banner}' {seconds:F1}s");
         bool artExhaust = Anim != null && Anim.exhaust != null; // 2026-10-20: 専用の隙の絵があれば、その絵を出し続け、手続きのつぶしは弱く(姿勢は絵に描いてある)
         if (artExhaust) { exhaustArt = true; squash = Vector2.Lerp(Vector2.one, squash, 0.25f); }
+        bool artRecoverPose = !artExhaust && HasRecoverArt; // 2026-10-28: 天空のボス = 戻りの1枚絵(技ごとの隙の絵があればそれ)をこの間ずっと
+        if (artRecoverPose) { SetPose(Pose.Recover); squash = Vector2.Lerp(Vector2.one, squash, 0.4f); }
         StartCoroutine(RecoveryLook(seconds, squash, fx, fxAt));
         float keepRest = restAltitude;
         bool lower = !float.IsNaN(groundAlt);
@@ -373,6 +375,7 @@ public abstract class HazardBossBase : WildBossBase
         yield return Exhausted(seconds * (Enraged ? 0.85f : 1f), staggerMul, dmgMul);
         exhaustArt = false;
         extraScale = Vector2.one;
+        if (artRecoverPose) { if (pose == Pose.Recover) SetPose(Pose.Idle); OnMoveEnded(); }
         if (lower) { restAltitude = keepRest; yield return SetAltitude(keepRest, 0.5f); }
     }
 

@@ -32,6 +32,33 @@ public abstract partial class SkyBossBase : HazardBossBase
 
     protected Sprite[] BodyFrames => moveSprite != null ? new[] { idleSprite, moveSprite } : new[] { idleSprite };
 
+    // 2026-10-28 第2段(マスターの依頼「全ボスの全攻撃で構え・攻撃・戻りが本体の動きで分かるように」):
+    //  待機/構え/攻撃の3枚しか無かった天空のボスに、技ごとの構え・攻撃と戻りの1枚絵を足す(Resources/BossPose/Sky/<種類>/、エステル生成。
+    //  今の待機の絵と同じキャンバス・大きさ・下端の中央ピボット)。Art(構え, 攻撃) を技の始めに呼ぶと、その技の間はその絵。無ければ今の3枚
+    static readonly Dictionary<string, Sprite> skyPoseArt = new Dictionary<string, Sprite>();
+    string artWindup, artAttack, artRecover, artFly, artMove;
+    protected Sprite SkyPose(string name)
+    {
+        if (string.IsNullOrEmpty(name) || BossPoseStats.DevDisabled) return null;
+        string key = bossName + "/" + name;
+        if (!skyPoseArt.TryGetValue(key, out var s)) { s = Resources.Load<Sprite>("BossPose/Sky/" + key); skyPoseArt[key] = s; }
+        return s;
+    }
+    protected void Art(string windup, string attack, string recover = null, string fly = null, string move = null) { artWindup = windup; artAttack = attack; artRecover = recover; artFly = fly; artMove = move; }
+    protected override bool HasRecoverArt => SkyPose("recover") != null;
+    protected override void OnMoveEnded() { artWindup = artAttack = artRecover = artFly = artMove = null; }
+    protected override Sprite PoseOverride()
+    {
+        Sprite s = null;
+        if (pose == Pose.Windup) s = SkyPose(artWindup);
+        else if (pose == Pose.Attack) s = SkyPose(artAttack);
+        else if (pose == Pose.Fly) s = SkyPose(artFly);   // 跳んでいる間(フェンリルの跳びかかり)
+        else if (pose == Pose.Move || pose == Pose.Idle) s = SkyPose(artMove); // 技の中で走る間(フェンリルの疾走)
+        else if (pose == Pose.Recover || (pose == Pose.Landing && !Broken)) { s = SkyPose(artRecover); if (s == null) s = SkyPose("recover"); } // 着地の後の隙も戻りの姿勢
+        if (s != null) { BossPoseStats.Note(bossName + "/" + s.name); return s; }
+        return base.PoseOverride();
+    }
+
     // 2026-10-14: 共通の仮の咆哮(SkyBossSfx.Roar)は、ボスごとの声(BossVoice)に置き換える。入場中 = 登場の咆哮、それ以外 = うなり
     protected void Sfx(AudioClip clip, float volume = 0.8f)
     {
@@ -298,6 +325,7 @@ public partial class BehemothBoss : SkyBossBase
 
     IEnumerator ThunderCall()
     {
+        Art(null, "roar"); // 2026-10-28: 雷を呼ぶ = 頭を反らして吠える
         yield return Telegraph(0.9f);
         Sfx(SkyBossSfx.Roar(), 0.9f);
         Shake(0.08f, 0.35f);
@@ -314,6 +342,7 @@ public partial class BehemothBoss : SkyBossBase
     IEnumerator ShockStomp()
     {
         yield return Approach(3.0f, 3f, 4f);
+        Art("stomp", null); // 2026-10-28: 踏みつけの構え = 後ろ脚で立ち上がる(攻撃は今の踏み込みの絵)
         yield return Telegraph(1.0f, stompMark);
         var w = BossProjectile.Create(BossFx.Ring(), new Color(0.65f, 0.88f, 1f, 0.95f), FrontWorld(1.2f, 0.6f), new Vector2(1.3f, 1.2f), new Vector2(facing * 9f, 0f), 2.6f, RenderOrder.Boss + 1);
         w.hugGround = true;
@@ -439,6 +468,7 @@ public partial class SkyTitanBoss : SkyBossBase
             PlayAttackPose(0.9f);
             yield return Wait(0.8f);
             // 拳を回廊に突いたまま、低い姿勢で隙を見せる(近接キャラの反撃の時間)
+            Art(null, null, "kneel"); // 2026-10-28: 片膝をついて拳を突き立てた姿勢(以前は待機の絵)
             yield return Recover(kneelHoldSeconds);
         }
         finally
@@ -520,6 +550,7 @@ public partial class SkyTitanBoss : SkyBossBase
         var strike = SkyStrike.Create(x, 2.2f, 3.2f, 1.85f, 0.3f, new Color(0.7f, 0.9f, 1f, 1f), SkyStrike.Look.Burst);
         handGlow.enabled = true;
         StartCoroutine(FollowGlow(handGlow, 0.55f, 0.78f, 0.4f, 2.4f, 1.1f));
+        Art("raise", null); // 2026-10-28: 雷槍を呼ぶ = 腕を天へ掲げる
         yield return Telegraph(1.1f);
         handGlow.enabled = false;
         StartCoroutine(SpearFlight(BodyPoint(0.55f, 0.78f), strike, 0.72f));
@@ -631,6 +662,7 @@ public partial class SkyJellyfishBoss : SkyBossBase
     IEnumerator TentacleLash()
     {
         yield return Approach(2.2f, 2.6f, 5f);
+        Art(null, "tentacle"); // 2026-10-28: 触手を突き刺す
         yield return Telegraph(0.8f, tentacleMark);   // 触手を後方へ引く
         yield return Strike(tentacle, 0.35f, 0.04f);
         yield return Recover(0.8f);
@@ -641,6 +673,7 @@ public partial class SkyJellyfishBoss : SkyBossBase
         yield return Approach(2.0f, 2.4f, 5f);
         coreGlow.enabled = true;
         StartCoroutine(FollowGlow(coreGlow, 0f, 0.55f, 0.6f, 2.4f, 1.0f));
+        Art(null, "pulse"); // 2026-10-28: 放電 = 傘が光って触手が広がる
         yield return Telegraph(1.0f, shockMark);      // 身体内部が発光 → 触手へ電気
         coreGlow.enabled = false;
         Sfx(SkyBossSfx.Thunder(), 0.5f);
@@ -1051,6 +1084,7 @@ public partial class FenrirBoss : SkyBossBase
 
     IEnumerator SkyLeap()
     {
+        Art(null, "leap", null, "leap"); // 2026-10-28: 跳んでいる間と着地の一撃 = 前脚を伸ばして飛びかかる(以前は待機の絵)
         yield return Telegraph(0.8f);             // 大きく沈み込む
         float landGap = 2.4f;
         SkyStrike.Create(PlayerX + landGap, 3.2f, 1.3f, 1.0f, 0.25f, Flame, SkyStrike.Look.Burst);
@@ -1063,6 +1097,7 @@ public partial class FenrirBoss : SkyBossBase
         EndAttack();
         SetPose(Pose.Landing);
         yield return Wait(1.0f);                  // 着地の隙
+        OnMoveEnded();
         yield return MoveToGap(6f, 8f, 2f);
     }
 
@@ -1103,6 +1138,7 @@ public partial class FenrirBoss : SkyBossBase
         yield return MoveToGap(-9f, 14f, 2.5f);
         yield return MoveToGap(11f, 18f, 2.5f);
         yield return Wait(0.2f);
+        Art(null, "run"); // 2026-10-28: すれ違い攻撃 = 全速力で駆け抜ける
         yield return Telegraph(0.8f, passMark);
         Sfx(SkyBossSfx.Whoosh(), 0.9f);
         StartCoroutine(DashMove(0.95f, 21f));
@@ -1251,6 +1287,7 @@ public partial class SkyGolemBoss : SkyBossBase
     IEnumerator FistSlam()
     {
         yield return Approach(2.6f, 1.6f, 6f);
+        Art(null, "fist"); // 2026-10-28: 拳を真下へ振り下ろす
         fistGlow.enabled = true;
         StartCoroutine(FollowGlow(fistGlow, 0.85f, 0.75f, 0.5f, 2f, 1.2f));   // 巨大な拳を形成
         yield return Telegraph(1.2f, fistMark);
@@ -1264,6 +1301,7 @@ public partial class SkyGolemBoss : SkyBossBase
 
     IEnumerator FloatingRocks()
     {
+        Art(null, "disassemble"); // 2026-10-28: 体の岩を浮かせて離す
         yield return Telegraph(0.8f);   // 身体の岩を分離
         float[] offs = { -2.8f, 0.1f, 2.9f };
         for (int i = offs.Length - 1; i > 0; i--) { int j = Random.Range(0, i + 1); (offs[i], offs[j]) = (offs[j], offs[i]); }
@@ -1725,6 +1763,7 @@ public partial class SkySerpentBoss : SkyBossBase
 
     IEnumerator ThunderClouds()
     {
+        Art(null, "roar"); // 2026-10-28: 雷雲を呼ぶ = 頭を上げて吠える
         yield return Telegraph(0.9f);             // 咆哮
         Sfx(SkyBossSfx.Roar(), 1f);
         Shake(0.08f, 0.4f);
@@ -1876,6 +1915,7 @@ public partial class CelestialGuardianBoss : SkyBossBase
     IEnumerator SkySlash()
     {
         bool high = Random.value < 0.4f;
+        Art("judgment", "sweep"); // 2026-10-28: 剣を掲げて光を溜める → 振り抜く
         swordGlow.enabled = true;
         StartCoroutine(FollowGlow(swordGlow, 0.1f, 1.0f, 0.5f, 2.2f, 0.9f));   // 剣を上へ → 光をチャージ
         yield return Telegraph(0.9f);
@@ -1914,6 +1954,7 @@ public partial class CelestialGuardianBoss : SkyBossBase
 
     IEnumerator LightPillars()
     {
+        Art("judgment", "judgment"); // 2026-10-28: 光柱 = 大剣を頭上へ掲げる
         yield return Telegraph(1.0f);                 // 武器を掲げる
         PlayAttackPose(0.6f);
         float[] slots = { -2.8f, 0f, 2.8f };

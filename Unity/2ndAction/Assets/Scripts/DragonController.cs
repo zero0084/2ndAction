@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 
@@ -400,7 +401,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         TrackedHazard.Create(landX, halfHWorld * 2.4f, halfHWorld * 1.2f, landingWarnDuration, 0f, Color.clear);
         SetFrames(chargeFrames); // 2026-10-28: 降下の予告 = 立ち上がって身構える
         yield return BlinkFlash(landingWarnDuration);
-        SetFrames(idleFrames); // 降下は翼のコマ
+        SetFrames(Pose("descend", idleFrames)); // 降下: 翼を広げて脚を出す
         if (state == State.Dead) yield break;
 
         // 降下(間合いを詰めながら地面へ)
@@ -423,10 +424,10 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         if (camFollow != null) camFollow.Shake(0.2f, 0.25f);
         OneShotSpriteEffect.CreateScatterBurst(OneShotSpriteEffect.SoftDotSprite(), transform.position + Vector3.down * halfHWorld * 0.8f, new Color(0.75f, 0.65f, 0.5f, 0.8f), 12, 0.5f, 0.7f, 1.3f, 3.5f, 2.4f, RenderOrder.CombatFx);
-        SetFrames(BiteOpen); // 着地の叩きつけ(口を開いて踏みつける)
+        SetFrames(Pose("land", BiteOpen)); // 着地の叩きつけ(低く身構えて土煙)
         yield return landHitbox.Strike(1f, 0.35f);
         if (state == State.Dead) yield break;
-        SetFrames(chargeFrames); // 地上で身構える(殴れる隙)
+        SetFrames(Pose("land", chargeFrames)); // 地上で身構える(殴れる隙)
 
         // 着地状態: 地面に張り付いて追従(プレイヤーが殴れる隙)。途中で噛みつき。
         float grounded = 0f;
@@ -443,13 +444,13 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
                 float frontDir = -Mathf.Sign(transform.lossyScale.x);
                 float halfWWorld = sr.sprite.bounds.extents.x * sc;
                 TrackedHazard.Create(transform.position.x + frontDir * (halfWWorld + 0.9f), 2.6f, 2.0f, 0.8f, 0f, Color.clear);
-                SetFrames(BiteWind); // 噛みつきの構え(頭を引く)
+                SetFrames(Pose("bite_windup", BiteWind)); // 噛みつきの構え(頭を引く)
                 yield return BlinkFlash(0.8f);
                 if (state == State.Dead) yield break;
-                SetFrames(BiteOpen); // 噛みつく(口を開く)
+                SetFrames(Pose("bite", BiteOpen)); // 噛みつく(首を突き出して口を開く)
                 yield return biteHitbox.Strike(1f, 0.3f);
                 if (state == State.Dead) yield break;
-                SetFrames(chargeFrames);
+                SetFrames(Pose("land", chargeFrames));
                 grounded += 1.1f;
                 continue;
             }
@@ -458,7 +459,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         }
 
         // 再上昇
-        SetFrames(idleFrames);
+        SetFrames(Pose("takeoff", idleFrames)); // 飛び立ち
         standoffDistance = origStandoff;
         state = State.Landing;
         yield return ReturnToHome(0.9f);
@@ -543,6 +544,18 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     Sprite[] BiteWind { get { if (biteWindFrames == null && chargeFrames != null && chargeFrames.Length >= 4) biteWindFrames = System.Array.FindAll(chargeFrames, f => System.Array.IndexOf(chargeFrames, f) < 4); return biteWindFrames ?? chargeFrames; } }
     Sprite[] BiteOpen { get { if (biteFrames == null && chargeFrames != null && chargeFrames.Length >= 5) biteFrames = System.Array.FindAll(chargeFrames, f => System.Array.IndexOf(chargeFrames, f) >= 4); return biteFrames ?? chargeFrames; } }
 
+    // 2026-10-28 第2段(マスターの依頼「構え・攻撃・戻りが本体の動きで分かるように」): エステルが描いた技ごとの1枚絵
+    //  (Resources/BossPose/Dragon/。今の待機の絵と同じキャンバス・大きさ・PPU)。無ければ今のコマへ戻す
+    static Dictionary<string, Sprite[]> poseArt;
+    Sprite[] Pose(string name, Sprite[] fallback)
+    {
+        if (BossPoseStats.DevDisabled) return fallback;
+        if (poseArt == null) poseArt = new Dictionary<string, Sprite[]>();
+        if (!poseArt.TryGetValue(name, out var a)) { var s = Resources.Load<Sprite>("BossPose/Dragon/" + name); a = s != null ? new[] { s } : null; poseArt[name] = a; }
+        if (a != null) BossPoseStats.Note("Dragon/" + name);
+        return a ?? fallback;
+    }
+
     void SetFrames(Sprite[] frames)
     {
         currentFrames = frames;
@@ -594,7 +607,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         state = State.Telegraphing;
         if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(SeId.BossTelegraph, transform.position); // 2026-10-06: 予兆の音
 
-        SetFrames(chargeFrames); // 2026-10-28: 予告の3秒も溜めの姿勢(以前は浮遊のコマ+点滅だけ)
+        SetFrames(isCharge ? chargeFrames : Pose("inhale", chargeFrames)); // 2026-10-28: 予告の3秒も構え(突進 = 立ち上がり / 炎 = 首を引いて吸い込む)
         float t = 0f;
         bool flash = false;
         while (t < telegraphDuration)
@@ -620,13 +633,14 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     IEnumerator ChargeAttack()
     {
         state = State.Charging;
-        SetFrames(chargeFrames);
+        SetFrames(Pose("dive", chargeFrames)); // 急降下(翼をたたんで頭から)
 
         Vector3 start = transform.position;
         float diveX = player != null ? player.position.x : start.x;
         Vector3 divePos = new Vector3(diveX, GroundYAt(diveX) + diveHeight, 0f);
         yield return LerpPosition(start, divePos, diveDuration);
 
+        SetFrames(Pose("takeoff", idleFrames)); // 打ち上がる(翼を打ち下ろす)
         float riseX = CameraRightEdgeX();
         Vector3 risePos = new Vector3(riseX, GroundYAt(riseX) + riseHeight, 0f);
         yield return LerpPosition(transform.position, risePos, riseDuration);
@@ -672,7 +686,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     IEnumerator FireAttack()
     {
         state = State.Firing;
-        SetFrames(chargeFrames); // 2026-10-28: 吸い込み(溜め)。炎の描かれたコマは吐いている間だけ
+        SetFrames(Pose("inhale", chargeFrames)); // 2026-10-28: 吸い込み(溜め)。炎の描かれたコマは吐いている間だけ
 
         yield return new WaitForSeconds(fireWindupDuration);
         SetFrames(fireFrames);
@@ -699,7 +713,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
                 break;
         }
 
-        SetFrames(idleFrames); // 戻り(以前は戻りの間も炎を吐き続けて見えた)
+        SetFrames(Pose("fire_end", idleFrames)); // 戻り: 口を閉じる(以前は戻りの間も炎を吐き続けて見えた)
         yield return new WaitForSeconds(fireRecoverDuration);
 
         state = State.Idle;
@@ -1036,7 +1050,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
             chargeOrb.sortingOrder = sr.sortingOrder + 2;
         }
         chargeOrb.enabled = true;
-        SetFrames(chargeFrames); // 2026-10-28: 火球を溜める間は溜めの姿勢(以前はブレスのコマ)
+        SetFrames(Pose("orb_charge", chargeFrames)); // 2026-10-28: 火球を溜める間は口を開けて溜める姿勢(以前はブレスのコマ)
         t = 0f;
         Vector3 mouth = Vector3.Scale((Vector3)fireballSpawnOffset, transform.lossyScale);
         while (t < 1.5f)
@@ -1093,6 +1107,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         Debug.Log("[CaveBoss] Dragon RECOVERY 'DRAGON FIRE CHARGE'");
         BossBattleHud.Banner("ドラゴンが低空へ! 反撃のチャンス!", new Color(0.6f, 1f, 0.6f), 1.2f);
         staggerMul = 2f;
+        SetFrames(Pose("exhaust", idleFrames)); // 2026-10-28: 疲れて低く浮く(翼が垂れる)
         while (t < seconds && state != State.Dead)
         {
             t += Time.deltaTime;
@@ -1105,6 +1120,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         }
         staggerMul = 1f;
         if (sr != null) sr.color = Color.white;
+        if (state != State.Dead) SetFrames(Pose("takeoff", idleFrames)); // 飛び立って戻る
     }
 
     public string DebugName => "Dragon";

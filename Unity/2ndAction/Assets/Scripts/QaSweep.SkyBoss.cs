@@ -108,6 +108,16 @@ public partial class QaSweep
         fireTrace.Add($"({f.x - p.x:F1},{f.y - p.y:F1}|{vx:F1}/{pc.CurrentAutoRunSpeed:F1})");
     }
 
+    IEnumerator WatchBossPoseArt()
+    {
+        int seen = BossPoseStats.NewCount;
+        while (true)
+        {
+            if (BossPoseStats.NewCount != seen) { seen = BossPoseStats.NewCount; L($"[poseart] first shown: {BossPoseStats.LastNew}"); Shot("poseart_" + BossPoseStats.LastNew.Replace('/', '_')); }
+            yield return null;
+        }
+    }
+
     IEnumerator SkyBossMode()
     {
         Application.targetFrameRate = 60;
@@ -127,6 +137,7 @@ public partial class QaSweep
         WarpTo(1500f);
         yield return new WaitForSeconds(1f);
         int spawned0 = CaveHazard.Spawned;
+        StartCoroutine(WatchBossPoseArt()); // 2026-10-28: 技ごとの1枚絵が出た最初の瞬間を撮る
 
         string only = Arg("-qaSkyOnly", "");
         foreach (SkyBossKind k in System.Enum.GetValues(typeof(SkyBossKind)))
@@ -148,6 +159,9 @@ public partial class QaSweep
         L($"[pool] hazards built={made} reused={CaveHazard.Reused} live={CaveHazard.LiveCount} delayedBySafety={CaveBossSafety.Delayed} pitSkips={CaveBossSafety.PitSkips}");
         Check(CaveHazard.Reused > made, $"T: terrain attacks are pooled (built {made}, reused {CaveHazard.Reused})");
         Check(CaveHazard.Violations == 0, $"E(all): floor and ceiling attacks never covered the player in the same frame ({CaveHazard.Violations})");
+        // 2026-10-28: 技ごとの1枚絵(BossPose)がどれだけ表示されたか(抽選で出ない技もあるので、数は記録だけ)
+        L($"[poseart] shown {BossPoseStats.Shown.Count} kinds: {string.Join(", ", BossPoseStats.Shown.OrderBy(kv => kv.Key).Select(kv => kv.Key + " x" + kv.Value))}");
+        Check(BossPoseStats.Shown.Count >= 25, $"the new per-move boss art is shown in battle ({BossPoseStats.Shown.Count} kinds)");
         L($"[summary] resumes={bossLogResumed} ultimates={bossLogUltimates} breaks={bossLogBreaks} pending={bossLogPending} recoveries={caveRecoveries.Count}");
         BossManager.NetTestBossHpOverride = 0;
         yield return EndRun();

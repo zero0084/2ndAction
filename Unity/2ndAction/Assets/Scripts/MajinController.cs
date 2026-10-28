@@ -348,6 +348,18 @@ public partial class MajinController : MonoBehaviour
         transform.position = homePos;
     }
 
+    // 2026-10-28 第2段(マスターの依頼「構え・攻撃・戻りが本体の動きで分かるように」): エステルが描いた技ごとの1枚絵
+    //  (Resources/BossPose/Majin/。今の攻撃のコマと同じキャンバス・大きさ・PPU)。無ければ今のコマへ戻す
+    static System.Collections.Generic.Dictionary<string, Sprite[]> poseArt;
+    Sprite[] Pose(string name, Sprite[] fallback)
+    {
+        if (BossPoseStats.DevDisabled) return fallback;
+        if (poseArt == null) poseArt = new System.Collections.Generic.Dictionary<string, Sprite[]>();
+        if (!poseArt.TryGetValue(name, out var a)) { var s = Resources.Load<Sprite>("BossPose/Majin/" + name); a = s != null ? new[] { s } : null; poseArt[name] = a; }
+        if (a != null) BossPoseStats.Note("Majin/" + name);
+        return a ?? fallback;
+    }
+
     void SetFrames(Sprite[] frames)
     {
         currentFrames = frames;
@@ -387,6 +399,7 @@ public partial class MajinController : MonoBehaviour
     {
         state = State.Telegraphing;
         if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(SeId.BossCharge, transform.position); // 2026-10-06: 魔法の溜め
+        SetFrames(Pose("cast", idleFrames)); // 2026-10-28: 予告の間は両手に魔力を溜める(以前は待機のコマ+点滅だけ)
 
         float t = 0f;
         bool flash = false;
@@ -424,9 +437,10 @@ public partial class MajinController : MonoBehaviour
     IEnumerator FireAttack()
     {
         state = State.Firing;
-        SetFrames(attackFrames);
+        SetFrames(Pose("cast", attackFrames)); // 溜め
 
         yield return new WaitForSeconds(fireWindupDuration);
+        SetFrames(attackFrames); // 撃つ: 両腕を広げる
 
         FirePattern pattern = (FirePattern)Random.Range(0, 5);
         switch (pattern)
@@ -453,7 +467,7 @@ public partial class MajinController : MonoBehaviour
 
         // 天空回廊ボス追加(2026-09-25) - Recovery(攻撃後の隙)を視覚的に区別する:
         // 待機コマへ戻し、少し暗く沈んだ色で「今は撃ってこない」ことを見せる。
-        SetFrames(idleFrames);
+        SetFrames(Pose("recover", idleFrames)); // 戻り: 前かがみで息をつく
         if (sr != null && state == State.Firing) sr.color = recoveryTint;
         yield return new WaitForSeconds(fireRecoverDuration);
         if (sr != null && state == State.Firing) sr.color = Color.white;
@@ -486,7 +500,7 @@ public partial class MajinController : MonoBehaviour
     {
         state = State.Exposed;
         ExposeCount++;
-        SetFrames(idleFrames);
+        SetFrames(Pose("recover", idleFrames)); // 2026-10-28: 降りてくる隙は戻りの姿勢
         if (sr != null) sr.color = recoveryTint;
         Vector3 startRel = transform.position - PlayerXOffset(); // 2026-10-07: プレイヤーに対する位置で(高速で後ろへ流れない)
         float descend = Broken ? breakDescendTime : exposeDescendTime;

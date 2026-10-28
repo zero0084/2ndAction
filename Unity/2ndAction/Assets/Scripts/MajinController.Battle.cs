@@ -152,7 +152,7 @@ public partial class MajinController : IBossBattleDebug
     {
         state = State.Special;
         ClawCount++;
-        SetFrames(idleFrames); // 2026-10-28: 寄る間は待機(紫に光る予兆)。腕を広げるコマは薙ぎ払いの時だけ
+        SetFrames(Pose("claw_windup", idleFrames)); // 2026-10-28: 寄る間は爪を振りかぶる(紫に光る予兆)
         float dx = 3.0f, alt = Mathf.Max(1.2f, (hoverHeight - groundClearance) + 0.2f);
         // 予兆: 体が紫に光る → 急接近
         if (flashOverlay != null) { flashOverlay.color = MagicCol; flashOverlay.enabled = true; }
@@ -161,13 +161,20 @@ public partial class MajinController : IBossBattleDebug
         if (flashOverlay != null) flashOverlay.enabled = false;
         // 低い薙ぎ払い(跳ぶ)。予告の帯 0.7 秒
         float d = CaveBossSafety.Reserve(false, 0.7f, 0.3f);
-        SetFrames(attackFrames);
+        SetFrames(Pose("claw_windup", attackFrames)); // 予告の帯の間も振りかぶったまま(振り下ろしは当たる瞬間)
         CaveHazard.Band(player.position.x + 0.8f, 4.2f, 0f, 1.15f, 0.7f + d, 0.3f, CaveLook.Magic, MagicDmg(false), false, "Majin:claw").SetBodySprite(BossFx.Slash(), true); // 爪は斬撃の絵(2026-10-11)
-        t = 0f;
-        while (t < 1.0f + d && state == State.Special) { t += Time.deltaTime; transform.position = RelPos(dx, alt); yield return null; }
+        t = 0f; int clawStep = 0;
+        while (t < 1.0f + d && state == State.Special)
+        {
+            t += Time.deltaTime; transform.position = RelPos(dx, alt);
+            // 帯の判定が始まる瞬間(予告 0.7+d 秒)に振り下ろし、0.25 秒後に振り抜く
+            if (clawStep == 0 && t >= 0.7f + d - 0.05f) { clawStep = 1; SetFrames(Pose("claw", attackFrames)); }
+            else if (clawStep == 1 && t >= 0.7f + d + 0.25f) { clawStep = 2; SetFrames(Pose("claw_follow", attackFrames)); }
+            yield return null;
+        }
         // 振り抜いた後はその場にとどまる(反撃の時間、暗い色=今は撃ってこない)
         if (sr != null) sr.color = recoveryTint;
-        SetFrames(idleFrames); // 振り抜いた後の隙(以前は攻撃の繰り返しのコマのまま)
+        SetFrames(Pose("recover", idleFrames)); // 振り抜いた後の隙(以前は攻撃の繰り返しのコマのまま)
         t = 0f;
         while (t < 1.4f && state == State.Special) { t += Time.deltaTime; transform.position = RelPos(dx, alt); yield return null; }
         if (sr != null) sr.color = Color.white;
@@ -181,7 +188,7 @@ public partial class MajinController : IBossBattleDebug
     IEnumerator TeleportCircles()
     {
         state = State.Special;
-        SetFrames(attackFrames);
+        SetFrames(Pose("cast", attackFrames)); // 2026-10-28: 消える前に魔力を溜める
         float dx = Random.value < 0.5f ? 5.5f : 8.5f, alt = hoverHeight * 0.8f;
         CaveHazard.Tell(player.position.x + dx, 0.75f, CaveTellStyle.Circle, CaveLook.Magic, true, null, "Majin:teleport");
         yield return FadeTo(0f, 0.25f);
@@ -189,6 +196,7 @@ public partial class MajinController : IBossBattleDebug
         float t = 0f;
         transform.position = RelPos(dx, alt);
         yield return FadeTo(1f, 0.2f);
+        SetFrames(attackFrames); // 魔法陣を出す: 両腕を広げる
         // 魔法陣: 下から(跳ぶ)→ 上から(地面にいる)。床と天井は CaveBossSafety が間を空ける
         float d1 = CaveBossSafety.Reserve(false, 0.9f, 0.35f);
         CaveHazard.Floor(player.position.x, 2.2f, 1.2f, 0.9f + d1, 0.35f, CaveLook.Magic, MagicDmg(false), false, "Majin:circle");
@@ -214,7 +222,7 @@ public partial class MajinController : IBossBattleDebug
         BossBattleHud.Banner("SKY MAGIC ASSAULT", MagicCol, 1.6f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossUltimate);
         BossVoice.Growl(this, "Majin");
-        SetFrames(attackFrames);
+        SetFrames(Pose("cast", attackFrames)); // 2026-10-28: 上空へ昇りながら魔力を溜める
         // 上空へ
         Vector3 start = transform.position; float t = 0f;
         while (t < 0.6f) { t += Time.deltaTime; transform.position = Vector3.Lerp(start, RelPos(7f, 4.8f), t / 0.6f); yield return null; }
@@ -227,6 +235,7 @@ public partial class MajinController : IBossBattleDebug
             Vector3 cp = player.position + circles[i];
             OneShotSpriteEffect.CreateTweened(BossFx.Ring(), cp, MagicCol, 1.2f + i * 0.45f, 1.4f, 1.8f, 0.95f, 0.6f, default, 0f, RenderOrder.CombatFx, 0.8f);
         }
+        SetFrames(attackFrames); // 魔法陣を出す: 両腕を広げる
         t = 0f;
         while (t < 1.0f) { t += Time.deltaTime; transform.position = RelPos(7f, 4.8f); yield return null; }
         for (int i = 0; i < n; i++)
@@ -245,11 +254,13 @@ public partial class MajinController : IBossBattleDebug
         while (t < 2.4f) { t += Time.deltaTime; transform.position = RelPos(7f, 4.8f); yield return null; }
         // 最後に魔人自身が高速突進(低い=跳ぶ): 予告 → 体ごと画面を横切る
         CaveHazard.Band(player.position.x, 12f, 0f, 1.2f, 0.9f, 0f, CaveLook.Magic, 0, false, "Majin:dashWarn");
+        SetFrames(Pose("claw_windup", attackFrames)); // 2026-10-28: 突進の構え(爪を振りかぶる)
         t = 0f; Vector3 from = transform.position;
         while (t < 0.9f) { t += Time.deltaTime; transform.position = Vector3.Lerp(from, RelPos(12f, 0.9f), t / 0.9f); yield return null; }
         float speed = 16f, dx = 12f;
         CaveBossSafety.Reserve(false, 0.6f, 0.4f);
         CaveHazard.Wave(player.position.x + 12f, 2.2f, 0f, 1.2f, speed, CaveLook.Magic, MagicDmg(true), true, 0.72f, "Majin:dash");
+        SetFrames(Pose("claw", attackFrames)); // 体ごと突っ込みながら切り裂く
         while (dx > -12f && state == State.Special) { dx -= speed * Time.deltaTime; transform.position = RelPos(dx, 0.9f); yield return null; }
         // 避けた → 地面の近くで短く硬直(攻撃のチャンス)
         UltimateRunning = false;
