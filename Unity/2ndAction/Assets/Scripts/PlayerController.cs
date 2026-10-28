@@ -465,7 +465,13 @@ public partial class PlayerController : MonoBehaviour
     // is floored so it can never reach zero/negative duration.
     // カードバランス v3(2026-10-03): キャラ×カード(固定の分)は attackSpeedStored、HP/OVERDRIVE で変わる分は読む時に掛ける
     float attackSpeedStored = 1f;
-    public float AttackSpeedMultiplier { get => attackSpeedStored * CardDynamicDurationFactor * UltimateArt.BuffDurationFactor; private set => attackSpeedStored = value; } // #100 ULTIMATE の BUFF
+    public float AttackSpeedMultiplier { get => BaseAttackSpeedFactor * (MainAttackRunning ? CardMainDurationFactor : 1f); private set => attackSpeedStored = value; } // #100 ULTIMATE の BUFF
+    float BaseAttackSpeedFactor => attackSpeedStored * CardDynamicDurationFactor * UltimateArt.BuffDurationFactor;
+    // 2026-10-28: 前/後の攻撃(主攻撃)の間だけ RAPID EDGE / COMBO RUSH の攻撃速度を掛ける(以前は MainAttackSpeedMultiplier を誰も読まず、カードが効いていなかった)。
+    //  各キャラの前/後の攻撃は DoAttack/竜騎士の突き/お嬢様の空中の薙ぎ払いから始まる → その世代の攻撃の間だけ有効(上/下/空中の特殊技には掛けない)
+    int mainAttackGen = -1;
+    bool MainAttackRunning => isAttacking && mainAttackGen == attackGeneration;
+    void MarkMainAttack() { mainAttackGen = attackGeneration; }
     public float AttackSpeedStored => attackSpeedStored;
     public void AddAttackSpeedBonus(float fractionFaster) => attackSpeedStored = Mathf.Max(0.25f, attackSpeedStored * (1f - fractionFaster));
 
@@ -2896,6 +2902,7 @@ public partial class PlayerController : MonoBehaviour
 
     IEnumerator DoAttack(AttackDirection dir)
     {
+        MarkMainAttack();
         if (!IsAlly) AttackStarted?.Invoke(dir); // 操作の練習など、プレイヤーの攻撃だけを数える
         // 二丁拳銃士(2026-09-23) - Forward/Backwardとも「面で斬る」既存の
         // 剣士コンボ(Lunge/Recoil/成長するHitbox)には一切乗せず、専用の

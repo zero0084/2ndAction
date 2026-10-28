@@ -144,7 +144,7 @@ public partial class PlayerController
             return (1f + CardRules.SoftAttackSpeed(st)) / (1f + CardRules.SoftAttackSpeed(st + m));
         }
     }
-    public float MainAttackSpeedMultiplier => AttackSpeedMultiplier * CardMainDurationFactor;
+    public float MainAttackSpeedMultiplier => BaseAttackSpeedFactor * CardMainDurationFactor;
 
     // 単発キャラの攻撃シーケンスの窓(攻撃の速さに合わせて伸び縮み。速くても SequenceResetMinScale より短くしない)
     float charBaseAttackSpeed = 1f;

@@ -389,7 +389,8 @@ public partial class GameManager
             ResetPhoenixLevels();
             if (pid != null && picks > 0)
             {
-                var c = CardDatabase.FindBaseById(pid);
+                // 2026-10-28: 取り直したのが合成/Lv2以上のカード("v2|…")だと FindBaseById で見つからず、CONTINUE の後は1ハートで復活していた
+                var c = CardDatabase.FindBaseById(pid) ?? CardDatabase.FindById(pid);
                 if (c != null) { ApplyRunCardCapped(c, picks, "CONTINUE phoenix"); }
             }
             phoenixCharges = picks > 0 ? 1 : 0;

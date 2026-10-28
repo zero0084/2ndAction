@@ -79,6 +79,7 @@ public partial class PlayerController
 
     IEnumerator NobleAirSweep(AttackDirection dir)
     {
+        MarkMainAttack();
         if (!IsAlly) AttackStarted?.Invoke(dir);
         int gen = attackGeneration;
         isAttacking = true;

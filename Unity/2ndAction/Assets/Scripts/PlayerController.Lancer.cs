@@ -303,6 +303,7 @@ public partial class PlayerController
     // 前/後攻撃(DoAttackから分岐)。
     IEnumerator DoLanceHorizontal(AttackDirection dir)
     {
+        MarkMainAttack();
         var d = lancerDef;
         bool back = dir == AttackDirection.Backward;
         int stage = back ? 0 : (lanceComboGraceTimer > 0f ? Mathf.Clamp(lanceNextStage, 1, 3) : 1);
