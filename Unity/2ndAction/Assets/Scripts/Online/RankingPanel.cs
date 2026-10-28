@@ -172,9 +172,13 @@ public class RankingPanel : MonoBehaviour
         float th = Mathf.Min(r.height * 0.5f, note.CalcHeight(new GUIContent(Loc.Auto(text)), r.width) + 8f);
         LocGUI.Label(new Rect(r.x, y, r.width, th), text, note);
         y += th + 10f;
-        LocGUI.Label(new Rect(r.x, y, 180f, 44f), "コードネーム", UiKit.Label(20f));
+        // 2026-10-28: 見出しが長い訳(タミル語など)で入力欄に重なっていた → 入らない時は見出しを上の行に、入力欄は幅いっぱい
+        var nameLbl = UiKit.Label(20f);
+        bool nameOwnRow = nameLbl.CalcSize(new GUIContent(Loc.T("コードネーム"))).x + 12f > 180f;
+        LocGUI.Label(new Rect(r.x, y, nameOwnRow ? r.width : 180f, nameOwnRow ? 30f : 44f), "コードネーム", nameLbl);
+        if (nameOwnRow) y += 32f;
         var style = new GUIStyle(GUI.skin.textField) { fontSize = 20, alignment = TextAnchor.MiddleLeft };
-        nameEdit = GUI.TextField(new Rect(r.x + 180f, y + 2f, r.width - 180f, 42f), nameEdit ?? "", 40, style);
+        nameEdit = GUI.TextField(nameOwnRow ? new Rect(r.x, y + 2f, r.width, 42f) : new Rect(r.x + 180f, y + 2f, r.width - 180f, 42f), nameEdit ?? "", 40, style);
         y += 50f;
         LocGUI.Label(new Rect(r.x, y, r.width, 26f), $"最大{Codename.MaxLength}文字。本名などの個人情報は入れないでください。", UiKit.Label(15f, TextAnchor.UpperLeft, false, new Color(0.75f, 0.8f, 0.9f)));
         y += 34f;

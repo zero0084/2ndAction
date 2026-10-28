@@ -102,13 +102,18 @@ public class UiScroll
         string t = Loc.Auto(text ?? "");
         var st = new GUIStyle(style) { wordWrap = true };
         float contentH = st.CalcHeight(new GUIContent(t), view.width - 12f);
-        if (contentH <= view.height)
+        // 2026-10-28: 実際に描く幅(view.width)で測った高さと、半行の余裕でも収まる時だけ「収まる」とする。描く時も枠の外へは出さない
+        //  (以前は幅の違いで高さを低く見積もり、疾走の行き先の説明の最後の行が下の一覧に重なっていた)
+        float drawnH = st.CalcHeight(new GUIContent(t), view.width);
+        if (Mathf.Max(contentH, drawnH) + st.lineHeight * 0.5f <= view.height)
         {
             // 収まる時は今までどおり(揃え方もそのまま)。スクロールの状態だけ合わせる
             string k = (key ?? text ?? "") + "|" + Loc.Current;
             if (k != lastKey) { lastKey = k; Reset(); }
             CanScroll = false;
-            GUI.Label(view, t, st);
+            GUI.BeginClip(view);
+            GUI.Label(new Rect(0f, 0f, view.width, view.height), t, st);
+            GUI.EndClip();
             return;
         }
         Begin(view, contentH, key ?? text);

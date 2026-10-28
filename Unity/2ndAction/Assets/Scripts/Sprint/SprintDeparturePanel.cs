@@ -67,7 +67,11 @@ public class SprintDeparturePanel : MonoBehaviour
             int unlocked = 0;
             foreach (var d in SprintRecords.Destinations(stage)) if (d.unlocked) unlocked++;
             if (Event.current.type == EventType.Repaint) { LastButtonFrame = Time.frameCount; LastButtonRect = btn; } // 確認用: 描いたフレームと場所
-            if (UiKit.Button(btn, unlocked > 0 ? $"疾走出発({unlocked}地点)" : "疾走出発…", 26f * s, false, true, true))
+            // 2026-10-28: 長い訳(タミル語など)で2行に折れてボタンの高さからはみ出していた → 1行に入る大きさまで(最小 18)
+            string sprLbl = unlocked > 0 ? $"疾走出発({unlocked}地点)" : "疾走出発…";
+            float sprFs = 26f * s, sprTw = UiKit.Label(sprFs, TextAnchor.MiddleCenter, true).CalcSize(new GUIContent(Loc.Auto(sprLbl))).x;
+            if (sprTw > btn.width - 20f * s) sprFs = Mathf.Max(18f * s, sprFs * (btn.width - 20f * s) / sprTw);
+            if (UiKit.Button(btn, sprLbl, sprFs, false, true, true))
             {
                 Open = true; stageForPanel = stage; UiInputGate.SprintPanelOpen = true; Opens++;
                 if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
@@ -105,14 +109,20 @@ public class SprintDeparturePanel : MonoBehaviour
         var list = SprintRecords.Destinations(stageForPanel);
         // 行き先の一覧も、収まらない時はスクロール(ドラッグした指では行き先を選ばない)
         var listView = new Rect(x, y, w, Mathf.Max(68f * s, panel.yMax - 90f * s - y));
-        float listH = list.Count * 68f * s + (SprintRecords.DevUnlockAll ? 34f * s : 0f);
+        // 2026-10-28: 行の文が折り返す幅(縦の細い画面・長い訳)では、その行を高くする(以前は 62 固定で、2行目が行の枠からはみ出していた)
+        var rowSt = new GUIStyle(UiKit.Label(24f * s, TextAnchor.MiddleLeft, true)) { wordWrap = true };
+        float rowTextW = w - 12f - (12f + 40f + 12f + 10f) * s;
+        string RowLabel(SprintRecords.Destination d) => d.unlocked ? $"{d.meters / 1000}km まで疾走   (約{SprintTuning.I.SecondsFor(d.meters):F0}秒 + リングのカード選択){(d.why == "DEBUG 全解放" ? "  [DEBUG 全解放]" : "")}" : $"{d.meters / 1000}km   🔒 {d.why}";
+        float RowH(SprintRecords.Destination d) => Mathf.Max(62f * s, rowSt.CalcHeight(new GUIContent(Loc.Auto(RowLabel(d)).Replace("🔒 ", "")), rowTextW) + 18f * s);
+        float listH = (SprintRecords.DevUnlockAll ? 34f * s : 0f);
+        foreach (var d in list) listH += RowH(d) + 6f * s;
         listScroll.Begin(listView, listH, stageForPanel);
         float x0 = x; x = 0f; y = 0f;
         float maxMeters = 1f; foreach (var d in list) maxMeters = Mathf.Max(maxMeters, d.meters);
         foreach (var d in list)
         {
-            Rect row = new Rect(x, y, w - 12f, 62f * s);
-            string label = d.unlocked ? $"{d.meters / 1000}km まで疾走   (約{SprintTuning.I.SecondsFor(d.meters):F0}秒 + リングのカード選択){(d.why == "DEBUG 全解放" ? "  [DEBUG 全解放]" : "")}" : $"{d.meters / 1000}km   🔒 {d.why}";
+            Rect row = new Rect(x, y, w - 12f, RowH(d));
+            string label = RowLabel(d);
             // 2026-10-22: 行の左にアイコン(行ける = 出発の扉 / まだ = 鍵の絵。🔒 の字は絵に置き換える)、下に「どこまで行くか」の細い線
             bool hitRow = UiKit.Button(row, "", 24f * s, d.unlocked, false, d.unlocked);
             Texture2D rowIcon = d.unlocked ? UiIcons.Home("depart") : UiIcons.Lock;
@@ -126,8 +136,8 @@ public class SprintDeparturePanel : MonoBehaviour
                 GUI.color = ki;
             }
             float tx = row.x + 12f * s + (rowIcon != null ? ic + 12f * s : 0f);
-            LocGUI.Label(new Rect(tx, row.y, row.xMax - tx - 10f * s, row.height - 8f * s), shown,
-                UiKit.Label(24f * s, TextAnchor.MiddleLeft, true, d.unlocked ? UiTheme.GoldHover : UiTheme.Disabled));
+            var rowTextSt = new GUIStyle(rowSt); rowTextSt.normal.textColor = d.unlocked ? UiTheme.GoldHover : UiTheme.Disabled;
+            LocGUI.Label(new Rect(tx, row.y, row.xMax - tx - 10f * s, row.height - 8f * s), shown, rowTextSt);
             Rect track = new Rect(tx, row.yMax - 10f * s, row.xMax - tx - 16f * s, Mathf.Max(2f, 3f * s));
             UiKit.Fill(track, new Color(1f, 1f, 1f, 0.1f));
             UiKit.Fill(new Rect(track.x, track.y, track.width * Mathf.Clamp01(d.meters / maxMeters), track.height),
@@ -141,7 +151,7 @@ public class SprintDeparturePanel : MonoBehaviour
                 listScroll.End(listView, listH);
                 return;
             }
-            y += 68f * s;
+            y += row.height + 6f * s; // 2026-10-28: 行の高さは文の折り返しで変わる
         }
         if (SprintRecords.DevUnlockAll) LocGUI.Label(new Rect(x, y, w, 30f * s), "(開発版: DEBUG の全解放が ON)", UiKit.Label(18f * s, TextAnchor.MiddleLeft, false, new Color(1f, 0.6f, 0.5f)));
         listScroll.End(listView, listH);

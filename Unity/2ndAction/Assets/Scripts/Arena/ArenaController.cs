@@ -552,7 +552,10 @@ public class ArenaController : MonoBehaviour
         float rx = c.x + lw + 16f, rw = c.width - lw - 16f;
         LocGUI.Label(new Rect(rx, c.y, rw - 110f, 34f), $"今の相手({cfg.enemies.Count}組)", UiKit.Label(17f, TextAnchor.MiddleLeft, true, Gold));
         if (UiKit.Button(new Rect(rx + rw - 104f, c.y, 104f, 34f), "全部外す", 14f, false, false)) cfg.enemies.Clear();
-        var eR = new Rect(rx, c.y + 40f, rw, c.height - 40f - 112f);
+        float[] dp = { 1000f, 5000f, 10000f, 30000f, 50000f, 70000f, 90000f };
+        int dCols = (rw - 6f * 4f) / 7f >= 52f ? 7 : 4; // 2026-10-28: 狭い幅では 4 + 3 の2段(文字を縮めない)
+        float dRows = Mathf.Ceil(dp.Length / (float)dCols);
+        var eR = new Rect(rx, c.y + 40f, rw, c.height - 40f - 112f - (dRows - 1f) * 46f);
         enemyScroll = BeginList(eR, enemyScroll, Mathf.Max(1, cfg.enemies.Count) * rowH);
         if (cfg.enemies.Count == 0) LocGUI.Label(new Rect(8f, 6f, rw - 30f, 50f), "相手がいません(このまま始めると敵なしで動きだけ試せます)", UiKit.Label(13f, TextAnchor.UpperLeft, false, Dim));
         for (int i = 0; i < cfg.enemies.Count; i++)
@@ -566,9 +569,8 @@ public class ArenaController : MonoBehaviour
         EndList();
         float dy = eR.yMax + 8f;
         LocGUI.Label(new Rect(rx, dy, rw, 24f), $"敵HP: {cfg.distance / 1000f:0.#}km地点相当(雑魚・ボスのHPに反映)", UiKit.Label(14f, TextAnchor.MiddleLeft, true, Soft));
-        float[] dp = { 1000f, 5000f, 10000f, 30000f, 50000f, 70000f, 90000f };
-        float dw = (rw - 6f * 4f) / 7f;
-        for (int i = 0; i < dp.Length; i++) if (UiKit.Button(new Rect(rx + i * (dw + 4f), dy + 30f, dw, 42f), $"{dp[i] / 1000f:0}km", 14f, Mathf.Approximately(cfg.distance, dp[i]), false)) cfg.distance = dp[i];
+        float dw = (rw - 4f * (dCols - 1)) / dCols;
+        for (int i = 0; i < dp.Length; i++) if (UiKit.Button(new Rect(rx + (i % dCols) * (dw + 4f), dy + 30f + (i / dCols) * 46f, dw, 42f), $"{dp[i] / 1000f:0}km", 14f, Mathf.Approximately(cfg.distance, dp[i]), false)) cfg.distance = dp[i];
     }
 
     static void DrawSprite(Rect r, Sprite sp)
@@ -581,12 +583,14 @@ public class ArenaController : MonoBehaviour
         GUI.DrawTextureWithTexCoords(fit, tex, uv);
     }
 
+    // 2026-10-28: 渡された幅(w)の中に収める(縦画面では左の列が狭く、以前は「+」が右の列の文字に重なっていた)
     float Stepper(float x, float y, float w, string label, string value, System.Action minus, System.Action plus)
     {
-        LocGUI.Label(new Rect(x, y, 110f, 38f), label, UiKit.Label(15f));
-        if (UiKit.Button(new Rect(x + 110f, y, 48f, 38f), "-", 20f, false, false)) minus();
-        LocGUI.Label(new Rect(x + 162f, y, 110f, 38f), value, UiKit.Label(16f, TextAnchor.MiddleCenter, true));
-        if (UiKit.Button(new Rect(x + 276f, y, 48f, 38f), "+", 20f, false, false)) plus();
+        float lab = Mathf.Min(110f, w * 0.32f), bw = 48f, val = Mathf.Clamp(w - lab - bw * 2f - 8f, 60f, 110f);
+        LocGUI.Label(new Rect(x, y, lab, 38f), label, UiKit.Label(15f));
+        if (UiKit.Button(new Rect(x + lab, y, bw, 38f), "-", 20f, false, false)) minus();
+        LocGUI.Label(new Rect(x + lab + bw + 4f, y, val, 38f), value, UiKit.Label(16f, TextAnchor.MiddleCenter, true));
+        if (UiKit.Button(new Rect(x + lab + bw + 8f + val, y, bw, 38f), "+", 20f, false, false)) plus();
         return y + 42f;
     }
 
@@ -618,12 +622,13 @@ public class ArenaController : MonoBehaviour
         LocGUI.Label(new Rect(x, y, w, 26f), "無敵 / HP", head); y += 28f;
         if (UiKit.Button(new Rect(x, y, 220f, 42f), $"無敵: {(ArenaMode.Invincible ? "ON" : "OFF")}", 16f, ArenaMode.Invincible, false)) ToggleInvincible();
         if (UiKit.Button(new Rect(x + 228f, y, 180f, 42f), "HPを全回復", 16f, false, false)) RefillHp();
-        LocGUI.Label(new Rect(x + 418f, y, w - 418f, 42f), "無敵中も結果の「本来の被ダメージ」には記録されます", note);
-        y += 50f;
+        if (w - 418f >= 200f) { LocGUI.Label(new Rect(x + 418f, y, w - 418f, 42f), "無敵中も結果の「本来の被ダメージ」には記録されます", note); y += 50f; }
+        else { y += 46f; LocGUI.Label(new Rect(x, y, w, 34f), "無敵中も結果の「本来の被ダメージ」には記録されます", note); y += 30f; } // 2026-10-28: 狭い幅では次の行へ
         LocGUI.Label(new Rect(x, y, w, 26f), "オートモード(闘技場の中だけ。通常の設定は変わりません)", head); y += 28f;
         string[] am = Debug.isDebugBuild ? new[] { "OFF", "ON", "常時(開発版)" } : new[] { "OFF", "ON" };
         for (int i = 0; i < am.Length; i++) if (UiKit.Button(new Rect(x + i * 148f, y, 140f, 42f), am[i], 15f, cfg.assistMode == i, false)) { cfg.assistMode = i; ApplyAssist(); }
         float ex = x + am.Length * 148f + 12f;
+        if (ex + 250f > x + w) { y += 48f; ex = x; } // 2026-10-28: 狭い幅では「開始 …km/h以上 - +」を次の行へ(以前は右端で切れていた)
         LocGUI.Label(new Rect(ex, y, 150f, 42f), $"開始 {cfg.assistEngageKmh:0}km/h以上", UiKit.Label(14f));
         if (UiKit.Button(new Rect(ex + 152f, y, 46f, 42f), "-", 20f, false, false)) { cfg.assistEngageKmh = Mathf.Max(HighSpeedAssist.MinEngageKmh, cfg.assistEngageKmh - 5f); ApplyAssist(); }
         if (UiKit.Button(new Rect(ex + 202f, y, 46f, 42f), "+", 20f, false, false)) { cfg.assistEngageKmh = Mathf.Min(HighSpeedAssist.MaxEngageKmh, cfg.assistEngageKmh + 5f); ApplyAssist(); }
@@ -635,10 +640,14 @@ public class ArenaController : MonoBehaviour
         {
             LocGUI.Label(new Rect(x, y, w, 22f), "開発版だけ", UiKit.Label(13f, TextAnchor.MiddleLeft, true, new Color(1f, 0.55f, 0.5f)));
             y += 24f;
-            if (UiKit.Button(new Rect(x, y, 240f, 36f), $"未遭遇の敵も選ぶ: {(cfg.devAllEnemies ? "ON" : "OFF")}", 13f, cfg.devAllEnemies, false)) cfg.devAllEnemies = !cfg.devAllEnemies;
-            if (UiKit.Button(new Rect(x + 248f, y, 240f, 36f), $"乱数を固定: {(cfg.seedFixed ? "ON" : "OFF")}", 13f, cfg.seedFixed, false)) cfg.seedFixed = !cfg.seedFixed;
-            if (UiKit.Button(new Rect(x + 496f, y, 220f, 36f), $"障害物を壊す補助: {(cfg.assistBreakObstacles ? "ON" : "OFF")}", 13f, cfg.assistBreakObstacles, false)) { cfg.assistBreakObstacles = !cfg.assistBreakObstacles; ApplyAssist(); }
-            y += 42f;
+            // 2026-10-28: 幅に入る数だけ横に並べ、入らない分は次の行へ(以前は3つ目が右端で切れていた)
+            int perRow = w >= 724f ? 3 : w >= 488f ? 2 : 1;
+            float dbw = (w - 8f * (perRow - 1)) / perRow;
+            Rect DevR(int k) => new Rect(x + (k % perRow) * (dbw + 8f), y + (k / perRow) * 42f, dbw, 36f);
+            if (UiKit.Button(DevR(0), $"未遭遇の敵も選ぶ: {(cfg.devAllEnemies ? "ON" : "OFF")}", 13f, cfg.devAllEnemies, false)) cfg.devAllEnemies = !cfg.devAllEnemies;
+            if (UiKit.Button(DevR(1), $"乱数を固定: {(cfg.seedFixed ? "ON" : "OFF")}", 13f, cfg.seedFixed, false)) cfg.seedFixed = !cfg.seedFixed;
+            if (UiKit.Button(DevR(2), $"障害物を壊す補助: {(cfg.assistBreakObstacles ? "ON" : "OFF")}", 13f, cfg.assistBreakObstacles, false)) { cfg.assistBreakObstacles = !cfg.assistBreakObstacles; ApplyAssist(); }
+            y += 42f * Mathf.Ceil(3f / perRow);
             var rtt = BossRematchTuning.I;
             int nT = rtt != null ? rtt.tiers.Count : 0;
             string tl = cfg.bossRematchTier < 0 || cfg.bossRematchTier >= nT ? "初戦" : rtt.tiers[cfg.bossRematchTier].label;
@@ -666,13 +675,16 @@ public class ArenaController : MonoBehaviour
         LocGUI.Label(new Rect(col3, y, 200f, 26f), "前回", head);
         y += 28f;
         var lab = new GUIStyle(UiKit.Label(16f, TextAnchor.MiddleLeft, false, new Color(1f, 0.95f, 0.85f)));
+        var labW = new GUIStyle(lab) { wordWrap = true }; // 2026-10-28: 長い見出し(本来の被ダメージ…)は折り返す(狭い幅で値に重なっていた)
         for (int i = 0; i < rows.Length; i++)
         {
-            if (i % 2 == 0) UiKit.Fill(new Rect(col1, y, c.width, 30f), new Color(1f, 1f, 1f, 0.04f));
-            LocGUI.Label(new Rect(col1 + 6f, y, col2 - col1, 30f), rows[i], lab);
-            LocGUI.Label(new Rect(col2, y, col3 - col2, 30f), vals[i](cur), lab);
-            LocGUI.Label(new Rect(col3, y, c.xMax - col3, 30f), prev != null ? vals[i](prev) : "—", lab);
-            y += 32f;
+            float lw0 = col2 - col1 - 12f;
+            float rh = Mathf.Max(30f, labW.CalcHeight(new GUIContent(Loc.T(rows[i])), lw0) + 4f);
+            if (i % 2 == 0) UiKit.Fill(new Rect(col1, y, c.width, rh), new Color(1f, 1f, 1f, 0.04f));
+            LocGUI.Label(new Rect(col1 + 6f, y, lw0, rh), rows[i], labW);
+            LocGUI.Label(new Rect(col2, y, col3 - col2, rh), vals[i](cur), lab);
+            LocGUI.Label(new Rect(col3, y, c.xMax - col3, rh), prev != null ? vals[i](prev) : "—", lab);
+            y += rh + 2f;
         }
         var bl = new GUIStyle(UiKit.Label(13f, TextAnchor.UpperLeft, false, Soft)); bl.wordWrap = true;
         LocGUI.Label(new Rect(c.x, y + 4f, c.width, 44f), $"今回の条件: {cur.label}\n試用ビルド: {cur.build}", bl);

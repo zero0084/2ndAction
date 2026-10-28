@@ -221,8 +221,19 @@ public partial class GameManager
         LocGUI.Label(new Rect(panel.x, y, panel.width, 36f * s), isNew ? "NEW CARD" : "DUPLICATE", UiKit.Label(26f * s, TextAnchor.MiddleCenter, true, isNew ? new Color(1f, 0.85f, 0.4f) : new Color(0.7f, 0.85f, 1f)));
         y += 40f * s;
 
+        // 効果の説明(折り返し)。2026-10-28: カードの大きさを決める前に測る(細い画面では説明が長くなり、下の案内/OK に重なっていた)
+        var desc = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperCenter, wordWrap = true, fontSize = Mathf.RoundToInt(20f * s) };
+        desc.normal.textColor = new Color(0.92f, 0.94f, 1f);
+        string text = string.IsNullOrEmpty(card.description) ? "" : card.description;
+        // 2026-10-08: 高さは訳した文で測る。収まらなければ縮めずにスクロール(右にバー)
+        float full = desc.CalcHeight(new GUIContent(Loc.Auto(text)), panel.width - 56f * s - 12f);
+        float dh = Mathf.Min(full, 90f * s);
+        float hintTop = panel.yMax - 74f * s;
         // カード: 2026-10-22 デッキ編集/合成/3択と同じ共通のカード面(CardFaceRenderer)。描けるまでの一瞬は今までの絵+枠
-        float ch = Mathf.Min(panel.height * 0.47f, panel.width * 0.62f) * (highRarity ? 1f + 0.06f * revealT : 1f);
+        //  下の案内の上に、名前/★/説明/所持/段階の行が必ず入る大きさ(入らない時はカードを小さく)
+        float textBlock = 8f * s + 38f * s + 30f * s + dh + 6f * s + 26f * s + 24f * s + 6f * s;
+        float chFit = Mathf.Max(90f * s, hintTop - y - textBlock);
+        float ch = Mathf.Min(Mathf.Min(panel.height * 0.47f, panel.width * 0.62f), chFit) * (highRarity ? 1f + 0.06f * revealT : 1f);
         var cardRect = new Rect(panel.center.x - ch / 3f, y, ch * 2f / 3f, ch);
         CardFaceRenderer.Draw(cardRect, card, 1);
         y = cardRect.yMax + 8f * s;
@@ -231,13 +242,6 @@ public partial class GameManager
         y += 38f * s;
         LocGUI.Label(new Rect(panel.x, y, panel.width, 28f * s), card.RarityStars, UiKit.Label(22f * s, TextAnchor.MiddleCenter, true, UiTheme.Rarity(card.rarity)));
         y += 30f * s;
-        // 効果の説明(折り返し)
-        var desc = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperCenter, wordWrap = true, fontSize = Mathf.RoundToInt(20f * s) };
-        desc.normal.textColor = new Color(0.92f, 0.94f, 1f);
-        string text = string.IsNullOrEmpty(card.description) ? "" : card.description;
-        // 2026-10-08: 高さは訳した文で測る。収まらなければ縮めずにスクロール(右にバー)
-        float full = desc.CalcHeight(new GUIContent(Loc.Auto(text)), panel.width - 56f * s - 12f);
-        float dh = Mathf.Min(full, 90f * s);
         var descRect = new Rect(panel.x + 28f * s, y, panel.width - 56f * s, dh);
         lastGachaDescRect = descRect; gachaDescMax = Mathf.Max(0f, full - dh);
         gachaDescScroll.Text(descRect, text, desc, card.cardId + "@" + gachaResultOpenedAt.ToString("F3"));
@@ -270,8 +274,13 @@ public partial class GameManager
             GUI.color = keep;
             float lw = Mathf.Max(lastGachaMachineRect.width + 60f * s, 170f * s);
             float lx = Mathf.Clamp(lastGachaMachineRect.center.x - lw * 0.5f, 4f, Screen.width - lw - 4f); // 画面の端で切れない(縦画面、2026-10-08)
-            LocGUI.Label(new Rect(lx, lastGachaMachineRect.yMax + 2f * s, lw, 24f * s),
-                TotalOwnedMile >= GachaCostMile ? $"TAP +1 ({GachaCostMile} MILE)" : "MILE不足", UiKit.Label(15f * s, TextAnchor.MiddleCenter, true, new Color(1f, 0.85f, 0.4f, pulse)));
+            // 2026-10-28: 板の右に本体がある時は、案内を板の上に重ねない(細い縦画面で板の右の枠にかかっていた)。入らない幅は2行に折り返す
+            bool besidePanel = lastGachaMachineRect.xMin >= panel.xMax - 1f;
+            if (besidePanel && lx < panel.xMax + 4f) { lx = panel.xMax + 4f; lw = Mathf.Max(60f, Screen.width - 4f - lx); }
+            var tapSt = new GUIStyle(UiKit.Label(15f * s, TextAnchor.UpperCenter, true, new Color(1f, 0.85f, 0.4f, pulse))) { wordWrap = true };
+            string tapText = TotalOwnedMile >= GachaCostMile ? $"TAP +1 ({GachaCostMile} MILE)" : "MILE不足";
+            float th = Mathf.Max(24f * s, tapSt.CalcHeight(new GUIContent(Loc.T(tapText)), lw));
+            LocGUI.Label(new Rect(lx, lastGachaMachineRect.yMax + 2f * s, lw, th), tapText, tapSt);
             if (PadNav.Button(lastGachaMachineRect)) OnGachaMachineTapped();
         }
     }

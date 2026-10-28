@@ -1119,7 +1119,7 @@ public class CardFusionUI : MonoBehaviour
                 sb.Append("<size=21>MASTERYは通常の性能(攻撃力・速度・EXPなど)を上げません。</size>\n");
                 resultBody.text = Loc.Auto(sb.ToString());
                 resultBody.alignment = TextAnchor.UpperLeft;
-                resultScroll.viewport.anchorMin = new Vector2(0.4f, 0);
+                LayoutResult();
                 Canvas.ForceUpdateCanvases();
                 resultScroll.verticalNormalizedPosition = 1f;
                 StartCoroutine(FadeResultIn());
@@ -1155,11 +1155,74 @@ public class CardFusionUI : MonoBehaviour
         }
         resultBody.text = Loc.Auto(sb.ToString());
         resultBody.alignment = r.IsSuccess ? TextAnchor.UpperLeft : TextAnchor.UpperCenter;
-        var bodyView = resultScroll.viewport;
-        bodyView.anchorMin = r.IsSuccess ? new Vector2(0.4f, 0) : new Vector2(0.1f, 0);
+        LayoutResult();
         Canvas.ForceUpdateCanvases();
         resultScroll.verticalNormalizedPosition = 1f;
         StartCoroutine(FadeResultIn());
+    }
+
+    // 2026-10-28: 結果のパネルを、画面の向きとパネルの幅に合わせて並べる(縦画面で「一覧へ戻る」が金枠の外へはみ出し、画面の右端で切れていた)。
+    //  ボタン: 2つが余白込みで横に並ぶ幅なら横、並ばない幅では縦に積む(文字の大きさと押せる大きさを保つ)。見た目の枠 = 押せる範囲(同じ RectTransform)
+    //  縦画面: タイトル → 完成カード → 本文(スクロール) → ボタン の順に上から。横画面: 左にカード、右に本文、その下にボタン(今まで通り)
+    Vector2 resultLaidSize;
+    public static int ResultLayouts { get; private set; } // 確認用
+    void LayoutResult()
+    {
+        if (resultPanel == null || continueButton == null || backToListButton == null || resultScroll == null) return;
+        // 縦画面: 右上の設定(歯車)のボタンの下から(以前は枠の右上の角が歯車に重なっていた)
+        resultPanel.offsetMax = PortraitRunView.IsPortraitScreen ? new Vector2(0f, -110f) : Vector2.zero;
+        Canvas.ForceUpdateCanvases();
+        Rect pr = resultPanel.rect;
+        resultLaidSize = pr.size; ResultLayouts++;
+        bool portrait = PortraitRunView.IsPortraitScreen || pr.width < pr.height * 1.05f;
+        bool hasCard = resultCard != null && resultCard.gameObject.activeSelf;
+        const float margin = 36f, gap = 20f, bh = 84f, bottom = 30f, titleH = 110f;
+        // ボタンを置く横の範囲: 横画面で完成カードがある時は右の本文の列、ほかはパネルの幅いっぱい(左右に余白)
+        float zoneL = (!portrait && hasCard) ? pr.width * 0.4f : margin, zoneR = pr.width - margin;
+        float zone = Mathf.Max(100f, zoneR - zoneL), cx = (zoneL + zoneR) * 0.5f;
+        float bw = Mathf.Min(320f, (zone - gap) * 0.5f);
+        bool row = bw >= 230f;
+        foreach (var b in new[] { continueButton, backToListButton }) { b.anchorMin = b.anchorMax = Vector2.zero; b.pivot = new Vector2(0.5f, 0f); }
+        float buttonsTop;
+        if (row)
+        {
+            continueButton.sizeDelta = backToListButton.sizeDelta = new Vector2(bw, bh);
+            continueButton.anchoredPosition = new Vector2(cx - (bw + gap) * 0.5f, bottom);
+            backToListButton.anchoredPosition = new Vector2(cx + (bw + gap) * 0.5f, bottom);
+            buttonsTop = bottom + bh;
+        }
+        else
+        {
+            float w = Mathf.Min(zone, 520f);
+            continueButton.sizeDelta = backToListButton.sizeDelta = new Vector2(w, bh);
+            continueButton.anchoredPosition = new Vector2(cx, bottom + bh + 16f);
+            backToListButton.anchoredPosition = new Vector2(cx, bottom);
+            buttonsTop = bottom + bh * 2f + 16f;
+        }
+        var view = resultScroll.viewport;
+        var scaler = resultCard != null ? resultCard.transform.parent as RectTransform : null;
+        float cardH = scaler != null ? scaler.sizeDelta.y : 270f, cardW = scaler != null ? scaler.sizeDelta.x : 180f;
+        if (portrait)
+        {
+            float avail = pr.height - titleH - buttonsTop - 24f;
+            float k = Mathf.Clamp(avail * 0.45f / cardH, 0.7f, 2f);
+            if (scaler != null && hasCard)
+            {
+                scaler.anchorMin = scaler.anchorMax = new Vector2(0.5f, 1f); scaler.pivot = new Vector2(0.5f, 1f);
+                scaler.anchoredPosition = new Vector2(0f, -titleH); scaler.localScale = Vector3.one * k;
+            }
+            float cardSpace = hasCard ? cardH * k + 16f : 0f;
+            view.anchorMin = Vector2.zero; view.anchorMax = Vector2.one;
+            view.offsetMin = new Vector2(margin, buttonsTop + 20f); view.offsetMax = new Vector2(-margin, -(titleH + cardSpace));
+        }
+        else
+        {
+            // 横: 高さの低い画面でもカードがパネルに収まる大きさ(最大 2倍)
+            float k = Mathf.Min(2f, (pr.height - titleH - 40f) / cardH, pr.width * 0.36f / cardW);
+            if (scaler != null) { scaler.anchorMin = scaler.anchorMax = new Vector2(0.2f, 0.5f); scaler.pivot = new Vector2(0.5f, 0.5f); scaler.anchoredPosition = new Vector2(0f, -titleH * 0.25f); scaler.localScale = Vector3.one * Mathf.Max(0.6f, k); }
+            view.anchorMin = hasCard ? new Vector2(0.4f, 0f) : new Vector2(0.1f, 0f); view.anchorMax = Vector2.one;
+            view.offsetMin = new Vector2(0f, buttonsTop + 16f); view.offsetMax = new Vector2(-40f, -titleH);
+        }
     }
 
     IEnumerator FadeResultIn()
@@ -1192,7 +1255,8 @@ public class CardFusionUI : MonoBehaviour
         if (particles.Count > 0) UpdateParticles();
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
-        if (layoutApplied && layoutPortrait != PortraitRunView.IsPortraitScreen) { ApplyOrientationLayout(); Refresh(restoreScroll: true); UiInputGate.LatchUntilRelease(); return; } // 向きが変わった: 並べ直し(選んだ枠はそのまま)
+        if (layoutApplied && layoutPortrait != PortraitRunView.IsPortraitScreen) { ApplyOrientationLayout(); Refresh(restoreScroll: true); if (resultPanel != null && resultPanel.gameObject.activeInHierarchy) LayoutResult(); UiInputGate.LatchUntilRelease(); return; } // 向きが変わった: 並べ直し(選んだ枠はそのまま)
+        if (resultPanel != null && resultPanel.gameObject.activeInHierarchy && resultPanel.rect.size != resultLaidSize) LayoutResult(); // 結果の表示中に画面の大きさが変わった
 
         UiHit.Probe(HandleTap, (overlay != null && overlay.gameObject.activeSelf) ? 5 : 0); // パッド操作中: 押せる枠を集める
         PadScroll();
@@ -1290,6 +1354,10 @@ public class CardFusionUI : MonoBehaviour
     public string DebugDetailText => detailText != null ? detailText.text : "";
     public string DebugResultText => resultBody != null ? resultBody.text : "";
     public string DebugStatusText => statusText != null ? statusText.text : "";
+    public bool DebugInResult => phase == Phase.Result && resultPanel != null && resultPanel.gameObject.activeInHierarchy; // 2026-10-28: 配置の点検
+    public RectTransform DebugResultPanel => resultPanel;
+    public RectTransform DebugContinueButton => continueButton;
+    public RectTransform DebugBackButton => backToListButton;
     public int DebugVisibleRows()
     {
         // 一覧のビューポート内に完全に収まっている行数

@@ -793,7 +793,7 @@ public class RewardCardSequence : MonoBehaviour
         LogStep("Select Feedback Start");
         PlaySe(SeId.CardGet, confirmSe); // 2026-10-06: カードを得た(以前は鳴っていなかった CardGet)
         StartCoroutine(winnerCard.FlashFrame(confirmFlashDuration));
-        yield return winnerCard.ScaleTo(confirmScale, confirmFlashDuration);
+        yield return winnerCard.ScaleTo(confirmScale * CardScaleBase, confirmFlashDuration); // 2026-10-28: 縦画面の縮小(0.72)にも掛ける(以前は 1.12 倍そのままで、決定したカードが画面の左端からはみ出していた)
         winnerCard.SetChoiceGlow(true);
         LogStep("Select Feedback Complete");
 

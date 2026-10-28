@@ -460,7 +460,11 @@ public class SprintRunner : MonoBehaviour
                 {
                     // 予告の矢印(右端): どの高さか
                     UiKit.Fill(new Rect(W - 26f * s, RingCenterY(r.lane) - 40f * s, 14f * s, 80f * s), new Color(rc.r, rc.g, rc.b, 0.85f));
-                    LocGUI.Label(new Rect(W - 420f * s, RingCenterY(r.lane) - 70f * s, 380f * s, 40f * s), $"RING {(r.lane == 2 ? "▲上" : r.lane == 1 ? "■中" : "▼下")}  {Mathf.Max(0f, lead):F1}", UiKit.Label(30f * s, TextAnchor.MiddleRight, true, rc));
+                    // 2026-10-28: 右下の ▲▼ に重なる高さでは、その左に出す(高さの低い横画面で「RING ▲上」が ▲ の下に隠れていた)
+                    var ringLbl = new Rect(W - 420f * s, RingCenterY(r.lane) - 70f * s, 380f * s, 40f * s);
+                    Rect ub = UpButton(), db = DownButton();
+                    if (ringLbl.Overlaps(ub) || ringLbl.Overlaps(db)) ringLbl.x = Mathf.Min(ub.xMin, db.xMin) - 8f * s - ringLbl.width;
+                    LocGUI.Label(ringLbl, $"RING {(r.lane == 2 ? "▲上" : r.lane == 1 ? "■中" : "▼下")}  {Mathf.Max(0f, lead):F1}", UiKit.Label(30f * s, TextAnchor.MiddleRight, true, rc));
                 }
             }
 

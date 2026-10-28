@@ -24,10 +24,17 @@ public class ConfirmDialogUI : MonoBehaviour
     System.Action onCancel;
 
     public bool IsOpen => root != null && root.activeSelf;
+    const float MessageSideInset = 36f;
 
     public void Show(string message, System.Action confirmCallback, System.Action cancelCallback = null)
     {
-        UguiScrollText.Wrap(messageText); // 2026-10-08: 長い確認文はスクロール
+        var sc = UguiScrollText.Wrap(messageText); // 2026-10-08: 長い確認文はスクロール
+        // 2026-10-28: 文の左右に余白(組み立ての時の幅の指定で余白が 0 になっていて、長い文が金の飾り枠の上まで広がっていた)
+        if (sc != null && sc.Viewport != null && sc.Viewport.anchorMin.x != sc.Viewport.anchorMax.x)
+        {
+            sc.Viewport.offsetMin = new Vector2(MessageSideInset, sc.Viewport.offsetMin.y);
+            sc.Viewport.offsetMax = new Vector2(-MessageSideInset, sc.Viewport.offsetMax.y);
+        }
         if (messageText != null) messageText.text = Loc.Auto(message); // 2026-10-08: 訳していなかった(日本語のままだった)
         onConfirm = confirmCallback;
         onCancel = cancelCallback;

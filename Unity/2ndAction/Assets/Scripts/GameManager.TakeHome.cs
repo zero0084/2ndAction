@@ -114,6 +114,17 @@ public partial class GameManager
 
     // 帰還の判断のための内訳(脱出の長押しの間 / 一時停止の画面)。r は BeginHud の設計の単位
     public const float TakeHomeSummaryHeight = 166f, TakeHomeCompactHeight = 118f;
+    // 2026-10-28: 「ガチャ({0} MILE)」「{0}回分」は訳の表に無く、日本語以外でも日本語のまま出ていた。
+    //  訳(エステルのレビュー)が入るまでは、訳のある「ガチャ」+ 数字 / 「×回数」で出す(日本語は今までどおり)
+    string GachaPullsLabel => Loc.IsJapanese ? Loc.F("ガチャ({0} MILE)", GachaCostMile) : $"{Loc.T("ガチャ")} ({GachaCostMile} MILE)";
+    string GachaPullsValue => Loc.IsJapanese ? Loc.F("{0}回分", GachaPullsAfterReturn) : $"×{GachaPullsAfterReturn}";
+    // 注意の文(倒れるかランを破棄すると…)が折り返す幅では、その分だけ枠を高くする(飾り枠の縁の内側に収める)
+    float TakeHomeSummaryHeightFor(float width)
+    {
+        var ns = new GUIStyle(GUI.skin.label) { fontSize = 13, wordWrap = true };
+        float nh = ns.CalcHeight(new GUIContent(Loc.Auto("倒れるかランを破棄すると、今回のMILEは受け取れません")), width - 44f);
+        return Mathf.Max(TakeHomeSummaryHeight, 14f + 24f + 26f * 3f + 2f + nh + 28f); // 飾り枠の下の縁(約 14)の内側に収める余白
+    }
     void DrawTakeHomeSummary(Rect r, string title, bool compact = false)
     {
         if (compact) { DrawTakeHomeCompact(r); return; }
@@ -136,12 +147,12 @@ public partial class GameManager
         }
         Row("今回の持ち帰り予定", "+" + FormatMile(TakeHomeMile) + " MILE", HudGoldColor, true);
         Row("脱出後の所持予定", FormatMile(OwnedMileAfterReturn) + " MILE", Color.white, false);
-        Row(Loc.F("ガチャ({0} MILE)", GachaCostMile), Loc.F("{0}回分", GachaPullsAfterReturn), new Color(0.6f, 0.95f, 1f), false);
+        Row(GachaPullsLabel, GachaPullsValue, new Color(0.6f, 0.95f, 1f), false);
         var ns = new GUIStyle(GUI.skin.label) { fontSize = 13, alignment = TextAnchor.UpperLeft, wordWrap = true, normal = { textColor = new Color(1f, 0.62f, 0.55f) } };
         string note = "倒れるかランを破棄すると、今回のMILEは受け取れません";
         float nh = ns.CalcHeight(new GUIContent(Loc.Auto(note)), w);
-        if (nh > r.yMax - y - 8f) ns.fontSize = 11;
-        LocGUI.Label(new Rect(x, y + 2f, w, r.yMax - y - 6f), note, ns);
+        if (nh > r.yMax - y - 16f) ns.fontSize = 11;
+        LocGUI.Label(new Rect(x, y + 2f, w, r.yMax - y - 14f), note, ns); // 2026-10-28: 飾り枠の下の縁の内側まで
     }
 
     // 戦闘中の長押し用の小さな内訳(飾り枠なし、3行、注意は1行)
@@ -163,7 +174,7 @@ public partial class GameManager
         }
         Row("今回の持ち帰り予定", "+" + FormatMile(TakeHomeMile) + " MILE", HudGoldColor, true);
         Row("脱出後の所持予定", FormatMile(OwnedMileAfterReturn) + " MILE", Color.white, false);
-        Row(Loc.F("ガチャ({0} MILE)", GachaCostMile), Loc.F("{0}回分", GachaPullsAfterReturn), new Color(0.6f, 0.95f, 1f), false);
+        Row(GachaPullsLabel, GachaPullsValue, new Color(0.6f, 0.95f, 1f), false);
         var ns = FitStyle(new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft, normal = { textColor = new Color(1f, 0.62f, 0.55f) } }, "倒れるかランを破棄すると、今回のMILEは受け取れません", w, 9);
         LocGUI.Label(new Rect(x, y + 2f, w, 18f), "倒れるかランを破棄すると、今回のMILEは受け取れません", ns);
     }

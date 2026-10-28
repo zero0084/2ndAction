@@ -74,7 +74,12 @@ public partial class DebugPanel : MonoBehaviour
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
         float naturalH = page == 0 ? 740f : page == 1 ? 530f : page == 4 || page == 5 || page == 6 || page == 7 || page == 8 || page == 11 || page == 13 ? 600f : 470f;
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(naturalH, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f);
+        // 2026-10-28: 縦の細い画面(枠が 600 未満)では、ページのボタン3つを見出しの下の行へ(以前は左端からはみ出し、見出しと重なっていた)
+        bool narrowHead = page == 0 && pw < 600f;
+        float hd = narrowHead ? 56f : 0f;
+        naturalH += hd + (narrowHead ? 16f : 0f);
+        float ph = Mathf.Min(naturalH, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
@@ -86,14 +91,16 @@ public partial class DebugPanel : MonoBehaviour
         if (scrolling) { scroll.Begin(frame, naturalH, "debug" + page); p = new Rect(0f, 0f, pw, naturalH); }
         GUI.Label(new Rect(p.x + 24f, p.y + 12f, 300f, 40f), "DEBUG(開発版のみ)", UiKit.Label(24f, TextAnchor.MiddleLeft, true, new Color(1f, 0.55f, 0.45f)));
         // 2026-10-14: 今の UGS の環境(開発版は production を使わない)と、送らずに残しているランキングの送信待ち
-        GUI.Label(new Rect(p.x + 24f, p.y + 44f, p.width - 48f, 18f), $"UGS env: {UgsEnvironment.Name} ({UgsEnvironment.Source})  ranking pending {Leaderboard.PendingCount} / held {Leaderboard.HeldCount}" + (UgsEnvironment.Ignored != "" ? "  ignored " + UgsEnvironment.Ignored : ""),
+        GUI.Label(new Rect(p.x + 24f, p.y + 44f + hd, p.width - 48f, 18f), $"UGS env: {UgsEnvironment.Name} ({UgsEnvironment.Source})  ranking pending {Leaderboard.PendingCount} / held {Leaderboard.HeldCount}" + (UgsEnvironment.Ignored != "" ? "  ignored " + UgsEnvironment.Ignored : ""),
             UiKit.Label(11f, TextAnchor.MiddleLeft, false, new Color(0.75f, 0.9f, 1f)));
         if (UiIcons.CloseButton(new Rect(p.xMax - 66f, p.y + 12f, 48f, 42f))) SetOpen(false);
-        if (UiKit.Button(new Rect(p.xMax - 200f, p.y + 12f, 126f, 42f), page == 0 ? "セーブ…" : "← 一般", 17f, page != 0, false)) { page = page == 0 ? 1 : 0; confirmSave = 0; confirmReset = false; }
-        if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
-        if (page == 0 && UiKit.Button(new Rect(p.xMax - 504f, p.y + 12f, 146f, 42f), "画面の記録…", 16f, false, false)) { page = 12; confirmSave = 0; confirmReset = false; } // HUD/安全領域(2026-10-10)
-        if (page == 0 && UiKit.Button(new Rect(p.xMax - 24f - 160f, p.y + 62f, 160f, 34f), "広告/課金(模擬)…", 14f, Monetization.Mode == MonetizationMode.Mock, false)) { page = 13; confirmSave = 0; confirmReset = false; } // 2026-10-10(依頼I)
-        if (page == 0 && UiKit.Button(new Rect(p.x + 24f, p.y + 62f, p.width - 48f - 168f, 34f), SaveProfile.IsTest ? "テストデータ…(今: TEST DATA)" : "テストデータ…(新規ユーザーの状態で試す)", 15f, SaveProfile.IsTest, false)) { page = 11; confirmTest = 0; testNote = ""; }
+        if (UiKit.Button(narrowHead ? new Rect(p.x + 24f + 2f * ((p.width - 64f) / 3f + 8f), p.y + 58f, (p.width - 64f) / 3f, 42f) : new Rect(p.xMax - 200f, p.y + 12f, 126f, 42f), page == 0 ? "セーブ…" : "← 一般", 17f, page != 0, false)) { page = page == 0 ? 1 : 0; confirmSave = 0; confirmReset = false; }
+        float pbw = narrowHead ? (p.width - 48f - 16f) / 3f : 146f;
+        Rect pageBtn(int k) => narrowHead ? new Rect(p.x + 24f + k * (pbw + 8f), p.y + 58f, pbw, 42f) : new Rect(p.xMax - 352f - (k == 0 ? 152f : 0f), p.y + 12f, 146f, 42f);
+        if (page == 0 && UiKit.Button(pageBtn(1), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
+        if (page == 0 && UiKit.Button(pageBtn(0), "画面の記録…", 16f, false, false)) { page = 12; confirmSave = 0; confirmReset = false; } // HUD/安全領域(2026-10-10)
+        if (page == 0 && UiKit.Button(new Rect(p.xMax - 24f - 160f, p.y + 62f + hd, 160f, 34f), "広告/課金(模擬)…", 14f, Monetization.Mode == MonetizationMode.Mock, false)) { page = 13; confirmSave = 0; confirmReset = false; } // 2026-10-10(依頼I)
+        if (page == 0 && UiKit.Button(new Rect(p.x + 24f, p.y + 62f + hd, p.width - 48f - 168f, 34f), SaveProfile.IsTest ? "テストデータ…(今: TEST DATA)" : "テストデータ…(新規ユーザーの状態で試す)", 15f, SaveProfile.IsTest, false)) { page = 11; confirmTest = 0; testNote = ""; }
         if (page != 0)
         {
             if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else if (page == 8) DrawComboPage(p); else if (page == 9) DrawFinishPage(p); else if (page == 10) DrawBossFinishPage(p); else if (page == 11) DrawTestDataPage(p); else if (page == 12) DrawScreenLogPage(p); else if (page == 13) DrawMonetizationPage(p); else DrawEndgamePage(p);
@@ -105,7 +112,7 @@ public partial class DebugPanel : MonoBehaviour
             return;
         }
 
-        float x = p.x + 24f, y = p.y + 104f, bw = (p.width - 48f - 12f) / 2f, bh = 46f;
+        float x = p.x + 24f, y = p.y + 104f + hd, bw = (p.width - 48f - 12f) / 2f, bh = 46f;
         if (UiKit.Button(new Rect(x, y, bw, bh), $"無敵: {(gm.InvincibleMode ? "ON" : "OFF")}", 18f, gm.InvincibleMode, false)) gm.DebugToggleInvincible();
         if (UiKit.Button(new Rect(x + bw + 12f, y, bw, bh), $"DEBUGモード: {(gm.DebugMode ? "ON" : "OFF")}", 18f, gm.DebugMode, false)) gm.DebugToggleDebugMode();
         y += bh + 10f;
@@ -113,8 +120,9 @@ public partial class DebugPanel : MonoBehaviour
         var view = FindFirstObjectByType<ViewModeToggle>();
         if (view != null && UiKit.Button(new Rect(x + bw + 12f, y, bw, bh), $"VIEW: {(view.PortraitActive ? "斜め上(試作)" : "通常")}", 17f, view.PortraitActive, false)) view.Toggle();
         y += bh + 6f;
-        GUI.Label(new Rect(x, y, p.width - 48f, 24f), "GAMEFEEL検証=演出を誇張して確認する開発用(プレイヤー向けの強さは設定の「発光演出」)", UiKit.Label(13f, TextAnchor.UpperLeft, false, new Color(0.8f, 0.8f, 0.85f)));
-        y += 28f;
+        { var gs = new GUIStyle(UiKit.Label(13f, TextAnchor.UpperLeft, false, new Color(0.8f, 0.8f, 0.85f))) { wordWrap = true }; // 2026-10-28: 狭い幅では折り返す(右端で切れていた)
+          string gt = "GAMEFEEL検証=演出を誇張して確認する開発用(プレイヤー向けの強さは設定の「発光演出」)"; float gh = Mathf.Max(24f, gs.CalcHeight(new GUIContent(gt), p.width - 48f));
+          GUI.Label(new Rect(x, y, p.width - 48f, gh), gt, gs); y += gh + 4f; }
 
         // 中断セーブからの再開直後の慣らし(2026-10-03、既定OFF)
         bool ease = gm.ResumeEaseSetting;

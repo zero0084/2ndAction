@@ -4824,7 +4824,15 @@ public partial class GameManager : MonoBehaviour
         float contentH = (cardsH > 0 ? cardsH + 10f * s : 0f) + (updH > 0 ? updH + 10f * s : 0f) + detH;
         float monetH = DoubleOffered ? 92f * Mathf.Min(s, 1.4f) : 0f;
         float btnH = 60f * s;
-        float needed = 24f * s + 44f * s + 112f * s + 10f * s + 96f * s + 10f * s + contentH + 12f * s + (monetH > 0f ? monetH + 6f * s : 0f) + btnH + 22f * s;
+        // 2026-10-28: 距離の下の一言(失敗の時は長い注意)は、折り返した高さの分だけ距離の枠を高くする(縦画面で2行が重なって切れていた)
+        string sub;
+        Color subC = UiTheme.TextSub;
+        if (win) sub = Loc.T("BEST") + "  " + Mathf.FloorToInt((float)GetStageBest(activeRunStageId)).ToString("N0") + " m";
+        else { sub = Loc.T("今回の距離は、正式な記録(BEST・累計距離・ステージ/キャラの解放)には残りません"); subC = new Color(1f, 0.78f, 0.6f); }
+        var subSt = new GUIStyle(UiKit.Label(15f * s, TextAnchor.MiddleCenter, false, subC)) { wordWrap = true };
+        float subH = Mathf.Max(32f * s, subSt.CalcHeight(new GUIContent(sub), pw - 68f * s - 20f * s));
+        float distH = Mathf.Max(112f * s, 76f * s + subH + 6f * s);
+        float needed = 24f * s + 44f * s + distH + 10f * s + 96f * s + 10f * s + contentH + 12f * s + (monetH > 0f ? monetH + 6f * s : 0f) + btnH + 22f * s;
         float ph = Mathf.Min(safeB - safeT, needed);
         Rect panel = new Rect((safeL + safeR - pw) * 0.5f, (safeT + safeB - ph) * 0.5f, pw, ph);
         OrnateUi.DrawPanel(panel, 0.95f);
@@ -4837,7 +4845,7 @@ public partial class GameManager : MonoBehaviour
         y += 44f * s;
 
         // ① 距離(いちばん大きく)
-        Rect dist = new Rect(x, y, w, 112f * s);
+        Rect dist = new Rect(x, y, w, distH);
         ResultBlock(dist, false);
         LocGUI.Label(new Rect(dist.x + 14f * s, dist.y + 6f * s, dist.width * 0.5f, 22f * s), "DISTANCE", UiKit.Label(15f * s, TextAnchor.MiddleLeft, false, UiTheme.TextSub));
         string distText = Mathf.FloorToInt(MaxDistance).ToString("N0") + " m";
@@ -4853,12 +4861,7 @@ public partial class GameManager : MonoBehaviour
             UiKit.Fill(nr, new Color(UiTheme.GoldBright.r, UiTheme.GoldBright.g, UiTheme.GoldBright.b, pulse));
             LocGUI.Label(nr, nb, nst);
         }
-        string sub;
-        Color subC = UiTheme.TextSub;
-        if (win) sub = Loc.T("BEST") + "  " + Mathf.FloorToInt((float)GetStageBest(activeRunStageId)).ToString("N0") + " m";
-        else { sub = Loc.T("今回の距離は、正式な記録(BEST・累計距離・ステージ/キャラの解放)には残りません"); subC = new Color(1f, 0.78f, 0.6f); }
-        var subSt = new GUIStyle(UiKit.Label(15f * s, TextAnchor.MiddleCenter, false, subC)) { wordWrap = true };
-        GUI.Label(new Rect(dist.x + 10f * s, dist.y + 76f * s, dist.width - 20f * s, 32f * s), sub, subSt);
+        GUI.Label(new Rect(dist.x + 10f * s, dist.y + 76f * s, dist.width - 20f * s, subH), sub, subSt);
         y = dist.yMax + 10f * s;
 
         // ② MILE
@@ -6664,16 +6667,29 @@ public partial class GameManager : MonoBehaviour
         if (ShowTakeHomeHud)
         {
             float sw = Mathf.Min(360f, VW - VSafeLeft - VSafeRight - UiMargin * 2f);
-            float sy = Mathf.Max(VSafeTop + UiMargin, panelRect.y - TakeHomeSummaryHeight - 10f);
+            float shh = TakeHomeSummaryHeightFor(sw); // 2026-10-28: 注意の文が折り返す幅では高くする(縦画面で枠の下の線をはみ出していた)
+            float sx = VW - VSafeRight - UiMargin - sw, sy = panelRect.y - shh - 10f;
+            // 2026-10-28: 横画面で上に置くと右上の HP の表示に重なる高さ(高さの低い横画面)では、ボタンの左に置く
+            float hpBottom = VSafeTop + UiMargin + HudPanelHeight + 8f;
+            if (!HudStacked && sy < hpBottom && panelRect.x - sw - 12f >= VSafeLeft + UiMargin) { sx = panelRect.x - sw - 12f; sy = Mathf.Max(hpBottom, panelRect.yMax - shh); }
+            sy = Mathf.Max(VSafeTop + UiMargin, sy);
             if (!HudStacked || sy >= HudLeftColumnBottom / HudK + 6f)
-                DrawTakeHomeSummary(new Rect(VW - VSafeRight - UiMargin - sw, sy, sw, TakeHomeSummaryHeight), "持ち帰り予定MILE");
+                DrawTakeHomeSummary(new Rect(sx, sy, sw, shh), "持ち帰り予定MILE");
         }
         float bw = panelRect.width - 24f, fs = 20f;
         Rect resumeRect = new Rect(panelRect.x + 12f, panelRect.y + 12f, bw, bh);
         Rect returnRect = new Rect(panelRect.x + 12f, resumeRect.yMax + gap, bw, bh);
         Rect settingsRect = new Rect(panelRect.x + 12f, returnRect.yMax + gap, bw, bh);
-        if (DrawStyledButton(settingsRect, "    設定", FitFont("    設定", bw - 70f, fs), primary: false)) SettingsPanel.OpenStatic();
-        UiKit.DrawGear(new Rect(settingsRect.x + 62f, settingsRect.y + (bh - 30f) * 0.5f, 30f, 30f), 1f, new Color(1f, 0.88f, 0.55f));
+        // 2026-10-28: 歯車と文字をひと組にして中央へ(以前は歯車を決まった位置に置き、長い訳(Einstellungen 等)で文字の頭に重なっていた)
+        float sfs = FitFont("設定", bw - 70f, fs);
+        if (DrawStyledButton(settingsRect, "", sfs, primary: false)) SettingsPanel.OpenStatic();
+        {
+            fitFontStyle.fontSize = Mathf.RoundToInt(sfs);
+            float tw = fitFontStyle.CalcSize(new GUIContent(Loc.Auto("設定"))).x, gw = 30f, gp = 10f;
+            float gx = settingsRect.center.x - (gw + gp + tw) * 0.5f;
+            UiKit.DrawGear(new Rect(gx, settingsRect.y + (bh - 30f) * 0.5f, gw, gw), 1f, new Color(1f, 0.88f, 0.55f));
+            LocGUI.Label(new Rect(gx + gw + gp, settingsRect.y, tw + 8f, bh), "設定", UiKit.Label(sfs, TextAnchor.MiddleLeft, true, Color.white));
+        }
 
         if (DrawStyledButton(resumeRect, "RESUME", FitFont("RESUME", bw - 24f, fs), primary: true))
         {

@@ -13,6 +13,7 @@ public class UguiScrollText : MonoBehaviour
     public static bool PointerCaptured { get; private set; }  // 今の指はどれかの説明文のスクロールに使われた(離すまで)
 
     RectTransform viewport, content;
+    public RectTransform Viewport => viewport; // 2026-10-28: 置き場所の調整(確認の画面の左右の余白)
     Text text;
     Image bar, track;
     string lastText; float lastWidth;
