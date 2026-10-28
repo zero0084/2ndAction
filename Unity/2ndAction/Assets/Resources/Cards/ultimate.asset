@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: ultimate
   cardName: ALMIGHTY
   icon: {fileID: 2800000, guid: a2e89463517f5d04cabfca0c093dc6fb, type: 3}
-  description: "攻撃力+3%/Lv、移動速度+2%/Lv。最大HPも増える(Lv1〜2でハート+1、以降2Lvごとに+1。Lv9で+5)"
+  description: "攻撃力+3%/Lv、移動速度+2%/Lv。最大HPも増える(Lv1〜2でハート+1、以降2Lvごとに+1。Lv9で合計+5)。取得時に最大HPが実際に増えた場合のみ、HPが全回復する"
   category: 5
   sortOrder: 162
   recommendPriority: 5

@@ -1,0 +1,8 @@
+10161	HP maxim crește cu 1 inimă per Lv (limită: 99 de inimi). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții
+10162	HP maxim crește cu 1 inimă per Lv, iar reculul la lovire scade (+5%/Lv), dar viteza de deplasare scade (-3%/Lv). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții
+10163	Reduce daunele cu 1 inimă când primești daune de 2 sau mai multe inimi. HP maxim crește și el (+1 inimă la Lv1–2, apoi +1 la fiecare 2 Lv). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții. Puterea săriturii -3%/Lv
+10164	Cât timp HP este plin, puterea de atac crește (+5%/Lv). HP maxim crește și el (+1 inimă la Lv1, 4 și 7). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții
+10165	EXP obținut +15%/Lv. HP maxim crește și el (total +1 inimă la Lv1–3, +2 la Lv4–6, +3 la Lv7–9). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții
+10166	EXP obținut +40%/Lv. HP maxim crește și el (+1 inimă la Lv1–2, apoi +1 la fiecare 2 Lv; total +5 la Lv9). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții
+10167	Puterea de atac +3%/Lv, viteza de deplasare +2%/Lv. HP maxim crește și el (+1 inimă la Lv1–2, apoi +1 la fiecare 2 Lv; total +5 la Lv9). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții
+10168	Puterea de atac crește considerabil (+9%/Lv). Sigilează inimile din HP maxim (câte 1 la Lv1, 3, 5, 7 și 9; total 5 la Lv9)

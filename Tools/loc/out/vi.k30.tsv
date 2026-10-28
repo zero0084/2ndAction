@@ -1,0 +1,8 @@
+10161	HP tối đa tăng 1 tim mỗi Lv (giới hạn: 99 tim). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ
+10162	HP tối đa tăng 1 tim mỗi Lv và giảm độ giật lùi khi trúng đòn (+5%/Lv), nhưng tốc độ di chuyển giảm (-3%/Lv). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ
+10163	Giảm sát thương đi 1 tim khi nhận sát thương từ 2 tim trở lên. HP tối đa cũng tăng (+1 tim ở Lv1–2, sau đó +1 mỗi 2 Lv). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ. Sức bật -3%/Lv
+10164	Khi HP đầy, sức tấn công tăng (+5%/Lv). HP tối đa cũng tăng (+1 tim ở Lv1, 4 và 7). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ
+10165	EXP nhận được +15%/Lv. HP tối đa cũng tăng (tổng +1 tim ở Lv1–3, +2 ở Lv4–6, +3 ở Lv7–9). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ
+10166	EXP nhận được +40%/Lv. HP tối đa cũng tăng (+1 tim ở Lv1–2, sau đó +1 mỗi 2 Lv; tổng +5 ở Lv9). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ
+10167	Sức tấn công +3%/Lv, tốc độ di chuyển +2%/Lv. HP tối đa cũng tăng (+1 tim ở Lv1–2, sau đó +1 mỗi 2 Lv; tổng +5 ở Lv9). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ
+10168	Sức tấn công tăng mạnh (+9%/Lv). Phong ấn các tim thuộc HP tối đa (mỗi lần 1 tim ở Lv1, 3, 5, 7 và 9; tổng 5 ở Lv9)

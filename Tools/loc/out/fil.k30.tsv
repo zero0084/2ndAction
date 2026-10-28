@@ -1,0 +1,8 @@
+10161	Tumataas ang maximum HP ng 1 puso bawat Lv (limitasyon: 99 puso). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card
+10162	Tumataas ang maximum HP ng 1 puso bawat Lv at nababawasan ang pag-atras kapag tinamaan (+5%/Lv), pero bumababa ang bilis ng paggalaw (-3%/Lv). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card
+10163	Binabawasan ng 1 puso ang damage kapag nakatanggap ng damage na katumbas ng 2 o higit pang puso. Tumataas din ang maximum HP (+1 puso sa Lv1–2, pagkatapos ay +1 bawat 2 Lv). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card. Lakas ng pagtalon -3%/Lv
+10164	Tumataas ang lakas ng atake habang puno ang HP (+5%/Lv). Tumataas din ang maximum HP (+1 puso sa Lv1, 4, at 7). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card
+10165	Nakukuhang EXP +15%/Lv. Tumataas din ang maximum HP (kabuuang +1 puso sa Lv1–3, +2 sa Lv4–6, +3 sa Lv7–9). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card
+10166	Nakukuhang EXP +40%/Lv. Tumataas din ang maximum HP (+1 puso sa Lv1–2, pagkatapos ay +1 bawat 2 Lv; kabuuang +5 sa Lv9). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card
+10167	Lakas ng atake +3%/Lv, bilis ng paggalaw +2%/Lv. Tumataas din ang maximum HP (+1 puso sa Lv1–2, pagkatapos ay +1 bawat 2 Lv; kabuuang +5 sa Lv9). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card
+10168	Malaking pagtaas sa lakas ng atake (+9%/Lv). Sineselyuhan ang mga puso ng maximum HP (tig-1 sa Lv1, 3, 5, 7, at 9; kabuuang 5 sa Lv9)

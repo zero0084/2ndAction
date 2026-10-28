@@ -1,0 +1,8 @@
+10161	HP maksimum meningkat sebanyak 1 hati setiap Lv (had: 99 hati). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh
+10162	HP maksimum meningkat sebanyak 1 hati setiap Lv dan kesan terundur apabila terkena serangan berkurang (+5%/Lv), tetapi kelajuan pergerakan menurun (-3%/Lv). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh
+10163	Mengurangkan kerosakan sebanyak 1 hati apabila menerima kerosakan bersamaan 2 hati atau lebih. HP maksimum juga meningkat (+1 hati pada Lv1–2, kemudian +1 setiap 2 Lv). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh. Kuasa lompatan -3%/Lv
+10164	Kuasa serangan meningkat apabila HP penuh (+5%/Lv). HP maksimum juga meningkat (+1 hati pada Lv1, 4 dan 7). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh
+10165	EXP diperoleh +15%/Lv. HP maksimum juga meningkat (jumlah +1 hati pada Lv1–3, +2 pada Lv4–6, +3 pada Lv7–9). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh
+10166	EXP diperoleh +40%/Lv. HP maksimum juga meningkat (+1 hati pada Lv1–2, kemudian +1 setiap 2 Lv; jumlah +5 pada Lv9). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh
+10167	Kuasa serangan +3%/Lv, kelajuan pergerakan +2%/Lv. HP maksimum juga meningkat (+1 hati pada Lv1–2, kemudian +1 setiap 2 Lv; jumlah +5 pada Lv9). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh
+10168	Kuasa serangan meningkat dengan ketara (+9%/Lv). Mengunci hati daripada HP maksimum (1 setiap satu pada Lv1, 3, 5, 7 dan 9; jumlah 5 pada Lv9)

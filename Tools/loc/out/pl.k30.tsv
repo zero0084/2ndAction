@@ -1,0 +1,8 @@
+10161	Maks. HP rośnie o 1 serce na każdy Lv (limit: 99 serc). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty
+10162	Maks. HP rośnie o 1 serce na każdy Lv, a odrzut po trafieniu maleje (+5%/Lv), ale prędkość ruchu spada (-3%/Lv). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty
+10163	Zmniejsza obrażenia o 1 serce, gdy otrzymane obrażenia wynoszą co najmniej 2 serca. Maks. HP też rośnie (+1 serce na Lv1–2, potem +1 co 2 Lv). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty. Siła skoku -3%/Lv
+10164	Gdy HP jest pełne, siła ataku rośnie (+5%/Lv). Maks. HP też rośnie (+1 serce na Lv1, 4 i 7). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty
+10165	Zdobywane EXP +15%/Lv. Maks. HP też rośnie (łącznie +1 serce na Lv1–3, +2 na Lv4–6, +3 na Lv7–9). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty
+10166	Zdobywane EXP +40%/Lv. Maks. HP też rośnie (+1 serce na Lv1–2, potem +1 co 2 Lv; łącznie +5 na Lv9). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty
+10167	Siła ataku +3%/Lv, prędkość ruchu +2%/Lv. Maks. HP też rośnie (+1 serce na Lv1–2, potem +1 co 2 Lv; łącznie +5 na Lv9). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty
+10168	Siła ataku znacznie rośnie (+9%/Lv). Pieczętuje serca maks. HP (po 1 na Lv1, 3, 5, 7 i 9; łącznie 5 na Lv9)

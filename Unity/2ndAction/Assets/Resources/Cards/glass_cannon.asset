@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: glass_cannon
   cardName: GLASS CANNON
   icon: {fileID: 2800000, guid: ca0b16e0e96af6b46a15bf5b1b00abcc, type: 3}
-  description: "\u653B\u6483\u529B\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+9%)\u3002\u6700\u5927HP\u306E\u30CF\u30FC\u30C8\u30922Lv\u3054\u3068\u306B1\u3064\u5C01\u5370\u3059\u308B"
+  description: "攻撃力が大きく上がる(+9%/Lv)。最大HPのハートを封印する(Lv1・3・5・7・9で1つずつ。Lv9で合計5つ)"
   category: 6
   sortOrder: 119
   recommendPriority: 1

@@ -1,0 +1,8 @@
+10161	Max HP increases by 1 heart per Lv (cap: 99 hearts). HP fully recovers only if Max HP actually increases when acquired
+10162	Max HP increases by 1 heart per Lv, and hit knockback is reduced (+5%/Lv). However, movement speed decreases (-3%/Lv). HP fully recovers only if Max HP actually increases when acquired
+10163	Reduces damage by 1 heart when taking 2 or more hearts of damage. Max HP also increases (+1 heart at Lv1–2, then +1 every 2 Lv). HP fully recovers only if Max HP actually increases when acquired. Jump power -3%/Lv
+10164	Attack power increases while HP is full (+5%/Lv). Max HP also increases (+1 heart at Lv1, 4, and 7). HP fully recovers only if Max HP actually increases when acquired
+10165	EXP gained +15%/Lv. Max HP also increases (total +1 heart at Lv1–3, total +2 at Lv4–6, total +3 at Lv7–9). HP fully recovers only if Max HP actually increases when acquired
+10166	EXP gained +40%/Lv. Max HP also increases (+1 heart at Lv1–2, then +1 every 2 Lv; total +5 at Lv9). HP fully recovers only if Max HP actually increases when acquired
+10167	Attack power +3%/Lv, movement speed +2%/Lv. Max HP also increases (+1 heart at Lv1–2, then +1 every 2 Lv; total +5 at Lv9). HP fully recovers only if Max HP actually increases when acquired
+10168	Attack power increases greatly (+9%/Lv). Seals Max HP hearts (1 each at Lv1, 3, 5, 7, and 9; total 5 at Lv9)

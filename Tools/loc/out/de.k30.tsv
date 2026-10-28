@@ -1,0 +1,8 @@
+10161	Max. HP steigen um 1 Herz pro Lv (Limit: 99 Herzen). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen
+10162	Max. HP steigen um 1 Herz pro Lv und der Rückstoß bei Treffern wird verringert (+5%/Lv). Dafür sinkt das Bewegungstempo (-3%/Lv). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen
+10163	Bei Schaden von 2 oder mehr Herzen wird der Schaden um 1 Herz reduziert. Max. HP steigen ebenfalls (+1 Herz bei Lv1–2, danach +1 alle 2 Lv). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen. Sprungkraft -3%/Lv
+10164	Bei vollen HP steigt die Angriffskraft (+5%/Lv). Max. HP steigen ebenfalls (+1 Herz bei Lv1, 4 und 7). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen
+10165	Erhaltene EXP +15%/Lv. Max. HP steigen ebenfalls (insgesamt +1 Herz bei Lv1–3, +2 bei Lv4–6, +3 bei Lv7–9). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen
+10166	Erhaltene EXP +40%/Lv. Max. HP steigen ebenfalls (+1 Herz bei Lv1–2, danach +1 alle 2 Lv; insgesamt +5 bei Lv9). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen
+10167	Angriffskraft +3%/Lv, Bewegungstempo +2%/Lv. Max. HP steigen ebenfalls (+1 Herz bei Lv1–2, danach +1 alle 2 Lv; insgesamt +5 bei Lv9). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen
+10168	Angriffskraft steigt stark (+9%/Lv). Herzen der max. HP werden versiegelt (je 1 bei Lv1, 3, 5, 7 und 9; insgesamt 5 bei Lv9)

@@ -1,0 +1,8 @@
+10161	Max. HP se zvyšuje o 1 srdce za každý Lv (limit: 99 srdcí). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší
+10162	Max. HP se zvyšuje o 1 srdce za každý Lv a odhození při zásahu se snižuje (+5%/Lv), ale rychlost pohybu klesá (-3%/Lv). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší
+10163	Při obdržení poškození za 2 nebo více srdcí se poškození sníží o 1 srdce. Max. HP se také zvyšuje (+1 srdce na Lv1–2, poté +1 každé 2 Lv). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší. Síla skoku -3%/Lv
+10164	Při plném HP se zvyšuje síla útoku (+5%/Lv). Max. HP se také zvyšuje (+1 srdce na Lv1, 4 a 7). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší
+10165	Získané EXP +15%/Lv. Max. HP se také zvyšuje (celkem +1 srdce na Lv1–3, +2 na Lv4–6, +3 na Lv7–9). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší
+10166	Získané EXP +40%/Lv. Max. HP se také zvyšuje (+1 srdce na Lv1–2, poté +1 každé 2 Lv; celkem +5 na Lv9). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší
+10167	Síla útoku +3%/Lv, rychlost pohybu +2%/Lv. Max. HP se také zvyšuje (+1 srdce na Lv1–2, poté +1 každé 2 Lv; celkem +5 na Lv9). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší
+10168	Síla útoku se výrazně zvyšuje (+9%/Lv). Zapečeťuje srdce max. HP (po 1 na Lv1, 3, 5, 7 a 9; celkem 5 na Lv9)

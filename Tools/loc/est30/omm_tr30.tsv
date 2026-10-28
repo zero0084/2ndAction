@@ -1,0 +1,232 @@
+en	10161	Max HP increases by 1 heart per Lv (cap: 99 hearts). HP fully recovers only if Max HP actually increases when acquired
+en	10162	Max HP increases by 1 heart per Lv, and hit knockback is reduced (+5%/Lv). However, movement speed decreases (-3%/Lv). HP fully recovers only if Max HP actually increases when acquired
+en	10163	Reduces damage by 1 heart when taking 2 or more hearts of damage. Max HP also increases (+1 heart at Lv1–2, then +1 every 2 Lv). HP fully recovers only if Max HP actually increases when acquired. Jump power -3%/Lv
+en	10164	Attack power increases while HP is full (+5%/Lv). Max HP also increases (+1 heart at Lv1, 4, and 7). HP fully recovers only if Max HP actually increases when acquired
+en	10165	EXP gained +15%/Lv. Max HP also increases (total +1 heart at Lv1–3, total +2 at Lv4–6, total +3 at Lv7–9). HP fully recovers only if Max HP actually increases when acquired
+en	10166	EXP gained +40%/Lv. Max HP also increases (+1 heart at Lv1–2, then +1 every 2 Lv; total +5 at Lv9). HP fully recovers only if Max HP actually increases when acquired
+en	10167	Attack power +3%/Lv, movement speed +2%/Lv. Max HP also increases (+1 heart at Lv1–2, then +1 every 2 Lv; total +5 at Lv9). HP fully recovers only if Max HP actually increases when acquired
+en	10168	Attack power increases greatly (+9%/Lv). Seals Max HP hearts (1 each at Lv1, 3, 5, 7, and 9; total 5 at Lv9)
+de	10161	Max. HP steigen um 1 Herz pro Lv (Limit: 99 Herzen). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen
+de	10162	Max. HP steigen um 1 Herz pro Lv und der Rückstoß bei Treffern wird verringert (+5%/Lv). Dafür sinkt das Bewegungstempo (-3%/Lv). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen
+de	10163	Bei Schaden von 2 oder mehr Herzen wird der Schaden um 1 Herz reduziert. Max. HP steigen ebenfalls (+1 Herz bei Lv1–2, danach +1 alle 2 Lv). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen. Sprungkraft -3%/Lv
+de	10164	Bei vollen HP steigt die Angriffskraft (+5%/Lv). Max. HP steigen ebenfalls (+1 Herz bei Lv1, 4 und 7). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen
+de	10165	Erhaltene EXP +15%/Lv. Max. HP steigen ebenfalls (insgesamt +1 Herz bei Lv1–3, +2 bei Lv4–6, +3 bei Lv7–9). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen
+de	10166	Erhaltene EXP +40%/Lv. Max. HP steigen ebenfalls (+1 Herz bei Lv1–2, danach +1 alle 2 Lv; insgesamt +5 bei Lv9). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen
+de	10167	Angriffskraft +3%/Lv, Bewegungstempo +2%/Lv. Max. HP steigen ebenfalls (+1 Herz bei Lv1–2, danach +1 alle 2 Lv; insgesamt +5 bei Lv9). HP werden nur vollständig geheilt, wenn sich die max. HP beim Erhalt tatsächlich erhöhen
+de	10168	Angriffskraft steigt stark (+9%/Lv). Herzen der max. HP werden versiegelt (je 1 bei Lv1, 3, 5, 7 und 9; insgesamt 5 bei Lv9)
+es	10161	El HP máximo aumenta 1 corazón por Lv (límite: 99 corazones). El HP solo se recupera por completo si el HP máximo aumenta realmente al obtener la carta
+es	10162	El HP máximo aumenta 1 corazón por Lv y se reduce el retroceso al recibir golpes (+5%/Lv), pero baja la velocidad de movimiento (-3%/Lv). El HP solo se recupera por completo si el HP máximo aumenta realmente al obtener la carta
+es	10163	Reduce el daño en 1 corazón al recibir 2 o más corazones de daño. El HP máximo también aumenta (+1 corazón en Lv1–2 y luego +1 cada 2 Lv). El HP solo se recupera por completo si el HP máximo aumenta realmente al obtener la carta. Potencia de salto -3%/Lv
+es	10164	El ataque aumenta mientras el HP está al máximo (+5%/Lv). El HP máximo también aumenta (+1 corazón en Lv1, 4 y 7). El HP solo se recupera por completo si el HP máximo aumenta realmente al obtener la carta
+es	10165	EXP obtenida +15%/Lv. El HP máximo también aumenta (total +1 corazón en Lv1–3, +2 en Lv4–6 y +3 en Lv7–9). El HP solo se recupera por completo si el HP máximo aumenta realmente al obtener la carta
+es	10166	EXP obtenida +40%/Lv. El HP máximo también aumenta (+1 corazón en Lv1–2 y luego +1 cada 2 Lv; total +5 en Lv9). El HP solo se recupera por completo si el HP máximo aumenta realmente al obtener la carta
+es	10167	Ataque +3%/Lv, velocidad de movimiento +2%/Lv. El HP máximo también aumenta (+1 corazón en Lv1–2 y luego +1 cada 2 Lv; total +5 en Lv9). El HP solo se recupera por completo si el HP máximo aumenta realmente al obtener la carta
+es	10168	El ataque aumenta mucho (+9%/Lv). Sella corazones del HP máximo (1 en cada uno de los Lv1, 3, 5, 7 y 9; total 5 en Lv9)
+fr	10161	Les HP max augmentent de 1 cœur par Lv (limite : 99 cœurs). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention
+fr	10162	Les HP max augmentent de 1 cœur par Lv et le recul subi diminue (+5%/Lv), mais la vitesse de déplacement baisse (-3%/Lv). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention
+fr	10163	Réduit les dégâts de 1 cœur lorsqu'une attaque inflige au moins 2 cœurs de dégâts. Les HP max augmentent aussi (+1 cœur aux Lv1–2, puis +1 tous les 2 Lv). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention. Puissance de saut -3%/Lv
+fr	10164	La puissance d'attaque augmente tant que les HP sont au maximum (+5%/Lv). Les HP max augmentent aussi (+1 cœur aux Lv1, 4 et 7). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention
+fr	10165	EXP gagnée +15%/Lv. Les HP max augmentent aussi (total +1 cœur aux Lv1–3, +2 aux Lv4–6, +3 aux Lv7–9). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention
+fr	10166	EXP gagnée +40%/Lv. Les HP max augmentent aussi (+1 cœur aux Lv1–2, puis +1 tous les 2 Lv ; total +5 au Lv9). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention
+fr	10167	Puissance d'attaque +3%/Lv, vitesse de déplacement +2%/Lv. Les HP max augmentent aussi (+1 cœur aux Lv1–2, puis +1 tous les 2 Lv ; total +5 au Lv9). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention
+fr	10168	La puissance d'attaque augmente fortement (+9%/Lv). Scelle des cœurs des HP max (1 aux Lv1, 3, 5, 7 et 9 ; total 5 au Lv9)
+it	10161	Gli HP massimi aumentano di 1 cuore per Lv (limite: 99 cuori). Gli HP si ripristinano completamente solo se gli HP massimi aumentano effettivamente all'ottenimento
+it	10162	Gli HP massimi aumentano di 1 cuore per Lv e il rinculo subito diminuisce (+5%/Lv), ma la velocità di movimento cala (-3%/Lv). Gli HP si ripristinano completamente solo se gli HP massimi aumentano effettivamente all'ottenimento
+it	10163	Riduce i danni di 1 cuore quando si subiscono almeno 2 cuori di danno. Aumentano anche gli HP massimi (+1 cuore a Lv1–2, poi +1 ogni 2 Lv). Gli HP si ripristinano completamente solo se gli HP massimi aumentano effettivamente all'ottenimento. Potenza di salto -3%/Lv
+it	10164	L'attacco aumenta quando gli HP sono al massimo (+5%/Lv). Aumentano anche gli HP massimi (+1 cuore a Lv1, 4 e 7). Gli HP si ripristinano completamente solo se gli HP massimi aumentano effettivamente all'ottenimento
+it	10165	EXP ottenuta +15%/Lv. Aumentano anche gli HP massimi (totale +1 cuore a Lv1–3, +2 a Lv4–6, +3 a Lv7–9). Gli HP si ripristinano completamente solo se gli HP massimi aumentano effettivamente all'ottenimento
+it	10166	EXP ottenuta +40%/Lv. Aumentano anche gli HP massimi (+1 cuore a Lv1–2, poi +1 ogni 2 Lv; totale +5 a Lv9). Gli HP si ripristinano completamente solo se gli HP massimi aumentano effettivamente all'ottenimento
+it	10167	Attacco +3%/Lv, velocità di movimento +2%/Lv. Aumentano anche gli HP massimi (+1 cuore a Lv1–2, poi +1 ogni 2 Lv; totale +5 a Lv9). Gli HP si ripristinano completamente solo se gli HP massimi aumentano effettivamente all'ottenimento
+it	10168	L'attacco aumenta notevolmente (+9%/Lv). Sigilla cuori degli HP massimi (1 ciascuno a Lv1, 3, 5, 7 e 9; totale 5 a Lv9)
+pt-BR	10161	O HP máximo aumenta 1 coração por Lv (limite: 99 corações). O HP só é restaurado por completo se o HP máximo realmente aumentar ao obter a carta
+pt-BR	10162	O HP máximo aumenta 1 coração por Lv e o recuo ao sofrer golpes diminui (+5%/Lv), mas a velocidade de movimento cai (-3%/Lv). O HP só é restaurado por completo se o HP máximo realmente aumentar ao obter a carta
+pt-BR	10163	Reduz o dano em 1 coração ao receber 2 ou mais corações de dano. O HP máximo também aumenta (+1 coração em Lv1–2, depois +1 a cada 2 Lv). O HP só é restaurado por completo se o HP máximo realmente aumentar ao obter a carta. Força do salto -3%/Lv
+pt-BR	10164	O ataque aumenta enquanto o HP está cheio (+5%/Lv). O HP máximo também aumenta (+1 coração em Lv1, 4 e 7). O HP só é restaurado por completo se o HP máximo realmente aumentar ao obter a carta
+pt-BR	10165	EXP obtida +15%/Lv. O HP máximo também aumenta (total de +1 coração em Lv1–3, +2 em Lv4–6, +3 em Lv7–9). O HP só é restaurado por completo se o HP máximo realmente aumentar ao obter a carta
+pt-BR	10166	EXP obtida +40%/Lv. O HP máximo também aumenta (+1 coração em Lv1–2, depois +1 a cada 2 Lv; total de +5 em Lv9). O HP só é restaurado por completo se o HP máximo realmente aumentar ao obter a carta
+pt-BR	10167	Ataque +3%/Lv, velocidade de movimento +2%/Lv. O HP máximo também aumenta (+1 coração em Lv1–2, depois +1 a cada 2 Lv; total de +5 em Lv9). O HP só é restaurado por completo se o HP máximo realmente aumentar ao obter a carta
+pt-BR	10168	O ataque aumenta bastante (+9%/Lv). Sela corações do HP máximo (1 em cada um dos Lv1, 3, 5, 7 e 9; total de 5 em Lv9)
+ru	10161	Макс. HP увеличивается на 1 сердце за каждый Lv (предел: 99 сердец). HP полностью восстанавливается, только если макс. HP действительно увеличился при получении карты
+ru	10162	Макс. HP увеличивается на 1 сердце за каждый Lv, а отбрасывание при получении урона уменьшается (+5%/Lv), но скорость передвижения снижается (-3%/Lv). HP полностью восстанавливается, только если макс. HP действительно увеличился при получении карты
+ru	10163	При получении урона в 2 сердца или больше урон уменьшается на 1 сердце. Макс. HP также увеличивается (+1 сердце на Lv1–2, затем +1 каждые 2 Lv). HP полностью восстанавливается, только если макс. HP действительно увеличился при получении карты. Сила прыжка -3%/Lv
+ru	10164	При полном HP сила атаки увеличивается (+5%/Lv). Макс. HP также увеличивается (+1 сердце на Lv1, 4 и 7). HP полностью восстанавливается, только если макс. HP действительно увеличился при получении карты
+ru	10165	Получаемый EXP +15%/Lv. Макс. HP также увеличивается (всего +1 сердце на Lv1–3, +2 на Lv4–6, +3 на Lv7–9). HP полностью восстанавливается, только если макс. HP действительно увеличился при получении карты
+ru	10166	Получаемый EXP +40%/Lv. Макс. HP также увеличивается (+1 сердце на Lv1–2, затем +1 каждые 2 Lv; всего +5 на Lv9). HP полностью восстанавливается, только если макс. HP действительно увеличился при получении карты
+ru	10167	Сила атаки +3%/Lv, скорость передвижения +2%/Lv. Макс. HP также увеличивается (+1 сердце на Lv1–2, затем +1 каждые 2 Lv; всего +5 на Lv9). HP полностью восстанавливается, только если макс. HP действительно увеличился при получении карты
+ru	10168	Сила атаки значительно увеличивается (+9%/Lv). Запечатывает сердца макс. HP (по 1 на Lv1, 3, 5, 7 и 9; всего 5 на Lv9)
+pl	10161	Maks. HP rośnie o 1 serce na każdy Lv (limit: 99 serc). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty
+pl	10162	Maks. HP rośnie o 1 serce na każdy Lv, a odrzut po trafieniu maleje (+5%/Lv), ale prędkość ruchu spada (-3%/Lv). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty
+pl	10163	Zmniejsza obrażenia o 1 serce, gdy otrzymane obrażenia wynoszą co najmniej 2 serca. Maks. HP też rośnie (+1 serce na Lv1–2, potem +1 co 2 Lv). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty. Siła skoku -3%/Lv
+pl	10164	Gdy HP jest pełne, siła ataku rośnie (+5%/Lv). Maks. HP też rośnie (+1 serce na Lv1, 4 i 7). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty
+pl	10165	Zdobywane EXP +15%/Lv. Maks. HP też rośnie (łącznie +1 serce na Lv1–3, +2 na Lv4–6, +3 na Lv7–9). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty
+pl	10166	Zdobywane EXP +40%/Lv. Maks. HP też rośnie (+1 serce na Lv1–2, potem +1 co 2 Lv; łącznie +5 na Lv9). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty
+pl	10167	Siła ataku +3%/Lv, prędkość ruchu +2%/Lv. Maks. HP też rośnie (+1 serce na Lv1–2, potem +1 co 2 Lv; łącznie +5 na Lv9). HP odnawia się w pełni tylko wtedy, gdy maks. HP faktycznie wzrośnie po zdobyciu karty
+pl	10168	Siła ataku znacznie rośnie (+9%/Lv). Pieczętuje serca maks. HP (po 1 na Lv1, 3, 5, 7 i 9; łącznie 5 na Lv9)
+cs	10161	Max. HP se zvyšuje o 1 srdce za každý Lv (limit: 99 srdcí). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší
+cs	10162	Max. HP se zvyšuje o 1 srdce za každý Lv a odhození při zásahu se snižuje (+5%/Lv), ale rychlost pohybu klesá (-3%/Lv). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší
+cs	10163	Při obdržení poškození za 2 nebo více srdcí se poškození sníží o 1 srdce. Max. HP se také zvyšuje (+1 srdce na Lv1–2, poté +1 každé 2 Lv). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší. Síla skoku -3%/Lv
+cs	10164	Při plném HP se zvyšuje síla útoku (+5%/Lv). Max. HP se také zvyšuje (+1 srdce na Lv1, 4 a 7). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší
+cs	10165	Získané EXP +15%/Lv. Max. HP se také zvyšuje (celkem +1 srdce na Lv1–3, +2 na Lv4–6, +3 na Lv7–9). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší
+cs	10166	Získané EXP +40%/Lv. Max. HP se také zvyšuje (+1 srdce na Lv1–2, poté +1 každé 2 Lv; celkem +5 na Lv9). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší
+cs	10167	Síla útoku +3%/Lv, rychlost pohybu +2%/Lv. Max. HP se také zvyšuje (+1 srdce na Lv1–2, poté +1 každé 2 Lv; celkem +5 na Lv9). HP se plně obnoví pouze tehdy, když se max. HP při získání karty skutečně zvýší
+cs	10168	Síla útoku se výrazně zvyšuje (+9%/Lv). Zapečeťuje srdce max. HP (po 1 na Lv1, 3, 5, 7 a 9; celkem 5 na Lv9)
+ro	10161	HP maxim crește cu 1 inimă per Lv (limită: 99 de inimi). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții
+ro	10162	HP maxim crește cu 1 inimă per Lv, iar reculul la lovire scade (+5%/Lv), dar viteza de deplasare scade (-3%/Lv). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții
+ro	10163	Reduce daunele cu 1 inimă când primești daune de 2 sau mai multe inimi. HP maxim crește și el (+1 inimă la Lv1–2, apoi +1 la fiecare 2 Lv). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții. Puterea săriturii -3%/Lv
+ro	10164	Cât timp HP este plin, puterea de atac crește (+5%/Lv). HP maxim crește și el (+1 inimă la Lv1, 4 și 7). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții
+ro	10165	EXP obținut +15%/Lv. HP maxim crește și el (total +1 inimă la Lv1–3, +2 la Lv4–6, +3 la Lv7–9). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții
+ro	10166	EXP obținut +40%/Lv. HP maxim crește și el (+1 inimă la Lv1–2, apoi +1 la fiecare 2 Lv; total +5 la Lv9). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții
+ro	10167	Puterea de atac +3%/Lv, viteza de deplasare +2%/Lv. HP maxim crește și el (+1 inimă la Lv1–2, apoi +1 la fiecare 2 Lv; total +5 la Lv9). HP se reface complet doar dacă HP maxim crește efectiv la obținerea cărții
+ro	10168	Puterea de atac crește considerabil (+9%/Lv). Sigilează inimile din HP maxim (câte 1 la Lv1, 3, 5, 7 și 9; total 5 la Lv9)
+uk	10161	Макс. HP збільшується на 1 серце за кожен Lv (межа: 99 сердець). HP повністю відновлюється лише тоді, коли макс. HP справді збільшується при отриманні карти
+uk	10162	Макс. HP збільшується на 1 серце за кожен Lv, а відкидання при отриманні удару зменшується (+5%/Lv), але швидкість руху знижується (-3%/Lv). HP повністю відновлюється лише тоді, коли макс. HP справді збільшується при отриманні карти
+uk	10163	Якщо отримано шкоду в 2 серця або більше, шкода зменшується на 1 серце. Макс. HP також збільшується (+1 серце на Lv1–2, потім +1 кожні 2 Lv). HP повністю відновлюється лише тоді, коли макс. HP справді збільшується при отриманні карти. Сила стрибка -3%/Lv
+uk	10164	За повного HP сила атаки збільшується (+5%/Lv). Макс. HP також збільшується (+1 серце на Lv1, 4 і 7). HP повністю відновлюється лише тоді, коли макс. HP справді збільшується при отриманні карти
+uk	10165	Отримуваний EXP +15%/Lv. Макс. HP також збільшується (загалом +1 серце на Lv1–3, +2 на Lv4–6, +3 на Lv7–9). HP повністю відновлюється лише тоді, коли макс. HP справді збільшується при отриманні карти
+uk	10166	Отримуваний EXP +40%/Lv. Макс. HP також збільшується (+1 серце на Lv1–2, потім +1 кожні 2 Lv; загалом +5 на Lv9). HP повністю відновлюється лише тоді, коли макс. HP справді збільшується при отриманні карти
+uk	10167	Сила атаки +3%/Lv, швидкість руху +2%/Lv. Макс. HP також збільшується (+1 серце на Lv1–2, потім +1 кожні 2 Lv; загалом +5 на Lv9). HP повністю відновлюється лише тоді, коли макс. HP справді збільшується при отриманні карти
+uk	10168	Сила атаки значно збільшується (+9%/Lv). Запечатує серця макс. HP (по 1 на Lv1, 3, 5, 7 і 9; загалом 5 на Lv9)
+tr	10161	Maks. HP her Lv için 1 kalp artar (sınır: 99 kalp). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir
+tr	10162	Maks. HP her Lv için 1 kalp artar ve darbe alınca geri savrulma azalır (+5%/Lv), ancak hareket hızı düşer (-3%/Lv). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir
+tr	10163	2 veya daha fazla kalplik hasar alındığında hasarı 1 kalp azaltır. Maks. HP de artar (Lv1–2'de +1 kalp, ardından her 2 Lv'de +1). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir. Zıplama gücü -3%/Lv
+tr	10164	HP doluyken saldırı gücü artar (+5%/Lv). Maks. HP de artar (Lv1, 4 ve 7'de +1 kalp). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir
+tr	10165	Kazanılan EXP +15%/Lv. Maks. HP de artar (Lv1–3'te toplam +1 kalp, Lv4–6'da toplam +2, Lv7–9'da toplam +3). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir
+tr	10166	Kazanılan EXP +40%/Lv. Maks. HP de artar (Lv1–2'de +1 kalp, ardından her 2 Lv'de +1; Lv9'da toplam +5). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir
+tr	10167	Saldırı gücü +3%/Lv, hareket hızı +2%/Lv. Maks. HP de artar (Lv1–2'de +1 kalp, ardından her 2 Lv'de +1; Lv9'da toplam +5). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir
+tr	10168	Saldırı gücü büyük ölçüde artar (+9%/Lv). Maks. HP kalplerini mühürler (Lv1, 3, 5, 7 ve 9'da birer tane; Lv9'da toplam 5)
+ar	10161	يزداد الحد الأقصى لـ HP بمقدار قلب واحد لكل Lv (الحد: 99 قلبًا). يُستعاد HP بالكامل فقط إذا زاد الحد الأقصى لـ HP فعليًا عند الحصول على البطاقة
+ar	10162	يزداد الحد الأقصى لـ HP بمقدار قلب واحد لكل Lv، ويقل الارتداد عند تلقي الضربات (+5%/Lv)، لكن سرعة الحركة تنخفض (-3%/Lv). يُستعاد HP بالكامل فقط إذا زاد الحد الأقصى لـ HP فعليًا عند الحصول على البطاقة
+ar	10163	يقلل الضرر بمقدار قلب واحد عند تلقي ضرر يعادل قلبين أو أكثر. يزداد الحد الأقصى لـ HP أيضًا (+1 قلب عند Lv1–2، ثم +1 كل 2 Lv). يُستعاد HP بالكامل فقط إذا زاد الحد الأقصى لـ HP فعليًا عند الحصول على البطاقة. قوة القفز -3%/Lv
+ar	10164	تزداد قوة الهجوم عندما يكون HP ممتلئًا (+5%/Lv). يزداد الحد الأقصى لـ HP أيضًا (+1 قلب عند Lv1 و4 و7). يُستعاد HP بالكامل فقط إذا زاد الحد الأقصى لـ HP فعليًا عند الحصول على البطاقة
+ar	10165	مقدار EXP المكتسب +15%/Lv. يزداد الحد الأقصى لـ HP أيضًا (إجمالي +1 قلب عند Lv1–3، و+2 عند Lv4–6، و+3 عند Lv7–9). يُستعاد HP بالكامل فقط إذا زاد الحد الأقصى لـ HP فعليًا عند الحصول على البطاقة
+ar	10166	مقدار EXP المكتسب +40%/Lv. يزداد الحد الأقصى لـ HP أيضًا (+1 قلب عند Lv1–2، ثم +1 كل 2 Lv؛ الإجمالي +5 عند Lv9). يُستعاد HP بالكامل فقط إذا زاد الحد الأقصى لـ HP فعليًا عند الحصول على البطاقة
+ar	10167	قوة الهجوم +3%/Lv، وسرعة الحركة +2%/Lv. يزداد الحد الأقصى لـ HP أيضًا (+1 قلب عند Lv1–2، ثم +1 كل 2 Lv؛ الإجمالي +5 عند Lv9). يُستعاد HP بالكامل فقط إذا زاد الحد الأقصى لـ HP فعليًا عند الحصول على البطاقة
+ar	10168	تزداد قوة الهجوم بشكل كبير (+9%/Lv). يختم قلوب الحد الأقصى لـ HP (قلب واحد عند كل من Lv1 و3 و5 و7 و9؛ الإجمالي 5 عند Lv9)
+fa	10161	حداکثر HP به‌ازای هر Lv به‌اندازه 1 قلب افزایش می‌یابد (سقف: 99 قلب). HP فقط زمانی کاملاً بازیابی می‌شود که حداکثر HP هنگام دریافت کارت واقعاً افزایش یابد
+fa	10162	حداکثر HP به‌ازای هر Lv به‌اندازه 1 قلب افزایش می‌یابد و عقب‌رانده‌شدن هنگام ضربه‌خوردن کاهش می‌یابد (+5%/Lv)، اما سرعت حرکت کم می‌شود (-3%/Lv). HP فقط زمانی کاملاً بازیابی می‌شود که حداکثر HP هنگام دریافت کارت واقعاً افزایش یابد
+fa	10163	هنگام دریافت آسیب معادل 2 قلب یا بیشتر، آسیب را به‌اندازه 1 قلب کاهش می‌دهد. حداکثر HP نیز افزایش می‌یابد (+1 قلب در Lv1–2، سپس +1 در هر 2 Lv). HP فقط زمانی کاملاً بازیابی می‌شود که حداکثر HP هنگام دریافت کارت واقعاً افزایش یابد. قدرت پرش -3%/Lv
+fa	10164	وقتی HP کامل است، قدرت حمله افزایش می‌یابد (+5%/Lv). حداکثر HP نیز افزایش می‌یابد (+1 قلب در Lv1، 4 و 7). HP فقط زمانی کاملاً بازیابی می‌شود که حداکثر HP هنگام دریافت کارت واقعاً افزایش یابد
+fa	10165	EXP دریافتی +15%/Lv. حداکثر HP نیز افزایش می‌یابد (مجموعاً +1 قلب در Lv1–3، +2 در Lv4–6 و +3 در Lv7–9). HP فقط زمانی کاملاً بازیابی می‌شود که حداکثر HP هنگام دریافت کارت واقعاً افزایش یابد
+fa	10166	EXP دریافتی +40%/Lv. حداکثر HP نیز افزایش می‌یابد (+1 قلب در Lv1–2، سپس +1 در هر 2 Lv؛ مجموعاً +5 در Lv9). HP فقط زمانی کاملاً بازیابی می‌شود که حداکثر HP هنگام دریافت کارت واقعاً افزایش یابد
+fa	10167	قدرت حمله +3%/Lv، سرعت حرکت +2%/Lv. حداکثر HP نیز افزایش می‌یابد (+1 قلب در Lv1–2، سپس +1 در هر 2 Lv؛ مجموعاً +5 در Lv9). HP فقط زمانی کاملاً بازیابی می‌شود که حداکثر HP هنگام دریافت کارت واقعاً افزایش یابد
+fa	10168	قدرت حمله به‌شدت افزایش می‌یابد (+9%/Lv). قلب‌های حداکثر HP را مهروموم می‌کند (هر بار 1 قلب در Lv1، 3، 5، 7 و 9؛ مجموعاً 5 در Lv9)
+hi	10161	अधिकतम HP हर Lv पर 1 दिल बढ़ता है (सीमा: 99 दिल)। कार्ड प्राप्त करने पर अधिकतम HP वास्तव में बढ़ने पर ही HP पूरी तरह बहाल होता है
+hi	10162	अधिकतम HP हर Lv पर 1 दिल बढ़ता है और चोट लगने पर पीछे धकेले जाने का असर घटता है (+5%/Lv), लेकिन चलने की गति घटती है (-3%/Lv)। कार्ड प्राप्त करने पर अधिकतम HP वास्तव में बढ़ने पर ही HP पूरी तरह बहाल होता है
+hi	10163	2 या अधिक दिलों के बराबर नुकसान होने पर नुकसान 1 दिल कम करता है। अधिकतम HP भी बढ़ता है (Lv1–2 पर +1 दिल, फिर हर 2 Lv पर +1)। कार्ड प्राप्त करने पर अधिकतम HP वास्तव में बढ़ने पर ही HP पूरी तरह बहाल होता है। छलांग की शक्ति -3%/Lv
+hi	10164	HP पूरा होने पर हमले की शक्ति बढ़ती है (+5%/Lv)। अधिकतम HP भी बढ़ता है (Lv1, 4 और 7 पर +1 दिल)। कार्ड प्राप्त करने पर अधिकतम HP वास्तव में बढ़ने पर ही HP पूरी तरह बहाल होता है
+hi	10165	प्राप्त EXP +15%/Lv। अधिकतम HP भी बढ़ता है (Lv1–3 पर कुल +1 दिल, Lv4–6 पर कुल +2, Lv7–9 पर कुल +3)। कार्ड प्राप्त करने पर अधिकतम HP वास्तव में बढ़ने पर ही HP पूरी तरह बहाल होता है
+hi	10166	प्राप्त EXP +40%/Lv। अधिकतम HP भी बढ़ता है (Lv1–2 पर +1 दिल, फिर हर 2 Lv पर +1; Lv9 पर कुल +5)। कार्ड प्राप्त करने पर अधिकतम HP वास्तव में बढ़ने पर ही HP पूरी तरह बहाल होता है
+hi	10167	हमले की शक्ति +3%/Lv, चलने की गति +2%/Lv। अधिकतम HP भी बढ़ता है (Lv1–2 पर +1 दिल, फिर हर 2 Lv पर +1; Lv9 पर कुल +5)। कार्ड प्राप्त करने पर अधिकतम HP वास्तव में बढ़ने पर ही HP पूरी तरह बहाल होता है
+hi	10168	हमले की शक्ति बहुत बढ़ती है (+9%/Lv)। अधिकतम HP के दिलों को सील करता है (Lv1, 3, 5, 7 और 9 पर 1-1; Lv9 पर कुल 5)
+bn	10161	সর্বোচ্চ HP প্রতি Lv-এ 1টি হার্ট বাড়ে (সীমা: 99টি হার্ট)। কার্ড পাওয়ার সময় সর্বোচ্চ HP সত্যিই বাড়লেই কেবল HP সম্পূর্ণ পুনরুদ্ধার হয়
+bn	10162	সর্বোচ্চ HP প্রতি Lv-এ 1টি হার্ট বাড়ে এবং আঘাতে পিছিয়ে যাওয়ার প্রভাব কমে (+5%/Lv), তবে চলার গতি কমে (-3%/Lv)। কার্ড পাওয়ার সময় সর্বোচ্চ HP সত্যিই বাড়লেই কেবল HP সম্পূর্ণ পুনরুদ্ধার হয়
+bn	10163	2টি বা তার বেশি হার্টের সমান ক্ষতি পেলে ক্ষতি 1টি হার্ট কমায়। সর্বোচ্চ HP-ও বাড়ে (Lv1–2-এ +1টি হার্ট, এরপর প্রতি 2 Lv-এ +1)। কার্ড পাওয়ার সময় সর্বোচ্চ HP সত্যিই বাড়লেই কেবল HP সম্পূর্ণ পুনরুদ্ধার হয়। লাফের শক্তি -3%/Lv
+bn	10164	HP পূর্ণ থাকলে আক্রমণ শক্তি বাড়ে (+5%/Lv)। সর্বোচ্চ HP-ও বাড়ে (Lv1, 4 ও 7-এ +1টি হার্ট)। কার্ড পাওয়ার সময় সর্বোচ্চ HP সত্যিই বাড়লেই কেবল HP সম্পূর্ণ পুনরুদ্ধার হয়
+bn	10165	অর্জিত EXP +15%/Lv। সর্বোচ্চ HP-ও বাড়ে (Lv1–3-এ মোট +1টি হার্ট, Lv4–6-এ মোট +2, Lv7–9-এ মোট +3)। কার্ড পাওয়ার সময় সর্বোচ্চ HP সত্যিই বাড়লেই কেবল HP সম্পূর্ণ পুনরুদ্ধার হয়
+bn	10166	অর্জিত EXP +40%/Lv। সর্বোচ্চ HP-ও বাড়ে (Lv1–2-এ +1টি হার্ট, এরপর প্রতি 2 Lv-এ +1; Lv9-এ মোট +5)। কার্ড পাওয়ার সময় সর্বোচ্চ HP সত্যিই বাড়লেই কেবল HP সম্পূর্ণ পুনরুদ্ধার হয়
+bn	10167	আক্রমণ শক্তি +3%/Lv, চলার গতি +2%/Lv। সর্বোচ্চ HP-ও বাড়ে (Lv1–2-এ +1টি হার্ট, এরপর প্রতি 2 Lv-এ +1; Lv9-এ মোট +5)। কার্ড পাওয়ার সময় সর্বোচ্চ HP সত্যিই বাড়লেই কেবল HP সম্পূর্ণ পুনরুদ্ধার হয়
+bn	10168	আক্রমণ শক্তি অনেক বেড়ে যায় (+9%/Lv)। সর্বোচ্চ HP-এর হার্ট সিল করে (Lv1, 3, 5, 7 ও 9-এ 1টি করে; Lv9-এ মোট 5টি)
+ta	10161	அதிகபட்ச HP ஒவ்வொரு Lv-க்கும் 1 இதயம் அதிகரிக்கும் (வரம்பு: 99 இதயங்கள்). கார்டைப் பெறும்போது அதிகபட்ச HP உண்மையில் அதிகரித்தால் மட்டுமே HP முழுமையாக மீட்டெடுக்கப்படும்
+ta	10162	அதிகபட்ச HP ஒவ்வொரு Lv-க்கும் 1 இதயம் அதிகரிக்கும்; தாக்கப்படும்போது பின்னுக்குத் தள்ளப்படும் விளைவு குறையும் (+5%/Lv). ஆனால் நகரும் வேகம் குறையும் (-3%/Lv). கார்டைப் பெறும்போது அதிகபட்ச HP உண்மையில் அதிகரித்தால் மட்டுமே HP முழுமையாக மீட்டெடுக்கப்படும்
+ta	10163	2 அல்லது அதற்கு மேற்பட்ட இதயங்கள் அளவுக்குச் சேதம் ஏற்பட்டால், சேதத்தை 1 இதயம் குறைக்கும். அதிகபட்ச HP-யும் அதிகரிக்கும் (Lv1–2-இல் +1 இதயம், அதன் பிறகு ஒவ்வொரு 2 Lv-க்கும் +1). கார்டைப் பெறும்போது அதிகபட்ச HP உண்மையில் அதிகரித்தால் மட்டுமே HP முழுமையாக மீட்டெடுக்கப்படும். குதிக்கும் திறன் -3%/Lv
+ta	10164	HP முழுமையாக இருக்கும்போது தாக்குதல் சக்தி அதிகரிக்கும் (+5%/Lv). அதிகபட்ச HP-யும் அதிகரிக்கும் (Lv1, 4 மற்றும் 7-இல் +1 இதயம்). கார்டைப் பெறும்போது அதிகபட்ச HP உண்மையில் அதிகரித்தால் மட்டுமே HP முழுமையாக மீட்டெடுக்கப்படும்
+ta	10165	பெறும் EXP +15%/Lv. அதிகபட்ச HP-யும் அதிகரிக்கும் (Lv1–3-இல் மொத்தம் +1 இதயம், Lv4–6-இல் மொத்தம் +2, Lv7–9-இல் மொத்தம் +3). கார்டைப் பெறும்போது அதிகபட்ச HP உண்மையில் அதிகரித்தால் மட்டுமே HP முழுமையாக மீட்டெடுக்கப்படும்
+ta	10166	பெறும் EXP +40%/Lv. அதிகபட்ச HP-யும் அதிகரிக்கும் (Lv1–2-இல் +1 இதயம், அதன் பிறகு ஒவ்வொரு 2 Lv-க்கும் +1; Lv9-இல் மொத்தம் +5). கார்டைப் பெறும்போது அதிகபட்ச HP உண்மையில் அதிகரித்தால் மட்டுமே HP முழுமையாக மீட்டெடுக்கப்படும்
+ta	10167	தாக்குதல் சக்தி +3%/Lv, நகரும் வேகம் +2%/Lv. அதிகபட்ச HP-யும் அதிகரிக்கும் (Lv1–2-இல் +1 இதயம், அதன் பிறகு ஒவ்வொரு 2 Lv-க்கும் +1; Lv9-இல் மொத்தம் +5). கார்டைப் பெறும்போது அதிகபட்ச HP உண்மையில் அதிகரித்தால் மட்டுமே HP முழுமையாக மீட்டெடுக்கப்படும்
+ta	10168	தாக்குதல் சக்தி பெரிதும் அதிகரிக்கும் (+9%/Lv). அதிகபட்ச HP-யின் இதயங்களை முடக்கும் (Lv1, 3, 5, 7 மற்றும் 9-இல் தலா 1; Lv9-இல் மொத்தம் 5)
+sw	10161	HP ya juu huongezeka kwa moyo 1 kwa kila Lv (kikomo: mioyo 99). HP hurejeshwa kikamilifu tu ikiwa HP ya juu imeongezeka kweli wakati wa kupata kadi
+sw	10162	HP ya juu huongezeka kwa moyo 1 kwa kila Lv, na kurushwa nyuma unapopigwa hupungua (+5%/Lv), lakini kasi ya mwendo hupungua (-3%/Lv). HP hurejeshwa kikamilifu tu ikiwa HP ya juu imeongezeka kweli wakati wa kupata kadi
+sw	10163	Hupunguza madhara kwa moyo 1 unapopata madhara ya mioyo 2 au zaidi. HP ya juu pia huongezeka (+1 moyo katika Lv1–2, kisha +1 kila 2 Lv). HP hurejeshwa kikamilifu tu ikiwa HP ya juu imeongezeka kweli wakati wa kupata kadi. Nguvu ya kuruka -3%/Lv
+sw	10164	HP ikiwa imejaa, nguvu ya mashambulizi huongezeka (+5%/Lv). HP ya juu pia huongezeka (+1 moyo katika Lv1, 4 na 7). HP hurejeshwa kikamilifu tu ikiwa HP ya juu imeongezeka kweli wakati wa kupata kadi
+sw	10165	EXP inayopatikana +15%/Lv. HP ya juu pia huongezeka (jumla +1 moyo katika Lv1–3, +2 katika Lv4–6, +3 katika Lv7–9). HP hurejeshwa kikamilifu tu ikiwa HP ya juu imeongezeka kweli wakati wa kupata kadi
+sw	10166	EXP inayopatikana +40%/Lv. HP ya juu pia huongezeka (+1 moyo katika Lv1–2, kisha +1 kila 2 Lv; jumla +5 katika Lv9). HP hurejeshwa kikamilifu tu ikiwa HP ya juu imeongezeka kweli wakati wa kupata kadi
+sw	10167	Nguvu ya mashambulizi +3%/Lv, kasi ya mwendo +2%/Lv. HP ya juu pia huongezeka (+1 moyo katika Lv1–2, kisha +1 kila 2 Lv; jumla +5 katika Lv9). HP hurejeshwa kikamilifu tu ikiwa HP ya juu imeongezeka kweli wakati wa kupata kadi
+sw	10168	Nguvu ya mashambulizi huongezeka sana (+9%/Lv). Hufunga mioyo ya HP ya juu (moyo 1 katika kila Lv1, 3, 5, 7 na 9; jumla 5 katika Lv9)
+fil	10161	Tumataas ang maximum HP ng 1 puso bawat Lv (limitasyon: 99 puso). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card
+fil	10162	Tumataas ang maximum HP ng 1 puso bawat Lv at nababawasan ang pag-atras kapag tinamaan (+5%/Lv), pero bumababa ang bilis ng paggalaw (-3%/Lv). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card
+fil	10163	Binabawasan ng 1 puso ang damage kapag nakatanggap ng damage na katumbas ng 2 o higit pang puso. Tumataas din ang maximum HP (+1 puso sa Lv1–2, pagkatapos ay +1 bawat 2 Lv). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card. Lakas ng pagtalon -3%/Lv
+fil	10164	Tumataas ang lakas ng atake habang puno ang HP (+5%/Lv). Tumataas din ang maximum HP (+1 puso sa Lv1, 4, at 7). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card
+fil	10165	Nakukuhang EXP +15%/Lv. Tumataas din ang maximum HP (kabuuang +1 puso sa Lv1–3, +2 sa Lv4–6, +3 sa Lv7–9). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card
+fil	10166	Nakukuhang EXP +40%/Lv. Tumataas din ang maximum HP (+1 puso sa Lv1–2, pagkatapos ay +1 bawat 2 Lv; kabuuang +5 sa Lv9). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card
+fil	10167	Lakas ng atake +3%/Lv, bilis ng paggalaw +2%/Lv. Tumataas din ang maximum HP (+1 puso sa Lv1–2, pagkatapos ay +1 bawat 2 Lv; kabuuang +5 sa Lv9). Ganap na nare-recover ang HP kung talagang tumaas ang maximum HP nang makuha ang card
+fil	10168	Malaking pagtaas sa lakas ng atake (+9%/Lv). Sineselyuhan ang mga puso ng maximum HP (tig-1 sa Lv1, 3, 5, 7, at 9; kabuuang 5 sa Lv9)
+id	10161	HP maksimum bertambah 1 hati per Lv (batas: 99 hati). HP pulih sepenuhnya hanya jika HP maksimum benar-benar bertambah saat kartu diperoleh
+id	10162	HP maksimum bertambah 1 hati per Lv dan efek terpental saat terkena serangan berkurang (+5%/Lv), tetapi kecepatan gerak menurun (-3%/Lv). HP pulih sepenuhnya hanya jika HP maksimum benar-benar bertambah saat kartu diperoleh
+id	10163	Mengurangi damage sebesar 1 hati saat menerima damage setara 2 hati atau lebih. HP maksimum juga bertambah (+1 hati pada Lv1–2, lalu +1 setiap 2 Lv). HP pulih sepenuhnya hanya jika HP maksimum benar-benar bertambah saat kartu diperoleh. Kekuatan lompatan -3%/Lv
+id	10164	Saat HP penuh, kekuatan serangan meningkat (+5%/Lv). HP maksimum juga bertambah (+1 hati pada Lv1, 4, dan 7). HP pulih sepenuhnya hanya jika HP maksimum benar-benar bertambah saat kartu diperoleh
+id	10165	EXP yang diperoleh +15%/Lv. HP maksimum juga bertambah (total +1 hati pada Lv1–3, +2 pada Lv4–6, +3 pada Lv7–9). HP pulih sepenuhnya hanya jika HP maksimum benar-benar bertambah saat kartu diperoleh
+id	10166	EXP yang diperoleh +40%/Lv. HP maksimum juga bertambah (+1 hati pada Lv1–2, lalu +1 setiap 2 Lv; total +5 pada Lv9). HP pulih sepenuhnya hanya jika HP maksimum benar-benar bertambah saat kartu diperoleh
+id	10167	Kekuatan serangan +3%/Lv, kecepatan gerak +2%/Lv. HP maksimum juga bertambah (+1 hati pada Lv1–2, lalu +1 setiap 2 Lv; total +5 pada Lv9). HP pulih sepenuhnya hanya jika HP maksimum benar-benar bertambah saat kartu diperoleh
+id	10168	Kekuatan serangan meningkat drastis (+9%/Lv). Menyegel hati dari HP maksimum (masing-masing 1 pada Lv1, 3, 5, 7, dan 9; total 5 pada Lv9)
+ms	10161	HP maksimum meningkat sebanyak 1 hati setiap Lv (had: 99 hati). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh
+ms	10162	HP maksimum meningkat sebanyak 1 hati setiap Lv dan kesan terundur apabila terkena serangan berkurang (+5%/Lv), tetapi kelajuan pergerakan menurun (-3%/Lv). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh
+ms	10163	Mengurangkan kerosakan sebanyak 1 hati apabila menerima kerosakan bersamaan 2 hati atau lebih. HP maksimum juga meningkat (+1 hati pada Lv1–2, kemudian +1 setiap 2 Lv). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh. Kuasa lompatan -3%/Lv
+ms	10164	Kuasa serangan meningkat apabila HP penuh (+5%/Lv). HP maksimum juga meningkat (+1 hati pada Lv1, 4 dan 7). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh
+ms	10165	EXP diperoleh +15%/Lv. HP maksimum juga meningkat (jumlah +1 hati pada Lv1–3, +2 pada Lv4–6, +3 pada Lv7–9). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh
+ms	10166	EXP diperoleh +40%/Lv. HP maksimum juga meningkat (+1 hati pada Lv1–2, kemudian +1 setiap 2 Lv; jumlah +5 pada Lv9). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh
+ms	10167	Kuasa serangan +3%/Lv, kelajuan pergerakan +2%/Lv. HP maksimum juga meningkat (+1 hati pada Lv1–2, kemudian +1 setiap 2 Lv; jumlah +5 pada Lv9). HP pulih sepenuhnya hanya jika HP maksimum benar-benar meningkat apabila kad diperoleh
+ms	10168	Kuasa serangan meningkat dengan ketara (+9%/Lv). Mengunci hati daripada HP maksimum (1 setiap satu pada Lv1, 3, 5, 7 dan 9; jumlah 5 pada Lv9)
+vi	10161	HP tối đa tăng 1 tim mỗi Lv (giới hạn: 99 tim). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ
+vi	10162	HP tối đa tăng 1 tim mỗi Lv và giảm độ giật lùi khi trúng đòn (+5%/Lv), nhưng tốc độ di chuyển giảm (-3%/Lv). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ
+vi	10163	Giảm sát thương đi 1 tim khi nhận sát thương từ 2 tim trở lên. HP tối đa cũng tăng (+1 tim ở Lv1–2, sau đó +1 mỗi 2 Lv). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ. Sức bật -3%/Lv
+vi	10164	Khi HP đầy, sức tấn công tăng (+5%/Lv). HP tối đa cũng tăng (+1 tim ở Lv1, 4 và 7). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ
+vi	10165	EXP nhận được +15%/Lv. HP tối đa cũng tăng (tổng +1 tim ở Lv1–3, +2 ở Lv4–6, +3 ở Lv7–9). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ
+vi	10166	EXP nhận được +40%/Lv. HP tối đa cũng tăng (+1 tim ở Lv1–2, sau đó +1 mỗi 2 Lv; tổng +5 ở Lv9). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ
+vi	10167	Sức tấn công +3%/Lv, tốc độ di chuyển +2%/Lv. HP tối đa cũng tăng (+1 tim ở Lv1–2, sau đó +1 mỗi 2 Lv; tổng +5 ở Lv9). HP chỉ hồi đầy nếu HP tối đa thực sự tăng khi nhận thẻ
+vi	10168	Sức tấn công tăng mạnh (+9%/Lv). Phong ấn các tim thuộc HP tối đa (mỗi lần 1 tim ở Lv1, 3, 5, 7 và 9; tổng 5 ở Lv9)
+th	10161	HP สูงสุดเพิ่มขึ้น 1 หัวใจต่อ Lv (จำกัดที่ 99 หัวใจ) HP จะฟื้นฟูจนเต็มก็ต่อเมื่อ HP สูงสุดเพิ่มขึ้นจริงตอนรับการ์ด
+th	10162	HP สูงสุดเพิ่มขึ้น 1 หัวใจต่อ Lv และลดการกระเด็นถอยหลังเมื่อถูกโจมตี (+5%/Lv) แต่ความเร็วเคลื่อนที่ลดลง (-3%/Lv) HP จะฟื้นฟูจนเต็มก็ต่อเมื่อ HP สูงสุดเพิ่มขึ้นจริงตอนรับการ์ด
+th	10163	ลดความเสียหายลง 1 หัวใจเมื่อได้รับความเสียหายตั้งแต่ 2 หัวใจขึ้นไป HP สูงสุดเพิ่มขึ้นด้วย (+1 หัวใจที่ Lv1–2 จากนั้น +1 ทุก 2 Lv) HP จะฟื้นฟูจนเต็มก็ต่อเมื่อ HP สูงสุดเพิ่มขึ้นจริงตอนรับการ์ด พลังการกระโดด -3%/Lv
+th	10164	เมื่อ HP เต็ม พลังโจมตีเพิ่มขึ้น (+5%/Lv) HP สูงสุดเพิ่มขึ้นด้วย (+1 หัวใจที่ Lv1, 4 และ 7) HP จะฟื้นฟูจนเต็มก็ต่อเมื่อ HP สูงสุดเพิ่มขึ้นจริงตอนรับการ์ด
+th	10165	EXP ที่ได้รับ +15%/Lv HP สูงสุดเพิ่มขึ้นด้วย (รวม +1 หัวใจที่ Lv1–3, +2 ที่ Lv4–6, +3 ที่ Lv7–9) HP จะฟื้นฟูจนเต็มก็ต่อเมื่อ HP สูงสุดเพิ่มขึ้นจริงตอนรับการ์ด
+th	10166	EXP ที่ได้รับ +40%/Lv HP สูงสุดเพิ่มขึ้นด้วย (+1 หัวใจที่ Lv1–2 จากนั้น +1 ทุก 2 Lv; รวม +5 ที่ Lv9) HP จะฟื้นฟูจนเต็มก็ต่อเมื่อ HP สูงสุดเพิ่มขึ้นจริงตอนรับการ์ด
+th	10167	พลังโจมตี +3%/Lv, ความเร็วเคลื่อนที่ +2%/Lv HP สูงสุดเพิ่มขึ้นด้วย (+1 หัวใจที่ Lv1–2 จากนั้น +1 ทุก 2 Lv; รวม +5 ที่ Lv9) HP จะฟื้นฟูจนเต็มก็ต่อเมื่อ HP สูงสุดเพิ่มขึ้นจริงตอนรับการ์ด
+th	10168	พลังโจมตีเพิ่มขึ้นอย่างมาก (+9%/Lv) ผนึกหัวใจของ HP สูงสุด (ครั้งละ 1 หัวใจที่ Lv1, 3, 5, 7 และ 9; รวม 5 ที่ Lv9)
+km	10161	HP អតិបរមាកើនឡើង 1 បេះដូងក្នុងមួយ Lv (កំណត់ត្រឹម 99 បេះដូង)។ HP នឹងស្ដារពេញលេញតែនៅពេល HP អតិបរមាកើនឡើងពិតប្រាកដពេលទទួលបានកាតប៉ុណ្ណោះ
+km	10162	HP អតិបរមាកើនឡើង 1 បេះដូងក្នុងមួយ Lv ហើយការរុញថយក្រោយពេលត្រូវវាយថយចុះ (+5%/Lv) ប៉ុន្តែល្បឿនផ្លាស់ទីថយចុះ (-3%/Lv)។ HP នឹងស្ដារពេញលេញតែនៅពេល HP អតិបរមាកើនឡើងពិតប្រាកដពេលទទួលបានកាតប៉ុណ្ណោះ
+km	10163	កាត់បន្ថយការខូចខាតចំនួន 1 បេះដូង នៅពេលទទួលការខូចខាតចាប់ពី 2 បេះដូងឡើងទៅ។ HP អតិបរមាក៏កើនឡើងដែរ (+1 បេះដូងនៅ Lv1–2 បន្ទាប់មក +1 រៀងរាល់ 2 Lv)។ HP នឹងស្ដារពេញលេញតែនៅពេល HP អតិបរមាកើនឡើងពិតប្រាកដពេលទទួលបានកាតប៉ុណ្ណោះ។ កម្លាំងលោត -3%/Lv
+km	10164	នៅពេល HP ពេញ កម្លាំងវាយប្រហារកើនឡើង (+5%/Lv)។ HP អតិបរមាក៏កើនឡើងដែរ (+1 បេះដូងនៅ Lv1, 4 និង 7)។ HP នឹងស្ដារពេញលេញតែនៅពេល HP អតិបរមាកើនឡើងពិតប្រាកដពេលទទួលបានកាតប៉ុណ្ណោះ
+km	10165	EXP ដែលទទួលបាន +15%/Lv។ HP អតិបរមាក៏កើនឡើងដែរ (សរុប +1 បេះដូងនៅ Lv1–3, +2 នៅ Lv4–6, +3 នៅ Lv7–9)។ HP នឹងស្ដារពេញលេញតែនៅពេល HP អតិបរមាកើនឡើងពិតប្រាកដពេលទទួលបានកាតប៉ុណ្ណោះ
+km	10166	EXP ដែលទទួលបាន +40%/Lv។ HP អតិបរមាក៏កើនឡើងដែរ (+1 បេះដូងនៅ Lv1–2 បន្ទាប់មក +1 រៀងរាល់ 2 Lv; សរុប +5 នៅ Lv9)។ HP នឹងស្ដារពេញលេញតែនៅពេល HP អតិបរមាកើនឡើងពិតប្រាកដពេលទទួលបានកាតប៉ុណ្ណោះ
+km	10167	កម្លាំងវាយប្រហារ +3%/Lv, ល្បឿនផ្លាស់ទី +2%/Lv។ HP អតិបរមាក៏កើនឡើងដែរ (+1 បេះដូងនៅ Lv1–2 បន្ទាប់មក +1 រៀងរាល់ 2 Lv; សរុប +5 នៅ Lv9)។ HP នឹងស្ដារពេញលេញតែនៅពេល HP អតិបរមាកើនឡើងពិតប្រាកដពេលទទួលបានកាតប៉ុណ្ណោះ
+km	10168	កម្លាំងវាយប្រហារកើនឡើងយ៉ាងខ្លាំង (+9%/Lv)។ បិទត្រាបេះដូងនៃ HP អតិបរមា (មួយនៅ Lv1, 3, 5, 7 និង 9; សរុប 5 នៅ Lv9)
+lo	10161	HP ສູງສຸດເພີ່ມຂຶ້ນ 1 ຫົວໃຈຕໍ່ Lv (ຈຳກັດ 99 ຫົວໃຈ). HP ຈະຟື້ນຟູເຕັມພຽງເມື່ອ HP ສູງສຸດເພີ່ມຂຶ້ນຈິງໃນຕອນຮັບບັດ
+lo	10162	HP ສູງສຸດເພີ່ມຂຶ້ນ 1 ຫົວໃຈຕໍ່ Lv ແລະການກະເດັນຖອຍຫຼັງເມື່ອຖືກໂຈມຕີຫຼຸດລົງ (+5%/Lv) ແຕ່ຄວາມໄວເຄື່ອນທີ່ຫຼຸດລົງ (-3%/Lv). HP ຈະຟື້ນຟູເຕັມພຽງເມື່ອ HP ສູງສຸດເພີ່ມຂຶ້ນຈິງໃນຕອນຮັບບັດ
+lo	10163	ຫຼຸດຄວາມເສຍຫາຍລົງ 1 ຫົວໃຈ ເມື່ອໄດ້ຮັບຄວາມເສຍຫາຍຕັ້ງແຕ່ 2 ຫົວໃຈຂຶ້ນໄປ. HP ສູງສຸດກໍເພີ່ມຂຶ້ນ (+1 ຫົວໃຈທີ່ Lv1–2, ຈາກນັ້ນ +1 ທຸກ 2 Lv). HP ຈະຟື້ນຟູເຕັມພຽງເມື່ອ HP ສູງສຸດເພີ່ມຂຶ້ນຈິງໃນຕອນຮັບບັດ. ພະລັງການໂດດ -3%/Lv
+lo	10164	ເມື່ອ HP ເຕັມ ພະລັງໂຈມຕີເພີ່ມຂຶ້ນ (+5%/Lv). HP ສູງສຸດກໍເພີ່ມຂຶ້ນ (+1 ຫົວໃຈທີ່ Lv1, 4 ແລະ 7). HP ຈະຟື້ນຟູເຕັມພຽງເມື່ອ HP ສູງສຸດເພີ່ມຂຶ້ນຈິງໃນຕອນຮັບບັດ
+lo	10165	EXP ທີ່ໄດ້ຮັບ +15%/Lv. HP ສູງສຸດກໍເພີ່ມຂຶ້ນ (ລວມ +1 ຫົວໃຈທີ່ Lv1–3, +2 ທີ່ Lv4–6, +3 ທີ່ Lv7–9). HP ຈະຟື້ນຟູເຕັມພຽງເມື່ອ HP ສູງສຸດເພີ່ມຂຶ້ນຈິງໃນຕອນຮັບບັດ
+lo	10166	EXP ທີ່ໄດ້ຮັບ +40%/Lv. HP ສູງສຸດກໍເພີ່ມຂຶ້ນ (+1 ຫົວໃຈທີ່ Lv1–2, ຈາກນັ້ນ +1 ທຸກ 2 Lv; ລວມ +5 ທີ່ Lv9). HP ຈະຟື້ນຟູເຕັມພຽງເມື່ອ HP ສູງສຸດເພີ່ມຂຶ້ນຈິງໃນຕອນຮັບບັດ
+lo	10167	ພະລັງໂຈມຕີ +3%/Lv, ຄວາມໄວເຄື່ອນທີ່ +2%/Lv. HP ສູງສຸດກໍເພີ່ມຂຶ້ນ (+1 ຫົວໃຈທີ່ Lv1–2, ຈາກນັ້ນ +1 ທຸກ 2 Lv; ລວມ +5 ທີ່ Lv9). HP ຈະຟື້ນຟູເຕັມພຽງເມື່ອ HP ສູງສຸດເພີ່ມຂຶ້ນຈິງໃນຕອນຮັບບັດ
+lo	10168	ພະລັງໂຈມຕີເພີ່ມຂຶ້ນຢ່າງຫຼວງຫຼາຍ (+9%/Lv). ຜະນຶກຫົວໃຈຂອງ HP ສູງສຸດ (ຄັ້ງລະ 1 ຫົວໃຈທີ່ Lv1, 3, 5, 7 ແລະ 9; ລວມ 5 ທີ່ Lv9)
+my	10161	အများဆုံး HP သည် Lv တစ်ခုစီတိုင်းတွင် နှလုံး 1 ခု တိုးလာသည် (အများဆုံး နှလုံး 99 ခု)။ ကတ်ရရှိချိန်တွင် အများဆုံး HP အမှန်တကယ် တိုးလာမှသာ HP အပြည့်ပြန်လည်ဖြည့်တင်းမည်
+my	10162	အများဆုံး HP သည် Lv တစ်ခုစီတိုင်းတွင် နှလုံး 1 ခု တိုးလာပြီး ထိခိုက်ခံရချိန် နောက်သို့လွင့်သွားမှု လျော့နည်းသည် (+5%/Lv)။ သို့သော် ရွေ့လျားနှုန်း လျော့ကျသည် (-3%/Lv)။ ကတ်ရရှိချိန်တွင် အများဆုံး HP အမှန်တကယ် တိုးလာမှသာ HP အပြည့်ပြန်လည်ဖြည့်တင်းမည်
+my	10163	နှလုံး 2 ခု သို့မဟုတ် ထို့ထက်ပိုသော ထိခိုက်မှုကို ခံရသည့်အခါ ထိခိုက်မှုကို နှလုံး 1 ခုစာ လျှော့ချပေးသည်။ အများဆုံး HP လည်း တိုးလာသည် (Lv1–2 တွင် နှလုံး +1၊ ထို့နောက် 2 Lv တိုင်း +1)။ ကတ်ရရှိချိန်တွင် အများဆုံး HP အမှန်တကယ် တိုးလာမှသာ HP အပြည့်ပြန်လည်ဖြည့်တင်းမည်။ ခုန်အား -3%/Lv
+my	10164	HP အပြည့်ရှိနေစဉ် တိုက်ခိုက်စွမ်းအား တိုးလာသည် (+5%/Lv)။ အများဆုံး HP လည်း တိုးလာသည် (Lv1၊ 4 နှင့် 7 တွင် နှလုံး +1)။ ကတ်ရရှိချိန်တွင် အများဆုံး HP အမှန်တကယ် တိုးလာမှသာ HP အပြည့်ပြန်လည်ဖြည့်တင်းမည်
+my	10165	ရရှိသော EXP +15%/Lv။ အများဆုံး HP လည်း တိုးလာသည် (Lv1–3 တွင် စုစုပေါင်း နှလုံး +1၊ Lv4–6 တွင် စုစုပေါင်း +2၊ Lv7–9 တွင် စုစုပေါင်း +3)။ ကတ်ရရှိချိန်တွင် အများဆုံး HP အမှန်တကယ် တိုးလာမှသာ HP အပြည့်ပြန်လည်ဖြည့်တင်းမည်
+my	10166	ရရှိသော EXP +40%/Lv။ အများဆုံး HP လည်း တိုးလာသည် (Lv1–2 တွင် နှလုံး +1၊ ထို့နောက် 2 Lv တိုင်း +1၊ Lv9 တွင် စုစုပေါင်း +5)။ ကတ်ရရှိချိန်တွင် အများဆုံး HP အမှန်တကယ် တိုးလာမှသာ HP အပြည့်ပြန်လည်ဖြည့်တင်းမည်
+my	10167	တိုက်ခိုက်စွမ်းအား +3%/Lv၊ ရွေ့လျားနှုန်း +2%/Lv။ အများဆုံး HP လည်း တိုးလာသည် (Lv1–2 တွင် နှလုံး +1၊ ထို့နောက် 2 Lv တိုင်း +1၊ Lv9 တွင် စုစုပေါင်း +5)။ ကတ်ရရှိချိန်တွင် အများဆုံး HP အမှန်တကယ် တိုးလာမှသာ HP အပြည့်ပြန်လည်ဖြည့်တင်းမည်
+my	10168	တိုက်ခိုက်စွမ်းအား သိသိသာသာ တိုးလာသည် (+9%/Lv)။ အများဆုံး HP ၏ နှလုံးများကို ပိတ်封ထားသည် (Lv1၊ 3၊ 5၊ 7 နှင့် 9 တွင် တစ်ခုစီ၊ Lv9 တွင် စုစုပေါင်း 5 ခု)
+ko	10161	최대 HP가 Lv마다 하트 1개 증가한다(상한: 하트 99개). 카드 획득 시 최대 HP가 실제로 증가한 경우에만 HP가 모두 회복된다
+ko	10162	최대 HP가 Lv마다 하트 1개 증가하고 피격 시 밀려나는 정도가 감소한다(+5%/Lv). 단, 이동 속도가 감소한다(-3%/Lv). 카드 획득 시 최대 HP가 실제로 증가한 경우에만 HP가 모두 회복된다
+ko	10163	하트 2개 이상의 피해를 받을 때 피해를 하트 1개만큼 줄인다. 최대 HP도 증가한다(Lv1–2에서 하트 +1, 이후 2 Lv마다 +1). 카드 획득 시 최대 HP가 실제로 증가한 경우에만 HP가 모두 회복된다. 점프력 -3%/Lv
+ko	10164	HP가 가득 찬 동안 공격력이 증가한다(+5%/Lv). 최대 HP도 증가한다(Lv1, 4, 7에서 하트 +1). 카드 획득 시 최대 HP가 실제로 증가한 경우에만 HP가 모두 회복된다
+ko	10165	획득 EXP +15%/Lv. 최대 HP도 증가한다(Lv1–3에서 총 하트 +1, Lv4–6에서 총 +2, Lv7–9에서 총 +3). 카드 획득 시 최대 HP가 실제로 증가한 경우에만 HP가 모두 회복된다
+ko	10166	획득 EXP +40%/Lv. 최대 HP도 증가한다(Lv1–2에서 하트 +1, 이후 2 Lv마다 +1. Lv9에서 총 +5). 카드 획득 시 최대 HP가 실제로 증가한 경우에만 HP가 모두 회복된다
+ko	10167	공격력 +3%/Lv, 이동 속도 +2%/Lv. 최대 HP도 증가한다(Lv1–2에서 하트 +1, 이후 2 Lv마다 +1. Lv9에서 총 +5). 카드 획득 시 최대 HP가 실제로 증가한 경우에만 HP가 모두 회복된다
+ko	10168	공격력이 크게 증가한다(+9%/Lv). 최대 HP의 하트를 봉인한다(Lv1, 3, 5, 7, 9에서 각각 1개씩. Lv9에서 총 5개)
+zh-Hans	10161	最大HP每Lv增加1颗心（上限99颗心）。仅当获得卡牌时最大HP实际增加，HP才会完全恢复
+zh-Hans	10162	最大HP每Lv增加1颗心，受击击退效果减弱（+5%/Lv），但移动速度降低（-3%/Lv）。仅当获得卡牌时最大HP实际增加，HP才会完全恢复
+zh-Hans	10163	受到2颗心或以上的伤害时，伤害减少1颗心。最大HP也会增加（Lv1–2增加1颗心，之后每2 Lv增加1颗心）。仅当获得卡牌时最大HP实际增加，HP才会完全恢复。跳跃力-3%/Lv
+zh-Hans	10164	HP全满时，攻击力提高（+5%/Lv）。最大HP也会增加（Lv1、4、7各增加1颗心）。仅当获得卡牌时最大HP实际增加，HP才会完全恢复
+zh-Hans	10165	获得EXP +15%/Lv。最大HP也会增加（Lv1–3累计+1颗心，Lv4–6累计+2颗心，Lv7–9累计+3颗心）。仅当获得卡牌时最大HP实际增加，HP才会完全恢复
+zh-Hans	10166	获得EXP +40%/Lv。最大HP也会增加（Lv1–2增加1颗心，之后每2 Lv增加1颗心；Lv9时累计+5颗心）。仅当获得卡牌时最大HP实际增加，HP才会完全恢复
+zh-Hans	10167	攻击力+3%/Lv，移动速度+2%/Lv。最大HP也会增加（Lv1–2增加1颗心，之后每2 Lv增加1颗心；Lv9时累计+5颗心）。仅当获得卡牌时最大HP实际增加，HP才会完全恢复
+zh-Hans	10168	攻击力大幅提高（+9%/Lv）。封印最大HP的心（Lv1、3、5、7、9各封印1颗；Lv9时共封印5颗）
+zh-Hant	10161	最大HP每Lv增加1顆心（上限99顆心）。僅當取得卡牌時最大HP實際增加，HP才會完全恢復
+zh-Hant	10162	最大HP每Lv增加1顆心，受擊擊退效果減弱（+5%/Lv），但移動速度降低（-3%/Lv）。僅當取得卡牌時最大HP實際增加，HP才會完全恢復
+zh-Hant	10163	受到2顆心或以上的傷害時，傷害減少1顆心。最大HP也會增加（Lv1–2增加1顆心，之後每2 Lv增加1顆心）。僅當取得卡牌時最大HP實際增加，HP才會完全恢復。跳躍力-3%/Lv
+zh-Hant	10164	HP全滿時，攻擊力提高（+5%/Lv）。最大HP也會增加（Lv1、4、7各增加1顆心）。僅當取得卡牌時最大HP實際增加，HP才會完全恢復
+zh-Hant	10165	獲得EXP +15%/Lv。最大HP也會增加（Lv1–3累計+1顆心，Lv4–6累計+2顆心，Lv7–9累計+3顆心）。僅當取得卡牌時最大HP實際增加，HP才會完全恢復
+zh-Hant	10166	獲得EXP +40%/Lv。最大HP也會增加（Lv1–2增加1顆心，之後每2 Lv增加1顆心；Lv9時累計+5顆心）。僅當取得卡牌時最大HP實際增加，HP才會完全恢復
+zh-Hant	10167	攻擊力+3%/Lv，移動速度+2%/Lv。最大HP也會增加（Lv1–2增加1顆心，之後每2 Lv增加1顆心；Lv9時累計+5顆心）。僅當取得卡牌時最大HP實際增加，HP才會完全恢復
+zh-Hant	10168	攻擊力大幅提高（+9%/Lv）。封印最大HP的心（Lv1、3、5、7、9各封印1顆；Lv9時共封印5顆）

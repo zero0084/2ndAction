@@ -59,18 +59,23 @@ public partial class GameManager
     }
 
     // 1枚のカード(元のカード)を n Lv 分。ApplyCardEffects / ApplyCardEffectsStacked から
+    public static int CardFullHeals; // 確認用(取得による全回復の回数)
     void AddCardLevel(CardDefinition card, int n)
     {
         if (card == null || n <= 0) return;
         string id = card.cardId;
         if (!cardLevels.ContainsKey(id)) { cardLevels[id] = 0; cardOrder.Add(id); }
         cardLevels[id] += n;
+        int maxBefore = maxLives;
         RecomputeCardStats();
-        // 最大HPが増えるカード: 従来どおり取得で全回復(「ハート上限が増え、HPが回復する」)
-        if (HasEffect(card, EffectType.MaxHpHearts) || LegacyGrowsHp(card))
+        // 最大HPが増えるカード: 取得で最大HPが実際に増えた時だけ全回復(2026-10-28 夜、マスターの採用 = 案A)。
+        //  最大HPが増えない Lv(HEAVY ARMOR の Lv2 等)・ハート99個の上限で増えなかった時は回復しない(以前は毎回全回復していた)。
+        //  合成カードも能力ごとにここを通るので同じ条件。最終進化の最大HPの増加は別(増えた分だけ今のHPも増える: FinalEvolution.Activate)
+        if ((HasEffect(card, EffectType.MaxHpHearts) || LegacyGrowsHp(card)) && maxLives > maxBefore)
         {
             Lives = maxLives;
             NetMatch.RequestSetMax(maxLives, true);
+            CardFullHeals++;
         }
         // PHOENIX: 取得で復活の Charge 1(同時に1つまで)
         if (HasEffect(card, EffectType.PhoenixLevel)) phoenixCharges = 1;

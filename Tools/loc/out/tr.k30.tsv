@@ -1,0 +1,8 @@
+10161	Maks. HP her Lv için 1 kalp artar (sınır: 99 kalp). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir
+10162	Maks. HP her Lv için 1 kalp artar ve darbe alınca geri savrulma azalır (+5%/Lv), ancak hareket hızı düşer (-3%/Lv). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir
+10163	2 veya daha fazla kalplik hasar alındığında hasarı 1 kalp azaltır. Maks. HP de artar (Lv1–2'de +1 kalp, ardından her 2 Lv'de +1). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir. Zıplama gücü -3%/Lv
+10164	HP doluyken saldırı gücü artar (+5%/Lv). Maks. HP de artar (Lv1, 4 ve 7'de +1 kalp). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir
+10165	Kazanılan EXP +15%/Lv. Maks. HP de artar (Lv1–3'te toplam +1 kalp, Lv4–6'da toplam +2, Lv7–9'da toplam +3). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir
+10166	Kazanılan EXP +40%/Lv. Maks. HP de artar (Lv1–2'de +1 kalp, ardından her 2 Lv'de +1; Lv9'da toplam +5). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir
+10167	Saldırı gücü +3%/Lv, hareket hızı +2%/Lv. Maks. HP de artar (Lv1–2'de +1 kalp, ardından her 2 Lv'de +1; Lv9'da toplam +5). HP yalnızca kart alındığında maks. HP gerçekten artarsa tamamen yenilenir
+10168	Saldırı gücü büyük ölçüde artar (+9%/Lv). Maks. HP kalplerini mühürler (Lv1, 3, 5, 7 ve 9'da birer tane; Lv9'da toplam 5)

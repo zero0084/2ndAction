@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: long_haul
   cardName: LONG HAUL
   icon: {fileID: 2800000, guid: 559f048692312a2488da3ec10f174924, type: 3}
-  description: "獲得EXP+15%/Lv。最大HPも増える(Lv1〜3でハート+1、Lv4〜6で+2、Lv7〜9で+3)"
+  description: "獲得EXP+15%/Lv。最大HPも増える(Lv1〜3で合計ハート+1、Lv4〜6で合計+2、Lv7〜9で合計+3)。取得時に最大HPが実際に増えた場合のみ、HPが全回復する"
   category: 3
   sortOrder: 121
   recommendPriority: 5

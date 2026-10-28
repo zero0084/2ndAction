@@ -1,0 +1,8 @@
+10161	Les HP max augmentent de 1 cœur par Lv (limite : 99 cœurs). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention
+10162	Les HP max augmentent de 1 cœur par Lv et le recul subi diminue (+5%/Lv), mais la vitesse de déplacement baisse (-3%/Lv). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention
+10163	Réduit les dégâts de 1 cœur lorsqu'une attaque inflige au moins 2 cœurs de dégâts. Les HP max augmentent aussi (+1 cœur aux Lv1–2, puis +1 tous les 2 Lv). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention. Puissance de saut -3%/Lv
+10164	La puissance d'attaque augmente tant que les HP sont au maximum (+5%/Lv). Les HP max augmentent aussi (+1 cœur aux Lv1, 4 et 7). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention
+10165	EXP gagnée +15%/Lv. Les HP max augmentent aussi (total +1 cœur aux Lv1–3, +2 aux Lv4–6, +3 aux Lv7–9). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention
+10166	EXP gagnée +40%/Lv. Les HP max augmentent aussi (+1 cœur aux Lv1–2, puis +1 tous les 2 Lv ; total +5 au Lv9). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention
+10167	Puissance d'attaque +3%/Lv, vitesse de déplacement +2%/Lv. Les HP max augmentent aussi (+1 cœur aux Lv1–2, puis +1 tous les 2 Lv ; total +5 au Lv9). Les HP sont entièrement restaurés uniquement si les HP max augmentent réellement lors de l'obtention
+10168	La puissance d'attaque augmente fortement (+9%/Lv). Scelle des cœurs des HP max (1 aux Lv1, 3, 5, 7 et 9 ; total 5 au Lv9)
