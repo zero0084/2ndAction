@@ -792,6 +792,16 @@ public class CharacterSelectUI : MonoBehaviour
     {
         if (glowsFitted) return;
         glowsFitted = true;
+        // 2026-10-28: 並びのカードの絵は シーンを作った時に焼き込まれる → 後から絵を差し替えたキャラ(ルカ/ペンタトゥットゥルー星人は
+        //  仮の絵のまま)が古いまま出ていた。開いた時にキャラのデータの絵(portrait)と違えば差し替える(シーンを作り直さなくても最新の絵)
+        var defsNow = CharacterDatabase.AllCharacters;
+        for (int i = 0; i < cardSlotRects.Length && i < defsNow.Count; i++)
+        {
+            var pr = cardSlotRects[i] != null ? cardSlotRects[i].Find("Portrait") : null;
+            var pim = pr != null ? pr.GetComponent<Image>() : null;
+            var tex = defsNow[i] != null ? defsNow[i].portrait : null;
+            if (pim != null && tex != null && (pim.sprite == null || pim.sprite.texture != tex)) pim.sprite = ToSprite(tex);
+        }
         for (int i = 0; i < cardSlotRects.Length && i < cardGlowImages.Length; i++)
         {
             var slot = cardSlotRects[i]; var glow = cardGlowImages[i];

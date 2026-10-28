@@ -12,6 +12,7 @@ public partial class QaSweep
         float w = 0f;
         while ((GameManager.Instance == null || GameManager.Instance.HasStarted) && w < 15f) { yield return null; w += Time.unscaledDeltaTime; }
         gm = GameManager.Instance;
+        UnlockRules.DevUnlockAll = true; // 2026-10-28: まだ解放していない人も撮る
         yield return new WaitForSecondsRealtime(1.5f);
         gm.OpenCharacterSelect();
         yield return new WaitForSecondsRealtime(1.5f);

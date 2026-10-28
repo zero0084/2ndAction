@@ -26,6 +26,7 @@ public partial class QaSweep
         if (parts.Contains("hp")) yield return F28Hp();
         if (parts.Contains("form")) yield return F28Form();
         if (parts.Contains("fight")) yield return F28Fight();
+        if (parts.Contains("ui")) yield return F28Ui();
         SaveProfile.Switch(false, true);
         yield return ReloadHome();
     }
@@ -122,6 +123,35 @@ public partial class QaSweep
         yield return EndRun();
     }
 
+    // 画面: カード合成の背景(-fakeSafeLeft で左に切り欠きがあるつもり)と DEBUG パネルのスクロール
+    IEnumerator F28Ui()
+    {
+        L("== ui: fusion backdrop / debug scroll ==");
+        var open = typeof(GameManager).GetMethod("OpenCardFusion", NP | BindingFlags.Public);
+        open.Invoke(gm, null);
+        yield return new WaitForSecondsRealtime(2.0f);
+        Shot($"ui_fusion_{Screen.width}x{Screen.height}_safeL{StableSafeArea.Left:0}");
+        var fusion = FindFirstObjectByType<CardFusionUI>();
+        var bd = fusion != null ? fusion.transform.Find("Backdrop") as RectTransform : null;
+        if (bd != null)
+        {
+            var corners = new Vector3[4]; bd.GetWorldCorners(corners);
+            var cv = bd.GetComponentInParent<Canvas>();
+            Vector2 mn = RectTransformUtility.WorldToScreenPoint(cv != null && cv.renderMode != RenderMode.ScreenSpaceOverlay ? cv.worldCamera : null, corners[0]);
+            L($"[ui] fusion backdrop screen min {mn} (screen {Screen.width}x{Screen.height}, safe left {StableSafeArea.Left})");
+            Check(mn.x <= 1f && mn.y <= 1f, $"ui: the fusion backdrop covers the screen edge ({mn})");
+        }
+        typeof(GameManager).GetMethod("CloseCardFusion", NP | BindingFlags.Public)?.Invoke(gm, null);
+        yield return new WaitForSecondsRealtime(1.5f);
+        DebugPanel.OpenStatic();
+        yield return new WaitForSecondsRealtime(0.6f);
+        Shot($"ui_debug_top_{Screen.width}x{Screen.height}");
+        var sc = typeof(DebugPanel).GetField("scroll", NP).GetValue(DebugPanel.Instance) as UiScroll;
+        if (sc != null) { sc.y = 10000f; yield return null; yield return new WaitForSecondsRealtime(0.4f); Shot($"ui_debug_bottom_{Screen.width}x{Screen.height}"); Check(sc.CanScroll, $"ui: the debug panel scrolls on a {Screen.width}x{Screen.height} window (y={sc.y:0})"); }
+        DebugPanel.CloseStatic();
+        yield return new WaitForSecondsRealtime(0.5f);
+    }
+
     struct FormRec { public int km; public string formation; public List<string> keys; public int bodies; public float distBefore, distAfter; public bool held; }
 
     IEnumerator F28Form()
@@ -194,7 +224,8 @@ public partial class QaSweep
             var bm = BossManager.Instance; bm.enabled = true;
             // そこまでの関門を通常どおり倒して来た状態(再戦プール)にする: 疾走出発と同じ扱いで飛ばした関門をプールへ
             bm.SprintMarkSkippedGates(km - 1);
-            foreach (var id in deck.Distinct()) { var c = CardDatabase.FindBaseById(id); if (c != null) gm.DebugApplyRunCard(c, 7); }
+            int flv = int.Parse(Arg("-f28FightLv", "7"));
+            foreach (var id in deck.Distinct()) { var c = CardDatabase.FindBaseById(id); if (c != null) gm.DebugApplyRunCard(c, flv); }
             gm.RecomputeCardStats();
             gm.DebugWarpToDistance(km * 1000f - 60f);
             float w = 0f;
