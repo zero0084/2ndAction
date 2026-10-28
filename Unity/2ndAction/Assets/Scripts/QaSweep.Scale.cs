@@ -26,7 +26,7 @@ public partial class QaSweep
 
         // ---- 1) 基礎値
         L($"[base] atk={pc.AttackPower} lives={gm.Lives}/{gm.maxLives} cap={gm.maxLivesCap} def atk={def.attackPower} hp={def.baseLives}/{def.baseMaxLives}");
-        Check(pc.AttackPower == 20 && gm.maxLives == 50 && def.baseLives == 30 && gm.maxLivesCap == 100, "swordsman starts with attack 20, HP 30/50, cap 100 (x10)");
+        Check(pc.AttackPower == 20 && gm.maxLives == 50 && def.baseLives == 30 && gm.maxLivesCap == CardRules.MaxHeartsCap * CombatScale.HpPerHeart, $"swordsman starts with attack 20, HP 30/50, cap {CardRules.MaxHeartsCap * CombatScale.HpPerHeart} (x10)"); // 上限は CardRules に合わせる(2026-10-28 ハート99個)
         int eHp = DistanceTierManager.Instance.EnemyHpFor(1f);
         int hitsNew = Mathf.CeilToInt(eHp / (float)pc.EffectiveAttackPower);
         int hitsOld = Mathf.CeilToInt((eHp / 10f) / (pc.EffectiveAttackPower / 10f) - 1e-4f);
@@ -64,7 +64,8 @@ public partial class QaSweep
         int sh = pc.ShieldCharges;
         var r2 = gm.TryDamagePlayer(false, "qa-shield");
         Check(sh >= 1 && r2 == GameManager.DamageResult.Ignored && pc.ShieldCharges == sh - 1, $"shield absorbs one hit (charges {sh} -> {pc.ShieldCharges}, lives {gm.Lives})");
-        typeof(GameManager).GetMethod("AddLife", NPS).Invoke(gm, new object[] { Mathf.RoundToInt(CardDatabase.FindById("vampire").effects.First(e => e.type == EffectType.LifestealAmount).value) });
+        var lsAmt = CardDatabase.FindById("vampire").effects.FirstOrDefault(e => e.type == EffectType.LifestealAmount); // カード v3 で吸収量の効果は無くなった(1回=ハート1つ)。2026-10-28
+        typeof(GameManager).GetMethod("AddLife", NPS).Invoke(gm, new object[] { lsAmt != null ? Mathf.RoundToInt(lsAmt.value) : CombatScale.HpPerHeart });
         Check(gm.Lives == 30, $"lifesteal heals one heart = 10 ({gm.Lives})");
         // HEART UP: 最大+10・全回復
         int maxBefore = gm.maxLives;
@@ -74,7 +75,7 @@ public partial class QaSweep
         string atkText = CardEffectFormat.Format(CardDatabase.FindById("attack_up").effects[0]);
         string hpText = CardEffectFormat.Format(CardDatabase.FindById("heart_up").effects[0]);
         L($"[text] attack_up='{atkText}' heart_up='{hpText}'");
-        Check(atkText.Contains("10") && hpText.Contains("10"), "card texts show the x10 values");
+        Check(atkText.Contains("%") && hpText.Contains("1"), $"card texts show the current values (attack '{atkText}', heart '{hpText}')"); // カード v3: 攻撃は割合、HP はハートの数
 
         // ---- 4) Lv9上限
         var deckField = typeof(GameManager).GetField("deckCards", NPS);
@@ -89,7 +90,8 @@ public partial class QaSweep
             pick.Invoke(gm, new object[] { "attack_up" });
         }
         L($"[lv9] attack {atk0} -> {pc.AttackPower} stack={gm.GetCurrentRunStack("attack_up")} skips={gm.MaxedCardSkips} label@8='{label8}'");
-        Check(pc.AttackPower == atk0 + 90 && gm.GetCurrentRunStack("attack_up") == 9 && gm.MaxedCardSkips == 3, "picking ATTACK UP 12 times stacks only 9 times (+90)");
+        // カード v3(2026-10-04)で ATTACK UP は固定値(+10/Lv)から割合(+5%/Lv〜)になった → 上がっていること・Lv9 で止まることだけ見る(2026-10-28)
+        Check(pc.CardAttackFactor > 1.01f && gm.GetCurrentRunStack("attack_up") == 9 && gm.MaxedCardSkips == 3, $"picking ATTACK UP 12 times stacks only 9 times (attack x{pc.CardAttackFactor:0.00}, base {pc.AttackPower})"); // 割合は CardAttackFactor(基礎の AttackPower は変わらない)
         Check(label8.Contains("Lv.8") && label8.Contains("Lv.9") && label8.Contains("MAX"), $"choice label shows 'Lv.8 -> Lv.9 MAX' ({label8})");
         bool offered = false;
         for (int t = 0; t < 8; t++)

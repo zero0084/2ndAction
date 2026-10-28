@@ -139,6 +139,8 @@ public partial class QaSweep
                 float? gH = tm != null ? tm.GetHeightAt(px) : null, sH = tm != null ? tm.GetSkyHeightAt(px, feet) : null;
                 if (gH.HasValue) gapAtPose = Mathf.Abs(feet - gH.Value);
                 if (sH.HasValue) gapAtPose = Mathf.Min(gapAtPose, Mathf.Abs(feet - sH.Value));
+                // 2026-10-28: 坂では足の幅(±0.35m)のどこかが地面に付いていれば接地(中心1点だと坂の上り側で 6〜15cm 浮いて見えた)
+                if (tm != null) for (float ox = -0.35f; ox <= 0.351f; ox += 0.07f) { float? h2 = tm.GetHeightAt(px + ox); if (h2.HasValue) gapAtPose = Mathf.Min(gapAtPose, Mathf.Abs(feet - h2.Value)); }
                 L($"[escape] {cond}: finish pose starts {poseDelay:F2}s after the confirm, grounded={groundedAtPose} gap={gapAtPose:F3} x={px:F2} feet={feet:F2} ground={(gH.HasValue ? gH.Value.ToString("F2") : "pit")}");
             }
             if (cond == "transition" && !reapedInTransition && pc.IsFinishing && ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning)

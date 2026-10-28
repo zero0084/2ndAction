@@ -1576,6 +1576,7 @@ public partial class BossManager : MonoBehaviour
     {
         IsBossPhase = true;
         if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
+        CurrentBossEncounter = null; // 試験で消すボスを「撃破の処理を通らずに消えた」と見張りが数えないように(進行中の関門ごと捨てる。2026-10-28)
         foreach (var o in GameObject.FindGameObjectsWithTag("Boss")) Destroy(o);
         aliveDragonsThisEncounter = 0; aliveMajinsThisEncounter = 0; aliveWildThisEncounter = 0;
         if (kind == WildBossKind.Dragon) { aliveDragonsThisEncounter = 1; SpawnWastelandDragon(dragonStandoffDistance); }
@@ -1588,6 +1589,7 @@ public partial class BossManager : MonoBehaviour
     {
         IsBossPhase = true;
         if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
+        CurrentBossEncounter = null;
         foreach (var o in GameObject.FindGameObjectsWithTag("Boss")) Destroy(o);
         aliveDragonsThisEncounter = 0; aliveMajinsThisEncounter = 0; aliveWildThisEncounter = 0;
         if (TerrainManager.Instance != null && TerrainManager.Instance.cave != null && player != null)
@@ -1603,6 +1605,7 @@ public partial class BossManager : MonoBehaviour
     {
         IsBossPhase = true;
         if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
+        CurrentBossEncounter = null;
         foreach (var o in GameObject.FindGameObjectsWithTag("Boss")) Destroy(o);
         aliveDragonsThisEncounter = 0; aliveMajinsThisEncounter = 0; aliveWildThisEncounter = 0;
         // 実際のゲートと同じく「戦闘中の移動を距離から除外」を開始しておく(報酬完了時のEndと対になる)。

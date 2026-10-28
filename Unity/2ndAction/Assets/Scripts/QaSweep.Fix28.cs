@@ -25,6 +25,8 @@ public partial class QaSweep
         if (parts.Contains("dup")) yield return F28Dup();
         if (parts.Contains("hp")) yield return F28Hp();
         if (parts.Contains("form")) yield return F28Form();
+        if (parts.Contains("formsim")) yield return F28FormSim();
+        if (parts.Contains("hpcards")) yield return F28HpCards();
         if (parts.Contains("fight")) yield return F28Fight();
         if (parts.Contains("ui")) yield return F28Ui();
         SaveProfile.Switch(false, true);
@@ -153,6 +155,71 @@ public partial class QaSweep
     }
 
     struct FormRec { public int km; public string formation; public List<string> keys; public int bodies; public float distBefore, distAfter; public bool held; }
+
+    // hpcards: 最大HPが変わるカード(増える/封印する)を Lv1〜9 まで1枚ずつ取り、取る前後の最大HP/現在HPを記録する(2026-10-28 マスターの依頼④)。
+    //  取る前は毎回ハート2つ分減らしておく(「増えた分だけ増える」か「全回復」かを見分ける)。Lv9 の後に最終進化を発動して、その前後も記録
+    IEnumerator F28HpCards()
+    {
+        L("== hpcards: max/current HP before and after each pick ==");
+        var NPS = BindingFlags.NonPublic | BindingFlags.Instance;
+        var apply = typeof(GameManager).GetMethod("ApplyCardEffects", NPS);
+        var livesSet = typeof(GameManager).GetProperty("Lives").GetSetMethod(true);
+        string[] ids = Arg("-f28HpCards", "heart_up,fortress,heavy_armor,iron_will,long_haul,the_long_road,ultimate,berserker,deaths_contract,glass_cannon,heart_breaker").Split(',');
+        int per = CombatScale.HpPerHeart;
+        foreach (var id in ids)
+        {
+            yield return BeginRun("swordsman", "wasteland_road");
+            stopKeepAlive = true; // 試験の「HP を 990 に戻す」見張りを止める(回復量を測るので)
+            typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false);
+            if (BossManager.Instance != null) BossManager.Instance.enabled = false;
+            Time.timeScale = 0f; // 走らない(敵や障害物で HP が変わらない)
+            var card = CardDatabase.FindBaseById(id);
+            if (card == null) { L($"[hpcards] {id}: no card"); Time.timeScale = 1f; yield return EndRun(); continue; }
+            var sb = new System.Text.StringBuilder();
+            for (int lv = 1; lv <= 9; lv++)
+            {
+                livesSet.Invoke(gm, new object[] { Mathf.Max(per, gm.maxLives - 2 * per) });
+                int m0 = gm.maxLives, h0 = gm.Lives;
+                apply.Invoke(gm, new object[] { card });
+                int m1 = gm.maxLives, h1 = gm.Lives;
+                string kind = h1 == m1 && h0 < m0 && m1 - m0 < h1 - h0 ? "全回復" : h1 - h0 == m1 - m0 && m1 != m0 ? "増えた分だけ" : h1 == h0 ? "変わらない" : "その他";
+                sb.Append($" Lv{lv}: 最大 {m0 / per}→{m1 / per}♥ 現在 {h0 / per}→{h1 / per}♥({kind})");
+                if (lv == 1 || lv == 9) L($"[hpcards] {id} Lv{lv}: max {m0}->{m1} hp {h0}->{h1} ({kind})");
+                yield return null;
+            }
+            L($"[hpcards] {id}:{sb}");
+            // 最終進化(Lv9 の後)
+            FinalEvolution.DebugMakeReady(id);
+            livesSet.Invoke(gm, new object[] { Mathf.Max(per, gm.maxLives - 2 * per) });
+            int fm0 = gm.maxLives, fh0 = gm.Lives;
+            bool ok = FinalEvolution.Activate(id);
+            yield return null; yield return null;
+            L($"[hpcards] {id} FE activate={ok}: max {fm0 / per}→{gm.maxLives / per}♥ hp {fh0 / per}→{gm.Lives / per}♥ ({gm.Lives - fh0:+0;-0;0} HP / max {gm.maxLives - fm0:+0;-0;0})");
+            Time.timeScale = 1f;
+            yield return EndRun(); // 次のカードは新しいランで(前のカードの最大HPを持ち越さない)
+        }
+    }
+
+    // formsim: 生成なしで関門の抽選だけを N 回通し、距離帯ごとの体数の割合と3体にならない理由を数える(BossManager.DevFormationSim)
+    IEnumerator F28FormSim()
+    {
+        L("== formsim: bodies per band (lottery only) ==");
+        int runs = int.Parse(Arg("-f28SimRuns", "400"));
+        foreach (var st in Arg("-f28FormStages", "wasteland_road,natural_cave,sky_corridor,last_corridor").Split(','))
+        {
+            if (st == BossManager.LastStageId) SaveStore.SetInt(SaveKeys.DevFinalDungeonAlwaysOpen, 1); // 試験用データではラスダンが未解放(試験用の保存だけに書く)
+            yield return BeginRun("swordsman", st);
+            var bm = BossManager.Instance;
+            foreach (var v in Arg("-f28SimVariants", "0,1,2,3").Split(','))
+            {
+                BossManager.DevFormationVariant = int.Parse(v);
+                L($"[formsim] stage {st} (active {gm.ActiveRunStageId}) variant {v} ({(v == "0" ? "採用済み" : v == "1" ? "小ボスの重ね" : v == "2" ? "慣れたボスの割引" : "重ね+割引")}) runs={runs}");
+                foreach (var line in bm.DevFormationSim(runs).Split('\n')) if (line.Trim().Length > 0) L(line.TrimEnd());
+            }
+            BossManager.DevFormationVariant = 0;
+            yield return EndRun(); // 次のステージの BeginRun は前のランが終わるのを待つ
+        }
+    }
 
     IEnumerator F28Form()
     {
