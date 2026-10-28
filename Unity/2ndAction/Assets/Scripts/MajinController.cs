@@ -363,6 +363,7 @@ public partial class MajinController : MonoBehaviour
     void SetFrames(Sprite[] frames)
     {
         currentFrames = frames;
+        if (BossPoseStats.DevTrace) BossPoseStats.Trace("Majin", "set" + CurrentFramesSet());
         frameIndex = 0;
         frameTimer = 0f;
         if (frames != null && frames.Length > 0) sr.sprite = frames[0];
@@ -776,8 +777,13 @@ public partial class MajinController : MonoBehaviour
     Collider2D netLastHitCollider;
     float netHitCooldown;
 
+    // 2026-10-28(同期の版 11): 技ごとの1枚絵は FramesSet = 10 + 番号で JOIN へ
+    static readonly string[] NetPoseNames = { "cast", "claw_windup", "claw", "claw_follow", "recover" };
     byte CurrentFramesSet()
     {
+        if (poseArt != null && currentFrames != null)
+            for (int i = 0; i < NetPoseNames.Length; i++)
+                if (poseArt.TryGetValue(NetPoseNames[i], out var pa) && pa != null && pa == currentFrames) return (byte)(10 + i);
         if (currentFrames == idleFrames) return 0;
         if (currentFrames == attackFrames) return 1;
         return 0;
@@ -864,6 +870,9 @@ public partial class MajinController : MonoBehaviour
             {
             case 0: SetFrames(idleFrames); break;
             case 1: SetFrames(attackFrames); break;
+            default:
+                if (s.FramesSet >= 10 && s.FramesSet - 10 < NetPoseNames.Length) SetFrames(Pose(NetPoseNames[s.FramesSet - 10], idleFrames));
+                break;
             }
         }
         if (sr != null) sr.color = NetPlayerSnapshot.UnpackColor(s.Color);

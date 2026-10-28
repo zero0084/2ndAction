@@ -1944,7 +1944,10 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (!entering) s.Flags |= NetCombat.FlagHpBar;
         if (hurtCol != null && hurtCol.enabled) s.Flags |= NetCombat.FlagHurtbox;
         s.Combo = juggle != null ? juggle.NetPack() : (byte)0; // 2026-10-21: BREAK コンボの状態(JOIN の空中の補助/膝つきの見た目)
+        s.SpriteIdx = NetPoseArtIndex(); // 2026-10-28(同期の版 11): 技ごとの1枚絵(天空のボス。0 = なし)
     }
+    protected virtual byte NetPoseArtIndex() => 0;
+    protected virtual void NetApplyPoseArt(byte idx) { }
 
     public void NetApplyVisual(NetCombat.State s)
     {
@@ -1964,6 +1967,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             if (hpBar != null) StartCoroutine(hpBar.RevealRoutine(0.25f));
         }
         if (hurtCol != null) hurtCol.enabled = (s.Flags & NetCombat.FlagHurtbox) != 0;
+        NetApplyPoseArt(s.SpriteIdx);
         if (s.Combo != 0 || (juggle != null && juggle.Open))
         {
             var st = (s.Combo & 128) != 0 ? BossJuggle.Style.Kneel : BossJuggle.Style.Launch;

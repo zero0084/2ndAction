@@ -47,14 +47,29 @@ public abstract partial class SkyBossBase : HazardBossBase
     protected void Art(string windup, string attack, string recover = null, string fly = null, string move = null) { artWindup = windup; artAttack = attack; artRecover = recover; artFly = fly; artMove = move; }
     protected override bool HasRecoverArt => SkyPose("recover") != null;
     protected override void OnMoveEnded() { artWindup = artAttack = artRecover = artFly = artMove = null; }
+    // 2026-10-28(同期の版 11): HOST が今出している技ごとの絵の名前を番号で JOIN へ(番号の表は全ボス共通・HOST/JOIN で同じ)
+    static readonly string[] NetPoseNames = { "recover", "roar", "stomp", "kneel", "sweep", "raise", "tentacle", "pulse", "leap", "run", "disassemble", "fist", "rebirth", "judgment" };
+    string lastArtShown, netArt;
+    protected override byte NetPoseArtIndex() { int i = lastArtShown != null ? System.Array.IndexOf(NetPoseNames, lastArtShown) : -1; return (byte)(i >= 0 ? i + 1 : 0); }
+    protected override void NetApplyPoseArt(byte idx) { netArt = idx > 0 && idx <= NetPoseNames.Length ? NetPoseNames[idx - 1] : null; }
     protected override Sprite PoseOverride()
     {
+        if (NetPuppet)
+        {
+            // JOIN: 姿勢(構え/攻撃/戻り)は同期済み。絵は HOST が出している名前のまま(技の種類は HOST だけが知っている)
+            var ns = SkyPose(netArt);
+            BossPoseStats.Trace(bossName, (ns != null ? ns.name : "-") + " pose=" + pose);
+            if (ns != null) { BossPoseStats.Note(bossName + "/" + ns.name); return ns; }
+            return base.PoseOverride();
+        }
         Sprite s = null;
         if (pose == Pose.Windup) s = SkyPose(artWindup);
         else if (pose == Pose.Attack) s = SkyPose(artAttack);
         else if (pose == Pose.Fly) s = SkyPose(artFly);   // 跳んでいる間(フェンリルの跳びかかり)
         else if (pose == Pose.Move || pose == Pose.Idle) s = SkyPose(artMove); // 技の中で走る間(フェンリルの疾走)
         else if (pose == Pose.Recover || (pose == Pose.Landing && !Broken)) { s = SkyPose(artRecover); if (s == null) s = SkyPose("recover"); } // 着地の後の隙も戻りの姿勢
+        lastArtShown = s != null ? s.name : null;
+        BossPoseStats.Trace(bossName, (s != null ? s.name : "-") + " pose=" + pose);
         if (s != null) { BossPoseStats.Note(bossName + "/" + s.name); return s; }
         return base.PoseOverride();
     }

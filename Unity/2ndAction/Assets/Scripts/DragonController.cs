@@ -559,6 +559,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     void SetFrames(Sprite[] frames)
     {
         currentFrames = frames;
+        if (BossPoseStats.DevTrace) BossPoseStats.Trace("Dragon", "set" + CurrentFramesSet());
         frameIndex = 0;
         frameTimer = 0f;
         if (frames != null && frames.Length > 0) sr.sprite = frames[0];
@@ -1330,8 +1331,13 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     Collider2D netLastHitCollider;
     float netHitCooldown;
 
+    // 2026-10-28(同期の版 11): 技ごとの1枚絵は FramesSet = 10 + 番号で JOIN へ(番号の並びは HOST/JOIN で同じ表)
+    static readonly string[] NetPoseNames = { "inhale", "fire_end", "dive", "descend", "land", "bite_windup", "bite", "takeoff", "orb_charge", "exhaust" };
     byte CurrentFramesSet()
     {
+        if (poseArt != null && currentFrames != null)
+            for (int i = 0; i < NetPoseNames.Length; i++)
+                if (poseArt.TryGetValue(NetPoseNames[i], out var pa) && pa != null && pa == currentFrames) return (byte)(10 + i);
         if (currentFrames == idleFrames) return 0;
         if (currentFrames == chargeFrames || (currentFrames != null && (currentFrames == biteWindFrames || currentFrames == biteFrames))) return 1;
         if (currentFrames == fireFrames) return 2;
@@ -1422,6 +1428,9 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
             case 0: SetFrames(idleFrames); break;
             case 1: SetFrames(chargeFrames); break;
             case 2: SetFrames(fireFrames); break;
+            default:
+                if (s.FramesSet >= 10 && s.FramesSet - 10 < NetPoseNames.Length) SetFrames(Pose(NetPoseNames[s.FramesSet - 10], idleFrames));
+                break;
             }
         }
         if (sr != null) sr.color = NetPlayerSnapshot.UnpackColor(s.Color);
