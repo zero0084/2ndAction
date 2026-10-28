@@ -5,6 +5,7 @@ using UnityEngine;
 //  ・30km 未満は今までどおり関門に合う1体(本来の数)。30km 以上は予算 4(〜60km)/5(〜90km)/6(90km〜)。同時は最大3体。
 //  ・先に関門に合う主役(今までどおりの決め方: 本来のボス/再戦の抽選/ラスダンの格のプール)を出し、残りの予算で追加する。
 //    予算は使い切らなくてよい。コスト: 小(1km格)1 / 中(5km格)2 / 大(10km格)3 / 特別な強敵(メカドラゴン)5。CostOverrides で個別に変えられる。
+//    通常3マップは「慣れたボスの割引」: 初登場の距離が今の関門の 1/3 以下ならコスト-1(最低1。2026-10-28 夜、ラスダンは対象外)。
 //  ・追加の候補: 通常マップ = このランで倒したボス(再戦プール)の同じステージの種類。ラスダン = 格のプール(三ステージ混成)。
 //    同じボスは重ねない。大型/空中/範囲攻撃などはボスラッシュと同じタグの上限(巨体同士で画面が埋まらない)。
 //    竜/魔人(別の仕組みのボス)と特別な強敵は追加に使わない(メカドラゴンはラスダン限定・単独のまま)。
@@ -16,7 +17,7 @@ using UnityEngine;
 public partial class BossManager
 {
     public static bool FormationEnabled = true;
-    public static int DevFormationVariant; // 調整案の試算用(開発版の QA だけが変える。0 = 採用済みの決まり)
+    public static int DevFormationVariant; // 試算用(開発版の QA だけが変える。0 = 採用済みの決まり / 1 = 小ボスの重ね / 2 = ラスダンにも割引 / 4 = 割引なし)
     public const int FormationMaxBosses = 3;
     public static readonly Dictionary<string, int> FormationCostOverrides = new Dictionary<string, int>(); // 実際の難しさで個別に調整する("Wild/Golem" → 3 など)
 
@@ -34,8 +35,12 @@ public partial class BossManager
         if (!ParseKey(key, out GateFamily f, out int kind)) return 3;
         float first = FirstDistanceOf(f, kind);
         int cost = first <= 1000f ? 1 : first <= 5000f ? 2 : 3;
-        // 調整案の試算(開発版の formsim だけが立てる。製品は 0): 2 = 慣れたボスの割引(今の関門の距離の 1/3 より前に初登場した種類はコスト-1)
-        if ((DevFormationVariant & 2) != 0 && cost > 1 && first <= gateK * gateIntervalMeters / 3f) cost--;
+        // 慣れたボスの割引(2026-10-28 夜、マスターの採用): 通常3マップ(荒野/洞窟/天空)で、ボスに設定された初登場の距離が
+        //  今の関門の距離の 1/3 以下ならコストを1下げる(最低1)。個人の遭遇/撃破の回数ではなく初登場の距離だけで決める。ラスダンは対象外
+        //  (混成のプールで既に3体が多い)。予算・最大3体・同種の重ね禁止・タグの上限・距離による HP/攻撃の補正はそのまま
+        bool discount = !IsLastStage && (DevFormationVariant & 4) == 0;   // 開発版の試算だけ: 4 = 割引なし(採用前の決まりとの比較)
+        if ((DevFormationVariant & 2) != 0 && IsLastStage) discount = true; // 開発版の試算だけ: 2 = ラスダンにも割引
+        if (discount && cost > 1 && first <= gateK * gateIntervalMeters / 3f) cost--;
         return cost;
     }
 
