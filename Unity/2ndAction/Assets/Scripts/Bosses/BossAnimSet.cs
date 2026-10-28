@@ -92,7 +92,8 @@ public class BossAnimSet
     // 技の番号(animVariant)ごとの溜め/攻撃。その技のコマが無ければ1つ目の技のコマ
     public Sprite[] WindupFor(int v) => (v == 1 ? windupB : v == 2 ? windupC : v == 3 ? windupD : v == 4 ? windupE : null) ?? windup;
     public Sprite[] AttackFor(int v) => (v == 1 ? attackB : v == 2 ? attackC : v == 3 ? attackD : v == 4 ? attackE : null) ?? attack;
-    public Sprite[] RecoverFor(int v) => (v == 1 ? recoverB : null) ?? recover;
+    // 2026-10-28: 戻りのコマは、その技の分だけ(以前は B 以降の技の後にも A の戻りが一瞬出ていた)。無い時は呼ぶ側が最後の攻撃のコマを少し残す
+    public Sprite[] RecoverFor(int v) => v == 0 ? recover : v == 1 ? recoverB : null;
 
     static Sprite[] Pick(Sprite[] all, string prefix)
     {

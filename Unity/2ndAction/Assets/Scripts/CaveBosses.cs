@@ -283,6 +283,7 @@ public class ScorpionBoss : CaveBossBase
         yield return Wait(0.25f);
         // ② 頭上からの毒針(地面にいる)
         boltGlow.enabled = true;
+        animVariant = 1; PlayAttackPose(0.45f); // 2026-10-28: 本体も攻撃の姿勢(頭上の毒針。以前はハサミのコマのまま)
         CeilAt(0f, 2.2f, 0.9f, 0.35f, CaveLook.Bone, true);
         if (Upgraded) CeilAt(2.8f, 2.0f, 1.2f, 0.35f, CaveLook.Bone, true);
         yield return Wait(1.1f);
@@ -486,13 +487,16 @@ public class TrollBoss : CaveBossBase
         FloorAt(3.6f, 2.4f, 1.1f, 0.9f, 0.45f, CaveLook.Dirt);
         CeilAt(-3.4f, 2.4f, 0.9f, 0.45f, CaveLook.Rock);
         yield return Wait(1.5f);
+        PlayAttackPose(0.35f); // 2026-10-28: 本体も攻撃の姿勢(崩落の波ごとに天井を叩く。以前は1コマを約7秒)
         FloorAt(0f, 2.8f, 1.1f, 0.8f, 0.4f, CaveLook.Dirt, true);
         CeilAt(3.6f, 2.4f, 0.8f, 0.4f, CaveLook.Rock);
         yield return Wait(1.3f);
+        PlayAttackPose(0.35f);
         CeilAt(0f, 2.8f, 0.85f, 0.45f, CaveLook.Rock, true);
         FloorAt(-3.4f, 2.4f, 1.1f, 0.85f, 0.45f, CaveLook.Dirt);
         yield return Wait(1.4f);
         // ③ 時間差の落石 / ④ 巨大な岩(二段ジャンプ)
+        PlayAttackPose(0.35f);
         RockAt(4.2f, 1.0f, 0.9f, 6.5f);
         if (Upgraded) RockAt(6.6f, 1.0f, 1.15f, 6.5f);
         RockAt(9f, 2.2f, 1.4f, 7f, true);
@@ -743,6 +747,7 @@ public class CrystalGolemBoss : CaveBossBase
         // ① 位置の予告(床の魔法陣と天井のひび)
         TellAt(0f, 1.0f, CaveTellStyle.Circle, CaveLook.Crystal); TellAt(3.4f, 1.0f, CaveTellStyle.Circle, CaveLook.Crystal); TellAt(-3.4f, 1.0f, CaveTellStyle.Circle, CaveLook.Crystal);
         yield return Telegraph(0.8f);
+        PlayAttackPose(2.6f); // 2026-10-28: 本体も攻撃の姿勢(結晶の檻を展開。以前は溜めのコマのまま)
         // ② 床の結晶(跳ぶ)
         FloorAt(0f, 2.2f, 1.2f, 0.6f, 0.4f, CaveLook.Crystal, true);
         FloorAt(3.4f, 2.0f, 1.2f, 0.6f, 0.4f, CaveLook.Crystal);
@@ -1084,7 +1089,7 @@ public class ScorpionKingBoss : CaveBossBase
         yield return Wait(1.3f);
         // ③ 毒の雨(跳ぶ)
         yield return MoveToGap(8f, 7f, 0.8f);
-        for (int i = 0; i < (Upgraded ? 3 : 2); i++) { float rel = 4.5f + i * 3.6f; FakeShot(new Color(0.4f, 1f, 0.35f), rel); PoolAt(rel, 1.6f, 3.2f, 4f); }
+        for (int i = 0; i < (Upgraded ? 3 : 2); i++) { float rel = 4.5f + i * 3.6f; animVariant = 2; PlayAttackPose(0.2f); FakeShot(new Color(0.4f, 1f, 0.35f), rel); PoolAt(rel, 1.6f, 3.2f, 4f); } // 2026-10-28: 本体も攻撃の姿勢(毒の雨)
         yield return Wait(1.8f);
         // ④ 処刑の一突き(背が高い=二段ジャンプ)
         yield return MoveToGap(5f, 6f, 0.8f);
@@ -1318,6 +1323,7 @@ public class DrakeBoss : CaveBossBase
         Glow(0.9f, new Color(1f, 0.45f, 0.2f));
         TellAt(2f, 0.9f, CaveTellStyle.Crack, CaveLook.Rock); TellAt(5f, 0.9f, CaveTellStyle.Crack, CaveLook.Rock);
         yield return Telegraph(0.9f);
+        PlayAttackPose(0.6f); // 2026-10-28: 本体も攻撃の姿勢(咆哮 = 炎のコマ。以前は溜めのまま)
         Shake(0.2f, 0.5f);
         // ② 崩落(跳ぶ)
         RockAt(4f, 1.0f, 0.8f, 6.5f);
@@ -1444,10 +1450,12 @@ public class AncientDemonBoss : CaveBossBase
     {
         animVariant = 2;
         yield return Telegraph(0.6f);
+        PlayAttackPose(0.3f); // 2026-10-28: 本体も攻撃の姿勢(以前は溜めのコマのまま床/天井の魔法)
         FloorAt(0f, 2.2f, 1.2f, 0.85f, 0.35f, CaveLook.Magic);
         yield return Wait(0.9f);
+        PlayAttackPose(0.3f);
         CeilAt(0f, 2.4f, 0.85f, 0.4f, CaveLook.Magic);
-        if (Enraged || Upgraded) { yield return Wait(0.9f); FloorAt(0f, 2.2f, 1.2f, 0.85f, 0.35f, CaveLook.Magic); }
+        if (Enraged || Upgraded) { yield return Wait(0.9f); PlayAttackPose(0.3f); FloorAt(0f, 2.2f, 1.2f, 0.85f, 0.35f, CaveLook.Magic); }
         yield return Wait(1.0f);
         yield return Recover(0.9f * RecoverMul);
     }

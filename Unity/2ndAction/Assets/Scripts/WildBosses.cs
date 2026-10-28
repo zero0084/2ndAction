@@ -939,6 +939,7 @@ public class GolemBoss : WildBossBase
         EndAttack();
         // 岩柱: 前方からプレイヤーへ向かって順に突き上がる(足元の柱が立つ瞬間に跳ぶ)
         Color rockC = new Color(0.75f, 0.6f, 0.4f, 0.95f);
+        animVariant = 2; PlayAttackPose(1.4f); // 2026-10-28: 本体も攻撃の姿勢(地面を叩いて岩柱。以前は待機のまま)
         for (int i = 0; i < 7; i++)
         {
             float rel = 8f - i * 1.6f;
@@ -948,6 +949,7 @@ public class GolemBoss : WildBossBase
         yield return Wait(0.75f);
         // 最後に巨大な岩を前方へ(背が高い=二段ジャンプ)
         LaneWarn(1.0f, 4f, 0f, 2.3f, 0.8f, TallLaneColor);
+        animVariant = 1; PlayAttackPose(0.6f); // 2026-10-28: 本体も攻撃の姿勢(岩を投げる)
         var boulder = Projectile(CaveBossFx.RockChunk(), new Color(0.95f, 0.9f, 0.85f, 1f), FrontWorld(1.2f, 1.15f), new Vector2(2.9f, 2.9f), new Vector2(facing * 8f, 0f), 4f, true);
         boulder.hugGround = true; boulder.groundOffset = 1.15f; boulder.passThrough = true; boulder.spin = 200f * -facing;
         yield return Wait(1.1f);

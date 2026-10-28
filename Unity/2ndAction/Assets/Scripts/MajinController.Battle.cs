@@ -152,7 +152,7 @@ public partial class MajinController : IBossBattleDebug
     {
         state = State.Special;
         ClawCount++;
-        SetFrames(attackFrames);
+        SetFrames(idleFrames); // 2026-10-28: 寄る間は待機(紫に光る予兆)。腕を広げるコマは薙ぎ払いの時だけ
         float dx = 3.0f, alt = Mathf.Max(1.2f, (hoverHeight - groundClearance) + 0.2f);
         // 予兆: 体が紫に光る → 急接近
         if (flashOverlay != null) { flashOverlay.color = MagicCol; flashOverlay.enabled = true; }
@@ -161,11 +161,13 @@ public partial class MajinController : IBossBattleDebug
         if (flashOverlay != null) flashOverlay.enabled = false;
         // 低い薙ぎ払い(跳ぶ)。予告の帯 0.7 秒
         float d = CaveBossSafety.Reserve(false, 0.7f, 0.3f);
+        SetFrames(attackFrames);
         CaveHazard.Band(player.position.x + 0.8f, 4.2f, 0f, 1.15f, 0.7f + d, 0.3f, CaveLook.Magic, MagicDmg(false), false, "Majin:claw").SetBodySprite(BossFx.Slash(), true); // 爪は斬撃の絵(2026-10-11)
         t = 0f;
         while (t < 1.0f + d && state == State.Special) { t += Time.deltaTime; transform.position = RelPos(dx, alt); yield return null; }
         // 振り抜いた後はその場にとどまる(反撃の時間、暗い色=今は撃ってこない)
         if (sr != null) sr.color = recoveryTint;
+        SetFrames(idleFrames); // 振り抜いた後の隙(以前は攻撃の繰り返しのコマのまま)
         t = 0f;
         while (t < 1.4f && state == State.Special) { t += Time.deltaTime; transform.position = RelPos(dx, alt); yield return null; }
         if (sr != null) sr.color = Color.white;

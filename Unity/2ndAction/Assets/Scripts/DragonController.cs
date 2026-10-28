@@ -398,7 +398,9 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(SeId.BossCharge, transform.position); // 2026-10-06: 火球の溜め
         float landX = trackedX + landedStandoffDistance;
         TrackedHazard.Create(landX, halfHWorld * 2.4f, halfHWorld * 1.2f, landingWarnDuration, 0f, Color.clear);
+        SetFrames(chargeFrames); // 2026-10-28: 降下の予告 = 立ち上がって身構える
         yield return BlinkFlash(landingWarnDuration);
+        SetFrames(idleFrames); // 降下は翼のコマ
         if (state == State.Dead) yield break;
 
         // 降下(間合いを詰めながら地面へ)
@@ -421,8 +423,10 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         if (camFollow != null) camFollow.Shake(0.2f, 0.25f);
         OneShotSpriteEffect.CreateScatterBurst(OneShotSpriteEffect.SoftDotSprite(), transform.position + Vector3.down * halfHWorld * 0.8f, new Color(0.75f, 0.65f, 0.5f, 0.8f), 12, 0.5f, 0.7f, 1.3f, 3.5f, 2.4f, RenderOrder.CombatFx);
+        SetFrames(BiteOpen); // 着地の叩きつけ(口を開いて踏みつける)
         yield return landHitbox.Strike(1f, 0.35f);
         if (state == State.Dead) yield break;
+        SetFrames(chargeFrames); // 地上で身構える(殴れる隙)
 
         // 着地状態: 地面に張り付いて追従(プレイヤーが殴れる隙)。途中で噛みつき。
         float grounded = 0f;
@@ -439,10 +443,13 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
                 float frontDir = -Mathf.Sign(transform.lossyScale.x);
                 float halfWWorld = sr.sprite.bounds.extents.x * sc;
                 TrackedHazard.Create(transform.position.x + frontDir * (halfWWorld + 0.9f), 2.6f, 2.0f, 0.8f, 0f, Color.clear);
+                SetFrames(BiteWind); // 噛みつきの構え(頭を引く)
                 yield return BlinkFlash(0.8f);
                 if (state == State.Dead) yield break;
+                SetFrames(BiteOpen); // 噛みつく(口を開く)
                 yield return biteHitbox.Strike(1f, 0.3f);
                 if (state == State.Dead) yield break;
+                SetFrames(chargeFrames);
                 grounded += 1.1f;
                 continue;
             }
@@ -451,6 +458,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         }
 
         // 再上昇
+        SetFrames(idleFrames);
         standoffDistance = origStandoff;
         state = State.Landing;
         yield return ReturnToHome(0.9f);
@@ -529,6 +537,12 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         transform.position = homePos;
     }
 
+    // 2026-10-28: 攻撃の段ごとのコマ(全ボスの攻撃アニメの点検)。溜めのコマ(charge = 頭を引いて立ち上がる)の前半を噛みつきの構え、
+    //  後半(口を開く)を噛みつきに使う。新しい絵が無くても「構え → 攻撃 → 戻り」が分かるように、今ある3組のコマを割り当て直す
+    Sprite[] biteWindFrames, biteFrames;
+    Sprite[] BiteWind { get { if (biteWindFrames == null && chargeFrames != null && chargeFrames.Length >= 4) biteWindFrames = System.Array.FindAll(chargeFrames, f => System.Array.IndexOf(chargeFrames, f) < 4); return biteWindFrames ?? chargeFrames; } }
+    Sprite[] BiteOpen { get { if (biteFrames == null && chargeFrames != null && chargeFrames.Length >= 5) biteFrames = System.Array.FindAll(chargeFrames, f => System.Array.IndexOf(chargeFrames, f) >= 4); return biteFrames ?? chargeFrames; } }
+
     void SetFrames(Sprite[] frames)
     {
         currentFrames = frames;
@@ -580,6 +594,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         state = State.Telegraphing;
         if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(SeId.BossTelegraph, transform.position); // 2026-10-06: 予兆の音
 
+        SetFrames(chargeFrames); // 2026-10-28: 予告の3秒も溜めの姿勢(以前は浮遊のコマ+点滅だけ)
         float t = 0f;
         bool flash = false;
         while (t < telegraphDuration)
@@ -657,9 +672,10 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     IEnumerator FireAttack()
     {
         state = State.Firing;
-        SetFrames(fireFrames);
+        SetFrames(chargeFrames); // 2026-10-28: 吸い込み(溜め)。炎の描かれたコマは吐いている間だけ
 
         yield return new WaitForSeconds(fireWindupDuration);
+        SetFrames(fireFrames);
 
         FirePattern pattern = PickFirePattern();
         switch (pattern)
@@ -683,6 +699,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
                 break;
         }
 
+        SetFrames(idleFrames); // 戻り(以前は戻りの間も炎を吐き続けて見えた)
         yield return new WaitForSeconds(fireRecoverDuration);
 
         state = State.Idle;
@@ -1019,7 +1036,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
             chargeOrb.sortingOrder = sr.sortingOrder + 2;
         }
         chargeOrb.enabled = true;
-        SetFrames(fireFrames);
+        SetFrames(chargeFrames); // 2026-10-28: 火球を溜める間は溜めの姿勢(以前はブレスのコマ)
         t = 0f;
         Vector3 mouth = Vector3.Scale((Vector3)fireballSpawnOffset, transform.lossyScale);
         while (t < 1.5f)
@@ -1051,7 +1068,10 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         var camF = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         if (camF != null) camF.Shake(0.15f, 0.3f);
         state = State.Firing;
-        yield return new WaitForSeconds(2.2f);
+        SetFrames(fireFrames); // 放つ瞬間だけ炎のコマ → すぐ待機へ(反撃のチャンスの間にブレスを吐いて見えないように)
+        yield return new WaitForSeconds(0.45f);
+        SetFrames(idleFrames);
+        yield return new WaitForSeconds(2.2f - 0.45f);
         BossBattle.EndUltimate(this);
         ultimateRunningFlag = false;
         if (skyMode) yield return LowRecovery(2.8f); // 天空: 低空へ降りる(反撃のチャンス)
@@ -1184,6 +1204,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
             if (biteHitbox != null) biteHitbox.Deactivate();
             if (flashOverlay != null) flashOverlay.enabled = false;
             if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
+            if (chargeOrb != null) chargeOrb.enabled = false; // 2026-10-28: 溜めの火球の途中で倒した時に火球の絵が残らないように
 
             // ===== Item 1 - Final Hit: a slightly longer Hit Stop, a boosted
             // Hit Spark, and a stronger Camera Shake than a normal hit. Only
@@ -1296,7 +1317,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     byte CurrentFramesSet()
     {
         if (currentFrames == idleFrames) return 0;
-        if (currentFrames == chargeFrames) return 1;
+        if (currentFrames == chargeFrames || (currentFrames != null && (currentFrames == biteWindFrames || currentFrames == biteFrames))) return 1;
         if (currentFrames == fireFrames) return 2;
         return 0;
     }

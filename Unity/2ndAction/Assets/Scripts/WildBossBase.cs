@@ -513,7 +513,8 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             // 2026-10-20: 3枚以上なら突進中は全部を繰り返す(ゴブリンライダーの騎乗突撃: 構える → 蹴る → 伸びる。脚が止まって見えないように)
             if (a.ult.Length >= 3 && (pose == Pose.Attack || pose == Pose.Move || pose == Pose.Fly))
                 return BossAnimSet.Loop(a.ult, a.moveFps, moveClock + loopTimeOffset);
-            if (pose == Pose.Attack || pose == Pose.Move || pose == Pose.Fly) return a.ult[Mathf.Min(1, a.ult.Length - 1)];
+            // 2026-10-28: 2枚の必殺技のコマは攻撃の時だけ(以前は歩く/下がる間も「振り下ろした」コマのまま滑っていた: サイクロプス/オオカミ)
+            if (pose == Pose.Attack || pose == Pose.Fly) return a.ult[Mathf.Min(1, a.ult.Length - 1)];
         }
         // 2026-10-20: 必殺技の後の専用の隙(exhaust_、サソリの尾が刺さる・モグラが目を回す)。CaveRecovery の間ずっと
         var exArt = exhaustArtFrames ?? a.exhaust;
@@ -1270,6 +1271,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             BreakComboOnDeath(); // 打ち上げ中でも寄せをやめる(撃破の見た目はその位置から)
             StopAllCoroutines();
             DisableAllHitboxes();
+            HideAttackGlows();
             relVelocity = 0f;
             if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
             if (hpBar != null) hpBar.SetSub(0f, false);
@@ -1486,7 +1488,15 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         vulnerableScale = 1f;
         staggerDefense = 1f;
         diveArtT = -1f; emergeArtUntil = 0f; exhaustArt = false; exhaustArtFrames = null; emergeArtOverride = null; // 潜る/飛び出す/隙のコマも止める
+        HideAttackGlows();
         OnInterrupted();
+    }
+
+    // 2026-10-28: BREAK/撃破で技が止まった時に、溜めの光(口/コア/剣などの "...Glow")が残らないように消す(全ボス共通)
+    protected void HideAttackGlows()
+    {
+        foreach (var r in GetComponentsInChildren<SpriteRenderer>(true))
+            if (r != null && r.gameObject != gameObject && r.gameObject.name.EndsWith("Glow") && r.gameObject.name != "DarkGlow") r.enabled = false; // DarkGlow = 死神の常時の闇の光(技の光ではない)
     }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
