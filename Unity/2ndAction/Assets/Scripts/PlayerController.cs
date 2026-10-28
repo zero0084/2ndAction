@@ -2516,7 +2516,7 @@ public partial class PlayerController : MonoBehaviour
                 fallT += dt;
                 if (FinishFallTick(dt, speed * dt, t >= finishDecelDuration, fallT)) yield return FinishPitHop();
             }
-            else transform.position += Vector3.right * speed * dt;
+            else { transform.position += Vector3.right * speed * dt; FinishFollowSurface(); }
             KitFinishTick(dt); // 魔法使い: 高く飛んでいても浮遊の最低高度へ降りる(他キャラは何もしない)
             yield return null;
         }
@@ -2593,6 +2593,18 @@ public partial class PlayerController : MonoBehaviour
         transform.position = new Vector3(x, ny, transform.position.z);
         if (float.IsNegativeInfinity(surf) && (belowGround || decelDone || ny < failY + 1.5f)) return true; // 穴の上: 落ちて負けないよう足場へ
         return fallT > 4f; // 安全装置: いつまでも着地しない
+    }
+
+    // 2026-10-28: 地上で確定した時の減速は横だけに動かしていたので、坂では浮いたり沈んだりした(5〜14cm)。今の足場の面に沿わせる
+    void FinishFollowSurface()
+    {
+        var tm = TerrainManager.Instance;
+        if (tm == null || kit == CharacterKit.Mage || !isGrounded) return;
+        float x = transform.position.x, y = transform.position.y;
+        float? surf = onSky ? tm.GetSkyHeightAt(x, y - groundOffset) : tm.GetHeightAt(x);
+        if (!surf.HasValue) return;
+        float ny = surf.Value + groundOffset;
+        if (Mathf.Abs(ny - y) < 0.6f) transform.position = new Vector3(x, ny, transform.position.z);
     }
 
     void FinishLand(float x, float surfY, bool sky)
