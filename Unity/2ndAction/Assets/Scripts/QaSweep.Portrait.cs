@@ -24,8 +24,16 @@ public partial class QaSweep
         UnlockRules.DevUnlockAll = true; SprintRecords.DevUnlockAll = true;
         gm.AddMile(5000);
         L($"[portrait] screen {Screen.width}x{Screen.height} portrait={Screen.height > Screen.width} safe={Screen.safeArea}");
-        string tag = $"{Screen.width}x{Screen.height}";
-        void S(string n) => Shot($"{tag}_{n}");
+        layoutTagSuffix = Arg("-qaTag", "");
+        string tag = $"{Screen.width}x{Screen.height}{layoutTagSuffix}";
+        void S(string n) { Shot($"{tag}_{n}"); LayoutAudit($"{tag}_{n}"); } // 2026-10-28: 撮るたびに配置の範囲チェック(uGUI)
+        if (Arg("-qaLayoutMax", "0") == "1")
+        {
+            // 多い/最大の状態: MILE を最大の桁、所持カードを多く
+            gm.AddMile(9_999_999 - gm.TotalOwnedMile);
+            foreach (var c in CardDatabase.UnlockedCards.Take(80)) CardInventory.AddCard(c.cardId, 1, 3);
+            L($"[portrait] max state: MILE {gm.TotalOwnedMile:N0}, stacks {CardInventory.Stacks.Count}");
+        }
 
         if (PCase('H')) { yield return new WaitForSecondsRealtime(1f); S("home"); yield return new WaitForSecondsRealtime(0.4f); }
         if (PCase('P'))
@@ -246,6 +254,8 @@ public partial class QaSweep
             TutorialRun.Instance?.Quit("qa portrait");
             yield return WaitTut(() => GameManager.Instance != null && !TutorialMode.Active && !TutorialLauncher.Covering, 12f);
         }
+        if (PCase('X')) yield return LayoutExtraScreens(S);
+        LayoutFlush();
         if (qaLang != "") Loc.Set(langKeep);
         UnlockRules.DevUnlockAll = false; SprintRecords.DevUnlockAll = false;
         SaveProfile.Switch(false, true);

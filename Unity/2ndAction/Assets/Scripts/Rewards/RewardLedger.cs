@@ -12,12 +12,13 @@ public static class RewardLedger
     }
     public static string BossTag = "";
     public static readonly List<Entry> Entries = new List<Entry>();
+    public static int Trimmed; // 2026-10-28: 古い記録を捨てた件数(試験は「通し番号 = Trimmed + 位置」で読む。捨てると位置がずれ、長い試験で記録が無いように見えていた)
 
     public static void Note(string kind, string detail)
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         Entries.Add(new Entry { time = Time.time, frame = Time.frameCount, kind = kind, tag = BossTag, detail = detail });
-        if (Entries.Count > 512) Entries.RemoveRange(0, 256);
+        if (Entries.Count > 512) { Entries.RemoveRange(0, 256); Trimmed += 256; }
 #endif
     }
 

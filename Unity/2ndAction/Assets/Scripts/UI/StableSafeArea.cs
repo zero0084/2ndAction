@@ -15,7 +15,7 @@ public static class StableSafeArea
     public static string LastReason = "start";   // OrientationWatcher などが書く(復帰/回転/向きの指定)
     public static int Changes { get; private set; }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-    static float fakeLeft = -1f;
+    static float fakeLeft = -1f, fakeRight, fakeTop, fakeBottom;
 #endif
 
     // Screen.safeArea と同じ座標(左下が原点、画素)
@@ -43,9 +43,20 @@ public static class StableSafeArea
         stable = FromCutouts();
 #endif
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        // 開発版の試験だけ(2026-10-28): -fakeSafeLeft <px> で左に切り欠きがあるつもりにする(PC で背景の漏れを確かめる)
-        if (fakeLeft < 0f) { fakeLeft = 0f; var a = System.Environment.GetCommandLineArgs(); for (int i = 0; i < a.Length - 1; i++) if (a[i] == "-fakeSafeLeft") float.TryParse(a[i + 1], out fakeLeft); }
-        if (fakeLeft > 0f) stable = new Rect(stable.x + fakeLeft, stable.y, Mathf.Max(1f, stable.width - fakeLeft), stable.height);
+        // 開発版の試験だけ(2026-10-28): -fakeSafeLeft/-fakeSafeRight/-fakeSafeTop/-fakeSafeBottom <px> でその端に切り欠きがあるつもりにする(PC で背景の漏れ・ボタンの位置を確かめる)
+        if (fakeLeft < 0f)
+        {
+            fakeLeft = 0f; var a = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < a.Length - 1; i++)
+            {
+                if (a[i] == "-fakeSafeLeft") float.TryParse(a[i + 1], out fakeLeft);
+                if (a[i] == "-fakeSafeRight") float.TryParse(a[i + 1], out fakeRight);
+                if (a[i] == "-fakeSafeTop") float.TryParse(a[i + 1], out fakeTop);
+                if (a[i] == "-fakeSafeBottom") float.TryParse(a[i + 1], out fakeBottom);
+            }
+        }
+        if (fakeLeft > 0f || fakeRight > 0f || fakeTop > 0f || fakeBottom > 0f)
+            stable = Rect.MinMaxRect(stable.xMin + fakeLeft, stable.yMin + fakeBottom, Mathf.Max(stable.xMin + fakeLeft + 1f, stable.xMax - fakeRight), Mathf.Max(stable.yMin + fakeBottom + 1f, stable.yMax - fakeTop));
 #endif
         if (raw != lastRaw || stable != lastStable || Screen.width != lastW || Screen.height != lastH)
         {

@@ -217,7 +217,7 @@ public partial class QaSweep
 
             // ---- B: BREAK → 入力の列 ----
             int kills0 = gm.BossKillCount;
-            int led0 = RewardLedger.Entries.Count; string bossTag = RewardLedger.Tag(bc, boss.W != null ? boss.W.bossName : bc.name);
+            int led0 = RewardLedger.Trimmed + RewardLedger.Entries.Count; string bossTag = RewardLedger.Tag(bc, boss.W != null ? boss.W.bossName : bc.name);
             int l0 = BossJuggle.Launches + BossJuggle.Relaunches, sl0 = BossJuggle.Slams, kn0 = BossJuggle.KneelHits, dp0 = BossJuggle.DownPushes, ks0 = BossJuggle.KneelSlams;
             w = 0f; while ((!pc.IsGrounded || pc.IsAttacking) && w < 2f) { yield return null; w += Time.deltaTime; }
             boss.ForceBreak();
@@ -324,7 +324,7 @@ public partial class QaSweep
                 for (float wt = 0f; wt < 30f && gm.BossRewardChoicesStarted < gm.BossKillCount; wt += Time.unscaledDeltaTime) yield return null;
                 var led = new StringBuilder();
                 int myDefeats = 0, myChoices = 0, others = 0, myMile = 0, allChoices = 0; bool afterMine = false;
-                for (int li = Mathf.Min(led0, RewardLedger.Entries.Count); li < RewardLedger.Entries.Count; li++)
+                for (int li = Mathf.Clamp(led0 - RewardLedger.Trimmed, 0, RewardLedger.Entries.Count); li < RewardLedger.Entries.Count; li++) // 通し番号で読む(記録を捨てても位置がずれない)
                 {
                     var e = RewardLedger.Entries[li];
                     if (!e.kind.StartsWith("Boss:")) led.Append(e).Append(" | ");
