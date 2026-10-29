@@ -234,7 +234,9 @@ public static class BossDiagnostics
         // TimeScale>0の「本来動いているはずの」時間帯のみ対象 - 演出中は除外) ---
         bool activelyRunning = Time.timeScale > 0f && !gm.IsBossPresentationActivePublic
             && (BossDefeatPresentation.Instance == null || !BossDefeatPresentation.Instance.IsRunning);
-        if (activelyRunning && PlayerController.Instance != null)
+        // 2026-10-29 ボス戦の停止戦: 止まって戦うのは意図した動き(プレイヤーの座標が変わらないのは止まっているため)。止まっている間は見ない
+        if (activelyRunning && PlayerController.Instance != null && PlayerController.Instance.HaltFactor < 0.999f) { lastCheckedBossesDefeated = -1; noProgressTimer = 0f; }
+        else if (activelyRunning && PlayerController.Instance != null)
         {
             Vector3 pos = PlayerController.Instance.transform.position;
             int bossesDefeated = bm.BossesDefeated;

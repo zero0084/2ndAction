@@ -123,6 +123,7 @@ public class PlayerAnimator : MonoBehaviour
 
     // マルチプレイ対応Phase 1(2026-09-25) - 相手端末へ「今どのStateの何コマ目か」を
     // 送るためpublicにした(値の並びはネット上の番号なので、末尾以外へ追加しないこと)。
+    bool battleStance; // ボス戦の停止戦で構えている(StartPrep のコマを1つで止める)
     public enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand, UpShot, Hurt, Recovery, StartPrep, Finish, Death }
 
     public State CurrentState => state;
@@ -747,7 +748,10 @@ public class PlayerAnimator : MonoBehaviour
         else if (!grounded) newState = State.Jump;
         // ラストダンジョンのエンディング(2026-09-30): 自動前進を止めて立っている間は、走りではなく構えのポーズ
         else if (controller != null && controller.IsStandingIdle) newState = State.StartPrep;
+        // 2026-10-29 ボス戦の停止戦: 止まっている間は走りではなく構えのポーズ(踏み込み/ノックバックで動く一瞬も構えのまま)
+        else if (controller != null && controller.HaltFactor < 0.3f) newState = State.StartPrep;
         else newState = State.Run;
+        battleStance = newState == State.StartPrep && controller != null && controller.HaltFactor < 0.3f && !controller.IsStandingIdle && !controller.IsPreparingStart && !controller.NetIsChoosing;
 
         // 走りの時計は走っていない間も進める(戻った時に続きのコマから)
         float baseRun = controller != null ? Mathf.Max(0.1f, controller.runSpeed) : 5f;
@@ -785,7 +789,13 @@ public class PlayerAnimator : MonoBehaviour
         // 専用絵が無い間のフォールバック(FallbackSingleFrame、常に1枚)は
         // このぶんを通らず、従来どおり下のfps任せパスを通る(1枚しか無い
         // ため実質何も変わらない)。
-        if (state == State.StartPrep && HasFrames(startFrames))
+        if (state == State.StartPrep && HasFrames(startFrames) && battleStance)
+        {
+            // ボス戦の停止戦の構え: 開始準備のコマのうち「構え」(3コマ以上は最後の1つ前 = 走り出しの前、2コマ以下は最後)で止める
+            frameIndex = frames.Length > 2 ? frames.Length - 2 : frames.Length - 1;
+            SetSpriteSafe(frames[frameIndex]);
+        }
+        else if (state == State.StartPrep && HasFrames(startFrames))
         {
             float p = Mathf.Clamp01(startPrepElapsed / Mathf.Max(0.01f, startPrepPoseDuration));
             // 3コマ以上ある場合(竜騎士の「穂先確認→石突き→構え→走り出し」等)は

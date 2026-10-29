@@ -326,6 +326,7 @@ public partial class BehemothBoss : SkyBossBase
 
     IEnumerator ChargeAttack()
     {
+        Foresee(chargeMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(9f, 5f, 2.5f);
         hornGlow.enabled = true;
         StartCoroutine(FollowGlow(hornGlow, 0.9f, 0.55f, 0.4f, 1.6f, 1.1f));
@@ -356,6 +357,7 @@ public partial class BehemothBoss : SkyBossBase
 
     IEnumerator ShockStomp()
     {
+        Foresee(stompMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Approach(3.0f, 3f, 4f);
         Art("stomp", null); // 2026-10-28: 踏みつけの構え = 後ろ脚で立ち上がる(攻撃は今の踏み込みの絵)
         yield return Telegraph(1.0f, stompMark);
@@ -676,6 +678,7 @@ public partial class SkyJellyfishBoss : SkyBossBase
 
     IEnumerator TentacleLash()
     {
+        Foresee(tentacleMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Approach(2.2f, 2.6f, 5f);
         Art(null, "tentacle"); // 2026-10-28: 触手を突き刺す
         yield return Telegraph(0.8f, tentacleMark);   // 触手を後方へ引く
@@ -685,6 +688,7 @@ public partial class SkyJellyfishBoss : SkyBossBase
 
     IEnumerator ElectricShock()
     {
+        Foresee(shockMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Approach(2.0f, 2.4f, 5f);
         coreGlow.enabled = true;
         StartCoroutine(FollowGlow(coreGlow, 0f, 0.55f, 0.6f, 2.4f, 1.0f));
@@ -1084,6 +1088,7 @@ public partial class FenrirBoss : SkyBossBase
 
     IEnumerator GodspeedBite()
     {
+        Foresee(biteMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(4.5f, 8f, 2f);
         mouthGlow.enabled = true;
         StartCoroutine(FollowGlow(mouthGlow, 0.95f, 0.45f, 0.4f, 1.3f, 0.55f));
@@ -1152,6 +1157,7 @@ public partial class FenrirBoss : SkyBossBase
         // プレイヤーを追い越して前へ → 振り返る → 高速ですれ違い攻撃
         yield return MoveToGap(-9f, 14f, 2.5f);
         yield return MoveToGap(11f, 18f, 2.5f);
+        Foresee(passMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Wait(0.2f);
         Art(null, "run"); // 2026-10-28: すれ違い攻撃 = 全速力で駆け抜ける
         yield return Telegraph(0.8f, passMark);
@@ -1301,6 +1307,7 @@ public partial class SkyGolemBoss : SkyBossBase
 
     IEnumerator FistSlam()
     {
+        Foresee(fistMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Approach(2.6f, 1.6f, 6f);
         Art(null, "fist"); // 2026-10-28: 拳を真下へ振り下ろす
         fistGlow.enabled = true;
@@ -1915,6 +1922,7 @@ public partial class CelestialGuardianBoss : SkyBossBase
 
     IEnumerator LightSword()
     {
+        Foresee(swordMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Approach(1.4f, 3.2f, 5f);
         swordGlow.enabled = true;
         StartCoroutine(FollowGlow(swordGlow, 0.2f, 0.5f, 0.4f, 1.5f, 0.6f));

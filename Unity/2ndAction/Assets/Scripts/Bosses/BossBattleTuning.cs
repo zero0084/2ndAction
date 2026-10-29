@@ -45,6 +45,14 @@ public class BossBattleTuning : ScriptableObject
     [Tooltip("後退の倍率")]
     public float lungeBackScale = 1.6f;
 
+    [Header("予兆の先読み(2026-10-29): 能力としての速さが高いほど、ボスが決めた攻撃の予兆を早く見られる(攻撃の時刻/判定は全員同じ)")]
+    [Tooltip("この速さ(km/h)以下は先読みなし(今までどおりの予兆だけ)")]
+    public float foresightStartKmh = 60f;
+    [Tooltip("この速さ(km/h)以上で先読みが上限になる")]
+    public float foresightFullKmh = 150f;
+    [Tooltip("先読みの上限(秒)。既存の溜め(予告)の時間: 最短 0.35〜0.5秒・中央 0.85〜1.0秒(荒野/洞窟/天空)を見て、中央の約4割")]
+    public float foresightMaxLead = 0.4f;
+
     [Header("崩し(Stagger)の溜まり方: 攻撃の種類ごと")]
     public float staggerNormal = 1f;
     public float staggerUp = 3.2f;       // 上攻撃(打ち上げ)

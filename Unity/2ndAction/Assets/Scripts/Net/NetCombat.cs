@@ -29,7 +29,7 @@ public class NetCombat : MonoBehaviour
     const string MsgState = "OMM.CombatState";    // HOST→JOIN: 位置/姿勢(非信頼)
     const string MsgHit = "OMM.CombatHit";        // JOIN→HOST: ダメージ要求
 
-    const byte OpEnemySpawn = 1, OpBossSpawn = 2, OpDamage = 3, OpDeath = 4, OpDespawn = 5, OpReject = 6, OpBanner = 7, OpWanted = 8;
+    const byte OpEnemySpawn = 1, OpBossSpawn = 2, OpDamage = 3, OpDeath = 4, OpDespawn = 5, OpReject = 6, OpBanner = 7, OpWanted = 8, OpBossHold = 9, OpEarlyTele = 10, OpEarlyCancel = 11;
     const byte HitDamage = 1, HitVacuum = 2;
 
     public const float StateSendRate = 20f;
@@ -209,7 +209,87 @@ public class NetCombat : MonoBehaviour
         wasReplica = replica; wasAuthority = authority;
 
         if (replica) ProcessPendingReliable();
+        if (authority) TickBossHoldBroadcast();
         UpdateRemoteAttackers();
+    }
+
+    // ===== ボス戦の停止戦(2026-10-29): HOST が「ボス戦で止まる(距離を止める)遭遇の最中か」と戦闘範囲の位置(論理X)を配る =====
+    // JOIN は自分の BossManager が遭遇を持たない(HOST だけが出す)ので、これで止まる。各端末は自分のプレイヤーが戦闘範囲に
+    // 入った時に止まる(後ろの人は追いつくまで走る = 無関係な人を急に止めない)。変わった時と、念のため3秒ごとに送る
+    public static bool RemoteBossHold { get; private set; }
+    public static double RemoteHoldAnchorLX { get; private set; }
+    public static double HoldAnchorLX { get; private set; } // HOST/シングル: 戦闘範囲の基準(最前の人の論理X)
+    public static int BossHoldSent, BossHoldReceived;
+
+    // ===== 予兆の先読み(2026-10-29): HOST が決めた攻撃の範囲と「予兆(溜め)が始まる共通時計の時刻」を早めに JOIN へ送る =====
+    // JOIN は自分のプレイヤーの能力の速さから先読みの長さを決め、その時刻より前に先読みの印を出す。攻撃の時刻/判定は HOST のまま。
+    // 遅れて届いて、もう予兆が始まる時刻を過ぎていれば出さない(古い予兆を後から出さない)
+    public static int EarlyTeleSent, EarlyTeleReceived, EarlyTeleLate;
+    public static void SendEarlyTelegraph(int bossId, BossTelegraphMarker[] zones, float facing, double baseStartNetNow)
+    {
+        if (!Authority || Instance == null || zones == null) return;
+        NetworkManager nm = NetSession.Manager;
+        if (nm == null || nm.CustomMessagingManager == null) return;
+        int n = 0; foreach (var z in zones) if (z != null) n++;
+        if (n == 0) return;
+        using (var w = new FastBufferWriter(64 + n * 16, Allocator.Temp))
+        {
+            w.WriteValueSafe(NetRunLauncher.ActiveRunSeed);
+            w.WriteValueSafe(OpEarlyTele);
+            w.WriteValueSafe(bossId); w.WriteValueSafe(facing); w.WriteValueSafe(baseStartNetNow); w.WriteValueSafe((byte)Mathf.Min(n, 8));
+            int k = 0;
+            foreach (var z in zones)
+            {
+                if (z == null || k >= 8) continue; k++;
+                w.WriteValueSafe(z.RelCenter.x); w.WriteValueSafe(z.RelCenter.y); w.WriteValueSafe(z.Size.x); w.WriteValueSafe(z.Size.y);
+            }
+            SendReliableToClients(w);
+        }
+        EarlyTeleSent++;
+    }
+    public static void SendEarlyCancel(int bossId)
+    {
+        if (!Authority || Instance == null) return;
+        NetworkManager nm = NetSession.Manager;
+        if (nm == null || nm.CustomMessagingManager == null) return;
+        using (var w = new FastBufferWriter(32, Allocator.Temp))
+        {
+            w.WriteValueSafe(NetRunLauncher.ActiveRunSeed);
+            w.WriteValueSafe(OpEarlyCancel);
+            w.WriteValueSafe(bossId);
+            SendReliableToClients(w);
+        }
+    }
+    static bool holdAnchorFresh;
+    // HOST: 戦闘範囲の基準 = 最前で走っている人の論理X(止まる遭遇の始まりに1回。BossHalt が同じフレームに先に呼んでもよい)
+    public static void RefreshHoldAnchor()
+    {
+        var f = WorldRange.FrontRunning();
+        Transform t = f.T != null ? f.T : (PlayerController.Instance != null ? PlayerController.Instance.transform : null);
+        HoldAnchorLX = t != null ? t.position.x + FloatingOrigin.Offset : 0.0;
+        holdAnchorFresh = true;
+    }
+    public static void ResetBossHold() { holdAnchorFresh = false; RemoteBossHold = false; RemoteHoldAnchorLX = 0.0; HoldAnchorLX = 0.0; if (Instance != null) Instance.lastHoldSent = false; }
+    bool lastHoldSent; float holdResendAt;
+    void TickBossHoldBroadcast()
+    {
+        var bm = BossManager.Instance;
+        bool hold = bm != null && bm.HoldsRun;
+        if (hold && !lastHoldSent && !holdAnchorFresh) RefreshHoldAnchor();
+        if (!hold) holdAnchorFresh = false;
+        if (hold == lastHoldSent && Time.unscaledTime < holdResendAt) return;
+        lastHoldSent = hold; holdResendAt = Time.unscaledTime + 3f;
+        NetworkManager nm = NetSession.Manager;
+        if (nm == null || nm.CustomMessagingManager == null) return;
+        using (var w = new FastBufferWriter(32, Allocator.Temp))
+        {
+            w.WriteValueSafe(NetRunLauncher.ActiveRunSeed);
+            w.WriteValueSafe(OpBossHold);
+            w.WriteValueSafe(hold);
+            w.WriteValueSafe(HoldAnchorLX);
+            SendReliableToClients(w);
+        }
+        BossHoldSent++;
     }
 
     // JOIN側で接続が切れた: パペットはHOSTが居ないと動けないので片付け、以降はシングルと同じ
@@ -1051,6 +1131,31 @@ public class NetCombat : MonoBehaviour
                     ChallengeSystem.MakeElite(we.Enemy, 1f, true); // 見た目(赤み/大きさ)だけ。HP/報酬の基本は HOST の値(撃破の知らせ)
                     Log("WANTED", $"replica id={wid} marked as WANTED (bounty {bounty}, Lv{wlv})");
                 }
+                break;
+            }
+            case OpEarlyTele:
+            {
+                r.ReadValueSafe(out int bid); r.ReadValueSafe(out float fac); r.ReadValueSafe(out double baseStart); r.ReadValueSafe(out byte zn);
+                var rects = new Vector4[zn];
+                for (int k = 0; k < zn; k++) { r.ReadValueSafe(out float rx); r.ReadValueSafe(out float ry); r.ReadValueSafe(out float sx); r.ReadValueSafe(out float sy); rects[k] = new Vector4(rx, ry, sx, sy); }
+                EarlyTeleReceived++;
+                var be = Find(bid);
+                if (be == null || be.Go == null || be.Dead) break;
+                if (NetRunLauncher.NetNow >= baseStart) { EarlyTeleLate++; break; } // もう予兆が始まっている: 出さない
+                RemoteForesight.Show(bid, be.Go.transform, rects, fac, baseStart);
+                break;
+            }
+            case OpEarlyCancel:
+            {
+                r.ReadValueSafe(out int bid);
+                RemoteForesight.Cancel(bid);
+                break;
+            }
+            case OpBossHold:
+            {
+                r.ReadValueSafe(out bool hold); r.ReadValueSafe(out double ax);
+                if (hold != RemoteBossHold) Log("BOSS", $"boss hold {(hold ? "ON" : "off")} anchor={ax:F1}");
+                RemoteBossHold = hold; RemoteHoldAnchorLX = ax; BossHoldReceived++;
                 break;
             }
             case OpBanner:

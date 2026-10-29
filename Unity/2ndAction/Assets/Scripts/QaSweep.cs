@@ -120,6 +120,10 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaLocFallback") { mode = "locfallback"; dir = a[i + 1]; }
             if (a[i] == "-qaRtlWrap") { mode = "rtlwrap"; dir = a[i + 1]; }
             if (a[i] == "-qaBreakTrace") { mode = "breaktrace"; dir = a[i + 1]; } // 2026-10-29: BREAK 中の入力の行方を毎フレーム記録
+            if (a[i] == "-qaHalt") { mode = "halt"; dir = a[i + 1]; } // 2026-10-29: ボス戦の停止戦(関門で止まる → 戦う → 走りへ戻る)
+            if (a[i] == "-qaLead") { mode = "lead"; dir = a[i + 1]; } // 2026-10-29: 予兆の先読み(速さで変わるのは出始めだけ)
+            if (a[i] == "-qaReach") { mode = "reach"; dir = a[i + 1]; } // 2026-10-29: 停止戦で近接の攻撃が届く機会(ボスごと)
+            if (a[i] == "-qaReaperRetreat") { mode = "reaperretreat"; dir = a[i + 1]; } // 2026-10-29: ボス戦の間の死神の退避と追跡の再開
             if (a[i] == "-qaHomeChoice") { mode = "homechoice"; dir = a[i + 1]; }
             if (a[i] == "-qaUgsEnv") { mode = "ugsenv"; dir = a[i + 1]; }
             if (a[i] == "-qaUgsLive") { mode = "ugslive"; dir = a[i + 1]; }
@@ -311,6 +315,10 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "locfallback") yield return LocFallbackMode();
         else if (mode == "rtlwrap") yield return RtlWrapMode();
         else if (mode == "breaktrace") yield return BreakTraceMode();
+        else if (mode == "halt") yield return HaltMode();
+        else if (mode == "lead") yield return LeadMode();
+        else if (mode == "reach") yield return ReachMode();
+        else if (mode == "reaperretreat") yield return ReaperRetreatMode();
         else if (mode == "fix5") yield return Fix5ModeQa();
         else if (mode == "buildlab") yield return BuildLabMode();
         else if (mode == "atkfx") yield return AtkFxMode();
@@ -914,7 +922,7 @@ public partial class QaSweep : MonoBehaviour
     void SetKmh(float kmh)
     {
         PlayerController.DebugSpeedScale = 1f;
-        float natural = pc.CurrentAutoRunSpeed;
+        float natural = pc.AbilityRunSpeed; // 2026-10-29: ボス戦の停止戦で実際の前進が 0 でも、能力としての速さで合わせる
         PlayerController.DebugSpeedScale = Mathf.Max(0.2f, kmh / GameManager.KmhPerMps / Mathf.Max(0.1f, natural));
     }
 

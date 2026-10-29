@@ -1910,7 +1910,7 @@ public partial class GameManager : MonoBehaviour
         var pc = PlayerController.Instance;
         if (pc == null) return;
         float ratio = pc.SpeedRatio; // 色の判定だけに使う(表示は km/h)
-        float kmh = SpeedKmh(pc.CurrentAutoRunSpeed);
+        float kmh = SpeedKmh(pc.AbilityRunSpeed); // 能力としての速さ(ボス戦の停止戦でも変わらない)
         // 2026-09-30: 自然加速の上限が100km/hになったので、倍率0.25刻み(約18回)→ speedNoticeStepKmh ごとの通知に。初回描画では鳴らさない。
         int step = Mathf.FloorToInt(kmh / Mathf.Max(1f, speedNoticeStepKmh) + 0.0001f);
         if (Event.current.type == EventType.Repaint)

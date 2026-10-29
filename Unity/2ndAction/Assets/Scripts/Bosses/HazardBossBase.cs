@@ -318,6 +318,7 @@ public abstract class HazardBossBase : WildBossBase
     protected IEnumerator Melee(BossHitbox hb, BossTelegraphMarker mk, float stopDist, float speed, float warn, float active, float recover, float shake = 0f)
     {
         hb.damageAmount = HitDmg;
+        Foresee(mk); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Approach(stopDist, speed, 5f);
         yield return Telegraph(warn, mk);
         yield return Strike(hb, active, shake);
@@ -327,6 +328,7 @@ public abstract class HazardBossBase : WildBossBase
     // 低い突進(跳ぶ)
     protected IEnumerator Rush(BossHitbox hb, BossTelegraphMarker mk, float fromGap, float warn, float dur, float speed, bool heavy)
     {
+        Foresee(mk); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(fromGap, 6f, 1.6f);
         hb.damageAmount = Dmg(heavy);
         yield return Telegraph(warn, mk);

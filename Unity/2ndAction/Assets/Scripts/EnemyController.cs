@@ -801,7 +801,8 @@ public partial class EnemyController : MonoBehaviour
         float bonus = groundKnockbackSpeedBonus;
         if (PlayerController.Instance != null) bonus *= PlayerController.Instance.KnockbackPowerMultiplier;
         bonus *= hitKnockbackScale;
-        groundKnockbackVelocityX = PlayerForwardSpeed() + bonus;
+        // 2026-10-29 ボス戦の停止戦/後ろ攻撃: 後ろ(プレイヤーより左)の敵は後ろへ弾く(以前は常に前へ = プレイヤーの方へ押し込んでいた)
+        groundKnockbackVelocityX = PlayerForwardSpeed() + bonus * AwayDirFromPlayer();
         groundKnockbackTimer = groundKnockbackDuration;
         DisableMotionComponents();
 

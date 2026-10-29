@@ -136,6 +136,8 @@ public partial class PlayerController
     }
 
     // 後: 小さな後ろ跳び → 振り返りざまにしっぽ払い。地上ではわずかに浮く、空中では後ろへ下がらない(穴の上で後ろへ流れない)
+    // 2026-10-29 ボス戦の停止戦: しっぽの届く長さを TailReachScale 倍に(以前は跳びを足しても後ろ 1.7m まで、空中は 1.15m で、止まった所の後ろの敵に届かなかった)
+    public const float TailReachScale = 1.4f;
     IEnumerator CatBackHop()
     {
         var p = kitDef.cat;
@@ -163,7 +165,7 @@ public partial class PlayerController
                 t += Time.deltaTime; yield return null;
             }
             lungeVelocityX = 0f;
-            float reach = p.tailReach * AttackRangeMultiplier;
+            float reach = p.tailReach * TailReachScale * AttackRangeMultiplier;
             ArmKitBox(new Vector2(-0.1f - reach * 0.5f, 0.4f), new Vector2(reach, 0.6f), 0f, PlayerAttackKind.Normal, p.tailDamageScale, p.tailKnockbackScale, 0.04f);
             OneShotSpriteEffect.CreateTweened(KitProjectile.Slash, KitWorld(new Vector2(-0.1f - reach * 0.7f, 0.4f)), new Color(1f, 0.92f, 0.8f, 0.75f), duration: 0.12f, startScale: 0.4f, endScale: 0.75f, rotationDegrees: KitFacing > 0f ? 180f : 0f, sortingOrder: RenderOrder.SlashFx);
             if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(1);

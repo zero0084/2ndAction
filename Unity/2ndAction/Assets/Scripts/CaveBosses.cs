@@ -69,6 +69,7 @@ public class CentipedeBoss : CaveBossBase
             if (pick == 0) yield return Melee(bite, biteMark, 1.3f, 2.8f, 0.6f, 0.24f, 0.7f);
             else if (pick == 1)
             {
+                Foresee(sweepMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
                 yield return Approach(1.6f, 2.6f, 5f);
                 sweep.damageAmount = HitDmg;
                 yield return Telegraph(0.75f, sweepMark);
@@ -134,6 +135,7 @@ public class CentipedeBoss : CaveBossBase
         yield return DropFromCeiling(0.2f);
         LaneWarn(1.5f, 3f, 0f, 1.0f, 0.3f, LowLaneColor);
         ShockFromFront(1.0f, 9f, CaveLook.Dirt, true);
+        Foresee(rushMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Wait(0.35f);
         // ⑤ 地上を逆走(低い=跳ぶ: 2回目)
         animVariant = 2; // コマ: 低い突進
@@ -274,6 +276,7 @@ public class ScorpionBoss : CaveBossBase
     {
         if (!StartUlt("SCORPION DEATH ZONE", new Color(0.5f, 1f, 0.4f))) yield break;
         // ① ハサミの薙ぎ払い → 地面すれすれの衝撃(跳ぶ)
+        Foresee(sweepMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(4f, 6f, 1.2f);
         animVariant = 0; // コマ: ハサミ(薙ぎ払い)
         yield return Telegraph(0.9f, sweepMark);
@@ -502,6 +505,7 @@ public class TrollBoss : CaveBossBase
         RockAt(9f, 2.2f, 1.4f, 7f, true);
         yield return Wait(2.6f);
         // ⑤ 最後の叩きつけ(衝撃波=跳ぶ)
+        Foresee(megaMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(4f, 5f, 0.8f);
         megaSlam.damageAmount = UltimateDamage;
         animVariant = 0; // コマ: 叩きつけ
@@ -1054,6 +1058,7 @@ public class ScorpionKingBoss : CaveBossBase
     // 尻尾の高速連続: 上(地面にいる)→下(跳ぶ)→上。床と天井は必ず間を空ける(CaveBossSafety)
     IEnumerator TailCombo()
     {
+        Foresee(stingMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(3.5f, 5f, 1f);
         animVariant = 1;
         yield return Telegraph(0.6f, stingMark);
@@ -1073,6 +1078,7 @@ public class ScorpionKingBoss : CaveBossBase
     {
         if (!StartUlt("KING'S EXECUTION", new Color(1f, 0.45f, 0.55f))) yield break;
         // ① 薙ぎ払い(跳ぶ)
+        Foresee(sweepMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(4f, 6f, 1.2f);
         animVariant = 3; // 薙ぎ払い=ハサミを床へ
         yield return Telegraph(0.85f, sweepMark);
@@ -1092,6 +1098,7 @@ public class ScorpionKingBoss : CaveBossBase
         for (int i = 0; i < (Upgraded ? 3 : 2); i++) { float rel = 4.5f + i * 3.6f; animVariant = 2; PlayAttackPose(0.2f); FakeShot(new Color(0.4f, 1f, 0.35f), rel); PoolAt(rel, 1.6f, 3.2f, 4f); } // 2026-10-28: 本体も攻撃の姿勢(毒の雨)
         yield return Wait(1.8f);
         // ④ 処刑の一突き(背が高い=二段ジャンプ)
+        Foresee(stingMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(5f, 6f, 0.8f);
         LaneWarn(2f, 6f, 0f, 2.4f, 1.0f, TallLaneColor);
         Glow(1.0f, new Color(1f, 0.4f, 0.5f));
@@ -1214,6 +1221,7 @@ public class BasiliskBoss : CaveBossBase
         PillarAt(5f, 1.1f, 0.7f, 2, 4f, CaveLook.Rock);
         PillarAt(9.5f, 1.1f, 0.9f, 2, 4f, CaveLook.Rock);
         if (Upgraded) PillarAt(14f, 1.1f, 1.1f, 2, 4f, CaveLook.Rock);
+        Foresee(breathMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Wait(1.8f);
         // ④ ブレス(高い帯=地面にいる)
         BandAt(1.5f, 7f, 2.2f, 4.2f, 0.9f, 0.6f, CaveLook.Poison, true);
@@ -1332,6 +1340,7 @@ public class DrakeBoss : CaveBossBase
         yield return Wait(1.6f);
         // ③ 床の亀裂(跳ぶ)
         FloorAt(0f, 2.4f, 1.2f, 0.85f, 0.35f, CaveLook.Fire, true);
+        Foresee(breathMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Wait(1.1f);
         // ④ ブレス(高い帯=地面にいる)
         BandAt(1.5f, 7.5f, 2.3f, 4.2f, 0.85f, 0.7f, CaveLook.Fire, true);

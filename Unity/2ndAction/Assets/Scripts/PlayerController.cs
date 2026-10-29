@@ -733,7 +733,14 @@ public partial class PlayerController : MonoBehaviour
     // lunge/recoil. Used by the boss to keep pace with ordinary running
     // without also cancelling out the player's attack-driven movement.
     // 開発用の闘技場(2026-10-04): 速度の指定があればそれ(停止 / 基準速度×カード・キャラの補正 / 実効速度固定)。通常は従来どおり
-    public float CurrentAutoRunSpeed => IsAlly && Ally != null ? Ally.AutoSpeed : ArenaAutoSpeed() ?? (autoRunEnabled ? ApplyResumeAccel(CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale)) : 0f); // CONTINUE の5秒加速(ResumeAccel.cs)
+    // 2026-10-29 停止戦(BossHalt): 「実際の前進」と「能力としての速さ」を分けた。
+    //  CurrentAutoRunSpeed = 実際の前進(ボス戦で止まっている間は 0 へ。ボスの並走/弾の座標系/雑魚/カメラ/地形はこちら)
+    //  AbilityRunSpeed     = 能力としての速さ(止まっても変わらない。カードの効果・HUD の km/h・高速時の補助の判定・予兆の先読み)
+    public float CurrentAutoRunSpeed => IsAlly && Ally != null ? Ally.AutoSpeed : ArenaAutoSpeed() ?? AbilityRunSpeedCore * HaltFactor; // CONTINUE の5秒加速(ResumeAccel.cs)
+    public float AbilityRunSpeed => IsAlly ? (Instance != null && Instance != this ? Instance.AbilityRunSpeed : Ally != null ? Ally.AutoSpeed : 0f) : ArenaAutoSpeed() ?? AbilityRunSpeedCore;
+    float AbilityRunSpeedCore => autoRunEnabled ? ApplyResumeAccel(CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale)) : 0f;
+    // この端末のプレイヤーの実際の前進の倍率(ボス戦の停止戦)。仲間は CpuAlly がプレイヤーの実際の速さに付いてくる
+    public float HaltFactor => IsAlly ? 1f : BossHalt.Factor;
 
     // 弾速の走行補正(2026-09-26) - 弾/飛び道具はすべて「プレイヤーの基本走行速度で一緒に流れる
     // 座標系」の中を、それぞれの設計速度で飛ぶ(=画面上の見た目の速さが走行速度に左右されない)。
@@ -751,7 +758,8 @@ public partial class PlayerController : MonoBehaviour
     // ===== 実際の現在速度(2026-10-03) =====
     // HUD の km/h と同じ値。自動前進の速さ(CurrentAutoRunSpeed: 距離による自然加速 × キャラの走る速さ × 速度カード、
     // 安全上限900km/h)。踏み込み/ノックバック/被弾で止まった一瞬などの「一時的な動き」は含めない(攻撃のたびに揺れないように)。
-    public float CurrentRunKmh => GameManager.SpeedKmh(CurrentAutoRunSpeed);
+    public float CurrentRunKmh => GameManager.SpeedKmh(AbilityRunSpeed); // 能力としての速さ(停止戦でも変わらない)
+    public float ActualRunKmh => GameManager.SpeedKmh(CurrentAutoRunSpeed); // 実際の前進(風の音など、動いている見た目)
     // 速さの正規化(0〜1): fromKmh 以下=0、toKmh 以上=1、その間は直線。例) SpeedFactor01(50, 150)
     public float SpeedFactor01(float fromKmh, float toKmh) => SpeedFactor01At(CurrentRunKmh, fromKmh, toKmh);
     public static float SpeedFactor01At(float kmh, float fromKmh, float toKmh) =>
@@ -763,7 +771,7 @@ public partial class PlayerController : MonoBehaviour
     // MomentumUsesCurrentSpeed=true で「実際の現在速度 ÷ 基準18km/h − 1」に切り替わる(次の数値調整で式ごと決める)。
     public static bool MomentumUsesCurrentSpeed = false;
     public float MomentumSpeedTermByDistance => Mathf.Max(0f, GetSpeedMultiplier() - 1f);
-    public float MomentumSpeedTermByCurrentSpeed => Mathf.Max(0f, CurrentAutoRunSpeed / CommonBaseRunSpeed - 1f);
+    public float MomentumSpeedTermByCurrentSpeed => Mathf.Max(0f, AbilityRunSpeed / CommonBaseRunSpeed - 1f);
     public float MomentumSpeedTerm => MomentumUsesCurrentSpeed ? MomentumSpeedTermByCurrentSpeed : MomentumSpeedTermByDistance;
     // 走行開始位置からの論理距離(Floating Originで座標を戻しても連続)。
     public float DistanceFromStart => (float)(transform.position.x - startX);
@@ -994,6 +1002,7 @@ public partial class PlayerController : MonoBehaviour
         {
             Instance = this;
             ScriptedSpeedCapMps = float.PositiveInfinity; // シーンの読み直し(Retry/ホームへ戻る)で必ず解除
+            BossHalt.ResetAll(); // ボス戦の停止戦の状態もシーンの読み直しで戻す
         }
         baseRunSpeed = runSpeed;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -1040,6 +1049,7 @@ public partial class PlayerController : MonoBehaviour
     void UpdateMeasured()
     {
         TickResumeAccel(); // CONTINUE の5秒加速(ゲーム内時間)
+        if (!IsAlly && Instance == this) BossHalt.Tick(this); // ボス戦の停止戦(実際の前進の倍率)
 #if UNITY_EDITOR
         // RUN開始/終了演出 動画撮影用の一時デバッグキー(2026-09-23) -
         // マスターの動画確認が終わったら残すか削除するか相談する。
@@ -3316,6 +3326,8 @@ public partial class PlayerController : MonoBehaviour
             yield return null;
         }
 
+        // 2026-10-29: 後ろ撃ちの後は前へ向き直す(以前は左を向いたままで、続く上/下の射撃も左へ出ていた。剣士の DoAttack と同じ)
+        transform.localScale = Vector3.one;
         isAttacking = false;
         comboWindowOpen = false;
         SetSeqTag(AttackSeqTag.None); // AttackSeq: the chained attack (if any) sets its own

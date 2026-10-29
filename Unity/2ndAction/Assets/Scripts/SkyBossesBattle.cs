@@ -38,6 +38,7 @@ public partial class BehemothBoss
 {
     IEnumerator ElectricTrail()
     {
+        Foresee(chargeMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(10f, 6f, 2f);
         hornGlow.enabled = true;
         StartCoroutine(FollowGlow(hornGlow, 0.9f, 0.55f, 0.4f, 1.6f, 0.9f));
@@ -94,6 +95,7 @@ public partial class BehemothBoss
         }
         yield return Wait(1.4f);
         // 雷をまとった高速突進(跳ぶ)
+        Foresee(chargeMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(11f, 8f, 1.2f);
         Art(null, null); // 最後の突進は今の構え/突進の絵
         hornGlow.enabled = true;
@@ -534,6 +536,7 @@ public partial class SkyGolemBoss
         yield return Wait(0.7f);
         WaveFrom(OffscreenBehindGap(), 1.4f, 2.3f, 3.4f, -10f, CaveLook.Rock, true, 0.72f);
         if (Upgraded) { yield return Wait(1.0f); LaneWarn(2f, 8f, 0f, 1.1f, 0.6f, LowLaneColor); yield return Wait(0.6f); WaveFrom(OffscreenAheadGap(), 1.4f, 0f, 1.1f, 10f, CaveLook.Rock, true, 0.72f); }
+        Foresee(fistMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Wait(1.2f);
         // 巨大な拳を再形成 → 前方へ叩きつけ → 衝撃波(跳ぶ)
         SetAlpha(1f); invulnerable = false; SetHurtboxEnabled(true);
@@ -546,6 +549,7 @@ public partial class SkyGolemBoss
         PlayAttackPose(0.8f); // 拳の叩きつけ(以前は予告の後に攻撃の姿勢が無かった)
         yield return Wait(0.2f);
         WaveFrom(1.6f, 1.4f, 0f, 1.1f, 9f, CaveLook.Rock, true, 0.72f);
+        Foresee(beamMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Wait(1.1f);
         // Core Beam(低い=跳ぶ)
         coreGlow.enabled = true;

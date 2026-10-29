@@ -147,6 +147,7 @@ public partial class PlayerController
         }
     }
 
+    public const float RearStrikeReachScale = 1.4f;
     IEnumerator FighterBackStep()
     {
         var p = kitDef.fighter;
@@ -179,7 +180,7 @@ public partial class PlayerController
             fighterCounterTimer = 0f;
             // 何も来なかった: 後ろへ肘打ち
             SetKitPose("backstep", 1);
-            float reach = p.rearStrikeReach * AttackRangeMultiplier;
+            float reach = p.rearStrikeReach * RearStrikeReachScale * AttackRangeMultiplier; // 2026-10-29 停止戦: 後ろ 2.2m → 約 2.6m(構え → 肘打ちの間合いはそのまま)
             ArmKitBox(new Vector2(-0.1f - reach * 0.5f, p.hitHeight), new Vector2(reach, p.hitThickness), 0f, PlayerAttackKind.Normal, p.rearStrikeDamageScale, 1f, 0.04f);
             OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, KitWorld(new Vector2(-0.1f - reach * 0.8f, p.hitHeight)), new Color(1f, 0.95f, 0.85f, 0.8f), duration: 0.1f, startScale: 0.18f, endScale: 0.42f, sortingOrder: RenderOrder.SlashFx);
             if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(1);

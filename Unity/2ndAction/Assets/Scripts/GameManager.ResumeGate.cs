@@ -57,7 +57,7 @@ public partial class GameManager
         }
         // 速さは実際の移動(PlayerController.Move)と同じ式: 単位/秒(1単位=1m)。距離で決まる自然加速と
         // カード/キャラの速度をすべて含む。慣らしは時間の流れを遅くするだけなので、ここでは使わない(OFFが基準)。
-        float speed = pc.CurrentAutoRunSpeed;
+        float speed = pc.AbilityRunSpeed;
         float ahead = Mathf.Max(resumeSafeMinAhead, speed * Mathf.Max(0f, resumeSafeSeconds));
         float px = pc.transform.position.x;
         float lx = FloatingOrigin.ToLogical(px);

@@ -163,10 +163,12 @@ public abstract class ReaperBase : MonoBehaviour
         float dt = Time.deltaTime;
         if (dt <= 0f) return;
         var ch = data.chase;
-        SinceSpawn += dt;
-
         double px = player.position.x + FloatingOrigin.Offset;
         LeftEdgeGap = MeasureLeftEdgeGap();
+        // 2026-10-29: 通常のボス戦の間は戦闘範囲の外(画面左端の外)へ退避し、追跡を一時停止する(登場からの時間=詰める速さの強化も進めない)
+        if (haveLast && BossFightHolds()) { UpdateRetreat(px, dt); return; }
+        if (Retreated && UpdateReturn(px, dt)) return;
+        SinceSpawn += dt;
         if (!haveLast)
         {
             // 初回/標的の切り替え: まだ位置が無ければ画面左端の外側に置く。標的を替えた時は今の位置のまま。
@@ -255,6 +257,105 @@ public abstract class ReaperBase : MonoBehaviour
 
         if (CurrentPhase == Phase.Captured && !striking && Time.time >= nextStrike) StartCoroutine(CaptureStrike());
         UpdateCombat(dt);
+    }
+
+    // ===================================================================== //
+    // ボス戦の間の退避(2026-10-29)
+    // ===================================================================== //
+    //  ・通常のボス戦が始まったら(BossManager.IsBossPhase。関門の警告から報酬の選択が終わるまで)、大鎌の予告/攻撃を止めて判定を消し、
+    //    画面左端の外(戦闘範囲の外)まで歩いて下がり、そこで待つ。接触・攻撃・被弾は起きない(死神に体の判定は無く、大鎌の判定を切る)
+    //  ・追跡の状態は一時停止: 登場からの時間(詰める速さの強化)・引き離された時間・再追跡の強さ・追う速さはそのまま残す(リセットしない)
+    //  ・報酬の選択が終わって通常の走りに戻ったら、退避の前と同じ間合い(画面左端までの距離に対する割合)へ戻ってから追跡を続ける。
+    //    ただし落ち着く位置(targetScreenFraction)より近くへは戻さない(戻った瞬間に捕まる配置にしない)。それ以上は前と同じ
+    //  ・脱出/ゲームオーバーは RunEnded で止まったまま(再開しない)。三姉妹との最終戦は別のクラス(ReaperSisterBoss)で対象外
+    //  ・マルチは HOST がこの位置を決めて配る(JOIN のパペットはこのコンポーネントが止まっていて、位置だけが届く)
+    public bool Retreated { get; private set; }
+    public bool Returning { get; private set; }
+    public static int Retreats, ReturnsDone; // 確認用
+    public float RetreatSavedFrac { get; private set; } = -1f;
+    public float RetreatRestoreGap { get; private set; }
+    Phase retreatPhase;
+    public const float RetreatSpeed = 9f;     // 退避で下がる速さ(プレイヤーに対して、m/s)
+    public const float RetreatOutMargin = 3f; // 画面左端からさらに外へ
+
+    public static bool BossFightHolds()
+    {
+        var bm = BossManager.Instance;
+        return bm != null && bm.IsBossPhase;
+    }
+
+    void UpdateRetreat(double px, float dt)
+    {
+        var ch = data.chase;
+        if (!Retreated)
+        {
+            Retreated = true; Returning = false; Retreats++;
+            retreatPhase = CurrentPhase;
+            float gapNow = (float)(px - reaperX);
+            RetreatSavedFrac = gapNow / Mathf.Max(3f, LeftEdgeGap);
+            StopAllCoroutines(); striking = false;
+            if (scytheMark != null) scytheMark.Hide();
+            if (anim != null) anim.SetStrikeWindup(false);
+            if (scythe != null) scythe.gameObject.SetActive(false);
+            foreach (var c in GetComponentsInChildren<Collider2D>()) c.enabled = false;
+            FreezeDiagnostics.LogEvent($"[Reaper] {data.sister} retreats for the boss fight (gap {gapNow:F1}m = {RetreatSavedFrac:F2} of the left edge, phase {CurrentPhase}, since spawn {SinceSpawn:F0}s)");
+        }
+        // 画面左端の外まで下がる(瞬間移動しない)。プレイヤーが止まっている間はそこで待つ
+        double outX = px - (LeftEdgeGap + ch.appearOffscreenMargin + RetreatOutMargin);
+        double wantX = System.Math.Min(reaperX, outX);
+        if (reaperX > outX) wantX = System.Math.Max(outX, reaperX - RetreatSpeed * dt);
+        double move = (px - lastPlayerX); // プレイヤーが前へ動いた分は一緒に動く(画面の外のまま)
+        if (move > 0 && reaperX <= outX + 0.01) wantX = System.Math.Min(outX, reaperX + move);
+        reaperX = wantX;
+        lastPlayerX = px;
+        Gap = (float)(px - reaperX);
+        ReaperSpeed = 0f; Stunned = false;
+        PlaceAtGround(dt);
+    }
+
+    // 戻る: 退避の前の間合いへ近づく。着いたら true を返さなくなり、元の追跡へ
+    bool UpdateReturn(double px, float dt)
+    {
+        var ch = data.chase;
+        var localPc = PlayerController.Instance;
+        bool local = localPc != null && player == localPc.transform;
+        float actual = Mathf.Clamp((float)((px - lastPlayerX) / dt), 0f, 600f);
+        float cruise = local ? localPc.CurrentAutoRunSpeed : actual;
+        if (!Returning)
+        {
+            Returning = true;
+            float frac = Mathf.Max(RetreatSavedFrac, ch.targetScreenFraction);
+            RetreatRestoreGap = Mathf.Min(frac * LeftEdgeGap, ch.hardLeashDistance);
+            FreezeDiagnostics.LogEvent($"[Reaper] {data.sister} resumes the chase -> gap {RetreatRestoreGap:F1}m (saved {RetreatSavedFrac:F2}, settle {ch.targetScreenFraction:F2})");
+        }
+        // 追う速さはプレイヤーの今の走り(止まった所から加速する)に合わせる(退避の前の速さで一気に詰めない)
+        FollowSpeed = cruise;
+        Gap = (float)(px - reaperX);
+        float over = Gap - RetreatRestoreGap;
+        float approach = over > 0f ? Mathf.Min(ch.maxCatchupSpeed, ch.appearApproachSpeed + ch.reacquireStrength * over) : 0f;
+        reaperX += (cruise + approach) * dt;
+        if (px - reaperX < RetreatRestoreGap) reaperX = px - RetreatRestoreGap;
+        lastPlayerX = px;
+        Gap = (float)(px - reaperX);
+        ReaperSpeed = cruise + approach;
+        PlaceAtGround(dt);
+        if (Gap > RetreatRestoreGap + 0.05f) return true;
+        // 着いた: 追跡を続ける(大鎌を戻す)
+        Retreated = false; Returning = false; ReturnsDone++;
+        CurrentPhase = retreatPhase == Phase.Captured ? Phase.Chase : retreatPhase;
+        if (scythe != null) scythe.gameObject.SetActive(true);
+        nextStrike = Time.time + ch.captureRetry;
+        FreezeDiagnostics.LogEvent($"[Reaper] {data.sister} back on the chase at gap {Gap:F1}m phase={CurrentPhase}");
+        return false;
+    }
+
+    void PlaceAtGround(float dt)
+    {
+        float x = (float)(reaperX - FloatingOrigin.Offset);
+        float? h = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(x) : null;
+        if (h.HasValue) { groundY = h.Value; if (!groundKnown) { rootY = groundY; groundKnown = true; } }
+        rootY = Mathf.Lerp(rootY, groundY + BaseHeight, 1f - Mathf.Exp(-dt * 10f));
+        transform.position = new Vector3(x, rootY, 0f);
     }
 
     // プレイヤーから画面左端までの距離(このカメラが追っているのが標的なら実測、別のプレイヤーなら既定の視野から)

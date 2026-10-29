@@ -1183,6 +1183,8 @@ public class TerrainManager : MonoBehaviour
 
     void GenerateNextSkyChunk()
     {
+        // ボス戦の停止戦(2026-10-29): 戦闘範囲の上に空中足場を置かない(止まった所で上の足場に乗ったままにならない)
+        if (BossArenaOverlaps(nextSkyStartX, nextSkyStartX + skyPathSegmentLength)) { nextSkyStartX += skyPathSegmentLength; return; }
         // ステージの段階によっては空中足場を置かない(その区間は乱数を使わずに進めるだけ)
         if (skyAllowedAt != null && !skyAllowedAt(FloatingOrigin.ToLogical(nextSkyStartX))) { nextSkyStartX += skyPathSegmentLength; return; }
         float startX = nextSkyStartX;
@@ -1257,11 +1259,45 @@ public class TerrainManager : MonoBehaviour
         if (!routeBranchEnabled) return false;
         float fork = nextBranchX, merge = fork + branchRampLength * 2f + branchLength;
         float fromRun = SceneToRunDistance(fork), toRun = SceneToRunDistance(merge);
+        // ボス戦の停止戦(2026-10-29): 次のボスの戦闘範囲に分岐が掛かるなら、範囲の先へ送る(上の道で止まったままにならない)
+        if (BossArenaRunOverlaps(fromRun, toRun, out float arenaTo))
+        {
+            float pushArena = Mathf.Max(20f, arenaTo + 10f - fromRun);
+            nextBranchX = fork + pushArena;
+            BossArenaBranchPushes++;
+            Debug.Log($"[Terrain] route branch at {fromRun:F0}m moved to {fromRun + pushArena:F0}m (boss arena)");
+            return true;
+        }
         if (!BossManager.FinaleNoBranchBetween(fromRun, toRun)) return false;
         float push = Mathf.Max(50f, BossManager.FinaleBranchResumeRun - fromRun);
         nextBranchX = fork + push;
         Debug.Log($"[Terrain] route branch at {fromRun:F0}m moved to {fromRun + push:F0}m (map finale zako rush: one road)");
         return true;
+    }
+
+    // ===== ボス戦の停止戦の戦闘範囲(2026-10-29) =====
+    // 次のボスの関門の距離(BossManager.NextBossDistance)の手前 BossArenaBefore 〜 先 BossArenaAfter(走行距離)を、穴/坂/分岐/空中足場の無い平地にする。
+    // 関門の距離は前から分かっているので、生成する前に決められる(生成済みの地形は変えない)。ソロ/CPU サポートだけ
+    // (マルチは全端末の地形を同じにする必要があるので変えない。マルチは BossHalt が平らな所まで進んでから止まる)
+    public static float BossArenaBefore = 20f, BossArenaAfter = 55f;
+    public static int BossArenaBranchPushes, BossArenaFlatChunks; // 確認用
+    bool BossArenaRunOverlaps(float fromRun, float toRun, out float arenaTo)
+    {
+        arenaTo = 0f;
+        var bm = BossManager.Instance;
+        if (bm == null || NetRunLauncher.IsMultiplayerRun || ArenaMode.Active || !BossHalt.Enabled) return false;
+        float gate = bm.NextBossDistance;
+        if (gate <= 0f || float.IsInfinity(gate)) return false;
+        float a = gate - BossArenaBefore; arenaTo = gate + BossArenaAfter;
+        return toRun >= a && fromRun <= arenaTo;
+    }
+    bool BossArenaOverlaps(float sceneA, float sceneB) => BossArenaRunOverlaps(SceneToRunDistance(sceneA), SceneToRunDistance(sceneB), out _);
+    bool NextChunkTouchesBossArena()
+    {
+        float maxLen = Mathf.Max(flatLength, slopeLength, pitWidth);
+        bool on = BossArenaOverlaps(nextStartX, nextStartX + maxLen);
+        if (on) BossArenaFlatChunks++;
+        return on;
     }
 
     // 場面の X(m)→ 走行距離(m)の目安(プレイヤーの今の距離から)。2026-10-24 終盤の区間の判定用
@@ -1737,6 +1773,7 @@ public class TerrainManager : MonoBehaviour
     {
         if (forceFlatAt != null && forceFlatAt(FloatingOrigin.ToLogical(nextStartX))) return ChunkType.Flat;
         if (NextChunkTouchesResumeZone()) return ChunkType.Flat; // 中断再開の安全区間(2026-10-03)
+        if (NextChunkTouchesBossArena()) return ChunkType.Flat;  // ボス戦の停止戦の戦闘範囲(2026-10-29)
         if (CaveBossSafety.ForceFlatTerrain) return ChunkType.Flat; // 自然洞窟ボスの必殺技中は新しい穴/坂を作らない(シングルのみ)
         if (forcedFlatChunksRemaining > 0)
         {

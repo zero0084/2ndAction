@@ -228,6 +228,7 @@ public partial class ReaperSisterBoss : WildBossBase
     IEnumerator ScytheSweep(float windup)
     {
         animVariant = 0; // コマ: 1つ目の技(windup/attack)
+        Foresee(scytheMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(3.4f, 3.5f, 3f);
         yield return Telegraph(windup, scytheMark);
         yield return Strike(scythe, 0.26f, 0.08f);
@@ -237,6 +238,7 @@ public partial class ReaperSisterBoss : WildBossBase
     IEnumerator StepAndSweep()
     {
         animVariant = 0; // コマ: 1つ目の技(windup/attack)
+        Foresee(scytheMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(6.5f, 4f, 2.5f);
         yield return Telegraph(0.6f, scytheMark);
         yield return DashMove(0.25f, 12f); // 一歩で間合いを詰める
@@ -263,6 +265,7 @@ public partial class ReaperSisterBoss : WildBossBase
         animVariant = 0; // コマ: 1つ目の技(windup/attack)
         bob = false;
         yield return SetAltitude(3.6f, 0.5f);
+        Foresee(diveMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(3.0f, 5f, 2.5f);
         yield return Telegraph(0.6f, diveMark);
         StartCoroutine(SetAltitude(0.2f, 0.28f));
@@ -296,6 +299,7 @@ public partial class ReaperSisterBoss : WildBossBase
     {
         animVariant = 0; // コマ: 1つ目の技(windup/attack)
         bob = false;
+        Foresee(slamMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(7f, 4f, 2f);
         yield return Telegraph(0.5f, slamMark);
         float gd = Mathf.Clamp(-(Gap - 1.0f - slotOffset), -9f, 0f);
@@ -311,6 +315,7 @@ public partial class ReaperSisterBoss : WildBossBase
     IEnumerator SkipRush()
     {
         animVariant = 0; // コマ: 1つ目の技(windup/attack)
+        Foresee(spinMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(8f, 4f, 2f);
         yield return Telegraph(0.5f, spinMark);
         yield return DashMove(0.35f, 16f);
@@ -322,6 +327,7 @@ public partial class ReaperSisterBoss : WildBossBase
     IEnumerator SpinSlash()
     {
         animVariant = 1; // コマ: 2つ目の技(windupB/attackB)
+        Foresee(spinMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(3.2f, 4.5f, 2.5f);
         yield return Telegraph(0.55f, spinMark);
         yield return Strike(spin, 0.3f, 0.08f);

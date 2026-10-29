@@ -43,7 +43,7 @@ public class HighSpeedFx : MonoBehaviour
         if (Time.timeScale <= 0f) return;
         if (cam == null) { var cf = FindFirstObjectByType<CameraFollow>(); if (cf != null) cam = cf.GetComponent<Camera>(); if (cam == null) return; }
 
-        float ratio = pc.SpeedRatio;
+        float ratio = 1f + (pc.SpeedRatio - 1f) * pc.HaltFactor; // ボス戦の停止戦: 止まっている間は速さの線を出さない
         if (ratio < startRatio) return;
         float hi = Mathf.Clamp01((ratio - startRatio) / Mathf.Max(0.05f, pc.MaxSpeedRatio - startRatio));
 

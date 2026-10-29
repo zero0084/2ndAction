@@ -529,8 +529,27 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         float groundY = SmoothHoverGround(GroundYAt(trackedX));
         float bobOffset = (Mathf.PerlinNoise(Time.time * bobSpeed + bobSeed, 0f) * 2f - 1f) * bobAmplitude
             + (Mathf.PerlinNoise(Time.time * bobSpeed2 + bobSeed2, 0f) * 2f - 1f) * bobAmplitude2;
-        return new Vector3(trackedX + standoffDistance, groundY + hoverHeight + bobOffset, 0f);
+        // 2026-10-29 ボス戦の停止戦: 止まって戦う間は、浮いて待つ間合いを近接の攻撃が届く所まで縮める(以前の 8m では、着地の攻撃の
+        //  時しか近接のキャラが届かなかった)。止まり具合に合わせてなめらかに
+        float so = standoffDistance, y = groundY + hoverHeight + bobOffset;
+        var lpc = PlayerController.Instance;
+        if (lpc != null && !NetPuppet)
+        {
+            // 体の前の端がプレイヤーから HaltFrontGap m の所(拳の短い格闘家でも踏み込みで届く)。体の大きさは被弾の範囲から
+            float k = 1f - lpc.HaltFactor;
+            var hb = GetComponent<BoxCollider2D>();
+            float halfW = hb != null ? hb.bounds.extents.x - (hb.bounds.center.x - transform.position.x) : sr != null ? sr.bounds.extents.x : 1.5f; // 被弾の範囲の左の端まで
+            so = Mathf.Lerp(so, Mathf.Min(so, Mathf.Max(2.2f, halfW + HaltFrontGap)), k);
+            // 被弾の範囲の下の端が地面から HaltBottomGap m(地上の攻撃の高さ)まで降りる(上げはしない)
+            if (hb != null)
+            {
+                float bottomOff = transform.position.y - hb.bounds.min.y;
+                y = Mathf.Lerp(y, Mathf.Min(y, groundY + bottomOff + HaltBottomGap), k);
+            }
+        }
+        return new Vector3(trackedX + so, y, 0f);
     }
+    public static float HaltFrontGap = 1.3f, HaltBottomGap = 0.3f;
 
     void ApplyHomePosition()
     {

@@ -115,6 +115,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     public bool DebugBreakPulling => breakPulling; // 確認用(2026-10-29 BREAK の記録)
     protected float yOffset;
     protected float facing = -1f;   // -1=左(プレイヤー側), +1=右
+    public float DebugFacing => facing; // 確認用(2026-10-29 停止戦: こちらを向いたまま後ろへ走っていないか)
     protected bool facingLocked;
     protected bool windingUp;
     protected bool interrupted;
@@ -382,6 +383,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         }
         else { behindTime = 0f; frontReturning = false; }
         if (entering || Broken || FrontDist <= NearFrontDist) lastNearTime = Time.time;
+        if (entering || Broken || MeleeReachableNow) lastMeleeTime = Time.time; // 2026-10-29 停止戦: 被弾の範囲で測った「近接が届く」最後の時刻
         float wxS = worldX;
         BreakComboStep(dt); // BREAK 中に打ち上げたボスの位置 / 大型の膝つき(2026-10-18)
         DebugMoveSplit = new Vector4(wxB - wx0, wxC - wxB, wxS - wxC, worldX - wxS); // 確認用: このフレームの移動(並走/間合いの補正/回り込み/BREAK の寄せ)
@@ -393,6 +395,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             float dx = px - worldX;
             if (dx < -0.3f) facing = -1f;
             else if (dx > 0.3f) facing = 1f;
+            if (turnAway) facing = -facing; // 2026-10-29: 大きく離れる間合い取りは、背を向けて歩く(こちらを向いたまま後ろへ歩き続けない)
         }
 
         poseTime += dt;
@@ -496,7 +499,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         breakRouteLiftFrame = Time.frameCount;
         float want = 0f;
         var tm = TerrainManager.Instance;
-        if (BreakRouteLiftEnabled && Broken && !dead && BossJuggle.Enabled && player != null && tm != null && tm.RouteBranchEnabled)
+        if (BreakRouteLiftEnabled && Broken && !dead && BossJuggle.Enabled && player != null && tm != null) // 2026-10-30: 分岐の設定ではなく、足元に上の道/足場があるかで見る(作った後に分岐を止めた区間も)
         {
             float py = player.position.y; // 足元(groundOffset 0)
             float? skyP = tm.GetSkyHeightAt(player.position.x), skyB = tm.GetSkyHeightAt(x);
@@ -894,7 +897,35 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         DebugAct = "Wait";
         float t = 0f;
         seconds *= AiWaitScale; // ラスダンの攻撃の間隔(予告=Telegraph の時間は変えない)
-        while (t < seconds && !dead) { t += AiDt; yield return null; }
+        while (t < seconds && !dead) { ForeseeTick((seconds - t) / Mathf.Max(0.05f, ElementStatus.AiTimeScaleOf(gameObject))); t += AiDt; yield return null; }
+    }
+
+    // ================= 予兆の先読み(2026-10-29、TelegraphLead) =================
+    // 技の中で「この後に溜めに入る攻撃の範囲」を先に知らせる: Foresee(範囲) → 接近/間合い取り/待ち/高さ合わせ → Telegraph(同じ範囲)。
+    // 接近などの残り時間がこの端末の先読みの長さ以下になったら、範囲に先読みの印を出す(待ち時間は変えない)。
+    // Telegraph が始まれば今までどおりの予兆へ切り替わる。中断/BREAK/撃破(DisableAllHitboxes)では印も消える
+    BossTelegraphMarker[] foreseen;
+    double foreseeSentStart = -1.0; // マルチ: JOIN へ送った「予兆が始まる時刻」(共通時計)。送っていなければ <0
+    public const float ForeseeNetMargin = 0.25f; // JOIN へ送るのは、先読みの上限 + この秒数より残りが短くなってから(届く遅れのぶん)
+    float FacePlayer => player != null ? (PlayerX < worldX ? -1f : 1f) : facing;
+    protected void Foresee(params BossTelegraphMarker[] zones) { foreseen = zones != null && zones.Length > 0 ? zones : null; foreseeSentStart = -1.0; }
+    protected void ForeseeTick(float remainingSeconds)
+    {
+        if (foreseen == null || NetPuppet || dead) return;
+        // マルチの HOST: 残りが「先読みの上限 + 届く遅れ」になったら、範囲と予兆の始まる時刻を JOIN へ。見込みが 0.15秒以上ずれたら送り直す
+        if (NetCombat.Authority && NetId != 0 && remainingSeconds <= TelegraphLead.MaxLead + ForeseeNetMargin)
+        {
+            double start = NetRunLauncher.NetNow + remainingSeconds;
+            if (foreseeSentStart < 0.0 || System.Math.Abs(start - foreseeSentStart) > 0.15) { foreseeSentStart = start; NetCombat.SendEarlyTelegraph(NetId, foreseen, FacePlayer, start); }
+        }
+        if (remainingSeconds > TelegraphLead.Local) return;
+        foreach (var z in foreseen) if (z != null) z.ShowEarly(FacePlayer); // 背を向けて歩いている間も、攻撃はプレイヤーの方
+    }
+    void ForeseeClear(bool hide)
+    {
+        if (foreseen != null && hide) foreach (var z in foreseen) if (z != null && z.EarlyShowing) { z.HideEarly(); TelegraphLead.EarlyCancelled++; }
+        if (foreseen != null && foreseeSentStart >= 0.0 && NetCombat.Authority && NetId != 0) NetCombat.SendEarlyCancel(NetId); // 攻撃が来なかった: JOIN の印も消す
+        foreseen = null; foreseeSentStart = -1.0;
     }
 
     // ラストダンジョンの倍率(2026-10-05, LastDungeonBossTuning): 攻撃の頻度(特殊攻撃/必殺技の間隔を割る)・攻撃の間隔(待ち時間)・移動速度
@@ -922,6 +953,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         float t = 0f;
         while (t < timeout && FrontDist > stopDist + slotOffset)
         {
+            ForeseeTick(Mathf.Min(timeout - t, (FrontDist - stopDist - slotOffset) / Mathf.Max(0.5f, speed)));
             relVelocity = facing * speed;
             t += Time.deltaTime;
             yield return null;
@@ -931,17 +963,31 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     }
 
     // 目標の間合い(worldX - player.x)へ向けて速度speedで移動
+    // 2026-10-29 ボス戦の停止戦: プレイヤーから TurnAwayDistance より大きく離れる移動(突進の前の間合い取りなど)は、背を向けて歩き、
+    //  着く手前(残り TurnBackDistance)でこちらへ向き直る。短い後ずさり(跳び退き)は今までどおり前を向いたまま。向きを固定した技は変えない
+    public const float TurnAwayDistance = 3f, TurnBackDistance = 1.2f;
+    bool turnAway;
+    public static int TurnAways; // 確認用
     protected IEnumerator MoveToGap(float targetGap, float speed, float timeout = 4f)
     {
         DebugAct = "MoveToGap";
         SetPose(Pose.Move);
         float t = 0f;
+        float want0 = targetGap + slotOffset;
+        bool away = !facingLocked && Mathf.Abs(want0) > Mathf.Abs(Gap) + TurnAwayDistance && Mathf.Sign(want0) == Mathf.Sign(Gap == 0f ? want0 : Gap);
+        if (away) TurnAways++;
+        try
+        {
         while (t < timeout && Mathf.Abs(Gap - (targetGap + slotOffset)) > 0.25f)
         {
+            turnAway = away && !facingLocked && Mathf.Abs(Gap - (targetGap + slotOffset)) > TurnBackDistance;
+            ForeseeTick(Mathf.Min(timeout - t, (Mathf.Abs(Gap - (targetGap + slotOffset)) - 0.25f) / Mathf.Max(0.5f, speed)));
             relVelocity = Mathf.Sign(targetGap + slotOffset - Gap) * speed;
             t += Time.deltaTime;
             yield return null;
         }
+        }
+        finally { turnAway = false; }
         relVelocity = 0f;
         SetPose(Pose.Idle);
     }
@@ -950,12 +996,19 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     {
         SetPose(Pose.Move);
         float t = 0f;
-        while (t < duration && !dead)
+        float dir = -facing; // 2026-10-29: 背を向けて下がる時も、下がる向きは始めに決めた向きのまま
+        bool away = !facingLocked && speed * duration > TurnAwayDistance;
+        try
         {
-            relVelocity = -facing * speed;
-            t += Time.deltaTime;
-            yield return null;
+            while (t < duration && !dead)
+            {
+                turnAway = away && !facingLocked && (duration - t) * speed > TurnBackDistance;
+                relVelocity = dir * speed;
+                t += Time.deltaTime;
+                yield return null;
+            }
         }
+        finally { turnAway = false; }
         relVelocity = 0f;
         SetPose(Pose.Idle);
     }
@@ -968,8 +1021,10 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         NoteTelegraphForBreakQa();
         // 複数体: 予備動作の開始を全体で少しずらす(同時に攻撃が重ならないように)。待つ間は走り続ける。
         float gateWait = 0f;
+        if (foreseen == null) Foresee(zones); // 複数体の順番待ちの間も、決まった攻撃の範囲を先読みで出せる
         while (Time.time < BossAttackGate.NextTime && !dead && gateWait < 2.5f)
         {
+            ForeseeTick(Mathf.Min(BossAttackGate.NextTime - Time.time, 2.5f - gateWait));
             gateWait += Time.deltaTime;
             relVelocity = 0f;
             SetPose(Pose.Move);
@@ -982,6 +1037,8 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         relVelocity = 0f;
         SetPose(Pose.Windup);
         foreach (var z in zones) if (z != null) z.Show(facing);
+        if (foreseen != null) foreach (var z in foreseen) if (z != null && z.EarlyShowing && System.Array.IndexOf(zones, z) < 0) { z.HideEarly(); TelegraphLead.EarlyCancelled++; } // 先読みと違う範囲は消す
+        foreseen = null; foreseeSentStart = -1.0;
         // 音の再設計(2026-10-06): 予兆は必ず聞こえるように(長い溜め = 重い予兆)
         if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(duration >= 0.8f ? SeId.BossTelegraphHeavy : SeId.BossTelegraph, CenterWorld);
 
@@ -1077,9 +1134,60 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (rf != null) { recoverArtSeconds = Mathf.Clamp(seconds * 0.6f, 0.25f, 0.6f); SetPose(Pose.Recover); }
         else if (fromAttack && ra != null && ra.AttackFor(animVariant) != null) { recoverArtSeconds = Mathf.Clamp(seconds * 0.3f, 0.15f, 0.28f); SetPose(Pose.Recover); } // 2026-10-22: 攻撃の余韻(最後のコマを少し保つ)
         else if (HasRecoverArt) SetPose(Pose.Recover); // 2026-10-28: コマの連番を持たないボス(天空)の戻りの1枚絵
+        if (CloseInDue) yield return CloseIn(seconds); // 2026-10-29 停止戦: 遠くにいる時間が続いたら、攻撃の後に近くへ来て隙を見せる
+        else
         yield return Wait(seconds);
         if (pose == Pose.Recover && rf == null && HasRecoverArt) SetPose(Pose.Idle); // 天空の戻りの絵は戻りの間だけ
         OnMoveEnded();
+    }
+
+    // ================= 停止戦の反撃の機会(2026-10-29) =================
+    // 止まって戦う形では、プレイヤーは攻撃の踏み込みでしか前後へ動けない。遠くの技/高い所/大きな体の奥が続くボス
+    // (ヒュドラ・天空の大型・メカドラゴンなど)に近接のキャラが届かないまま長く続かないように:
+    // 体の前端がプレイヤーから NearFrontDist m 以内に CloseInAfter 秒来なかったら、次の「攻撃の後の戻り(Recover)」で
+    // 近くまで歩いて(浮いていれば低く降りて)来て、戻りの時間(最低 CloseInHold 秒)そこで隙を見せる。HP/攻撃力/攻撃の間隔は変えない
+    public static float CloseInAfter = 5f, CloseInHold = 1.3f, CloseInSpeed = 9f, CloseInEdge = 1.0f;
+    // 近接の攻撃が届く = 被弾の範囲の近い端がプレイヤーから MeleeEdge m 以内・下の端が跳んで届く高さ・判定が有効(顔/首の先ではなく体で測る)
+    public const float MeleeEdge = 2.6f, MeleeUp = 3.2f;
+    float lastMeleeTime = -1f;
+    float HurtEdgeFromPlayer { get { var lb = LiveHurtBounds; float px = PlayerX; return lb.min.x > px ? lb.min.x - px : lb.max.x < px ? px - lb.max.x : 0f; } }
+    bool MeleeReachableNow => player != null && hurtCol != null && hurtCol.enabled && !invulnerable && HurtEdgeFromPlayer <= MeleeEdge && LiveHurtBounds.min.y <= PlayerY + MeleeUp;
+    public static int CloseIns; // 確認用
+    protected virtual bool CloseInAllowed => true; // 技の都合で近づけないボスは上書き
+    bool CloseInDue
+    {
+        get
+        {
+            if (!BossHalt.Halted || NetPuppet || dead || entering || Broken || UltimateRunning || freeGap || IntentionallyAway || !CloseInAllowed || player == null) return false;
+            if (lastMeleeTime < 0f) { lastMeleeTime = Time.time; return false; } // 一度も近づいていない: ここから数える
+            return Time.time - lastMeleeTime > CloseInAfter;
+        }
+    }
+    IEnumerator CloseIn(float seconds)
+    {
+        CloseIns++;
+        DebugAct = "CloseIn";
+        float y0 = yOffset;
+        // 浮いている体の下端が、プレイヤーが跳んで届く高さ(足元 + 1.6m)まで降りる
+        float drop = 0f;
+        if (hurtCol != null) drop = Mathf.Max(0f, LiveHurtBounds.min.y - (PlayerY + 1.6f));
+        float yWant = Mathf.Max(0f, yOffset - drop);
+        float t = 0f;
+        SetPose(Pose.Move);
+        while (t < 1.6f && !dead && HurtEdgeFromPlayer > CloseInEdge)
+        {
+            relVelocity = (PlayerX < worldX ? -1f : 1f) * CloseInSpeed;
+            if (drop > 0.01f) yOffset = Mathf.MoveTowards(yOffset, yWant, 6f * Time.deltaTime);
+            t += Time.deltaTime;
+            yield return null;
+        }
+        relVelocity = 0f;
+        while (drop > 0.01f && Mathf.Abs(yOffset - yWant) > 0.02f && !dead) { yOffset = Mathf.MoveTowards(yOffset, yWant, 6f * Time.deltaTime); yield return null; }
+        SetPose(HasRecoverArt ? Pose.Recover : Pose.Idle);
+        lastNearTime = Time.time; lastMeleeTime = Time.time;
+        yield return Wait(Mathf.Max(seconds, CloseInHold));
+        // 元の高さへ戻る(次の技は自分の間合いを取り直す)
+        if (drop > 0.01f && !dead) yield return SetAltitude(y0, 0.35f);
     }
 
     // 2026-10-28: 技ごとの1枚絵(天空のボス)。戻りの絵があるか / 技が終わった(または怯んだ)時に技の絵の指定を外す
@@ -1127,6 +1235,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         float t = 0f;
         while (t < duration && !dead)
         {
+            ForeseeTick(duration - t);
             t += Time.deltaTime;
             yOffset = Mathf.Lerp(start, target, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / duration)));
             yield return null;
@@ -1538,6 +1647,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     {
         BreakComboOnReset(); // 2026-10-18: BREAK/立ち直りの途中で止められても状態を残さない
         DisableAllHitboxes();
+        ForeseeClear(true); // 予兆の先読みの印も残さない
         windingUp = false; windupProgress = 0f; interrupted = false;
         phaseRoaring = false; // 2026-10-13: 咆哮の途中で割り込まれると true のまま残り、以後ずっと崩し(BREAK)が溜まらなかった
         facingLocked = false; attackProgress = 0f; relVelocity = 0f;

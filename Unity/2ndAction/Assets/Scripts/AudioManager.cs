@@ -413,7 +413,7 @@ public class AudioManager : MonoBehaviour
         var gm = GameManager.Instance; var pc = PlayerController.Instance;
         if (lib != null && lib.speedWind != null && gm != null && gm.HasStarted && !gm.IsGameOver && pc != null && !pc.HasDied && Time.timeScale > 0.05f)
         {
-            float k = Mathf.InverseLerp(lib.windFromKmh, lib.windFullKmh, pc.CurrentRunKmh);
+            float k = Mathf.InverseLerp(lib.windFromKmh, lib.windFullKmh, pc.ActualRunKmh);
             target = lib.windMaxVolume * k * k * (3f - 2f * k);
             pitch = Mathf.Lerp(lib.windPitch.x, lib.windPitch.y, k);
         }

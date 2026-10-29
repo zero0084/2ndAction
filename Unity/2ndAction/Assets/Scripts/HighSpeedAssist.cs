@@ -256,7 +256,7 @@ public partial class HighSpeedAssist : MonoBehaviour
 
     void Update()
     {
-        if (IsPlanner) { Engaged = true; if (planOwner != null) JudgedKmh = GameManager.SpeedKmh(planOwner.CurrentAutoRunSpeed); return; }
+        if (IsPlanner) { Engaged = true; if (planOwner != null) JudgedKmh = GameManager.SpeedKmh(planOwner.AbilityRunSpeed); return; }
         PlayerController pc = PlayerController.Instance;
         GameManager gm = GameManager.Instance;
         if (pc == null || gm == null || !gm.HasStarted || gm.IsGameOver)
@@ -265,8 +265,10 @@ public partial class HighSpeedAssist : MonoBehaviour
             if (gm == null || !gm.HasStarted || gm.IsGameOver) { Engaged = false; JudgedKmh = 0f; }
             return;
         }
+        // 2026-10-29 停止戦: 補助が働くかは能力としての速さで決める(ボス戦で止まっている間も、高速のキャラは補助が働いたまま)。
+        //  先読みの範囲は実際の前進で(止まっている間は短い範囲のまま)
         float v = pc.CurrentAutoRunSpeed;
-        JudgedKmh = GameManager.SpeedKmh(v);
+        JudgedKmh = GameManager.SpeedKmh(pc.AbilityRunSpeed);
         if (!Engaged && JudgedKmh >= engageKmh) Engaged = true;
         else if (Engaged && JudgedKmh < releaseKmh) Engaged = false;
         // 先読みに必要な範囲まで地形/天井を先に作っておく(補助が働く時だけ。通常速度では従来の範囲のまま)。

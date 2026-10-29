@@ -231,8 +231,22 @@ public partial class HighSpeedAssist
     PlayerController.FlickDirection? BossAttack(PlayerController pc, bool grounded, bool stayLow)
     {
         if (Time.time < manualAttackUntil) return null;
-        if (!PickBossTarget(pc, out string bestName, out Bounds bb, out float bestD)) { BossPlan = "攻撃できるボスがいない(無敵/地中/天井)"; return null; }
+        if (!PickBossTarget(pc, out string bestName, out Bounds bb, out float bestD, out bool behind)) { BossPlan = "攻撃できるボスがいない(無敵/地中/天井)"; return null; }
         Vector3 p = pc.transform.position;
+        // 2026-10-30 ボス戦の停止戦: 止まって戦う間は、突進ですれ違って後ろにいるボスへ後ろ攻撃を入れる(以前は前のボスだけを狙い、
+        //  後ろにいる間は待っていた = 止まる形で倒すまでが倍ほど長くなっていた)
+        if (behind)
+        {
+            float backReach = pc.AssistForwardIsProjectile ? 12f : BackAttackReach;
+            if (bestD > backReach) { BossPlan = $"{bestName} は後ろ {bestD:F1}m(届くのを待つ)"; return null; }
+            if (!pc.AssistCanStartForwardAttack) return null;
+            float f0 = p.y, t0 = p.y + bodyH;
+            if (bb.max.y < f0 - 0.5f || bb.min.y > t0 + 1.2f) return null;
+            BossAttacks++; BossBackAttacks++;
+            BossPlan = $"後ろの {bestName} へ後ろ攻撃(距離{bestD:F1}m)";
+            Act("後ろ攻撃(ボス)", BossPlan);
+            return PlayerController.FlickDirection.Backward;
+        }
         float reach = pc.AssistForwardIsProjectile ? 12f : Mathf.Max(pc.AssistForwardReach, bossApproachReach);
         if (bestD > reach)
         {
@@ -296,9 +310,13 @@ public partial class HighSpeedAssist
     }
 
     // 狙うボス(前にいて判定のある、いちばん近いもの)。いなければ false
-    bool PickBossTarget(PlayerController pc, out string bestName, out Bounds bb, out float bestD)
+    public const float BackAttackReach = 3.2f;
+    public static int BossBackAttacks; // 確認用
+    bool PickBossTarget(PlayerController pc, out string bestName, out Bounds bb, out float bestD) => PickBossTarget(pc, out bestName, out bb, out bestD, out _);
+    bool PickBossTarget(PlayerController pc, out string bestName, out Bounds bb, out float bestD, out bool behind)
     {
-        bestName = null; bb = default; bestD = float.MaxValue;
+        bestName = null; bb = default; bestD = float.MaxValue; behind = false;
+        bool halted = pc.HaltFactor < 0.5f; // 止まって戦う間は後ろのボスも狙う
         Vector3 p = pc.transform.position;
         foreach (var lb in BossBattle.Living)
         {
@@ -314,8 +332,11 @@ public partial class HighSpeedAssist
             }
             else continue;
             float d = b.min.x > p.x ? b.min.x - p.x : (b.max.x < p.x ? p.x - b.max.x : 0f);
-            if (b.center.x < p.x - 1.5f) continue; // 後ろのボスは狙わない(前攻撃が届かない)
-            if (d < bestD) { bestD = d; bestName = name; bb = b; }
+            bool back = b.center.x < p.x - 1.5f;
+            if (back && !halted) continue; // 走っている間は後ろのボスは狙わない(前攻撃が届かない)
+            // 前のボスを少し優先(後ろは 0.8m 遠いとみなす): 前後に1体ずつの時に向きを頻繁に入れ替えない
+            float score = back ? d + 0.8f : d;
+            if (score < bestD) { bestD = score; bestName = name; bb = b; behind = back; }
         }
         return bestName != null;
     }

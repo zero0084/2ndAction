@@ -120,6 +120,22 @@ public static class BossFx
         return warnZone;
     }
 
+    // 予兆の先読みの印(2026-10-29): 四隅のかぎ括弧 + 点線の枠(中は塗らない)。今までの予兆(縞の塗り)と形で区別する
+    static Sprite warnCorners;
+    public static Sprite WarnCorners()
+    {
+        if (warnCorners != null) return warnCorners;
+        warnCorners = Make(64, (u, v) =>
+        {
+            float du = Mathf.Min(u, 1f - u), dv = Mathf.Min(v, 1f - v), d = Mathf.Min(du, dv);
+            bool corner = (du < 0.07f && dv < 0.3f) || (dv < 0.07f && du < 0.3f); // かぎ括弧
+            if (corner) return 1f;
+            if (d < 0.035f) return Mathf.Repeat((u + v) * 6f, 1f) < 0.5f ? 0.75f : 0f; // 点線の枠
+            return 0f;
+        });
+        return warnCorners;
+    }
+
     // 単色ブロック(柱・岩・天井のひびなど)。
     public static Sprite Block()
     {
@@ -275,6 +291,7 @@ public class BossTelegraphMarker : MonoBehaviour
 {
     SpriteRenderer sr;
     Vector2 relCenter, size;
+    public Vector2 RelCenter => relCenter; public Vector2 Size => size; // 予兆の先読みを JOIN へ送る範囲(2026-10-29)
     // マルチプレイPhase 2.5: 攻撃予兆もJOINに見せる(判定なし)。
     void Start() { NetAttackSync.Register(gameObject, NetAttackSync.AType.Telegraph); }
 
@@ -303,6 +320,35 @@ public class BossTelegraphMarker : MonoBehaviour
         // Block()は8x8px/8ppu=1unit
         transform.localScale = new Vector3(size.x, size.y, 1f);
         sr.enabled = true;
+        if (EarlyShowing) { HideEarly(); TelegraphLead.EarlyPromoted++; } // 先読みの印 → 今までどおりの予兆へ
+    }
+
+    // ---- 予兆の先読み(2026-10-29): 溜めに入る前の Lead 秒だけ、同じ範囲に「先読みの印」を出す(この端末だけ。判定なし) ----
+    // 印は別の GameObject(マルチの予兆の写し=NetAttackSync の対象に入れない。先読みの長さは端末ごとに違うため)
+    SpriteRenderer early;
+    public bool EarlyShowing => early != null && early.enabled;
+    public void ShowEarly(float facing)
+    {
+        if (sr != null && sr.enabled) return; // もう予兆が出ている
+        if (early == null)
+        {
+            var go = new GameObject("TelegraphEarly");
+            go.transform.SetParent(transform.parent, false);
+            early = go.AddComponent<SpriteRenderer>();
+            early.sprite = BossFx.WarnCorners();
+            early.sortingOrder = sr != null ? sr.sortingOrder + 1 : 0;
+            early.enabled = false;
+        }
+        early.transform.localPosition = new Vector3(relCenter.x * Mathf.Sign(facing), relCenter.y, 0f);
+        early.transform.localScale = new Vector3(size.x, size.y, 1f);
+        if (!early.enabled) TelegraphLead.EarlyShown++;
+        early.enabled = true;
+        float pulse = 0.5f + 0.5f * Mathf.Sin(Time.time * 7f);
+        early.color = new Color(1f, 0.78f, 0.25f, Mathf.Lerp(0.55f, 0.9f, pulse));
+    }
+    public void HideEarly()
+    {
+        if (early != null) early.enabled = false;
     }
 
     // progress 0..1 - 進むほど濃く、点滅が速くなる。
@@ -317,7 +363,9 @@ public class BossTelegraphMarker : MonoBehaviour
     public void Hide()
     {
         if (sr != null) sr.enabled = false;
+        if (EarlyShowing) { HideEarly(); TelegraphLead.EarlyCancelled++; }
     }
+    void OnDestroy() { if (early != null) Destroy(early.gameObject); }
 }
 
 // ---- 直進する攻撃弾/衝撃波(地面沿い・スロー付与にも対応) ----

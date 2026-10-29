@@ -333,10 +333,15 @@ public partial class MajinController : MonoBehaviour
         return hoverGroundY;
     }
 
+    public static float HaltStandoff = 5.5f;
     Vector3 ComputeHomePosition()
     {
         float roamOffsetX = (Mathf.PerlinNoise(Time.time * roamSpeedX + roamSeedX, 0f) * 2f - 1f) * roamAmplitudeX;
-        float x = trackedX + standoffDistance + roamOffsetX;
+        // 2026-10-29 ボス戦の停止戦: 止まって戦う間は、浮いて待つ間合いを縮め(14m → HaltStandoff)、揺れも小さくする(近接のキャラにも届く時間を作る)
+        float so = standoffDistance, roam = roamOffsetX;
+        var lpc = PlayerController.Instance;
+        if (lpc != null && !NetPuppet) { float k = 1f - lpc.HaltFactor; so = Mathf.Lerp(so, Mathf.Min(so, HaltStandoff), k); roam *= Mathf.Lerp(1f, 0.45f, k); }
+        float x = trackedX + so + roam;
         float groundY = SmoothHoverGround(GroundYAt(x));
         float bobOffset = (Mathf.PerlinNoise(Time.time * bobSpeed + bobSeed, 0f) * 2f - 1f) * bobAmplitude;
         return new Vector3(x, groundY + hoverHeight + bobOffset, 0f);

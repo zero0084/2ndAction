@@ -80,6 +80,7 @@ public class WolfBoss : WildBossBase
                 continue;
             }
             bool p2 = Phase >= 2;
+            Foresee(biteMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
             yield return Approach(1.4f, p2 ? 3.4f : 2.4f, 8f);
             yield return Telegraph(p2 ? 1.0f : 1.3f, biteMark);
             yield return Strike(bite, 0.28f);
@@ -193,6 +194,7 @@ public class GoblinRiderBoss : WildBossBase
                 continue;
             }
 
+            Foresee(clubMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
             yield return Approach(1.7f, 3.2f, 6f);
             animVariant = 0; // コマ: 棍棒(windup/attack/recover)
             yield return Telegraph(0.9f, clubMark);
@@ -317,6 +319,7 @@ public class SerpentBoss : WildBossBase
 
     IEnumerator BiteAttack()
     {
+        Foresee(biteMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Approach(1.6f, 2.6f, 7f);
         yield return Telegraph(Phase >= 2 ? 0.8f : 1.0f, biteMark);
         yield return Strike(bite, 0.3f);
@@ -334,6 +337,7 @@ public class SerpentBoss : WildBossBase
 
     IEnumerator TailSweep()
     {
+        Foresee(tailMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Approach(2.0f, 2.6f, 6f);
         yield return Telegraph(0.9f, tailMark);
         yield return Strike(tail, 0.35f, 0.12f);
@@ -544,6 +548,7 @@ public class CyclopsBoss : WildBossBase
     {
         if (!BeginUltimate("天崩しの大棍棒", new Color(1f, 0.6f, 0.25f))) { lastUltimateTime = Time.time - 10f; yield break; }
         animVariant = 0; // コマ: ult_(両手で棍棒を真上へ → 全身で叩きつけ)
+        Foresee(megaMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(10f, 4f, 2.2f);
         // 棍棒を頭上へ: 長い溜め(身体が赤熱)
         StartCoroutine(GlowFor(2.0f, new Color(1f, 0.5f, 0.25f)));
@@ -713,6 +718,7 @@ public class SpiderBoss : WildBossBase
             animVariant = pick;
             if (pick == 0)
             {
+                Foresee(biteMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
                 yield return Approach(1.4f, 3.0f, 6f);
                 yield return Telegraph(0.7f, biteMark);
                 StartCoroutine(DashMove(0.18f, 6f)); // 牙で短く飛び込む
@@ -721,6 +727,7 @@ public class SpiderBoss : WildBossBase
             }
             else if (pick == 1)
             {
+                Foresee(legMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
                 yield return Approach(1.5f, 3.0f, 6f);
                 yield return Telegraph(0.65f, legMark);
                 yield return Strike(leg, 0.25f);
@@ -930,6 +937,7 @@ public class GolemBoss : WildBossBase
     IEnumerator EarthWrath()
     {
         if (!BeginUltimate("大地の怒り", new Color(1f, 0.6f, 0.2f))) { lastUltimateTime = Time.time - 10f; yield break; }
+        Foresee(dblMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return MoveToGap(10f, 3f, 2.4f);
         coreBoost = 0.9f;
         animVariant = 3; // コマ: 両拳(必殺技も)
@@ -1036,6 +1044,7 @@ public class GriffinBoss : WildBossBase
             if (SpecialReady(2)) { MarkSpecial(); yield return FeatherStorm(); continue; }
 
             // A: 地上で爪
+            Foresee(clawMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
             yield return Approach(1.7f, 3.2f, 6f);
             animVariant = 0;
             yield return Telegraph(0.7f, clawMark);
@@ -1384,6 +1393,7 @@ public class DemonBoss : WildBossBase
             if (pick == 0)
             {
                 animVariant = 0;
+                Foresee(clawMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
                 yield return Approach(1.9f, 2.6f, 6f);
                 yield return Telegraph(0.6f, clawMark);
                 yield return Strike(claw, 0.25f, 0.06f);
@@ -1536,6 +1546,7 @@ public class BlackKnightBoss : WildBossBase
             {
                 case 0: // 通常斬撃
                     animVariant = 0;
+                    Foresee(slashMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
                     yield return Approach(1.9f, 3.6f, 5f);
                     yield return Telegraph(0.45f, slashMark);
                     yield return Strike(slash, 0.2f, 0.05f);
@@ -1543,6 +1554,7 @@ public class BlackKnightBoss : WildBossBase
                     break;
                 case 1: // 二連斬り(2撃目はさらに短い予備動作)
                     animVariant = 0;
+                    Foresee(slashMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
                     yield return Approach(1.9f, 3.6f, 5f);
                     yield return Telegraph(0.45f, slashMark);
                     yield return Strike(slash, 0.2f, 0.05f);
@@ -1562,6 +1574,7 @@ public class BlackKnightBoss : WildBossBase
                     break;
                 case 3: // 切り上げ(空中のプレイヤーも狙う)
                     animVariant = 3;
+                    Foresee(upMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
                     yield return Approach(1.6f, 3.6f, 5f);
                     yield return Telegraph(0.5f, upMark);
                     yield return Strike(up, 0.25f, 0.06f);
@@ -1578,6 +1591,7 @@ public class BlackKnightBoss : WildBossBase
     IEnumerator MimicAerialCombo()
     {
         animVariant = 0;
+        Foresee(slashMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return Approach(1.9f, 3.8f, 5f);
         yield return Telegraph(0.45f, slashMark);          // 地上斬り
         yield return Strike(slash, 0.2f, 0.05f);
@@ -1587,6 +1601,7 @@ public class BlackKnightBoss : WildBossBase
         yield return Strike(up, 0.22f, 0.06f);
         EndAttack();
         SetPose(Pose.Fly);                                  // 跳躍
+        Foresee(airMark); // 予兆の先読み(2026-10-29): この後の溜めの範囲
         yield return SetAltitude(2.6f, 0.3f);
         facingLocked = true;
         animVariant = 4; // コマ: 空中で振りかぶる → 振り下ろす(叩きつけも同じ)

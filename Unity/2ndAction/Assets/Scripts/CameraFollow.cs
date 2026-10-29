@@ -6,6 +6,8 @@ public class CameraFollow : MonoBehaviour
 {
     public Transform target;
     public float offsetX = 6f;
+    [Tooltip("ボス戦の停止戦で止まっている間の offsetX(2026-10-29: 後ろも見えるように少し中央寄り)")]
+    public float haltOffsetX = 3.5f;
     public float yDamping = 0.15f;
     // 方向攻撃システム Ver.2、項目6 - "下降攻撃を使用した際に、安全な下層
     // へ移動しているのか、死亡領域へ向かっているのかが分からなくならな
@@ -111,7 +113,7 @@ public class CameraFollow : MonoBehaviour
     {
         var pc = PlayerController.Instance;
         float speedTarget = 0f;
-        if (pc != null) speedTarget = Mathf.Clamp01((pc.SpeedRatio - 1f) / Mathf.Max(0.01f, pc.MaxSpeedRatio - 1f));
+        if (pc != null) speedTarget = Mathf.Clamp01((pc.SpeedRatio - 1f) / Mathf.Max(0.01f, pc.MaxSpeedRatio - 1f)) * pc.HaltFactor; // 2026-10-30 停止戦: 止まっている間は高速の引き(ズームアウト)を戻す(キャラとボスが小さくならない)
         speedBlend = Mathf.SmoothDamp(speedBlend, speedTarget, ref speedBlendVel, Mathf.Max(0.05f, highSpeedSmoothTime));
 
         if (cam != null && Screen.height > 0)
@@ -149,7 +151,10 @@ public class CameraFollow : MonoBehaviour
         Vector3 pos = transform.position;
         // 攻撃の前進/後退の分だけカメラを遅らせる(画面上でキャラが踏み込む/下がるのが見える。2026-09-30)
         float stepOffset = PlayerController.Instance != null && target == PlayerController.Instance.transform ? PlayerController.Instance.ScreenStepOffset : 0f;
-        pos.x = target.position.x + offsetX + highSpeedLookAhead * speedBlend - stepOffset + ScriptedOffsetX + UltimateLookAhead;
+        // 2026-10-29 ボス戦の停止戦: 止まっている間は前の見通し(走りの先読み)を減らし、後ろも見えるようにする(すれ違ったボス/後ろ攻撃)
+        float halt = PlayerController.Instance != null && target == PlayerController.Instance.transform ? 1f - PlayerController.Instance.HaltFactor : 0f;
+        float offX = Mathf.Lerp(offsetX, haltOffsetX, halt), look = highSpeedLookAhead * speedBlend * (1f - halt);
+        pos.x = target.position.x + offX + look - stepOffset + ScriptedOffsetX + UltimateLookAhead;
         LogicalCenterX = pos.x; HasLogical = true;
         bool diving = PlayerController.Instance != null && PlayerController.Instance.IsDiveAttacking;
         if (PortraitSide)
@@ -157,7 +162,7 @@ public class CameraFollow : MonoBehaviour
             // 縦の横から見る表示: 横の位置は横画面と同じ割合(プレイヤーの前を広く)、縦は「走っている地表」を画面の下寄りに置く。
             // 地表の高さは地面に立っている時だけ更新し、ゆっくり追う(ジャンプのたびに上下しない)。下へ落ちていく時は追う
             float k = portraitHalfWidth / Mathf.Max(1f, targetHorizontalHalfWidth);
-            pos.x = target.position.x + (offsetX + highSpeedLookAhead * speedBlend) * k - stepOffset + ScriptedOffsetX + UltimateLookAhead * k;
+            pos.x = target.position.x + (offX + look) * k - stepOffset + ScriptedOffsetX + UltimateLookAhead * k;
             var pcs = PlayerController.Instance;
             float py = target.position.y;
             if (!surfaceInit) { surfaceY = py; surfaceInit = true; }

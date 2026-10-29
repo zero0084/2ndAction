@@ -132,7 +132,9 @@ public partial class PlayerController
         }
     }
 
-    // 後: 体をぷくっと膨らませて背中側を弾く(その場。後ろへは下がらない)
+    // 後: 体をぷくっと膨らませて背中側を弾く。2026-10-29 ボス戦の停止戦: 以前はその場で 1.2m しか届かず、止まった所の
+    //  後ろ 2〜3m の敵/ボスに当てられなかった → 膨らむ間に背中側へ少しずれ(BumpBackStep)、弾く範囲を BumpReachScale 倍に(弾き飛ばしの強さはそのまま)
+    public const float BumpBackStep = 0.8f, BumpReachScale = 1.4f;
     IEnumerator CloudBump()
     {
         var p = kitDef.cloud;
@@ -144,13 +146,14 @@ public partial class PlayerController
             attackCooldownTimer = (p.bumpWindup + p.bumpActive + p.bumpRecovery) * s;
             kitMoveSlowFactor = 0.4f;
             PlayKitPose("bump", (p.bumpWindup + p.bumpActive) * s, p.bumpWindup * s);
+            AttackStep(-BumpBackStep, (p.bumpWindup + p.bumpActive) * s);
             float t = 0f;
             while (t < p.bumpWindup * s)
             {
                 if (!KitAlive(gen, token)) yield break;
                 t += Time.deltaTime; yield return null;
             }
-            float reach = p.bumpReach * AttackRangeMultiplier;
+            float reach = p.bumpReach * BumpReachScale * AttackRangeMultiplier;
             ArmKitBox(new Vector2(-reach * 0.5f, 0.45f), new Vector2(reach, 0.85f), 0f, PlayerAttackKind.Normal, p.bumpDamageScale, p.bumpKnockbackScale, 0.05f);
             OneShotSpriteEffect.CreateTweened(KitProjectile.Ring, KitWorld(new Vector2(-0.3f, 0.45f)), new Color(0.9f, 0.96f, 1f, 0.85f), duration: 0.2f, startScale: 0.3f, endScale: 1.1f, sortingOrder: RenderOrder.SlashFx);
             if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(1);
