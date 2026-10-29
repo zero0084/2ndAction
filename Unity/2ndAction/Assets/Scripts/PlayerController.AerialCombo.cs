@@ -48,6 +48,8 @@ public partial class PlayerController
     // 技の最中(この間の入力は、終わった/次の段の受付が開いた瞬間に出す)
     bool InputBusy => isAttacking || attackCooldownTimer > 0f || isDiveAttacking || kitDiveActive || lanceDiving || isHoverShooting;
     public bool QaInputBusy => InputBusy; // 確認用(-qaTap)
+    public float QaAttackCooldown => attackCooldownTimer; // 確認用(2026-10-29 BREAK の記録)
+    public bool QaOnSky => onSky; // 確認用(2026-10-29 BREAK の記録: 上ルート/足場の上か)
 
     // 被弾/停止/カード選択など: 覚えている入力を捨てる
     public void FlickBufferClear()

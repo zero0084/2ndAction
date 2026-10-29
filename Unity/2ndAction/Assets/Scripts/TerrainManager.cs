@@ -649,6 +649,9 @@ public class TerrainManager : MonoBehaviour
     // 共通Encounter System(2026-09-28、荒野街道への展開) - xより先で合流する最初の上下ルート分岐。
     // 登録済みの分岐が無ければ、次に予定されている分岐(範囲は乱数に依存しない)を返す(generated=false)。
     public bool RouteBranchEnabled => routeBranchEnabled;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public void DebugSetRouteBranch(bool on) => routeBranchEnabled = on; // 試験用(2026-10-29): ボスの試験で上ルートに乗って弾がボスの上を抜けないように
+#endif
     public float BranchRampLength => branchRampLength;
     public bool TryGetBranchAfter(float x, out float forkX, out float mergeX, out bool generated)
     {

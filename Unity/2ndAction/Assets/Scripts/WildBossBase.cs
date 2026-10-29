@@ -112,6 +112,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     public static int FrontReturns { get; private set; } // 確認用: 後ろから前へ回り込んだ回数
     const float BreakReach = 3f; // BREAK 中: 体の手前の端までこれより遠ければ、届く位置へ寄せる(m)
     bool breakPulling;
+    public bool DebugBreakPulling => breakPulling; // 確認用(2026-10-29 BREAK の記録)
     protected float yOffset;
     protected float facing = -1f;   // -1=左(プレイヤー側), +1=右
     protected bool facingLocked;
@@ -479,7 +480,35 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             // 2026-10-10: 穴の上は「最後に見た地面」ではなく、穴の両側の地面を結んだ高さ(穴の向こうで高さが違うと、出口で一気に跳んでいた)
             lastGroundY = TerrainManager.Instance.GetSupportHeightAt(x);
         }
-        return lastGroundY;
+        return lastGroundY + BreakRouteLift(x, lastGroundY);
+    }
+
+    // 2026-10-29: BREAK 中にプレイヤーが上ルート(荒野街道の分岐の上の道)にいると、ボスは下の道に立ったまま 3〜9m 下になり、
+    //  弾は体の上を抜け、近接も届かず、BREAK の間ずっと攻撃が当たらなかった(二丁拳銃のオオカミ/グリフォンで記録)。
+    //  BREAK の間だけ、ボスの立つ高さを上ルートの高さへなめらかに寄せる(横の寄せと同じご褒美の時間の扱い)。終われば下の道へ戻る
+    public static bool BreakRouteLiftEnabled = true; // 開発用の比較(-baNoRouteLift 1)
+    public static int BreakRouteLiftFrames;         // 確認用: 上ルートへ寄せていたフレーム数
+    float breakRouteLift; int breakRouteLiftFrame = -1; bool breakRouteUpper;
+    public float DebugBreakRouteLift => breakRouteLift;
+    float BreakRouteLift(float x, float ground)
+    {
+        if (breakRouteLiftFrame == Time.frameCount) return breakRouteLift;
+        breakRouteLiftFrame = Time.frameCount;
+        float want = 0f;
+        var tm = TerrainManager.Instance;
+        if (BreakRouteLiftEnabled && Broken && !dead && BossJuggle.Enabled && player != null && tm != null && tm.RouteBranchEnabled)
+        {
+            float py = player.position.y; // 足元(groundOffset 0)
+            float? skyP = tm.GetSkyHeightAt(player.position.x), skyB = tm.GetSkyHeightAt(x);
+            // 上ルートに立った(足元が上の道の面の近く)ら寄せ始め、上の道より下へ落ちる/上の道が無くなるまで続ける(上の道から跳んだ間も)
+            if (!skyP.HasValue || py < skyP.Value - 0.3f) breakRouteUpper = false;
+            else if (py <= skyP.Value + 0.6f) breakRouteUpper = true;
+            if (breakRouteUpper && skyB.HasValue) want = Mathf.Max(0f, skyB.Value - ground);
+        }
+        else breakRouteUpper = false;
+        breakRouteLift = Mathf.MoveTowards(breakRouteLift, want, (want > breakRouteLift ? 14f : 10f) * Time.deltaTime); // 瞬間移動しない
+        if (breakRouteLift > 0.01f) BreakRouteLiftFrames++;
+        return breakRouteLift;
     }
 
     // 自然洞窟ボス拡張(2026-09-22) - 天井を利用する攻撃(落石/天井めり込み

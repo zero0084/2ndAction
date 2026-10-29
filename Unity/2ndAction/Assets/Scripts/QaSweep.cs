@@ -119,6 +119,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaLocSwitch") { mode = "locswitch"; dir = a[i + 1]; } // 2026-10-29: 合成カードの説明と言語の切り替え
             if (a[i] == "-qaLocFallback") { mode = "locfallback"; dir = a[i + 1]; }
             if (a[i] == "-qaRtlWrap") { mode = "rtlwrap"; dir = a[i + 1]; }
+            if (a[i] == "-qaBreakTrace") { mode = "breaktrace"; dir = a[i + 1]; } // 2026-10-29: BREAK 中の入力の行方を毎フレーム記録
             if (a[i] == "-qaHomeChoice") { mode = "homechoice"; dir = a[i + 1]; }
             if (a[i] == "-qaUgsEnv") { mode = "ugsenv"; dir = a[i + 1]; }
             if (a[i] == "-qaUgsLive") { mode = "ugslive"; dir = a[i + 1]; }
@@ -309,6 +310,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "locswitch") yield return LocSwitchMode();
         else if (mode == "locfallback") yield return LocFallbackMode();
         else if (mode == "rtlwrap") yield return RtlWrapMode();
+        else if (mode == "breaktrace") yield return BreakTraceMode();
         else if (mode == "fix5") yield return Fix5ModeQa();
         else if (mode == "buildlab") yield return BuildLabMode();
         else if (mode == "atkfx") yield return AtkFxMode();

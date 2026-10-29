@@ -483,18 +483,30 @@ public static class LocDebug
     public static readonly HashSet<string> UnknownLabels = new HashSet<string>();
     public static readonly HashSet<string> JapaneseShown = new HashSet<string>(); // 2026-10-14: 表示する文に日本語が残った物(元の文 → 出た文)
     public static void Reset() { MissingKeys.Clear(); UntranslatedShown.Clear(); UnknownLabels.Clear(); JapaneseShown.Clear(); CompositeUsed.Clear(); }
-    public static void ShownJapanese(string lang, string src, string shown) { if (JapaneseShown.Count < 500) JapaneseShown.Add(src == shown ? src : src + "  =>  " + shown); }
+    public static void ShownJapanese(string lang, string src, string shown) { if (JapaneseShown.Count < 500 && JapaneseShown.Add(src == shown ? src : src + "  =>  " + shown)) Track(lang, src == shown ? "untranslated" : "partial(fallback)", src, shown); }
+
+    // 2026-10-29: 訳の無い文/部品を元の文で代わりに出した物(欠けを防ぐ代わりの表示で、訳が出来ているのとは別)を、開発版では端末にも残す。
+    //  persistentDataPath/loc_untranslated.tsv(言語・種類・元の文・出た文)。同じ起動の中では同じ物を1回だけ。訳を足す時の一覧にする
+    public const string TrackFile = "loc_untranslated.tsv";
+    static readonly HashSet<string> tracked = new HashSet<string>();
+    public static int TrackedCount => tracked.Count;
+    static void Track(string lang, string kind, string src, string shown)
+    {
+        if (!Debug.isDebugBuild || tracked.Count >= 2000 || !tracked.Add(lang + "\t" + kind + "\t" + src)) return;
+        string line = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}\t{lang}\t{kind}\t{src.Replace("\n", "\\n")}\t{(shown ?? "").Replace("\n", "\\n")}\n";
+        DiagnosticsWriter.Enqueue(TrackFile, () => line);
+    }
     public static void Unknown(string s) { if (UnknownLabels.Count < 500) UnknownLabels.Add(s); }
     // 2026-10-29: 型に当たらず部品ごとに訳した文(規則 + 元の文)。語順が言語で変わる文が混ざっていないかの見直し用
     public static readonly HashSet<string> CompositeUsed = new HashSet<string>();
     public static void Composite(string rule, string s) { if (Debug.isDebugBuild && CompositeUsed.Count < 2000) CompositeUsed.Add(rule + "\t" + s.Replace("\n", "\\n")); }
     public static void Missing(string lang, string key)
     {
-        if (MissingKeys.Add(key) && MissingKeys.Count <= 30) Debug.LogWarning($"[Loc] missing {lang}: {Short(key)}");
+        if (MissingKeys.Add(key)) { if (MissingKeys.Count <= 30) Debug.LogWarning($"[Loc] missing {lang}: {Short(key)}"); Track(lang, "missing-in-language(english shown)", key, null); }
     }
     public static void Untranslated(string lang, string s)
     {
-        if (UntranslatedShown.Add(s) && UntranslatedShown.Count <= 30 && Debug.isDebugBuild) Debug.Log($"[Loc] untranslated text shown ({lang}): {Short(s)}");
+        if (UntranslatedShown.Add(s)) { if (UntranslatedShown.Count <= 30 && Debug.isDebugBuild) Debug.Log($"[Loc] untranslated text shown ({lang}): {Short(s)}"); Track(lang, "untranslated", s, s); }
     }
     static string Short(string s) => (s.Length > 60 ? s.Substring(0, 60) + "…" : s).Replace("\n", "\\n");
 

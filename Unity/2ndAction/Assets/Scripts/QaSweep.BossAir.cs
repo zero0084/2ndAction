@@ -25,6 +25,7 @@ public partial class QaSweep
         public bool broke, launched, warned, recovered, killed, finishOk, rewardOnce;
         public int hits, whiff, queued, airHitsMax, slams, kneelHits, kneelSlams, downPushes;
         public float breakSec, breakExtra, firstAttack, maxRise, maxJump, ceilOver, groundUnder, vpMinX, vpMaxX, vpMinY, vpMaxY, minEdge, maxEdge;
+        public float attackAt; public int lostAfter; // 2026-10-29: BREAK から攻撃できるまでの時間 / その後に攻撃できなくなったフレーム数
         public string style, log;
     }
 
@@ -69,6 +70,7 @@ public partial class QaSweep
     }
 
     static readonly WaitForEndOfFrame baEof = new WaitForEndOfFrame();
+    bool baTrace, baTouch, baLegacyWait; int baReps = 1, baRepNow; StringBuilder baFrames;
     IEnumerator BossAirMode()
     {
         HookBossLogs();
@@ -80,6 +82,10 @@ public partial class QaSweep
         bool kill = Arg("-baKill", "1") == "1", normal = Arg("-baNormal", "1") == "1";
         int fps = int.Parse(Arg("-baFps", "60"));
         WildBossBase.DebugBreakNominalSpeed = Arg("-baNominal", "0") == "1"; // 2026-10-29: 前の作り(BREAK 中も決まった走る速さ)で比べる
+        // 2026-10-29: BREAK 中に攻撃が出なくなる件の調査: -baTrace 1 = BREAK の間を毎フレーム記録(bossair_frames.tsv)、-baTouch 1 = BREAK の入力を指の経路で、-baReps N = 同じ組を N 回
+        baTrace = Arg("-baTrace", "0") == "1"; baTouch = Arg("-baTouch", "0") == "1"; baLegacyWait = Arg("-baLegacyWait", "0") == "1"; baReps = int.Parse(Arg("-baReps", "1"));
+        baFrames = new StringBuilder(BtFramesHeader);
+        WildBossBase.BreakRouteLiftEnabled = Arg("-baNoRouteLift", "0") != "1"; // 2026-10-29: 前の作り(BREAK 中も上ルートへ寄せない)で比べる
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = fps;
         var tsv = new StringBuilder("char\tboss\tstyle\tkmh\tfps\thitsA\tflinch\tarmored\tprobeCross\tprobeFlinch\tprobeArmored\tprobeActs\tbroke\tlaunched\thits\twhiff\tqueued\tairMax\tslams\tkneelHits\tkneelSlams\tdownPush\tbreakSec\textra\twarned\trecovered\tfirstAttack\tmaxRise\tmaxJump\tceilOver\tgroundUnder\tvpX\tvpY\tedge\tkilled\tfinish\trewardOnce\tlog\n");
@@ -94,12 +100,14 @@ public partial class QaSweep
                 GameManager.BlockExpGain = true;
                 if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(false);
                 TerrainManager.Instance.pitChanceBase = 0f; TerrainManager.Instance.pitChanceMax = 0f;
+                if (Arg("-baKeepRoute", "0") != "1") TerrainManager.Instance.DebugSetRouteBranch(false); // 2026-10-29: 上ルートに乗るとボスの上を弾が抜け、BREAK 中の撃破の確認が地形で落ちていた
                 TerrainManager.Instance.enemySpawnChance = 0f;
                 if (EncounterDirector.Instance != null) EncounterDirector.Instance.enabled = false;
                 if (BossManager.Instance != null) BossManager.Instance.enabled = true;
                 yield return new WaitForSeconds(1.2f);
                 foreach (var bk in grp)
                     foreach (var kmh in speeds)
+                    for (baRepNow = 0; baRepNow < baReps; baRepNow++)
                     {
                         BaResult r = default;
                         yield return BaCase(ch, bk, kmh, seq, kill, normal, x => r = x);
@@ -145,7 +153,7 @@ public partial class QaSweep
 
     IEnumerator BaCase(string ch, string key, float kmh, string[] seq, bool kill, bool normal, System.Action<BaResult> done)
     {
-        var r = new BaResult { vpMinX = 9f, vpMaxX = -9f, vpMinY = 9f, vpMaxY = -9f, minEdge = 99f, maxEdge = -99f, firstAttack = -1f };
+        var r = new BaResult { vpMinX = 9f, vpMaxX = -9f, vpMinY = 9f, vpMaxY = -9f, minEdge = 99f, maxEdge = -99f, firstAttack = -1f, attackAt = -1f };
         string tag = $"{ch} {key} @{kmh:F0}";
         L($"== bossair {tag} ==");
         if (!BaParse(key, out int fam, out int kind)) { L($"[bossair] unknown boss {key}"); done(r); yield break; }
@@ -170,7 +178,8 @@ public partial class QaSweep
         var log = new StringBuilder();
         int hitCount = 0;
         var kinds = new StringBuilder();
-        void Note(Component b, PlayerAttackKind k) { if (b != bc) return; hitCount++; kinds.Append(k == PlayerAttackKind.Up ? "u" : k == PlayerAttackKind.Down ? "d" : k == PlayerAttackKind.DownImpact ? "i" : "n"); }
+        BtRec bst = null;
+        void Note(Component b, PlayerAttackKind k) { if (b != bc) return; hitCount++; if (bst != null) { bst.hits++; bst.evt += $"HIT({k}) "; } kinds.Append(k == PlayerAttackKind.Up ? "u" : k == PlayerAttackKind.Down ? "d" : k == PlayerAttackKind.DownImpact ? "i" : "n"); }
         void OnHitW(WildBossBase b, PlayerAttackKind k, bool lethal) => Note(b, k);
         void OnHitO(Component b, PlayerAttackKind k) => Note(b, k);
         WildBossBase.QaLocalHit += OnHitW;
@@ -220,9 +229,19 @@ public partial class QaSweep
             // ---- B: BREAK → 入力の列 ----
             int kills0 = gm.BossKillCount;
             int led0 = RewardLedger.Trimmed + RewardLedger.Entries.Count; string bossTag = RewardLedger.Tag(bc, boss.W != null ? boss.W.bossName : bc.name);
+            int lift0 = WildBossBase.BreakRouteLiftFrames;
             int l0 = BossJuggle.Launches + BossJuggle.Relaunches, sl0 = BossJuggle.Slams, kn0 = BossJuggle.KneelHits, dp0 = BossJuggle.DownPushes, ks0 = BossJuggle.KneelSlams;
             w = 0f; while ((!pc.IsGrounded || pc.IsAttacking) && w < 2f) { yield return null; w += Time.deltaTime; }
             boss.ForceBreak();
+            float breakT0 = Time.time;
+            System.Action<int, PlayerController.FlickDirection, PlayerController.FlickFate> onFateB = null;
+            if (baTrace)
+            {
+                bst = new BtRec { t0 = Time.time, moves0 = pc.DebugMoveStarts, sw0 = PlayerAttackInfo.SwingCount };
+                StartCoroutine(BtRecord($"{tag}#{baRepNow}", boss, bst, baFrames, r.style == "Launch" || boss.Style == "Launch" ? 1.25f : 2.6f));
+                onFateB = (id, d, f) => { if (bst != null) bst.evt += $"FATE({d}:{f}) "; };
+                PlayerController.QaFlickFate += onFateB;
+            }
             yield return null;
             yield return new WaitForSecondsRealtime(0.2f);
             r.broke = boss.Broken;
@@ -231,7 +250,20 @@ public partial class QaSweep
             // 届く所へ寄ってくるのを待つ
             float near = r.style == "Launch" ? 1.25f : 2.6f;
             w = 0f;
-            while (w < 2f && BaEdge(boss) > near) { yield return null; w += Time.deltaTime; }
+            // 2026-10-29: ゲームの寄せの決まりで待つ(寄せている間 / 寄せ始める距離 1.5m より遠い間だけ)。以前は 1.25m まで待ち、
+            //  1.25〜1.5m で止まったボス(寄せない帯。浮いて予備動作のグリフォン等)では2秒待ってから入れ始め、↑が締めの合図(残り0.8秒)の後に
+            //  届いて打ち上がらず、BREAK が延びずに終わっていた(入力は届いて当たっている。試験の待ち方の問題)
+            var cam0 = Camera.main;
+            void ProbeAttackable()
+            {
+                if (cam0 == null || !boss.Broken || r.attackAt >= 0f) return;
+                var b0 = boss.Live;
+                float hl = cam0.WorldToViewportPoint(b0.min).x, hr = cam0.WorldToViewportPoint(b0.max).x, pvx = cam0.WorldToViewportPoint(pc.transform.position).x;
+                if (Mathf.Min(hr, 1f) - Mathf.Max(hl, 0f) >= Mathf.Min(0.05f, (hr - hl) * 0.6f) && hr > pvx + 0.02f) r.attackAt = Time.time - breakT0; // 2026-10-29: 細いボス(古代地底悪魔 2.1m = 画面の4%)は体の6割が見えていればよい
+            }
+            ProbeAttackable();
+            if (boss.W != null && !baLegacyWait) while (w < 2f && (boss.W.DebugBreakPulling || BaEdge(boss) > WildBossBase.BreakComboEdge + 0.6f)) { ProbeAttackable(); yield return null; w += Time.deltaTime; }
+            else while (w < 2f && BaEdge(boss) > near) { ProbeAttackable(); yield return null; w += Time.deltaTime; }
             var cam = Camera.main;
             Vector3 prevB = boss.Live.center, prevP = pc.transform.position;
             int prevF = Time.frameCount; // 2026-10-29: 前に測ったフレーム(入力の間の2〜3フレームを1フレームとして割っていた)
@@ -255,7 +287,17 @@ public partial class QaSweep
                     if (un > 0.25f && un > r.groundUnder + 0.1f) log.Append($"[UNDER {un:F2} t={Time.time:F2} x={bc.transform.position.x:F1} gRoot={g.Value:F2} gBody={(tm.GetSupportHeightAt(bb.center.x)):F2} bottom={boss.Bottom:F2} air={(jj != null && jj.Airborne)} anc={(jj != null && jj.Anchored)} broken={boss.Broken} act={boss.Act}] ");
                     r.groundUnder = Mathf.Max(r.groundUnder, un);
                 }
+                // 2026-10-29: 攻撃できる状態 = 当たり判定が画面に 5% 以上見えていて、プレイヤーより前にある。BREAK の始まりにボスが後ろにいた時は
+                //  寄せで前へ来るまで(0.4秒ほど)は数えず、攻撃できるようになるまでの時間と、その後に外れたフレーム数を別に見る
+                bool attackable = false;
                 if (cam != null && boss.Broken)
+                {
+                    float hl = cam.WorldToViewportPoint(bb.min).x, hr = cam.WorldToViewportPoint(bb.max).x, pvx = cam.WorldToViewportPoint(pp).x;
+                    attackable = Mathf.Min(hr, 1f) - Mathf.Max(hl, 0f) >= Mathf.Min(0.05f, (hr - hl) * 0.6f) && hr > pvx + 0.02f;
+                    if (attackable && r.attackAt < 0f) r.attackAt = Time.time - breakT0;
+                    else if (!attackable && r.attackAt >= 0f) r.lostAfter++;
+                }
+                if (cam != null && boss.Broken && r.attackAt >= 0f)
                 {
                     Vector3 vp = cam.WorldToViewportPoint(pb);
                     r.vpMinX = Mathf.Min(r.vpMinX, vp.x); r.vpMaxX = Mathf.Max(r.vpMaxX, vp.x);
@@ -271,7 +313,8 @@ public partial class QaSweep
                 var f = seq[si] == "U" ? PlayerController.FlickDirection.Up : seq[si] == "D" ? PlayerController.FlickDirection.Down : PlayerController.FlickDirection.Forward;
                 int sw0 = PlayerAttackInfo.SwingCount, h0 = hitCount;
                 kinds.Length = 0;
-                yield return HaFlick(f);
+                if (bst != null) bst.evt += $"SEND({f}) ";
+                if (baTouch) yield return BtSwipe(f, bst); else yield return HaFlick(f);
                 float s = 0f;
                 while (s < 0.3f) { sample(Time.deltaTime); yield return baEof; s += Time.deltaTime; } // 2026-10-29: 描く時の位置(LateUpdate の後)で測る
                 string res;
@@ -285,6 +328,9 @@ public partial class QaSweep
             w = 0f;
             while (boss.Broken && w < 8f && !boss.IsDead) { sample(Time.deltaTime); yield return baEof; w += Time.deltaTime; }
             r.breakSec = boss.LastBreak; r.breakExtra = boss.LastExtra;
+            if (bst != null) { bst.on = false; PlayerController.QaFlickFate -= onFateB; log.Append($"[TRACE reach={bst.reachAt:F2}s] "); bst = null; }
+            if (WildBossBase.BreakRouteLiftFrames > lift0) log.Append($"[ROUTE LIFT {WildBossBase.BreakRouteLiftFrames - lift0} frames] ");
+            if (baTrace) System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, "bossair_frames.tsv"), baFrames.ToString());
             w = 0f; while (boss.Recovering && w < 2f) { yield return null; w += Time.deltaTime; }
             r.recovered = !boss.Broken && !boss.Recovering;
             w = 0f; while (boss.FirstAttack < 0f && w < 5f && !boss.IsDead) { yield return null; w += Time.deltaTime; }
@@ -355,7 +401,7 @@ public partial class QaSweep
         r.log = log.ToString();
         L($"[bossair] {tag} style={r.style} A: hits={r.hitsA} flinch={r.flinch} armored={r.armored} probe cross={r.probeCross} flinch={r.probeFlinch} armored={r.probeArmored} acts={r.probeActs} | " +
           $"B: launched={r.launched} hits={r.hits}/{seq.Length} whiff={r.whiff} q={r.queued} air={r.airHitsMax} slam={r.slams} kneel={r.kneelHits}/{r.kneelSlams} down={r.downPushes} break={r.breakSec:F2}s(+{r.breakExtra:F2}) warned={r.warned} recovered={r.recovered} firstAtk={r.firstAttack:F2}s " +
-          $"rise={r.maxRise:F2} jump={r.maxJump:F2} ceil={r.ceilOver:F2} under={r.groundUnder:F2} vp=({r.vpMinX:F2}..{r.vpMaxX:F2},{r.vpMinY:F2}..{r.vpMaxY:F2}) edge={r.minEdge:F1}..{r.maxEdge:F1} | C: killed={r.killed} finish={r.finishOk} reward1={r.rewardOnce}  {r.log}");
+          $"rise={r.maxRise:F2} jump={r.maxJump:F2} ceil={r.ceilOver:F2} under={r.groundUnder:F2} vp=({r.vpMinX:F2}..{r.vpMaxX:F2},{r.vpMinY:F2}..{r.vpMaxY:F2}) edge={r.minEdge:F1}..{r.maxEdge:F1} attack@{r.attackAt:F2}s lost={r.lostAfter} | C: killed={r.killed} finish={r.finishOk} reward1={r.rewardOnce}  {r.log}");
         float bmax = boss.Valid ? boss.BreakMax : 99f;
         Check(r.breakSec > 1f && r.breakSec < bmax + 1.6f, $"bossair {tag}: BREAK is bounded ({r.breakSec:F2}s, max {bmax:F2}s + landing)");
         Check(r.warned, $"bossair {tag}: the recovery warning is shown before BREAK ends");
@@ -364,7 +410,9 @@ public partial class QaSweep
         Check(r.maxJump < 1.5f, $"bossair {tag}: no teleport-like jump during BREAK ({r.maxJump:F2}m/frame)");
         Check(r.ceilOver < 0.2f, $"bossair {tag}: a launched boss does not go into the ceiling ({r.ceilOver:F2})");
         Check(r.groundUnder < 0.25f, $"bossair {tag}: the boss does not sink into the ground ({r.groundUnder:F2})");
-        Check(r.vpMinX > 0.2f && r.vpMaxX < 1.05f, $"bossair {tag}: stays on screen in front during BREAK (x {r.vpMinX:F2}..{r.vpMaxX:F2})");
+        Check(r.attackAt >= 0f && r.attackAt <= 0.6f, $"bossair {tag}: the boss can be attacked within 0.6s of BREAK (at {r.attackAt:F2}s)");
+        Check(r.lostAfter == 0, $"bossair {tag}: once attackable, the boss stays attackable on screen during BREAK ({r.lostAfter} frames lost)");
+        Check(r.vpMinX > 0.2f && r.vpMaxX < 1.05f, $"bossair {tag}: stays on screen in front during BREAK once attackable (x {r.vpMinX:F2}..{r.vpMaxX:F2}, from {r.attackAt:F2}s)");
         if (r.style == "Launch") Check(r.launched, $"bossair {tag}: ↑ launches the boss during BREAK");
         if (kill) Check(r.killed && r.finishOk && r.rewardOnce, $"bossair {tag}: a kill at HP 0 during the air combo is confirmed once (killed {r.killed}, finish {r.finishOk}, reward once {r.rewardOnce})");
         if (normal && r.probeCross > 0) Check(r.probeFlinch + r.probeArmored >= 1, $"bossair {tag}: crossing the gauge marks flinches or shows armor");
@@ -405,7 +453,9 @@ public partial class QaSweep
         // 2026-10-21 追加調査: -bvFinishAtWarn 1 = ↑→→→ をくり返し、締めの合図が出たら 0.15秒後に ↓(締めの試験と同じ入れ方)。
         //  -bvOnlyNew 1 = 今の版の動きだけ撮る(別の版の exe で撮ったものと並べる時)
         bool finAtWarn = Arg("-bvFinishAtWarn", "0") == "1", onlyNew = Arg("-bvOnlyNew", "0") == "1";
-        bool followup = Arg("-bvFollowup", "0") == "1"; // 「改修前」= APK 339 の動き(今回の追加調査の分だけを切る)
+        bool followup = Arg("-bvFollowup", "0") == "1";
+        // 2026-10-29: -bvRoute 1 = 上下ルートの分岐を残し、上の道にプレイヤーを置いてから BREAK。修正前 = BREAK 中も上の道へ寄せない(BreakRouteLiftEnabled=false)
+        bool route = Arg("-bvRoute", "0") == "1"; // 「改修前」= APK 339 の動き(今回の追加調査の分だけを切る)
         if (finAtWarn) bvOnce = true;
         demoDir = System.IO.Path.Combine(outDir, "frames");
         System.IO.Directory.CreateDirectory(demoDir);
@@ -421,13 +471,15 @@ public partial class QaSweep
             GameManager.BlockExpGain = true;
             if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(false);
             TerrainManager.Instance.pitChanceBase = 0f; TerrainManager.Instance.pitChanceMax = 0f;
+            if (!route) TerrainManager.Instance.DebugSetRouteBranch(false); // 2026-10-29: 上ルートに乗るとボスの上を弾が抜け、BREAK 中の撃破の確認が地形で落ちていた
             TerrainManager.Instance.enemySpawnChance = 0f;
             if (EncounterDirector.Instance != null) EncounterDirector.Instance.enabled = false;
             if (BossManager.Instance != null) BossManager.Instance.enabled = true;
             yield return new WaitForSeconds(1.2f);
-            foreach (bool legacy in onlyNew ? new[] { false } : new[] { true, false })
+            foreach (bool legacy in onlyNew ? new[] { false } : Arg("-bvOnlyOld", "0") == "1" ? new[] { true } : new[] { true, false })
             {
-                if (followup) { BossJuggle.Enabled = true; ComboRevision.Legacy = false; ComboRevision.FollowupOff = legacy; }
+                if (route) { BossJuggle.Enabled = true; ComboRevision.Legacy = false; WildBossBase.BreakRouteLiftEnabled = !legacy; }
+                else if (followup) { BossJuggle.Enabled = true; ComboRevision.Legacy = false; ComboRevision.FollowupOff = legacy; }
                 else if (rev) { BossJuggle.Enabled = true; ComboRevision.Legacy = legacy; } else BossJuggle.Enabled = !legacy;
                 yield return BfWaitEncounterEnd();
                 BossManager.Instance.DebugSpawnBossForTest(fam, kind);
@@ -445,10 +497,11 @@ public partial class QaSweep
                 SetKmh(kmh);
                 yield return new WaitForSeconds(0.8f);
                 yield return BaWaitCalm(boss);
+                if (route) yield return BvToUpperRoute();
                 w = 0f; while ((!pc.IsGrounded || pc.IsAttacking) && w < 2f) { yield return null; w += Time.deltaTime; }
                 boss.ForceBreak();
                 yield return new WaitForSecondsRealtime(0.2f);
-                float near = legacy && !rev ? 3.2f : (boss.Style == "Launch" ? 1.25f : 2.6f);
+                float near = legacy && !rev && !route ? 3.2f : (boss.Style == "Launch" ? 1.25f : 2.6f);
                 w = 0f; while (w < 2f && BaEdge(boss) > near) { yield return null; w += Time.deltaTime; }
                 var log = new StringBuilder();
                 Component bc = boss.C;
@@ -458,7 +511,7 @@ public partial class QaSweep
                 int from = demoFrame;
                 int bvSlams0 = BossJuggle.Slams + BossJuggle.KneelSlams;
                 Time.captureFramerate = 30;
-                string head = $"{(legacy ? (followup ? "改修前(APK339)" : rev ? "改修前(APK338)" : "改修前") : "改修後")}  {pc.CurrentAutoRunSpeed * 3.6f:F0}km/h\n入力: ";
+                string head = route ? $"{(legacy ? "修正前(上の道・ボスは下の道のまま)" : "修正後(BREAK 中は上の道へ寄せる)")}  {pc.CurrentAutoRunSpeed * 3.6f:F0}km/h\n入力: " : $"{(legacy ? (followup ? "改修前(APK339)" : rev ? "改修前(APK338)" : "改修前") : "改修後")}  {pc.CurrentAutoRunSpeed * 3.6f:F0}km/h\n入力: ";
                 string arrows = "";
                 bvArrows = "";
                 var inputs = StartCoroutine(finAtWarn ? BvInputsFinish(boss) : BvInputs(seq));
@@ -485,7 +538,7 @@ public partial class QaSweep
                 if (boss.Valid && !boss.IsDead) boss.Kill();
                 yield return BfWaitEncounterEnd();
             }
-            BossJuggle.Enabled = true; ComboRevision.Legacy = false; ComboRevision.FollowupOff = false;
+            BossJuggle.Enabled = true; ComboRevision.Legacy = false; ComboRevision.FollowupOff = false; WildBossBase.BreakRouteLiftEnabled = true;
             GameManager.BlockExpGain = false;
             SetGod(false);
             PlayerController.DebugSpeedScale = 1f;
@@ -493,6 +546,28 @@ public partial class QaSweep
         }
         BossJuggle.Enabled = true;
         Check(demoFrame > 0, "boss air video: frames written");
+    }
+
+    // 上下ルートの区間(この先 60m 以上続く所)まで進み、プレイヤーを上の道の上へ置いて着地させる(比較動画用)
+    IEnumerator BvToUpperRoute()
+    {
+        var tm = TerrainManager.Instance;
+        string why = "";
+        for (float w = 0f; w < 90f; w += Time.deltaTime)
+        {
+            float px = pc.transform.position.x;
+            float? sky = tm.GetSkyHeightAt(px);
+            bool has = tm.TryGetBranchAfter(px, out float fork, out float merge, out bool gen);
+            why = $"route={tm.RouteBranchEnabled} has={has} gen={gen} px={px:F0} fork={fork:F0} merge={merge:F0} sky={sky.HasValue} g={pc.IsGrounded}";
+            if (has && gen && px > fork + tm.BranchRampLength + 1f && merge - tm.BranchRampLength - px > 40f && sky.HasValue)
+            {
+                if (!pc.QaOnSky) { var p = pc.transform.position; pc.transform.position = new Vector3(p.x, sky.Value + 0.4f, p.z); }
+                for (float t = 0f; t < 1f && !(pc.IsGrounded && pc.QaOnSky); t += Time.deltaTime) yield return null;
+                if (pc.QaOnSky) { L($"[bossAirVideo] on the upper route at x={pc.transform.position.x:F1} (merge in {merge - pc.transform.position.x:F0}m)"); yield break; }
+            }
+            yield return null;
+        }
+        L($"[bossAirVideo] no upper route found ({why})");
     }
 
     string bvArrows = "";
