@@ -67,8 +67,10 @@ public partial class QaSweep
         Check(!NoticeQueue.Open && NoticeQueue.Pending == 0, "O: the notice is shown only once");
 
         L("== X: over the limit (14) ==");
-        foreach (var id in new[] { "attack_up", "heart_up", "speed_up", "attack_up" }) CardInventory.AddCard(id, 1, 1);
-        var fourteen = gm.DeckCards.Concat(new[] { "attack_up", "heart_up", "speed_up", "attack_up" }).Take(14).ToList();
+        // 2026-10-30: デッキは同じカード1枚まで → 上限超えは「別々のカード14枚」で試す
+        var extraIds = CardDatabase.AllCards.Select(c => c.cardId).Where(id => !gm.DeckHasKind(id)).Take(14 - gm.DeckCards.Count).ToList();
+        foreach (var id in extraIds) CardInventory.AddCard(id, 1, 1);
+        var fourteen = gm.DeckCards.Concat(extraIds).Take(14).ToList();
         SaveStore.SetString("DeckCardIds", string.Join(",", fourteen));
         SaveStore.Save();
         ownedTotal = TotalOwned();

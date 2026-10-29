@@ -174,7 +174,8 @@ public class FusionAutoTest : MonoBehaviour
         Check(Count(A) == 2 && Count(a3) == 1 && Count(ab) == 1 && Count(c2) == 1, "所持カードが枚数そのままで新形式へ移行");
         Check(vab != null && vab.mainId == A && vab.StacksOf(A) == 1 && vab.StacksOf(B) == 1 && vab.AbilityCount == 2, "旧複合カード(主+副)の副能力がサブ能力として残る");
         var deck = gm.DeckCards;
-        Check(deck.Count == 4 && deck[0] == A && deck[1] == A && deck[2] == a3 && deck[3] == ab, $"デッキは低いLvから順に割り当てて移行(4枚とも残る) [{string.Join(",", deck)}]");
+        // 2026-10-30: デッキは同じカード(主カードID)1枚まで → 移行した4枚(A, A, A Lv3, A+B)は最初の A だけ残る(所持は上で確認したとおり減らない)
+        Check(deck.Count == 1 && deck[0] == A, $"デッキは低いLvから順に割り当てて移行し、同じカードは最初の1枚だけ残る [{string.Join(",", deck)}]");
         Check(gm.CharacterCardOwnerId == gm.SelectedCharacterId && gm.CharacterCardIds[0] == c2 && gm.GetCharacterCardLevel(0) == 2,
             $"キャラクターカードもLvと能力を保ったまま移行(選択中のキャラ {gm.SelectedCharacterId} の枠へ) [{PlayerPrefs.GetString(ownerKey)}]");
         Check(!PlayerPrefs.HasKey("CharacterCardSlots") && PlayerPrefs.GetString(ownerKey).StartsWith(c2 + ":2"), "旧共通枠は消え、キャラごとの枠に新形式で保存");

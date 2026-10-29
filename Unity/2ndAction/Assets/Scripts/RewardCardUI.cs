@@ -496,10 +496,38 @@ public class RewardCardUI : MonoBehaviour
     }
 
     // デッキに入っているカードの印(Collection一覧用、選択の発光とは別の静かな表示)。
-    public void SetInDeckMark(bool value)
+    public void SetInDeckMark(bool value) => SetInDeckMark(value, false);
+
+    // 2026-10-30(デッキの同一カード重複禁止): sameKind = このカード自身ではなく、同じカードの別のLv/合成の物がデッキに入っている。
+    //  同じチェック印を灰色にして出す(このカード自身がデッキにある時の緑のチェックと色で分ける)。カードの絵は暗くしない
+    public void SetInDeckMark(bool value, bool sameKind)
     {
-        inDeckMarked = value;
-        if (inDeckMark != null) inDeckMark.SetActive(isFront && value);
+        inDeckMarked = value || sameKind;
+        if (inDeckMark != null) inDeckMark.SetActive(isFront && inDeckMarked);
+        TintDeckMark(sameKind && !value);
+    }
+
+    public bool InDeckMarked => inDeckMarked;
+    public bool DeckMarkMuted => deckMarkMuted && inDeckMarked;
+    Image[] deckMarkParts;
+    Color[] deckMarkColors;
+    bool deckMarkMuted;
+    void TintDeckMark(bool muted)
+    {
+        if (inDeckMark == null || (deckMarkParts == null && !muted) || muted == deckMarkMuted) return;
+        if (deckMarkParts == null)
+        {
+            deckMarkParts = inDeckMark.GetComponentsInChildren<Image>(true);
+            deckMarkColors = new Color[deckMarkParts.Length];
+            for (int i = 0; i < deckMarkParts.Length; i++) deckMarkColors[i] = deckMarkParts[i].color;
+        }
+        deckMarkMuted = muted;
+        for (int i = 0; i < deckMarkParts.Length; i++)
+        {
+            Color c = deckMarkColors[i];
+            if (muted) { float g = c.grayscale; c = new Color(g * 0.8f + 0.12f, g * 0.82f + 0.13f, g * 0.86f + 0.15f, c.a); }
+            deckMarkParts[i].color = c;
+        }
     }
 
     static readonly Color RimNormal = new Color(0.74f, 0.60f, 0.32f, 1f);

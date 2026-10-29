@@ -83,7 +83,17 @@ public static class LocPendingReview
     //  前の文が無い新しい画面なので、訳が入るまでは日本語のまま出る(開発版だけ)。製品版の Android ビルドは全言語の訳が入るまで止まる
     //  2026-10-23: 10010〜10047・10056〜10059 をエステルのレビュー(Tools/loc/est23、42件 × 29言語)で 30言語へ反映 → すべて外した
     //  (10026 の「購入を復元」は各言語の既存のボタン名 8133 にそろえた: est23/fix10026.py)
+    // ID 10148〜10150(2026-10-30 デッキの同一カード重複禁止): レビュー待ち(Docs/LocReview_2026-10-30)。
+    //  訳が入るまで: 10148 は前の文「デッキで使用中のため選べません」/ 10149 は出さない / 10150 は出さない(お知らせの残りの行はレビュー済み)
+    public const string DeckAlreadyIn = "このカードはすでにデッキに入っています";                                   // ID 10148(デッキ編集: 同じカードを追加しようとした時)
+    public const string DeckAlreadyInOld = "デッキで使用中のため選べません";                                       // 前の文(レビュー済み)
+    public const string DeckSwapHint = "Lvの違う同じカードに替える時は、先にデッキから外してください。";               // ID 10149(Lv/合成の違う同じカードを押した時の2行目)
+    public const string DeckDuplicatesRemoved = "同じカードが複数入っていたため、2枚目以降をデッキから外しました。";      // ID 10150(更新後の1回だけのお知らせ)
+
     public static readonly (string id, string key)[] Pending =
     {
+        ("10148", DeckAlreadyIn),
+        ("10149", DeckSwapHint),
+        ("10150", DeckDuplicatesRemoved),
     };
 }

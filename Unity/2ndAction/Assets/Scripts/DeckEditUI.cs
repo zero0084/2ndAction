@@ -611,7 +611,8 @@ public class DeckEditUI : MonoBehaviour
             // カードUI最終デザイン改修(2026-09-26) - 「デッキに入っている」は小さなチェック印、
             // 「いま見ている(タップした)カード」は発光+拡大の選択状態、と役割を分けた
             // (以前はどちらも同じ金色の枠で、選択状態との差が分かりにくかった)。
-            ownedCards[i].SetInDeckMark(inDeck);
+            // 2026-10-30: 同じカードの別のLv/合成の物がデッキにある時は灰色のチェック(このカードは追加できない)
+            ownedCards[i].SetInDeckMark(inDeck, !inDeck && gm.DeckHasKind(stack.cardId));
             bool isFocus = !focusFound && focusCardId != null && stack.cardId == focusCardId && (focusLevel < 0 || stack.level == focusLevel);
             if (isFocus) focusFound = true;
             ownedCards[i].SetFocused(isFocus);
@@ -932,6 +933,13 @@ public class DeckEditUI : MonoBehaviour
             else if (equipped) statusLine = "\n\n[EQUIPPED]";
             else if (inDeck) statusLine = "\n\n[IN DECK]";
             if (otherChar) statusLine += "\n[他キャラに装備中]";
+            // 2026-10-30: 同じカードの別のLv/合成の物がデッキに入っている(1デッキに同じカードは1枚まで)
+            int sameAt = !inDeck ? gm.DeckIndexOfKind(card.cardId) : -1;
+            if (sameAt >= 0)
+            {
+                CardVariant dv = CardVariant.Parse(gm.DeckCards[sameAt]);
+                statusLine += $"\n\n[IN DECK: Lv.{(dv != null ? dv.level : 1)}]";
+            }
         }
         UguiScrollText.Wrap(detailText); // 2026-10-08: 長い説明は枠の中でスクロール(縮めない)
         if (detailText != null) detailText.text = Loc.Auto((detailPreviewCard != null ? DetailDescription(card) : card.description) + statusLine);
@@ -1010,6 +1018,15 @@ public class DeckEditUI : MonoBehaviour
         Refresh();
     }
 
+    // 自動テスト(-qaDeckDup)用: 一覧のそのカード(キーが同じ物)を押す / 詳細の文 / 灰色・緑のチェックの数
+    public bool DebugTapOwnedKey(string key)
+    {
+        for (int i = 0; i < displayedStacks.Count; i++) if (displayedStacks[i].cardId == key) { OnOwnedCardTapped(i); return true; }
+        return false;
+    }
+    public int DebugMutedMarks() => ownedCards.Count(c => c != null && c.gameObject.activeInHierarchy && c.DeckMarkMuted);
+    public int DebugGreenMarks() => ownedCards.Count(c => c != null && c.gameObject.activeInHierarchy && c.InDeckMarked && !c.DeckMarkMuted);
+
     public int DebugIndexOfOwned(string cardIdPrefix)
     {
         for (int i = 0; i < displayedStacks.Count; i++)
@@ -1064,6 +1081,27 @@ public class DeckEditUI : MonoBehaviour
         StartCoroutine(ownedCards[index].PulseSelect());
         if (added && deckScrollRect != null) StartCoroutine(PlayCardFly(ownedCards[index].rect, deckScrollRect.viewport, tapped.icon));
         Refresh();
+        if (!added && gm.LastDeckAddResult == GameManager.DeckAddResult.SameCardInDeck) ShowAlreadyInDeck(stack.cardId);
+    }
+
+    // 2026-10-30(デッキの同一カード重複禁止): 同じカード(Lv違い/合成違いも)がもうデッキにある。追加も入れ替えもせず、
+    //  短い案内を詳細の下に出して、デッキの中のその1枚を光らせる(入れ替えたい時は、デッキの方を押して外してから入れ直す)
+    public static int AlreadyInDeckShown; // 確認用
+    void ShowAlreadyInDeck(string cardId)
+    {
+        var gm = GameManager.Instance;
+        if (gm == null) return;
+        AlreadyInDeckShown++;
+        int at = gm.DeckIndexOfKind(cardId);
+        string msg = Loc.T(Loc.Reviewed(LocPendingReview.DeckAlreadyIn, LocPendingReview.DeckAlreadyInOld));
+        if (at >= 0 && gm.DeckCards[at] != cardId && Loc.Ready(LocPendingReview.DeckSwapHint)) msg += "\n" + Loc.T(LocPendingReview.DeckSwapHint);
+        if (detailText != null) detailText.text += "\n\n<color=#ffd76a>" + msg + "</color>";
+        if (at >= 0 && at < deckSlotCards.Length && deckSlotCards[at] != null && deckSlotCards[at].gameObject.activeInHierarchy)
+        {
+            StartCoroutine(deckSlotCards[at].PulseSelect());
+            StartCoroutine(deckSlotCards[at].FlashFrame(0.45f));
+        }
+        Debug.Log($"[DeckEdit] {cardId}: the same card is already in the deck (slot {at}: {(at >= 0 ? gm.DeckCards[at] : "-")}) - not added");
     }
 
     void OnDeckSlotTapped(int index)

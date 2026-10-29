@@ -154,6 +154,15 @@ public static class DeckCapacityNotice
                 $"デッキの上限({GameManager.DeckCapacity}枚)を超えていた {gm.DeckOverflowDropped} 枚をデッキから外しました。\nカードは所持一覧に残っています。デッキ編集で入れ替えてください。", null);
             SaveStoreSaveDeckNow(gm);
         }
+        // 2026-10-30: 前の版で同じカードを複数入れていたデッキ(読み込みで最初の1枚だけ残した)。外した結果を1回だけ保存する
+        //  (次の起動では重複が無いので、ここへは来ない = 案内も保存も1回だけ)。訳のレビューが済むまでは、その言語では説明の1行目を出さない
+        if (gm.DeckDuplicatesDropped > 0)
+        {
+            string body = (Loc.Ready(LocPendingReview.DeckDuplicatesRemoved) ? LocPendingReview.DeckDuplicatesRemoved + "\n" : "")
+                + "カードは所持一覧に残っています。デッキ編集で入れ替えてください。";
+            NoticeQueue.Enqueue("deck_duplicates", "デッキを整理しました", body, null);
+            SaveStoreSaveDeckNow(gm);
+        }
         if (!hadSavedDeck || SaveStore.GetInt(Key, 0) != 0) return;
         if (gm.DeckCards.Count >= GameManager.DeckCapacity) { SaveStore.SetInt(Key, 1); return; }
         NoticeQueue.Enqueue("deck12", "デッキ上限が12枚になりました",

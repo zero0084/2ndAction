@@ -58,12 +58,14 @@ public partial class GameManager : MonoBehaviour
                 // CardDatabase.FindById filters out any id that no longer
                 // exists (e.g. a card removed from the database after this
                 // deck was saved), so a stale save can't wedge the deck.
-                // カード合成改修(2026-09-26)で見つけた不具合の修正: 同じカードを複数枚
-                // デッキへ入れられる仕様(AddToDeck/SetDeck)なのに、読み込み時だけ
-                // 重複を捨てていたため、再起動で2枚目以降が消えていた。容量だけで制限する。
+                // 2026-10-30(マスター依頼): 1デッキに同じカード(主カードID。Lv/合成の中身が違っても同じ)は1枚まで。
+                //  前の版で入れた重複は、最初の1枚だけ残して2枚目以降を外す(所持カードは消さない。空いた枠は空欄のまま)。
+                //  読み込むたびに同じ結果になる(最初の1枚を残すだけ)ので、何度起動してもデッキは変わらない。外した時は1回だけ保存して案内する
                 if (!string.IsNullOrEmpty(id) && CardDatabase.FindById(id) != null)
                 {
-                    if (deckCards.Count < DeckCapacity) deckCards.Add(id);
+                    int same = DeckIndexOfKind(id);
+                    if (same >= 0) { DeckDuplicatesDropped++; Debug.Log($"[Deck] duplicate of the same card removed from the deck: {id} (kept {deckCards[same]})"); }
+                    else if (deckCards.Count < DeckCapacity) deckCards.Add(id);
                     else DeckOverflowDropped++; // 上限を超えた分はデッキから外す(カードは所持一覧に残る)
                 }
             }
@@ -96,6 +98,28 @@ public partial class GameManager : MonoBehaviour
     }
 
     public int DeckOverflowDropped { get; private set; } // 読み込みで上限を超えて外した枚数(案内を出す)
+    public int DeckDuplicatesDropped { get; private set; } // 読み込みで外した重複(同じカードの2枚目以降)の枚数(案内を出す)
+
+    // 2026-10-30: デッキの「同じカード」= 主カードID。v2キー(Lv/レア度/引き継いだ能力つき)も主カードIDで同じ種類として扱う
+    public static string DeckKindOf(string key)
+    {
+        if (string.IsNullOrEmpty(key)) return key;
+        string id = CardMastery.BaseIdOf(key);
+        int plus = id.IndexOf('+'); // 旧形式の複合ID("主+副")。通常は起動時の変換で残っていない
+        return plus > 0 ? id.Substring(0, plus) : id;
+    }
+    // デッキの中の同じ種類の位置(無ければ -1)
+    public int DeckIndexOfKind(string key)
+    {
+        string kind = DeckKindOf(key);
+        if (string.IsNullOrEmpty(kind)) return -1;
+        for (int i = 0; i < deckCards.Count; i++) if (DeckKindOf(deckCards[i]) == kind) return i;
+        return -1;
+    }
+    public bool DeckHasKind(string key) => DeckIndexOfKind(key) >= 0;
+
+    public enum DeckAddResult { Added, Invalid, SameCardInDeck, Full, NoFreeCopy }
+    public DeckAddResult LastDeckAddResult { get; private set; } // デッキ編集の案内用(最後の AddToDeck の結果)
 
     void SaveDeck()
     {
@@ -104,13 +128,10 @@ public partial class GameManager : MonoBehaviour
         SaveStore.Save();
     }
 
-    // Reward/Card Ownership/Gacha/Fusion System Ver.1, item 6 - the deck
-    // used to de-dup by cardId (one copy max per card); that restriction is
-    // lifted here ("同じカードを複数回デッキに入れられるようにしてくださ
-    // い") so e.g. Speed Up x10 is now a valid deck. Capacity is still the
-    // only limit. RemoveFromDeck below already only removed ONE matching
-    // entry (List.Remove's own behavior), so it needed no change at all to
-    // correctly support duplicates.
+    // 2026-10-30(マスター依頼): 同じカード(主カードIDが同じ。Lv違い/合成違いも含む)は1デッキに1枚まで。
+    // もうデッキにあれば入れない(勝手に入れ替えもしない)。入れ替えたい時はデッキの方を外してから入れ直す。
+    // 所持枚数/合成素材/カードLv/保管には関係しない(デッキの12枠の中だけの決まり)。ラン中の同じカードの重ね取り(Lvアップ)は別。
+    // (2026-09 の「同じカードを複数回デッキに入れられる」仕様はここで廃止)
     // Home Room UI reconstruction pass, item 8 - "実際に所有しているカー
     // ド数を超えて編成できないようにしてください": capacity is no longer
     // the only limit - a card can't be added past however many copies are
@@ -120,9 +141,12 @@ public partial class GameManager : MonoBehaviour
     // GetTotalUsedCount).
     public bool AddToDeck(string cardId)
     {
-        if (string.IsNullOrEmpty(cardId) || deckCards.Count >= DeckCapacity) return false;
-        if (GetTotalUsedCount(cardId) >= CardInventory.GetTotalCount(cardId)) return false;
+        if (string.IsNullOrEmpty(cardId)) { LastDeckAddResult = DeckAddResult.Invalid; return false; }
+        if (DeckHasKind(cardId)) { LastDeckAddResult = DeckAddResult.SameCardInDeck; return false; }
+        if (deckCards.Count >= DeckCapacity) { LastDeckAddResult = DeckAddResult.Full; return false; }
+        if (GetTotalUsedCount(cardId) >= CardInventory.GetTotalCount(cardId)) { LastDeckAddResult = DeckAddResult.NoFreeCopy; return false; }
         deckCards.Add(cardId);
+        LastDeckAddResult = DeckAddResult.Added;
         SaveDeck();
         return true;
     }
@@ -142,8 +166,8 @@ public partial class GameManager : MonoBehaviour
     // "全て外す") - a single SaveDeck() call instead of looping
     // AddToDeck/RemoveFromDeck one at a time. Same invariants AddToDeck
     // enforces one at a time (capped at DeckCapacity, ownership-limited,
-    // duplicates otherwise allowed); an empty cardIds is exactly how "全て
-    // 外す" clears the deck to 0/10.
+    // one copy per card kind - 2026-10-30); an empty cardIds is exactly how "全て
+    // 外す" clears the deck to 0/12.
     public void SetDeck(IEnumerable<string> cardIds)
     {
         deckCards.Clear();
@@ -155,6 +179,7 @@ public partial class GameManager : MonoBehaviour
             int charCardUses = MaxCharacterSlotUses(id, -1);
             perCardCount.TryGetValue(id, out int already);
             if (already + charCardUses >= owned) continue; // no more copies of this card left to spend
+            if (DeckHasKind(id)) { SetDeckDuplicatesSkipped++; continue; } // 2026-10-30: 同じカードは1デッキに1枚まで(先に来た方を残す)
             perCardCount[id] = already + 1;
             deckCards.Add(id);
         }
@@ -165,6 +190,8 @@ public partial class GameManager : MonoBehaviour
     // - TriggerLevelUpChoice already handles an empty pool safely (no card
     // choice screen, run keeps going), so nothing here needs to keep a
     // minimum count anymore.
+    public static int SetDeckDuplicatesSkipped; // 確認用: SetDeck(おすすめ編成など)で重複として入れなかった数
+
     public bool RemoveFromDeck(string cardId)
     {
         bool removed = deckCards.Remove(cardId);
