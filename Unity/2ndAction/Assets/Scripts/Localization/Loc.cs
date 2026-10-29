@@ -122,6 +122,9 @@ public static class Loc
     static List<Tpl> templates;
     static readonly Dictionary<string, string> cache = new Dictionary<string, string>();
     static readonly Regex Jp = new Regex(@"[぀-ヿ㐀-鿿]");
+    // 2026-10-29: 訳に残った日本語の判定は「・」(U+30FB、訳でもそのまま使う記号)を除く。以前は訳した行の頭の「・」を日本語と見なし、
+    //  型を使わずに捨てたり、訳せた行を「日本語が残った」と記録したりしていた
+    static readonly Regex JpLeft = new Regex(@"[぀-ヺー-ヿ㐀-鿿]");
     static readonly Regex Ph = new Regex(@"\{(\d+)\}");
     static readonly Dictionary<string, string> Alias = new Dictionary<string, string> { { "BACK", "戻る" } };
     static readonly Regex Kana = new Regex(@"[぀-ヺー-ヿ]");
@@ -187,6 +190,15 @@ public static class Loc
     public static string Plain(string key) => string.IsNullOrEmpty(key) ? key : Raw(key);
     public static string Shape(string s) { if (current == null) Init(); return string.IsNullOrEmpty(s) ? s : Display(s); }
 
+    // 2026-10-29: 元の文(キー)に差し込むだけ(訳さない)。作り置きの文(合成カードの説明など)を日本語の元の文で持ち、
+    //  表示の時に Auto が型(このキー)で訳す。言語を切り替えても作り直さずに済む
+    public static string Src(string key, params object[] args)
+    {
+        string s = key ?? "";
+        for (int i = 0; i < args.Length; i++) s = s.Replace("{" + i + "}", args[i] != null ? args[i].ToString() : "");
+        return s;
+    }
+
     public static string F(string key, params object[] args)
     {
         string s = Raw(key);
@@ -219,7 +231,7 @@ public static class Loc
         foreach (var v in nativeDisplay.Values) if (v == s) return s; // 並べ替え済みの名前
         if (cache.TryGetValue(s, out string hit)) return hit;
         string r = Lookup(s);
-        if (current != "ja" && (current.StartsWith("zh") ? Kana.IsMatch(r) : Jp.IsMatch(r))) LocDebug.ShownJapanese(current, s, r); // 2026-10-14: 画面に出る文に日本語が残った(一部だけ訳された物も)
+        if (current != "ja" && (current.StartsWith("zh") ? Kana.IsMatch(r) : JpLeft.IsMatch(r))) LocDebug.ShownJapanese(current, s, r); // 2026-10-14: 画面に出る文に日本語が残った(一部だけ訳された物も)
         if (cache.Count > 6000) cache.Clear();
         cache[s] = r;
         return r;
@@ -227,7 +239,20 @@ public static class Loc
 
     static string Lookup(string s)
     {
-        if (knownKeys.Contains(s) || table.ContainsKey(s)) return Display(Raw(s));
+        string r = TranslateRaw(s, out bool found);
+        if (found) return Display(r);
+        if (current != "ja" && (current.StartsWith("zh") ? Kana.IsMatch(s) : JpLeft.IsMatch(s))) LocDebug.Untranslated(current, s); // 中国語は漢字が同じなので仮名だけで判定
+        else if (current != "en" && UiWord.IsMatch(s)) LocDebug.Unknown(s); // 表に無い英語の UI ラベル(開発版で集めて訳を足す)
+        // 表に無い文(数値/英語/すでに表示用に並べ替えた文をつないだ物)は、並べ替えを二重に掛けない(右から左の言語は今までどおり)
+        return current == "ja" || IndicShaper.Handles(current) ? s : Display(s);
+    }
+
+    // 2026-10-29: 訳だけ(並べ替え/字形の処理の前)。並べ替えは一番外の文に1回だけ(Lookup)。
+    //  以前は型に差し込む語(カード名など)を Auto で並べ替えてから差し込み、外側でもう一度並べ替えていた(インドの文字は2回で崩れる)
+    static string TranslateRaw(string s, out bool found)
+    {
+        found = true;
+        if (knownKeys.Contains(s) || table.ContainsKey(s)) return Raw(s);
         // 改行で区切った各行(複数の文を\nでつないだ物)
         if (s.IndexOf('\n') >= 0)
         {
@@ -239,14 +264,104 @@ public static class Loc
                 string p = LookupLine(parts[i], out bool ok);
                 if (ok) { parts[i] = p; any = true; }
             }
-            if (any) return Display(string.Join("\n", parts));
+            if (any) return string.Join("\n", parts);
         }
-        string one = LookupLine(s, out bool found);
-        if (found) return Display(one);
-        if (current != "ja" && (current.StartsWith("zh") ? Kana.IsMatch(s) : Jp.IsMatch(s))) LocDebug.Untranslated(current, s); // 中国語は漢字が同じなので仮名だけで判定
-        else if (current != "en" && UiWord.IsMatch(s)) LocDebug.Unknown(s); // 表に無い英語の UI ラベル(開発版で集めて訳を足す)
-        // 表に無い文(数値/英語/すでに表示用に並べ替えた文をつないだ物)は、並べ替えを二重に掛けない(右から左の言語は今までどおり)
-        return current == "ja" || IndicShaper.Handles(current) ? s : Display(s);
+        return LookupLine(s, out found);
+    }
+
+    // 日本語(中国語は仮名)が残っているか
+    static bool LeftJp(string s) => current != "ja" && (current.StartsWith("zh") ? Kana.IsMatch(s) : JpLeft.IsMatch(s));
+
+    // 型に差し込む部分の訳(訳が無い語はそのまま。名前の表記(言語の名前)は訳さない)
+    static string PartRaw(string v)
+    {
+        if (string.IsNullOrEmpty(v)) return v;
+        if (nativeDisplay != null && nativeDisplay.ContainsKey(v)) return v;
+        string r = TranslateRaw(v, out bool ok);
+        return ok ? r : v;
+    }
+
+    // 2026-10-29(訳の抜けの修正): 組み立てた文の部品を訳す。型(表のキー)に当たらなかった時だけ。
+    //  ① 色/太字/大きさのタグで丸ごと囲んだ語(<color=…>継承成功</color>)→ 中身を訳す
+    //  ② 「 / 」や2つ以上の空白で区切った並び(能力の一覧・名前  Lv  効果)→ 部品ごとに訳す
+    //  ③ 「能力名 数値」(攻撃力 +5% / 移動速度 -4%(固定))→ 能力名は表の訳、数値はそのまま(後ろの括弧の中は訳す)
+    //  どれも、日本語が1つも残らない時だけ「訳せた」とする(一部だけ訳した文は出さない)
+    static readonly Regex TagWrap = new Regex(@"^((?:<[a-z]+(?:=[^>]*)?>)+)([^<>]+)((?:</[a-z]+>)+)$", RegexOptions.Singleline);
+
+    static readonly Regex LabelValue = new Regex(@"^([^\s<>+\-−×][^<>]*?) ([+\-−×]?\d[\d.,]*%?(?:/\d?Lv|\(Lv[\d,]+\))?)(\((?:[^()]+)\))?$");
+    static string Composite(string s, out bool found)
+    {
+        found = false;
+        var tw = TagWrap.Match(s);
+        if (tw.Success)
+        {
+            string inner = LookupLine(tw.Groups[2].Value, out bool ok);
+            if (ok && !LeftJp(inner)) { found = true; return tw.Groups[1].Value + inner + tw.Groups[3].Value; }
+        }
+        // 「×2 <color=…><b>強化 ×1→×2</b></color>」のように、日本語の無い前置き + 空白 + タグで囲んだ語 → 囲んだ語だけ訳す
+        var tt = TagTail.Match(s);
+        if (tt.Success && !Jp.IsMatch(tt.Groups[1].Value))
+        {
+            string inner = LookupLine(tt.Groups[2].Value, out bool okI);
+            string pre = Segment(tt.Groups[1].Value, out bool okP, out bool _); // 「ATTACK UP ×2」のカード名も訳す
+            if (okI && okP && !LeftJp(inner)) { found = true; return pre + " " + inner; }
+        }
+        var lv = LabelValue.Match(s);
+        if (lv.Success && (knownKeys.Contains(lv.Groups[1].Value) || table.ContainsKey(lv.Groups[1].Value)))
+        {
+            string tail = lv.Groups[3].Value;
+            if (tail.Length > 0) { string t = LookupLine(tail, out bool okT); if (!okT || LeftJp(t)) return s; tail = t; }
+            found = true;
+            return Raw(lv.Groups[1].Value) + " " + lv.Groups[2].Value + tail;
+        }
+        // 区切りは「2つ以上の空白」を先に(括弧の中の「 / 」で切らない)。無ければ「 / 」
+        foreach (var sep in new[] { SpaceSplit, SlashSplit })
+        {
+            if (!sep.IsMatch(s)) continue;
+            var parts = sep.Split(s); // 区切りも残る(奇数番目)
+            bool any = false;
+            for (int i = 0; i < parts.Length; i += 2)
+            {
+                string p = parts[i];
+                if (p.Length == 0) continue;
+                string t = Segment(p, out bool ok, out bool changed);
+                if (!ok) return s;
+                if (changed) { parts[i] = t; any = true; }
+            }
+            if (any) { found = true; return string.Concat(parts); }
+            return s;
+        }
+        // 後ろの括弧の注記(「…威力13(Lvで伸びる)」「ATTACK UP Lv9(強化量12・効くのはLv9まで)」)は切り離して訳す
+        var sf = TailParen.Match(s);
+        if (sf.Success)
+        {
+            string head = Segment(sf.Groups[1].Value, out bool okH, out bool chH);
+            string tail = LookupLine(sf.Groups[2].Value, out bool okT);
+            if (okH && okT && !LeftJp(tail)) { found = true; return head + tail; }
+        }
+        return s;
+    }
+    static readonly Regex TagTail = new Regex(@"^([^<>]*\S) ((?:<[a-z]+(?:=[^>]*)?>)+[^<>]+(?:</[a-z]+>)+)$", RegexOptions.Singleline);
+    static readonly Regex SpaceSplit = new Regex(@"( {2,})");
+    static readonly Regex SlashSplit = new Regex(@"( / )");
+    static readonly Regex TailParen = new Regex(@"^(.*\S)( ?\([^()]+\))$", RegexOptions.Singleline);
+    static readonly Regex NameToken = new Regex(@"^(.+?) ((?:Lv\.?\d+|×\d+)(?:\s.*)?)$", RegexOptions.Singleline);
+
+    // 並びの1つの部品: 日本語なら訳す(訳せなければ失敗)、表にある英語(カード名)なら訳す、「カード名 Lv3」「カード名 ×2」は名前だけ訳す、それ以外はそのまま
+    static string Segment(string p, out bool ok, out bool changed)
+    {
+        ok = true; changed = false;
+        if (knownKeys.Contains(p) || table.ContainsKey(p)) { changed = true; return Raw(p); }
+        if (!Jp.IsMatch(p))
+        {
+            var nt = NameToken.Match(p);
+            if (nt.Success && (knownKeys.Contains(nt.Groups[1].Value) || table.ContainsKey(nt.Groups[1].Value))) { changed = true; return Raw(nt.Groups[1].Value) + " " + nt.Groups[2].Value; }
+            return p;
+        }
+        string t = LookupLine(p, out bool found);
+        if (!found || LeftJp(t)) { ok = false; return p; }
+        changed = true;
+        return t;
     }
 
     static string LookupLine(string s, out bool found)
@@ -282,17 +397,16 @@ public static class Loc
             bool leftJp = false;
             for (int g = 1; g < m.Groups.Count; g++)
             {
-                string part = Auto(m.Groups[g].Value); // 差し込まれた語も訳す(カード名など)
+                string part = PartRaw(m.Groups[g].Value); // 差し込まれた語も訳す(カード名など)。並べ替えは外側で1回だけ(2026-10-29)
                 // 2026-10-14: 差し込みの部分が訳されないまま日本語で残る時は、この型を使わない
                 //  (「0回分」が「{0}分」に当たって「0回 min」と意味の違う文になっていた。訳が無いと分かる方がよい)
-                if (current != "ja" && (current.StartsWith("zh") ? Kana.IsMatch(part) : Jp.IsMatch(part))) { leftJp = true; break; }
+                if (LeftJp(part)) { leftJp = true; break; }
                 r = r.Replace("{" + (g - 1) + "}", part);
             }
             if (leftJp) continue;
             return r;
         }
-        found = false;
-        return s;
+        return Composite(s, out found);
     }
 
     // 右から左の言語は表示用に並べ替える
@@ -330,6 +444,8 @@ public static class LocDebug
             foreach (var k in MissingKeys) sb.AppendLine(k.Replace("\n", "\\n"));
             sb.AppendLine($"## untranslated text shown ({UntranslatedShown.Count})");
             foreach (var k in UntranslatedShown) sb.AppendLine(k.Replace("\n", "\\n"));
+            sb.AppendLine($"## partially translated text shown ({JapaneseShown.Count})"); // 2026-10-29
+            foreach (var k in JapaneseShown) sb.AppendLine(k.Replace("\n", "\\n"));
             sb.AppendLine($"## English labels without a translation entry ({UnknownLabels.Count})");
             foreach (var k in UnknownLabels) sb.AppendLine(k);
             System.IO.File.WriteAllText(path, sb.ToString());

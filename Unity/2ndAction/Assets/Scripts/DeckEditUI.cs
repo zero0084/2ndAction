@@ -970,7 +970,7 @@ public class DeckEditUI : MonoBehaviour
                 // 2026-10-13: その能力の Lv(強化量、最大9)で実際に効く値。「1回分 ×強化量」は固定/2Lv/3Lvごとの効果で合わなかった
                 int alv = Mathf.Clamp(a.stacks, 1, CardVariant.MaxLevel);
                 sb.Append("Lv").Append(alv).Append("  ").Append(CardVariant.AbilityEffectTextAt(a.id, a.stacks));
-                if (a.stacks > CardVariant.MaxLevel) sb.Append(Loc.F("(強化量{0}・効くのはLv9まで)", a.stacks));
+                if (a.stacks > CardVariant.MaxLevel) sb.Append(Loc.Src("(強化量{0}・効くのはLv9まで)", a.stacks)); // 元の文(表示の時に Loc.Auto で訳す)
             }
             return sb.ToString();
         }

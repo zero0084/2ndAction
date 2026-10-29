@@ -1,0 +1,580 @@
+en	10169	[Main] {0}
+en	10170	[Sub] {0}
+en	10171	Fusion Lv.<b>{0}</b>
+en	10172	Rarity <color=#ffd76a>{0}</color>
+en	10173	Inheritance successful
+en	10174	Boost ×{0}→×{1}
+en	10175	New enemy: {0}
+en	10176	ELITE GOBLIN
+en	10177	RING ▲Top
+en	10178	RING ■Middle
+en	10179	RING ▼Bottom
+en	10181	{0}km   🔒 {1}
+en	10182	Deck capacity increased to {0} cards (currently {1}).
+en	10183	Add cards in Deck Edit.
+en	10184	(MAX)
+en	10185	(Normal Upgrade MAX)
+en	10186	{0} cards
+en	10187	Fixed at {0}km/h
+en	10188	Equivalent to {0}km
+de	10169	[Haupt] {0}
+de	10170	[Neben] {0}
+de	10171	Fusions-Lv.<b>{0}</b>
+de	10172	Seltenheit <color=#ffd76a>{0}</color>
+de	10173	Vererbung erfolgreich
+de	10174	Verstärkung ×{0}→×{1}
+de	10175	Neuer Gegner: {0}
+de	10176	ELITE-GOBLIN
+de	10177	RING ▲Oben
+de	10178	RING ■Mitte
+de	10179	RING ▼Unten
+de	10181	{0}km   🔒 {1}
+de	10182	Dein Deck fasst jetzt {0} Karten (derzeit {1}).
+de	10183	Weitere Karten in der Deckbearbeitung hinzufügen.
+de	10184	(MAX)
+de	10185	(Normale Verstärkung MAX)
+de	10186	{0} Karten
+de	10187	Fest auf {0}km/h
+de	10188	Entspricht {0}km
+fr	10169	[Principale] {0}
+fr	10170	[Secondaire] {0}
+fr	10171	Lv. de fusion <b>{0}</b>
+fr	10172	Rareté <color=#ffd76a>{0}</color>
+fr	10173	Héritage réussi
+fr	10174	Renforcement ×{0}→×{1}
+fr	10175	Nouvel ennemi : {0}
+fr	10176	GOBELIN D'ÉLITE
+fr	10177	RING ▲Haut
+fr	10178	RING ■Milieu
+fr	10179	RING ▼Bas
+fr	10181	{0}km   🔒 {1}
+fr	10182	Votre deck peut désormais contenir {0} cartes (actuellement {1}).
+fr	10183	Ajoutez des cartes dans l'édition du deck.
+fr	10184	(MAX)
+fr	10185	(Amélioration normale MAX)
+fr	10186	{0} cartes
+fr	10187	Fixé à {0}km/h
+fr	10188	Équivalent au niveau de {0}km
+es	10169	[Principal] {0}
+es	10170	[Secundaria] {0}
+es	10171	Lv. de fusión <b>{0}</b>
+es	10172	Rareza <color=#ffd76a>{0}</color>
+es	10173	Herencia completada
+es	10174	Mejora ×{0}→×{1}
+es	10175	Nuevo enemigo: {0}
+es	10176	DUENDE DE ÉLITE
+es	10177	RING ▲Arriba
+es	10178	RING ■Centro
+es	10179	RING ▼Abajo
+es	10181	{0}km   🔒 {1}
+es	10182	Tu mazo ahora admite {0} cartas (actualmente {1}).
+es	10183	Añade cartas en Editar mazo.
+es	10184	(MAX)
+es	10185	(Mejora normal MAX)
+es	10186	{0} cartas
+es	10187	Fijado en {0}km/h
+es	10188	Equivalente a {0}km
+it	10169	[Principale] {0}
+it	10170	[Secondaria] {0}
+it	10171	Lv. fusione <b>{0}</b>
+it	10172	Rarità <color=#ffd76a>{0}</color>
+it	10173	Ereditarietà riuscita
+it	10174	Potenziamento ×{0}→×{1}
+it	10175	Nuovo nemico: {0}
+it	10176	GOBLIN D'ÉLITE
+it	10177	RING ▲Alto
+it	10178	RING ■Centro
+it	10179	RING ▼Basso
+it	10181	{0}km   🔒 {1}
+it	10182	Il mazzo ora può contenere {0} carte (attualmente {1}).
+it	10183	Aggiungi carte in Modifica mazzo.
+it	10184	(MAX)
+it	10185	(Potenziamento normale MAX)
+it	10186	{0} carte
+it	10187	Fisso a {0}km/h
+it	10188	Equivalente a {0}km
+pt-BR	10169	[Principal] {0}
+pt-BR	10170	[Secundário] {0}
+pt-BR	10171	Lv. de fusão <b>{0}</b>
+pt-BR	10172	Raridade <color=#ffd76a>{0}</color>
+pt-BR	10173	Herança bem-sucedida
+pt-BR	10174	Reforço ×{0}→×{1}
+pt-BR	10175	Novo inimigo: {0}
+pt-BR	10176	GOBLIN DE ELITE
+pt-BR	10177	RING ▲Superior
+pt-BR	10178	RING ■Meio
+pt-BR	10179	RING ▼Inferior
+pt-BR	10181	{0}km   🔒 {1}
+pt-BR	10182	Seu deck agora comporta {0} cartas (atualmente {1}).
+pt-BR	10183	Adicione cartas em Editar Deck.
+pt-BR	10184	(MAX)
+pt-BR	10185	(Melhoria normal MAX)
+pt-BR	10186	{0} cartas
+pt-BR	10187	Fixo em {0}km/h
+pt-BR	10188	Equivalente a {0}km
+ru	10169	[Основное] {0}
+ru	10170	[Доп.] {0}
+ru	10171	Lv. слияния <b>{0}</b>
+ru	10172	Редкость <color=#ffd76a>{0}</color>
+ru	10173	Наследование успешно
+ru	10174	Усиление ×{0}→×{1}
+ru	10175	Новый враг: {0}
+ru	10176	ЭЛИТНЫЙ ГОБЛИН
+ru	10177	RING ▲Верх
+ru	10178	RING ■Середина
+ru	10179	RING ▼Низ
+ru	10181	{0}km   🔒 {1}
+ru	10182	Теперь колода вмещает {0} карт (сейчас {1}).
+ru	10183	Добавьте карты в редакторе колоды.
+ru	10184	(MAX)
+ru	10185	(Обычное усиление MAX)
+ru	10186	{0} карт
+ru	10187	Фиксировано {0}km/h
+ru	10188	Сила врагов как на отметке {0}km
+pl	10169	[Główna] {0}
+pl	10170	[Poboczna] {0}
+pl	10171	Lv. fuzji <b>{0}</b>
+pl	10172	Rzadkość <color=#ffd76a>{0}</color>
+pl	10173	Dziedziczenie udane
+pl	10174	Wzmocnienie ×{0}→×{1}
+pl	10175	Nowy wróg: {0}
+pl	10176	ELITARNY GOBLIN
+pl	10177	RING ▲Góra
+pl	10178	RING ■Środek
+pl	10179	RING ▼Dół
+pl	10181	{0}km   🔒 {1}
+pl	10182	Talia mieści teraz {0} kart (obecnie {1}).
+pl	10183	Dodaj karty w edycji talii.
+pl	10184	(MAX)
+pl	10185	(Zwykłe ulepszenie MAX)
+pl	10186	{0} kart
+pl	10187	Stała prędkość {0}km/h
+pl	10188	Siła wrogów jak na {0}km
+uk	10169	[Основна] {0}
+uk	10170	[Додаткова] {0}
+uk	10171	Lv. злиття <b>{0}</b>
+uk	10172	Рідкість <color=#ffd76a>{0}</color>
+uk	10173	Успішне успадкування
+uk	10174	Посилення ×{0}→×{1}
+uk	10175	Новий ворог: {0}
+uk	10176	ЕЛІТНИЙ ГОБЛІН
+uk	10177	RING ▲Верх
+uk	10178	RING ■Середина
+uk	10179	RING ▼Низ
+uk	10181	{0}km   🔒 {1}
+uk	10182	Тепер колода вміщує {0} карт (зараз {1}).
+uk	10183	Додайте карти в редакторі колоди.
+uk	10184	(MAX)
+uk	10185	(Звичайне покращення MAX)
+uk	10186	{0} карт
+uk	10187	Фіксована швидкість {0}km/h
+uk	10188	Сила ворогів як на позначці {0}km
+cs	10169	[Hlavní] {0}
+cs	10170	[Vedlejší] {0}
+cs	10171	Lv. fúze <b>{0}</b>
+cs	10172	Vzácnost <color=#ffd76a>{0}</color>
+cs	10173	Dědění úspěšné
+cs	10174	Posílení ×{0}→×{1}
+cs	10175	Nový nepřítel: {0}
+cs	10176	ELITNÍ GOBLIN
+cs	10177	RING ▲Nahoře
+cs	10178	RING ■Uprostřed
+cs	10179	RING ▼Dole
+cs	10181	{0}km   🔒 {1}
+cs	10182	Balíček nyní pojme {0} karet (aktuálně {1}).
+cs	10183	Přidejte karty v úpravě balíčku.
+cs	10184	(MAX)
+cs	10185	(Běžné vylepšení MAX)
+cs	10186	{0} karet
+cs	10187	Pevná rychlost {0}km/h
+cs	10188	Síla nepřátel jako na {0}km
+ro	10169	[Principală] {0}
+ro	10170	[Secundară] {0}
+ro	10171	Lv. de fuziune <b>{0}</b>
+ro	10172	Raritate <color=#ffd76a>{0}</color>
+ro	10173	Moștenire reușită
+ro	10174	Îmbunătățire ×{0}→×{1}
+ro	10175	Inamic nou: {0}
+ro	10176	GOBLIN DE ELITĂ
+ro	10177	RING ▲Sus
+ro	10178	RING ■Mijloc
+ro	10179	RING ▼Jos
+ro	10181	{0}km   🔒 {1}
+ro	10182	Pachetul poate conține acum {0} cărți (în prezent {1}).
+ro	10183	Adaugă cărți în Editare pachet.
+ro	10184	(MAX)
+ro	10185	(Îmbunătățire normală MAX)
+ro	10186	{0} cărți
+ro	10187	Viteză fixă de {0}km/h
+ro	10188	Puterea inamicilor ca la {0}km
+tr	10169	[Ana] {0}
+tr	10170	[Yan] {0}
+tr	10171	Birleştirme Lv.<b>{0}</b>
+tr	10172	Nadirlik <color=#ffd76a>{0}</color>
+tr	10173	Miras aktarımı başarılı
+tr	10174	Güçlendirme ×{0}→×{1}
+tr	10175	Yeni düşman: {0}
+tr	10176	SEÇKİN GOBLİN
+tr	10177	RING ▲Üst
+tr	10178	RING ■Orta
+tr	10179	RING ▼Alt
+tr	10181	{0}km   🔒 {1}
+tr	10182	Desten artık {0} kart alabilir (şu anda {1}).
+tr	10183	Deste Düzenleme'den kart ekle.
+tr	10184	(MAX)
+tr	10185	(Normal Güçlendirme MAX)
+tr	10186	{0} kart
+tr	10187	Sabit hız {0}km/h
+tr	10188	{0}km noktasındaki düşman gücüne eşdeğer
+id	10169	[Utama] {0}
+id	10170	[Tambahan] {0}
+id	10171	Lv. Fusi <b>{0}</b>
+id	10172	Kelangkaan <color=#ffd76a>{0}</color>
+id	10173	Pewarisan berhasil
+id	10174	Penguatan ×{0}→×{1}
+id	10175	Musuh baru: {0}
+id	10176	GOBLIN ELIT
+id	10177	RING ▲Atas
+id	10178	RING ■Tengah
+id	10179	RING ▼Bawah
+id	10181	{0}km   🔒 {1}
+id	10182	Dek sekarang dapat menampung {0} kartu (saat ini {1}).
+id	10183	Tambahkan kartu di Edit Dek.
+id	10184	(MAX)
+id	10185	(Penguatan Normal MAX)
+id	10186	{0} kartu
+id	10187	Kecepatan tetap {0}km/h
+id	10188	Setara dengan kekuatan musuh di {0}km
+ms	10169	[Utama] {0}
+ms	10170	[Sampingan] {0}
+ms	10171	Lv. Gabungan <b>{0}</b>
+ms	10172	Jarang <color=#ffd76a>{0}</color>
+ms	10173	Pewarisan berjaya
+ms	10174	Penguatan ×{0}→×{1}
+ms	10175	Musuh baharu: {0}
+ms	10176	GOBLIN ELIT
+ms	10177	RING ▲Atas
+ms	10178	RING ■Tengah
+ms	10179	RING ▼Bawah
+ms	10181	{0}km   🔒 {1}
+ms	10182	Dek kini boleh memuatkan {0} kad (sekarang {1}).
+ms	10183	Tambah kad dalam Edit Dek.
+ms	10184	(MAX)
+ms	10185	(Peningkatan Biasa MAX)
+ms	10186	{0} kad
+ms	10187	Kelajuan tetap {0}km/h
+ms	10188	Setara dengan kekuatan musuh pada {0}km
+fil	10169	[Pangunahin] {0}
+fil	10170	[Karagdagan] {0}
+fil	10171	Fusion Lv.<b>{0}</b>
+fil	10172	Rarity <color=#ffd76a>{0}</color>
+fil	10173	Matagumpay ang pagmamana
+fil	10174	Palakas ×{0}→×{1}
+fil	10175	Bagong kalaban: {0}
+fil	10176	ELIT NA GOBLIN
+fil	10177	RING ▲Itaas
+fil	10178	RING ■Gitna
+fil	10179	RING ▼Ibaba
+fil	10181	{0}km   🔒 {1}
+fil	10182	Maaari nang maglaman ng {0} card ang deck (kasalukuyang {1}).
+fil	10183	Magdagdag ng card sa Edit Deck.
+fil	10184	(MAX)
+fil	10185	(Normal na Pag-upgrade MAX)
+fil	10186	{0} card
+fil	10187	Nakapirming bilis na {0}km/h
+fil	10188	Katumbas ng lakas ng kalaban sa {0}km
+vi	10169	[Chính] {0}
+vi	10170	[Phụ] {0}
+vi	10171	Lv. dung hợp <b>{0}</b>
+vi	10172	Độ hiếm <color=#ffd76a>{0}</color>
+vi	10173	Kế thừa thành công
+vi	10174	Cường hóa ×{0}→×{1}
+vi	10175	Kẻ địch mới: {0}
+vi	10176	YÊU TINH TINH NHUỆ
+vi	10177	RING ▲Trên
+vi	10178	RING ■Giữa
+vi	10179	RING ▼Dưới
+vi	10181	{0}km   🔒 {1}
+vi	10182	Bộ bài giờ có thể chứa {0} thẻ (hiện có {1}).
+vi	10183	Thêm thẻ trong Chỉnh sửa bộ bài.
+vi	10184	(MAX)
+vi	10185	(Cường hóa thường MAX)
+vi	10186	{0} thẻ
+vi	10187	Tốc độ cố định {0}km/h
+vi	10188	Sức mạnh kẻ địch tương đương mốc {0}km
+th	10169	[หลัก] {0}
+th	10170	[รอง] {0}
+th	10171	Lv. ผสาน <b>{0}</b>
+th	10172	ความหายาก <color=#ffd76a>{0}</color>
+th	10173	สืบทอดสำเร็จ
+th	10174	เสริมพลัง ×{0}→×{1}
+th	10175	ศัตรูใหม่: {0}
+th	10176	ก็อบลินชั้นยอด
+th	10177	RING ▲บน
+th	10178	RING ■กลาง
+th	10179	RING ▼ล่าง
+th	10181	{0}km   🔒 {1}
+th	10182	เด็คใส่การ์ดได้สูงสุด {0} ใบแล้ว (ตอนนี้มี {1} ใบ)
+th	10183	เพิ่มการ์ดได้ในหน้าแก้ไขเด็ค
+th	10184	(MAX)
+th	10185	(เสริมพลังปกติ MAX)
+th	10186	การ์ด {0} ใบ
+th	10187	ล็อกความเร็วที่ {0}km/h
+th	10188	ความแข็งแกร่งของศัตรูเทียบเท่าจุด {0}km
+lo	10169	[ຫຼັກ] {0}
+lo	10170	[ຮອງ] {0}
+lo	10171	Lv. ປະສົມ <b>{0}</b>
+lo	10172	ຄວາມຫາຍາກ <color=#ffd76a>{0}</color>
+lo	10173	ສືບທອດສຳເລັດ
+lo	10174	ເສີມພະລັງ ×{0}→×{1}
+lo	10175	ສັດຕູໃໝ່: {0}
+lo	10176	ກອບລິນຊັ້ນຍອດ
+lo	10177	RING ▲ເທິງ
+lo	10178	RING ■ກາງ
+lo	10179	RING ▼ລຸ່ມ
+lo	10181	{0}km   🔒 {1}
+lo	10182	ເດັກສາມາດໃສ່ບັດໄດ້ {0} ໃບແລ້ວ (ປັດຈຸບັນມີ {1} ໃບ)
+lo	10183	ເພີ່ມບັດໄດ້ໃນໜ້າແກ້ໄຂເດັກ
+lo	10184	(MAX)
+lo	10185	(ເສີມພະລັງປົກກະຕິ MAX)
+lo	10186	ບັດ {0} ໃບ
+lo	10187	ຄວາມໄວຄົງທີ່ {0}km/h
+lo	10188	ຄວາມແຂງແກ່ນຂອງສັດຕູເທົ່າກັບຈຸດ {0}km
+my	10169	[အဓိက] {0}
+my	10170	[အရန်] {0}
+my	10171	ပေါင်းစပ် Lv.<b>{0}</b>
+my	10172	ရှားပါးမှု <color=#ffd76a>{0}</color>
+my	10173	အမွေဆက်ခံမှု အောင်မြင်သည်
+my	10174	အားမြှင့် ×{0}→×{1}
+my	10175	ရန်သူအသစ်: {0}
+my	10176	အထူးလေ့ကျင့်ထားသော ဂေါ့ဘလင်
+my	10177	RING ▲အပေါ်
+my	10178	RING ■အလယ်
+my	10179	RING ▼အောက်
+my	10181	{0}km   🔒 {1}
+my	10182	ဒက်တွင် ယခု ကတ် {0} ကတ်အထိ ထည့်နိုင်ပါပြီ (လက်ရှိ {1} ကတ်)။
+my	10183	ဒက်ပြင်ဆင်မှုတွင် ကတ်များ ထပ်ထည့်နိုင်သည်။
+my	10184	(MAX)
+my	10185	(ပုံမှန်အားမြှင့် MAX)
+my	10186	ကတ် {0} ကတ်
+my	10187	အမြန်နှုန်း {0}km/h သတ်မှတ်ထားသည်
+my	10188	{0}km နေရာရှိ ရန်သူအင်အားနှင့် ညီမျှသည်
+km	10169	[ចម្បង] {0}
+km	10170	[បន្ទាប់បន្សំ] {0}
+km	10171	Lv. ផ្សំ <b>{0}</b>
+km	10172	កម្រិតកម្រ <color=#ffd76a>{0}</color>
+km	10173	ទទួលមរតកជោគជ័យ
+km	10174	ពង្រឹង ×{0}→×{1}
+km	10175	សត្រូវថ្មី: {0}
+km	10176	ហ្គូប្លីនឆ្នើម
+km	10177	RING ▲លើ
+km	10178	RING ■កណ្ដាល
+km	10179	RING ▼ក្រោម
+km	10181	{0}km   🔒 {1}
+km	10182	ឈុតកាតឥឡូវអាចដាក់បាន {0} សន្លឹក (បច្ចុប្បន្នមាន {1} សន្លឹក)។
+km	10183	បន្ថែមកាតនៅក្នុងការកែសម្រួលឈុតកាត។
+km	10184	(MAX)
+km	10185	(ការពង្រឹងធម្មតា MAX)
+km	10186	កាត {0} សន្លឹក
+km	10187	កំណត់ល្បឿនថេរ {0}km/h
+km	10188	កម្លាំងសត្រូវស្មើនឹងចំណុច {0}km
+hi	10169	[मुख्य] {0}
+hi	10170	[सहायक] {0}
+hi	10171	फ़्यूज़न Lv.<b>{0}</b>
+hi	10172	दुर्लभता <color=#ffd76a>{0}</color>
+hi	10173	विरासत सफल
+hi	10174	शक्ति वृद्धि ×{0}→×{1}
+hi	10175	नया दुश्मन: {0}
+hi	10176	विशिष्ट गॉब्लिन
+hi	10177	RING ▲ऊपर
+hi	10178	RING ■बीच
+hi	10179	RING ▼नीचे
+hi	10181	{0}km   🔒 {1}
+hi	10182	अब डेक में {0} कार्ड रख सकते हैं (अभी {1} कार्ड हैं)।
+hi	10183	डेक संपादन में और कार्ड जोड़ें।
+hi	10184	(MAX)
+hi	10185	(सामान्य अपग्रेड MAX)
+hi	10186	{0} कार्ड
+hi	10187	गति {0}km/h पर स्थिर
+hi	10188	दुश्मनों की ताकत {0}km के बराबर
+bn	10169	[প্রধান] {0}
+bn	10170	[সহায়ক] {0}
+bn	10171	ফিউশন Lv.<b>{0}</b>
+bn	10172	বিরলতা <color=#ffd76a>{0}</color>
+bn	10173	উত্তরাধিকার সফল
+bn	10174	শক্তিবৃদ্ধি ×{0}→×{1}
+bn	10175	নতুন শত্রু: {0}
+bn	10176	অভিজাত গবলিন
+bn	10177	RING ▲উপরে
+bn	10178	RING ■মাঝে
+bn	10179	RING ▼নিচে
+bn	10181	{0}km   🔒 {1}
+bn	10182	ডেকে এখন {0}টি কার্ড রাখা যাবে (বর্তমানে {1}টি)।
+bn	10183	ডেক সম্পাদনায় আরও কার্ড যোগ করুন।
+bn	10184	(MAX)
+bn	10185	(সাধারণ আপগ্রেড MAX)
+bn	10186	{0}টি কার্ড
+bn	10187	গতি {0}km/h-এ স্থির
+bn	10188	শত্রুর শক্তি {0}km অবস্থানের সমতুল্য
+ta	10169	[முதன்மை] {0}
+ta	10170	[துணை] {0}
+ta	10171	இணைப்பு Lv.<b>{0}</b>
+ta	10172	அரிதான நிலை <color=#ffd76a>{0}</color>
+ta	10173	பண்புப் பரிமாற்றம் வெற்றி
+ta	10174	வலுப்படுத்தல் ×{0}→×{1}
+ta	10175	புதிய எதிரி: {0}
+ta	10176	உயர்தர கோப்ளின்
+ta	10177	RING ▲மேல்
+ta	10178	RING ■நடு
+ta	10179	RING ▼கீழ்
+ta	10181	{0}km   🔒 {1}
+ta	10182	இப்போது டெக்கில் {0} கார்டுகள் வரை வைக்கலாம் (தற்போது {1} கார்டுகள்).
+ta	10183	டெக் திருத்தத்தில் மேலும் கார்டுகளைச் சேர்க்கலாம்.
+ta	10184	(MAX)
+ta	10185	(சாதாரண மேம்பாடு MAX)
+ta	10186	{0} கார்டுகள்
+ta	10187	வேகம் {0}km/h ஆக நிலையானது
+ta	10188	எதிரிகளின் வலிமை {0}km இடத்திற்குச் சமம்
+sw	10169	[Kuu] {0}
+sw	10170	[Ziada] {0}
+sw	10171	Lv. ya Muunganiko <b>{0}</b>
+sw	10172	Uadimu <color=#ffd76a>{0}</color>
+sw	10173	Urithi umefanikiwa
+sw	10174	Uimarishaji ×{0}→×{1}
+sw	10175	Adui mpya: {0}
+sw	10176	GOBLIN WA WASOMI
+sw	10177	RING ▲Juu
+sw	10178	RING ■Katikati
+sw	10179	RING ▼Chini
+sw	10181	{0}km   🔒 {1}
+sw	10182	Staha sasa inaweza kubeba kadi {0} (kwa sasa {1}).
+sw	10183	Ongeza kadi katika Hariri Staha.
+sw	10184	(MAX)
+sw	10185	(Uboreshaji wa Kawaida MAX)
+sw	10186	Kadi {0}
+sw	10187	Kasi isiyobadilika ya {0}km/h
+sw	10188	Nguvu za maadui sawa na eneo la {0}km
+ko	10169	[주] {0}
+ko	10170	[부] {0}
+ko	10171	합성 Lv.<b>{0}</b>
+ko	10172	희귀도 <color=#ffd76a>{0}</color>
+ko	10173	계승 성공
+ko	10174	강화 ×{0}→×{1}
+ko	10175	새로운 적: {0}
+ko	10176	엘리트 고블린
+ko	10177	RING ▲상단
+ko	10178	RING ■중단
+ko	10179	RING ▼하단
+ko	10181	{0}km   🔒 {1}
+ko	10182	덱에 넣을 수 있는 카드가 {0}장으로 늘었습니다(현재 {1}장).
+ko	10183	덱 편집에서 카드를 추가할 수 있습니다.
+ko	10184	(MAX)
+ko	10185	(일반 강화 MAX)
+ko	10186	카드 {0}장
+ko	10187	{0}km/h 고정
+ko	10188	{0}km 지점과 동일한 적 강도
+zh-Hans	10169	【主】{0}
+zh-Hans	10170	【副】{0}
+zh-Hans	10171	合成Lv.<b>{0}</b>
+zh-Hans	10172	稀有度 <color=#ffd76a>{0}</color>
+zh-Hans	10173	继承成功
+zh-Hans	10174	强化 ×{0}→×{1}
+zh-Hans	10175	新敌人: {0}
+zh-Hans	10176	精英哥布林
+zh-Hans	10177	RING ▲上
+zh-Hans	10178	RING ■中
+zh-Hans	10179	RING ▼下
+zh-Hans	10181	{0}km   🔒 {1}
+zh-Hans	10182	卡组容量已增加至{0}张卡牌(当前{1}张)。
+zh-Hans	10183	可在编辑卡组中添加卡牌。
+zh-Hans	10184	(MAX)
+zh-Hans	10185	(普通强化MAX)
+zh-Hans	10186	{0}张卡牌
+zh-Hans	10187	速度固定为{0}km/h
+zh-Hans	10188	相当于{0}km处的敌人强度
+zh-Hant	10169	【主】{0}
+zh-Hant	10170	【副】{0}
+zh-Hant	10171	合成Lv.<b>{0}</b>
+zh-Hant	10172	稀有度 <color=#ffd76a>{0}</color>
+zh-Hant	10173	繼承成功
+zh-Hant	10174	強化 ×{0}→×{1}
+zh-Hant	10175	新敵人: {0}
+zh-Hant	10176	菁英哥布林
+zh-Hant	10177	RING ▲上
+zh-Hant	10178	RING ■中
+zh-Hant	10179	RING ▼下
+zh-Hant	10181	{0}km   🔒 {1}
+zh-Hant	10182	牌組容量已增加至{0}張卡牌(目前{1}張)。
+zh-Hant	10183	可在編輯牌組中新增卡牌。
+zh-Hant	10184	(MAX)
+zh-Hant	10185	(一般強化MAX)
+zh-Hant	10186	{0}張卡牌
+zh-Hant	10187	速度固定為{0}km/h
+zh-Hant	10188	相當於{0}km處的敵人強度
+ar	10169	[رئيسي] {0}
+ar	10170	[ثانوي] {0}
+ar	10171	Lv. الدمج <b>{0}</b>
+ar	10172	الندرة <color=#ffd76a>{0}</color>
+ar	10173	نجاح توريث القدرة
+ar	10174	تعزيز ×{0}→×{1}
+ar	10175	عدو جديد: {0}
+ar	10176	غوبلن النخبة
+ar	10177	RING ▲أعلى
+ar	10178	RING ■وسط
+ar	10179	RING ▼أسفل
+ar	10181	{0}km   🔒 {1}
+ar	10182	أصبح بإمكان مجموعتك استيعاب {0} بطاقة (حاليًا {1}).
+ar	10183	يمكنك إضافة بطاقات من تعديل المجموعة.
+ar	10184	(MAX)
+ar	10185	(التعزيز العادي MAX)
+ar	10186	{0} بطاقة
+ar	10187	سرعة ثابتة عند {0}km/h
+ar	10188	قوة الأعداء تعادل قوتهم عند مسافة {0}km
+fa	10169	[اصلی] {0}
+fa	10170	[فرعی] {0}
+fa	10171	Lv. ترکیب <b>{0}</b>
+fa	10172	کمیابی <color=#ffd76a>{0}</color>
+fa	10173	انتقال قابلیت موفق بود
+fa	10174	تقویت ×{0}→×{1}
+fa	10175	دشمن جدید: {0}
+fa	10176	گابلین نخبه
+fa	10177	RING ▲بالا
+fa	10178	RING ■وسط
+fa	10179	RING ▼پایین
+fa	10181	{0}km   🔒 {1}
+fa	10182	ظرفیت دسته کارت شما به {0} کارت افزایش یافت (در حال حاضر {1} کارت).
+fa	10183	می‌توانید در بخش ویرایش دسته، کارت اضافه کنید.
+fa	10184	(MAX)
+fa	10185	(تقویت معمولی MAX)
+fa	10186	{0} کارت
+fa	10187	سرعت ثابت روی {0}km/h
+fa	10188	قدرت دشمنان معادل نقطه {0}km
+en	10189	(stored after ★5: {0})
+de	10189	(nach ★5 gespeichert: {0})
+fr	10189	(conservé après ★5 : {0})
+es	10189	(guardado tras ★5: {0})
+it	10189	(conservato dopo ★5: {0})
+pt-BR	10189	(armazenado após ★5: {0})
+ru	10189	(сохранено после ★5: {0})
+pl	10189	(zachowano po ★5: {0})
+uk	10189	(збережено після ★5: {0})
+cs	10189	(uchováno po ★5: {0})
+ro	10189	(păstrat după ★5: {0})
+tr	10189	(★5 sonrası saklanan: {0})
+id	10189	(disimpan setelah ★5: {0})
+ms	10189	(disimpan selepas ★5: {0})
+fil	10189	(nakaimbak matapos ang ★5: {0})
+vi	10189	(lưu lại sau ★5: {0})
+th	10189	(เก็บสะสมหลัง ★5: {0})
+lo	10189	(ເກັບໄວ້ຫຼັງ ★5: {0})
+my	10189	(★5 နောက်ပိုင်း သိမ်းဆည်းထားမှု: {0})
+km	10189	(រក្សាទុកបន្ទាប់ពី ★5: {0})
+hi	10189	(★5 के बाद सुरक्षित: {0})
+bn	10189	(★5-এর পরে সংরক্ষিত: {0})
+ta	10189	(★5-க்குப் பின் சேமிப்பு: {0})
+sw	10189	(iliyohifadhiwa baada ya ★5: {0})
+ko	10189	(★5 이후 보관: {0})
+zh-Hans	10189	(★5后保管: {0})
+zh-Hant	10189	(★5後保管: {0})
+ar	10189	(المحفوظ بعد ★5: {0})
+fa	10189	(ذخیره‌شده پس از ★5: {0})

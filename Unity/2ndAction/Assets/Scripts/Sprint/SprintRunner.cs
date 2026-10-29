@@ -664,15 +664,21 @@ public class SprintRunner : MonoBehaviour
                 string l2 = ControlHint();
                 string l3 = AllMaxedAtStart ? "このランでデッキのカードはすべてLv9です。リング報酬は持ち帰り予定MILEです" : "";
                 float pw = Mathf.Min(1120f * s, W - 32f * s);
-                float f1 = P ? 40f : 48f, l1h = P ? 104f : 64f, l3h = P ? 80f : 44f; // 縦: 幅が狭いので折り返す(2行まで)
-                Rect pr = new Rect(Mathf.Clamp(W * 0.45f - pw * 0.5f, 16f * s, W - pw - 16f * s), groundY + 22f * s, pw, (24f + l1h + 52f + (l3.Length > 0 ? l3h + 6f : 0f)) * s); // 地面の帯(キャラ/リングの通り道を隠さない)
-                UiKit.Fill(pr, new Color(0.03f, 0.04f, 0.09f, 0.78f * a));
+                float f1 = P ? 40f : 48f, l1h = P ? 104f : 64f, l2h = 44f, l3h = P ? 80f : 44f; // 縦: 幅が狭いので折り返す(2行まで)
                 var s1 = new GUIStyle(UiKit.Label(f1 * s, TextAnchor.MiddleCenter, true, new Color(1f, 0.92f, 0.6f, a))) { wordWrap = true };
                 var s2 = new GUIStyle(UiKit.Label(32f * s, TextAnchor.MiddleCenter, true, new Color(0.85f, 0.95f, 1f, a))) { wordWrap = true };
                 var s3 = new GUIStyle(UiKit.Label(28f * s, TextAnchor.MiddleCenter, true, new Color(0.6f, 1f, 0.75f, a))) { wordWrap = true };
-                LocGUI.Label(new Rect(pr.x + 10f * s, pr.y + 12f * s, pr.width - 20f * s, l1h * s), l1, s1);
-                LocGUI.Label(new Rect(pr.x + 10f * s, pr.y + (16f + l1h) * s, pr.width - 20f * s, 44f * s), l2, s2);
-                if (l3.Length > 0) LocGUI.Label(new Rect(pr.x + 10f * s, pr.y + (66f + l1h) * s, pr.width - 20f * s, l3h * s), l3, s3);
+                // 2026-10-29: 長い訳(タミル語など)で1行目が折り返すと2行目に重なっていた → 訳した文の実際の高さで行を積む
+                float tw = pw - 20f * s;
+                l1h = Mathf.Max(l1h, s1.CalcHeight(new GUIContent(Loc.Auto(l1)), tw) / s + 6f);
+                l2h = Mathf.Max(l2h, s2.CalcHeight(new GUIContent(Loc.Auto(l2)), tw) / s + 4f);
+                if (l3.Length > 0) l3h = Mathf.Max(l3h, s3.CalcHeight(new GUIContent(Loc.Auto(l3)), tw) / s + 4f);
+                float ph = (24f + l1h + l2h + 8f + (l3.Length > 0 ? l3h + 6f : 0f)) * s;
+                Rect pr = new Rect(Mathf.Clamp(W * 0.45f - pw * 0.5f, 16f * s, W - pw - 16f * s), Mathf.Min(groundY + 22f * s, H - ph - 8f * s), pw, ph); // 地面の帯(キャラ/リングの通り道を隠さない)
+                UiKit.Fill(pr, new Color(0.03f, 0.04f, 0.09f, 0.78f * a));
+                LocGUI.Label(new Rect(pr.x + 10f * s, pr.y + 12f * s, tw, l1h * s), l1, s1);
+                LocGUI.Label(new Rect(pr.x + 10f * s, pr.y + (16f + l1h) * s, tw, l2h * s), l2, s2);
+                if (l3.Length > 0) LocGUI.Label(new Rect(pr.x + 10f * s, pr.y + (22f + l1h + l2h) * s, tw, l3h * s), l3, s3);
             }
         }
         // 途中で全 Lv9 になった時の案内(一度だけ)

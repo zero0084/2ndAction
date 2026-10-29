@@ -1,0 +1,100 @@
+pt-BR	10169	[Principal] {0}
+pt-BR	10170	[Secundário] {0}
+pt-BR	10171	Lv. de fusão <b>{0}</b>
+pt-BR	10172	Raridade <color=#ffd76a>{0}</color>
+pt-BR	10173	Herança bem-sucedida
+pt-BR	10174	Reforço ×{0}→×{1}
+pt-BR	10175	Novo inimigo: {0}
+pt-BR	10176	GOBLIN DE ELITE
+pt-BR	10177	RING ▲Superior
+pt-BR	10178	RING ■Meio
+pt-BR	10179	RING ▼Inferior
+pt-BR	10180	Até {0}km   (aprox. {1}s + escolha de cartas nos anéis)
+pt-BR	10181	{0}km   🔒 {1}
+pt-BR	10182	Seu deck agora comporta {0} cartas (atualmente {1}).
+pt-BR	10183	Adicione cartas em Editar Deck.
+pt-BR	10184	(MAX)
+pt-BR	10185	(Melhoria normal MAX)
+pt-BR	10186	{0} cartas
+pt-BR	10187	Fixo em {0}km/h
+pt-BR	10188	Equivalente a {0}km
+ru	10169	[Основное] {0}
+ru	10170	[Доп.] {0}
+ru	10171	Lv. слияния <b>{0}</b>
+ru	10172	Редкость <color=#ffd76a>{0}</color>
+ru	10173	Наследование успешно
+ru	10174	Усиление ×{0}→×{1}
+ru	10175	Новый враг: {0}
+ru	10176	ЭЛИТНЫЙ ГОБЛИН
+ru	10177	RING ▲Верх
+ru	10178	RING ■Середина
+ru	10179	RING ▼Низ
+ru	10180	До {0}km   (около {1}с + выбор карт у колец)
+ru	10181	{0}km   🔒 {1}
+ru	10182	Теперь колода вмещает {0} карт (сейчас {1}).
+ru	10183	Добавьте карты в редакторе колоды.
+ru	10184	(MAX)
+ru	10185	(Обычное усиление MAX)
+ru	10186	{0} карт
+ru	10187	Фиксировано {0}km/h
+ru	10188	Сила врагов как на отметке {0}km
+pl	10169	[Główna] {0}
+pl	10170	[Poboczna] {0}
+pl	10171	Lv. fuzji <b>{0}</b>
+pl	10172	Rzadkość <color=#ffd76a>{0}</color>
+pl	10173	Dziedziczenie udane
+pl	10174	Wzmocnienie ×{0}→×{1}
+pl	10175	Nowy wróg: {0}
+pl	10176	ELITARNY GOBLIN
+pl	10177	RING ▲Góra
+pl	10178	RING ■Środek
+pl	10179	RING ▼Dół
+pl	10180	Do {0}km   (ok. {1}s + wybór kart przy pierścieniach)
+pl	10181	{0}km   🔒 {1}
+pl	10182	Talia mieści teraz {0} kart (obecnie {1}).
+pl	10183	Dodaj karty w edycji talii.
+pl	10184	(MAX)
+pl	10185	(Zwykłe ulepszenie MAX)
+pl	10186	{0} kart
+pl	10187	Stała prędkość {0}km/h
+pl	10188	Siła wrogów jak na {0}km
+uk	10169	[Основна] {0}
+uk	10170	[Додаткова] {0}
+uk	10171	Lv. злиття <b>{0}</b>
+uk	10172	Рідкість <color=#ffd76a>{0}</color>
+uk	10173	Успішне успадкування
+uk	10174	Посилення ×{0}→×{1}
+uk	10175	Новий ворог: {0}
+uk	10176	ЕЛІТНИЙ ГОБЛІН
+uk	10177	RING ▲Верх
+uk	10178	RING ■Середина
+uk	10179	RING ▼Низ
+uk	10180	До {0}km   (прибл. {1}с + вибір карт біля кілець)
+uk	10181	{0}km   🔒 {1}
+uk	10182	Тепер колода вміщує {0} карт (зараз {1}).
+uk	10183	Додайте карти в редакторі колоди.
+uk	10184	(MAX)
+uk	10185	(Звичайне покращення MAX)
+uk	10186	{0} карт
+uk	10187	Фіксована швидкість {0}km/h
+uk	10188	Сила ворогів як на позначці {0}km
+cs	10169	[Hlavní] {0}
+cs	10170	[Vedlejší] {0}
+cs	10171	Lv. fúze <b>{0}</b>
+cs	10172	Vzácnost <color=#ffd76a>{0}</color>
+cs	10173	Dědění úspěšné
+cs	10174	Posílení ×{0}→×{1}
+cs	10175	Nový nepřítel: {0}
+cs	10176	ELITNÍ GOBLIN
+cs	10177	RING ▲Nahoře
+cs	10178	RING ■Uprostřed
+cs	10179	RING ▼Dole
+cs	10180	Do {0}km   (asi {1}s + výběr karet u kruhů)
+cs	10181	{0}km   🔒 {1}
+cs	10182	Balíček nyní pojme {0} karet (aktuálně {1}).
+cs	10183	Přidejte karty v úpravě balíčku.
+cs	10184	(MAX)
+cs	10185	(Běžné vylepšení MAX)
+cs	10186	{0} karet
+cs	10187	Pevná rychlost {0}km/h
+cs	10188	Síla nepřátel jako na {0}km

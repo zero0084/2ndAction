@@ -21,6 +21,7 @@ public partial class QaSweep
         if (qaLang != "") { Loc.Set(qaLang); L($"[portrait] lang {qaLang}"); }
         yield return ReloadHome();
         TutorialProgress.MarkOffered();
+        LocDebug.Reset();
         UnlockRules.DevUnlockAll = true; SprintRecords.DevUnlockAll = true;
         gm.AddMile(5000);
         L($"[portrait] screen {Screen.width}x{Screen.height} portrait={Screen.height > Screen.width} safe={Screen.safeArea}");
@@ -256,6 +257,8 @@ public partial class QaSweep
         }
         if (PCase('X')) yield return LayoutExtraScreens(S);
         LayoutFlush();
+        // 2026-10-29: 言語を指定した時は、巡回中に訳の無い日本語が出た文を書き出す(固定の日本語の残りの確認)
+        if (qaLang != "") { LocDebug.WriteReport(System.IO.Path.Combine(outDir, $"loc_report_{qaLang}_{tag}.txt")); L($"[portrait] {qaLang}: untranslated Japanese shown {LocDebug.UntranslatedShown.Count}, partial {LocDebug.JapaneseShown.Count}"); }
         if (qaLang != "") Loc.Set(langKeep);
         UnlockRules.DevUnlockAll = false; SprintRecords.DevUnlockAll = false;
         SaveProfile.Switch(false, true);

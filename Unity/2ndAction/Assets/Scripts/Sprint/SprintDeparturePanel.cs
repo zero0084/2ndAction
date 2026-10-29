@@ -112,8 +112,10 @@ public class SprintDeparturePanel : MonoBehaviour
         // 2026-10-28: 行の文が折り返す幅(縦の細い画面・長い訳)では、その行を高くする(以前は 62 固定で、2行目が行の枠からはみ出していた)
         var rowSt = new GUIStyle(UiKit.Label(24f * s, TextAnchor.MiddleLeft, true)) { wordWrap = true };
         float rowTextW = w - 12f - (12f + 40f + 12f + 10f) * s;
-        string RowLabel(SprintRecords.Destination d) => d.unlocked ? $"{d.meters / 1000}km まで疾走   (約{SprintTuning.I.SecondsFor(d.meters):F0}秒 + リングのカード選択){(d.why == "DEBUG 全解放" ? "  [DEBUG 全解放]" : "")}" : $"{d.meters / 1000}km   🔒 {d.why}";
-        float RowH(SprintRecords.Destination d) => Mathf.Max(62f * s, rowSt.CalcHeight(new GUIContent(Loc.Auto(RowLabel(d)).Replace("🔒 ", "")), rowTextW) + 18f * s);
+        // 2026-10-29: 行の文は型(「{0}km まで疾走 …」「{0}km 🔒 {1}」)で訳す。開発版の印は訳した文の外に付ける(型に混ぜると訳せなかった)
+        string RowLabel(SprintRecords.Destination d) => d.unlocked ? Loc.Src("{0}km まで疾走   (約{1}秒 + リングのカード選択)", d.meters / 1000, SprintTuning.I.SecondsFor(d.meters).ToString("F0")) : Loc.Src("{0}km   🔒 {1}", d.meters / 1000, d.why);
+        string RowShown(SprintRecords.Destination d) => Loc.Auto(RowLabel(d)) + (d.unlocked && d.why == "DEBUG 全解放" ? "  [DEBUG]" : "");
+        float RowH(SprintRecords.Destination d) => Mathf.Max(62f * s, rowSt.CalcHeight(new GUIContent(RowShown(d).Replace("🔒 ", "")), rowTextW) + 18f * s);
         float listH = (SprintRecords.DevUnlockAll ? 34f * s : 0f);
         foreach (var d in list) listH += RowH(d) + 6f * s;
         listScroll.Begin(listView, listH, stageForPanel);
@@ -127,7 +129,7 @@ public class SprintDeparturePanel : MonoBehaviour
             bool hitRow = UiKit.Button(row, "", 24f * s, d.unlocked, false, d.unlocked);
             Texture2D rowIcon = d.unlocked ? UiIcons.Home("depart") : UiIcons.Lock;
             float ic = 40f * s;
-            string shown = Loc.Auto(label);
+            string shown = RowShown(d);
             if (rowIcon != null)
             {
                 shown = shown.Replace("🔒 ", "").Replace("🔒", "");

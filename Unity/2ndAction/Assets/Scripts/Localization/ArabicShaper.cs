@@ -92,13 +92,88 @@ public static class ArabicShaper
         foreach (char c in s) if (((c >= '؀' && c <= 'ۿ') || (c >= 'ݐ' && c <= 'ݿ')) && char.IsLetter(c)) { any = true; break; }
         if (!any) return s;
         var lines = Shape(s).Split('\n');
-        for (int i = 0; i < lines.Length; i++) lines[i] = ReorderLine(lines[i]);
+        var open = new List<(string name, string tag)>(); // 行をまたぐタグ(1行目で開いて2行目で閉じる)は次の行へ持ち越す
+        for (int i = 0; i < lines.Length; i++) lines[i] = ReorderLine(lines[i], open);
         return string.Join("\n", lines);
     }
 
     static bool IsLtrStrong(char c) => char.IsLetterOrDigit(c) && !IsRtlChar(c);
 
-    static string ReorderLine(string line)
+    static readonly System.Text.RegularExpressions.Regex RichTag = new System.Text.RegularExpressions.Regex(@"</?(b|i|size|color)(=[^<>]*)?>");
+
+    // 2026-10-29: 書式タグ(<b> <color=…> <size=…> 等)の入った行。タグを外した文字だけを並べ替え、
+    //  並べた後の順で、文字ごとに元の書式(開いていたタグの重なり)を付け直す(以前はタグの < > まで逆に並べて崩していた)
+    static string ReorderLine(string line, List<(string name, string tag)> open)
+    {
+        if (open.Count == 0 && (line.IndexOf('<') < 0 || !RichTag.IsMatch(line))) return ReorderPlain(line);
+        var plain = new StringBuilder(line.Length);
+        var styles = new List<string[]>();
+        int pos = 0;
+        foreach (System.Text.RegularExpressions.Match m in RichTag.Matches(line))
+        {
+            for (int k = pos; k < m.Index; k++) { plain.Append(line[k]); styles.Add(Snapshot(open)); }
+            string name = m.Groups[1].Value;
+            if (m.Value[1] == '/') { for (int k = open.Count - 1; k >= 0; k--) if (open[k].name == name) { open.RemoveAt(k); break; } }
+            else open.Add((name, m.Value));
+            pos = m.Index + m.Length;
+        }
+        for (int k = pos; k < line.Length; k++) { plain.Append(line[k]); styles.Add(Snapshot(open)); }
+        var order = VisualOrder(plain.ToString());
+        var sb = new StringBuilder(line.Length + 32);
+        var cur = new List<string>();
+        foreach (var (idx, ch) in order)
+        {
+            var st = styles[idx];
+            int same = 0;
+            while (same < cur.Count && same < st.Length && cur[same] == st[same]) same++;
+            for (int k = cur.Count - 1; k >= same; k--) sb.Append(CloseOf(cur[k]));
+            cur.RemoveRange(same, cur.Count - same);
+            for (int k = same; k < st.Length; k++) { sb.Append(st[k]); cur.Add(st[k]); }
+            sb.Append(ch);
+        }
+        for (int k = cur.Count - 1; k >= 0; k--) sb.Append(CloseOf(cur[k]));
+        return sb.ToString();
+    }
+    static string[] Snapshot(List<(string name, string tag)> open) { var a = new string[open.Count]; for (int i = 0; i < a.Length; i++) a[i] = open[i].tag; return a; }
+    static string CloseOf(string tag) { int e = tag.IndexOfAny(new[] { '=', '>' }); return "</" + tag.Substring(1, e - 1) + ">"; }
+
+    // 並べた後の文字の順(元の位置, 表示する文字)。ReorderPlain と同じ規則
+    static List<(int idx, char ch)> VisualOrder(string line)
+    {
+        var res = new List<(int, char)>(line.Length);
+        var runs = Runs(line);
+        for (int r = runs.Count - 1; r >= 0; r--)
+        {
+            var (ltr, start, len) = runs[r];
+            if (ltr) { for (int k = start; k < start + len; k++) res.Add((k, line[k])); continue; }
+            for (int k = start + len - 1; k >= start; k--) res.Add((k, Mirror(line[k])));
+        }
+        return res;
+    }
+
+    static List<(bool ltr, int start, int len)> Runs(string line)
+    {
+        var runs = new List<(bool, int, int)>();
+        int i = 0;
+        while (i < line.Length)
+        {
+            bool ltr = IsLtrStrong(line[i]);
+            int j = i + 1;
+            if (ltr)
+            {
+                while (j < line.Length && (IsLtrStrong(line[j]) || (IsLtrJoiner(line[j]) && j + 1 < line.Length && IsLtrStrong(line[j + 1])))) j++;
+            }
+            else
+            {
+                while (j < line.Length && !IsLtrStrong(line[j])) j++;
+            }
+            runs.Add((ltr, i, j - i));
+            i = j;
+        }
+        return runs;
+    }
+
+    static string ReorderPlain(string line)
     {
         // 連なりに分ける: 左から右(数字/ラテン文字と、その間の . , : % + - / 空白)と、それ以外(右から左)
         var runs = new List<(bool ltr, string text)>();

@@ -478,6 +478,11 @@ public class RewardCardSequence : MonoBehaviour
             bgo.SetAsLastSibling();
             portraitBadgeText[i].text = Loc.Auto("選択中");
             portraitConfirmText[i].text = Loc.Auto("もう一度選んで決定");
+            // 2026-10-29: 「選択中」の帯は幅 200 固定で、長い訳(ドイツ語 Ausgewählt)の最後の字が切れていた → 文字の幅に合わせて広げ、右の案内をその分ずらす
+            float pillW = Mathf.Clamp(portraitBadgeText[i].preferredWidth + 48f + 14f, 200f, Mathf.Max(200f, (right - left) * 0.5f));
+            var pillRt = (RectTransform)portraitBadgeText[i].transform.parent;
+            pillRt.sizeDelta = new Vector2(pillW, 0f);
+            portraitConfirmText[i].rectTransform.offsetMin = new Vector2(pillW + 20f, 0f);
             portraitBadge[i].SetActive(false);
             if (on) tx.text = PortraitText(data[i], false);
         }

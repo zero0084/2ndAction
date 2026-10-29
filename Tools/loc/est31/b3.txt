@@ -1,0 +1,100 @@
+ro	10169	[Principală] {0}
+ro	10170	[Secundară] {0}
+ro	10171	Lv. de fuziune <b>{0}</b>
+ro	10172	Raritate <color=#ffd76a>{0}</color>
+ro	10173	Moștenire reușită
+ro	10174	Îmbunătățire ×{0}→×{1}
+ro	10175	Inamic nou: {0}
+ro	10176	GOBLIN DE ELITĂ
+ro	10177	RING ▲Sus
+ro	10178	RING ■Mijloc
+ro	10179	RING ▼Jos
+ro	10180	Până la {0}km   (aprox. {1}s + alegerea cărților la inele)
+ro	10181	{0}km   🔒 {1}
+ro	10182	Pachetul poate conține acum {0} cărți (în prezent {1}).
+ro	10183	Adaugă cărți în Editare pachet.
+ro	10184	(MAX)
+ro	10185	(Îmbunătățire normală MAX)
+ro	10186	{0} cărți
+ro	10187	Viteză fixă de {0}km/h
+ro	10188	Puterea inamicilor ca la {0}km
+tr	10169	[Ana] {0}
+tr	10170	[Yan] {0}
+tr	10171	Birleştirme Lv.<b>{0}</b>
+tr	10172	Nadirlik <color=#ffd76a>{0}</color>
+tr	10173	Miras aktarımı başarılı
+tr	10174	Güçlendirme ×{0}→×{1}
+tr	10175	Yeni düşman: {0}
+tr	10176	SEÇKİN GOBLİN
+tr	10177	RING ▲Üst
+tr	10178	RING ■Orta
+tr	10179	RING ▼Alt
+tr	10180	{0}km'ye kadar   (yakl. {1}s + halkalarda kart seçimi)
+tr	10181	{0}km   🔒 {1}
+tr	10182	Desten artık {0} kart alabilir (şu anda {1}).
+tr	10183	Deste Düzenleme'den kart ekle.
+tr	10184	(MAX)
+tr	10185	(Normal Güçlendirme MAX)
+tr	10186	{0} kart
+tr	10187	Sabit hız {0}km/h
+tr	10188	{0}km noktasındaki düşman gücüne eşdeğer
+id	10169	[Utama] {0}
+id	10170	[Tambahan] {0}
+id	10171	Lv. Fusi <b>{0}</b>
+id	10172	Kelangkaan <color=#ffd76a>{0}</color>
+id	10173	Pewarisan berhasil
+id	10174	Penguatan ×{0}→×{1}
+id	10175	Musuh baru: {0}
+id	10176	GOBLIN ELIT
+id	10177	RING ▲Atas
+id	10178	RING ■Tengah
+id	10179	RING ▼Bawah
+id	10180	Ke {0}km   (sekitar {1}s + pemilihan kartu di ring)
+id	10181	{0}km   🔒 {1}
+id	10182	Dek sekarang dapat menampung {0} kartu (saat ini {1}).
+id	10183	Tambahkan kartu di Edit Dek.
+id	10184	(MAX)
+id	10185	(Penguatan Normal MAX)
+id	10186	{0} kartu
+id	10187	Kecepatan tetap {0}km/h
+id	10188	Setara dengan kekuatan musuh di {0}km
+ms	10169	[Utama] {0}
+ms	10170	[Sampingan] {0}
+ms	10171	Lv. Gabungan <b>{0}</b>
+ms	10172	Jarang <color=#ffd76a>{0}</color>
+ms	10173	Pewarisan berjaya
+ms	10174	Penguatan ×{0}→×{1}
+ms	10175	Musuh baharu: {0}
+ms	10176	GOBLIN ELIT
+ms	10177	RING ▲Atas
+ms	10178	RING ■Tengah
+ms	10179	RING ▼Bawah
+ms	10180	Ke {0}km   (kira-kira {1}s + pemilihan kad di gelang)
+ms	10181	{0}km   🔒 {1}
+ms	10182	Dek kini boleh memuatkan {0} kad (sekarang {1}).
+ms	10183	Tambah kad dalam Edit Dek.
+ms	10184	(MAX)
+ms	10185	(Peningkatan Biasa MAX)
+ms	10186	{0} kad
+ms	10187	Kelajuan tetap {0}km/h
+ms	10188	Setara dengan kekuatan musuh pada {0}km
+fil	10169	[Pangunahin] {0}
+fil	10170	[Karagdagan] {0}
+fil	10171	Fusion Lv.<b>{0}</b>
+fil	10172	Rarity <color=#ffd76a>{0}</color>
+fil	10173	Matagumpay ang pagmamana
+fil	10174	Palakas ×{0}→×{1}
+fil	10175	Bagong kalaban: {0}
+fil	10176	ELIT NA GOBLIN
+fil	10177	RING ▲Itaas
+fil	10178	RING ■Gitna
+fil	10179	RING ▼Ibaba
+fil	10180	Hanggang {0}km   (mga {1}s + pagpili ng card sa mga ring)
+fil	10181	{0}km   🔒 {1}
+fil	10182	Maaari nang maglaman ng {0} card ang deck (kasalukuyang {1}).
+fil	10183	Magdagdag ng card sa Edit Deck.
+fil	10184	(MAX)
+fil	10185	(Normal na Pag-upgrade MAX)
+fil	10186	{0} card
+fil	10187	Nakapirming bilis na {0}km/h
+fil	10188	Katumbas ng lakas ng kalaban sa {0}km

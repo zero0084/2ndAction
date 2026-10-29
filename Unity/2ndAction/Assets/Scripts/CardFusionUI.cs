@@ -413,6 +413,7 @@ public class CardFusionUI : MonoBehaviour
         fxResultScaler.localScale = Vector3.one * 1.7f;
         fxResult = CloneCard(fxResultScaler, "FxResult");
         fxCaption = AddText(Fixed("FxCaption", overlay, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -330), new Vector2(1400, 70)), 40, Gold, TextAnchor.MiddleCenter, true);
+        fxCaption.resizeTextForBestFit = true; fxCaption.resizeTextMinSize = 20; fxCaption.resizeTextMaxSize = 40; // 2026-10-29: 長い訳でも切れない
         fxMile = AddText(Fixed("FxMile", overlay, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 40), new Vector2(900, 120)), 64, Gold, TextAnchor.MiddleCenter, true);
         flash = AddImage(NewRect("Flash", overlay, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero), new Color(1, 1, 1, 0));
 
@@ -424,6 +425,8 @@ public class CardFusionUI : MonoBehaviour
         // ===== リザルト ===== //
         resultPanel = Panel("ResultPanel", overlay, new Vector2(0.06f, 0.05f), new Vector2(0.94f, 0.95f), Vector2.zero, Vector2.zero);
         resultTitle = AddText(NewRect("Title", resultPanel, new Vector2(0, 1), new Vector2(1, 1), new Vector2(30, -96), new Vector2(-30, -24)), 48, Gold, TextAnchor.MiddleCenter, true);
+        // 2026-10-29: 見出しを訳すようにしたので、長い訳(タミル語の縦画面など)は2行目が切れていた → 枠に収まる大きさまで縮める(2行も可)
+        resultTitle.resizeTextForBestFit = true; resultTitle.resizeTextMinSize = 22; resultTitle.resizeTextMaxSize = 48;
         var resultScaler = Scaler(resultPanel, "ResultCardScaler", new Vector2(0.2f, 0.53f), new Vector2(0.5f, 0.5f));
         resultScaler.localScale = Vector3.one * 2.0f;
         resultCard = CloneCard(resultScaler, "ResultCard");
@@ -948,8 +951,9 @@ public class CardFusionUI : MonoBehaviour
                 circle2.color = new Color(1f, 1f, 1f, 0.6f * (1f - f));
             });
             // 2026-10-13: 同名強化でちょうど Lv.9 になった時も MAX
-            fxCaption.text = mastery ? (r.mastery.awakenedNow ? "AWAKENED！" : $"MASTERY {CardMastery.StarsFor(r.mastery.levelAfter)}")
-                : same ? (r.masteryGain > 0 || (r.result != null && r.result.level >= CardVariant.MaxLevel) ? "Lv.9 MAX 到達！" : "同名強化 完了！") : both ? "大成功！ 両側の能力を継承" : r.kind == CardFusionLogic.Kind.CrossMainOnly ? "メイン側の能力を継承" : "素材側の能力を継承";
+            // 2026-10-29: 見出しも訳す(以前は日本語のまま出ていた)
+            fxCaption.text = Loc.Auto(mastery ? (r.mastery.awakenedNow ? "AWAKENED！" : $"MASTERY {CardMastery.StarsFor(r.mastery.levelAfter)}")
+                : same ? (r.masteryGain > 0 || (r.result != null && r.result.level >= CardVariant.MaxLevel) ? "Lv.9 MAX 到達！" : "同名強化 完了！") : both ? "大成功！ 両側の能力を継承" : r.kind == CardFusionLogic.Kind.CrossMainOnly ? "メイン側の能力を継承" : "素材側の能力を継承");
             fxCaption.color = both ? new Color(0.7f, 1f, 0.95f) : Gold;
             // 音の再設計(2026-10-06): 長期育成の節目(Mastery/Lv.9 MAX/AWAKENED)は専用の音
             if (AudioManager.Instance != null)
@@ -1095,8 +1099,9 @@ public class CardFusionUI : MonoBehaviour
         var sb = new StringBuilder();
         if (r.IsSuccess)
         {
-            resultTitle.text = r.kind == CardFusionLogic.Kind.Mastery ? (r.mastery.awakenedNow ? "AWAKENED！" : "MASTERY UP！")
-                : r.kind == CardFusionLogic.Kind.SameName ? (r.masteryGain > 0 || (r.result != null && r.result.level >= CardVariant.MaxLevel) ? "Lv.9 MAX 到達！" : "同名強化 完了！") : r.kind == CardFusionLogic.Kind.CrossBoth ? "合成大成功！" : "合成成功！";
+            // 2026-10-29: 見出しも訳す(以前は日本語のまま出ていた)
+            resultTitle.text = Loc.Auto(r.kind == CardFusionLogic.Kind.Mastery ? (r.mastery.awakenedNow ? "AWAKENED！" : "MASTERY UP！")
+                : r.kind == CardFusionLogic.Kind.SameName ? (r.masteryGain > 0 || (r.result != null && r.result.level >= CardVariant.MaxLevel) ? "Lv.9 MAX 到達！" : "同名強化 完了！") : r.kind == CardFusionLogic.Kind.CrossBoth ? "合成大成功！" : "合成成功！");
             resultTitle.color = r.kind == CardFusionLogic.Kind.CrossBoth ? new Color(0.7f, 1f, 0.95f) : Gold;
             PrepareCard(resultCard);
             resultCard.ShowFrontImmediate(MakeData(CardDatabase.FindById(r.resultKey), r.resultKey), showDetails: false);

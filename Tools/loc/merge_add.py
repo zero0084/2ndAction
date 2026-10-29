@@ -14,6 +14,7 @@ PH = re.compile(r'\{\d+\}')
 TAG = re.compile(r'</?(color|size|b|i)(=[^>]*)?>')
 KANA = re.compile('[぀-ヺー-ヿ]')
 JP = re.compile('[぀-ヿ㐀-鿿]')
+HAN = re.compile('[㐀-鿿]')
 def tags(s): return sorted(m.group(0).split('=')[0] for m in TAG.finditer(s))
 
 keys = {}
@@ -41,6 +42,8 @@ for part in sorted(glob.glob(os.path.join(HERE, 'out', '*.' + suffix + '.tsv')))
         if tags(k) != tags(v): bad.append((i, 'tags')); continue
         if k.count(NL) != v.count(NL): bad.append((i, 'lines')); continue
         if code != 'ja' and KANA.search(v): bad.append((i, 'kana left')); continue
+        # 2026-10-29: 中国語/韓国語以外に漢字が混ざった訳も弾く(ミャンマー語の訳に「封」が1字残っていた)
+        if code not in ('ja', 'zh-Hans', 'zh-Hant', 'ko') and HAN.search(v): bad.append((i, 'kanji left')); continue
         if code == 'ja' and v == k and JP.search(k): continue
         if k in idx: t['v'][idx[k]] = v; replaced += 1
         else: idx[k] = len(t['k']); t['k'].append(k); t['v'].append(v); added += 1

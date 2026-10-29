@@ -95,7 +95,8 @@ public class ArenaController : MonoBehaviour
     {
         var c = ArenaMode.Config;
         if (c.build.Count == 0) return "カードなし";
-        return string.Join("、", c.build.Select(b => { var d = CardDatabase.FindById(b.key); return (d != null ? d.cardName : b.key) + (b.owned ? "(所持のコピー)" : $" Lv{b.times}"); }));
+        // 2026-10-29: 区切りは「 / 」(表示の時に部品ごとに訳す。「、」でつなぐと1つの文として訳せなかった)
+        return string.Join(" / ", c.build.Select(b => { var d = CardDatabase.FindById(b.key); return (d != null ? d.cardName : b.key) + (b.owned ? "(所持のコピー)" : $" Lv{b.times}"); }));
     }
 
     void ApplyAssist()

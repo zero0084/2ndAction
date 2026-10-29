@@ -153,7 +153,7 @@ public sealed class CardVariant
     public static string EffectPart(CardEffect e)
     {
         if (e == null) return "";
-        if (CardEffectFormat.IsBehaviorLevel(e.type)) return CardBehaviorText.Describe(e.type, 1) + Loc.T("(Lvで伸びる)");
+        if (CardEffectFormat.IsBehaviorLevel(e.type)) return CardBehaviorText.Describe(e.type, 1) + "(Lvで伸びる)"; // 2026-10-29: 元の文のまま(訳は表示の時)
         return EffectLabel(e.type) + " " + CardEffectFormat.Format(e);
     }
 
@@ -162,7 +162,7 @@ public sealed class CardVariant
     public static string AbilityLine(string abilityId, int stacks)
     {
         int lv = Mathf.Clamp(stacks, 1, MaxLevel);
-        string over = stacks > MaxLevel ? Loc.F("(強化量{0}・効くのはLv9まで)", stacks) : "";
+        string over = stacks > MaxLevel ? Loc.Src("(強化量{0}・効くのはLv9まで)", stacks) : ""; // 2026-10-29: 元の文(訳は表示の時に Loc.Auto)
         return $"{AbilityName(abilityId)} Lv{lv}{over}  ({AbilityEffectTextAt(abilityId, stacks)})";
     }
 
@@ -205,7 +205,7 @@ public sealed class CardVariant
                 float cap = DisplayCap(t);
                 bool capped = cap > 0f && v > cap;
                 if (capped) v = cap;
-                part = EffectLabel(t) + " " + CardEffectFormat.FormatTotal(t, v) + (capped ? Loc.T("(効果上限)") : "");
+                part = EffectLabel(t) + " " + CardEffectFormat.FormatTotal(t, v) + (capped ? "(効果上限)" : "");
             }
             if (string.IsNullOrEmpty(part)) continue;
             if (sb.Length > 0) sb.Append(" / ");
