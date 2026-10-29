@@ -16,7 +16,8 @@ public partial class QaSweep
     struct GestureResult
     {
         public List<string> fates; public int moves, taps, swings; public bool leftGround;
-        public string Summary => $"[{string.Join(" ", fates)}] moves {moves} swings {swings} taps {taps}{(leftGround ? " jumped" : "")}";
+        public string groundAtFate; public int mageBefore, mageAfter; // 2026-10-29: 入力が届いたフレームの接地(G/A)と魔法使いの段
+        public string Summary => $"[{string.Join(" ", fates)}] moves {moves} swings {swings} taps {taps}{(leftGround ? " jumped" : "")} at={groundAtFate}{(mageBefore >= 0 ? $" mage {mageBefore}->{mageAfter}" : "")}";
     }
 
     IEnumerator TouchFlickMode()
@@ -29,6 +30,7 @@ public partial class QaSweep
         string[] autos = Arg("-tfAuto", "0,1").Split(',');
         string[] modes = Arg("-tfModes", "ground,air").Split(',');
         string[] speeds = Arg("-tfSpeeds", "slow,fast").Split(',');
+        bool expKeep = GameManager.BlockExpGain; GameManager.BlockExpGain = true; // 2026-10-29: 途中のレベルアップの停止で指の操作が読まれなかった(試験側)
         L($"[touch] screen {Screen.width}x{Screen.height} slop {Mathf.Max(12f, Mathf.Min(Screen.width, Screen.height) * PlayerController.TapSlopFraction):F0}px");
         var tsv = new StringBuilder("char\tauto\tmode\tgesture\tspeed\ttouch\tinject\tok\n");
         int cases = 0, okCases = 0;
@@ -59,6 +61,9 @@ public partial class QaSweep
                             bool sameFate = TfFirst(t, want) == TfFirst(r, want);
                             bool noTap = t.taps == 0;
                             bool moved = (t.moves > 0) == (r.moves > 0);
+                            // 地上の下フリックは、届いたフレームに空中なら急降下・地上なら出ない作り。届くフレームは指の速さで1〜7フレーム違い、
+                            // 地面の起伏/補助のジャンプで接地が変わる → 接地が違った時だけは「地形の違い」として別に数える(届いた・結果は同じ)
+                            if (!moved && t.groundAtFate != r.groundAtFate) { moved = true; tfTerrainOnly++; L($"[touch] {ch} auto={auto} {mode} {dir} {sp}: moves differ only because grounded differed at the input frame (touch {t.groundAtFate} / inject {r.groundAtFate})"); }
                             bool ok = reached && sameFate && noTap && moved;
                             cases++; if (ok) okCases++;
                             string tag = $"{ch} auto={auto} {mode} {dir} {sp}";
@@ -91,7 +96,8 @@ public partial class QaSweep
             }
         }
         if (HighSpeedAssist.Instance != null) { HighSpeedAssist.Instance.SetEnabled(true); HighSpeedAssist.Instance.SetAutoAttack(true); }
-        L($"[touch] cases ok {okCases}/{cases}");
+        GameManager.BlockExpGain = expKeep;
+        L($"[touch] cases ok {okCases}/{cases} (terrain-only differences {tfTerrainOnly})");
     }
 
     static string TfFirst(GestureResult g, string dir)
@@ -101,9 +107,13 @@ public partial class QaSweep
     }
 
     // 地上/空中の状態にしてから操作を1回、その後 0.7 秒の結果を集める
+    int tfTerrainOnly;
     IEnumerator TfRun(bool air, System.Func<IEnumerator> gesture, System.Action<GestureResult> done)
     {
         float g = 0f;
+        while (Time.timeScale <= 0f && !TimeControl.PausedOnlyByHitStop && g < 10f) { yield return null; g += Time.unscaledDeltaTime; } // 停止の間は始めない
+        pc.DebugSetMageLevel(0); // 2026-10-29: 魔法使いの段を毎回そろえる(前の操作の段が残り、上限/下限で結果が変わっていた)
+        g = 0f;
         while ((!pc.IsGrounded || pc.QaInputBusy || pc.IsReacting || pc.IsAttacking) && g < 4f) { yield return null; g += Time.deltaTime; }
         yield return new WaitForSeconds(0.35f);
         if (air)
@@ -117,7 +127,8 @@ public partial class QaSweep
             yield return new WaitForSeconds(0.05f);
         }
         var res = new GestureResult { fates = new List<string>() };
-        System.Action<int, PlayerController.FlickDirection, PlayerController.FlickFate> on = (id, d, f) => res.fates.Add($"{d}:{f}");
+        System.Action<int, PlayerController.FlickDirection, PlayerController.FlickFate> on = (id, d, f) => { res.fates.Add($"{d}:{f}"); if (res.groundAtFate == null) res.groundAtFate = pc.IsGrounded ? "G" : "A"; };
+        res.mageBefore = pc.Kit == CharacterKit.Mage ? pc.MageAltitudeLevel : -1;
         PlayerController.QaFlickFate += on;
         int m0 = pc.DebugMoveStarts, t0 = PlayerController.TapAttacks, s0 = PlayerAttackInfo.SwingCount;
         bool wasGround = pc.IsGrounded, left = false;
@@ -127,6 +138,7 @@ public partial class QaSweep
         for (float t = 0f; t < 0.7f; t += Time.deltaTime) { if (wasGround && !pc.IsGrounded) left = true; yield return null; }
         tfSampling = false; StopCoroutine(sampler);
         PlayerController.QaFlickFate -= on;
+        res.mageAfter = pc.Kit == CharacterKit.Mage ? pc.MageAltitudeLevel : -1;
         res.moves = pc.DebugMoveStarts - m0; res.taps = PlayerController.TapAttacks - t0; res.swings = PlayerAttackInfo.SwingCount - s0; res.leftGround = left;
         done(res);
     }
@@ -143,6 +155,7 @@ public partial class QaSweep
             : dir == PlayerController.FlickDirection.Forward ? Vector2.right : Vector2.left;
         // 向きは画面の向き(右 = 前、ClassifyFlickDirection)。キャラが一瞬振り向いていても変えない
         var p = PlayerController.DebugPointer.pos = TfStart;
+        PlayerController.DebugPointer.prevDown = false; // 前の操作の離した指が読まれずに残っていても、置いた瞬間として始める
         PlayerController.DebugPointer.active = true; PlayerController.DebugPointer.down = true;
         yield return null;
         float step = fast ? 38f : 9f;
@@ -157,6 +170,7 @@ public partial class QaSweep
     IEnumerator TfHold(float sec)
     {
         PlayerController.DebugPointer.pos = TfStart;
+        PlayerController.DebugPointer.prevDown = false;
         PlayerController.DebugPointer.active = true; PlayerController.DebugPointer.down = true;
         yield return null;
         float t = 0f; while (t < sec) { yield return null; t += Time.unscaledDeltaTime; }

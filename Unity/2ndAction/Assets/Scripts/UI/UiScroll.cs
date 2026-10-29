@@ -99,8 +99,9 @@ public class UiScroll
     // 長い文章を幅で折り返して、収まらなければスクロールして最後まで読めるように描く(文字は小さくしない)
     public void Text(Rect view, string text, GUIStyle style, string key = null)
     {
-        string t = Loc.Auto(text ?? "");
         var st = new GUIStyle(style) { wordWrap = true };
+        // 2026-10-29: 右から左の言語は描く幅で行を分けてから並べ替える(自動の折り返しだと行の順番が入れ替わる)
+        string t = LocGUI.RtlFix(Loc.Auto(text ?? ""), view.width - 12f, st);
         float contentH = st.CalcHeight(new GUIContent(t), view.width - 12f);
         // 2026-10-28: 実際に描く幅(view.width)で測った高さと、半行の余裕でも収まる時だけ「収まる」とする。描く時も枠の外へは出さない
         //  (以前は幅の違いで高さを低く見積もり、疾走の行き先の説明の最後の行が下の一覧に重なっていた)

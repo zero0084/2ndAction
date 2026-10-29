@@ -205,6 +205,8 @@ public partial class QaSweep
             foreach (var s in LocDebug.UntranslatedShown) all.Add("shown\t" + s.Replace("\n", "\\n") + "\t");
             foreach (var s in LocDebug.JapaneseShown) all.Add("shown(partial)\t" + s.Replace("\n", "\\n") + "\t");
             System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, $"locdyn_{code}.tsv"), string.Join("\n", all.OrderBy(x => x)));
+            // 2026-10-29: 型に当たらず部品ごとに訳した文の一覧(語順が言語で変わる文が混ざっていないかを見直す)
+            System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, $"composite_{code}.tsv"), string.Join("\n", LocDebug.CompositeUsed.OrderBy(x => x)));
             L($"[locdyn] {code}: probes {probes}, Japanese left in probes {leftList.Count}, shown untranslated {LocDebug.UntranslatedShown.Count}, partially translated {LocDebug.JapaneseShown.Count}");
             summary.Append($"{code}:{leftList.Count}+{LocDebug.UntranslatedShown.Count}+{LocDebug.JapaneseShown.Count} ");
             if (code != "ja") Check(leftList.Count == 0 && LocDebug.UntranslatedShown.Count == 0 && LocDebug.JapaneseShown.Count == 0, $"locdyn {code}: no Japanese left in the built texts ({leftList.Count} probes, {LocDebug.UntranslatedShown.Count} shown, {LocDebug.JapaneseShown.Count} partial)");

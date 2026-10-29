@@ -58,11 +58,32 @@ public partial class GameManager
         return true;
     }
 
+    public const string EscapeTraceFile = "escape_trace.txt";
+    static string escapeTraceDir;
+    static string EscapeTraceDir => escapeTraceDir ?? (escapeTraceDir = Application.persistentDataPath); // 書き出し(別の線)から使うので先に覚える
     public void EscapeLog(string msg)
     {
-        string m = $"[Escape] f={Time.frameCount} t={Time.time:F2} {msg}";
+        if (escapeTraceDir == null) escapeTraceDir = Application.persistentDataPath;
+        // 2026-10-29: 同じランの出来事(長押し完了/成功の確定/負けの要求と理由/演出の終わり/RESULT)を対応づけられるよう、ランの ID を付ける。
+        //  開発版は端末の中にも残す(escape_trace.txt、256KB で古い方を .1 へ)。実機で FAILED が再発した時に取り出して追う
+        string rid = RunLedger.Current != null && !string.IsNullOrEmpty(RunLedger.Current.runId) ? RunLedger.Current.runId.Substring(0, Mathf.Min(8, RunLedger.Current.runId.Length)) : "-";
+        string m = $"[Escape] run={rid} f={Time.frameCount} t={Time.time:F2} {msg}";
         Debug.Log(m);
         FreezeDiagnostics.LogEvent(m);
+        if (Debug.isDebugBuild)
+        {
+            string line = $"{System.DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} {m}\n";
+            DiagnosticsWriter.Enqueue(EscapeTraceFile, () =>
+            {
+                try
+                {
+                    string p = System.IO.Path.Combine(EscapeTraceDir, EscapeTraceFile);
+                    if (System.IO.File.Exists(p) && new System.IO.FileInfo(p).Length > 256 * 1024) { System.IO.File.Copy(p, p + ".1", true); System.IO.File.Delete(p); }
+                }
+                catch (System.Exception) { }
+                return line;
+            });
+        }
     }
 
     // RESULT の最初の表示(順番の記録)

@@ -1147,8 +1147,9 @@ public class BasiliskBoss : CaveBossBase
     protected override void OnInterrupted() { base.OnInterrupted(); if (gazeGlow != null) gazeGlow.enabled = false; }
 
     // 絵があるときは目の光を頭(目の位置)へ寄せて小さく(体の真ん中に浮かないように)
-    void LateUpdate()
+    protected override void LateUpdate()
     {
+        base.LateUpdate(); // 2026-10-29: BREAK 中の並走の補正(WildBossBase)
         if (gazeGlow == null || !gazeGlow.enabled || Anim == null) return;
         gazeGlow.transform.localPosition = new Vector3(facing * halfWidth * 0.82f / Mathf.Max(0.01f, Mathf.Abs(transform.localScale.x)), bodyHeight * 0.5f, 0f);
         gazeGlow.transform.localScale = Vector3.one * 0.55f;

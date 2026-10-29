@@ -116,6 +116,9 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaRecords") { mode = "records"; dir = a[i + 1]; }
             if (a[i] == "-qaPortrait") { mode = "portrait"; dir = a[i + 1]; }
             if (a[i] == "-qaLocDyn") { mode = "locdyn"; dir = a[i + 1]; } // 2026-10-29: 組み立てる文の訳
+            if (a[i] == "-qaLocSwitch") { mode = "locswitch"; dir = a[i + 1]; } // 2026-10-29: 合成カードの説明と言語の切り替え
+            if (a[i] == "-qaLocFallback") { mode = "locfallback"; dir = a[i + 1]; }
+            if (a[i] == "-qaRtlWrap") { mode = "rtlwrap"; dir = a[i + 1]; }
             if (a[i] == "-qaHomeChoice") { mode = "homechoice"; dir = a[i + 1]; }
             if (a[i] == "-qaUgsEnv") { mode = "ugsenv"; dir = a[i + 1]; }
             if (a[i] == "-qaUgsLive") { mode = "ugslive"; dir = a[i + 1]; }
@@ -303,6 +306,9 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "records") yield return RecordsModeQa();
         else if (mode == "portrait") yield return PortraitModeQa();
         else if (mode == "locdyn") yield return LocDynMode();
+        else if (mode == "locswitch") yield return LocSwitchMode();
+        else if (mode == "locfallback") yield return LocFallbackMode();
+        else if (mode == "rtlwrap") yield return RtlWrapMode();
         else if (mode == "fix5") yield return Fix5ModeQa();
         else if (mode == "buildlab") yield return BuildLabMode();
         else if (mode == "atkfx") yield return AtkFxMode();
@@ -399,7 +405,7 @@ public partial class QaSweep : MonoBehaviour
     IEnumerator AutoPickCards()
     {
         // 2026-10-10: 新しいテスト用データでは初回の案内(脱出の説明など、時間が止まる)が出て、テストが待ち続けていた → 案内そのもののテスト以外は閉じる
-        bool autoGuide = !(mode == "tutorial" || mode == "unlock" || mode == "portrait" || mode == "loc" || mode == "locdyn");
+        bool autoGuide = !(mode == "tutorial" || mode == "unlock" || mode == "portrait" || mode == "loc" || mode == "locdyn" || mode == "locswitch" || mode == "rtlwrap");
         while (true)
         {
             if (autoGuide && !scGuideHold && FirstRunGuide.Open) { Debug.Log("[QA] first-run guide auto-answered " + FirstRunGuide.Showing); FirstRunGuideDebug.Answer(FirstRunGuide.Showing == FirstRunGuide.Kind.DoorPrompt ? 1 : 0); } // 扉の案内は「そのまま始める」

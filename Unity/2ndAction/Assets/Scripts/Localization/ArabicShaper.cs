@@ -97,6 +97,43 @@ public static class ArabicShaper
         return string.Join("\n", lines);
     }
 
+    // 2026-10-29: 幅に入るよう「元の順で」行に分けてから、1行ずつ右から左へ並べ替える(自動の折り返しに任せると、
+    //  並べ替えた後の文を左から切るので、1行目に文の最後の部分が来ていた)。measure は形を作った後の1行の幅
+    public static string WrapForDisplay(string src, float width, System.Func<string, float> measure)
+    {
+        if (string.IsNullOrEmpty(src)) return src;
+        var open = new List<(string name, string tag)>();
+        var outLines = new List<string>();
+        foreach (var para in Shape(src).Split('\n'))
+            foreach (var line in BreakLine(para, width, measure)) outLines.Add(ReorderLine(line, open));
+        return string.Join("\n", outLines);
+    }
+
+    // 空白で語に分けて、幅に入るだけ詰める(タグの中の空白では切らない。1語で幅を超える語はその語だけの行)
+    static List<string> BreakLine(string para, float width, System.Func<string, float> measure)
+    {
+        var lines = new List<string>();
+        if (para.Length == 0 || measure(para) <= width) { lines.Add(para); return lines; }
+        var words = new List<string>();
+        int start = 0; bool inTag = false;
+        for (int i = 0; i < para.Length; i++)
+        {
+            char c = para[i];
+            if (c == '<') inTag = true; else if (c == '>') inTag = false;
+            else if (c == ' ' && !inTag) { words.Add(para.Substring(start, i - start)); start = i + 1; }
+        }
+        words.Add(para.Substring(start));
+        string cur = null;
+        foreach (var w in words)
+        {
+            string cand = cur == null ? w : cur + " " + w;
+            if (cur != null && measure(cand) > width) { lines.Add(cur); cur = w; }
+            else cur = cand;
+        }
+        if (cur != null) lines.Add(cur);
+        return lines;
+    }
+
     static bool IsLtrStrong(char c) => char.IsLetterOrDigit(c) && !IsRtlChar(c);
 
     static readonly System.Text.RegularExpressions.Regex RichTag = new System.Text.RegularExpressions.Regex(@"</?(b|i|size|color)(=[^<>]*)?>");

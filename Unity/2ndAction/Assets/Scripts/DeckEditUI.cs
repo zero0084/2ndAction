@@ -1456,5 +1456,21 @@ public class DeckEditUI : MonoBehaviour
     // 言語を切り替えた時(2026-10-07): 開いていれば今の言語で書き直す
     void OnEnable() { Loc.Changed += OnLocChanged; }
     void OnDisable() { Loc.Changed -= OnLocChanged; }
-    void OnLocChanged() { if (root != null && root.gameObject.activeInHierarchy) Refresh(); }
+    void OnLocChanged()
+    {
+        if (root == null || !root.gameObject.activeInHierarchy) return;
+        Refresh();
+        // 2026-10-29: 右の詳細(カード名・説明・能力の数値)も今の言語で書き直す(以前は一覧だけ書き直し、詳細は前の言語のまま残っていた)
+        if (!string.IsNullOrEmpty(detailCardId))
+        {
+            CardDefinition card = CardDatabase.FindById(detailCardId);
+            if (card != null)
+            {
+                int count = 0;
+                if (detailLevel >= 1) foreach (var s in CardInventory.Stacks) if (s.cardId == detailCardId && s.level == detailLevel) { count = s.count; break; }
+                ShowDetail(card, detailLevel, count);
+            }
+        }
+    }
+    public string DebugDetailText => (detailName != null ? detailName.text : "") + "\n" + (detailCategory != null ? detailCategory.text : "") + "\n" + (detailValue != null ? detailValue.text : "") + "\n" + (detailText != null ? detailText.text : ""); // 確認用
 }

@@ -1,0 +1,290 @@
+en	10173	Inherited
+en	10190	Main ({0} Lv.{1}): <color=#ffd76a>Inherited</color>
+en	10191	Material ({0} Lv.{1}): <color=#ffd76a>Inherited</color>
+en	457	Main ({0} Lv.{1}): <color=#9aa3b8>Not inherited</color>
+en	458	Material ({0} Lv.{1}): <color=#9aa3b8>Not inherited</color>
+en	10192	Main: Inherited!
+en	10193	Material: Inherited!
+en	10194	Main: Not inherited
+en	10195	Material: Not inherited
+en	522	Inheritance failed…  Cards were converted back into MILE
+de	10173	Übernommen
+de	10190	Hauptkarte ({0} Lv.{1}): <color=#ffd76a>Übernommen</color>
+de	10191	Materialkarte ({0} Lv.{1}): <color=#ffd76a>Übernommen</color>
+de	457	Hauptkarte ({0} Lv.{1}): <color=#9aa3b8>Nicht übernommen</color>
+de	458	Materialkarte ({0} Lv.{1}): <color=#9aa3b8>Nicht übernommen</color>
+de	10192	Hauptkarte: Übernommen!
+de	10193	Materialkarte: Übernommen!
+de	10194	Hauptkarte: Nicht übernommen
+de	10195	Materialkarte: Nicht übernommen
+de	522	Übernahme fehlgeschlagen…  Karten wurden in MILE zurückumgewandelt
+fr	10173	Transmission réussie
+fr	10190	Carte principale ({0} Lv.{1}) : <color=#ffd76a>Transmission réussie</color>
+fr	10191	Carte matériau ({0} Lv.{1}) : <color=#ffd76a>Transmission réussie</color>
+fr	457	Carte principale ({0} Lv.{1}) : <color=#9aa3b8>Transmission échouée</color>
+fr	458	Carte matériau ({0} Lv.{1}) : <color=#9aa3b8>Transmission échouée</color>
+fr	10192	Carte principale : Transmission réussie !
+fr	10193	Carte matériau : Transmission réussie !
+fr	10194	Carte principale : Transmission échouée
+fr	10195	Carte matériau : Transmission échouée
+fr	522	Transmission échouée…  Cartes reconverties en MILE
+es	10173	Herencia exitosa
+es	10190	Carta principal ({0} Lv.{1}): <color=#ffd76a>Herencia exitosa</color>
+es	10191	Carta material ({0} Lv.{1}): <color=#ffd76a>Herencia exitosa</color>
+es	457	Carta principal ({0} Lv.{1}): <color=#9aa3b8>Herencia fallida</color>
+es	458	Carta material ({0} Lv.{1}): <color=#9aa3b8>Herencia fallida</color>
+es	10192	Carta principal: ¡Herencia exitosa!
+es	10193	Carta material: ¡Herencia exitosa!
+es	10194	Carta principal: Herencia fallida
+es	10195	Carta material: Herencia fallida
+es	522	Herencia fallida…  Las cartas se convirtieron en MILE
+it	10173	Eredità riuscita
+it	10190	Carta principale ({0} Lv.{1}): <color=#ffd76a>Eredità riuscita</color>
+it	10191	Carta materiale ({0} Lv.{1}): <color=#ffd76a>Eredità riuscita</color>
+it	457	Carta principale ({0} Lv.{1}): <color=#9aa3b8>Eredità fallita</color>
+it	458	Carta materiale ({0} Lv.{1}): <color=#9aa3b8>Eredità fallita</color>
+it	10192	Carta principale: Eredità riuscita!
+it	10193	Carta materiale: Eredità riuscita!
+it	10194	Carta principale: Eredità fallita
+it	10195	Carta materiale: Eredità fallita
+it	522	Eredità fallita…  Le carte sono state convertite in MILE
+pt-BR	10173	Herança bem-sucedida
+pt-BR	10190	Carta principal ({0} Lv.{1}): <color=#ffd76a>Herança bem-sucedida</color>
+pt-BR	10191	Carta de material ({0} Lv.{1}): <color=#ffd76a>Herança bem-sucedida</color>
+pt-BR	457	Carta principal ({0} Lv.{1}): <color=#9aa3b8>Herança malsucedida</color>
+pt-BR	458	Carta de material ({0} Lv.{1}): <color=#9aa3b8>Herança malsucedida</color>
+pt-BR	10192	Carta principal: Herança bem-sucedida!
+pt-BR	10193	Carta de material: Herança bem-sucedida!
+pt-BR	10194	Carta principal: Herança malsucedida
+pt-BR	10195	Carta de material: Herança malsucedida
+pt-BR	522	Herança malsucedida…  As cartas foram convertidas em MILE
+ru	10173	Унаследовано
+ru	10190	Основная карта ({0} Lv.{1}): <color=#ffd76a>Унаследовано</color>
+ru	10191	Карта-материал ({0} Lv.{1}): <color=#ffd76a>Унаследовано</color>
+ru	457	Основная карта ({0} Lv.{1}): <color=#9aa3b8>Не унаследовано</color>
+ru	458	Карта-материал ({0} Lv.{1}): <color=#9aa3b8>Не унаследовано</color>
+ru	10192	Основная карта: Унаследовано!
+ru	10193	Карта-материал: Унаследовано!
+ru	10194	Основная карта: Не унаследовано
+ru	10195	Карта-материал: Не унаследовано
+ru	522	Ничего не унаследовано…  Карты преобразованы в MILE
+pl	10173	Odziedziczono
+pl	10190	Karta główna ({0} Lv.{1}): <color=#ffd76a>Odziedziczono</color>
+pl	10191	Karta materiałowa ({0} Lv.{1}): <color=#ffd76a>Odziedziczono</color>
+pl	457	Karta główna ({0} Lv.{1}): <color=#9aa3b8>Nie odziedziczono</color>
+pl	458	Karta materiałowa ({0} Lv.{1}): <color=#9aa3b8>Nie odziedziczono</color>
+pl	10192	Karta główna: Odziedziczono!
+pl	10193	Karta materiałowa: Odziedziczono!
+pl	10194	Karta główna: Nie odziedziczono
+pl	10195	Karta materiałowa: Nie odziedziczono
+pl	522	Nie odziedziczono…  Karty zamieniono na MILE
+uk	10173	Успадковано
+uk	10190	Основна картка ({0} Lv.{1}): <color=#ffd76a>Успадковано</color>
+uk	10191	Картка-матеріал ({0} Lv.{1}): <color=#ffd76a>Успадковано</color>
+uk	457	Основна картка ({0} Lv.{1}): <color=#9aa3b8>Не успадковано</color>
+uk	458	Картка-матеріал ({0} Lv.{1}): <color=#9aa3b8>Не успадковано</color>
+uk	10192	Основна картка: Успадковано!
+uk	10193	Картка-матеріал: Успадковано!
+uk	10194	Основна картка: Не успадковано
+uk	10195	Картка-матеріал: Не успадковано
+uk	522	Нічого не успадковано…  Картки перетворено на MILE
+cs	10173	Zděděno
+cs	10190	Hlavní karta ({0} Lv.{1}): <color=#ffd76a>Zděděno</color>
+cs	10191	Materiálová karta ({0} Lv.{1}): <color=#ffd76a>Zděděno</color>
+cs	457	Hlavní karta ({0} Lv.{1}): <color=#9aa3b8>Nezděděno</color>
+cs	458	Materiálová karta ({0} Lv.{1}): <color=#9aa3b8>Nezděděno</color>
+cs	10192	Hlavní karta: Zděděno!
+cs	10193	Materiálová karta: Zděděno!
+cs	10194	Hlavní karta: Nezděděno
+cs	10195	Materiálová karta: Nezděděno
+cs	522	Nic nebylo zděděno…  Karty byly převedeny na MILE
+ro	10173	Moștenire reușită
+ro	10190	Carte principală ({0} Lv.{1}): <color=#ffd76a>Moștenire reușită</color>
+ro	10191	Carte material ({0} Lv.{1}): <color=#ffd76a>Moștenire reușită</color>
+ro	457	Carte principală ({0} Lv.{1}): <color=#9aa3b8>Moștenire eșuată</color>
+ro	458	Carte material ({0} Lv.{1}): <color=#9aa3b8>Moștenire eșuată</color>
+ro	10192	Carte principală: Moștenire reușită!
+ro	10193	Carte material: Moștenire reușită!
+ro	10194	Carte principală: Moștenire eșuată
+ro	10195	Carte material: Moștenire eșuată
+ro	522	Moștenire eșuată…  Cărțile au fost convertite în MILE
+tr	10173	Aktarım başarılı
+tr	10190	Ana kart ({0} Lv.{1}): <color=#ffd76a>Aktarım başarılı</color>
+tr	10191	Malzeme kartı ({0} Lv.{1}): <color=#ffd76a>Aktarım başarılı</color>
+tr	457	Ana kart ({0} Lv.{1}): <color=#9aa3b8>Aktarım başarısız</color>
+tr	458	Malzeme kartı ({0} Lv.{1}): <color=#9aa3b8>Aktarım başarısız</color>
+tr	10192	Ana kart: Aktarım başarılı!
+tr	10193	Malzeme kartı: Aktarım başarılı!
+tr	10194	Ana kart: Aktarım başarısız
+tr	10195	Malzeme kartı: Aktarım başarısız
+tr	522	Aktarım başarısız…  Kartlar MILE'a dönüştürüldü
+id	10173	Pewarisan berhasil
+id	10190	Kartu utama ({0} Lv.{1}): <color=#ffd76a>Pewarisan berhasil</color>
+id	10191	Kartu material ({0} Lv.{1}): <color=#ffd76a>Pewarisan berhasil</color>
+id	457	Kartu utama ({0} Lv.{1}): <color=#9aa3b8>Pewarisan gagal</color>
+id	458	Kartu material ({0} Lv.{1}): <color=#9aa3b8>Pewarisan gagal</color>
+id	10192	Kartu utama: Pewarisan berhasil!
+id	10193	Kartu material: Pewarisan berhasil!
+id	10194	Kartu utama: Pewarisan gagal
+id	10195	Kartu material: Pewarisan gagal
+id	522	Pewarisan gagal…  Kartu dikonversi menjadi MILE
+ms	10173	Pewarisan berjaya
+ms	10190	Kad utama ({0} Lv.{1}): <color=#ffd76a>Pewarisan berjaya</color>
+ms	10191	Kad bahan ({0} Lv.{1}): <color=#ffd76a>Pewarisan berjaya</color>
+ms	457	Kad utama ({0} Lv.{1}): <color=#9aa3b8>Pewarisan gagal</color>
+ms	458	Kad bahan ({0} Lv.{1}): <color=#9aa3b8>Pewarisan gagal</color>
+ms	10192	Kad utama: Pewarisan berjaya!
+ms	10193	Kad bahan: Pewarisan berjaya!
+ms	10194	Kad utama: Pewarisan gagal
+ms	10195	Kad bahan: Pewarisan gagal
+ms	522	Pewarisan gagal…  Kad telah ditukar menjadi MILE
+fil	10173	Matagumpay ang pagmamana
+fil	10190	Pangunahing card ({0} Lv.{1}): <color=#ffd76a>Matagumpay ang pagmamana</color>
+fil	10191	Materyal na card ({0} Lv.{1}): <color=#ffd76a>Matagumpay ang pagmamana</color>
+fil	457	Pangunahing card ({0} Lv.{1}): <color=#9aa3b8>Nabigo ang pagmamana</color>
+fil	458	Materyal na card ({0} Lv.{1}): <color=#9aa3b8>Nabigo ang pagmamana</color>
+fil	10192	Pangunahing card: Matagumpay ang pagmamana!
+fil	10193	Materyal na card: Matagumpay ang pagmamana!
+fil	10194	Pangunahing card: Nabigo ang pagmamana
+fil	10195	Materyal na card: Nabigo ang pagmamana
+fil	522	Nabigo ang pagmamana…  Ginawang MILE ang mga card
+vi	10173	Kế thừa thành công
+vi	10190	Thẻ chính ({0} Lv.{1}): <color=#ffd76a>Kế thừa thành công</color>
+vi	10191	Thẻ nguyên liệu ({0} Lv.{1}): <color=#ffd76a>Kế thừa thành công</color>
+vi	457	Thẻ chính ({0} Lv.{1}): <color=#9aa3b8>Kế thừa thất bại</color>
+vi	458	Thẻ nguyên liệu ({0} Lv.{1}): <color=#9aa3b8>Kế thừa thất bại</color>
+vi	10192	Thẻ chính: Kế thừa thành công!
+vi	10193	Thẻ nguyên liệu: Kế thừa thành công!
+vi	10194	Thẻ chính: Kế thừa thất bại
+vi	10195	Thẻ nguyên liệu: Kế thừa thất bại
+vi	522	Kế thừa thất bại…  Các thẻ đã được chuyển thành MILE
+th	10173	สืบทอดสำเร็จ
+th	10190	การ์ดหลัก ({0} Lv.{1}): <color=#ffd76a>สืบทอดสำเร็จ</color>
+th	10191	การ์ดวัตถุดิบ ({0} Lv.{1}): <color=#ffd76a>สืบทอดสำเร็จ</color>
+th	457	การ์ดหลัก ({0} Lv.{1}): <color=#9aa3b8>สืบทอดล้มเหลว</color>
+th	458	การ์ดวัตถุดิบ ({0} Lv.{1}): <color=#9aa3b8>สืบทอดล้มเหลว</color>
+th	10192	การ์ดหลัก: สืบทอดสำเร็จ!
+th	10193	การ์ดวัตถุดิบ: สืบทอดสำเร็จ!
+th	10194	การ์ดหลัก: สืบทอดล้มเหลว
+th	10195	การ์ดวัตถุดิบ: สืบทอดล้มเหลว
+th	522	สืบทอดล้มเหลว…  การ์ดถูกแปลงคืนเป็น MILE แล้ว
+lo	10173	ສືບທອດສຳເລັດ
+lo	10190	ບັດຫຼັກ ({0} Lv.{1}): <color=#ffd76a>ສືບທອດສຳເລັດ</color>
+lo	10191	ບັດວັດຖຸດິບ ({0} Lv.{1}): <color=#ffd76a>ສືບທອດສຳເລັດ</color>
+lo	457	ບັດຫຼັກ ({0} Lv.{1}): <color=#9aa3b8>ສືບທອດລົ້ມເຫຼວ</color>
+lo	458	ບັດວັດຖຸດິບ ({0} Lv.{1}): <color=#9aa3b8>ສືບທອດລົ້ມເຫຼວ</color>
+lo	10192	ບັດຫຼັກ: ສືບທອດສຳເລັດ!
+lo	10193	ບັດວັດຖຸດິບ: ສືບທອດສຳເລັດ!
+lo	10194	ບັດຫຼັກ: ສືບທອດລົ້ມເຫຼວ
+lo	10195	ບັດວັດຖຸດິບ: ສືບທອດລົ້ມເຫຼວ
+lo	522	ສືບທອດລົ້ມເຫຼວ…  ບັດຖືກປ່ຽນຄືນເປັນ MILE
+my	10173	အမွေဆက်ခံမှု အောင်မြင်သည်
+my	10190	အဓိကကတ် ({0} Lv.{1}): <color=#ffd76a>အမွေဆက်ခံမှု အောင်မြင်သည်</color>
+my	10191	ပစ္စည်းကတ် ({0} Lv.{1}): <color=#ffd76a>အမွေဆက်ခံမှု အောင်မြင်သည်</color>
+my	457	အဓိကကတ် ({0} Lv.{1}): <color=#9aa3b8>အမွေဆက်ခံမှု မအောင်မြင်ပါ</color>
+my	458	ပစ္စည်းကတ် ({0} Lv.{1}): <color=#9aa3b8>အမွေဆက်ခံမှု မအောင်မြင်ပါ</color>
+my	10192	အဓိကကတ်: အမွေဆက်ခံမှု အောင်မြင်သည်!
+my	10193	ပစ္စည်းကတ်: အမွေဆက်ခံမှု အောင်မြင်သည်!
+my	10194	အဓိကကတ်: အမွေဆက်ခံမှု မအောင်မြင်ပါ
+my	10195	ပစ္စည်းကတ်: အမွေဆက်ခံမှု မအောင်မြင်ပါ
+my	522	အမွေဆက်ခံမှု မအောင်မြင်ပါ…  ကတ်များကို MILE အဖြစ် ပြန်လည်ပြောင်းလဲပေးခဲ့သည်
+km	10173	ការទទួលបន្តជោគជ័យ
+km	10190	កាតចម្បង ({0} Lv.{1}): <color=#ffd76a>ការទទួលបន្តជោគជ័យ</color>
+km	10191	កាតវត្ថុធាតុ ({0} Lv.{1}): <color=#ffd76a>ការទទួលបន្តជោគជ័យ</color>
+km	457	កាតចម្បង ({0} Lv.{1}): <color=#9aa3b8>ការទទួលបន្តបរាជ័យ</color>
+km	458	កាតវត្ថុធាតុ ({0} Lv.{1}): <color=#9aa3b8>ការទទួលបន្តបរាជ័យ</color>
+km	10192	កាតចម្បង: ការទទួលបន្តជោគជ័យ!
+km	10193	កាតវត្ថុធាតុ: ការទទួលបន្តជោគជ័យ!
+km	10194	កាតចម្បង: ការទទួលបន្តបរាជ័យ
+km	10195	កាតវត្ថុធាតុ: ការទទួលបន្តបរាជ័យ
+km	522	ការទទួលបន្តបរាជ័យ…  កាតត្រូវបានបម្លែងត្រឡប់ជា MILE
+hi	10173	विरासत सफल
+hi	10190	मुख्य कार्ड ({0} Lv.{1}): <color=#ffd76a>विरासत सफल</color>
+hi	10191	सामग्री कार्ड ({0} Lv.{1}): <color=#ffd76a>विरासत सफल</color>
+hi	457	मुख्य कार्ड ({0} Lv.{1}): <color=#9aa3b8>विरासत विफल</color>
+hi	458	सामग्री कार्ड ({0} Lv.{1}): <color=#9aa3b8>विरासत विफल</color>
+hi	10192	मुख्य कार्ड: विरासत सफल!
+hi	10193	सामग्री कार्ड: विरासत सफल!
+hi	10194	मुख्य कार्ड: विरासत विफल
+hi	10195	सामग्री कार्ड: विरासत विफल
+hi	522	विरासत विफल…  कार्ड MILE में बदलकर वापस कर दिए गए
+bn	10173	উত্তরাধিকার সফল
+bn	10190	প্রধান কার্ড ({0} Lv.{1}): <color=#ffd76a>উত্তরাধিকার সফল</color>
+bn	10191	উপাদান কার্ড ({0} Lv.{1}): <color=#ffd76a>উত্তরাধিকার সফল</color>
+bn	457	প্রধান কার্ড ({0} Lv.{1}): <color=#9aa3b8>উত্তরাধিকার ব্যর্থ</color>
+bn	458	উপাদান কার্ড ({0} Lv.{1}): <color=#9aa3b8>উত্তরাধিকার ব্যর্থ</color>
+bn	10192	প্রধান কার্ড: উত্তরাধিকার সফল!
+bn	10193	উপাদান কার্ড: উত্তরাধিকার সফল!
+bn	10194	প্রধান কার্ড: উত্তরাধিকার ব্যর্থ
+bn	10195	উপাদান কার্ড: উত্তরাধিকার ব্যর্থ
+bn	522	উত্তরাধিকার ব্যর্থ…  কার্ডগুলো MILE-এ রূপান্তর করে ফেরত দেওয়া হয়েছে
+ta	10173	பண்புப் பரிமாற்றம் வெற்றி
+ta	10190	முதன்மைக் கார்டு ({0} Lv.{1}): <color=#ffd76a>பண்புப் பரிமாற்றம் வெற்றி</color>
+ta	10191	மூலப்பொருள் கார்டு ({0} Lv.{1}): <color=#ffd76a>பண்புப் பரிமாற்றம் வெற்றி</color>
+ta	457	முதன்மைக் கார்டு ({0} Lv.{1}): <color=#9aa3b8>பண்புப் பரிமாற்றம் தோல்வி</color>
+ta	458	மூலப்பொருள் கார்டு ({0} Lv.{1}): <color=#9aa3b8>பண்புப் பரிமாற்றம் தோல்வி</color>
+ta	10192	முதன்மைக் கார்டு: பண்புப் பரிமாற்றம் வெற்றி!
+ta	10193	மூலப்பொருள் கார்டு: பண்புப் பரிமாற்றம் வெற்றி!
+ta	10194	முதன்மைக் கார்டு: பண்புப் பரிமாற்றம் தோல்வி
+ta	10195	மூலப்பொருள் கார்டு: பண்புப் பரிமாற்றம் தோல்வி
+ta	522	பண்புப் பரிமாற்றம் தோல்வி…  கார்டுகள் MILE-ஆக மாற்றித் திருப்பித் தரப்பட்டன
+sw	10173	Urithi umefanikiwa
+sw	10190	Kadi kuu ({0} Lv.{1}): <color=#ffd76a>Urithi umefanikiwa</color>
+sw	10191	Kadi ya malighafi ({0} Lv.{1}): <color=#ffd76a>Urithi umefanikiwa</color>
+sw	457	Kadi kuu ({0} Lv.{1}): <color=#9aa3b8>Urithi umeshindikana</color>
+sw	458	Kadi ya malighafi ({0} Lv.{1}): <color=#9aa3b8>Urithi umeshindikana</color>
+sw	10192	Kadi kuu: Urithi umefanikiwa!
+sw	10193	Kadi ya malighafi: Urithi umefanikiwa!
+sw	10194	Kadi kuu: Urithi umeshindikana
+sw	10195	Kadi ya malighafi: Urithi umeshindikana
+sw	522	Urithi umeshindikana…  Kadi zimebadilishwa kuwa MILE na kurejeshwa
+ko	10173	계승 성공
+ko	10190	메인 카드({0} Lv.{1}): <color=#ffd76a>계승 성공</color>
+ko	10191	소재 카드({0} Lv.{1}): <color=#ffd76a>계승 성공</color>
+ko	457	메인 카드({0} Lv.{1}): <color=#9aa3b8>계승 실패</color>
+ko	458	소재 카드({0} Lv.{1}): <color=#9aa3b8>계승 실패</color>
+ko	10192	메인 카드 계승 성공!
+ko	10193	소재 카드 계승 성공!
+ko	10194	메인 카드 계승 실패
+ko	10195	소재 카드 계승 실패
+ko	522	계승 실패…  카드는 MILE로 환원되었습니다
+zh-Hans	10173	继承成功
+zh-Hans	10190	主卡({0} Lv.{1}): <color=#ffd76a>继承成功</color>
+zh-Hans	10191	素材卡({0} Lv.{1}): <color=#ffd76a>继承成功</color>
+zh-Hans	457	主卡({0} Lv.{1}): <color=#9aa3b8>继承失败</color>
+zh-Hans	458	素材卡({0} Lv.{1}): <color=#9aa3b8>继承失败</color>
+zh-Hans	10192	主卡继承成功！
+zh-Hans	10193	素材卡继承成功！
+zh-Hans	10194	主卡继承失败
+zh-Hans	10195	素材卡继承失败
+zh-Hans	522	继承失败…  卡牌已转换为MILE返还
+zh-Hant	10173	繼承成功
+zh-Hant	10190	主卡({0} Lv.{1}): <color=#ffd76a>繼承成功</color>
+zh-Hant	10191	素材卡({0} Lv.{1}): <color=#ffd76a>繼承成功</color>
+zh-Hant	457	主卡({0} Lv.{1}): <color=#9aa3b8>繼承失敗</color>
+zh-Hant	458	素材卡({0} Lv.{1}): <color=#9aa3b8>繼承失敗</color>
+zh-Hant	10192	主卡繼承成功！
+zh-Hant	10193	素材卡繼承成功！
+zh-Hant	10194	主卡繼承失敗
+zh-Hant	10195	素材卡繼承失敗
+zh-Hant	522	繼承失敗…  卡牌已轉換為MILE返還
+ar	10173	نجاح التوريث
+ar	10190	البطاقة الرئيسية ({0} Lv.{1}): <color=#ffd76a>نجاح التوريث</color>
+ar	10191	بطاقة المادة ({0} Lv.{1}): <color=#ffd76a>نجاح التوريث</color>
+ar	457	البطاقة الرئيسية ({0} Lv.{1}): <color=#9aa3b8>فشل التوريث</color>
+ar	458	بطاقة المادة ({0} Lv.{1}): <color=#9aa3b8>فشل التوريث</color>
+ar	10192	البطاقة الرئيسية: نجاح التوريث!
+ar	10193	بطاقة المادة: نجاح التوريث!
+ar	10194	البطاقة الرئيسية: فشل التوريث
+ar	10195	بطاقة المادة: فشل التوريث
+ar	522	فشل التوريث…  تم تحويل البطاقات إلى MILE وإعادتها
+fa	10173	انتقال موفق قابلیت
+fa	10190	کارت اصلی ({0} Lv.{1}): <color=#ffd76a>انتقال موفق قابلیت</color>
+fa	10191	کارت مواد اولیه ({0} Lv.{1}): <color=#ffd76a>انتقال موفق قابلیت</color>
+fa	457	کارت اصلی ({0} Lv.{1}): <color=#9aa3b8>انتقال ناموفق قابلیت</color>
+fa	458	کارت مواد اولیه ({0} Lv.{1}): <color=#9aa3b8>انتقال ناموفق قابلیت</color>
+fa	10192	کارت اصلی: انتقال موفق قابلیت!
+fa	10193	کارت مواد اولیه: انتقال موفق قابلیت!
+fa	10194	کارت اصلی: انتقال ناموفق قابلیت
+fa	10195	کارت مواد اولیه: انتقال ناموفق قابلیت
+fa	522	انتقال قابلیت ناموفق بود…  کارت‌ها به MILE تبدیل و بازگردانده شدند

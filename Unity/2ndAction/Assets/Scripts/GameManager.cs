@@ -343,6 +343,7 @@ public partial class GameManager : MonoBehaviour
         if (IsGameOver || !HasStarted) return;
         QuietFinish = true;
         IsWin = true;
+        EscapeLog("finished by choice (NO) -> commit");
         FinishRun();
         Debug.Log($"[LastDungeon] finished by choice (NO) at {MaxDistance:F0}m - no result screen, back to HOME");
         RetryWithTransition();
@@ -3642,6 +3643,7 @@ public partial class GameManager : MonoBehaviour
         if (IsGameOver) return;
         if (IgnoreAfterEscape($"net game over reason={reason}")) return; // 自分は脱出に成功した(2026-10-24)
         Debug.Log($"[GameOver] Reason={reason} (decided by HOST)");
+        EscapeLog($"defeat confirmed by HOST reason={reason}");
         Lives = 0;
         FinishRun();
     }
@@ -3903,6 +3905,7 @@ public partial class GameManager : MonoBehaviour
         UiInputGate.ClearLatch();
         showPauseMenu = false; showReturnHomeConfirm = false;
         DeathLog("GameOver cleanup done -> Result");
+        EscapeLog($"defeat presentation end -> RESULT (reason={DeathReason})");
     }
 
     // [Death] の記録(FreezeDiagnosticsの記録にも残す)

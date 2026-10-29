@@ -1,0 +1,50 @@
+hi	10173	विरासत सफल
+hi	10190	मुख्य कार्ड ({0} Lv.{1}): <color=#ffd76a>विरासत सफल</color>
+hi	10191	सामग्री कार्ड ({0} Lv.{1}): <color=#ffd76a>विरासत सफल</color>
+hi	457	मुख्य कार्ड ({0} Lv.{1}): <color=#9aa3b8>विरासत विफल</color>
+hi	458	सामग्री कार्ड ({0} Lv.{1}): <color=#9aa3b8>विरासत विफल</color>
+hi	10192	मुख्य कार्ड: विरासत सफल!
+hi	10193	सामग्री कार्ड: विरासत सफल!
+hi	10194	मुख्य कार्ड: विरासत विफल
+hi	10195	सामग्री कार्ड: विरासत विफल
+hi	522	विरासत विफल…  कार्ड MILE में बदलकर वापस कर दिए गए
+bn	10173	উত্তরাধিকার সফল
+bn	10190	প্রধান কার্ড ({0} Lv.{1}): <color=#ffd76a>উত্তরাধিকার সফল</color>
+bn	10191	উপাদান কার্ড ({0} Lv.{1}): <color=#ffd76a>উত্তরাধিকার সফল</color>
+bn	457	প্রধান কার্ড ({0} Lv.{1}): <color=#9aa3b8>উত্তরাধিকার ব্যর্থ</color>
+bn	458	উপাদান কার্ড ({0} Lv.{1}): <color=#9aa3b8>উত্তরাধিকার ব্যর্থ</color>
+bn	10192	প্রধান কার্ড: উত্তরাধিকার সফল!
+bn	10193	উপাদান কার্ড: উত্তরাধিকার সফল!
+bn	10194	প্রধান কার্ড: উত্তরাধিকার ব্যর্থ
+bn	10195	উপাদান কার্ড: উত্তরাধিকার ব্যর্থ
+bn	522	উত্তরাধিকার ব্যর্থ…  কার্ডগুলো MILE-এ রূপান্তর করে ফেরত দেওয়া হয়েছে
+ta	10173	பண்புப் பரிமாற்றம் வெற்றி
+ta	10190	முதன்மைக் கார்டு ({0} Lv.{1}): <color=#ffd76a>பண்புப் பரிமாற்றம் வெற்றி</color>
+ta	10191	மூலப்பொருள் கார்டு ({0} Lv.{1}): <color=#ffd76a>பண்புப் பரிமாற்றம் வெற்றி</color>
+ta	457	முதன்மைக் கார்டு ({0} Lv.{1}): <color=#9aa3b8>பண்புப் பரிமாற்றம் தோல்வி</color>
+ta	458	மூலப்பொருள் கார்டு ({0} Lv.{1}): <color=#9aa3b8>பண்புப் பரிமாற்றம் தோல்வி</color>
+ta	10192	முதன்மைக் கார்டு: பண்புப் பரிமாற்றம் வெற்றி!
+ta	10193	மூலப்பொருள் கார்டு: பண்புப் பரிமாற்றம் வெற்றி!
+ta	10194	முதன்மைக் கார்டு: பண்புப் பரிமாற்றம் தோல்வி
+ta	10195	மூலப்பொருள் கார்டு: பண்புப் பரிமாற்றம் தோல்வி
+ta	522	பண்புப் பரிமாற்றம் தோல்வி…  கார்டுகள் MILE-ஆக மாற்றித் திருப்பித் தரப்பட்டன
+sw	10173	Urithi umefanikiwa
+sw	10190	Kadi kuu ({0} Lv.{1}): <color=#ffd76a>Urithi umefanikiwa</color>
+sw	10191	Kadi ya malighafi ({0} Lv.{1}): <color=#ffd76a>Urithi umefanikiwa</color>
+sw	457	Kadi kuu ({0} Lv.{1}): <color=#9aa3b8>Urithi umeshindikana</color>
+sw	458	Kadi ya malighafi ({0} Lv.{1}): <color=#9aa3b8>Urithi umeshindikana</color>
+sw	10192	Kadi kuu: Urithi umefanikiwa!
+sw	10193	Kadi ya malighafi: Urithi umefanikiwa!
+sw	10194	Kadi kuu: Urithi umeshindikana
+sw	10195	Kadi ya malighafi: Urithi umeshindikana
+sw	522	Urithi umeshindikana…  Kadi zimebadilishwa kuwa MILE na kurejeshwa
+ko	10173	계승 성공
+ko	10190	메인 카드({0} Lv.{1}): <color=#ffd76a>계승 성공</color>
+ko	10191	소재 카드({0} Lv.{1}): <color=#ffd76a>계승 성공</color>
+ko	457	메인 카드({0} Lv.{1}): <color=#9aa3b8>계승 실패</color>
+ko	458	소재 카드({0} Lv.{1}): <color=#9aa3b8>계승 실패</color>
+ko	10192	메인 카드 계승 성공!
+ko	10193	소재 카드 계승 성공!
+ko	10194	메인 카드 계승 실패
+ko	10195	소재 카드 계승 실패
+ko	522	계승 실패…  카드는 MILE로 환원되었습니다

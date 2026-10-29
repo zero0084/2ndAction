@@ -34,7 +34,7 @@ public partial class EnemyController : IAirComboTarget
     // この命中がプレイヤー自身の手動の攻撃か(カードの追加攻撃/結界や燃える地面の継続ダメージは false = 滞空を延ばさない)
     [System.NonSerialized] public bool comboManualHit = true;
     public static int ComboDownPushes, ComboGroundSlams;
-    public static int ComboBlockedStep, ComboBlockedCeiling, ComboDucked; // 確認用(2026-10-21): 段差/天井の段で横の寄せが止まった/くぐったフレーム数
+    public static int ComboBlockedStep, ComboBlockedCeiling, ComboDucked, ComboCeilLookAhead; // 確認用(2026-10-21): 段差/天井の段で横の寄せが止まった/くぐったフレーム数
     float comboBlockedAt = -9f; char comboBlockedKind = '-';
     int comboAirHits;
 
@@ -52,6 +52,20 @@ public partial class EnemyController : IAirComboTarget
         return b.HasValue ? b.Value.center - transform.position : new Vector3(0f, 0.5f, 0f);
     }
 
+    // 2026-10-29: 当たりの箱の範囲は今の位置から作る。Collider2D.bounds は物理の更新(50回/秒)の時の位置のままで、
+    //  60fps では6フレームに1回ほど1フレーム前の位置になる → 高速では天井を 0.7m 後ろで測り、細い針の天井に頭が入っていた
+    public static bool DebugStaleBounds; // 試験用: 前の作り(Collider2D.bounds)で比べる
+    public static bool DebugNoCeilLookAhead; // 試験用: 先の天井を見て早めに下げるのをやめる(前の作り)
+    public const float CeilingLookAheadSec = 0.15f;
+    public static Bounds FreshBounds(Collider2D c)
+    {
+        if (DebugStaleBounds || !(c is BoxCollider2D b)) return c.bounds;
+        Vector3 ls = b.transform.lossyScale;
+        Vector3 center = b.transform.TransformPoint(b.offset);
+        Vector3 size = new Vector3(Mathf.Abs(b.size.x * ls.x) + b.edgeRadius * 2f, Mathf.Abs(b.size.y * ls.y) + b.edgeRadius * 2f, 0f);
+        return new Bounds(new Vector3(center.x, center.y, 0f), size);
+    }
+
     Bounds? BodyBounds()
     {
         if (bodyCols == null) bodyCols = GetComponentsInChildren<Collider2D>(true);
@@ -60,7 +74,8 @@ public partial class EnemyController : IAirComboTarget
         {
             if (c == null || !c.enabled || !c.gameObject.activeInHierarchy) continue;
             if (c.GetComponent<EnemyMeleeHitbox>() != null) continue;
-            if (acc.HasValue) { var b = acc.Value; b.Encapsulate(c.bounds); acc = b; } else acc = c.bounds;
+            Bounds cb = FreshBounds(c);
+            if (acc.HasValue) { var b = acc.Value; b.Encapsulate(cb); acc = b; } else acc = cb;
         }
         return acc;
     }
@@ -209,6 +224,25 @@ public partial class EnemyController : IAirComboTarget
                 ComboDucked++;
             }
             else { np.x = transform.position.x; ComboBlockedCeiling++; comboBlockedAt = Time.time; comboBlockedKind = 'c'; }
+        }
+        // 2026-10-29: 速く走っている時は、少し先(0.15秒先)の天井が下がっているなら、今から毎秒 CeilingPushDownPerSec で下げ始める。
+        //  以前は天井の真下に来たフレームで、横の移動の 1.2倍まで一度に押し下げ、150km/h では1フレームに約1m下がって瞬間移動に見えた
+        if (!ComboRevision.Legacy && !DebugNoCeilLookAhead)
+        {
+            float runAhead = Mathf.Max(0f, pv.x) * CeilingLookAheadSec;
+            if (runAhead > 0.5f)
+            {
+                float? cF = LowestCeilingOverBody(np.x + runAhead);
+                var bbF = BodyBounds();
+                if (cF.HasValue)
+                {
+                    float topF = bbF.HasValue ? bbF.Value.max.y - transform.position.y : 1f;
+                    float wantF = cF.Value - topF - 0.05f;
+                    float? flF = LandingSurfacePure(np.x, np.y + 0.05f, out _, out _);
+                    if (flF.HasValue) wantF = Mathf.Max(wantF, flF.Value + ComboMinHeight); // 床へは押し付けない
+                    if (np.y > wantF) { np.y = Mathf.Max(wantF, Mathf.Min(np.y, transform.position.y - CeilingPushDownPerSec * dt)); ComboCeilLookAhead++; }
+                }
+            }
         }
         // 天井にめり込まない(頭が天井の少し下で止まる)
         np.y = CeilingClampY(np.x, np.y, transform.position.y, hard: true); // 寄せている間は天井の下へしっかり収める(天井が下がってきても、動きは連続なので跳ばない)

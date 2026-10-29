@@ -296,7 +296,7 @@ public static class Loc
         if (tw.Success)
         {
             string inner = LookupLine(tw.Groups[2].Value, out bool ok);
-            if (ok && !LeftJp(inner)) { found = true; return tw.Groups[1].Value + inner + tw.Groups[3].Value; }
+            if (ok && !LeftJp(inner)) { found = true; LocDebug.Composite("tag", s); return tw.Groups[1].Value + inner + tw.Groups[3].Value; }
         }
         // 「×2 <color=…><b>強化 ×1→×2</b></color>」のように、日本語の無い前置き + 空白 + タグで囲んだ語 → 囲んだ語だけ訳す
         var tt = TagTail.Match(s);
@@ -304,14 +304,15 @@ public static class Loc
         {
             string inner = LookupLine(tt.Groups[2].Value, out bool okI);
             string pre = Segment(tt.Groups[1].Value, out bool okP, out bool _); // 「ATTACK UP ×2」のカード名も訳す
-            if (okI && okP && !LeftJp(inner)) { found = true; return pre + " " + inner; }
+            if (okI && okP && !LeftJp(inner)) { found = true; LocDebug.Composite("tagtail", s); return pre + " " + inner; }
         }
         var lv = LabelValue.Match(s);
         if (lv.Success && (knownKeys.Contains(lv.Groups[1].Value) || table.ContainsKey(lv.Groups[1].Value)))
         {
             string tail = lv.Groups[3].Value;
-            if (tail.Length > 0) { string t = LookupLine(tail, out bool okT); if (!okT || LeftJp(t)) return s; tail = t; }
-            found = true;
+            // 2026-10-29: 後ろの括弧の訳が無い時は、その括弧だけ元の文のまま(能力名と数値は訳して出す。欠けさせない)
+            if (tail.Length > 0) { string t = LookupLine(tail, out bool okT); if (okT && !LeftJp(t)) tail = t; }
+            found = true; LocDebug.Composite("label-value", s);
             return Raw(lv.Groups[1].Value) + " " + lv.Groups[2].Value + tail;
         }
         // 区切りは「2つ以上の空白」を先に(括弧の中の「 / 」で切らない)。無ければ「 / 」
@@ -325,10 +326,12 @@ public static class Loc
                 string p = parts[i];
                 if (p.Length == 0) continue;
                 string t = Segment(p, out bool ok, out bool changed);
-                if (!ok) return s;
+                // 2026-10-29: 訳の無い部品はその部品だけ元の文のまま残す(以前は文全体を日本語のまま出し、訳せる部品まで読めなかった。
+                //  値や条件は消さない。開発版では「一部だけ訳した文」として記録される)
+                if (!ok) continue;
                 if (changed) { parts[i] = t; any = true; }
             }
-            if (any) { found = true; return string.Concat(parts); }
+            if (any) { found = true; LocDebug.Composite(sep == SpaceSplit ? "spaces" : "slash", s); return string.Concat(parts); }
             return s;
         }
         // 後ろの括弧の注記(「…威力13(Lvで伸びる)」「ATTACK UP Lv9(強化量12・効くのはLv9まで)」)は切り離して訳す
@@ -337,7 +340,8 @@ public static class Loc
         {
             string head = Segment(sf.Groups[1].Value, out bool okH, out bool chH);
             string tail = LookupLine(sf.Groups[2].Value, out bool okT);
-            if (okH && okT && !LeftJp(tail)) { found = true; return head + tail; }
+            if (okH && okT && !LeftJp(tail)) { found = true; LocDebug.Composite("tail-paren", s); return head + tail; }
+            if (okH && chH) { found = true; LocDebug.Composite("tail-paren(partial)", s); return head + sf.Groups[2].Value; } // 括弧だけ訳が無い: 括弧は元のまま
         }
         return s;
     }
@@ -411,7 +415,64 @@ public static class Loc
 
     // 右から左の言語は表示用に並べ替える
     // 2026-10-10: ヒンディー語/ベンガル語/タミル語/ビルマ語/クメール語は、前に書く母音記号を見た目の順へ(IndicShaper)
-    static string Display(string s) => IsRtl ? ArabicShaper.ForDisplay(s) : IndicShaper.Handles(current) ? IndicShaper.ForDisplay(s, current) : s;
+    static string Display(string s)
+    {
+        if (!IsRtl) return IndicShaper.Handles(current) ? IndicShaper.ForDisplay(s, current) : s;
+        string r = ArabicShaper.ForDisplay(s);
+        // 2026-10-29: 並べ替えた文 → 元の文を覚えておく(自動の折り返しで行の順番が入れ替わるので、描く幅が分かった所で
+        //  元の文を幅で行に分けてから1行ずつ並べ替え直す。RtlWrap / RtlTextWrap)
+        if (r != s && s.IndexOf(' ') >= 0) { if (rtlSource.Count > 4000) rtlSource.Clear(); rtlSource[r] = s; RtlDirty = true; }
+        return r;
+    }
+
+    static readonly Dictionary<string, string> rtlSource = new Dictionary<string, string>();
+    public static bool RtlDirty; // 並べ替えた文が新しく作られた(uGUI の文字を調べ直す合図)
+    public static bool DebugNoRtlWrap; // 試験用: 前の作り(折り返しは表示の側に任せる)で比べる
+
+    // 右から左の言語の折り返し(2026-10-29): 表示用に並べ替えた文 shown を、幅 width に入るよう「元の順で」行に分けてから並べ替え直す。
+    //  measure は1行の文字の幅(描く所の文字の大きさ・書式で測る)。入る時・元の文が分からない時は shown のまま
+    public static string RtlWrap(string shown, float width, System.Func<string, float> measure)
+    {
+        if (!IsRtl || string.IsNullOrEmpty(shown) || width < 4f || measure == null || DebugNoRtlWrap) return shown;
+        if (rtlSource.TryGetValue(shown, out string src))
+        {
+            bool fits = true;
+            foreach (var line in shown.Split('\n')) if (measure(line) > width) { fits = false; break; }
+            return fits ? shown : ArabicShaper.WrapForDisplay(src, width, measure);
+        }
+        // いくつかの訳を書式タグで囲んでつないだ文(カード選択の「<color=…>説明</color>」等): タグの中の訳を、タグを付けた幅で
+        string res = shown;
+        if (shown.IndexOf('<') >= 0)
+            res = TagInner.Replace(shown, m =>
+            {
+                string inner = m.Groups[3].Value;
+                string pre = m.Value.Substring(0, m.Groups[3].Index - m.Index), post = "</" + m.Groups[1].Value + ">";
+                string w = WrapKnown(inner, width, x => measure(pre + x + post));
+                return ReferenceEquals(w, inner) ? m.Value : pre + w + post;
+            });
+        if (res.IndexOf('\n') < 0) return res;
+        // いくつかの訳を改行でつないだ文: 行ごとに
+        var parts = res.Split('\n');
+        bool changed = false;
+        for (int i = 0; i < parts.Length; i++)
+            if (rtlSource.TryGetValue(parts[i], out string ps) && measure(parts[i]) > width) { parts[i] = ArabicShaper.WrapForDisplay(ps, width, measure); changed = true; }
+        return changed ? string.Join("\n", parts) : res;
+    }
+    static readonly Regex TagInner = new Regex(@"<(color|size|b|i)(=[^<>]*)?>([^<>]+)</\1>");
+    // 元の文が分かる訳(複数行ならその行ごと)を、幅に入らなければ行に分けて並べ替え直す。何も変えない時は同じ文字列を返す
+    static string WrapKnown(string text, float width, System.Func<string, float> measure)
+    {
+        if (rtlSource.TryGetValue(text, out string src))
+        {
+            foreach (var line in text.Split('\n')) if (measure(line) > width) return ArabicShaper.WrapForDisplay(src, width, measure);
+            return text;
+        }
+        if (text.IndexOf('\n') < 0) return text;
+        var parts = text.Split('\n'); bool ch = false;
+        for (int i = 0; i < parts.Length; i++)
+            if (rtlSource.TryGetValue(parts[i], out string ps) && measure(parts[i]) > width) { parts[i] = ArabicShaper.WrapForDisplay(ps, width, measure); ch = true; }
+        return ch ? string.Join("\n", parts) : text;
+    }
 }
 
 // 開発版: 欠けている訳 / 訳されずに出た日本語 を集める(DEBUG のページとテストが読む)
@@ -421,9 +482,12 @@ public static class LocDebug
     public static readonly HashSet<string> UntranslatedShown = new HashSet<string>();
     public static readonly HashSet<string> UnknownLabels = new HashSet<string>();
     public static readonly HashSet<string> JapaneseShown = new HashSet<string>(); // 2026-10-14: 表示する文に日本語が残った物(元の文 → 出た文)
-    public static void Reset() { MissingKeys.Clear(); UntranslatedShown.Clear(); UnknownLabels.Clear(); JapaneseShown.Clear(); }
+    public static void Reset() { MissingKeys.Clear(); UntranslatedShown.Clear(); UnknownLabels.Clear(); JapaneseShown.Clear(); CompositeUsed.Clear(); }
     public static void ShownJapanese(string lang, string src, string shown) { if (JapaneseShown.Count < 500) JapaneseShown.Add(src == shown ? src : src + "  =>  " + shown); }
     public static void Unknown(string s) { if (UnknownLabels.Count < 500) UnknownLabels.Add(s); }
+    // 2026-10-29: 型に当たらず部品ごとに訳した文(規則 + 元の文)。語順が言語で変わる文が混ざっていないかの見直し用
+    public static readonly HashSet<string> CompositeUsed = new HashSet<string>();
+    public static void Composite(string rule, string s) { if (Debug.isDebugBuild && CompositeUsed.Count < 2000) CompositeUsed.Add(rule + "\t" + s.Replace("\n", "\\n")); }
     public static void Missing(string lang, string key)
     {
         if (MissingKeys.Add(key) && MissingKeys.Count <= 30) Debug.LogWarning($"[Loc] missing {lang}: {Short(key)}");
@@ -463,7 +527,7 @@ public static class LocDebug
 //  開発版は「収まらなかった/縮めた/折り返した」表示を記録する(TextFit。-qaTextFit の報告に出す)
 public static class LocGUI
 {
-    public static void Label(Rect r, string text) => GUI.Label(r, Loc.Auto(text));
+    public static void Label(Rect r, string text) => GUI.Label(r, RtlFix(Loc.Auto(text), r.width, GUI.skin.label));
     static readonly GUIContent tmp = new GUIContent();
     const float Margin = 6f;
 
@@ -579,8 +643,22 @@ public static class LocGUI
                 }
             }
         }
-        GUI.Label(dr, s, style);
+        GUI.Label(dr, RtlFix(s, dr.width, style), style);
         style.fontSize = keep; style.wordWrap = keepWrap; style.clipping = keepClip;
+    }
+
+    // 2026-10-29: 右から左の言語で折り返す文は、描く幅で元の順に行を分けてから並べ替える(Loc.RtlWrap)
+    static readonly GUIContent rtmp = new GUIContent();
+    public static int RtlFixCount; // 確認用: 行に分けて並べ替え直した回数(描くたびに数える)
+    public static string RtlFix(string s, float width, GUIStyle st)
+    {
+        if (!Loc.IsRtl || st == null || !st.wordWrap || string.IsNullOrEmpty(s)) return s;
+        float w = width - st.padding.horizontal - 1f;
+        bool ww = st.wordWrap; st.wordWrap = false;
+        string r = Loc.RtlWrap(s, w, x => { rtmp.text = x; return st.CalcSize(rtmp).x - st.padding.horizontal; });
+        st.wordWrap = ww;
+        if (!ReferenceEquals(r, s) && r != s) RtlFixCount++;
+        return r;
     }
 
     // 修正前の収め方(比較の撮影用。日本語は何もしない)

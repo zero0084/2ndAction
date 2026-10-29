@@ -868,9 +868,14 @@ public class NetCombat : MonoBehaviour
 
     public static int PlayerNumberOfClient(ulong clientId)
     {
-        foreach (NetPlayer p in NetPlayer.All) if (p.OwnerClientId == clientId && p.PlayerNumber > 0) return p.PlayerNumber;
+        foreach (NetPlayer p in NetPlayer.All) if (p.OwnerClientId == clientId && p.PlayerNumber > 0) { lastNumber[clientId] = p.PlayerNumber; return p.PlayerNumber; }
+        // 2026-10-29: 退出した時は NetPlayer が先に消えていることがある(部屋で抜けた時「P?が切断しました」と出ていた)→ 前に見た番号
+        if (lastNumber.TryGetValue(clientId, out int n)) return n;
         return 0; // 2026-10-02: 不明(以前は2を返していたため、3人目以降の知らない接続がP2扱いになり得た)
     }
+    static readonly Dictionary<ulong, int> lastNumber = new Dictionary<ulong, int>();
+    // 接続ごとの番号を覚える(部屋の画面を描くたび・番号を引いた時)
+    public static void RememberPlayerNumbers() { foreach (NetPlayer p in NetPlayer.All) if (p != null && p.PlayerNumber > 0) lastNumber[p.OwnerClientId] = p.PlayerNumber; }
 
     // ===================================================================== //
     // 攻撃者の位置/速度(ノックバック/打ち上げの基準。HOSTのリモートプレイヤーは分身から推定)

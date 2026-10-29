@@ -44,6 +44,7 @@ public partial class QaSweep
         string[] seq = Arg("-aeSeq", "U,F,F,F,U,F,F,F,D,F,F,F,D").Split(',');
         bool normalEnemy = Arg("-aeNormalEnemy", "1") == "1";
         int fps = int.Parse(Arg("-aeFps", "60"));
+        EnemyController.DebugStaleBounds = Arg("-aeStaleBounds", "0") == "1"; EnemyController.DebugNoCeilLookAhead = Arg("-aeNoLookAhead", "0") == "1"; // 2026-10-29: 前の作りで比べる
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = fps;
         L($"[aerial] fps={fps} seq={string.Join("", seq)} speeds={string.Join("/", speeds)} timings={string.Join("/", timings)}");
@@ -190,6 +191,7 @@ public partial class QaSweep
             if (en == null) { done(r); yield break; }
             bool wasAir = false;
             Vector3 prevE = en != null ? en.transform.position : Vector3.zero, prevP = pc.transform.position;
+            int prevF = Time.frameCount; // 2026-10-29: 前に測ったフレーム(入力の間の2〜3フレームを1フレームとして割っていた)
             float airT = 0f;
             bool broken = false;
             for (int si = 0; si < seq.Length; si++)
@@ -207,13 +209,15 @@ public partial class QaSweep
                     // 瞬間移動 = 敵自身の動きも、プレイヤーとの相対の動きも、どちらも大きい(フレームの時間の跳び/並走を除く)
                     float jump = Mathf.Min((pe - prevE).magnitude, ((pe - prevE) - (pp - prevP)).magnitude);
                     bool playerWarped = (pp - prevP).magnitude > 4f;
+                    int frames = Mathf.Max(1, Time.frameCount - prevF);
+                    jump /= frames; // 2026-10-29: 間のフレーム数で割る
                     jump *= 0.0167f / Mathf.Max(0.0167f, Time.deltaTime); // 60fps の1フレームあたりに直す(30fps で1フレームの移動が倍になる分)
                     if (Time.deltaTime > 0f && !playerWarped && jump > r.maxJump)
                     {
                         r.maxJump = jump;
-                        if (jump > 1.2f) log.Append($"[JUMP {jump:F2} dt={Time.deltaTime:F3} e=({prevE.x:F1},{prevE.y:F1})->({pe.x:F1},{pe.y:F1}) p=({prevP.x:F1},{prevP.y:F1})->({pp.x:F1},{pp.y:F1}) {en.DebugAirState}] ");
+                        if (jump > 1.2f) log.Append($"[JUMP {jump:F2} frames={frames} dt={Time.deltaTime:F3} e=({prevE.x:F1},{prevE.y:F1})->({pe.x:F1},{pe.y:F1}) p=({prevP.x:F1},{prevP.y:F1})->({pp.x:F1},{pp.y:F1}) {en.DebugAirState}] ");
                     }
-                    prevE = pe; prevP = pp;
+                    prevE = pe; prevP = pp; prevF = Time.frameCount;
                     if (en.IsLaunchedForCombo) { airT += Time.deltaTime; r.maxAirTime = Mathf.Max(r.maxAirTime, airT); wasAir = true; }
                     else if (wasAir) { r.drops++; wasAir = false; log.Append($"(落 {en.ComboEndReason}) "); } // コンボの敵が着地した(締めの叩きつけを含む)
                     AeTerrainCheck(en, ref r);
@@ -261,12 +265,13 @@ public partial class QaSweep
         var col = HaBodyOf(en);
         if (col == null) return;
         if (!en.IsLaunchedForCombo) return; // 打ち上げ中だけ(地上に立つ敵が低い天井に頭を入れているのは元からの配置)
-        float x = col.bounds.center.x;
+        var cb = EnemyController.FreshBounds(col); // 2026-10-29: 今の位置の箱(bounds は物理の更新の時の位置のまま)
+        float x = cb.center.x;
         float? ceil = tm.GetEffectiveCeilingHeightAt(x);
-        if (ceil.HasValue && col.bounds.max.y - ceil.Value > r.maxCeilOver)
+        if (ceil.HasValue && cb.max.y - ceil.Value > r.maxCeilOver)
         {
-            r.maxCeilOver = col.bounds.max.y - ceil.Value;
-            if (r.maxCeilOver > 0.15f) aeDiag = $"[CEIL top={col.bounds.max.y:F2} ceil={ceil.Value:F2} x={x:F1} {en.DebugAirState}]";
+            r.maxCeilOver = cb.max.y - ceil.Value;
+            if (r.maxCeilOver > 0.15f) aeDiag = $"[CEIL top={cb.max.y:F2} ceil={ceil.Value:F2} x={x:F1} stale={col.bounds.max.y:F2} {en.DebugAirState}]";
         }
         float? g = tm.GetHeightAt(en.transform.position.x); // 一番下の地面(上ルート/浮島はこれより上) - これより下へ沈んでいたらめり込み
         if (g.HasValue && g.Value - en.transform.position.y > r.maxGroundUnder)

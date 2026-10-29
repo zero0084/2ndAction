@@ -1,0 +1,50 @@
+pt-BR	10173	Herança bem-sucedida
+pt-BR	10190	Carta principal ({0} Lv.{1}): <color=#ffd76a>Herança bem-sucedida</color>
+pt-BR	10191	Carta de material ({0} Lv.{1}): <color=#ffd76a>Herança bem-sucedida</color>
+pt-BR	457	Carta principal ({0} Lv.{1}): <color=#9aa3b8>Herança malsucedida</color>
+pt-BR	458	Carta de material ({0} Lv.{1}): <color=#9aa3b8>Herança malsucedida</color>
+pt-BR	10192	Carta principal: Herança bem-sucedida!
+pt-BR	10193	Carta de material: Herança bem-sucedida!
+pt-BR	10194	Carta principal: Herança malsucedida
+pt-BR	10195	Carta de material: Herança malsucedida
+pt-BR	522	Herança malsucedida…  As cartas foram convertidas em MILE
+ru	10173	Унаследовано
+ru	10190	Основная карта ({0} Lv.{1}): <color=#ffd76a>Унаследовано</color>
+ru	10191	Карта-материал ({0} Lv.{1}): <color=#ffd76a>Унаследовано</color>
+ru	457	Основная карта ({0} Lv.{1}): <color=#9aa3b8>Не унаследовано</color>
+ru	458	Карта-материал ({0} Lv.{1}): <color=#9aa3b8>Не унаследовано</color>
+ru	10192	Основная карта: Унаследовано!
+ru	10193	Карта-материал: Унаследовано!
+ru	10194	Основная карта: Не унаследовано
+ru	10195	Карта-материал: Не унаследовано
+ru	522	Ничего не унаследовано…  Карты преобразованы в MILE
+pl	10173	Odziedziczono
+pl	10190	Karta główna ({0} Lv.{1}): <color=#ffd76a>Odziedziczono</color>
+pl	10191	Karta materiałowa ({0} Lv.{1}): <color=#ffd76a>Odziedziczono</color>
+pl	457	Karta główna ({0} Lv.{1}): <color=#9aa3b8>Nie odziedziczono</color>
+pl	458	Karta materiałowa ({0} Lv.{1}): <color=#9aa3b8>Nie odziedziczono</color>
+pl	10192	Karta główna: Odziedziczono!
+pl	10193	Karta materiałowa: Odziedziczono!
+pl	10194	Karta główna: Nie odziedziczono
+pl	10195	Karta materiałowa: Nie odziedziczono
+pl	522	Nie odziedziczono…  Karty zamieniono na MILE
+uk	10173	Успадковано
+uk	10190	Основна картка ({0} Lv.{1}): <color=#ffd76a>Успадковано</color>
+uk	10191	Картка-матеріал ({0} Lv.{1}): <color=#ffd76a>Успадковано</color>
+uk	457	Основна картка ({0} Lv.{1}): <color=#9aa3b8>Не успадковано</color>
+uk	458	Картка-матеріал ({0} Lv.{1}): <color=#9aa3b8>Не успадковано</color>
+uk	10192	Основна картка: Успадковано!
+uk	10193	Картка-матеріал: Успадковано!
+uk	10194	Основна картка: Не успадковано
+uk	10195	Картка-матеріал: Не успадковано
+uk	522	Нічого не успадковано…  Картки перетворено на MILE
+cs	10173	Zděděno
+cs	10190	Hlavní karta ({0} Lv.{1}): <color=#ffd76a>Zděděno</color>
+cs	10191	Materiálová karta ({0} Lv.{1}): <color=#ffd76a>Zděděno</color>
+cs	457	Hlavní karta ({0} Lv.{1}): <color=#9aa3b8>Nezděděno</color>
+cs	458	Materiálová karta ({0} Lv.{1}): <color=#9aa3b8>Nezděděno</color>
+cs	10192	Hlavní karta: Zděděno!
+cs	10193	Materiálová karta: Zděděno!
+cs	10194	Hlavní karta: Nezděděno
+cs	10195	Materiálová karta: Nezděděno
+cs	522	Nic nebylo zděděno…  Karty byly převedeny na MILE

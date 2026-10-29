@@ -12,7 +12,7 @@ public class LanAutoTest : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot()
     {
-        if (Arg("-lanWatch", null) == null && Arg("-lanUiShots", null) == null) return;
+        if (Arg("-lanWatch", null) == null && Arg("-lanUiShots", null) == null && Arg("-lanRoomShots", null) == null) return;
         var go = new GameObject("LanAutoTest");
         DontDestroyOnLoad(go);
         go.AddComponent<LanAutoTest>();
@@ -38,6 +38,8 @@ public class LanAutoTest : MonoBehaviour
         Application.runInBackground = true;
         string shots = Arg("-lanUiShots", null);
         if (shots != null) { uiShots = true; StartCoroutine(UiShots(shots)); return; }
+        string room = Arg("-lanRoomShots", null);
+        if (room != null) { uiShots = true; StartCoroutine(RoomShots(room, Arg("-lanRole", "host"), Arg("-lanTag", ""))); return; }
         float.TryParse(Arg("-lanWatch", "30"), out float secs);
         started = Time.realtimeSinceStartup;
         until = started + Mathf.Max(5f, secs);
@@ -72,6 +74,70 @@ public class LanAutoTest : MonoBehaviour
         NetSession.Instance.Leave();
         yield return new WaitForSecondsRealtime(1f);
         L("UI SHOTS done");
+        Application.Quit();
+    }
+
+    // 2026-10-29: 部屋を作った後/参加した後/退出した時の画面(同じ PC の2つの起動で HOST と JOIN)。-lanRoomShots <dir> -lanRole host|join [-lanTag 486x1080]
+    //  HOST: 部屋を作る → 1人の部屋 → JOIN が入った部屋 → JOIN が出た後の部屋 → 自分が出た後のメニュー
+    //  JOIN: 部屋を探す → 見つけた一覧 → 参加した部屋 → 出た後のメニュー
+    System.Collections.IEnumerator RoomShots(string dir, string role, string tag)
+    {
+        System.IO.Directory.CreateDirectory(dir);
+        int i = 0;
+        System.Collections.IEnumerator Shot(string n)
+        {
+            yield return new WaitForSecondsRealtime(0.8f);
+            ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, $"{i++:00}_{role}{tag}_{n}.png"));
+            L($"ROOM SHOT {role} {n} screen={NetDebugUI.CurrentScreen} active={NetSession.IsActive} host={NetSession.IsHost} connected={NetSession.IsConnected} players={(NetSession.Manager != null && NetSession.IsHost ? NetSession.Manager.ConnectedClientsIds.Count : -1)}");
+            yield return new WaitForSecondsRealtime(0.4f);
+        }
+        yield return new WaitForSecondsRealtime(4f);
+        var f = typeof(NetDebugUI).GetField("screen", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var ui = FindFirstObjectByType<NetDebugUI>();
+        NetDebugUI.OpenPanel();
+        ushort port = (ushort)(NetSession.DefaultPort + 3);
+        if (role == "host")
+        {
+            f.SetValue(ui, NetDebugUI.MultiScreen.Choose);
+            yield return new WaitForSecondsRealtime(0.5f);
+            bool ok = NetSession.Instance.StartHost(port);
+            if (ok) LanDiscovery.StartAdvertising();
+            L($"ROOM host started={ok} port={port}");
+            yield return Shot("room_created");
+            float w = 0f; while (w < 60f && (NetSession.Manager == null || NetSession.Manager.ConnectedClientsIds.Count < 2)) { yield return null; w += Time.unscaledDeltaTime; }
+            L($"ROOM a player joined={(NetSession.Manager != null && NetSession.Manager.ConnectedClientsIds.Count >= 2)} after {w:F1}s");
+            yield return Shot("room_with_join");
+            w = 0f; while (w < 40f && NetSession.Manager != null && NetSession.Manager.ConnectedClientsIds.Count >= 2) { yield return null; w += Time.unscaledDeltaTime; }
+            L($"ROOM the player left after {w:F1}s");
+            yield return Shot("room_after_join_left");
+            NetSession.Instance.Leave();
+            yield return new WaitForSecondsRealtime(1f);
+            yield return Shot("after_leave");
+        }
+        else
+        {
+            LanDiscovery.StartDiscovery(); f.SetValue(ui, NetDebugUI.MultiScreen.Find);
+            float w = 0f; while (w < 40f && LanDiscovery.Rooms.Count == 0) { yield return null; w += Time.unscaledDeltaTime; }
+            yield return Shot("find_list");
+            if (LanDiscovery.Rooms.Count > 0)
+            {
+                var r = LanDiscovery.Rooms[0];
+                L($"ROOM join {r.roomId} {r.address}:{r.port}");
+                NetSession.Instance.StartClient(r.address, r.port);
+                f.SetValue(ui, NetDebugUI.MultiScreen.Room);
+                w = 0f; while (w < 20f && !NetSession.IsConnected) { yield return null; w += Time.unscaledDeltaTime; }
+                L($"ROOM connected={NetSession.IsConnected} after {w:F1}s");
+                yield return new WaitForSecondsRealtime(1.5f);
+                yield return Shot("room_joined");
+                yield return new WaitForSecondsRealtime(3f);
+                NetSession.Instance.Leave();
+                yield return new WaitForSecondsRealtime(1f);
+                yield return Shot("after_leave");
+            }
+            LanDiscovery.StopDiscovery("room shots");
+        }
+        yield return new WaitForSecondsRealtime(2f);
+        L("ROOM SHOTS done");
         Application.Quit();
     }
 

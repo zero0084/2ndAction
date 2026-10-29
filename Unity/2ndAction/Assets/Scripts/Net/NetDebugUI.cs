@@ -124,6 +124,15 @@ public class NetDebugUI : MonoBehaviour
         if (!string.IsNullOrEmpty(toastText) && Time.unscaledTime < toastUntil)
         {
             Rect r = new Rect(w * 0.5f - 260f, h * 0.18f, 520f, 56f);
+            // 2026-10-29: 部屋の画面(パネル)を開いている時は、パネルの見出し(部屋の名前)に重ならないよう、パネルの上(入らなければ下)へ
+            if (!gm.HasStarted && PanelOpen)
+            {
+                float ph = Mathf.Min(700f, h - 32f), top = (h - ph) * 0.5f, bottom = top + ph;
+                float tw = Mathf.Min(520f, w - 24f);
+                if (top - 62f >= safeTop + 4f) r = new Rect((w - tw) * 0.5f, top - 62f, tw, 56f);
+                else if (bottom + 62f <= h) r = new Rect((w - tw) * 0.5f, bottom + 6f, tw, 56f);
+                else r = new Rect((w - tw) * 0.5f, bottom - 210f, tw, 56f); // 横画面など上下に余白が無い: 下のボタンの上の空いた所
+            }
             GUI.Box(r, "");
             LocGUI.Label(r, toastText, bannerStyle);
         }
@@ -507,6 +516,7 @@ public class NetDebugUI : MonoBehaviour
         GUILayout.Space(8f);
         GUILayout.Label($"WAITING FOR PLAYERS {NetSession.ConnectedPlayerCount}/{NetSession.MaxPlayers}", titleStyle);
         var sb = new StringBuilder();
+        NetCombat.RememberPlayerNumbers(); // 2026-10-29: 抜けた人の番号を通知で出せるように
         foreach (NetPlayer p in NetPlayer.All)
             sb.Append($"{p.Tag}  {(p.OwnerClientId == 0 ? "HOST" : "JOIN")}  {CharLabel(p.CharacterId.Value.ToString())}{(p.IsOwner ? "  (" + L("自分") + ")" : "")}").Append('\n');
         GUILayout.Label(sb.ToString(), smallStyle);

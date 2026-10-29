@@ -1,0 +1,10 @@
+10173	Inherited
+10190	Main ({0} Lv.{1}): <color=#ffd76a>Inherited</color>
+10191	Material ({0} Lv.{1}): <color=#ffd76a>Inherited</color>
+457	Main ({0} Lv.{1}): <color=#9aa3b8>Not inherited</color>
+458	Material ({0} Lv.{1}): <color=#9aa3b8>Not inherited</color>
+10192	Main: Inherited!
+10193	Material: Inherited!
+10194	Main: Not inherited
+10195	Material: Not inherited
+522	Inheritance failed…  Cards were converted back into MILE

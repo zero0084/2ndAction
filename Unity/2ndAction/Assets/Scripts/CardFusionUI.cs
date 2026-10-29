@@ -993,7 +993,9 @@ public class CardFusionUI : MonoBehaviour
 
     IEnumerator RevealSide(RewardCardUI card, Text label, bool success, string side)
     {
-        label.text = Loc.Auto(success ? $"{side}側 継承成功！" : $"{side}側 継承失敗");
+        // 2026-10-29: 「{0}側」に「メイン/素材」を差し込むと、言語によって語の組み立てが変わる(ドイツ語の Haupt+seite 等)→ 文全体の型
+        bool main = side == "メイン";
+        label.text = Loc.Auto(success ? (main ? "メイン側 継承成功！" : "素材側 継承成功！") : (main ? "メイン側 継承失敗" : "素材側 継承失敗"));
         label.color = success ? Gold : new Color(0.62f, 0.66f, 0.76f);
         FusionSfx.Play(success ? FusionSfx.Success() : FusionSfx.Fail());
         Vector2 basePos = card.rect.anchoredPosition;

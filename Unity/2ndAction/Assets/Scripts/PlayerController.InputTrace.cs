@@ -60,6 +60,7 @@ public partial class PlayerController
     static bool MoveStarted(ActSig a, ActSig b) =>
         b.comboCount > a.comboCount || b.kitGen != a.kitGen || b.lanceGen != a.lanceGen || b.jumpSerial != a.jumpSerial ||
         (b.dive && !a.dive) || (b.kitDive && !a.kitDive) || (b.lanceDive && !a.lanceDive) || (b.hover && !a.hover) ||
-        b.hoverShots > a.hoverShots || (b.attacking && !a.attacking) || b.mageLevel != a.mageLevel;
+        b.hoverShots > a.hoverShots || (b.attacking && !a.attacking) || b.mageLevel != a.mageLevel ||
+        b.cooldown > a.cooldown + 0.01f; // 2026-10-29: 魔法使いの上下の詠唱は isAttacking を立てず待ち時間だけ入る(段が上限/下限だと段も変わらず、数え落としていた)
 #endif
 }

@@ -68,6 +68,7 @@ public partial class QaSweep
         public bool Calm => !Broken && !Recovering && Act != "Flinch" && !(W != null && W.UltimateRunning);
     }
 
+    static readonly WaitForEndOfFrame baEof = new WaitForEndOfFrame();
     IEnumerator BossAirMode()
     {
         HookBossLogs();
@@ -78,6 +79,7 @@ public partial class QaSweep
         string[] seq = Arg("-baSeq", "U,F,F,F,U,F,F,F,D,F,F,F,D").Split(',');
         bool kill = Arg("-baKill", "1") == "1", normal = Arg("-baNormal", "1") == "1";
         int fps = int.Parse(Arg("-baFps", "60"));
+        WildBossBase.DebugBreakNominalSpeed = Arg("-baNominal", "0") == "1"; // 2026-10-29: 前の作り(BREAK 中も決まった走る速さ)で比べる
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = fps;
         var tsv = new StringBuilder("char\tboss\tstyle\tkmh\tfps\thitsA\tflinch\tarmored\tprobeCross\tprobeFlinch\tprobeArmored\tprobeActs\tbroke\tlaunched\thits\twhiff\tqueued\tairMax\tslams\tkneelHits\tkneelSlams\tdownPush\tbreakSec\textra\twarned\trecovered\tfirstAttack\tmaxRise\tmaxJump\tceilOver\tgroundUnder\tvpX\tvpY\tedge\tkilled\tfinish\trewardOnce\tlog\n");
@@ -232,14 +234,16 @@ public partial class QaSweep
             while (w < 2f && BaEdge(boss) > near) { yield return null; w += Time.deltaTime; }
             var cam = Camera.main;
             Vector3 prevB = boss.Live.center, prevP = pc.transform.position;
+            int prevF = Time.frameCount; // 2026-10-29: 前に測ったフレーム(入力の間の2〜3フレームを1フレームとして割っていた)
             System.Action<float> sample = dt =>
             {
                 var bb = boss.Live;
                 Vector3 pb = bb.center, pp = pc.transform.position;
-                float jump = Mathf.Min((pb - prevB).magnitude, ((pb - prevB) - (pp - prevP)).magnitude) * 0.0167f / Mathf.Max(0.0167f, dt);
+                int frames = Mathf.Max(1, Time.frameCount - prevF);
+                float jump = Mathf.Min((pb - prevB).magnitude, ((pb - prevB) - (pp - prevP)).magnitude) / frames * 0.0167f / Mathf.Max(0.0167f, dt);
                 var jj = boss.Juggle;
-                if ((pp - prevP).magnitude < 4f && dt > 0f && jump > r.maxJump) { r.maxJump = jump; if (jump > 1.5f) log.Append($"[JUMP {jump:F2} dt={dt:F3} b=({prevB.x:F1},{prevB.y:F1})->({pb.x:F1},{pb.y:F1}) p=({prevP.x:F1},{prevP.y:F1})->({pp.x:F1},{pp.y:F1}) air={(jj != null && jj.Airborne)} anc={(jj != null && jj.Anchored)} act={boss.Act} split={(boss.W != null ? boss.W.DebugMoveSplit.ToString("F2") : "-")} rel={(boss.W != null ? boss.W.DebugRelVelocity : 0f):F1}] "); }
-                prevB = pb; prevP = pp;
+                if ((pp - prevP).magnitude < 4f && dt > 0f && jump > r.maxJump) { r.maxJump = jump; if (jump > 1.5f) log.Append($"[JUMP {jump:F2} frames={frames} dt={dt:F3} b=({prevB.x:F1},{prevB.y:F1})->({pb.x:F1},{pb.y:F1}) p=({prevP.x:F1},{prevP.y:F1})->({pp.x:F1},{pp.y:F1}) air={(jj != null && jj.Airborne)} anc={(jj != null && jj.Anchored)} act={boss.Act} split={(boss.W != null ? boss.W.DebugMoveSplit.ToString("F2") : "-")} rel={(boss.W != null ? boss.W.DebugRelVelocity : 0f):F1} root={(boss.W != null ? boss.W.transform.position.x : 0f):F2} hurtLocal={(boss.W != null && boss.W.DebugHurtCol != null ? boss.W.DebugHurtCol.transform.localPosition.x : 0f):F2} hurtW={((boss.W != null ? boss.W.DebugHurtCol as BoxCollider2D : null)?.size.x ?? 0f):F1} side={Mathf.Sign(pp.x - (boss.W != null ? boss.W.transform.position.x : pb.x)):F0}] "); }
+                prevB = pb; prevP = pp; prevF = Time.frameCount;
                 var tm = TerrainManager.Instance;
                 float? ceil = tm != null ? tm.GetEffectiveCeilingHeightAt(pb.x) : null;
                 if (jj != null && jj.Airborne && ceil.HasValue) r.ceilOver = Mathf.Max(r.ceilOver, boss.Top - ceil.Value);
@@ -269,7 +273,7 @@ public partial class QaSweep
                 kinds.Length = 0;
                 yield return HaFlick(f);
                 float s = 0f;
-                while (s < 0.3f) { sample(Time.deltaTime); yield return null; s += Time.deltaTime; }
+                while (s < 0.3f) { sample(Time.deltaTime); yield return baEof; s += Time.deltaTime; } // 2026-10-29: 描く時の位置(LateUpdate の後)で測る
                 string res;
                 if (hitCount > h0) { res = "H" + kinds; r.hits++; }
                 else if (PlayerAttackInfo.SwingCount > sw0) { res = $"W({BaEdge(boss):F1})"; r.whiff++; }
@@ -279,7 +283,7 @@ public partial class QaSweep
             }
             // BREAK の終わりまで見届ける
             w = 0f;
-            while (boss.Broken && w < 8f && !boss.IsDead) { sample(Time.deltaTime); yield return null; w += Time.deltaTime; }
+            while (boss.Broken && w < 8f && !boss.IsDead) { sample(Time.deltaTime); yield return baEof; w += Time.deltaTime; }
             r.breakSec = boss.LastBreak; r.breakExtra = boss.LastExtra;
             w = 0f; while (boss.Recovering && w < 2f) { yield return null; w += Time.deltaTime; }
             r.recovered = !boss.Broken && !boss.Recovering;
@@ -395,6 +399,7 @@ public partial class QaSweep
         string[] seq = Arg("-bvSeq", "U,F,F,F,U,F,F,F,D,F,F,F,D").Split(',');
         // 2026-10-21: -bvRev 1 = 「改修前」を APK 338 の動き(ComboRevision.Legacy)にする(既定は 2026-10-18 の改修前 = BossJuggle.Enabled=false)
         bool rev = Arg("-bvRev", "0") == "1";
+        WildBossBase.DebugBreakNominalSpeed = Arg("-baNominal", "0") == "1"; // 2026-10-29: BREAK 中の並走の前後を撮る
         bvGap = float.Parse(Arg("-bvGap", "0.3"), System.Globalization.CultureInfo.InvariantCulture);
         bvOnce = rev;
         // 2026-10-21 追加調査: -bvFinishAtWarn 1 = ↑→→→ をくり返し、締めの合図が出たら 0.15秒後に ↓(締めの試験と同じ入れ方)。

@@ -27,7 +27,7 @@ public partial class QaSweep
         L($"[portrait] screen {Screen.width}x{Screen.height} portrait={Screen.height > Screen.width} safe={Screen.safeArea}");
         layoutTagSuffix = Arg("-qaTag", "");
         string tag = $"{Screen.width}x{Screen.height}{layoutTagSuffix}";
-        void S(string n) { Shot($"{tag}_{n}"); LayoutAudit($"{tag}_{n}"); } // 2026-10-28: 撮るたびに配置の範囲チェック(uGUI)
+        void S(string n) { Shot($"{tag}_{n}"); LayoutAudit($"{tag}_{n}"); RtlAudit($"{tag}_{n}"); } // 2026-10-28: 撮るたびに配置の範囲チェック(uGUI)。2026-10-29: 右から左の言語は自動の折り返しも数える
         if (Arg("-qaLayoutMax", "0") == "1")
         {
             // 多い/最大の状態: MILE を最大の桁、所持カードを多く
@@ -258,6 +258,7 @@ public partial class QaSweep
         if (PCase('X')) yield return LayoutExtraScreens(S);
         LayoutFlush();
         // 2026-10-29: 言語を指定した時は、巡回中に訳の無い日本語が出た文を書き出す(固定の日本語の残りの確認)
+        if (Loc.IsRtl) L($"[portrait] rtl: uGUI texts checked {rtlChecked}, auto-wrapped (line order broken) {rtlAutoWrapped}");
         if (qaLang != "") { LocDebug.WriteReport(System.IO.Path.Combine(outDir, $"loc_report_{qaLang}_{tag}.txt")); L($"[portrait] {qaLang}: untranslated Japanese shown {LocDebug.UntranslatedShown.Count}, partial {LocDebug.JapaneseShown.Count}"); }
         if (qaLang != "") Loc.Set(langKeep);
         UnlockRules.DevUnlockAll = false; SprintRecords.DevUnlockAll = false;

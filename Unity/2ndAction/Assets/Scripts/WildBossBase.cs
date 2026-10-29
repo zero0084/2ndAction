@@ -318,6 +318,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         float dt = Time.deltaTime;
         float baseSpeed = TargetBaseSpeed();
         float runSpeed = baseSpeed;
+        // 2026-10-29: BREAK 中は、プレイヤーの実際の前進の速さで並ぶ(走る速さの決まった値だと、攻撃でプレイヤーが一瞬止まった
+        //  フレームに膝をついたボスだけが前へ滑り、150km/h では1フレームで約1.5mずれて見えた。リヴァイアサンの BREAK の試験)
+        if (Broken && netTarget == null && pc != null && !DebugBreakNominalSpeed) baseSpeed = Mathf.Max(0f, pc.MotionVelocity.x);
         // マルチ Phase 3.1: 後ろの人が離れていたら並走を少し遅くし、追い越されたら後ろの人へ狙いを替える(BossLeash)
         BossLeash.Result leash = default;
         bool leashOn = BossLeash.Enabled && !entering;
@@ -329,6 +332,8 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         }
         float wx0 = worldX;
         worldX += (baseSpeed + relVelocity * MoveScale) * dt; // MoveScale: ラスダンの移動速度(接近/間合い/突進)
+        breakSyncBaseMove = baseSpeed * dt;
+        breakSyncPending = Broken && netTarget == null && pc != null && !DebugBreakNominalSpeed && !ComboRevision.Legacy;
         float wxB = worldX;
 
         float px = PlayerX;
@@ -441,6 +446,27 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     }
     Vector2 hurtBaseLocal, hurtBaseSize;
     bool hurtKneelApplied;
+    public static bool DebugBreakNominalSpeed; // 試験用: 前の作り(BREAK 中も決まった走る速さで並ぶ)で比べる
+
+    // 2026-10-29: BREAK 中の並走の補正。Update ではプレイヤーの前のフレームの速さで並ぶため(更新の順番による1フレームの遅れ)、
+    //  プレイヤーが攻撃で止まったフレームにボスだけ前へ滑っていた。全員が動いた後(LateUpdate)に、このフレームのプレイヤーの
+    //  実際の移動とボスの並走の差を足して合わせる。浮動原点の移しなど大きな跳びは補正しない
+    float breakSyncLastPx = float.NaN, breakSyncBaseMove;
+    bool breakSyncPending;
+    public static int BreakSyncCorrections; // 確認用
+    protected virtual void LateUpdate()
+    {
+        float pxNow = PlayerX;
+        // 打ち上げた/寄せて浮かせているボス(Launch)は、位置を打ち上げの処理が決めるので足さない(二重に動かさない)
+        bool juggledNow = juggle != null && juggle.style == BossJuggle.Style.Launch && (juggle.Anchored || juggle.Airborne);
+        if (breakSyncPending && !juggledNow && !dead && !float.IsNaN(breakSyncLastPx))
+        {
+            float corr = (pxNow - breakSyncLastPx) - breakSyncBaseMove;
+            if (Mathf.Abs(corr) > 0.001f && Mathf.Abs(corr) < 3f) { worldX += corr; ApplyTransform(); BreakSyncCorrections++; }
+        }
+        breakSyncPending = false;
+        breakSyncLastPx = pxNow;
+    }
 
     // 自然洞窟ボス拡張(2026-09-22) - 荒野街道は単一のflatな下ルートしか
     // 想定していなかったため`protected virtual`にし、洞窟ボス(上下ルート/

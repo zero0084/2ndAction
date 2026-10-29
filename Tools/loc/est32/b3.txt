@@ -1,0 +1,50 @@
+ro	10173	Moștenire reușită
+ro	10190	Carte principală ({0} Lv.{1}): <color=#ffd76a>Moștenire reușită</color>
+ro	10191	Carte material ({0} Lv.{1}): <color=#ffd76a>Moștenire reușită</color>
+ro	457	Carte principală ({0} Lv.{1}): <color=#9aa3b8>Moștenire eșuată</color>
+ro	458	Carte material ({0} Lv.{1}): <color=#9aa3b8>Moștenire eșuată</color>
+ro	10192	Carte principală: Moștenire reușită!
+ro	10193	Carte material: Moștenire reușită!
+ro	10194	Carte principală: Moștenire eșuată
+ro	10195	Carte material: Moștenire eșuată
+ro	522	Moștenire eșuată…  Cărțile au fost convertite în MILE
+tr	10173	Aktarım başarılı
+tr	10190	Ana kart ({0} Lv.{1}): <color=#ffd76a>Aktarım başarılı</color>
+tr	10191	Malzeme kartı ({0} Lv.{1}): <color=#ffd76a>Aktarım başarılı</color>
+tr	457	Ana kart ({0} Lv.{1}): <color=#9aa3b8>Aktarım başarısız</color>
+tr	458	Malzeme kartı ({0} Lv.{1}): <color=#9aa3b8>Aktarım başarısız</color>
+tr	10192	Ana kart: Aktarım başarılı!
+tr	10193	Malzeme kartı: Aktarım başarılı!
+tr	10194	Ana kart: Aktarım başarısız
+tr	10195	Malzeme kartı: Aktarım başarısız
+tr	522	Aktarım başarısız…  Kartlar MILE'a dönüştürüldü
+id	10173	Pewarisan berhasil
+id	10190	Kartu utama ({0} Lv.{1}): <color=#ffd76a>Pewarisan berhasil</color>
+id	10191	Kartu material ({0} Lv.{1}): <color=#ffd76a>Pewarisan berhasil</color>
+id	457	Kartu utama ({0} Lv.{1}): <color=#9aa3b8>Pewarisan gagal</color>
+id	458	Kartu material ({0} Lv.{1}): <color=#9aa3b8>Pewarisan gagal</color>
+id	10192	Kartu utama: Pewarisan berhasil!
+id	10193	Kartu material: Pewarisan berhasil!
+id	10194	Kartu utama: Pewarisan gagal
+id	10195	Kartu material: Pewarisan gagal
+id	522	Pewarisan gagal…  Kartu dikonversi menjadi MILE
+ms	10173	Pewarisan berjaya
+ms	10190	Kad utama ({0} Lv.{1}): <color=#ffd76a>Pewarisan berjaya</color>
+ms	10191	Kad bahan ({0} Lv.{1}): <color=#ffd76a>Pewarisan berjaya</color>
+ms	457	Kad utama ({0} Lv.{1}): <color=#9aa3b8>Pewarisan gagal</color>
+ms	458	Kad bahan ({0} Lv.{1}): <color=#9aa3b8>Pewarisan gagal</color>
+ms	10192	Kad utama: Pewarisan berjaya!
+ms	10193	Kad bahan: Pewarisan berjaya!
+ms	10194	Kad utama: Pewarisan gagal
+ms	10195	Kad bahan: Pewarisan gagal
+ms	522	Pewarisan gagal…  Kad telah ditukar menjadi MILE
+fil	10173	Matagumpay ang pagmamana
+fil	10190	Pangunahing card ({0} Lv.{1}): <color=#ffd76a>Matagumpay ang pagmamana</color>
+fil	10191	Materyal na card ({0} Lv.{1}): <color=#ffd76a>Matagumpay ang pagmamana</color>
+fil	457	Pangunahing card ({0} Lv.{1}): <color=#9aa3b8>Nabigo ang pagmamana</color>
+fil	458	Materyal na card ({0} Lv.{1}): <color=#9aa3b8>Nabigo ang pagmamana</color>
+fil	10192	Pangunahing card: Matagumpay ang pagmamana!
+fil	10193	Materyal na card: Matagumpay ang pagmamana!
+fil	10194	Pangunahing card: Nabigo ang pagmamana
+fil	10195	Materyal na card: Nabigo ang pagmamana
+fil	522	Nabigo ang pagmamana…  Ginawang MILE ang mga card
