@@ -20,14 +20,14 @@ public partial class MajinController
     public float BreakEndedAt { get; private set; } = -99f;
     public float AttackDelayAfterBreak { get; private set; } = -1f; // BREAK が終わってから次の攻撃を始められるまでの秒数(確認用)
     public float DebugBreakMax => (battle != null ? battle.breakDuration : 3f) + BreakExtendCap;
+    // 2026-10-31 カード拡張(製品版でも使うので #if の外): BREAK ゲージの割合で足す(AddStagger を通る)
+    public void AddCardStagger(float fraction) { if (battle != null && battle.staggerMax > 0f && fraction > 0f) AddStagger(battle.staggerMax * fraction); }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public static System.Action<Component, PlayerAttackKind> QaLocalHit; // 確認用: この端末のプレイヤーの手動の攻撃が当たった(倒した時も)
     public void DebugScaleHp(float mul) { maxHp = Mathf.Max(1, Mathf.RoundToInt(maxHp * mul)); Hp = maxHp; if (hpBar != null) hpBar.SetFraction(1f); }
     public void DebugSetHp(int hp) { Hp = Mathf.Clamp(hp, 1, Mathf.Max(1, maxHp)); if (hpBar != null) hpBar.SetFraction((float)Hp / Mathf.Max(1, maxHp)); }
     public float DebugStaggerMax => battle != null ? battle.staggerMax : 0f;
     public void DebugAddStaggerQa(float v) => AddStagger(v);
-    // 2026-10-31 カード拡張: BREAK ゲージの割合で足す(AddStagger を通る)
-    public void AddCardStagger(float fraction) { if (battle != null && battle.staggerMax > 0f && fraction > 0f) AddStagger(battle.staggerMax * fraction); }
     public void DebugResetResist() { breakResistUntil = -99f; }
     public float DebugBreakDuration => battle != null ? battle.breakDuration : 0f;
 #endif

@@ -921,10 +921,10 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     public int Phase => phase;
     public int BreakCount { get; private set; }
     public int UltimatesUsed { get; private set; }
+    // 2026-10-31 カード拡張(製品版でも使うので #if の外): BREAK ゲージの割合で足す(AddStagger を通る)
+    public void AddCardStagger(float fraction) { if (battle != null && battle.staggerMax > 0f && fraction > 0f) AddStagger(battle.staggerMax * fraction); }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public void DebugAddStagger(float v) => AddStagger(v);
-    // 2026-10-31 カード拡張: BREAK ゲージの割合で足す(AddStagger を通る)
-    public void AddCardStagger(float fraction) { if (battle != null && battle.staggerMax > 0f && fraction > 0f) AddStagger(battle.staggerMax * fraction); }
 #endif
     public bool Broken => state == State.Stunned;
     SpriteRenderer chargeOrb;

@@ -1673,10 +1673,10 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             if (r != null && r.gameObject != gameObject && r.gameObject.name.EndsWith("Glow") && r.gameObject.name != "DarkGlow") r.enabled = false; // DarkGlow = 死神の常時の闇の光(技の光ではない)
     }
 
+    // 2026-10-31 カード拡張(製品版でも使うので #if の外)(SHATTER STRIKE / JUDGMENT BOLT): BREAK ゲージの割合で足す(AddStagger を通る = BREAK 直後は溜まりにくい)
+    public void AddCardStagger(float fraction) { if (tune != null && tune.staggerMax > 0f && fraction > 0f) AddStagger(tune.staggerMax * fraction); }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public void DebugAddStagger(float v) => AddStagger(v);
-    // 2026-10-31 カード拡張(SHATTER STRIKE / JUDGMENT BOLT): BREAK ゲージの割合で足す(AddStagger を通る = BREAK 直後は溜まりにくい)
-    public void AddCardStagger(float fraction) { if (tune != null && tune.staggerMax > 0f && fraction > 0f) AddStagger(tune.staggerMax * fraction); }
     public float DebugStagger => stagger;
 #endif
     // 自然洞窟ボス強化(2026-10-04): 開発用の強制操作(段階/必殺技/BREAK)。荒野街道のボスにも使える(IBossBattleDebug。ゲーム中は呼ばれない)
