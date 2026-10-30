@@ -1,0 +1,27 @@
+10196	Cette carte est déjà dans ton deck.
+10197	Pour la remplacer par la même carte d'un autre Lv, retire d'abord la carte actuelle du deck.
+10198	Ton deck contenait plusieurs exemplaires d'une même carte : seul le premier a été conservé dans le deck, les autres en ont été retirés.
+10199	Absorption à l'impact
+10200	Accumulation de BREAK contre les boss refroidis ou gelés
+10201	Tornade : puissance {0} × {1} coups ; rayon {2}m ; attire les cibles de {3}m par coup
+10202	Foudre garantie tous les {0} coups au but
+10203	Toucher un boss peut aussi soigner, avec 1/4 de la chance de soin à l'élimination ; HP absorbés en touchant un boss ×2.
+10204	Les coups peuvent brûler les ennemis pendant 3s. Lv1 : chance 20%, 6 dégâts/s. Par Lv supplémentaire : chance +4%, dégâts/s +1.5.
+10205	Dégâts de brûlure +8%/Lv, durée +0.25s/Lv. Cette carte seule peut aussi brûler à l'impact : chance 8% à Lv1, puis +2% par Lv supplémentaire. Dégâts de brûlure/s également +0.5/Lv.
+10206	Éliminer un ennemi en feu propage les flammes aux ennemis proches ; ceux éliminés par ces flammes les propagent à leur tour. Propagation sur 2 étapes à Lv1–3, 3 à Lv4–6, 4 à Lv7–9. Puissance et rayon augmentent avec le Lv. Cette carte seule peut aussi brûler à l'impact : chance 8% à Lv1, puis +2% par Lv supplémentaire.
+10207	Bloquer une attaque avec un Shield déclenche une riposte de flammes autour de toi, brûlant les ennemis touchés pendant 4s. Puissance et rayon augmentent avec le Lv. Cette carte seule permet aussi de détenir 1 Shield.
+10208	Les coups peuvent refroidir et ralentir les ennemis. Lv1 : chance 20%, ralentissement 28%. Par Lv supplémentaire : chance +4%, ralentissement +2.5%, durée du froid +0.1s. 5 cumuls de froid gèlent : les sbires s'arrêtent ; les boss sont fortement ralentis et accumulent du BREAK plus vite.
+10209	Réduit les cumuls de froid requis pour geler : 4 à Lv1–3, 3 à Lv4–6, 2 à Lv7–9. Durée du gel +0.08s/Lv, durée du froid +0.15s/Lv. Cette carte seule peut aussi refroidir à l'impact : chance 8% à Lv1, puis +2% par Lv supplémentaire.
+10210	Attaque contre les ennemis refroidis ou gelés +3%/Lv. Geler inflige des dégâts bonus qui augmentent avec le Lv. Accumulation de BREAK contre les boss refroidis ou gelés +6%/Lv (bonus réduit de moitié s'ils sont seulement refroidis). Cette carte seule peut aussi refroidir à l'impact : chance 8% à Lv1, puis +2% par Lv supplémentaire ; 4 cumuls gèlent.
+10211	Les coups peuvent appeler la foudre. Lv1 : chance 8%, puissance de base 9. Par Lv supplémentaire : chance +2%, puissance de base +1.5. Foudre également garantie tous les 13 coups au but à Lv1, jusqu'à tous les 5 à Lv9. Un même ennemi ne peut être foudroyé qu'une fois toutes les 0.4s.
+10212	Puissance de la foudre +6%/Lv. La foudre immobilise brièvement les sbires. Cette carte seule peut aussi appeler la foudre : chance 3% à Lv1, puis +1% par Lv supplémentaire.
+10213	La foudre rebondit sur d'autres ennemis proches : 1 à Lv1–3, 2 à Lv4–6, 3 à Lv7–9. Portée des rebonds +0.2m/Lv. Sans cible suivante, les rebonds restants frappent le même ennemi à puissance réduite. Cette carte seule peut aussi appeler la foudre : chance 5% à Lv1, puis +1% par Lv supplémentaire.
+10214	Puissance de la foudre +4%/Lv. Cibles supplémentaires des rebonds : +1 à Lv1–3, +2 à Lv4–6, +3 à Lv7–9. La foudre inflige aussi des dégâts autour du point d'impact ; le rayon augmente avec le Lv. Cette carte seule peut aussi appeler la foudre : chance 5% à Lv1, puis +1% par Lv supplémentaire.
+10215	Les coups peuvent lancer une lame de vent perforante vers l'avant. Lv1 : chance 12%, puissance 9. Par Lv supplémentaire : chance +3%, puissance +1. Les attaques effectuées en l'air ont une chance de déclenchement ×1.5. Dégâts des lames de vent contre les ennemis en l'air +50%. Portée d'attaque +1%/Lv.
+10216	Vitesse des lames de vent +5%/Lv, portée +0.4m/Lv. Cibles supplémentaires transpercées par les lames de vent et projectiles : +1 à Lv1–3, +2 à Lv4–6, +3 à Lv7–9. Cette carte seule peut aussi lancer des lames de vent : chance 6% à Lv1, puis +2% par Lv supplémentaire.
+10217	L'impact d'une lame de vent crée une tornade qui attire les sbires proches et inflige des dégâts 3 fois à Lv1–3, 4 à Lv4–6, 5 à Lv7–9. Puissance, rayon et attraction augmentent avec le Lv. Dégâts réduits de moitié contre les boss. Cette carte seule peut aussi lancer des lames de vent : chance 6% à Lv1, puis +2% par Lv supplémentaire.
+10218	Les coups absorbent une part des dégâts infligés pour restaurer tes HP : 1% à Lv1, puis +0.5% par Lv supplémentaire. Éliminer un ennemi peut aussi restaurer 1 cœur : chance 8% à Lv1, puis +4% par Lv supplémentaire.
+10219	Chance de restaurer 1 cœur en éliminant un ennemi +4%/Lv. Toucher un boss peut aussi déclencher ce soin, avec 1/4 de cette chance. Les HP absorbés en touchant un boss sont doublés.
+10220	L'absorption et SECOND WIND restaurent des cœurs supplémentaires : +1 à Lv1–3, +2 à Lv4–6, +3 à Lv7–9. Les soins dépassant les HP maximum donnent 1 Shield, jusqu'à 1 au-delà de ta limite normale de Shield.
+10221	À 50% de HP ou moins : attaque +8%/Lv ; HP absorbés à l'impact et chance de saignement ×2. À 25% de HP ou moins, la chance de restaurer 1 cœur en éliminant un ennemi augmente aussi de +5%/Lv, boss inclus.
+10222	Les coups peuvent causer un saignement dont les dégâts restaurent tes HP en partie : 10% à Lv1, puis +2% par Lv supplémentaire. Saignement à Lv1 : chance 15%, 5 dégâts/s. Par Lv supplémentaire : chance +4%, dégâts/s +1. À HP pleins : chance de saignement ×2, attaque +2%/Lv.

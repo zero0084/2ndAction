@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: thunder_strike
   cardName: THUNDER STRIKE
   icon: {fileID: 2800000, guid: 734a0d0d6191b9b4a9993858bc19898c, type: 3}
-  description: "攻撃命中時に落雷が発生する。Lv1で確率5%・基礎威力7.5。以降1Lvごとに確率+2%・基礎威力+1.5。同じ敵への落雷は0.4秒に1回まで"
+  description: "\u547D\u4E2D\u6642\u3001\u78BA\u7387\u3067\u843D\u96F7\u304C\u767A\u751F\u3002Lv1\uFF1A\u78BA\u73878%\u30FB\u57FA\u790E\u5A01\u529B9\u3002\u4EE5\u964D1Lv\u3054\u3068\u306B\u78BA\u7387+2%\u30FB\u57FA\u790E\u5A01\u529B+1.5\u3002\u3055\u3089\u306B\u4E00\u5B9A\u306E\u547D\u4E2D\u56DE\u6570\u3054\u3068\u306B\u5FC5\u305A\u843D\u96F7\u3059\u308B(Lv1\u306713\u56DE\u3001Lv9\u30675\u56DE)\u3002\u540C\u3058\u6575\u3078\u306E\u843D\u96F7\u306F0.4\u79D2\u306B1\u56DE\u307E\u3067"
   category: 1
   sortOrder: 132
   recommendPriority: 5
@@ -24,15 +24,18 @@ MonoBehaviour:
     value: 0.02
     scaling: 0
   - type: 32
-    value: 0.03
+    value: 0.06
     scaling: 1
   - type: 33
     value: 1.5
     scaling: 0
   - type: 33
-    value: 6
+    value: 7.5
     scaling: 1
-  rarity: 4
-  unlockDistance: 20000
-  gachaStage: 3
+  - type: 119
+    value: 1
+    scaling: 0
+  rarity: 2
+  unlockDistance: 0
+  gachaStage: 1
   element: 1

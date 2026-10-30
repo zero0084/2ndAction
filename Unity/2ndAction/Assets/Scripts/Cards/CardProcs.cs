@@ -87,7 +87,7 @@ public static partial class CardProcs
         float dir = pc.FacingSign;
 
         // PREDATOR: ボスへの命中でも、吸収の判定(確率は1割)
-        if (boss && L(EffectType.PredatorLevel) > 0f && Ready("predator", 0.5f)) gm.TryLifesteal(0.1f);
+        if (boss && L(EffectType.PredatorLevel) > 0f && Ready("predator", 0.5f)) gm.TryLifesteal(0.25f); // 2026-10-30: 1/10 → 1/4
 
         // DOUBLE ATTACK: 1回の攻撃(振り/1発)ごとに1回だけ判定。当たった相手それぞれに追加の1撃
         float dbl = L(EffectType.DoubleAttackChance);
@@ -217,10 +217,11 @@ public static partial class CardProcs
         if (!TakeProc()) yield break;
         Infernos++; ElementTelemetry.Infernos++; ElementTelemetry.Proc(ElementType.Fire);
         var e = GM != null ? GM.Elements : null;
-        float radius = 2.0f + 0.1f * lv;
+        float radius = InfernoRadius(lv);
         float scale = ElementSystem.DamageScale;
-        float dmg = (6f + 2f * lv) * scale * Mathf.Pow(0.7f, gen);
+        float dmg = InfernoDamage(lv) * scale * Mathf.Pow(0.75f, gen);
         if (TakeFx()) { if (ElementVfx.New) ElementVfx.InfernoBurst(at, radius); else OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, at, new Color(1f, 0.4f, 0.12f, 0.9f), 0.32f, 0.5f, radius * 0.9f, -1f, 0f); }
+        NetElementFx.Point(NetElementFx.Kind.Inferno, at, radius);
         var targets = new List<Component>();
         CollectTargets(at, radius, targets);
         float burnDps = e != null && e.BurnPower > 0f ? e.BurnDps : (4f + lv) * scale;
@@ -232,10 +233,22 @@ public static partial class CardProcs
             bool wasAlive = ElementSystem.IsAlive(c);
             ElementSystem.DealQuiet(c, Mathf.Max(1, Mathf.RoundToInt(dmg)), ElementType.Fire);
             if (ElementSystem.IsAlive(c)) { ElementStatus.For(c).AddBurn(burnDps, burnDur); ElementTelemetry.StatusOn(ElementType.Fire); ElementVfx.BurnApplied(c); }
-            if (wasAlive && c is EnemyController en && !ElementSystem.IsAlive(en) && gen + 1 < 2 && GM != null)
+            if (wasAlive && c is EnemyController en && !ElementSystem.IsAlive(en) && gen + 1 < InfernoGenerations(lv) && GM != null)
                 GM.StartCoroutine(InfernoBurst(CenterOf(en), lv, gen + 1, hitThisChain));
         }
     }
+
+    // 2026-10-30 属性20枚の再設計: INFERNO(延焼の威力・範囲・段数)/ 竜巻(威力・回数・範囲・引き寄せ)/ 炎の反撃
+    public static float InfernoDamage(int lv) => 8f + 2.5f * lv;
+    public static float InfernoRadius(int lv) => 2.2f + 0.12f * lv;
+    public static int InfernoGenerations(int lv) => 2 + (Mathf.Max(1, lv) - 1) / 3;      // Lv1〜3: 2段 / 4〜6: 3段 / 7〜9: 4段
+    public static float TornadoDamage(int lv) => 5f + 1.25f * lv;                         // 2026-10-30 調整: 6+1.5Lv → 5+1.25Lv(風のビルドが一番強かった)
+    public const float TornadoBossMul = 0.5f;                                             // 竜巻は雑魚をまとめる技。ボスへは半分
+    public static int TornadoPulses(int lv) => 3 + (Mathf.Max(1, lv) - 1) / 3;           // 3 / 4 / 5回
+    public static float TornadoRadius(int lv) => 1.4f + 0.1f * lv;
+    public static float TornadoPull(int lv) => 0.25f + 0.04f * lv;                       // 1回ごとに雑魚を中心へ寄せる距離(m)
+    public static float FlameCounterPower(int lv) => 1.0f + 0.2f * lv;
+    public static int TornadoPulls; // 確認用
 
     static void SpawnTornado(Vector3 at, int lv)
     {
@@ -247,9 +260,11 @@ public static partial class CardProcs
     static IEnumerator Tornado(Vector3 at, int lv)
     {
         Tornados++; ElementTelemetry.Tornados++;
-        float radius = 1.2f + 0.06f * lv;
-        float dmg = (4f + lv) * ElementSystem.DamageScale;
-        for (int i = 0; i < 3; i++)
+        float radius = TornadoRadius(lv);
+        float dmg = TornadoDamage(lv) * ElementSystem.DamageScale;
+        int pulses = TornadoPulses(lv);
+        NetElementFx.Tornado(at, radius);
+        for (int i = 0; i < pulses; i++)
         {
             if (!TakeProc()) yield break;
             if (TakeFx()) { if (ElementVfx.New) ElementVfx.Tornado(at, radius, i); else OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, at + Vector3.up * 0.5f, new Color(0.7f, 1f, 0.85f, 0.7f), 0.3f, radius * 0.6f, radius, -1f, 0f, Vector3.up * 0.8f, 180f); }
@@ -257,8 +272,15 @@ public static partial class CardProcs
             CollectTargets(at + Vector3.up * 0.6f, radius, targets);
             foreach (var c in targets)
             {
-                ElementSystem.DealQuiet(c, Mathf.Max(1, Mathf.RoundToInt(dmg)), ElementType.Wind);
+                ElementSystem.DealQuiet(c, Mathf.Max(1, Mathf.RoundToInt(c is EnemyController ? dmg : dmg * TornadoBossMul)), ElementType.Wind);
                 if (ElementVfx.New && ElementSystem.IsAlive(c)) { ElementStatus.For(c).MarkWind(); ElementVfx.WindRing(c); } // 巻き込んだ敵のまわりに風の輪
+                // 2026-10-30: 雑魚を中心へ引き寄せる(敵をまとめる。ボスは動かさない。マルチは位置を HOST が持つので HOST/シングルだけ)
+                if (c is EnemyController pe && ElementSystem.IsAlive(pe))
+                {
+                    float dx = at.x - pe.transform.position.x;
+                    float step = Mathf.Sign(dx) * Mathf.Min(Mathf.Abs(dx), TornadoPull(lv));
+                    if (Mathf.Abs(step) > 0.02f) { pe.transform.position += new Vector3(step, 0f, 0f); TornadoPulls++; }
+                }
             }
             yield return new WaitForSeconds(0.4f);
         }
@@ -273,19 +295,20 @@ public static partial class CardProcs
         int co = Lv(EffectType.CounterLevel);
         if (co > 0) Area(at, 3.0f, ProcBase * (1.0f + 0.25f * co), null, ElementType.None, new Color(0.7f, 0.85f, 1f, 0.95f), ref Counters);
         int fc = Lv(EffectType.FlameCounterLevel);
+        float fcRadius = 3.0f + 0.1f * fc; // 2026-10-30: 発動しにくい分、広く強く(2.5m → 3.1〜3.9m)
         if (fc > 0)
         {
             float scale = ElementSystem.DamageScale;
             var e = GM.Elements;
             float burnDps = e.BurnPower > 0f ? Mathf.Max(e.BurnDps, (4f + fc) * scale) : (4f + fc) * scale;
             areaBuf.Clear();
-            CollectTargets(at, 2.5f, areaBuf);
-            if (TakeFx()) OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, at, new Color(1f, 0.45f, 0.15f, 0.95f), 0.3f, 0.6f, 2.4f, -1f, 0f);
+            CollectTargets(at, fcRadius, areaBuf);
+            if (TakeFx()) { if (ElementVfx.New) ElementVfx.InfernoBurst(at, fcRadius * 0.8f); else OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, at, new Color(1f, 0.45f, 0.15f, 0.95f), 0.3f, 0.6f, 2.4f, -1f, 0f); }
             foreach (var c in areaBuf)
             {
                 if (!TakeProc()) break;
-                ElementSystem.DealQuiet(c, Mathf.Max(1, Mathf.RoundToInt(ProcBase * (0.6f + 0.15f * fc))), ElementType.Fire);
-                if (ElementSystem.IsAlive(c)) { ElementStatus.For(c).AddBurn(burnDps, Mathf.Max(3f, e.BurnDuration)); ElementTelemetry.StatusOn(ElementType.Fire); ElementVfx.BurnApplied(c); }
+                ElementSystem.DealQuiet(c, Mathf.Max(1, Mathf.RoundToInt(ProcBase * FlameCounterPower(fc))), ElementType.Fire);
+                if (ElementSystem.IsAlive(c)) { ElementStatus.For(c).AddBurn(burnDps, Mathf.Max(4f, e.BurnDuration)); ElementTelemetry.StatusOn(ElementType.Fire); ElementVfx.BurnApplied(c); }
             }
             FlameCounters++; ElementTelemetry.Proc(ElementType.Fire);
         }

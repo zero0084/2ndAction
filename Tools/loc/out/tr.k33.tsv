@@ -1,0 +1,27 @@
+10196	Bu kart zaten destende.
+10197	Aynı kartın farklı Lv'deki bir kopyasıyla değiştirmek için önce mevcut kartı desteden çıkar.
+10198	Destende aynı kartın birden fazla kopyası vardı. İlk kopya destede tutuldu, diğerleri desteden çıkarıldı.
+10199	İsabette can emme
+10200	Üşümüş veya donmuş boss'larda BREAK birikimi
+10201	Hortum: güç {0} × {1} isabet; yarıçap {2}m; her isabette hedefleri {3}m çeker
+10202	Her {0} isabette garantili yıldırım
+10203	Boss'a isabet de düşman yenildiğindeki iyileşme şansının 1/4'üyle iyileştirebilir; boss'a isabette emilen HP ×2.
+10204	İsabetler düşmanları 3s boyunca yakabilir. Lv1: şans 20%, hasar 6/s. Sonraki her Lv: şans +4%, hasar/s +1.5.
+10205	Yanma hasarı +8%/Lv, yanma süresi +0.25s/Lv. Bu kart tek başına da isabette yakabilir: Lv1'de şans 8%, sonraki her Lv için +2%. Yanma hasarı/s ayrıca +0.5/Lv.
+10206	Yanan düşmanı yenmek ateşi yakındaki düşmanlara yayar; bu ateşle yenilen düşmanlar da ateşi yayar. Yayılma derinliği Lv1–3'te 2, Lv4–6'da 3, Lv7–9'da 4 aşamadır. Güç ve yarıçap Lv ile artar. Bu kart tek başına da isabette yakabilir: Lv1'de şans 8%, sonraki her Lv için +2%.
+10207	Shield ile bir saldırıyı engellemek, çevrende ateşli bir karşı saldırı oluşturur ve vurulan düşmanları 4s yakar. Güç ve yarıçap Lv ile artar. Bu kart tek başına da 1 Shield taşımana olanak tanır.
+10208	İsabetler düşmanları üşütüp yavaşlatabilir. Lv1: şans 20%, yavaşlatma 28%. Sonraki her Lv: şans +4%, yavaşlatma +2.5%, üşüme süresi +0.1s. Üşüme 5 kez birikince donma oluşur: sıradan düşmanlar durur; boss'lar büyük ölçüde yavaşlar ve BREAK daha hızlı birikir.
+10209	Donma için gereken üşüme birikimi azalır: Lv1–3'te 4, Lv4–6'da 3, Lv7–9'da 2. Donma süresi +0.08s/Lv, üşüme süresi +0.15s/Lv. Bu kart tek başına da isabette üşütebilir: Lv1'de şans 8%, sonraki her Lv için +2%.
+10210	Üşümüş veya donmuş düşmanlara karşı saldırı +3%/Lv. Donma anında Lv ile artan ek hasar verir. Üşümüş veya donmuş boss'larda BREAK birikimi +6%/Lv (yalnızca üşümüşse bonus yarıya iner). Bu kart tek başına da isabette üşütebilir: Lv1'de şans 8%, sonraki her Lv için +2%; 4 üşüme birikimi donma oluşturur.
+10211	İsabetler yıldırım düşürebilir. Lv1: şans 8%, temel güç 9. Sonraki her Lv: şans +2%, temel güç +1.5. Ayrıca Lv1'de her 13 isabette garantili yıldırım düşer; bu sayı Lv9'da 5'e iner. Aynı düşmana 0.4s içinde en fazla 1 yıldırım düşer.
+10212	Yıldırım gücü +6%/Lv. Yıldırım sıradan düşmanları bir an durdurur. Bu kart tek başına da yıldırım düşürebilir: Lv1'de şans 3%, sonraki her Lv için +1%.
+10213	Yıldırım yakındaki başka düşmanlara sıçrar: Lv1–3'te 1, Lv4–6'da 2, Lv7–9'da 3 hedef. Sıçrama menzili +0.2m/Lv. Sonraki hedef yoksa kalan sıçramalar aynı düşmana daha düşük güçle vurur. Bu kart tek başına da yıldırım düşürebilir: Lv1'de şans 5%, sonraki her Lv için +1%.
+10214	Yıldırım gücü +4%/Lv. Ek zincir hedefi: Lv1–3'te +1, Lv4–6'da +2, Lv7–9'da +3. Yıldırım düştüğü yerin çevresine de hasar verir; yarıçap Lv ile artar. Bu kart tek başına da yıldırım düşürebilir: Lv1'de şans 5%, sonraki her Lv için +1%.
+10215	İsabetler öne doğru düşmanları delen bir rüzgâr bıçağı fırlatabilir. Lv1: şans 12%, güç 9. Sonraki her Lv: şans +3%, güç +1. Havadayken yapılan saldırılarda tetiklenme şansı ×1.5. Rüzgâr bıçakları havadaki düşmanlara +50% hasar verir. Saldırı menzili +1%/Lv.
+10216	Rüzgâr bıçağı hızı +5%/Lv, uçuş mesafesi +0.4m/Lv. Rüzgâr bıçaklarının ve mermilerin deldiği ek hedef sayısı: Lv1–3'te +1, Lv4–6'da +2, Lv7–9'da +3. Bu kart tek başına da rüzgâr bıçağı oluşturabilir: Lv1'de şans 6%, sonraki her Lv için +2%.
+10217	Rüzgâr bıçağının isabet ettiği yerde, yakındaki sıradan düşmanları çeken bir hortum oluşur. Lv1–3'te 3, Lv4–6'da 4, Lv7–9'da 5 kez hasar verir. Güç, yarıçap ve çekiş Lv ile artar. Boss'lara yarı hasar verir. Bu kart tek başına da rüzgâr bıçağı oluşturabilir: Lv1'de şans 6%, sonraki her Lv için +2%.
+10218	İsabetler, verilen hasarın bir kısmı kadar can emerek HP yeniler: Lv1'de 1%, sonraki her Lv için +0.5%. Düşman yenmek de şansla 1 kalp yeniler: Lv1'de şans 8%, sonraki her Lv için +4%.
+10219	Düşman yenince 1 kalp yenileme şansı +4%/Lv. Boss'a isabet de bu şansın 1/4'üyle aynı iyileşmeyi tetikleyebilir. Boss'a isabette emilen HP miktarı 2 katına çıkar.
+10220	Can emme ve SECOND WIND ek kalp yeniler: Lv1–3'te +1, Lv4–6'da +2, Lv7–9'da +3. Maksimum HP'yi aşan iyileşme 1 Shield verir; normal Shield sınırının 1 fazlasına kadar taşıyabilirsin.
+10221	HP 50% veya altındayken: saldırı +8%/Lv; isabette emilen HP ve kanama şansı ×2. HP 25% veya altındayken, boss'lar dahil düşmanları yenince 1 kalp yenileme şansı da +5%/Lv artar.
+10222	İsabetler kanama oluşturabilir; kanama hasarının bir kısmı HP yeniler: Lv1'de 10%, sonraki her Lv için +2%. Lv1'de kanama: şans 15%, hasar 5/s. Sonraki her Lv: şans +4%, hasar/s +1. HP doluyken: kanama şansı ×2, saldırı +2%/Lv.

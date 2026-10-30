@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: flame_counter
   cardName: FLAME COUNTER
   icon: {fileID: 2800000, guid: dd978a13191dd0d49921d00fccad29b1, type: 3}
-  description: "Shieldで攻撃を防ぐと周囲に炎の反撃が発生し、当たった敵を炎上させる。Lvで威力が上がる。このカードだけでもShieldを1つ持てる"
+  description: "Shield\u3067\u653B\u6483\u3092\u9632\u3050\u3068\u5468\u56F2\u306B\u708E\u3067\u53CD\u6483\u3057\u3001\u5F53\u305F\u3063\u305F\u6575\u30924\u79D2\u9593\u708E\u4E0A\u3055\u305B\u308B\u3002\u5A01\u529B\u30FB\u7BC4\u56F2\u306FLv\u3067\u5897\u52A0\u3002\u5358\u72EC\u3067\u3082Shield\u30921\u3064\u6240\u6301\u3067\u304D\u308B"
   category: 2
   sortOrder: 169
   recommendPriority: 5

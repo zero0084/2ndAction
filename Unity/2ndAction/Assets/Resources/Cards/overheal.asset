@@ -15,14 +15,14 @@ MonoBehaviour:
   cardId: overheal
   cardName: OVERHEAL
   icon: {fileID: 2800000, guid: c6bb19deb98981a4580829e5df6480ce, type: 3}
-  description: "吸収とSECOND WINDの回復量が増える(Lv4〜6でハート+1、Lv7〜9で+2)。満タンで溢れた分はShield1つになる(最大数+1まで)"
+  description: "\u5438\u53CE\u3068SECOND WIND\u306E\u56DE\u5FA9\u91CF\u304C\u3001Lv1\u301C3\u3067\u30CF\u30FC\u30C8+1\u3001Lv4\u301C6\u3067+2\u3001Lv7\u301C9\u3067+3\u3002\u6700\u5927HP\u3092\u8D85\u3048\u305F\u56DE\u5FA9\u5206\u306FShield1\u3064\u306B\u5909\u308F\u308A\u3001\u901A\u5E38\u306E\u6240\u6301\u4E0A\u9650+1\u307E\u3067\u6301\u3066\u308B"
   category: 4
   sortOrder: 116
   recommendPriority: 5
   effects:
   - type: 84
     value: 1
-    scaling: 5
+    scaling: 2
   - type: 85
     value: 1
     scaling: 1

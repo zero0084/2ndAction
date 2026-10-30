@@ -1,0 +1,10 @@
+part	element	case	secs	hits	procs	per100	status	elemDamage	direct	sharePct	kills	elemKills	chains	freezes	shatters	tornados	infernos	lifesteal	bleedHeal	peakParticles	peakAuras	peakMarked	sfx	sfxThinned	dropped	fpsAvg	fpsMin	memMB	forced	frozenSec	chilledSec	iceStagger	healHp	hitHeal	tornadoPulls	windAirHits	bossKills	breaks	goalSec	atkShare
+build_zako100	thunder	zako100	44	375	165	44.0	0	55973	13500	80.6	101	53	626	0	0	0	0	0	0	43	5	5	121	435	1	0.0	0.0	185	20	0.0	0.0	0.0	0	0	0	0	0	0	44.0	0.75
+build_boss	thunder	boss	26	48	21	43.8	0	4179	1728	70.7	0	1	0	0	0	0	0	0	0	8	1	1	143	435	1	0.0	0.0	191	0	0.0	0.0	0.0	0	0	0	0	1	1	25.8	0.75
+build_rush	thunder	rush	90	102	60	58.8	0	11911	3672	76.4	110	57	51	0	0	0	0	0	0	25	5	5	189	477	1	0.0	0.0	214	1	0.0	0.0	0.0	0	0	0	0	0	0	90.0	0.75
+build_zako100	bloodlow	zako100	180	953	935	98.1	888	5800	51936	10.0	60	3	0	0	0	0	0	47	1543	50	5	5	917	1109	1	0.0	0.0	208	0	0.0	0.0	0.0	8526	5103	0	0	0	0	180.0	0.75
+build_boss	bloodlow	boss	69	89	91	102.2	82	800	4895	14.0	0	0	0	0	0	0	0	9	216	28	1	1	1027	1173	1	0.0	0.0	211	0	0.0	0.0	0.0	1554	978	0	0	1	2	69.4	0.75
+build_rush	bloodlow	rush	90	165	193	117.0	150	1440	8965	13.8	57	41	0	0	0	0	0	43	350	78	5	5	1228	1300	1	0.0	0.0	215	0	0.0	0.0	0.0	2931	861	0	0	0	0	90.0	0.75
+build_zako100	blood	zako100	180	1798	1754	97.6	1688	10640	75516	12.3	92	1	0	0	0	0	0	66	2813	52	5	5	2111	2457	1	0.0	0.0	210	0	0.0	0.0	0.0	5453	0	0	0	0	0	180.0	0.75
+build_boss	blood	boss	85	116	114	98.3	105	1210	4872	19.9	0	0	0	0	0	0	0	9	327	29	1	1	2257	2498	1	0.0	0.0	212	0	0.0	0.0	0.0	687	0	0	0	1	2	85.0	0.75
+build_rush	blood	rush	90	202	235	116.3	192	2490	8484	22.7	52	27	0	0	0	0	0	43	640	82	6	6	2486	2677	1	0.0	0.0	216	0	0.0	0.0	0.0	2360	0	0	0	0	0	90.0	0.75

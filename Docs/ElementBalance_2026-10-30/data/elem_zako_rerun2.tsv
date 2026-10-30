@@ -1,0 +1,5 @@
+part	element	case	secs	hits	procs	per100	status	elemDamage	direct	sharePct	kills	elemKills	chains	freezes	shatters	tornados	infernos	lifesteal	bleedHeal	peakParticles	peakAuras	peakMarked	sfx	sfxThinned	dropped	fpsAvg	fpsMin	memMB	forced	frozenSec	chilledSec	iceStagger	healHp	hitHeal	tornadoPulls	windAirHits	bossKills	breaks	goalSec	atkShare
+build_zako100	wind	zako100	136	590	278	47.1	0	66714	21240	75.9	100	35	0	0	0	127	0	0	0	41	5	5	298	107	0	0.0	0.0	187	0	0.0	0.0	0.0	0	0	711	0	0	0	136.3	0.75
+build_zako100	normal	zako100	127	1451	0	0.0	0	0	92523	0.0	100	0	0	0	0	0	0	0	0	0	0	0	298	107	0	0.0	0.0	188	0	0.0	0.0	0.0	0	0	0	0	0	0	127.1	0.75
+build_zako100	thunder	zako100	51	458	193	42.1	0	53572	16488	76.5	100	56	743	0	0	0	0	0	0	40	5	5	434	603	2	0.0	0.0	188	27	0.0	0.0	0.0	0	0	0	0	0	0	51.4	0.75
+build_zako100	fire	zako100	97	1023	1142	111.6	1243	57382	36828	60.9	100	76	0	0	0	0	119	0	0	156	5	5	760	1034	2	0.0	0.0	190	0	0.0	0.0	0.0	0	0	0	0	0	0	96.8	0.75

@@ -988,6 +988,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     {
         if (BossBattle.DebugNoStagger) return;
         if (battle == null || battle.staggerMax <= 0f || state == State.Stunned || state == State.Entering || breakRecovering) return;
+        v *= ElementSystem.IceStaggerMul(gameObject, v); // 2026-10-30: 冷えた/凍結したボスは BREAK が溜まりやすい
         float before = StaggerFraction;
         stagger += v * staggerMul * (Time.time < breakResistUntil ? WildBossBase.PostBreakStaggerScale : 1f); // BREAK の直後は溜まりにくい(2026-10-18)
         lastStaggerTime = Time.time;

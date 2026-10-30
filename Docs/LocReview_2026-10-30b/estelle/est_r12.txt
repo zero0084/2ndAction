@@ -1,0 +1,54 @@
+10196 [uk] Ця картка вже є в колоді.
+10196 [cs] Tato karta už je v balíčku.
+10197 [uk] Щоб замінити її такою самою карткою іншого Lv, спершу приберіть поточну картку з колоди.
+10197 [cs] Chceš-li použít stejnou kartu s jiným Lv, nejdřív z balíčku vyndej tu stávající.
+10198 [uk] У колоді було кілька однакових карток, тому першу залишено, а зайві копії прибрано з колоди.
+10198 [cs] Balíček obsahoval více kopií stejné karty, takže první zůstala a nadbytečné kopie byly z balíčku odebrány.
+10199 [uk] Поглинання при влучанні
+10199 [cs] Vysátí při zásahu
+10200 [uk] Накопичення BREAK на охолоджених або заморожених босах
+10200 [cs] Nárůst BREAK u prochlazených nebo zmrazených bossů
+10201 [uk] Смерч: сила {0} × {1} ударів; радіус {2}m; притягує цілі на {3}m за кожен удар
+10201 [cs] Tornádo: síla {0} × {1} zásahů; poloměr {2}m; každý zásah přitáhne cíle o {3}m
+10202 [uk] Гарантована блискавка після кожних {0} влучань
+10202 [cs] Zaručený blesk po každých {0} zásazích
+10203 [uk] Влучання по босу теж може лікувати з шансом, що становить 1/4 шансу при перемозі над ворогом; кількість HP, поглинутих влучаннями по босах, ×2.
+10203 [cs] Zásah bosse může také léčit se šancí rovnou 1/4 šance při poražení nepřítele; množství HP vysátých zásahy do bossů ×2.
+10204 [uk] Влучання можуть підпалити ворога на 3s. Lv1: шанс 20%, 6 урону/s. За кожен додатковий Lv: шанс +4%, урон/s +1.5.
+10204 [cs] Zásah může zapálit nepřítele na 3s. Lv1: šance 20%, 6 poškození/s. Za každý další Lv: šance +4%, poškození/s +1.5.
+10205 [uk] Урон від горіння +8%/Lv; тривалість горіння +0.25s/Lv. Навіть сама ця картка може підпалювати при влучанні: шанс 8% на Lv1, далі +2% за кожен додатковий Lv. Урон від горіння за секунду також +0.5/Lv.
+10205 [cs] Poškození hořením +8%/Lv; doba hoření +0.25s/Lv. I sama tato karta může zapálit při zásahu: šance 8% na Lv1, +2% za každý další Lv. Poškození hořením za sekundu také +0.5/Lv.
+10206 [uk] Після перемоги над палаючим ворогом вогонь поширюється на сусідніх ворогів; вороги, що загинули від цього вогню, поширюють його далі. Кількість етапів поширення: 2 на Lv1–3, 3 на Lv4–6, 4 на Lv7–9. Сила й радіус зростають з Lv. Навіть сама ця картка може підпалювати при влучанні: шанс 8% на Lv1, далі +2% за кожен додатковий Lv.
+10206 [cs] Poražený hořící nepřítel rozšíří oheň na okolní nepřátele; nepřátelé zabití tímto ohněm ho šíří dál. Počet stupňů šíření: 2 na Lv1–3, 3 na Lv4–6, 4 na Lv7–9. Síla a poloměr rostou s Lv. I sama tato karta může zapálit při zásahu: šance 8% na Lv1, +2% za každý další Lv.
+10207 [uk] Блокування атаки за допомогою Shield викликає вогняний контрудар довкола, що підпалює зачеплених ворогів на 4s. Сила й радіус зростають з Lv. Навіть сама ця картка дозволяє мати 1 Shield.
+10207 [cs] Když Shield zablokuje útok, vyvolá kolem tebe ohnivý protiúder, který zapálí zasažené nepřátele na 4s. Síla a poloměr rostou s Lv. I sama tato karta umožňuje mít 1 Shield.
+10208 [uk] Влучання можуть охолодити й сповільнити ворога. Lv1: шанс 20%, сповільнення 28%. За кожен додатковий Lv: шанс +4%, сповільнення +2.5%, тривалість охолодження +0.1s. 5 накладених охолоджень заморожують: звичайні вороги зупиняються, а боси сильно сповільнюються й швидше накопичують BREAK.
+10208 [cs] Zásah může nepřítele prochladit a zpomalit. Lv1: šance 20%, zpomalení 28%. Za každý další Lv: šance +4%, zpomalení +2.5%, doba prochlazení +0.1s. Po nahromadění 5 prochlazení nepřítel zamrzne: běžní nepřátelé se zastaví, bossové se výrazně zpomalí a BREAK jim narůstá rychleji.
+10209 [uk] Кількість охолоджень, потрібних для замороження, зменшується: 4 на Lv1–3, 3 на Lv4–6, 2 на Lv7–9. Тривалість замороження +0.08s/Lv; тривалість охолодження +0.15s/Lv. Навіть сама ця картка може охолоджувати при влучанні: шанс 8% на Lv1, далі +2% за кожен додатковий Lv.
+10209 [cs] Počet prochlazení potřebných ke zmrazení klesá: 4 na Lv1–3, 3 na Lv4–6, 2 na Lv7–9. Doba zmrazení +0.08s/Lv; doba prochlazení +0.15s/Lv. I sama tato karta může prochladit při zásahu: šance 8% na Lv1, +2% za každý další Lv.
+10210 [uk] Сила атаки проти охолоджених або заморожених ворогів +3%/Lv. Замороження завдає додаткового урону, що зростає з Lv. Накопичення BREAK на охолоджених або заморожених босах +6%/Lv (половина цього бонусу, якщо бос лише охолоджений). Навіть сама ця картка може охолоджувати при влучанні: шанс 8% на Lv1, далі +2% за кожен додатковий Lv; 4 накладені охолодження заморожують.
+10210 [cs] Útok proti prochlazeným nebo zmrazeným nepřátelům +3%/Lv. Zmrazení způsobí dodatečné poškození, které roste s Lv. Nárůst BREAK u prochlazených nebo zmrazených bossů +6%/Lv (polovina tohoto bonusu, pokud jsou pouze prochlazení). I sama tato karta může prochladit při zásahu: šance 8% na Lv1, +2% za každý další Lv; 4 nahromaděná prochlazení způsobí zmrazení.
+10211 [uk] Влучання можуть викликати удар блискавки. Lv1: шанс 8%, базова сила 9. За кожен додатковий Lv: шанс +2%, базова сила +1.5. Також блискавка гарантована після кожних 13 влучань на Lv1 та кожних 5 на Lv9. Одного ворога блискавка може вразити не частіше ніж 1 раз на 0.4s.
+10211 [cs] Zásah může vyvolat úder blesku. Lv1: šance 8%, základní síla 9. Za každý další Lv: šance +2%, základní síla +1.5. Blesk je navíc zaručen po každých 13 zásazích na Lv1 a každých 5 zásazích na Lv9. Stejného nepřítele může blesk zasáhnout nejvýše 1krát za 0.4s.
+10212 [uk] Сила блискавки +6%/Lv. Блискавка на мить зупиняє звичайних ворогів. Навіть сама ця картка може викликати блискавку: шанс 3% на Lv1, далі +1% за кожен додатковий Lv.
+10212 [cs] Síla blesku +6%/Lv. Blesk na okamžik zastaví běžné nepřátele. I sama tato karta může vyvolat blesk: šance 3% na Lv1, +1% za každý další Lv.
+10213 [uk] Блискавка перескакує на інших ворогів поруч: 1 на Lv1–3, 2 на Lv4–6, 3 на Lv7–9. Дальність ланцюга +0.2m/Lv. Якщо наступної цілі немає, решта ударів ланцюга вражає того самого ворога зі зниженою силою. Навіть сама ця картка може викликати блискавку: шанс 5% на Lv1, далі +1% за кожен додатковий Lv.
+10213 [cs] Blesk přeskočí na další blízké nepřátele: 1 na Lv1–3, 2 na Lv4–6, 3 na Lv7–9. Dosah řetězení +0.2m/Lv. Pokud chybí další cíl, zbývající přeskoky zasáhnou stejného nepřítele se sníženou silou. I sama tato karta může vyvolat blesk: šance 5% na Lv1, +1% za každý další Lv.
+10214 [uk] Сила блискавки +4%/Lv. Додаткові цілі ланцюга: +1 на Lv1–3, +2 на Lv4–6, +3 на Lv7–9. Блискавка також завдає урону навколо місця удару; радіус зростає з Lv. Навіть сама ця картка може викликати блискавку: шанс 5% на Lv1, далі +1% за кожен додатковий Lv.
+10214 [cs] Síla blesku +4%/Lv. Dodatečné cíle řetězení: +1 na Lv1–3, +2 na Lv4–6, +3 na Lv7–9. Blesk způsobuje poškození i v okolí dopadu; poloměr roste s Lv. I sama tato karta může vyvolat blesk: šance 5% na Lv1, +1% za každý další Lv.
+10215 [uk] Влучання можуть випустити вперед клинок вітру, що пронизує ворогів. Lv1: шанс 12%, сила 9. За кожен додатковий Lv: шанс +3%, сила +1. При атаці в повітрі шанс спрацювання ×1.5. Урон клинка вітру по ворогах у повітрі +50%. Дальність атаки +1%/Lv.
+10215 [cs] Zásah může vyslat dopředu větrnou čepel, která proráží nepřátele. Lv1: šance 12%, síla 9. Za každý další Lv: šance +3%, síla +1. Při útoku ve vzduchu je šance na aktivaci ×1.5. Větrná čepel způsobuje nepřátelům ve vzduchu +50% poškození. Dosah útoku +1%/Lv.
+10216 [uk] Швидкість клинка вітру +5%/Lv; дальність польоту +0.4m/Lv. Додаткова кількість ворогів, яких пронизують клинки вітру й снаряди: +1 на Lv1–3, +2 на Lv4–6, +3 на Lv7–9. Навіть сама ця картка може випускати клинок вітру: шанс 6% на Lv1, далі +2% за кожен додатковий Lv.
+10216 [cs] Rychlost větrné čepele +5%/Lv; dolet +0.4m/Lv. Počet dalších nepřátel, které prorazí větrné čepele a střely: +1 na Lv1–3, +2 na Lv4–6, +3 na Lv7–9. I sama tato karta může vyslat větrnou čepel: šance 6% na Lv1, +2% za každý další Lv.
+10217 [uk] У місці влучання клинка вітру виникає смерч, що притягує звичайних ворогів поруч і завдає урону 3 рази на Lv1–3, 4 на Lv4–6, 5 на Lv7–9. Сила, радіус і притягування зростають з Lv. Урон по босах удвічі менший. Навіть сама ця картка може випускати клинок вітру: шанс 6% на Lv1, далі +2% за кожен додатковий Lv.
+10217 [cs] Zásah větrné čepele vytvoří tornádo, které přitahuje okolní běžné nepřátele a způsobí poškození 3krát na Lv1–3, 4krát na Lv4–6 a 5krát na Lv7–9. Síla, poloměr a přitahování rostou s Lv. Bossům způsobuje poloviční poškození. I sama tato karta může vyslat větrnou čepel: šance 6% na Lv1, +2% za každý další Lv.
+10218 [uk] При влучанні поглинає й відновлює HP у розмірі частини завданого урону: 1% на Lv1, далі +0.5% за кожен додатковий Lv. Перемога над ворогом також дає шанс відновити 1 серце: 8% на Lv1, далі +4% за кожен додатковий Lv.
+10218 [cs] Při zásahu vysaje a obnoví HP ve výši části způsobeného poškození: 1% na Lv1, +0.5% za každý další Lv. Poražení nepřítele má také šanci obnovit 1 srdce: 8% na Lv1, +4% za každý další Lv.
+10219 [uk] Шанс відновити 1 серце при перемозі над ворогом +4%/Lv. Влучання по босу також може активувати це лікування з 1/4 цього шансу. Кількість HP, поглинутих влучаннями по босах, збільшується у 2 рази.
+10219 [cs] Šance obnovit 1 srdce při poražení nepřítele +4%/Lv. Zásah bosse může toto léčení také spustit s 1/4 této šance. Množství HP vysátých zásahy do bossů se násobí 2.
+10220 [uk] Поглинання й SECOND WIND відновлюють додаткові серця: +1 на Lv1–3, +2 на Lv4–6, +3 на Lv7–9. Лікування понад максимум HP перетворюється на 1 Shield; можна мати на 1 Shield більше за звичайний ліміт.
+10220 [cs] Vysátí a SECOND WIND obnovují srdce navíc: +1 na Lv1–3, +2 na Lv4–6, +3 na Lv7–9. Léčení nad maximální HP se změní v 1 Shield; běžný limit Shield lze překročit o 1.
+10221 [uk] При HP 50% або нижче: сила атаки +8%/Lv; кількість HP, поглинутих при влучанні, і шанс кровотечі ×2. При HP 25% або нижче шанс відновити 1 серце при перемозі над ворогом також +5%/Lv, зокрема при перемозі над босом.
+10221 [cs] Při 50% HP nebo méně: útok +8%/Lv; množství HP vysátých při zásahu a šance na krvácení ×2. Při 25% HP nebo méně navíc šance obnovit 1 srdce při poražení nepřítele +5%/Lv, včetně bossů.
+10222 [uk] Влучання можуть спричинити кровотечу, що відновлює HP у розмірі частини її урону: 10% на Lv1, далі +2% за кожен додатковий Lv. Кровотеча на Lv1: шанс 15%, 5 урону/s. За кожен додатковий Lv: шанс +4%, урон/s +1. При повному HP: шанс кровотечі ×2; сила атаки +2%/Lv.
+10222 [cs] Zásah může způsobit krvácení, které ti obnoví HP ve výši části svého poškození: 10% na Lv1, +2% za každý další Lv. Krvácení na Lv1: šance 15%, 5 poškození/s. Za každý další Lv: šance +4%, poškození/s +1. Při plném HP: šance na krvácení ×2; útok +2%/Lv.

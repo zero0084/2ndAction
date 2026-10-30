@@ -1,0 +1,27 @@
+10196	Thẻ này đã có trong bộ bài.
+10197	Để đổi sang một bản của cùng thẻ này có Lv khác, hãy gỡ bản hiện tại khỏi bộ bài trước.
+10198	Bộ bài có nhiều bản của cùng một thẻ. Bản đầu tiên được giữ lại, các bản còn lại đã được gỡ khỏi bộ bài.
+10199	Hấp thụ khi đánh trúng
+10200	Lượng tích lũy BREAK lên boss bị lạnh hoặc đóng băng
+10201	Lốc xoáy: uy lực {0} × {1} lần trúng; bán kính {2}m; kéo mục tiêu vào {3}m mỗi lần trúng
+10202	Chắc chắn có sét đánh sau mỗi {0} lần đánh trúng
+10203	Đánh trúng boss cũng có thể hồi HP với tỉ lệ bằng 1/4 tỉ lệ hồi khi hạ địch; lượng HP hấp thụ từ đòn đánh trúng boss ×2.
+10204	Đánh trúng có thể thiêu đốt địch trong 3s. Lv1: tỉ lệ 20%, 6 sát thương/s. Mỗi Lv tiếp theo: tỉ lệ +4%, sát thương/s +1.5.
+10205	Sát thương thiêu đốt +8%/Lv, thời gian +0.25s/Lv. Chỉ riêng thẻ này cũng có thể gây thiêu đốt khi đánh trúng: tỉ lệ 8% ở Lv1, sau đó +2% mỗi Lv tiếp theo. Sát thương thiêu đốt/s cũng +0.5/Lv.
+10206	Hạ địch đang bị thiêu đốt làm lửa lan sang địch gần đó; địch bị hạ bởi lửa lan cũng tiếp tục lan lửa. Số đợt lan nối tiếp: 2 ở Lv1–3, 3 ở Lv4–6, 4 ở Lv7–9. Uy lực và bán kính tăng theo Lv. Chỉ riêng thẻ này cũng có thể gây thiêu đốt khi đánh trúng: tỉ lệ 8% ở Lv1, sau đó +2% mỗi Lv tiếp theo.
+10207	Đỡ đòn bằng Shield kích hoạt phản công bằng lửa xung quanh, thiêu đốt địch trúng đòn trong 4s. Uy lực và bán kính tăng theo Lv. Chỉ riêng thẻ này cũng cho phép giữ 1 Shield.
+10208	Đánh trúng có thể gây lạnh và làm chậm địch. Lv1: tỉ lệ 20%, làm chậm 28%. Mỗi Lv tiếp theo: tỉ lệ +4%, làm chậm +2.5%, thời gian lạnh +0.1s. Lạnh chồng đủ 5 lần sẽ đóng băng: quái thường dừng lại; boss bị làm chậm mạnh và tích lũy BREAK nhanh hơn.
+10209	Giảm số lần lạnh chồng cần để đóng băng: 4 ở Lv1–3, 3 ở Lv4–6, 2 ở Lv7–9. Thời gian đóng băng +0.08s/Lv, thời gian lạnh +0.15s/Lv. Chỉ riêng thẻ này cũng có thể gây lạnh khi đánh trúng: tỉ lệ 8% ở Lv1, sau đó +2% mỗi Lv tiếp theo.
+10210	Sức tấn công lên địch bị lạnh hoặc đóng băng +3%/Lv. Gây thêm sát thương ngay khi đóng băng, uy lực tăng theo Lv. Lượng tích lũy BREAK lên boss bị lạnh hoặc đóng băng +6%/Lv (một nửa mức tăng nếu chỉ bị lạnh). Chỉ riêng thẻ này cũng có thể gây lạnh khi đánh trúng: tỉ lệ 8% ở Lv1, sau đó +2% mỗi Lv tiếp theo; lạnh chồng 4 lần sẽ đóng băng.
+10211	Đánh trúng có thể gọi sét đánh. Lv1: tỉ lệ 8%, uy lực cơ bản 9. Mỗi Lv tiếp theo: tỉ lệ +2%, uy lực cơ bản +1.5. Ngoài ra, chắc chắn có sét sau mỗi 13 lần đánh trúng ở Lv1, giảm còn mỗi 5 lần ở Lv9. Mỗi địch chỉ có thể bị sét đánh tối đa 1 lần mỗi 0.4s.
+10212	Uy lực sét +6%/Lv. Sét đánh làm quái thường đứng yên trong chốc lát. Chỉ riêng thẻ này cũng có thể gọi sét đánh: tỉ lệ 3% ở Lv1, sau đó +1% mỗi Lv tiếp theo.
+10213	Sét đánh lan sang địch khác ở gần: 1 ở Lv1–3, 2 ở Lv4–6, 3 ở Lv7–9. Tầm lan +0.2m/Lv. Nếu không có mục tiêu tiếp theo, các lần lan còn lại đánh vào cùng địch đó với uy lực giảm. Chỉ riêng thẻ này cũng có thể gọi sét đánh: tỉ lệ 5% ở Lv1, sau đó +1% mỗi Lv tiếp theo.
+10214	Uy lực sét +4%/Lv. Mục tiêu dây chuyền bổ sung: +1 ở Lv1–3, +2 ở Lv4–6, +3 ở Lv7–9. Sét cũng gây sát thương quanh điểm đánh; bán kính tăng theo Lv. Chỉ riêng thẻ này cũng có thể gọi sét đánh: tỉ lệ 5% ở Lv1, sau đó +1% mỗi Lv tiếp theo.
+10215	Đánh trúng có thể phóng lưỡi gió xuyên địch về phía trước. Lv1: tỉ lệ 12%, uy lực 9. Mỗi Lv tiếp theo: tỉ lệ +3%, uy lực +1. Tấn công khi đang ở trên không có tỉ lệ kích hoạt ×1.5. Lưỡi gió gây +50% sát thương lên địch trên không. Tầm đánh +1%/Lv.
+10216	Tốc độ lưỡi gió +5%/Lv, tầm bay +0.4m/Lv. Số mục tiêu lưỡi gió và đạn xuyên thêm: +1 ở Lv1–3, +2 ở Lv4–6, +3 ở Lv7–9. Chỉ riêng thẻ này cũng có thể phóng lưỡi gió: tỉ lệ 6% ở Lv1, sau đó +2% mỗi Lv tiếp theo.
+10217	Lưỡi gió đánh trúng tạo lốc xoáy, kéo quái thường ở gần vào và gây sát thương 3 lần ở Lv1–3, 4 ở Lv4–6, 5 ở Lv7–9. Uy lực, bán kính và lực kéo tăng theo Lv. Gây một nửa sát thương lên boss. Chỉ riêng thẻ này cũng có thể phóng lưỡi gió: tỉ lệ 6% ở Lv1, sau đó +2% mỗi Lv tiếp theo.
+10218	Khi đánh trúng, hấp thụ HP bằng một phần sát thương đã gây để hồi HP: 1% ở Lv1, sau đó +0.5% mỗi Lv tiếp theo. Hạ địch cũng có tỉ lệ hồi 1 tim: 8% ở Lv1, sau đó +4% mỗi Lv tiếp theo.
+10219	Tỉ lệ hồi 1 tim khi hạ địch +4%/Lv. Đánh trúng boss cũng có thể kích hoạt lần hồi này với tỉ lệ bằng 1/4 tỉ lệ đó. Lượng HP hấp thụ từ đòn đánh trúng boss tăng gấp đôi.
+10220	Hấp thụ và SECOND WIND hồi thêm tim: +1 ở Lv1–3, +2 ở Lv4–6, +3 ở Lv7–9. Lượng hồi vượt HP tối đa cho 1 Shield, cho phép giữ nhiều hơn giới hạn Shield thông thường tối đa 1.
+10221	Khi HP từ 50% trở xuống: sức tấn công +8%/Lv; lượng HP hấp thụ khi đánh trúng và tỉ lệ gây chảy máu ×2. Khi HP từ 25% trở xuống, tỉ lệ hồi 1 tim khi hạ địch cũng tăng thêm +5%/Lv, kể cả khi hạ boss.
+10222	Đánh trúng có thể gây chảy máu, hồi HP bằng một phần sát thương chảy máu: 10% ở Lv1, sau đó +2% mỗi Lv tiếp theo. Chảy máu ở Lv1: tỉ lệ 15%, 5 sát thương/s. Mỗi Lv tiếp theo: tỉ lệ +4%, sát thương/s +1. Khi HP đầy: tỉ lệ chảy máu ×2, sức tấn công +2%/Lv.

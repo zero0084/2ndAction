@@ -114,6 +114,7 @@ public partial class MajinController : IBossBattleDebug
     {
         if (BossBattle.DebugNoStagger) return;
         if (battle == null || battle.staggerMax <= 0f || Broken || state == State.Entering || state == State.Dead || breakRecovering) return;
+        v *= ElementSystem.IceStaggerMul(gameObject, v); // 2026-10-30: 冷えた/凍結したボスは BREAK が溜まりやすい
         float before = StaggerFraction;
         stagger += v * staggerMul * (Time.time < breakResistUntil ? WildBossBase.PostBreakStaggerScale : 1f); // BREAK の直後は溜まりにくい(2026-10-18)
         lastStaggerTime = Time.time;

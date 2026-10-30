@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: wind_cutter
   cardName: WIND CUTTER
   icon: {fileID: 2800000, guid: 60ac292cefc58854f80c148c377e3cdc, type: 3}
-  description: "命中時に確率で、前方へ敵を貫通する風刃が飛ぶ。Lv1で確率10%・威力8、以降1Lvごとに確率+3%・威力+1.5。攻撃範囲も少し広がる(+1%/Lv)"
+  description: "\u547D\u4E2D\u6642\u3001\u78BA\u7387\u3067\u524D\u65B9\u306B\u6575\u3092\u8CAB\u901A\u3059\u308B\u98A8\u5203\u3092\u653E\u3064\u3002Lv1\uFF1A\u78BA\u738712%\u30FB\u5A01\u529B9\u3002\u4EE5\u964D1Lv\u3054\u3068\u306B\u78BA\u7387+3%\u30FB\u5A01\u529B+1\u3002\u7A7A\u4E2D\u3067\u306E\u653B\u6483\u306F\u767A\u52D5\u78BA\u73871.5\u500D\u3002\u98A8\u5203\u306F\u7A7A\u4E2D\u306E\u6575\u306B\u30C0\u30E1\u30FC\u30B8+50%\u3002\u653B\u6483\u7BC4\u56F2+1%/Lv"
   category: 1
   sortOrder: 157
   recommendPriority: 5
@@ -24,18 +24,18 @@ MonoBehaviour:
     value: 0.03
     scaling: 0
   - type: 36
-    value: 0.07
+    value: 0.09
     scaling: 1
   - type: 37
-    value: 1.5
+    value: 1
     scaling: 0
   - type: 37
-    value: 6.5
+    value: 8
     scaling: 1
   - type: 50
     value: 0.01
     scaling: 0
-  rarity: 4
-  unlockDistance: 20000
-  gachaStage: 3
+  rarity: 2
+  unlockDistance: 0
+  gachaStage: 1
   element: 4

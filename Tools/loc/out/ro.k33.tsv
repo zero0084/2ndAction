@@ -1,0 +1,27 @@
+10196	Această carte este deja în pachet.
+10197	Pentru a folosi aceeași carte cu alt Lv, scoate mai întâi exemplarul aflat deja în pachet.
+10198	Pachetul conținea mai multe exemplare ale aceleiași cărți; primul a fost păstrat, iar exemplarele în plus au fost scoase din pachet.
+10199	Absorbție la lovire
+10200	Acumulare BREAK la boșii răciți sau înghețați
+10201	Tornadă: putere {0} × {1} lovituri; rază {2}m; atrage țintele cu {3}m la fiecare lovitură
+10202	Trăsnet garantat la fiecare {0} lovituri reușite
+10203	Lovirea unui boss poate vindeca și ea, cu 1/4 din șansa de vindecare la învingerea unui inamic; cantitatea de HP absorbită prin lovirea boșilor ×2.
+10204	Loviturile pot aprinde inamicii timp de 3s. Lv1: șansă 20%, 6 daune/s. La fiecare Lv în plus: șansă +4%, daune/s +1.5.
+10205	Daune din ardere +8%/Lv; durata arderii +0.25s/Lv. Chiar și singură, cartea poate aprinde la lovire: șansă 8% la Lv1, apoi +2% la fiecare Lv în plus. Daunele din ardere pe secundă cresc și ele cu +0.5/Lv.
+10206	Inamicii care ard răspândesc focul când sunt învinși; cei uciși de acest foc îl răspândesc mai departe. Etape de răspândire: 2 la Lv1–3, 3 la Lv4–6, 4 la Lv7–9. Puterea și raza cresc cu Lv. Chiar și singură, cartea poate aprinde la lovire: șansă 8% la Lv1, apoi +2% la fiecare Lv în plus.
+10207	Blocarea unui atac cu Shield declanșează un contraatac de foc în jurul tău, aprinzând inamicii loviți timp de 4s. Puterea și raza cresc cu Lv. Chiar și singură, cartea îți permite să deții 1 Shield.
+10208	Loviturile pot răci și încetini inamicii. Lv1: șansă 20%, încetinire 28%. La fiecare Lv în plus: șansă +4%, încetinire +2.5%, durata răcirii +0.1s. După 5 răciri acumulate, inamicul îngheață: inamicii obișnuiți se opresc; boșii încetinesc mult și acumulează BREAK mai repede.
+10209	Reduce numărul de răciri necesare pentru îngheț: 4 la Lv1–3, 3 la Lv4–6, 2 la Lv7–9. Durata înghețului +0.08s/Lv; durata răcirii +0.15s/Lv. Chiar și singură, cartea poate răci la lovire: șansă 8% la Lv1, apoi +2% la fiecare Lv în plus.
+10210	Atac contra inamicilor răciți sau înghețați +3%/Lv. Înghețarea unui inamic provoacă daune suplimentare care cresc cu Lv. Acumulare BREAK la boșii răciți sau înghețați +6%/Lv (jumătate din bonus dacă sunt doar răciți). Chiar și singură, cartea poate răci la lovire: șansă 8% la Lv1, apoi +2% la fiecare Lv în plus; 4 răciri acumulate provoacă îngheț.
+10211	Loviturile pot declanșa trăsnete. Lv1: șansă 8%, putere de bază 9. La fiecare Lv în plus: șansă +2%, putere de bază +1.5. Un trăsnet este și garantat la fiecare 13 lovituri reușite la Lv1, respectiv la fiecare 5 la Lv9. Același inamic poate fi lovit de trăsnet cel mult 1 dată la 0.4s.
+10212	Puterea trăsnetului +6%/Lv. Trăsnetul oprește o clipă inamicii obișnuiți. Chiar și singură, cartea poate declanșa trăsnete: șansă 3% la Lv1, apoi +1% la fiecare Lv în plus.
+10213	Trăsnetul sare la alți inamici din apropiere: 1 la Lv1–3, 2 la Lv4–6, 3 la Lv7–9. Distanța salturilor +0.2m/Lv. Dacă nu există o țintă următoare, salturile rămase lovesc același inamic cu putere redusă. Chiar și singură, cartea poate declanșa trăsnete: șansă 5% la Lv1, apoi +1% la fiecare Lv în plus.
+10214	Puterea trăsnetului +4%/Lv. Ținte suplimentare în lanț: +1 la Lv1–3, +2 la Lv4–6, +3 la Lv7–9. Trăsnetul provoacă daune și în jurul impactului; raza crește cu Lv. Chiar și singură, cartea poate declanșa trăsnete: șansă 5% la Lv1, apoi +1% la fiecare Lv în plus.
+10215	Loviturile pot lansa înainte o lamă de vânt care străpunge inamicii. Lv1: șansă 12%, putere 9. La fiecare Lv în plus: șansă +3%, putere +1. Atacurile efectuate în aer au șansa de activare ×1.5. Lama de vânt provoacă +50% daune inamicilor aflați în aer. Raza de atac +1%/Lv.
+10216	Viteza lamei de vânt +5%/Lv; distanța parcursă +0.4m/Lv. Număr suplimentar de inamici străpunși de lamele de vânt și proiectile: +1 la Lv1–3, +2 la Lv4–6, +3 la Lv7–9. Chiar și singură, cartea poate lansa lame de vânt: șansă 6% la Lv1, apoi +2% la fiecare Lv în plus.
+10217	Impactul lamei de vânt creează o tornadă care atrage inamicii obișnuiți din jur și provoacă daune de 3 ori la Lv1–3, de 4 ori la Lv4–6 și de 5 ori la Lv7–9. Puterea, raza și atragerea cresc cu Lv. Provoacă jumătate din daune boșilor. Chiar și singură, cartea poate lansa lame de vânt: șansă 6% la Lv1, apoi +2% la fiecare Lv în plus.
+10218	La lovire, absorbi și refaci HP egal cu o parte din daunele provocate: 1% la Lv1, apoi +0.5% la fiecare Lv în plus. Învingerea unui inamic are și o șansă de a reface 1 inimă: 8% la Lv1, apoi +4% la fiecare Lv în plus.
+10219	Șansa de a reface 1 inimă la învingerea unui inamic +4%/Lv. Lovirea unui boss poate declanșa aceeași vindecare cu 1/4 din acea șansă. Cantitatea de HP absorbită prin lovirea boșilor se multiplică cu 2.
+10220	Absorbția și SECOND WIND refac inimi suplimentare: +1 la Lv1–3, +2 la Lv4–6, +3 la Lv7–9. Vindecarea care depășește HP maxim devine 1 Shield; poți deține cu 1 Shield peste limita obișnuită.
+10221	La 50% HP sau mai puțin: atac +8%/Lv; cantitatea de HP absorbită la lovire și șansa de sângerare ×2. La 25% HP sau mai puțin, șansa de a reface 1 inimă la învingerea unui inamic crește și ea cu +5%/Lv, inclusiv pentru boși.
+10222	Loviturile pot provoca sângerare, refăcându-ți HP egal cu o parte din daunele sângerării: 10% la Lv1, apoi +2% la fiecare Lv în plus. Sângerare la Lv1: șansă 15%, 5 daune/s. La fiecare Lv în plus: șansă +4%, daune/s +1. Cu HP plin: șansa de sângerare ×2; atac +2%/Lv.

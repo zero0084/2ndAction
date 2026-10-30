@@ -11,6 +11,9 @@ public static class ElementTelemetry
     public static long Hits, DirectDamage;
     public static readonly long[] Procs = new long[N], Status = new long[N], Damage = new long[N], Kills = new long[N];
     public static long EnemyDeaths; // このプレイヤーが倒した雑魚の数(CardProcs.OnEnemyKilled。穴への落下は除く)
+    // 2026-10-30 属性20枚の再設計: 凍結/冷えの時間(敵ごとの秒の合計)・氷で増えた BREAK の溜まり・回復の量(HP)・確定の落雷
+    public static float FrozenSeconds, ChilledSeconds, IceStagger;
+    public static long HealHp, HitHealHp, LifestealHealHp, BossBreaks;
     public static long Chains, Freezes, Shatters, Tornados, Infernos, LifestealHeals, BleedHealHp, OtherDamage, OtherKills;
     public static bool Suppress; // 属性ではない追加攻撃の間(CardProcs.ChainExplosion 等)
     public static float Since;
@@ -18,6 +21,8 @@ public static class ElementTelemetry
     public static void Reset()
     {
         Hits = DirectDamage = 0; EnemyDeaths = 0;
+        FrozenSeconds = ChilledSeconds = IceStagger = 0f; HealHp = HitHealHp = LifestealHealHp = BossBreaks = 0;
+        ElementSystem.ForcedStrikes = 0; ElementSystem.WindAirBonusHits = 0; CardProcs.TornadoPulls = 0;
         for (int i = 0; i < N; i++) Procs[i] = Status[i] = Damage[i] = Kills[i] = 0;
         Chains = Freezes = Shatters = Tornados = Infernos = LifestealHeals = BleedHealHp = OtherDamage = OtherKills = 0;
         Since = Time.time;

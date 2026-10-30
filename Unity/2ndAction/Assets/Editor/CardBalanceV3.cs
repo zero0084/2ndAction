@@ -22,12 +22,15 @@ public static class CardBalanceV3
     struct C
     {
         public string id, name, desc; public ElementType el; public int rec; public E[] fx;
+        public int rarity, stage; public float unlock; // 2026-10-30: 属性20枚の再設計でレア度と解放の順も表で持つ(0 = アセットのまま)
     }
 
     static C Card(string id, string desc, params E[] fx) => new C { id = id, desc = desc, fx = fx, el = (ElementType)(-1), rec = 0 };
     static C Card(string id, string desc, ElementType el, params E[] fx) => new C { id = id, desc = desc, fx = fx, el = el, rec = 0 };
     static C Named(C c, string name) { c.name = name; return c; }
     static C Rec(C c, int rec) { c.rec = rec; return c; }
+    // 2026-10-30: レア度 / ガチャ段階(1〜5)/ 解放の BEST 距離(m)
+    static C Rar(C c, int rarity, int stage, float unlock) { c.rarity = rarity; c.stage = stage; c.unlock = unlock; return c; }
 
     const CardScaling Once = CardScaling.Once, E3 = CardScaling.Every3, E2 = CardScaling.Every2, Ph = CardScaling.Phoenix, A3 = CardScaling.After3;
 
@@ -99,17 +102,18 @@ public static class CardBalanceV3
         yield return Card("shield", "被弾を1回防ぐShield。最大数はLv1〜3で1つ、Lv4〜6で2つ、Lv7〜9で3つ。使った分は時間で1つずつ戻る(Lvで速くなる)", new E(EffectType.ShieldCapacity, 1f, E3), new E(EffectType.ShieldRecharge, 1.5f));
         yield return Card("counter", "Shieldで攻撃を防ぐと、周囲に反撃の衝撃波が発生する。Lvで威力が上がる。このカードだけでもShieldを1つ持てる", new E(EffectType.CounterLevel, 1f), new E(EffectType.ShieldGuard, 1f, Once));
         yield return Card("perfect_guard", "Shieldで被弾を防ぐと、短い無敵になる(0.4秒+0.1秒/Lv)。このカードだけでもShieldを1つ持てる", new E(EffectType.PerfectGuardLevel, 1f), new E(EffectType.ShieldGuard, 1f, Once));
-        yield return Card("flame_counter", "Shieldで攻撃を防ぐと周囲に炎の反撃が発生し、当たった敵を炎上させる。Lvで威力が上がる。このカードだけでもShieldを1つ持てる", ElementType.Fire, new E(EffectType.FlameCounterLevel, 1f), new E(EffectType.ShieldGuard, 1f, Once));
+        yield return Card("flame_counter", "Shieldで攻撃を防ぐと周囲に炎で反撃し、当たった敵を4秒間炎上させる。威力・範囲はLvで増加。単独でもShieldを1つ所持できる", ElementType.Fire, new E(EffectType.FlameCounterLevel, 1f), new E(EffectType.ShieldGuard, 1f, Once));
         yield return Card("last_chance", "ダメージでHPがハート1つ以下になった瞬間、短い無敵になる(1秒+0.15秒/Lv)。落下ダメージは防げない。次に出るのは、HPがハート1つより多く戻り、発動から20秒たった後", new E(EffectType.LastChanceLevel, 1f));
         yield return Card("second_wind", "被弾してHPが最大の30%以下なら、ハート1〜3個回復する(Lv5で2個、Lv9で3個)。再発動には一定距離の走行が必要(Lv1で10,000m、Lv9で6,000m)", new E(EffectType.SecondWindLevel, 1f));
 
-        // ---- 血(吸収 / 出血 / 低HP / 復活)
-        yield return Card("vampire", "敵を倒した時、確率(1Lvごとに+3%)でHPをハート1つ回復", ElementType.Blood, new E(EffectType.LifestealChance, 0.03f));
-        yield return Card("predator", "敵撃破時にハート1つ回復する確率+3%/Lv。ボスへの攻撃命中時も、低確率でHPを吸収できる", ElementType.Blood, new E(EffectType.LifestealChance, 0.03f), new E(EffectType.PredatorLevel, 1f, Once));
-        yield return Card("overheal", "吸収とSECOND WINDの回復量が増える(Lv4〜6でハート+1、Lv7〜9で+2)。満タンで溢れた分はShield1つになる(最大数+1まで)", ElementType.Blood, new E(EffectType.HealBonusHearts, 1f, A3), new E(EffectType.OverhealLevel, 1f, Once));
-        yield return Card("blood_rush", "HP50%以下で攻撃力+4%/Lv。HP25%以下では敵/ボス撃破時の吸収(ハート1つ回復)の確率も+3%/Lv", ElementType.Blood, new E(EffectType.LowHp50Pct, 0.04f), new E(EffectType.LowHp25LifestealChance, 0.03f));
-        yield return Card("blood_blade", "攻撃が出血を起こす(確率と威力がLvで上がる)。HPが満タンの間は出血の確率が2倍。満HPの攻撃も少し上がる(+2%/Lv)", ElementType.Blood,
-            new E(EffectType.BleedChance, 0.05f), new E(EffectType.BleedChance, 0.05f, Once), new E(EffectType.BleedPower, 0.6f), new E(EffectType.BleedPower, 3f, Once), new E(EffectType.BloodBladeLevel, 1f, Once), new E(EffectType.FullHpPct, 0.02f));
+        // ---- 血(吸収 / 出血 / 低HP / 復活)。入口 VAMPIRE ★2 → 発展 BLOOD BLADE / PREDATOR / OVERHEAL / BLOOD RUSH ★3 → 特殊 PHOENIX ★5
+        yield return Rar(Card("vampire", "命中で与えたダメージの一部を吸収し、HPを回復する。吸収率はLv1で1%、以降+0.5%/Lv。敵撃破時にも確率でハート1つ回復：Lv1で8%、以降+4%/Lv", ElementType.Blood, new E(EffectType.HitLifestealPct, 0.005f), new E(EffectType.HitLifestealPct, 0.005f, Once), new E(EffectType.LifestealChance, 0.04f), new E(EffectType.LifestealChance, 0.04f, Once)), 2, 1, 0f);
+        yield return Card("predator", "敵撃破時にハート1つ回復する確率+4%/Lv。その確率の1/4で、ボスへの命中時にも回復が発動する。ボスへの命中による吸収量は2倍", ElementType.Blood, new E(EffectType.LifestealChance, 0.04f), new E(EffectType.PredatorLevel, 1f, Once));
+        yield return Card("overheal", "吸収とSECOND WINDの回復量が、Lv1〜3でハート+1、Lv4〜6で+2、Lv7〜9で+3。最大HPを超えた回復分はShield1つに変わり、通常の所持上限+1まで持てる", ElementType.Blood, new E(EffectType.HealBonusHearts, 1f, E3), new E(EffectType.OverhealLevel, 1f, Once));
+        yield return Card("blood_rush", "HP50%以下で攻撃力+8%/Lv、命中による吸収量と出血の発動確率が2倍。HP25%以下では、敵撃破時にハート1つ回復する確率も+5%/Lv(ボスを含む)", ElementType.Blood, new E(EffectType.LowHp50Pct, 0.08f), new E(EffectType.LowHp25LifestealChance, 0.05f));
+        yield return Rar(Card("blood_blade", "命中時、確率で出血を付与し、出血ダメージの一部でHPを回復する。回復率はLv1で10%、以降+2%/Lv。出血はLv1で確率15%・毎秒5ダメージ、以降1Lvごとに確率+4%・毎秒ダメージ+1。HP満タン時は出血確率2倍、攻撃力+2%/Lv", ElementType.Blood,
+            new E(EffectType.BleedChance, 0.04f), new E(EffectType.BleedChance, 0.11f, Once), new E(EffectType.BleedPower, 1f), new E(EffectType.BleedPower, 4f, Once), new E(EffectType.BleedLifesteal, 0.02f), new E(EffectType.BleedLifesteal, 0.08f, Once),
+            new E(EffectType.BloodBladeLevel, 1f, Once), new E(EffectType.FullHpPct, 0.02f)), 3, 2, 5000f);
         yield return Rec(Card("last_stand", "HP50%以下で攻撃力が上がり(1Lvごとに+4%)、HP25%以下でさらに上がる(+4%/Lv)", new E(EffectType.LowHp50Pct, 0.04f), new E(EffectType.LowHp25Pct, 0.04f)), 3);
         yield return Rec(Card("berserk_drive", "HP50%以下で攻撃力+5%/Lv、攻撃速度+2%/Lv。HP25%以下では両方の上昇量が2倍になる", new E(EffectType.LowHp50Pct, 0.05f), new E(EffectType.LowHp25Pct, 0.05f), new E(EffectType.LowHpAttackSpeedPct, 0.02f)), 2);
         yield return Rec(Card("adrenaline", "HP50%以下で攻撃速度+3%/Lv。HP25%以下では上昇量が2倍(+6%/Lv)", new E(EffectType.LowHpAttackSpeedPct, 0.03f)), 3);
@@ -152,37 +156,39 @@ public static class CardBalanceV3
             new E(EffectType.MileGainMultiplier, 0.60f), new E(EffectType.BossMileGainMultiplier, 0.60f), new E(EffectType.EnemyHpMultiplier, 0.15f), new E(EffectType.EnemyActionPct, 0.05f),
             new E(EffectType.EnemySpawnRate, 0.12f), new E(EffectType.BossHpMultiplier, 0.10f), new E(EffectType.EliteChance, 0.02f)), 1);
 
-        // ---- 属性: 炎
-        yield return Card("flame_blade", "命中した敵を確率で炎上させ、3秒間ダメージを与える。Lv1で確率15%・毎秒5ダメージ、以降1Lvごとに確率+5%・毎秒ダメージ+1.5", ElementType.Fire,
-            new E(EffectType.BurnChance, 0.05f), new E(EffectType.BurnChance, 0.10f, Once), new E(EffectType.BurnPower, 1.5f), new E(EffectType.BurnPower, 3.5f, Once));
-        yield return Card("burning_soul", "炎上の威力+8%/Lv、炎上時間+0.25秒/Lv。このカードだけでも命中で炎上させる(確率 Lv1で7%、以降+2%/Lv)", ElementType.Fire,
-            new E(EffectType.BurnPowerPct, 0.08f), new E(EffectType.BurnDuration, 0.25f), new E(EffectType.BurnChance, 0.02f), new E(EffectType.BurnChance, 0.05f, Once), new E(EffectType.BurnPower, 3f, Once));
-        yield return Card("inferno", "炎上中の敵を倒すと、周囲へ炎が広がり敵を炎上させる(Lvで威力と範囲が上がる)。このカードだけでも命中時に低確率(5%)で炎上させる", ElementType.Fire,
-            new E(EffectType.InfernoLevel, 1f), new E(EffectType.BurnChance, 0.05f, Once), new E(EffectType.BurnPower, 3f, Once));
-        // ---- 氷
-        yield return Card("frost_edge", "攻撃命中時に敵を冷やして減速させる。Lv1で確率15%・減速25%。以降1Lvごとに確率+5%・減速+2%。冷えが5回重なると凍結する(ボスは停止せず減速)", ElementType.Ice,
-            new E(EffectType.ChillChance, 0.05f), new E(EffectType.ChillChance, 0.10f, Once), new E(EffectType.ChillSlow, 0.02f), new E(EffectType.ChillSlow, 0.23f, Once));
-        yield return Card("ice_prison", "命中時に冷えを与えることがある。凍結に必要な冷えの回数が減る(Lv1〜3で4回、Lv4〜6で3回、Lv7〜9で2回)。冷えの確率と継続時間も上がる", ElementType.Ice,
-            new E(EffectType.FreezeThresholdReduce, 1f, E3), new E(EffectType.ChillChance, 0.02f), new E(EffectType.ChillChance, 0.05f, Once), new E(EffectType.ChillSlow, 0.20f, Once), new E(EffectType.ChillDuration, 0.1f));
-        yield return Card("absolute_zero", "命中時に冷えを与えることがある。敵が凍結すると追加ダメージ。冷えた/凍結した敵への攻撃+3%/Lv。凍結時間も延び、ボスの減速が強くなる", ElementType.Ice,
-            new E(EffectType.AbsoluteZeroLevel, 1f), new E(EffectType.FreezeDuration, 0.05f), new E(EffectType.ChillChance, 0.05f, Once), new E(EffectType.ChillSlow, 0.20f, Once));
-        // ---- 雷
-        yield return Card("thunder_strike", "攻撃命中時に落雷が発生する。Lv1で確率5%・基礎威力7.5。以降1Lvごとに確率+2%・基礎威力+1.5。同じ敵への落雷は0.4秒に1回まで", ElementType.Thunder,
-            new E(EffectType.LightningChance, 0.02f), new E(EffectType.LightningChance, 0.03f, Once), new E(EffectType.LightningPower, 1.5f), new E(EffectType.LightningPower, 6f, Once));
-        yield return Card("high_voltage", "雷が強くなる(1Lvごとに+5%)。落雷は雑魚を一瞬止める。落雷の確率も少し上がる(+1%/Lv)", ElementType.Thunder,
-            new E(EffectType.LightningDamagePct, 0.05f), new E(EffectType.LightningChance, 0.01f), new E(EffectType.LightningShock, 0.02f), new E(EffectType.LightningShock, 0.15f, Once), new E(EffectType.LightningPower, 2f, Once));
-        yield return Card("chain_lightning", "落雷が近くの別の敵へ連鎖する(3Lvごとに+1体、届く距離もLvで伸びる)。少しだけ自分でも落雷を起こす", ElementType.Thunder,
-            new E(EffectType.LightningChains, 1f, E3), new E(EffectType.LightningRange, 0.15f), new E(EffectType.LightningChance, 0.04f, Once), new E(EffectType.LightningPower, 3f, Once));
-        yield return Card("thunder_lord", "攻撃命中時に低確率で落雷が発生する。落雷の威力+4%/Lv、連鎖数はLv1〜3で+1体、Lv4〜6で+2体、Lv7〜9で+3体。落雷の周囲にもダメージを与える", ElementType.Thunder,
+        // ---- 属性: 炎(継続火力・延焼・雑魚処理)。入口 FLAME BLADE ★2 → 発展 BURNING SOUL ★3 → 完成 INFERNO ★4
+        yield return Rar(Card("flame_blade", "命中時、確率で敵を3秒間炎上させる。Lv1：確率20%・毎秒6ダメージ。以降1Lvごとに確率+4%・毎秒ダメージ+1.5", ElementType.Fire,
+            new E(EffectType.BurnChance, 0.04f), new E(EffectType.BurnChance, 0.16f, Once), new E(EffectType.BurnPower, 1.5f), new E(EffectType.BurnPower, 4.5f, Once)), 2, 1, 0f);
+        yield return Rar(Card("burning_soul", "炎上ダメージ+8%/Lv、炎上時間+0.25秒/Lv。単独でも命中時に炎上を付与：確率はLv1で8%、以降+2%/Lv。毎秒ダメージも+0.5/Lv", ElementType.Fire,
+            new E(EffectType.BurnPowerPct, 0.08f), new E(EffectType.BurnDuration, 0.25f), new E(EffectType.BurnChance, 0.02f), new E(EffectType.BurnChance, 0.06f, Once), new E(EffectType.BurnPower, 0.5f), new E(EffectType.BurnPower, 3.5f, Once)), 3, 2, 5000f);
+        yield return Rar(Card("inferno", "炎上中の敵を倒すと周囲の敵に延焼し、延焼で倒れた敵からも広がる。延焼はLv1〜3で2段、Lv4〜6で3段、Lv7〜9で4段。威力・範囲もLvで増加。単独でも命中時に炎上を付与：確率はLv1で8%、以降+2%/Lv", ElementType.Fire,
+            new E(EffectType.InfernoLevel, 1f), new E(EffectType.BurnChance, 0.02f), new E(EffectType.BurnChance, 0.06f, Once), new E(EffectType.BurnPower, 1f), new E(EffectType.BurnPower, 3f, Once)), 4, 3, 20000f);
+        // ---- 氷(足止め・安全確保・BREAK補助。総ダメージは低くてよい)。入口 FROST EDGE ★2 → 発展 ICE PRISON ★3 → 完成 ABSOLUTE ZERO ★4
+        yield return Rar(Card("frost_edge", "命中時、確率で敵に冷えを付与して減速させる。Lv1：確率20%・減速28%。以降1Lvごとに確率+4%・減速+2.5%・冷え時間+0.1秒。冷えが5回重なると凍結。雑魚は停止し、ボスは大きく減速してBREAKが溜まりやすくなる", ElementType.Ice,
+            new E(EffectType.ChillChance, 0.04f), new E(EffectType.ChillChance, 0.16f, Once), new E(EffectType.ChillSlow, 0.025f), new E(EffectType.ChillSlow, 0.25f, Once), new E(EffectType.ChillDuration, 0.1f)), 2, 1, 0f);
+        yield return Rar(Card("ice_prison", "凍結に必要な冷えの重なりを減らす：Lv1〜3で4回、Lv4〜6で3回、Lv7〜9で2回。凍結時間+0.08秒/Lv、冷え時間+0.15秒/Lv。単独でも命中時に冷えを付与：確率はLv1で8%、以降+2%/Lv", ElementType.Ice,
+            new E(EffectType.FreezeThresholdReduce, 1f, E3), new E(EffectType.FreezeDuration, 0.08f), new E(EffectType.ChillChance, 0.02f), new E(EffectType.ChillChance, 0.06f, Once), new E(EffectType.ChillSlow, 0.20f, Once), new E(EffectType.ChillDuration, 0.15f)), 3, 2, 5000f);
+        yield return Rar(Card("absolute_zero", "冷え・凍結中の敵への攻撃力+3%/Lv。凍結時に追加ダメージを与え、威力はLvで増加。冷え・凍結中のボスへのBREAK蓄積量+6%/Lv(冷えだけの間は半分)。単独でも命中時に冷えを付与し、4回重なると凍結：確率はLv1で8%、以降+2%/Lv", ElementType.Ice,
+            new E(EffectType.AbsoluteZeroLevel, 1f), new E(EffectType.IceBreakPct, 0.06f), new E(EffectType.FreezeDuration, 0.06f), new E(EffectType.FreezeThresholdReduce, 1f, Once),
+            new E(EffectType.ChillChance, 0.02f), new E(EffectType.ChillChance, 0.06f, Once), new E(EffectType.ChillSlow, 0.20f, Once)), 4, 3, 20000f);
+        // ---- 雷(瞬間火力・連鎖・手数)。入口 THUNDER STRIKE ★2 → 発展 HIGH VOLTAGE / CHAIN LIGHTNING ★3 → 完成 THUNDER LORD ★4
+        yield return Rar(Card("thunder_strike", "命中時、確率で落雷が発生。Lv1：確率8%・基礎威力9。以降1Lvごとに確率+2%・基礎威力+1.5。さらに一定の命中回数ごとに必ず落雷する(Lv1で13回、Lv9で5回)。同じ敵への落雷は0.4秒に1回まで", ElementType.Thunder,
+            new E(EffectType.LightningChance, 0.02f), new E(EffectType.LightningChance, 0.06f, Once), new E(EffectType.LightningPower, 1.5f), new E(EffectType.LightningPower, 7.5f, Once), new E(EffectType.LightningCounterLevel, 1f)), 2, 1, 0f);
+        yield return Rar(Card("high_voltage", "落雷の威力+6%/Lv。落雷が雑魚を一瞬停止させる。単独でも落雷が発生：確率はLv1で3%、以降+1%/Lv", ElementType.Thunder,
+            new E(EffectType.LightningDamagePct, 0.06f), new E(EffectType.LightningChance, 0.01f), new E(EffectType.LightningChance, 0.02f, Once), new E(EffectType.LightningShock, 0.02f), new E(EffectType.LightningShock, 0.15f, Once),
+            new E(EffectType.LightningPower, 0.3f), new E(EffectType.LightningPower, 2f, Once)), 3, 2, 5000f);
+        yield return Card("chain_lightning", "落雷が近くの別の敵へ連鎖する：Lv1〜3で1体、Lv4〜6で2体、Lv7〜9で3体。連鎖距離+0.2m/Lv。連鎖先がいない場合、残りの連鎖は威力を落として同じ敵に落ちる。単独でも落雷が発生：確率はLv1で5%、以降+1%/Lv", ElementType.Thunder,
+            new E(EffectType.LightningChains, 1f, E3), new E(EffectType.LightningRange, 0.2f), new E(EffectType.LightningChance, 0.01f), new E(EffectType.LightningChance, 0.04f, Once), new E(EffectType.LightningPower, 0.3f), new E(EffectType.LightningPower, 3f, Once));
+        yield return Card("thunder_lord", "落雷の威力+4%/Lv。連鎖数はLv1〜3で+1体、Lv4〜6で+2体、Lv7〜9で+3体。落雷地点の周囲にもダメージを与え、範囲はLvで拡大。単独でも落雷が発生：確率はLv1で5%、以降+1%/Lv", ElementType.Thunder,
             new E(EffectType.LightningDamagePct, 0.04f), new E(EffectType.LightningChains, 1f, E3), new E(EffectType.LightningSplash, 0.08f), new E(EffectType.LightningSplash, 0.8f, Once),
-            new E(EffectType.LightningChance, 0.005f), new E(EffectType.LightningChance, 0.03f, Once), new E(EffectType.LightningPower, 2f, Once));
-        // ---- 風
-        yield return Card("wind_cutter", "命中時に確率で、前方へ敵を貫通する風刃が飛ぶ。Lv1で確率10%・威力8、以降1Lvごとに確率+3%・威力+1.5。攻撃範囲も少し広がる(+1%/Lv)", ElementType.Wind,
-            new E(EffectType.WindBladeChance, 0.03f), new E(EffectType.WindBladeChance, 0.07f, Once), new E(EffectType.WindBladePower, 1.5f), new E(EffectType.WindBladePower, 6.5f, Once), new E(EffectType.RangePct, 0.01f));
-        yield return Card("gale", "命中で風刃が出ることがある。風刃の速さ+5%/Lv、飛距離+0.4m/Lv。風刃と飛び道具の貫通+1(Lv4〜で+2、Lv7〜で+3)", ElementType.Wind,
-            new E(EffectType.WindSpeedPct, 0.05f), new E(EffectType.WindRange, 0.4f), new E(EffectType.WindPierce, 1f, E3), new E(EffectType.WindBladeChance, 0.02f), new E(EffectType.WindBladeChance, 0.04f, Once), new E(EffectType.WindBladePower, 6f, Once));
-        yield return Card("tornado", "風刃が当たった所に竜巻が起き、まわりの敵に連続ダメージ(Lvで威力と範囲が上がる)。このカードだけでも命中時に低確率で風刃が出る", ElementType.Wind,
-            new E(EffectType.TornadoLevel, 1f), new E(EffectType.WindBladeChance, 0.04f, Once), new E(EffectType.WindBladePower, 6f, Once));
+            new E(EffectType.LightningChance, 0.01f), new E(EffectType.LightningChance, 0.04f, Once), new E(EffectType.LightningPower, 0.5f), new E(EffectType.LightningPower, 3f, Once));
+        // ---- 風(空中戦・位置操作)。入口 WIND CUTTER ★2 → 発展 GALE ★3 → 完成 TORNADO ★4。空中では風刃が出やすく(×1.5)、空中の敵に風刃が強い(+50%)
+        yield return Rar(Card("wind_cutter", "命中時、確率で前方に敵を貫通する風刃を放つ。Lv1：確率12%・威力9。以降1Lvごとに確率+3%・威力+1。空中での攻撃は発動確率1.5倍。風刃は空中の敵にダメージ+50%。攻撃範囲+1%/Lv", ElementType.Wind,
+            new E(EffectType.WindBladeChance, 0.03f), new E(EffectType.WindBladeChance, 0.09f, Once), new E(EffectType.WindBladePower, 1f), new E(EffectType.WindBladePower, 8f, Once), new E(EffectType.RangePct, 0.01f)), 2, 1, 0f);
+        yield return Card("gale", "風刃の速さ+5%/Lv、飛距離+0.4m/Lv。風刃と飛び道具の貫通数はLv1〜3で+1、Lv4〜6で+2、Lv7〜9で+3。単独でも風刃が発生：確率はLv1で6%、以降+2%/Lv", ElementType.Wind,
+            new E(EffectType.WindSpeedPct, 0.05f), new E(EffectType.WindRange, 0.4f), new E(EffectType.WindPierce, 1f, E3), new E(EffectType.WindBladeChance, 0.02f), new E(EffectType.WindBladeChance, 0.04f, Once), new E(EffectType.WindBladePower, 1f), new E(EffectType.WindBladePower, 5f, Once));
+        yield return Card("tornado", "風刃の命中地点に竜巻が発生。周囲の雑魚を引き寄せ、Lv1〜3で3回、Lv4〜6で4回、Lv7〜9で5回ダメージを与える。威力・範囲・引き寄せはLvで強化。ボスへのダメージは半分。単独でも風刃が発生：確率はLv1で6%、以降+2%/Lv", ElementType.Wind,
+            new E(EffectType.TornadoLevel, 1f), new E(EffectType.WindBladeChance, 0.02f), new E(EffectType.WindBladeChance, 0.04f, Once), new E(EffectType.WindBladePower, 1f), new E(EffectType.WindBladePower, 5f, Once));
 
         // ---- #100 ULTIMATE(2026-10-04): 新しい cardId。数値は UltimateTuning(Lv1/5/9 の前進・威力・BUFF・Gauge の溜まりやすさ)
         yield return Named(Card(UltimateCardId, "Gaugeが100%で発動(左下のボタン)。キャラ固有の必殺技で画面内の通常の敵を一撃で倒し、ボスには最大HPの20〜40%のダメージ(Lvで上がる)。そのまま大きく前進し(Lv1 300m → Lv9 1000m。ボス関門などの手前で止まり、ボス戦中は前進しない)、しばらく強化が続く(Lv1 5秒 → Lv9 12秒)。Gaugeは距離・撃破・ボスへのダメージで溜まる",
@@ -191,8 +197,25 @@ public static class CardBalanceV3
 
     public static int CardCount { get { int n = 0; foreach (var _ in Table()) n++; return n; } }
 
-    [MenuItem("Tools/OneMoreMile/Apply Card Balance v3")]
-    public static void Apply()
+    // 注意(2026-10-30): この表の説明文は、後でアセットを直接直したカード(文言の全体見直し等)より古いものがある。
+    //  全部に当てると古い説明へ戻るので、変えたカードだけに当てる(ApplyElementsV4 / -cbOnly id,id,...)。
+    [MenuItem("Tools/OneMoreMile/Apply Card Balance v3 (ALL - descriptions may be stale)")]
+    public static void Apply() => ApplyFiltered(OnlyFromArgs());
+
+    // 属性20枚の再設計(2026-10-30)
+    public static readonly string[] ElementIds = { "flame_blade", "burning_soul", "inferno", "flame_counter", "frost_edge", "ice_prison", "absolute_zero",
+        "thunder_strike", "high_voltage", "chain_lightning", "thunder_lord", "wind_cutter", "gale", "tornado", "vampire", "predator", "overheal", "blood_rush", "blood_blade", "phoenix" };
+    [MenuItem("Tools/OneMoreMile/Apply element cards v4 (2026-10-30)")]
+    public static void ApplyElementsV4() => ApplyFiltered(new HashSet<string>(ElementIds));
+
+    static HashSet<string> OnlyFromArgs()
+    {
+        var a = System.Environment.GetCommandLineArgs();
+        for (int i = 0; i + 1 < a.Length; i++) if (a[i] == "-cbOnly") return new HashSet<string>(a[i + 1].Split(','));
+        return null;
+    }
+
+    static void ApplyFiltered(HashSet<string> only)
     {
         CardDatabaseBuilder.Build(); // #92〜#99 の新しいアセット(既存は変えない)
         var report = new System.Text.StringBuilder();
@@ -200,6 +223,7 @@ public static class CardBalanceV3
         var seen = new HashSet<string>();
         foreach (var c in Table())
         {
+            if (only != null && !only.Contains(c.id)) { seen.Add(c.id); continue; }
             string path = $"Assets/Resources/Cards/{c.id}.asset";
             var def = AssetDatabase.LoadAssetAtPath<CardDefinition>(path);
             if (def == null) { report.AppendLine($"MISSING {c.id}"); continue; }
@@ -208,6 +232,7 @@ public static class CardBalanceV3
             def.description = c.desc;
             if ((int)c.el >= 0) def.element = c.el;
             if (c.rec > 0) def.recommendPriority = c.rec;
+            if (c.rarity > 0) { def.rarity = c.rarity; def.gachaStage = c.stage; def.unlockDistance = c.unlock; }
             def.effects = new List<CardEffect>();
             foreach (var e in c.fx) def.effects.Add(new CardEffect { type = e.t, value = e.v, scaling = e.s });
             EditorUtility.SetDirty(def);

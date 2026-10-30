@@ -83,17 +83,23 @@ public static class LocPendingReview
     //  前の文が無い新しい画面なので、訳が入るまでは日本語のまま出る(開発版だけ)。製品版の Android ビルドは全言語の訳が入るまで止まる
     //  2026-10-23: 10010〜10047・10056〜10059 をエステルのレビュー(Tools/loc/est23、42件 × 29言語)で 30言語へ反映 → すべて外した
     //  (10026 の「購入を復元」は各言語の既存のボタン名 8133 にそろえた: est23/fix10026.py)
-    // ID 10148〜10150(2026-10-30 デッキの同一カード重複禁止): レビュー待ち(Docs/LocReview_2026-10-30)。
-    //  訳が入るまで: 10148 は前の文「デッキで使用中のため選べません」/ 10149 は出さない / 10150 は出さない(お知らせの残りの行はレビュー済み)
-    public const string DeckAlreadyIn = "このカードはすでにデッキに入っています";                                   // ID 10148(デッキ編集: 同じカードを追加しようとした時)
+    // ID 10196〜10198(2026-10-30 デッキの同一カード重複禁止): エステルのレビュー後に30言語へ反映済み(Docs/LocReview_2026-10-30b)。最初は 10148〜10150 だったが、ルカ/宇宙人の訳の表(keys_extra28)と重なっていたので付け直した
+    //  訳が入るまで: 10196 は前の文「デッキで使用中のため選べません」/ 10197 は出さない / 10198 は出さない(お知らせの残りの行はレビュー済み)
+    public const string DeckAlreadyIn = "このカードはすでにデッキに入っています";                                   // ID 10196(デッキ編集: 同じカードを追加しようとした時)
     public const string DeckAlreadyInOld = "デッキで使用中のため選べません";                                       // 前の文(レビュー済み)
-    public const string DeckSwapHint = "Lvの違う同じカードに替える時は、先にデッキから外してください。";               // ID 10149(Lv/合成の違う同じカードを押した時の2行目)
-    public const string DeckDuplicatesRemoved = "同じカードが複数入っていたため、2枚目以降をデッキから外しました。";      // ID 10150(更新後の1回だけのお知らせ)
+    public const string DeckSwapHint = "Lvの違う同じカードに替える時は、先にデッキから外してください。";               // ID 10197(Lv/合成の違う同じカードを押した時の2行目)
+    public const string DeckDuplicatesRemoved = "同じカードが複数入っていたため、2枚目以降をデッキから外しました。";      // ID 10198(更新後の1回だけのお知らせ)
 
-    public static readonly (string id, string key)[] Pending =
-    {
-        ("10148", DeckAlreadyIn),
-        ("10149", DeckSwapHint),
-        ("10150", DeckDuplicatesRemoved),
-    };
+    // ID 10199〜10203(2026-10-30 属性20枚の再設計): 効果の表示の新しい名前・挙動の説明。エステルのレビュー後に30言語へ反映済み(Docs/LocReview_2026-10-30b)。カードの説明19枚は ID 10204〜10222
+    //  訳が入るまで: 新しい名前の行はその言語では出さない / 竜巻は前の文(×3回) / 雷の確定は出さない / PREDATOR は前の文(1/10)
+    public const string LabelHitLifesteal = "命中時の吸収";                                                        // ID 10199
+    public const string LabelIceBreak = "冷え・凍結中のボスへのBREAK蓄積量";                                             // ID 10200
+    public const string TornadoText = "竜巻：威力{0}×{1}回・半径{2}m・1回ごとに{3}m引き寄せ";                            // ID 10201 {0}=威力 {1}=回数 {2}=半径 {3}=引き寄せ
+    public const string LightningCounterText = "命中{0}回ごとに必ず落雷";                                          // ID 10202 {0}=回数
+    public const string PredatorText = "ボス命中時にも撃破時の1/4の確率で回復・ボスへの命中による吸収量2倍";          // ID 10203
+    // 訳が無い言語では null(その行を出さない)
+    public static string Pend(string key) => Loc.Ready(key) ? key : null;
+
+    // 2026-10-30: 10196〜10203 はエステルのレビュー後に30言語へ反映済み(Tools/loc/keys_extra33)→ 外した
+    public static readonly (string id, string key)[] Pending = { };
 }

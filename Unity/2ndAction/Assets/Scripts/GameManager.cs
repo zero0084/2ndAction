@@ -3748,8 +3748,10 @@ public partial class GameManager : MonoBehaviour
         {
             LifestealProcs++; ElementTelemetry.LifestealHeals++; ElementTelemetry.Proc(ElementType.Blood);
             CardHeal(HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart);
+            ElementTelemetry.HealHp += HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart; ElementTelemetry.LifestealHealHp += HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart;
             // 2026-10-30(視認性): 吸収した敵(撃破の直後なら倒した敵、それ以外は最後に当てた所)から、血がプレイヤーへ戻る
             ElementVfx.BloodReturn(Time.time - ElementVfx.LastKillTime < 0.5f ? ElementVfx.LastKillPos : ElementVfx.LastHitPos, HealHearts(CardRules.BaseHealHearts));
+            NetElementFx.BloodAt(Time.time - ElementVfx.LastKillTime < 0.5f ? ElementVfx.LastKillPos : ElementVfx.LastHitPos);
         }
     }
 
@@ -5443,7 +5445,7 @@ public partial class GameManager : MonoBehaviour
             CardId = card.cardId,
             Icon = card.icon,
             Title = card.cardName,
-            Description = card.description,
+            Description = card.DisplayDescription,
             Rarity = card.rarity,
             LevelLine = highest > 0 ? $"Lv.{highest}" : "",
             Category = card.category,
@@ -5482,7 +5484,7 @@ public partial class GameManager : MonoBehaviour
             CardId = card.cardId,
             Icon = card.icon,
             Title = card.cardName,
-            Description = card.description,
+            Description = card.DisplayDescription,
             Rarity = card.rarity,
             LevelLine = stackLabel,
             Category = card.category,
@@ -5568,7 +5570,7 @@ public partial class GameManager : MonoBehaviour
             CardId = card.cardId,
             Icon = card.icon,
             Title = card.cardName,
-            Description = card.description,
+            Description = card.DisplayDescription,
             Rarity = card.rarity,
             LevelLine = levelLabel,
             Count = equipped ? 0 : count,

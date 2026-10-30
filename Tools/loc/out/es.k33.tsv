@@ -1,0 +1,27 @@
+10196	Esta carta ya está en tu mazo.
+10197	Para cambiarla por una copia con otro Lv, primero quita del mazo la que ya tienes.
+10198	Tu mazo tenía cartas repetidas. Se conservó la primera copia de cada carta y se retiraron del mazo las demás.
+10199	Absorción al golpear
+10200	Acumulación de BREAK contra jefes enfriados/congelados
+10201	Tornado: potencia {0} × {1} impactos; radio {2}m; atrae a los objetivos {3}m por impacto
+10202	Rayo garantizado cada {0} impactos
+10203	Golpear a jefes también puede curar con 1/4 de la probabilidad al derrotar enemigos; absorción de HP al golpear a jefes ×2
+10204	Los golpes pueden quemar al enemigo durante 3s. Lv1: prob. 20%, 6 de daño/s. Cada Lv adicional: prob. +4%, daño/s +1.5.
+10205	Daño de quemadura +8%/Lv; duración +0.25s/Lv. Esta carta sola permite quemar al golpear: prob. 8% en Lv1, luego +2%/Lv. Daño/s de quemadura también +0.5/Lv.
+10206	Al derrotar a un enemigo en llamas, el fuego se extiende a otros cercanos. Los derrotados por ese fuego lo propagan de nuevo. Etapas de propagación: 2 en Lv1–3, 3 en Lv4–6, 4 en Lv7–9. Potencia y área aumentan con el Lv. Esta carta sola permite quemar al golpear: prob. 8% en Lv1, luego +2%/Lv.
+10207	Bloquear con un Shield desata un contraataque de llamas a tu alrededor que quema durante 4s a los enemigos alcanzados. Potencia y área aumentan con el Lv. Esta carta sola permite llevar 1 Shield.
+10208	Los golpes pueden enfriar y ralentizar al enemigo. Lv1: prob. 20%, ralentización 28%. Cada Lv adicional: prob. +4%, ralentización +2.5%, duración del frío +0.1s. 5 acumulaciones de frío congelan: los esbirros se detienen; los jefes se ralentizan mucho y acumulan BREAK más rápido.
+10209	Reduce las acumulaciones de frío necesarias para congelar: 4 en Lv1–3, 3 en Lv4–6, 2 en Lv7–9. Duración de congelación +0.08s/Lv; de frío +0.15s/Lv. Esta carta sola permite enfriar al golpear: prob. 8% en Lv1, luego +2%/Lv.
+10210	Ataque contra enemigos enfriados/congelados +3%/Lv. Congelar causa daño extra que aumenta con el Lv. Acumulación de BREAK contra jefes enfriados/congelados +6%/Lv (la mitad si solo están enfriados). Esta carta sola permite enfriar al golpear: prob. 8% en Lv1, luego +2%/Lv; 4 acumulaciones congelan.
+10211	Los golpes pueden invocar rayos. Lv1: prob. 8%, potencia base 9. Cada Lv adicional: prob. +2%, potencia base +1.5. Además, se garantiza un rayo cada 13 impactos en Lv1 y cada 5 en Lv9. Un mismo enemigo recibe como máximo un rayo cada 0.4s.
+10212	Potencia del rayo +6%/Lv. Los rayos paralizan brevemente a los esbirros. Esta carta sola permite invocar rayos: prob. 3% en Lv1, luego +1%/Lv.
+10213	El rayo salta a otros enemigos cercanos: 1 en Lv1–3, 2 en Lv4–6, 3 en Lv7–9. Alcance de los saltos +0.2m/Lv. Sin otro objetivo, los saltos restantes golpean al mismo enemigo con menor potencia. Esta carta sola permite invocar rayos: prob. 5% en Lv1, luego +1%/Lv.
+10214	Potencia del rayo +4%/Lv. Objetivos adicionales de los saltos: +1 en Lv1–3, +2 en Lv4–6, +3 en Lv7–9. Los rayos también dañan alrededor del impacto; el área aumenta con el Lv. Esta carta sola permite invocar rayos: prob. 5% en Lv1, luego +1%/Lv.
+10215	Los golpes pueden lanzar hacia delante una hoja de viento perforante. Lv1: prob. 12%, potencia 9. Cada Lv adicional: prob. +3%, potencia +1. Atacar en el aire multiplica la prob. de activación por 1.5. Las hojas infligen +50% de daño a enemigos en el aire. Alcance de ataque +1%/Lv.
+10216	Velocidad de las hojas de viento +5%/Lv; alcance +0.4m/Lv. Perforaciones adicionales de hojas de viento y proyectiles: +1 en Lv1–3, +2 en Lv4–6, +3 en Lv7–9. Esta carta sola permite lanzar hojas de viento: prob. 6% en Lv1, luego +2%/Lv.
+10217	Una hoja de viento crea al impactar un tornado que atrae a los esbirros cercanos y daña 3 veces en Lv1–3, 4 en Lv4–6 y 5 en Lv7–9. Potencia, área y atracción aumentan con el Lv. Daño a jefes reducido a la mitad. Esta carta sola permite lanzar hojas de viento: prob. 6% en Lv1, luego +2%/Lv.
+10218	Al golpear, absorbes HP equivalente a parte del daño causado: 1% en Lv1, luego +0.5%/Lv. Derrotar a un enemigo también puede recuperar 1 corazón: prob. 8% en Lv1, luego +4%/Lv.
+10219	Probabilidad de recuperar 1 corazón al derrotar a un enemigo +4%/Lv. Golpear a jefes también puede activar esta curación con 1/4 de esa probabilidad. La absorción de HP al golpear a jefes se duplica.
+10220	La absorción y SECOND WIND recuperan corazones extra: +1 en Lv1–3, +2 en Lv4–6, +3 en Lv7–9. La curación que supera el HP máximo se convierte en 1 Shield; puedes llevar hasta 1 más que el límite habitual.
+10221	Con HP al 50% o menos: ataque +8%/Lv; absorción al golpear y prob. de sangrado ×2. Con HP al 25% o menos, la prob. de recuperar 1 corazón al derrotar enemigos también aumenta +5%/Lv, incluidos los jefes.
+10222	Los golpes pueden causar sangrado, que te cura por parte del daño que inflige: 10% en Lv1, luego +2%/Lv. Sangrado en Lv1: prob. 15%, 5 de daño/s. Cada Lv adicional: prob. +4%, daño/s +1. Con HP al máximo: prob. de sangrado ×2; ataque +2%/Lv.

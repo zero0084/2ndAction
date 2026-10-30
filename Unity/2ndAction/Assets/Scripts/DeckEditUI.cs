@@ -942,7 +942,7 @@ public class DeckEditUI : MonoBehaviour
             }
         }
         UguiScrollText.Wrap(detailText); // 2026-10-08: 長い説明は枠の中でスクロール(縮めない)
-        if (detailText != null) detailText.text = Loc.Auto((detailPreviewCard != null ? DetailDescription(card) : card.description) + statusLine);
+        if (detailText != null) detailText.text = Loc.Auto((detailPreviewCard != null ? DetailDescription(card) : card.DisplayDescription) + statusLine);
 
         detailCardId = card.cardId;
         detailLevel = level;
@@ -1000,9 +1000,9 @@ public class DeckEditUI : MonoBehaviour
         if (v != null)
         {
             CardDefinition main = CardDatabase.FindBaseById(v.mainId);
-            if (main != null) return main.description;
+            if (main != null) return main.DisplayDescription;
         }
-        return card.description;
+        return card.DisplayDescription;
     }
 
     // 目視確認ツアー(CardVisualTour)用: 一覧のカードを「見ている」状態にする(デッキ操作はしない)。

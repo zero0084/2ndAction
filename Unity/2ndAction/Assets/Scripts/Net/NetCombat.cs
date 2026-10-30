@@ -29,7 +29,7 @@ public class NetCombat : MonoBehaviour
     const string MsgState = "OMM.CombatState";    // HOST→JOIN: 位置/姿勢(非信頼)
     const string MsgHit = "OMM.CombatHit";        // JOIN→HOST: ダメージ要求
 
-    const byte OpEnemySpawn = 1, OpBossSpawn = 2, OpDamage = 3, OpDeath = 4, OpDespawn = 5, OpReject = 6, OpBanner = 7, OpWanted = 8, OpBossHold = 9, OpEarlyTele = 10, OpEarlyCancel = 11;
+    const byte OpEnemySpawn = 1, OpBossSpawn = 2, OpDamage = 3, OpDeath = 4, OpDespawn = 5, OpReject = 6, OpBanner = 7, OpWanted = 8, OpBossHold = 9, OpEarlyTele = 10, OpEarlyCancel = 11, OpElemFx = 12;
     const byte HitDamage = 1, HitVacuum = 2;
 
     public const float StateSendRate = 20f;
@@ -483,6 +483,7 @@ public class NetCombat : MonoBehaviour
 
     void LateUpdate()
     {
+        if (Authority) NetElementFx.Tick(); // 2026-10-30: 属性の見た目の知らせ(0.1秒ごとに1通)
         if (Authority) AuthorityLateUpdate();
         else if (Replica) ReplicaLateUpdate();
     }
@@ -596,6 +597,23 @@ public class NetCombat : MonoBehaviour
         {
             string where = e.Go != null && AllPlayersRangeSceneX(out float rear, out float front) ? $" enemyX={e.Go.transform.position.x + FloatingOrigin.Offset:F1} rearPlayerX={rear + FloatingOrigin.Offset:F1} frontPlayerX={front + FloatingOrigin.Offset:F1}" : "";
             Log(KindTag(e.Kind), $"Despawn id={e.Id} (alive, removed by host){where}");
+        }
+    }
+
+    // 2026-10-30: 属性の見た目の知らせ(NetElementFx)。中身は NetElementFx が書く
+    public static void SendElemFx(System.Action<FastBufferWriter> write, int size, out int bytes)
+    {
+        bytes = 0;
+        if (!Authority || Instance == null) return;
+        NetworkManager nm = NetSession.Manager;
+        if (nm == null || nm.CustomMessagingManager == null) return;
+        using (var w = new FastBufferWriter(Mathf.Max(64, size), Allocator.Temp, 65536))
+        {
+            w.WriteValueSafe(NetRunLauncher.ActiveRunSeed);
+            w.WriteValueSafe(OpElemFx);
+            write(w);
+            bytes = w.Length;
+            SendReliableToClients(w);
         }
     }
 
@@ -1151,6 +1169,7 @@ public class NetCombat : MonoBehaviour
                 RemoteForesight.Cancel(bid);
                 break;
             }
+            case OpElemFx: NetElementFx.Handle(r); break;
             case OpBossHold:
             {
                 r.ReadValueSafe(out bool hold); r.ReadValueSafe(out double ax);

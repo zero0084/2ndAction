@@ -38,6 +38,7 @@ public static class CardEffectFormat
             case EffectType.LightningDamagePct: case EffectType.WindSpeedPct:
             case EffectType.BurnChance: case EffectType.ChillChance: case EffectType.ChillSlow: case EffectType.LightningChance:
             case EffectType.WindBladeChance: case EffectType.BleedChance: case EffectType.BleedLifesteal:
+            case EffectType.HitLifestealPct: case EffectType.IceBreakPct:
                 return true;
         }
         return false;
@@ -55,6 +56,7 @@ public static class CardEffectFormat
             case EffectType.ComboMasterLevel: case EffectType.HunterLevel: case EffectType.BrakeLevel: case EffectType.HeavyArmorLevel:
             case EffectType.BossRushLevel: case EffectType.WantedLevel: case EffectType.InfernoLevel: case EffectType.AbsoluteZeroLevel:
             case EffectType.TornadoLevel: case EffectType.BloodBladeLevel: case EffectType.ShieldGuard: case EffectType.UltimateLevel:
+            case EffectType.LightningCounterLevel:
                 return true;
         }
         return false;

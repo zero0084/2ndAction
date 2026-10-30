@@ -210,7 +210,7 @@ public class ElementVfx : MonoBehaviour
         perfT += udt; perfFrames++; perfMinFps = Mathf.Min(perfMinFps, 1f / Mathf.Max(1e-4f, udt)); perfPeakP = Mathf.Max(perfPeakP, live.Count);
         if (perfT < 10f) return;
         var gm = GameManager.Instance;
-        Debug.Log($"[ElemPerf] d={(gm != null ? gm.MaxDistance : 0f):F0}m fps avg {perfFrames / perfT:F1} min {perfMinFps:F1} particles peak {perfPeakP} auras {ElementAura.PeakAuras} marks {ElementAura.PeakMarked} bolts {BoltsDrawn} sfx {SfxPlayed}/{SfxThinned} dropped {Dropped} enemies {EnemyController.ActiveCount} mem {UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() / 1048576}MB | {ElementTelemetry.Report().Replace("\n", " |")}");
+        Debug.Log($"[ElemPerf] d={(gm != null ? gm.MaxDistance : 0f):F0}m fps avg {perfFrames / perfT:F1} min {perfMinFps:F1} particles peak {perfPeakP} auras {ElementAura.PeakAuras} marks {ElementAura.PeakMarked} bolts {BoltsDrawn} sfx {SfxPlayed}/{SfxThinned} dropped {Dropped} enemies {EnemyController.ActiveCount} net q/sent/msg/drop/bytes={NetElementFx.Queued}/{NetElementFx.Sent}/{NetElementFx.Messages}/{NetElementFx.Dropped}/{NetElementFx.BytesSent} recv/played/missing={NetElementFx.Received}/{NetElementFx.Played}/{NetElementFx.Missing} mem {UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() / 1048576}MB | {ElementTelemetry.Report().Replace("\n", " |")}");
         perfT = 0f; perfFrames = 0; perfMinFps = 999f; perfPeakP = 0; ElementAura.PeakAuras = 0; ElementAura.PeakMarked = 0;
     }
 #endif
@@ -464,6 +464,25 @@ public class ElementVfx : MonoBehaviour
         if (pc == null) return;
         Spawn(ElementArt.Ring, pc.transform.position + Vector3.up * 0.9f, BloodCore, 0.35f, 0.6f, 1.6f, Vector3.zero, 0.8f, 0f, true, 0f, 0f, RenderOrder.PlayerOverlay + 1, pc.transform);
         Spawn(ElementArt.Glow, pc.transform.position + Vector3.up * 0.9f, new Color(1f, 0.5f, 0.55f), 0.3f, 0.8f, 1.4f, Vector3.zero, 0.5f, 0f, true, 0f, 0f, RenderOrder.PlayerOverlay + 1, pc.transform);
+    }
+
+    // マルチ JOIN(2026-10-30): HOST の風刃の見た目(当たり判定なし。縁の付いた筋が前へ流れる)
+    public static void RemoteWindBlade(Vector3 at, float dir, float range)
+    {
+        if (!New || !OnScreen(at, 6f)) return;
+        float speed = 18f, life = Mathf.Clamp(range / speed, 0.15f, 0.8f);
+        Spawn(ElementArt.Streak, at, new Color(0.05f, 0.42f, 0.36f, 0.8f), life, 1.1f, 1f, new Vector3(dir * speed, 0f, 0f), 0.85f, 0.3f, false, 0f, 0f, RenderOrder.CombatFx);
+        Spawn(ElementArt.Streak, at, WindCore, life, 0.95f, 0.9f, new Vector3(dir * speed, 0f, 0f), 1f, 0.3f, true, 0f, 0f, RenderOrder.CombatFx + 1);
+        Sfx(ElementType.Wind, 0.12f);
+    }
+    // マルチ JOIN: HOST の吸収(血が浮き上がって消える。回復したのは HOST のプレイヤー)
+    public static void RemoteBlood(Vector3 at)
+    {
+        if (!New || !OnScreen(at)) return;
+        for (int i = 0; i < 4; i++)
+            Spawn(ElementArt.Drop, at + (Vector3)(Random.insideUnitCircle * 0.3f), Color.Lerp(BloodCore, BloodEdge, Random.value * 0.4f), 0.6f, 0.2f, 0.1f,
+                new Vector3(Random.Range(-1f, 1f), Random.Range(2f, 3.5f), 0f), 1f, 0f, false);
+        Sfx(ElementType.Blood, 0.2f);
     }
 
     // 撃破の位置(VAMPIRE の吸収は撃破で判定するので、その敵から戻す)

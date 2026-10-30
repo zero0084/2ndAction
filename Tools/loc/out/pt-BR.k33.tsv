@@ -1,0 +1,27 @@
+10196	Esta carta já está no seu deck.
+10197	Para trocar pela mesma carta com outro Lv, remova primeiro a carta atual do deck.
+10198	O deck continha várias cópias da mesma carta: a primeira foi mantida no deck e as demais foram removidas dele.
+10199	Absorção ao acertar
+10200	Acúmulo de BREAK contra chefes resfriados ou congelados
+10201	Tornado: dano {0} × {1} acertos; raio de {2}m; puxa os alvos {3}m por acerto
+10202	Raio garantido a cada {0} acertos
+10203	Acertos em chefes também podem curar, com 1/4 da chance de cura ao derrotar um inimigo; HP absorvido por acertos em chefes ×2.
+10204	Acertos podem queimar inimigos por 3s. No Lv1: chance de 20%, 6 de dano/s. Por Lv adicional: chance +4%, dano/s +1.5.
+10205	Dano da queimadura +8%/Lv, duração +0.25s/Lv. Esta carta sozinha também pode queimar ao acertar: chance de 8% no Lv1, depois +2% por Lv adicional. Dano da queimadura/s também +0.5/Lv.
+10206	Derrotar um inimigo em chamas espalha fogo para os inimigos próximos; os derrotados por esse fogo também o espalham. Propagação em 2 etapas no Lv1–3, 3 no Lv4–6, 4 no Lv7–9. Dano e raio aumentam com o Lv. Esta carta sozinha também pode queimar ao acertar: chance de 8% no Lv1, depois +2% por Lv adicional.
+10207	Bloquear um ataque com um Shield provoca um contra-ataque de fogo ao seu redor, queimando os inimigos atingidos por 4s. Dano e raio aumentam com o Lv. Esta carta sozinha também permite ter 1 Shield.
+10208	Acertos podem resfriar e deixar os inimigos mais lentos. No Lv1: chance de 20%, lentidão de 28%. Por Lv adicional: chance +4%, lentidão +2.5%, duração do resfriamento +0.1s. 5 resfriamentos acumulados congelam: inimigos comuns param; chefes ficam muito mais lentos e acumulam BREAK mais rápido.
+10209	Reduz os resfriamentos acumulados necessários para congelar: 4 no Lv1–3, 3 no Lv4–6, 2 no Lv7–9. Duração do congelamento +0.08s/Lv, duração do resfriamento +0.15s/Lv. Esta carta sozinha também pode resfriar ao acertar: chance de 8% no Lv1, depois +2% por Lv adicional.
+10210	Ataque contra inimigos resfriados ou congelados +3%/Lv. Congelar um inimigo causa dano extra que aumenta com o Lv. Acúmulo de BREAK contra chefes resfriados ou congelados +6%/Lv (metade do bônus se estiverem apenas resfriados). Esta carta sozinha também pode resfriar ao acertar: chance de 8% no Lv1, depois +2% por Lv adicional; 4 resfriamentos acumulados congelam.
+10211	Acertos podem invocar um raio. No Lv1: chance de 8%, dano base 9. Por Lv adicional: chance +2%, dano base +1.5. Um raio também é garantido a cada 13 acertos no Lv1, chegando a cada 5 no Lv9. No máximo 1 raio a cada 0.4s no mesmo inimigo.
+10212	Dano dos raios +6%/Lv. Raios paralisam inimigos comuns por um instante. Esta carta sozinha também pode invocar raios: chance de 3% no Lv1, depois +1% por Lv adicional.
+10213	Raios saltam para outros inimigos próximos: 1 no Lv1–3, 2 no Lv4–6, 3 no Lv7–9. Alcance dos saltos +0.2m/Lv. Sem um próximo alvo, os saltos restantes atingem o mesmo inimigo com dano reduzido. Esta carta sozinha também pode invocar raios: chance de 5% no Lv1, depois +1% por Lv adicional.
+10214	Dano dos raios +4%/Lv. Alvos adicionais dos saltos: +1 no Lv1–3, +2 no Lv4–6, +3 no Lv7–9. Raios também causam dano ao redor do ponto de impacto; o raio da área aumenta com o Lv. Esta carta sozinha também pode invocar raios: chance de 5% no Lv1, depois +1% por Lv adicional.
+10215	Acertos podem lançar à frente uma lâmina de vento que atravessa inimigos. No Lv1: chance de 12%, dano 9. Por Lv adicional: chance +3%, dano +1. Ataques feitos no ar têm chance de ativação ×1.5. Lâminas de vento causam +50% de dano a inimigos no ar. Alcance de ataque +1%/Lv.
+10216	Velocidade das lâminas de vento +5%/Lv, alcance +0.4m/Lv. Alvos adicionais perfurados por lâminas de vento e projéteis: +1 no Lv1–3, +2 no Lv4–6, +3 no Lv7–9. Esta carta sozinha também pode gerar lâminas de vento: chance de 6% no Lv1, depois +2% por Lv adicional.
+10217	O impacto de uma lâmina de vento cria um tornado que puxa inimigos comuns próximos e causa dano 3 vezes no Lv1–3, 4 no Lv4–6, 5 no Lv7–9. Dano, raio e força de atração aumentam com o Lv. Causa metade do dano a chefes. Esta carta sozinha também pode gerar lâminas de vento: chance de 6% no Lv1, depois +2% por Lv adicional.
+10218	Acertos absorvem uma parte do dano causado para recuperar HP: 1% no Lv1, depois +0.5% por Lv adicional. Derrotar um inimigo também pode recuperar 1 coração: chance de 8% no Lv1, depois +4% por Lv adicional.
+10219	Chance de recuperar 1 coração ao derrotar um inimigo +4%/Lv. Acertos em chefes também podem ativar essa cura com 1/4 dessa chance. A quantidade de HP absorvido por acertos em chefes dobra.
+10220	Absorção e SECOND WIND recuperam corações adicionais: +1 no Lv1–3, +2 no Lv4–6, +3 no Lv7–9. A cura que excede o HP máximo concede 1 Shield, permitindo ter até 1 acima do limite normal de Shield.
+10221	Com HP em 50% ou menos: ataque +8%/Lv; HP absorvido ao acertar e chance de sangramento ×2. Com HP em 25% ou menos, a chance de recuperar 1 coração ao derrotar um inimigo também aumenta em +5%/Lv, incluindo chefes.
+10222	Acertos podem causar sangramento; uma parte do dano de sangramento recupera HP: 10% no Lv1, depois +2% por Lv adicional. Sangramento no Lv1: chance de 15%, 5 de dano/s. Por Lv adicional: chance +4%, dano/s +1. Com HP cheio: chance de sangramento ×2, ataque +2%/Lv.

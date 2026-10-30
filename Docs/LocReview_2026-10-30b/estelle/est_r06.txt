@@ -1,0 +1,54 @@
+10196 [tr] Bu kart zaten destende.
+10196 [ar] هذه البطاقة موجودة بالفعل في المجموعة.
+10197 [tr] Aynı kartın farklı Lv'deki bir kopyasıyla değiştirmek için önce mevcut kartı desteden çıkar.
+10197 [ar] لاستبدالها بنسخة من البطاقة نفسها ذات Lv مختلف، أزل البطاقة الحالية من المجموعة أولًا.
+10198 [tr] Destende aynı kartın birden fazla kopyası vardı. İlk kopya destede tutuldu, diğerleri desteden çıkarıldı.
+10198 [ar] كانت المجموعة تحتوي على عدة نسخ من البطاقة نفسها. أُبقيت النسخة الأولى في المجموعة وأُزيلت النسخ الأخرى منها.
+10199 [tr] İsabette can emme
+10199 [ar] الامتصاص عند الإصابة
+10200 [tr] Üşümüş veya donmuş boss'larda BREAK birikimi
+10200 [ar] تراكم BREAK لدى الزعماء المبرَّدين أو المجمَّدين
+10201 [tr] Hortum: güç {0} × {1} isabet; yarıçap {2}m; her isabette hedefleri {3}m çeker
+10201 [ar] الإعصار: القوة {0} × {1} إصابات؛ نصف القطر {2}m؛ يجذب الأهداف مسافة {3}m مع كل إصابة
+10202 [tr] Her {0} isabette garantili yıldırım
+10202 [ar] صاعقة مضمونة كل {0} إصابات
+10203 [tr] Boss'a isabet de düşman yenildiğindeki iyileşme şansının 1/4'üyle iyileştirebilir; boss'a isabette emilen HP ×2.
+10203 [ar] قد تشفي إصابات الزعماء أيضًا باحتمال يساوي 1/4 احتمال الشفاء عند هزيمة عدو؛ كمية HP الممتصة من إصابات الزعماء ×2.
+10204 [tr] İsabetler düşmanları 3s boyunca yakabilir. Lv1: şans 20%, hasar 6/s. Sonraki her Lv: şans +4%, hasar/s +1.5.
+10204 [ar] قد تُحرق الإصابات الأعداء لمدة 3s. في Lv1: الاحتمال 20%، الضرر 6/s. لكل Lv إضافي: الاحتمال +4%، الضرر/s +1.5.
+10205 [tr] Yanma hasarı +8%/Lv, yanma süresi +0.25s/Lv. Bu kart tek başına da isabette yakabilir: Lv1'de şans 8%, sonraki her Lv için +2%. Yanma hasarı/s ayrıca +0.5/Lv.
+10205 [ar] ضرر الاحتراق +8%/Lv، مدته +0.25s/Lv. يمكن لهذه البطاقة وحدها أيضًا أن تُحرق عند الإصابة: الاحتمال 8% في Lv1، ثم +2% لكل Lv إضافي. ضرر الاحتراق/s أيضًا +0.5/Lv.
+10206 [tr] Yanan düşmanı yenmek ateşi yakındaki düşmanlara yayar; bu ateşle yenilen düşmanlar da ateşi yayar. Yayılma derinliği Lv1–3'te 2, Lv4–6'da 3, Lv7–9'da 4 aşamadır. Güç ve yarıçap Lv ile artar. Bu kart tek başına da isabette yakabilir: Lv1'de şans 8%, sonraki her Lv için +2%.
+10206 [ar] عند هزيمة عدو محترق تنتشر النار إلى الأعداء القريبين؛ ومن تهزمهم هذه النار ينشرونها بدورهم. يمتد الانتشار عبر 2 مراحل في Lv1–3، و3 في Lv4–6، و4 في Lv7–9. تزداد القوة ونصف القطر مع Lv. يمكن لهذه البطاقة وحدها أيضًا أن تُحرق عند الإصابة: الاحتمال 8% في Lv1، ثم +2% لكل Lv إضافي.
+10207 [tr] Shield ile bir saldırıyı engellemek, çevrende ateşli bir karşı saldırı oluşturur ve vurulan düşmanları 4s yakar. Güç ve yarıçap Lv ile artar. Bu kart tek başına da 1 Shield taşımana olanak tanır.
+10207 [ar] صد هجوم باستخدام Shield يطلق هجومًا ناريًا مضادًا حولك، يُحرق الأعداء المصابين لمدة 4s. تزداد القوة ونصف القطر مع Lv. تتيح هذه البطاقة وحدها أيضًا حمل 1 Shield.
+10208 [tr] İsabetler düşmanları üşütüp yavaşlatabilir. Lv1: şans 20%, yavaşlatma 28%. Sonraki her Lv: şans +4%, yavaşlatma +2.5%, üşüme süresi +0.1s. Üşüme 5 kez birikince donma oluşur: sıradan düşmanlar durur; boss'lar büyük ölçüde yavaşlar ve BREAK daha hızlı birikir.
+10208 [ar] قد تُبرِّد الإصابات الأعداء وتبطئهم. في Lv1: الاحتمال 20%، الإبطاء 28%. لكل Lv إضافي: الاحتمال +4%، الإبطاء +2.5%، مدة التبريد +0.1s. عند تراكم 5 تبريدات يتجمد الأعداء: يتوقف الأعداء العاديون؛ ويتباطأ الزعماء بشدة ويتراكم لديهم BREAK أسرع.
+10209 [tr] Donma için gereken üşüme birikimi azalır: Lv1–3'te 4, Lv4–6'da 3, Lv7–9'da 2. Donma süresi +0.08s/Lv, üşüme süresi +0.15s/Lv. Bu kart tek başına da isabette üşütebilir: Lv1'de şans 8%, sonraki her Lv için +2%.
+10209 [ar] يقل عدد التبريدات المتراكمة اللازمة للتجميد: 4 في Lv1–3، و3 في Lv4–6، و2 في Lv7–9. مدة التجميد +0.08s/Lv، مدة التبريد +0.15s/Lv. يمكن لهذه البطاقة وحدها أيضًا أن تُبرِّد عند الإصابة: الاحتمال 8% في Lv1، ثم +2% لكل Lv إضافي.
+10210 [tr] Üşümüş veya donmuş düşmanlara karşı saldırı +3%/Lv. Donma anında Lv ile artan ek hasar verir. Üşümüş veya donmuş boss'larda BREAK birikimi +6%/Lv (yalnızca üşümüşse bonus yarıya iner). Bu kart tek başına da isabette üşütebilir: Lv1'de şans 8%, sonraki her Lv için +2%; 4 üşüme birikimi donma oluşturur.
+10210 [ar] الهجوم على الأعداء المبرَّدين أو المجمَّدين +3%/Lv. يُلحق التجميد ضررًا إضافيًا يزداد مع Lv. تراكم BREAK لدى الزعماء المبرَّدين أو المجمَّدين +6%/Lv (نصف الزيادة عند التبريد فقط). يمكن لهذه البطاقة وحدها أيضًا أن تُبرِّد عند الإصابة: الاحتمال 8% في Lv1، ثم +2% لكل Lv إضافي؛ تراكم 4 تبريدات يسبب التجميد.
+10211 [tr] İsabetler yıldırım düşürebilir. Lv1: şans 8%, temel güç 9. Sonraki her Lv: şans +2%, temel güç +1.5. Ayrıca Lv1'de her 13 isabette garantili yıldırım düşer; bu sayı Lv9'da 5'e iner. Aynı düşmana 0.4s içinde en fazla 1 yıldırım düşer.
+10211 [ar] قد تستدعي الإصابات صاعقة. في Lv1: الاحتمال 8%، القوة الأساسية 9. لكل Lv إضافي: الاحتمال +2%، القوة الأساسية +1.5. تُضمن صاعقة أيضًا كل 13 إصابة في Lv1، وصولًا إلى كل 5 إصابات في Lv9. لا تصيب الصاعقة العدو نفسه أكثر من 1 مرة كل 0.4s.
+10212 [tr] Yıldırım gücü +6%/Lv. Yıldırım sıradan düşmanları bir an durdurur. Bu kart tek başına da yıldırım düşürebilir: Lv1'de şans 3%, sonraki her Lv için +1%.
+10212 [ar] قوة الصاعقة +6%/Lv. توقف الصواعق الأعداء العاديين لحظة. يمكن لهذه البطاقة وحدها أيضًا استدعاء صواعق: الاحتمال 3% في Lv1، ثم +1% لكل Lv إضافي.
+10213 [tr] Yıldırım yakındaki başka düşmanlara sıçrar: Lv1–3'te 1, Lv4–6'da 2, Lv7–9'da 3 hedef. Sıçrama menzili +0.2m/Lv. Sonraki hedef yoksa kalan sıçramalar aynı düşmana daha düşük güçle vurur. Bu kart tek başına da yıldırım düşürebilir: Lv1'de şans 5%, sonraki her Lv için +1%.
+10213 [ar] تتسلسل الصاعقة إلى أعداء قريبين آخرين: عدد الأهداف 1 في Lv1–3، و2 في Lv4–6، و3 في Lv7–9. مدى التسلسل +0.2m/Lv. عند غياب هدف تالٍ، تصيب ضربات التسلسل المتبقية العدو نفسه بقوة أقل. يمكن لهذه البطاقة وحدها أيضًا استدعاء صواعق: الاحتمال 5% في Lv1، ثم +1% لكل Lv إضافي.
+10214 [tr] Yıldırım gücü +4%/Lv. Ek zincir hedefi: Lv1–3'te +1, Lv4–6'da +2, Lv7–9'da +3. Yıldırım düştüğü yerin çevresine de hasar verir; yarıçap Lv ile artar. Bu kart tek başına da yıldırım düşürebilir: Lv1'de şans 5%, sonraki her Lv için +1%.
+10214 [ar] قوة الصاعقة +4%/Lv. أهداف التسلسل الإضافية: +1 في Lv1–3، و+2 في Lv4–6، و+3 في Lv7–9. تُلحق الصواعق ضررًا حول نقطة سقوطها أيضًا؛ ويزداد نصف القطر مع Lv. يمكن لهذه البطاقة وحدها أيضًا استدعاء صواعق: الاحتمال 5% في Lv1، ثم +1% لكل Lv إضافي.
+10215 [tr] İsabetler öne doğru düşmanları delen bir rüzgâr bıçağı fırlatabilir. Lv1: şans 12%, güç 9. Sonraki her Lv: şans +3%, güç +1. Havadayken yapılan saldırılarda tetiklenme şansı ×1.5. Rüzgâr bıçakları havadaki düşmanlara +50% hasar verir. Saldırı menzili +1%/Lv.
+10215 [ar] قد تُطلق الإصابات نصل ريح للأمام يخترق الأعداء. في Lv1: الاحتمال 12%، القوة 9. لكل Lv إضافي: الاحتمال +3%، القوة +1. الهجمات المنفذة في الهواء تحصل على احتمال تفعيل ×1.5. ضرر نصال الريح ضد الأعداء في الهواء +50%. مدى الهجوم +1%/Lv.
+10216 [tr] Rüzgâr bıçağı hızı +5%/Lv, uçuş mesafesi +0.4m/Lv. Rüzgâr bıçaklarının ve mermilerin deldiği ek hedef sayısı: Lv1–3'te +1, Lv4–6'da +2, Lv7–9'da +3. Bu kart tek başına da rüzgâr bıçağı oluşturabilir: Lv1'de şans 6%, sonraki her Lv için +2%.
+10216 [ar] سرعة نصال الريح +5%/Lv، مسافة الطيران +0.4m/Lv. عدد الأهداف الإضافية التي تخترقها نصال الريح والمقذوفات: +1 في Lv1–3، و+2 في Lv4–6، و+3 في Lv7–9. يمكن لهذه البطاقة وحدها أيضًا إطلاق نصال ريح: الاحتمال 6% في Lv1، ثم +2% لكل Lv إضافي.
+10217 [tr] Rüzgâr bıçağının isabet ettiği yerde, yakındaki sıradan düşmanları çeken bir hortum oluşur. Lv1–3'te 3, Lv4–6'da 4, Lv7–9'da 5 kez hasar verir. Güç, yarıçap ve çekiş Lv ile artar. Boss'lara yarı hasar verir. Bu kart tek başına da rüzgâr bıçağı oluşturabilir: Lv1'de şans 6%, sonraki her Lv için +2%.
+10217 [ar] تُنشئ إصابة نصل الريح إعصارًا يجذب الأعداء العاديين القريبين ويلحق الضرر 3 مرات في Lv1–3، و4 في Lv4–6، و5 في Lv7–9. تزداد القوة ونصف القطر والجذب مع Lv. يُلحق نصف الضرر بالزعماء. يمكن لهذه البطاقة وحدها أيضًا إطلاق نصال ريح: الاحتمال 6% في Lv1، ثم +2% لكل Lv إضافي.
+10218 [tr] İsabetler, verilen hasarın bir kısmı kadar can emerek HP yeniler: Lv1'de 1%, sonraki her Lv için +0.5%. Düşman yenmek de şansla 1 kalp yeniler: Lv1'de şans 8%, sonraki her Lv için +4%.
+10218 [ar] تمتص الإصابات HP يعادل جزءًا من الضرر المُلحَق لاستعادة صحتك: 1% في Lv1، ثم +0.5% لكل Lv إضافي. قد تستعيد أيضًا 1 قلب عند هزيمة عدو: الاحتمال 8% في Lv1، ثم +4% لكل Lv إضافي.
+10219 [tr] Düşman yenince 1 kalp yenileme şansı +4%/Lv. Boss'a isabet de bu şansın 1/4'üyle aynı iyileşmeyi tetikleyebilir. Boss'a isabette emilen HP miktarı 2 katına çıkar.
+10219 [ar] احتمال استعادة 1 قلب عند هزيمة عدو +4%/Lv. قد تُفعِّل إصابات الزعماء هذا الشفاء أيضًا باحتمال يساوي 1/4 ذلك الاحتمال. تتضاعف كمية HP الممتصة من إصابات الزعماء.
+10220 [tr] Can emme ve SECOND WIND ek kalp yeniler: Lv1–3'te +1, Lv4–6'da +2, Lv7–9'da +3. Maksimum HP'yi aşan iyileşme 1 Shield verir; normal Shield sınırının 1 fazlasına kadar taşıyabilirsin.
+10220 [ar] يستعيد الامتصاص وSECOND WIND قلوبًا إضافية: +1 في Lv1–3، و+2 في Lv4–6، و+3 في Lv7–9. الشفاء الزائد عن الحد الأقصى لـHP يمنح 1 Shield، مما يسمح بتجاوز حد Shield المعتاد بمقدار 1.
+10221 [tr] HP 50% veya altındayken: saldırı +8%/Lv; isabette emilen HP ve kanama şansı ×2. HP 25% veya altındayken, boss'lar dahil düşmanları yenince 1 kalp yenileme şansı da +5%/Lv artar.
+10221 [ar] عند 50% من HP أو أقل: الهجوم +8%/Lv؛ كمية HP الممتصة عند الإصابة واحتمال النزيف ×2. عند 25% من HP أو أقل، يزداد أيضًا احتمال استعادة 1 قلب عند هزيمة عدو بمقدار +5%/Lv، ويشمل ذلك الزعماء.
+10222 [tr] İsabetler kanama oluşturabilir; kanama hasarının bir kısmı HP yeniler: Lv1'de 10%, sonraki her Lv için +2%. Lv1'de kanama: şans 15%, hasar 5/s. Sonraki her Lv: şans +4%, hasar/s +1. HP doluyken: kanama şansı ×2, saldırı +2%/Lv.
+10222 [ar] قد تسبب الإصابات نزيفًا، ويستعيد جزء من ضرر النزيف HP لديك: 10% في Lv1، ثم +2% لكل Lv إضافي. النزيف في Lv1: الاحتمال 15%، الضرر 5/s. لكل Lv إضافي: الاحتمال +4%، الضرر/s +1. عند امتلاء HP: احتمال النزيف ×2، الهجوم +2%/Lv.

@@ -1,0 +1,27 @@
+10196	Kadi hii tayari iko kwenye deki.
+10197	Ili kutumia kadi hiyo hiyo yenye Lv tofauti, ondoa kwanza ile iliyo kwenye deki.
+10198	Deki ilikuwa na nakala nyingi za kadi ileile, hivyo ya kwanza imebaki na nakala za ziada zimeondolewa kwenye deki.
+10199	Kufyonza HP unapogonga
+10200	Kiasi cha BREAK kinachokusanyika dhidi ya mabosi wenye baridi au walioganda
+10201	Kimbunga: nguvu {0} × mapigo {1}; nusu kipenyo {2}m; huvuta walengwa kwa {3}m kila pigo
+10202	Radi ya uhakika kila mapigo {0} yanayolenga shabaha
+10203	Kumpiga bosi pia kunaweza kurejesha HP kwa uwezekano wa 1/4 ya ule wa kuua adui; kiasi cha HP kinachofyonzwa kwa kumpiga bosi ×2.
+10204	Ukigonga, kuna uwezekano wa kumuunguza adui kwa 3s. Lv1: uwezekano 20%, uharibifu 6/s. Kila Lv ya ziada: uwezekano +4%, uharibifu/s +1.5.
+10205	Uharibifu wa kuungua +8%/Lv; muda +0.25s/Lv. Kadi hii peke yake pia inaweza kuunguza ukigonga: uwezekano 8% kwa Lv1, +2% kwa kila Lv ya ziada. Uharibifu wa kuungua/s pia +0.5/Lv.
+10206	Adui anayeungua akiuawa, moto huenea kwa maadui wa karibu; waliouawa na moto huo huusambaza zaidi. Hatua za kuenea: 2 kwa Lv1–3, 3 kwa Lv4–6, 4 kwa Lv7–9. Nguvu na eneo huongezeka kwa Lv. Kadi hii peke yake pia inaweza kuunguza ukigonga: uwezekano 8% kwa Lv1, +2% kwa kila Lv ya ziada.
+10207	Ukizuia shambulio kwa Shield, moto wa kujibu hulipuka karibu nawe na kuwaunguza maadui unaowagonga kwa 4s. Nguvu na eneo huongezeka kwa Lv. Kadi hii peke yake pia hukuwezesha kuwa na Shield 1.
+10208	Ukigonga, kuna uwezekano wa kumpa adui baridi na kumpunguza kasi. Lv1: uwezekano 20%, upunguzaji wa kasi 28%. Kila Lv ya ziada: uwezekano +4%, upunguzaji wa kasi +2.5%, muda wa baridi +0.1s. Baridi ikirundikana mara 5, adui huganda: maadui wadogo husimama; mabosi hupungua kasi sana na BREAK hukusanyika haraka zaidi.
+10209	Baridi inayohitajika kuganda hupungua: mara 4 kwa Lv1–3, 3 kwa Lv4–6, 2 kwa Lv7–9. Muda wa kuganda +0.08s/Lv; muda wa baridi +0.15s/Lv. Kadi hii peke yake pia inaweza kutia baridi ukigonga: uwezekano 8% kwa Lv1, +2% kwa kila Lv ya ziada.
+10210	Nguvu ya shambulio dhidi ya maadui wenye baridi au walioganda +3%/Lv. Kuganda huleta uharibifu wa ziada unaoongezeka kwa Lv. BREAK dhidi ya mabosi wenye baridi au walioganda hukusanyika kwa +6%/Lv (nusu ya nyongeza hiyo wakiwa na baridi tu). Kadi hii peke yake pia inaweza kutia baridi ukigonga: uwezekano 8% kwa Lv1, +2% kwa kila Lv ya ziada; ikirundikana mara 4, adui huganda.
+10211	Ukigonga, kuna uwezekano wa radi kupiga. Lv1: uwezekano 8%, nguvu ya msingi 9. Kila Lv ya ziada: uwezekano +2%, nguvu ya msingi +1.5. Radi pia hupiga kwa uhakika kila unapogonga mara 13 kwa Lv1, au mara 5 kwa Lv9. Adui mmoja hupigwa na radi mara 1 tu kwa kila 0.4s.
+10212	Nguvu ya radi +6%/Lv. Radi husimamisha maadui wadogo kwa muda mfupi. Kadi hii peke yake pia inaweza kusababisha radi: uwezekano 3% kwa Lv1, +1% kwa kila Lv ya ziada.
+10213	Radi huruka kwa maadui wengine wa karibu: 1 kwa Lv1–3, 2 kwa Lv4–6, 3 kwa Lv7–9. Umbali wa mnyororo +0.2m/Lv. Bila shabaha inayofuata, miruko iliyobaki humpiga adui yuleyule kwa nguvu iliyopunguzwa. Kadi hii peke yake pia inaweza kusababisha radi: uwezekano 5% kwa Lv1, +1% kwa kila Lv ya ziada.
+10214	Nguvu ya radi +4%/Lv. Maadui wa ziada katika mnyororo: +1 kwa Lv1–3, +2 kwa Lv4–6, +3 kwa Lv7–9. Radi pia huleta uharibifu kuzunguka mahali inapopiga; eneo huongezeka kwa Lv. Kadi hii peke yake pia inaweza kusababisha radi: uwezekano 5% kwa Lv1, +1% kwa kila Lv ya ziada.
+10215	Ukigonga, kuna uwezekano wa kurusha mbele wembe wa upepo unaotoboa maadui. Lv1: uwezekano 12%, nguvu 9. Kila Lv ya ziada: uwezekano +3%, nguvu +1. Ukishambulia ukiwa hewani, uwezekano huwa ×1.5. Wembe wa upepo huleta uharibifu +50% kwa maadui walio hewani. Eneo la shambulio +1%/Lv.
+10216	Kasi ya wembe wa upepo +5%/Lv; umbali wa kuruka +0.4m/Lv. Idadi ya maadui wa ziada wanaotobolewa na wembe wa upepo na makombora: +1 kwa Lv1–3, +2 kwa Lv4–6, +3 kwa Lv7–9. Kadi hii peke yake pia inaweza kutoa wembe wa upepo: uwezekano 6% kwa Lv1, +2% kwa kila Lv ya ziada.
+10217	Wembe wa upepo ukigonga, kimbunga hutokea hapo, huvuta maadui wadogo wa karibu na kuleta uharibifu mara 3 kwa Lv1–3, 4 kwa Lv4–6, 5 kwa Lv7–9. Nguvu, eneo na mvuto huongezeka kwa Lv. Uharibifu kwa mabosi ni nusu. Kadi hii peke yake pia inaweza kutoa wembe wa upepo: uwezekano 6% kwa Lv1, +2% kwa kila Lv ya ziada.
+10218	Ukigonga, unafyonza HP sawa na sehemu ya uharibifu uliosababisha: 1% kwa Lv1, +0.5% kwa kila Lv ya ziada. Kuua adui pia kuna uwezekano wa kurejesha moyo 1: 8% kwa Lv1, +4% kwa kila Lv ya ziada.
+10219	Uwezekano wa kurejesha moyo 1 ukiua adui +4%/Lv. Kumpiga bosi pia kunaweza kurejesha moyo huo kwa 1/4 ya uwezekano wa kuua adui. Kiasi cha HP kinachofyonzwa kwa kumpiga bosi ni mara 2.
+10220	Kufyonza na SECOND WIND hurejesha mioyo ya ziada: +1 kwa Lv1–3, +2 kwa Lv4–6, +3 kwa Lv7–9. Uponyaji unaozidi HP kamili hubadilika kuwa Shield 1; unaweza kuwa na Shield hadi kikomo cha kawaida +1.
+10221	HP ikiwa 50% au chini: nguvu ya shambulio +8%/Lv; kiasi cha HP kinachofyonzwa ukigonga na uwezekano wa kuvuja damu ×2. HP ikiwa 25% au chini, uwezekano wa kurejesha moyo 1 ukiua adui pia +5%/Lv, ikijumuisha mabosi.
+10222	Ukigonga, kuna uwezekano wa kusababisha kuvuja damu; sehemu ya uharibifu huo hurejesha HP yako: 10% kwa Lv1, +2% kwa kila Lv ya ziada. Kuvuja damu kwa Lv1: uwezekano 15%, uharibifu 5/s. Kila Lv ya ziada: uwezekano +4%, uharibifu/s +1. HP ikiwa imejaa: uwezekano wa kuvuja damu ×2; nguvu ya shambulio +2%/Lv.

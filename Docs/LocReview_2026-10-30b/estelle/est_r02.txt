@@ -1,0 +1,54 @@
+10196 [ko] 이 카드는 이미 덱에 들어 있습니다.
+10196 [es] Esta carta ya está en tu mazo.
+10197 [ko] Lv가 다른 같은 카드로 바꾸려면 먼저 덱에 있는 카드를 빼 주세요.
+10197 [es] Para cambiarla por una copia con otro Lv, primero quita del mazo la que ya tienes.
+10198 [ko] 덱에 같은 카드가 여러 장 있어, 첫 1장만 남기고 나머지 중복 카드를 덱에서 뺐습니다.
+10198 [es] Tu mazo tenía cartas repetidas. Se conservó la primera copia de cada carta y se retiraron del mazo las demás.
+10199 [ko] 명중 시 흡수
+10199 [es] Absorción al golpear
+10200 [ko] 냉기·빙결 상태의 보스에 대한 BREAK 축적량
+10200 [es] Acumulación de BREAK contra jefes enfriados/congelados
+10201 [ko] 회오리: 위력 {0}×{1}회・반경 {2}m・명중마다 {3}m 끌어당김
+10201 [es] Tornado: potencia {0} × {1} impactos; radio {2}m; atrae a los objetivos {3}m por impacto
+10202 [ko] {0}회 명중할 때마다 반드시 낙뢰 발생
+10202 [es] Rayo garantizado cada {0} impactos
+10203 [ko] 보스 명중 시에도 적 처치 시 회복 확률의 1/4로 회복・보스 명중 시 HP 흡수량 2배
+10203 [es] Golpear a jefes también puede curar con 1/4 de la probabilidad al derrotar enemigos; absorción de HP al golpear a jefes ×2
+10204 [ko] 명중 시 확률로 적에게 3s 동안 화상을 입힌다. Lv1: 확률 20%・초당 피해 6. 이후 1Lv마다 확률 +4%・초당 피해 +1.5
+10204 [es] Los golpes pueden quemar al enemigo durante 3s. Lv1: prob. 20%, 6 de daño/s. Cada Lv adicional: prob. +4%, daño/s +1.5.
+10205 [ko] 화상 피해 +8%/Lv, 화상 시간 +0.25s/Lv. 이 카드만으로도 명중 시 화상 부여: Lv1 확률 8%, 이후 +2%/Lv. 화상의 초당 피해도 +0.5/Lv
+10205 [es] Daño de quemadura +8%/Lv; duración +0.25s/Lv. Esta carta sola permite quemar al golpear: prob. 8% en Lv1, luego +2%/Lv. Daño/s de quemadura también +0.5/Lv.
+10206 [ko] 화상 중인 적을 처치하면 주변 적에게 불이 번지며, 번진 불로 처치한 적에게서도 다시 퍼진다. 확산 단계: Lv1〜3에서 2단계, Lv4〜6에서 3단계, Lv7〜9에서 4단계. 위력과 범위도 Lv에 따라 증가. 이 카드만으로도 명중 시 화상 부여: Lv1 확률 8%, 이후 +2%/Lv
+10206 [es] Al derrotar a un enemigo en llamas, el fuego se extiende a otros cercanos. Los derrotados por ese fuego lo propagan de nuevo. Etapas de propagación: 2 en Lv1–3, 3 en Lv4–6, 4 en Lv7–9. Potencia y área aumentan con el Lv. Esta carta sola permite quemar al golpear: prob. 8% en Lv1, luego +2%/Lv.
+10207 [ko] Shield로 공격을 막으면 주변에 화염 반격을 가해, 맞은 적에게 4s 동안 화상을 입힌다. 위력과 범위는 Lv에 따라 증가. 이 카드만으로도 Shield를 1개 보유할 수 있다
+10207 [es] Bloquear con un Shield desata un contraataque de llamas a tu alrededor que quema durante 4s a los enemigos alcanzados. Potencia y área aumentan con el Lv. Esta carta sola permite llevar 1 Shield.
+10208 [ko] 명중 시 확률로 적에게 냉기를 걸어 감속시킨다. Lv1: 확률 20%・감속 28%. 이후 1Lv마다 확률 +4%・감속 +2.5%・냉기 시간 +0.1s. 냉기가 5회 쌓이면 빙결: 잡몹은 멈추고, 보스는 크게 감속하며 BREAK가 더 쉽게 쌓인다
+10208 [es] Los golpes pueden enfriar y ralentizar al enemigo. Lv1: prob. 20%, ralentización 28%. Cada Lv adicional: prob. +4%, ralentización +2.5%, duración del frío +0.1s. 5 acumulaciones de frío congelan: los esbirros se detienen; los jefes se ralentizan mucho y acumulan BREAK más rápido.
+10209 [ko] 빙결에 필요한 냉기 중첩 감소: Lv1〜3에서 4회, Lv4〜6에서 3회, Lv7〜9에서 2회. 빙결 시간 +0.08s/Lv, 냉기 시간 +0.15s/Lv. 이 카드만으로도 명중 시 냉기 부여: Lv1 확률 8%, 이후 +2%/Lv
+10209 [es] Reduce las acumulaciones de frío necesarias para congelar: 4 en Lv1–3, 3 en Lv4–6, 2 en Lv7–9. Duración de congelación +0.08s/Lv; de frío +0.15s/Lv. Esta carta sola permite enfriar al golpear: prob. 8% en Lv1, luego +2%/Lv.
+10210 [ko] 냉기·빙결 상태의 적에 대한 공격력 +3%/Lv. 빙결 시 추가 피해를 주며, 위력은 Lv에 따라 증가. 냉기·빙결 상태의 보스에 대한 BREAK 축적량 +6%/Lv(냉기만 걸린 동안은 증가량 절반). 이 카드만으로도 명중 시 냉기를 걸고, 4회 중첩 시 빙결: Lv1 확률 8%, 이후 +2%/Lv
+10210 [es] Ataque contra enemigos enfriados/congelados +3%/Lv. Congelar causa daño extra que aumenta con el Lv. Acumulación de BREAK contra jefes enfriados/congelados +6%/Lv (la mitad si solo están enfriados). Esta carta sola permite enfriar al golpear: prob. 8% en Lv1, luego +2%/Lv; 4 acumulaciones congelan.
+10211 [ko] 명중 시 확률로 낙뢰 발생. Lv1: 확률 8%・기초 위력 9. 이후 1Lv마다 확률 +2%・기초 위력 +1.5. 또한 일정 횟수 명중할 때마다 반드시 낙뢰 발생(Lv1에서 13회마다, Lv9에서 5회마다). 같은 적에게 낙뢰는 0.4s에 1회까지
+10211 [es] Los golpes pueden invocar rayos. Lv1: prob. 8%, potencia base 9. Cada Lv adicional: prob. +2%, potencia base +1.5. Además, se garantiza un rayo cada 13 impactos en Lv1 y cada 5 en Lv9. Un mismo enemigo recibe como máximo un rayo cada 0.4s.
+10212 [ko] 낙뢰 위력 +6%/Lv. 낙뢰가 잡몹을 잠깐 멈춘다. 이 카드만으로도 낙뢰 발생: Lv1 확률 3%, 이후 +1%/Lv
+10212 [es] Potencia del rayo +6%/Lv. Los rayos paralizan brevemente a los esbirros. Esta carta sola permite invocar rayos: prob. 3% en Lv1, luego +1%/Lv.
+10213 [ko] 낙뢰가 근처의 다른 적에게 연쇄된다: Lv1〜3에서 1마리, Lv4〜6에서 2마리, Lv7〜9에서 3마리. 연쇄 거리 +0.2m/Lv. 다음 대상이 없으면 남은 연쇄가 위력이 줄어든 낙뢰로 같은 적을 타격한다. 이 카드만으로도 낙뢰 발생: Lv1 확률 5%, 이후 +1%/Lv
+10213 [es] El rayo salta a otros enemigos cercanos: 1 en Lv1–3, 2 en Lv4–6, 3 en Lv7–9. Alcance de los saltos +0.2m/Lv. Sin otro objetivo, los saltos restantes golpean al mismo enemigo con menor potencia. Esta carta sola permite invocar rayos: prob. 5% en Lv1, luego +1%/Lv.
+10214 [ko] 낙뢰 위력 +4%/Lv. 연쇄 대상 수는 Lv1〜3에서 +1마리, Lv4〜6에서 +2마리, Lv7〜9에서 +3마리. 낙뢰 지점 주변에도 피해를 주며, 범위는 Lv에 따라 증가. 이 카드만으로도 낙뢰 발생: Lv1 확률 5%, 이후 +1%/Lv
+10214 [es] Potencia del rayo +4%/Lv. Objetivos adicionales de los saltos: +1 en Lv1–3, +2 en Lv4–6, +3 en Lv7–9. Los rayos también dañan alrededor del impacto; el área aumenta con el Lv. Esta carta sola permite invocar rayos: prob. 5% en Lv1, luego +1%/Lv.
+10215 [ko] 명중 시 확률로 적을 관통하는 바람 칼날을 전방에 발사한다. Lv1: 확률 12%・위력 9. 이후 1Lv마다 확률 +3%・위력 +1. 공중에서 공격하면 발동 확률 1.5배. 공중의 적에게 바람 칼날 피해 +50%. 공격 범위 +1%/Lv
+10215 [es] Los golpes pueden lanzar hacia delante una hoja de viento perforante. Lv1: prob. 12%, potencia 9. Cada Lv adicional: prob. +3%, potencia +1. Atacar en el aire multiplica la prob. de activación por 1.5. Las hojas infligen +50% de daño a enemigos en el aire. Alcance de ataque +1%/Lv.
+10216 [ko] 바람 칼날 속도 +5%/Lv, 사거리 +0.4m/Lv. 바람 칼날과 원거리 공격의 관통 횟수는 Lv1〜3에서 +1, Lv4〜6에서 +2, Lv7〜9에서 +3. 이 카드만으로도 바람 칼날 발생: Lv1 확률 6%, 이후 +2%/Lv
+10216 [es] Velocidad de las hojas de viento +5%/Lv; alcance +0.4m/Lv. Perforaciones adicionales de hojas de viento y proyectiles: +1 en Lv1–3, +2 en Lv4–6, +3 en Lv7–9. Esta carta sola permite lanzar hojas de viento: prob. 6% en Lv1, luego +2%/Lv.
+10217 [ko] 바람 칼날 명중 지점에 회오리가 발생해 주변 잡몹을 끌어당기며 피해를 준다: Lv1〜3에서 3회, Lv4〜6에서 4회, Lv7〜9에서 5회. 위력·범위·끌어당기는 힘은 Lv에 따라 증가. 보스에게 주는 피해는 절반. 이 카드만으로도 바람 칼날 발생: Lv1 확률 6%, 이후 +2%/Lv
+10217 [es] Una hoja de viento crea al impactar un tornado que atrae a los esbirros cercanos y daña 3 veces en Lv1–3, 4 en Lv4–6 y 5 en Lv7–9. Potencia, área y atracción aumentan con el Lv. Daño a jefes reducido a la mitad. Esta carta sola permite lanzar hojas de viento: prob. 6% en Lv1, luego +2%/Lv.
+10218 [ko] 명중 시 가한 피해의 일부만큼 HP를 흡수한다. 흡수율은 Lv1에서 1%, 이후 +0.5%/Lv. 적 처치 시에도 확률로 하트 1개 회복: Lv1에서 8%, 이후 +4%/Lv
+10218 [es] Al golpear, absorbes HP equivalente a parte del daño causado: 1% en Lv1, luego +0.5%/Lv. Derrotar a un enemigo también puede recuperar 1 corazón: prob. 8% en Lv1, luego +4%/Lv.
+10219 [ko] 적 처치 시 하트 1개 회복 확률 +4%/Lv. 보스 명중 시에도 해당 확률의 1/4로 회복이 발동한다. 보스 명중 시 HP 흡수량은 2배
+10219 [es] Probabilidad de recuperar 1 corazón al derrotar a un enemigo +4%/Lv. Golpear a jefes también puede activar esta curación con 1/4 de esa probabilidad. La absorción de HP al golpear a jefes se duplica.
+10220 [ko] 흡수와 SECOND WIND의 회복량 증가: Lv1〜3에서 하트 +1, Lv4〜6에서 +2, Lv7〜9에서 +3. 최대 HP를 넘는 회복분은 Shield 1개로 바뀌며, 일반 보유 한도보다 1개 더 보유할 수 있다
+10220 [es] La absorción y SECOND WIND recuperan corazones extra: +1 en Lv1–3, +2 en Lv4–6, +3 en Lv7–9. La curación que supera el HP máximo se convierte en 1 Shield; puedes llevar hasta 1 más que el límite habitual.
+10221 [ko] HP 50% 이하에서 공격력 +8%/Lv, 명중 시 흡수량과 출혈 발동 확률 2배. HP 25% 이하에서는 적 처치 시 하트 1개 회복 확률도 +5%/Lv(보스 포함)
+10221 [es] Con HP al 50% o menos: ataque +8%/Lv; absorción al golpear y prob. de sangrado ×2. Con HP al 25% o menos, la prob. de recuperar 1 corazón al derrotar enemigos también aumenta +5%/Lv, incluidos los jefes.
+10222 [ko] 명중 시 확률로 출혈을 걸고, 출혈 피해의 일부만큼 HP를 회복한다. 회복 비율은 Lv1에서 10%, 이후 +2%/Lv. 출혈은 Lv1에서 확률 15%・초당 피해 5, 이후 1Lv마다 확률 +4%・초당 피해 +1. HP가 가득 차면 출혈 확률 2배, 공격력 +2%/Lv
+10222 [es] Los golpes pueden causar sangrado, que te cura por parte del daño que inflige: 10% en Lv1, luego +2%/Lv. Sangrado en Lv1: prob. 15%, 5 de daño/s. Cada Lv adicional: prob. +4%, daño/s +1. Con HP al máximo: prob. de sangrado ×2; ataque +2%/Lv.

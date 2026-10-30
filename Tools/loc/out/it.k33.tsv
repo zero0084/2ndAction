@@ -1,0 +1,27 @@
+10196	Questa carta è già nel mazzo.
+10197	Per sostituirla con la stessa carta di un altro Lv, rimuovi prima quella attuale dal mazzo.
+10198	Il mazzo conteneva più copie della stessa carta: la prima è rimasta nel mazzo, le altre sono state rimosse dal mazzo.
+10199	Assorbimento a segno
+10200	Accumulo di BREAK contro boss raffreddati o congelati
+10201	Tornado: danno {0} × {1} colpi; raggio {2}m; attira i bersagli di {3}m per colpo
+10202	Fulmine garantito ogni {0} colpi a segno
+10203	Colpire un boss può anche curare, con 1/4 della probabilità di cura all'uccisione; HP assorbiti colpendo i boss ×2.
+10204	I colpi possono incendiare i nemici per 3s. A Lv1: prob. 20%, 6 danni/s. Per ogni Lv successivo: prob. +4%, danni/s +1.5.
+10205	Danni da bruciatura +8%/Lv, durata +0.25s/Lv. Anche da sola, questa carta può incendiare colpendo: prob. 8% a Lv1, poi +2% per Lv successivo. Anche i danni da bruciatura/s aumentano di +0.5/Lv.
+10206	Sconfiggere un nemico in fiamme propaga il fuoco ai nemici vicini; quelli sconfitti da questo fuoco lo propagano a loro volta. Propagazione in 2 stadi a Lv1–3, 3 a Lv4–6, 4 a Lv7–9. Danno e raggio aumentano col Lv. Anche da sola, questa carta può incendiare colpendo: prob. 8% a Lv1, poi +2% per Lv successivo.
+10207	Parare un attacco con uno Shield scatena un contrattacco di fuoco attorno a te, incendiando i nemici colpiti per 4s. Danno e raggio aumentano col Lv. Anche da sola, questa carta permette di avere 1 Shield.
+10208	I colpi possono raffreddare e rallentare i nemici. A Lv1: prob. 20%, rallentamento 28%. Per ogni Lv successivo: prob. +4%, rallentamento +2.5%, durata del raffreddamento +0.1s. 5 raffreddamenti accumulati congelano: i nemici comuni si fermano; i boss rallentano molto e accumulano BREAK più rapidamente.
+10209	Riduce i raffreddamenti accumulati necessari per congelare: 4 a Lv1–3, 3 a Lv4–6, 2 a Lv7–9. Durata del congelamento +0.08s/Lv, durata del raffreddamento +0.15s/Lv. Anche da sola, questa carta può raffreddare colpendo: prob. 8% a Lv1, poi +2% per Lv successivo.
+10210	Attacco contro nemici raffreddati o congelati +3%/Lv. Congelare un nemico infligge danni extra che aumentano col Lv. Accumulo di BREAK contro boss raffreddati o congelati +6%/Lv (bonus dimezzato se solo raffreddati). Anche da sola, questa carta può raffreddare colpendo: prob. 8% a Lv1, poi +2% per Lv successivo; 4 raffreddamenti accumulati congelano.
+10211	I colpi possono evocare un fulmine. A Lv1: prob. 8%, danno base 9. Per ogni Lv successivo: prob. +2%, danno base +1.5. Un fulmine è anche garantito ogni 13 colpi a segno a Lv1, fino a ogni 5 a Lv9. Max 1 fulmine ogni 0.4s sullo stesso nemico.
+10212	Danno dei fulmini +6%/Lv. I fulmini bloccano per un istante i nemici comuni. Anche da sola, questa carta può evocare fulmini: prob. 3% a Lv1, poi +1% per Lv successivo.
+10213	I fulmini rimbalzano su altri nemici vicini: 1 a Lv1–3, 2 a Lv4–6, 3 a Lv7–9. Portata dei rimbalzi +0.2m/Lv. Se manca un nuovo bersaglio, i rimbalzi restanti colpiscono lo stesso nemico con danno ridotto. Anche da sola, questa carta può evocare fulmini: prob. 5% a Lv1, poi +1% per Lv successivo.
+10214	Danno dei fulmini +4%/Lv. Bersagli aggiuntivi dei rimbalzi: +1 a Lv1–3, +2 a Lv4–6, +3 a Lv7–9. I fulmini infliggono danni anche attorno al punto d'impatto; il raggio aumenta col Lv. Anche da sola, questa carta può evocare fulmini: prob. 5% a Lv1, poi +1% per Lv successivo.
+10215	I colpi possono lanciare in avanti una lama di vento che trapassa i nemici. A Lv1: prob. 12%, danno 9. Per ogni Lv successivo: prob. +3%, danno +1. Attaccando in aria, probabilità di attivazione ×1.5. Le lame di vento infliggono +50% danni ai nemici in aria. Portata d'attacco +1%/Lv.
+10216	Velocità delle lame di vento +5%/Lv, gittata +0.4m/Lv. Bersagli aggiuntivi trapassati da lame di vento e proiettili: +1 a Lv1–3, +2 a Lv4–6, +3 a Lv7–9. Anche da sola, questa carta può generare lame di vento: prob. 6% a Lv1, poi +2% per Lv successivo.
+10217	L'impatto di una lama di vento crea un tornado che attira i nemici comuni vicini e infligge danni 3 volte a Lv1–3, 4 a Lv4–6, 5 a Lv7–9. Danno, raggio e forza di attrazione aumentano col Lv. Danni dimezzati contro i boss. Anche da sola, questa carta può generare lame di vento: prob. 6% a Lv1, poi +2% per Lv successivo.
+10218	I colpi assorbono una parte dei danni inflitti per recuperare HP: 1% a Lv1, poi +0.5% per Lv successivo. Sconfiggere un nemico può anche ripristinare 1 cuore: prob. 8% a Lv1, poi +4% per Lv successivo.
+10219	Probabilità di recuperare 1 cuore sconfiggendo un nemico +4%/Lv. Colpire un boss può attivare la stessa cura con 1/4 di quella probabilità. Gli HP assorbiti colpendo i boss raddoppiano.
+10220	Assorbimento e SECOND WIND ripristinano cuori aggiuntivi: +1 a Lv1–3, +2 a Lv4–6, +3 a Lv7–9. La cura oltre gli HP massimi concede 1 Shield, fino a 1 oltre il normale limite di Shield.
+10221	Con HP al 50% o meno: attacco +8%/Lv; HP assorbiti colpendo e probabilità di sanguinamento ×2. Con HP al 25% o meno, anche la probabilità di recuperare 1 cuore sconfiggendo un nemico aumenta di +5%/Lv, boss inclusi.
+10222	I colpi possono causare sanguinamento; una parte dei danni da sanguinamento ripristina HP: 10% a Lv1, poi +2% per Lv successivo. Sanguinamento a Lv1: prob. 15%, 5 danni/s. Per ogni Lv successivo: prob. +4%, danni/s +1. Con HP pieni: probabilità di sanguinamento ×2, attacco +2%/Lv.

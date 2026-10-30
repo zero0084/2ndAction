@@ -1,0 +1,102 @@
+アイリーン、自然さと長さを整えました。下記を修正案にしてください。「確率で発動」を冒頭で明示し、上位カード単独の発動は短く統一しています。英語の pp は確率の加算幅を表す percentage points です。
+
+実装との照合が必要なのは次の3点です。
+
+ABSOLUTE ZEROと10152： 説明は「凍結したボス」、効果行は「冷えた／凍結したボス」です。適用対象を統一してください。
+PREDATORと10155： 「通常の吸収確率」が敵撃破時の回復確率を指す前提で明確化しました。別の値なら修正が必要です。
+OVERHEAL： 「通常のShield所持上限より1つ多くまで持てる」という意味で整えました。上限そのものを恒久的に増やす仕様なら表現を変えてください。
+
+6行に収まるかはフォント・欄幅次第なので、以下の英語を実際の縦画面で確認してください。特にINFERNO、FROST EDGE、ABSOLUTE ZEROは長めです。
+
+[card:flame_blade]
+JA: 命中時、確率で敵を3秒間炎上させる。Lv1：確率20%・毎秒6ダメージ。以降1Lvごとに確率+4%・毎秒ダメージ+1.5
+EN: Hits can burn enemies for 3s. Lv1: 20% chance, 6 damage/s. Each additional Lv: chance +4 pp, damage/s +1.5.
+
+[card:burning_soul]
+JA: 炎上ダメージ+8%/Lv、炎上時間+0.25秒/Lv。単独でも命中時に炎上を付与：確率はLv1で8%、以降+2%/Lv。毎秒ダメージも+0.5/Lv
+EN: Burn damage +8%/Lv; duration +0.25s/Lv. Also grants burn on hit: 8% chance at Lv1, +2 pp per additional Lv. Burn damage/s also +0.5/Lv.
+
+[card:inferno]
+JA: 炎上中の敵を倒すと周囲の敵に延焼し、延焼で倒れた敵からも広がる。延焼はLv1〜3で2段、Lv4〜6で3段、Lv7〜9で4段。威力・範囲もLvで増加。単独でも命中時に炎上を付与：確率はLv1で8%、以降+2%/Lv
+EN: Burning enemies spread fire on defeat; enemies killed by this fire spread it further. Spread depth: 2 at Lv1–3, 3 at Lv4–6, 4 at Lv7–9. Power and radius increase with Lv. Also grants burn on hit: 8% chance at Lv1, +2 pp per additional Lv.
+
+[card:flame_counter]
+JA: Shieldで攻撃を防ぐと周囲に炎で反撃し、当たった敵を4秒間炎上させる。威力・範囲はLvで増加。単独でもShieldを1つ所持できる
+EN: Blocking with a Shield triggers a burst of fire around you, burning enemies hit for 4s. Power and radius increase with Lv. Also allows you to hold 1 Shield.
+
+[card:frost_edge]
+JA: 命中時、確率で敵に冷えを付与して減速させる。Lv1：確率20%・減速28%。以降1Lvごとに確率+4%・減速+2.5%・冷え時間+0.1秒。冷えが5回重なると凍結。雑魚は停止し、ボスは大きく減速してBREAKが溜まりやすくなる
+EN: Hits can chill and slow enemies. Lv1: 20% chance, 28% slow. Each additional Lv: chance +4 pp, slow +2.5 pp, chill duration +0.1s. At 5 chill stacks, enemies freeze: mobs stop; bosses are greatly slowed and gain BREAK buildup faster.
+
+[card:ice_prison]
+JA: 凍結に必要な冷えの重なりを減らす：Lv1〜3で4回、Lv4〜6で3回、Lv7〜9で2回。凍結時間+0.08秒/Lv、冷え時間+0.15秒/Lv。単独でも命中時に冷えを付与：確率はLv1で8%、以降+2%/Lv
+EN: Chill stacks needed to freeze: 4 at Lv1–3, 3 at Lv4–6, 2 at Lv7–9. Freeze duration +0.08s/Lv; chill duration +0.15s/Lv. Also grants chill on hit: 8% chance at Lv1, +2 pp per additional Lv.
+
+[card:absolute_zero]
+JA: 冷え・凍結中の敵への攻撃力+3%/Lv。凍結時に追加ダメージを与え、威力はLvで増加。凍結中のボスへのBREAK蓄積量+6%/Lv。単独でも命中時に冷えを付与し、4回重なると凍結：確率はLv1で8%、以降+2%/Lv
+EN: Attack against chilled or frozen enemies +3%/Lv. Freezing an enemy deals extra damage that increases with Lv. BREAK buildup against frozen bosses +6%/Lv. Also grants chill on hit: 8% chance at Lv1, +2 pp per additional Lv; 4 stacks cause freeze.
+
+[card:thunder_strike]
+JA: 命中時、確率で落雷が発生。Lv1：確率8%・基礎威力9。以降1Lvごとに確率+2%・基礎威力+1.5。さらに一定の命中回数ごとに必ず落雷する（Lv1で13回、Lv9で5回）。同じ敵への落雷は0.4秒に1回まで
+EN: Hits can trigger lightning. Lv1: 8% chance, base power 9. Each additional Lv: chance +2 pp, base power +1.5. A strike is also guaranteed every 13 hits at Lv1, falling to every 5 hits at Lv9. Lightning can hit each enemy only once every 0.4s.
+
+[card:high_voltage]
+JA: 落雷の威力+6%/Lv。落雷が雑魚を一瞬停止させる。単独でも落雷が発生：確率はLv1で3%、以降+1%/Lv
+EN: Lightning power +6%/Lv. Lightning briefly stuns mobs. Also enables lightning strikes: 3% chance at Lv1, +1 pp per additional Lv.
+
+[card:chain_lightning]
+JA: 落雷が近くの別の敵へ連鎖する：Lv1〜3で1体、Lv4〜6で2体、Lv7〜9で3体。連鎖距離+0.2m/Lv。連鎖先がいない場合、残りの連鎖は威力を落として同じ敵に落ちる。単独でも落雷が発生：確率はLv1で5%、以降+1%/Lv
+EN: Lightning chains to nearby enemies: 1 at Lv1–3, 2 at Lv4–6, 3 at Lv7–9. Chain range +0.2m/Lv. With no next target, remaining chains hit the same enemy at reduced power. Also enables lightning strikes: 5% chance at Lv1, +1 pp per additional Lv.
+
+[card:thunder_lord]
+JA: 落雷の威力+4%/Lv。連鎖数はLv1〜3で+1体、Lv4〜6で+2体、Lv7〜9で+3体。落雷地点の周囲にもダメージを与え、範囲はLvで拡大。単独でも落雷が発生：確率はLv1で5%、以降+1%/Lv
+EN: Lightning power +4%/Lv. Extra chain targets: +1 at Lv1–3, +2 at Lv4–6, +3 at Lv7–9. Strikes also deal area damage; radius increases with Lv. Also enables lightning strikes: 5% chance at Lv1, +1 pp per additional Lv.
+
+[card:wind_cutter]
+JA: 命中時、確率で前方に敵を貫通する風刃を放つ。Lv1：確率12%・威力9。以降1Lvごとに確率+3%・威力+1。空中での攻撃は発動確率1.5倍。風刃は空中の敵にダメージ+50%。攻撃範囲+1%/Lv
+EN: Hits can launch a piercing wind blade forward. Lv1: 12% chance, power 9. Each additional Lv: chance +3 pp, power +1. Attacks made in midair have ×1.5 trigger chance. Wind blades deal +50% damage to airborne enemies. Attack range +1%/Lv.
+
+[card:gale]
+JA: 風刃の速さ+5%/Lv、飛距離+0.4m/Lv。風刃と飛び道具の貫通数はLv1〜3で+1、Lv4〜6で+2、Lv7〜9で+3。単独でも風刃が発生：確率はLv1で6%、以降+2%/Lv
+EN: Wind blade speed +5%/Lv; travel distance +0.4m/Lv. Extra pierces for wind blades and projectiles: +1 at Lv1–3, +2 at Lv4–6, +3 at Lv7–9. Also enables wind blades: 6% chance at Lv1, +2 pp per additional Lv.
+
+[card:tornado]
+JA: 風刃の命中地点に竜巻が発生。周囲の雑魚を引き寄せ、Lv1〜3で3回、Lv4〜6で4回、Lv7〜9で5回ダメージを与える。威力・範囲・引き寄せはLvで強化。ボスへのダメージは半分。単独でも風刃が発生：確率はLv1で6%、以降+2%/Lv
+EN: Wind blade hits create a tornado that pulls in nearby mobs and deals damage 3 times at Lv1–3, 4 at Lv4–6, 5 at Lv7–9. Power, radius and pull increase with Lv. Deals half damage to bosses. Also enables wind blades: 6% chance at Lv1, +2 pp per additional Lv.
+
+[card:vampire]
+JA: 命中で与えたダメージの一部を吸収し、HPを回復する。吸収率はLv1で1%、以降+0.5%/Lv。敵撃破時にも確率でハート1つ回復：Lv1で8%、以降+4%/Lv
+EN: On hit, drain HP equal to a portion of the damage dealt: 1% at Lv1, +0.5 pp per additional Lv. Enemy kills also have a chance to restore 1 heart: 8% at Lv1, +4 pp per additional Lv.
+
+[card:predator]
+JA: 敵撃破時にハート1つ回復する確率+4%/Lv。その確率の1/4で、ボスへの命中時にも回復が発動する。ボスへの命中による吸収量は2倍
+EN: Chance to restore 1 heart on an enemy kill +4 pp/Lv. Boss hits can also trigger this heal at one-quarter of the on-kill chance. HP drained from hits against bosses is doubled.
+
+[card:overheal]
+JA: 吸収とSECOND WINDの回復量が、Lv1〜3でハート+1、Lv4〜6で+2、Lv7〜9で+3。最大HPを超えた回復分はShield1つに変わり、通常の所持上限+1まで持てる
+EN: Drain and SECOND WIND restore extra hearts: +1 at Lv1–3, +2 at Lv4–6, +3 at Lv7–9. Healing beyond full HP grants 1 Shield, up to 1 above your normal Shield limit.
+
+[card:blood_rush]
+JA: HP50%以下で攻撃力+8%/Lv、命中による吸収量と出血の発動確率が2倍。HP25%以下では、敵撃破時にハート1つ回復する確率も+5%/Lv（ボスを含む）
+EN: At 50% HP or below: attack +8%/Lv; HP drained on hit and bleed chance ×2. At 25% HP or below, the chance to restore 1 heart on a kill also gains +5 pp/Lv, including boss kills.
+
+[card:blood_blade]
+JA: 命中時、確率で出血を付与し、出血ダメージの一部でHPを回復する。回復率はLv1で10%、以降+2%/Lv。出血はLv1で確率15%・毎秒5ダメージ、以降1Lvごとに確率+4%・毎秒ダメージ+1。HP満タン時は出血確率2倍、攻撃力+2%/Lv
+EN: Hits can cause bleed, healing you for a portion of bleed damage: 10% at Lv1, +2 pp per additional Lv. Bleed at Lv1: 15% chance, 5 damage/s. Each additional Lv: chance +4 pp, damage/s +1. At full HP: bleed chance ×2; attack +2%/Lv.
+
+[10151]
+JA: 命中時の吸収
+EN: On-hit drain
+
+[10152]
+JA: 冷え・凍結中のボスへのBREAK蓄積量
+EN: BREAK buildup against chilled/frozen bosses
+
+[10153]
+JA: 竜巻：威力{0}×{1}回・半径{2}m・1回ごとに{3}m引き寄せ
+EN: Tornado: power {0} × {1} hits; radius {2}m; pulls targets {3}m per hit
+
+[10155]
+JA: ボス命中時にも撃破時の1/4の確率で回復・ボスへの命中による吸収量2倍
+EN: Boss hits can also heal at 1/4 of the on-kill chance; HP drained from hits against bosses ×2.
+

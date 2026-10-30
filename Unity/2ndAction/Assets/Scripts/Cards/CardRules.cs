@@ -68,6 +68,9 @@ public static class CardRules
     // ---- 追加攻撃(カードの効果で出る攻撃)の基準。キャラによらない(どのキャラでも同じカードは同じ強さ)
     public static int ProcReferenceDamage = 20;           // 標準の1発(黒剣士の基礎攻撃)
     public static float ProcAttackShare = 0.5f;           // 無条件の攻撃の枠を半分だけ乗せる(属性/追加攻撃が攻撃×条件×…で乗算爆発しない)
+    // 2026-10-30 属性20枚の再設計: 属性のダメージに乗せる無条件の攻撃の枠の割合(属性以外の追加攻撃は ProcAttackShare のまま)。
+    //  0.5 / 0.75 / 1.0 を通常のビルドと属性特化で測って決めた値(Docs/ElementBalance_2026-10-30)。開発版は -elemAtkShare で比較
+    public static float ElementAttackShare = 0.75f;
 
     // ---- 性能の安全
     public static int ProcBudgetPerHalfSecond = 14;       // 追加攻撃(爆発/連鎖/竜巻/衝撃波)を0.5秒にこの回数まで(論理ヒット)

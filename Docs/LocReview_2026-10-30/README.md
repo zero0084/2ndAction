@@ -11,3 +11,5 @@
 - 訳が入るまで: 10148 は前の文「デッキで使用中のため選べません」(レビュー済み)を出す / 10149・10150 はその言語では出さない(LocPendingReview)。
 - 画面の例: `shot_portrait_already_in_deck.png`(縦画面: 右下の詳細に 10148/10149、所持一覧の ATTACK UP Lv3 に灰色のチェック)、`shot_landscape_already_in_deck.png`(横画面。お知らせの画面は撮影に写らないため、エミュレーターの画像を後で足す)。
 - 製品版の Android ビルドは、3件の訳が全言語に入るまで止まります(ReleaseBuildGuard)。
+
+- 2026-10-30 追記: ID はルカ/宇宙人の訳の表(keys_extra28 の 10148〜10155)と重なっていたため、10196〜10198 へ付け直した。エステルのレビュー後に30言語へ反映済み(Docs/LocReview_2026-10-30b、Tools/loc/keys_extra33)。

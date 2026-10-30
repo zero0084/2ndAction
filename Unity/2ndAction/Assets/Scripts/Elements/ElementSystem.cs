@@ -44,11 +44,54 @@ public static class ElementSystem
         {
             var gm = GameManager.Instance;
             float a = gm != null ? gm.Card.Get(EffectType.AttackPct) : 0f;
-            return 1f + CardRules.ProcAttackShare * CardRules.SoftAttack(a);
+            return 1f + ElementAttackShareNow * CardRules.SoftAttack(a);
         }
     }
 
     static float lastWindBlade = -9f;
+
+    // 2026-10-30: 属性のダメージに乗せる攻撃の枠の割合(開発版 -elemAtkShare 0.5|0.75|1.0 で比較)
+    static float atkShareOverride = -2f;
+    public static float ElementAttackShareNow
+    {
+        get
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (atkShareOverride < -1f)
+            {
+                atkShareOverride = -1f;
+                var a = QaArgs.All;
+                for (int i = 0; i + 1 < a.Length; i++) if (a[i] == "-elemAtkShare" && float.TryParse(a[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float v)) atkShareOverride = v;
+            }
+            if (atkShareOverride >= 0f) return atkShareOverride;
+#endif
+            return CardRules.ElementAttackShare;
+        }
+    }
+    public static void DebugSetAttackShare(float v) => atkShareOverride = v;
+
+    // 2026-10-30: 凍結の砕けの基礎威力(ABSOLUTE ZERO の Lv)
+    public static float ShatterBase(int lv) => 12f + 4f * lv;
+
+    // 2026-10-30 氷の役割(BREAK 補助): 冷えた/凍結したボスは BREAK が溜まりやすい。冷え +10%、凍結 +20%、さらに IceBreakPct(凍結で満額、冷えは半分)
+    public static int IceStaggerBoosts; public static float IceStaggerBonus; // 確認用
+    public static float IceStaggerMul(GameObject boss, float v)
+    {
+        if (boss == null) return 1f;
+        var st = boss.GetComponent<ElementStatus>();
+        if (st == null || !(st.Chilled || st.Frozen)) return 1f;
+        var gm = GameManager.Instance;
+        float ib = gm != null ? gm.Elements.IceBreak : 0f;
+        float mul = st.Frozen ? 1.2f + ib : 1.1f + ib * 0.5f;
+        IceStaggerBoosts++; IceStaggerBonus += v * (mul - 1f);
+        ElementTelemetry.IceStagger += v * (mul - 1f);
+        return mul;
+    }
+
+    // 2026-10-30: 雷の確定(命中を重ねると必ず)の数え / 命中の吸収の端数
+    static int lightningHits;
+    public static int ForcedStrikes; // 確認用
+    static float hitHealCarry, lastHitHealFx = -9f;
 
     // v3: 1回で決まる属性のダメージ(落雷/風刃/砕ける冷気)は、キャラの1発の重さに合わせる(20 = 黒剣士の基礎)。
     // 速く軽く何度も当てるキャラ(お嬢様騎士/双剣士)が回数で何倍にもならないように。継続ダメージ(炎上/出血)は掛け直しなので掛けない。
@@ -78,11 +121,20 @@ public static class ElementSystem
         var gm = GameManager.Instance;
         if (gm == null || gm.IsGameOver || !Authoritative) return;
         // 計測(2026-10-30): 命中の数と直接のダメージ。風刃(属性の追加攻撃)の命中は風のダメージ、ほかのカードの追加攻撃は Other
-        if (info != null && info.windBlade) { ElementTelemetry.OnDamage(ElementType.Wind, damage, false); ElementVfx.WindHit(Normalize(victim)); var ws = Normalize(victim); if (ElementVfx.New && ws != null && IsAlive(ws)) ElementStatus.For(ws).MarkWind(); }
+        if (info != null && info.windBlade)
+        {
+            ElementTelemetry.OnDamage(ElementType.Wind, damage, false); ElementVfx.WindHit(Normalize(victim));
+            var ws = Normalize(victim);
+            if (ElementVfx.New && ws != null && IsAlive(ws)) ElementStatus.For(ws).MarkWind();
+            // 2026-10-30: 空中の敵(打ち上げ中/飛ぶ敵/ドラゴン/魔人)には風刃のダメージ+50%(静かなダメージで足す)
+            if (ws != null && IsAlive(ws) && IsAirTarget(ws)) { WindAirBonusHits++; DealQuiet(ws, Mathf.Max(1, Mathf.RoundToInt(damage * ElementStats.WindAirTargetBonus)), ElementType.Wind); }
+        }
         else if (info != null && info.elementProc) ElementTelemetry.OnDamage(ElementType.None, damage, false);
         else ElementTelemetry.OnHit(damage);
         ElementVfx.LastHitPos = victim != null ? victim.transform.position + Vector3.up * 0.8f : ElementVfx.LastHitPos;
         ElementStats e = gm.Elements;
+        // 2026-10-30 血: 命中で与えたダメージの一部を吸収(VAMPIRE)。HP50%以下は BLOOD RUSH で2倍、ボスは PREDATOR で2倍
+        if (info != null && !info.elementProc && damage > 0 && e.HitLifesteal > 0f) HitLifesteal(gm, e, Normalize(victim), damage);
         if (!e.AnyActive) return;
         if (info != null && info.elementProc && !info.windBlade) return; // カードの追加攻撃(衝撃波/斬撃)からは属性を判定しない
         victim = Normalize(victim);
@@ -118,6 +170,7 @@ public static class ElementSystem
         // 血: 出血(継続ダメージ、低HPほど強い、一部を回復)。BLOOD BLADE: 満HPの間は確率2倍
         float bleedChance = e.BleedChance;
         if (e.BloodBlade && gm.Lives >= gm.maxLives) bleedChance = Mathf.Min(1f, bleedChance * 2f);
+        else if (gm.CardLevel("blood_rush") > 0 && gm.Lives <= gm.maxLives * 0.5f) bleedChance = Mathf.Min(1f, bleedChance * 2f); // 2026-10-30: BLOOD RUSH は HP50%以下で2倍
         if (bleedChance > 0f && e.BleedPower > 0f && Roll() < bleedChance)
         {
             float missing = gm.maxLives > 0 ? 1f - (float)gm.Lives / gm.maxLives : 0f;
@@ -130,8 +183,14 @@ public static class ElementSystem
         // 雷: 落雷(当たった相手)+ 近くの別の敵へ連鎖 + 周りへの範囲
         // FINAL EVOLUTION(THUNDER STRIKE): 落雷しやすく連鎖+1。1体へ0.4秒に1回の制限と、落雷から落雷を出さない決まりはそのまま
         float lChance = e.LightningChance > 0f ? Mathf.Min(1f, e.LightningChance + FinalEvolution.LightningChanceAdd) : 0f;
-        if (lChance > 0f && e.LightningPower > 0f && Roll() < lChance && LightningReady(victim))
+        // 2026-10-30: 命中を重ねると必ず落ちる(手数の多いキャラほど落ちる)。落雷が起きたら数え直し
+        bool forced = false;
+        int every = e.LightningEvery;
+        if (every > 0 && (info == null || !info.elementProc)) { lightningHits++; forced = lightningHits >= every; }
+        if (e.LightningPower > 0f && (forced || (lChance > 0f && Roll() < lChance)) && LightningReady(victim))
         {
+            if (forced) ForcedStrikes++;
+            lightningHits = 0;
             LightningProcs++;
             ElementTelemetry.Proc(ElementType.Thunder);
             int ldmg = Mathf.Max(1, Mathf.RoundToInt(e.LightningDamage * HitWeight));
@@ -139,7 +198,9 @@ public static class ElementSystem
             CardProcs.ComboOnLightning(victim, last, ldmg, info); // COMBO(THUNDER CHAIN / STORM LORD)
         }
         // 風: 前方へ飛ぶ貫通の風刃(風刃自身からは出さない。短い間隔をあける)
-        if ((info == null || !info.elementProc) && e.WindBladeChance > 0f && e.WindBladePower > 0f && Time.time - lastWindBlade > 0.25f && Roll() < e.WindBladeChance)
+        var wpc = PlayerController.Instance;
+        float wChance = e.WindBladeChance * (wpc != null && !wpc.IsGrounded ? ElementStats.WindAirChanceMul : 1f); // 2026-10-30: 空中では出やすい
+        if ((info == null || !info.elementProc) && e.WindBladeChance > 0f && e.WindBladePower > 0f && Time.time - lastWindBlade > 0.25f && Roll() < wChance)
         {
             lastWindBlade = Time.time;
             SpawnWindBlade(e);
@@ -154,9 +215,35 @@ public static class ElementSystem
     {
         Shatters++; ElementTelemetry.Shatters++;
         ElementVfx.Shatter(CenterOf(victim), ElementVfx.SizeOf(victim, out _));
-        float dmg = (10f + 3f * lv) * DamageScale * HitWeight;
+        NetElementFx.Point(NetElementFx.Kind.Shatter, CenterOf(victim), ElementVfx.SizeOf(victim, out _));
+        float dmg = ShatterBase(lv) * DamageScale * HitWeight;
         DealQuiet(victim, Mathf.Max(1, Mathf.RoundToInt(dmg)), ElementType.Ice);
         if (ElementVfx.Legacy) OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, CenterOf(victim), new Color(0.75f, 0.95f, 1f, 0.9f), 0.25f, 0.4f, 1.3f, -1f, 0f);
+    }
+
+    public static int WindAirBonusHits; // 確認用
+    public static bool IsAirTarget(Component c)
+    {
+        if (c is DragonController || c is MajinController) return true;
+        if (c is EnemyController en) return en.AerialState != EnemyController.EnemyAerialState.Grounded || en.movementType == EnemyMovementType.Flying;
+        return false;
+    }
+
+    // 命中の吸収(VAMPIRE 等)。端数は持ち越し、HP が1以上になったら回復。演出は0.6秒に1回まで
+    static void HitLifesteal(GameManager gm, ElementStats e, Component victim, int damage)
+    {
+        if (gm.Lives >= gm.maxLives) { hitHealCarry = 0f; return; }
+        float pct = e.HitLifesteal;
+        if (gm.CardLevel("blood_rush") > 0 && gm.Lives <= gm.maxLives * 0.5f) pct *= 2f;
+        bool boss = victim != null && !(victim is EnemyController);
+        if (boss && e.Get(EffectType.PredatorLevel) > 0f) pct *= 2f;
+        hitHealCarry += damage * pct;
+        int heal = Mathf.FloorToInt(hitHealCarry);
+        if (heal <= 0) return;
+        hitHealCarry -= heal;
+        gm.KitHeal(heal);
+        ElementTelemetry.HealHp += heal; ElementTelemetry.HitHealHp += heal;
+        if (victim != null && Time.time - lastHitHealFx > 0.6f) { lastHitHealFx = Time.time; ElementVfx.BloodReturn(CenterOf(victim), 0); NetElementFx.Blood(victim, true); }
     }
 
     // 子の当たり判定から呼ばれた時も本体に揃える
@@ -196,8 +283,9 @@ public static class ElementSystem
         if (gm == null || amount <= 0) return;
         gm.KitHeal(amount);
         BleedHealed += amount;
-        ElementTelemetry.BleedHealHp += amount;
+        ElementTelemetry.BleedHealHp += amount; ElementTelemetry.HealHp += amount;
         if (from != null && ElementVfx.New) ElementVfx.BloodReturn(CenterOf(from), 0); // 敵からプレイヤーへ戻る(2026-10-30)
+        if (from != null) NetElementFx.Blood(from, false);
     }
 
     static readonly List<Component> chainBuf = new List<Component>();
@@ -213,13 +301,15 @@ public static class ElementSystem
         {
             splashBuf.Clear();
             CardProcs.CollectTargets(CenterOf(c), splash, splashBuf);
-            foreach (var o in splashBuf) if (o != c) DealQuiet(o, Mathf.Max(1, dmg / 2), ElementType.Thunder);
+            foreach (var o in splashBuf) if (o != c) DealQuiet(o, Mathf.Max(1, dmg / 3), ElementType.Thunder); // 2026-10-30: 1/2 → 1/3(群れに強すぎた)
         }
     }
 
     // 戻り値: 連鎖の最後に当たった相手(連鎖しなければ最初の相手)
+    public const float LeftoverChainMul = 0.25f;
     static Component Chain(Component first, int dmg, int chains, float range, float splash = 0f, float shock = 0f)
     {
+        int dmg0 = dmg;
         Vector3 from = CenterOf(first);
         Bolt(from + Vector3.up * 3.5f, from);
         Strike(first, dmg, splash, shock);
@@ -231,7 +321,8 @@ public static class ElementSystem
         foreach (var b in Object.FindObjectsByType<WildBossBase>(FindObjectsSortMode.None))
             if (b != first && IsAlive(b)) chainBuf.Add(b);
         Vector3 cur = from;
-        for (int i = 0; i < chains && chainBuf.Count > 0; i++)
+        int i = 0;
+        for (; i < chains && chainBuf.Count > 0; i++)
         {
             int best = -1; float bd = range * range;
             for (int k = 0; k < chainBuf.Count; k++)
@@ -245,11 +336,14 @@ public static class ElementSystem
             Vector3 to = CenterOf(next);
             Bolt(cur, to, true);
             ElementTelemetry.Chains++;
-            dmg = Mathf.Max(1, Mathf.RoundToInt(dmg * 0.75f)); // 連鎖するほど少し弱く
+            dmg = Mathf.Max(1, Mathf.RoundToInt(dmg * 0.6f)); // 連鎖するほど弱く(2026-10-30: 0.75 → 0.6。連鎖数を増やした分と、群れに強すぎた分)
             Strike(next, dmg, splash, shock);
             cur = to;
             last = next;
         }
+        // 2026-10-30: 近くに連鎖先がいない時は、残りの連鎖が最初の敵へ弱く落ちる(1本ごとに最初の落雷の25%)。ボス1体でも雷らしい瞬間火力
+        int left = chains - i;
+        if (left > 0 && IsAlive(first)) DealQuiet(first, Mathf.Max(1, Mathf.RoundToInt(dmg0 * LeftoverChainMul * left)), ElementType.Thunder);
         return last;
     }
 
@@ -264,6 +358,7 @@ public static class ElementSystem
     // 稲妻の見た目(短い線。最終演出ではない)
     static void Bolt(Vector3 a, Vector3 b, bool chain = false)
     {
+        NetElementFx.Bolt(a, b, chain, ElementVfx.Tier(ElementType.Thunder)); // マルチ: JOIN にも稲妻の線(HOST だけが送る)
         if (ElementVfx.New) { ElementVfx.Bolt(a, b, ElementVfx.Tier(ElementType.Thunder), chain); return; } // 2026-10-30: 太い芯+光の縁、連鎖は少し長く残す(プール)
         var go = new GameObject("ElementBolt");
         var lr = go.AddComponent<LineRenderer>();
@@ -313,5 +408,6 @@ public static class ElementSystem
             }
             ElementVfx.WindRelease(pos, dir);
         }
+        NetElementFx.WindBlade(pos, dir, e.WindRange);
     }
 }

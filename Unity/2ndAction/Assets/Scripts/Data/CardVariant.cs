@@ -205,7 +205,9 @@ public sealed class CardVariant
                 float cap = DisplayCap(t);
                 bool capped = cap > 0f && v > cap;
                 if (capped) v = cap;
-                part = EffectLabel(t) + " " + CardEffectFormat.FormatTotal(t, v) + (capped ? "(効果上限)" : "");
+                string lab = EffectLabel(t);
+                if (lab == null) continue; // 2026-10-30: 訳のレビュー待ちの新しい名前(その言語では出さない)
+                part = lab + " " + CardEffectFormat.FormatTotal(t, v) + (capped ? "(効果上限)" : "");
             }
             if (string.IsNullOrEmpty(part)) continue;
             if (sb.Length > 0) sb.Append(" / ");
@@ -340,6 +342,9 @@ public sealed class CardVariant
             case EffectType.LightningShock: return "落雷の停止(秒)";
             case EffectType.LightningSplash: return "落雷の範囲(m)";
             case EffectType.WindSpeedPct: return "風刃の速さ";
+            // 2026-10-30 属性20枚の再設計: 訳のレビューが済むまでは、その言語では出さない(LocPendingReview)
+            case EffectType.HitLifestealPct: return LocPendingReview.Pend(LocPendingReview.LabelHitLifesteal);
+            case EffectType.IceBreakPct: return LocPendingReview.Pend(LocPendingReview.LabelIceBreak);
             default:
                 if (CardEffectFormat.IsBehaviorLevel(type)) return ""; // 2026-10-13: 挙動のカードは CardBehaviorText で「何がどれだけ」を出す
                 return type.ToString();

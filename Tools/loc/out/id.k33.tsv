@@ -1,0 +1,27 @@
+10196	Kartu ini sudah ada di dek.
+10197	Untuk menggantinya dengan salinan kartu yang sama dengan Lv berbeda, keluarkan kartu yang ada di dek terlebih dahulu.
+10198	Dek berisi beberapa salinan kartu yang sama. Salinan pertama tetap di dek, sedangkan salinan lainnya dikeluarkan dari dek.
+10199	Serapan saat mengenai musuh
+10200	Akumulasi BREAK pada bos dingin atau beku
+10201	Tornado: daya {0} × {1} hit; radius {2}m; menarik target sejauh {3}m per hit
+10202	Sambaran petir pasti setiap {0} hit
+10203	Hit pada bos juga bisa memulihkan HP dengan 1/4 peluang pemulihan saat mengalahkan musuh; jumlah HP yang diserap dari hit pada bos ×2.
+10204	Hit bisa membakar musuh selama 3s. Lv1: peluang 20%, 6 damage/s. Tiap Lv tambahan: peluang +4%, damage/s +1.5.
+10205	Damage bakar +8%/Lv, durasi +0.25s/Lv. Kartu ini sendiri juga bisa membakar saat mengenai musuh: peluang 8% di Lv1, lalu +2% tiap Lv tambahan. Damage bakar/s juga +0.5/Lv.
+10206	Mengalahkan musuh yang terbakar menyebarkan api ke musuh di dekatnya; musuh yang dikalahkan oleh api ini menyebarkannya lagi. Kedalaman penyebaran: 2 tahap di Lv1–3, 3 di Lv4–6, 4 di Lv7–9. Daya dan radius naik sesuai Lv. Kartu ini sendiri juga bisa membakar saat mengenai musuh: peluang 8% di Lv1, lalu +2% tiap Lv tambahan.
+10207	Menahan serangan dengan Shield memicu api balasan di sekitarmu yang membakar musuh yang terkena selama 4s. Daya dan radius naik sesuai Lv. Kartu ini sendiri juga memungkinkanmu memiliki 1 Shield.
+10208	Hit bisa mendinginkan dan memperlambat musuh. Lv1: peluang 20%, perlambatan 28%. Tiap Lv tambahan: peluang +4%, perlambatan +2.5%, durasi dingin +0.1s. Pada 5 tumpukan dingin, musuh membeku: musuh biasa berhenti; bos sangat melambat dan akumulasi BREAK menjadi lebih cepat.
+10209	Tumpukan dingin yang diperlukan untuk membeku berkurang: 4 di Lv1–3, 3 di Lv4–6, 2 di Lv7–9. Durasi beku +0.08s/Lv, durasi dingin +0.15s/Lv. Kartu ini sendiri juga bisa memberi dingin saat mengenai musuh: peluang 8% di Lv1, lalu +2% tiap Lv tambahan.
+10210	Serangan terhadap musuh dingin atau beku +3%/Lv. Membekukan musuh memberi damage tambahan yang naik sesuai Lv. Akumulasi BREAK pada bos dingin atau beku +6%/Lv (bonus separuh jika hanya dingin). Kartu ini sendiri juga bisa memberi dingin saat mengenai musuh: peluang 8% di Lv1, lalu +2% tiap Lv tambahan; 4 tumpukan dingin menyebabkan beku.
+10211	Hit bisa memicu sambaran petir. Lv1: peluang 8%, daya dasar 9. Tiap Lv tambahan: peluang +2%, daya dasar +1.5. Petir juga pasti menyambar setiap 13 hit di Lv1, berkurang menjadi setiap 5 hit di Lv9. Musuh yang sama hanya bisa tersambar 1 kali setiap 0.4s.
+10212	Daya petir +6%/Lv. Sambaran petir menghentikan musuh biasa sesaat. Kartu ini sendiri juga bisa memicu sambaran petir: peluang 3% di Lv1, lalu +1% tiap Lv tambahan.
+10213	Petir merambat ke musuh lain di dekatnya: 1 di Lv1–3, 2 di Lv4–6, 3 di Lv7–9. Jangkauan rantai +0.2m/Lv. Jika tidak ada target berikutnya, sisa sambaran rantai mengenai musuh yang sama dengan daya lebih rendah. Kartu ini sendiri juga bisa memicu sambaran petir: peluang 5% di Lv1, lalu +1% tiap Lv tambahan.
+10214	Daya petir +4%/Lv. Target rantai tambahan: +1 di Lv1–3, +2 di Lv4–6, +3 di Lv7–9. Petir juga memberi damage di sekitar titik sambaran; radius naik sesuai Lv. Kartu ini sendiri juga bisa memicu sambaran petir: peluang 5% di Lv1, lalu +1% tiap Lv tambahan.
+10215	Hit bisa meluncurkan bilah angin yang menembus musuh ke depan. Lv1: peluang 12%, daya 9. Tiap Lv tambahan: peluang +3%, daya +1. Serangan saat di udara memiliki peluang aktivasi ×1.5. Bilah angin memberi +50% damage ke musuh di udara. Jangkauan serang +1%/Lv.
+10216	Kecepatan bilah angin +5%/Lv, jarak tempuh +0.4m/Lv. Target tambahan yang ditembus bilah angin dan proyektil: +1 di Lv1–3, +2 di Lv4–6, +3 di Lv7–9. Kartu ini sendiri juga bisa memunculkan bilah angin: peluang 6% di Lv1, lalu +2% tiap Lv tambahan.
+10217	Hit bilah angin menciptakan tornado yang menarik musuh biasa di dekatnya dan memberi damage 3 kali di Lv1–3, 4 di Lv4–6, 5 di Lv7–9. Daya, radius, dan tarikan naik sesuai Lv. Memberi separuh damage ke bos. Kartu ini sendiri juga bisa memunculkan bilah angin: peluang 6% di Lv1, lalu +2% tiap Lv tambahan.
+10218	Hit menyerap HP sebesar sebagian damage yang diberikan untuk memulihkan HP-mu: 1% di Lv1, lalu +0.5% tiap Lv tambahan. Mengalahkan musuh juga berpeluang memulihkan 1 hati: 8% di Lv1, lalu +4% tiap Lv tambahan.
+10219	Peluang memulihkan 1 hati saat mengalahkan musuh +4%/Lv. Hit pada bos juga bisa memicu pemulihan ini dengan 1/4 peluang tersebut. Jumlah HP yang diserap dari hit pada bos menjadi dua kali lipat.
+10220	Serapan dan SECOND WIND memulihkan hati tambahan: +1 di Lv1–3, +2 di Lv4–6, +3 di Lv7–9. Pemulihan yang melebihi HP maksimum memberi 1 Shield, hingga 1 di atas batas Shield normal.
+10221	Saat HP 50% atau kurang: serangan +8%/Lv; jumlah HP yang diserap saat hit dan peluang pendarahan ×2. Saat HP 25% atau kurang, peluang memulihkan 1 hati saat mengalahkan musuh juga bertambah +5%/Lv, termasuk saat mengalahkan bos.
+10222	Hit bisa menyebabkan pendarahan; sebagian damage pendarahan memulihkan HP-mu: 10% di Lv1, lalu +2% tiap Lv tambahan. Pendarahan di Lv1: peluang 15%, 5 damage/s. Tiap Lv tambahan: peluang +4%, damage/s +1. Saat HP penuh: peluang pendarahan ×2, serangan +2%/Lv.

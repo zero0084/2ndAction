@@ -41,6 +41,15 @@ public class ReleaseBuildGuard : IPreprocessBuildWithReport
             foreach (var lang in Loc.Languages) if (lang.code != "ja" && !Loc.HasTranslation(lang.code, pr.key)) langs.Add(lang.code);
             if (langs.Count > 0) missing.Add($"翻訳の反映待ち: ID {pr.id} の訳が {langs.Count} 言語で未反映({string.Join(",", langs)})。エステルのレビュー後に反映(Docs/LocReview_2026-10-15b)");
         }
+        // 2026-10-30: 説明を書き換えたカード(CardDescHistory)の新しい説明の訳
+        foreach (var cid in CardDescHistory.Ids)
+        {
+            var c = CardDatabase.FindBaseById(cid);
+            if (c == null) continue;
+            var langs = new List<string>();
+            foreach (var lang in Loc.Languages) if (lang.code != "ja" && !Loc.HasTranslation(lang.code, c.description)) langs.Add(lang.code);
+            if (langs.Count > 0) missing.Add($"カードの説明の訳が未反映: {cid}({langs.Count} 言語)。エステルのレビュー後に反映(Docs/LocReview_2026-10-30b)");
+        }
         if (missing.Count == 0) return;
         string msg = "[ReleaseBuildGuard] 製品版の Android ビルドを止めました。公開の前に次の設定が必要です:\n - " + string.Join("\n - ", missing)
             + "\n(開発版のビルドは Development Build にすれば今までどおり作れます)";

@@ -262,7 +262,7 @@ public class FinalEvolution : MonoBehaviour
             CardId = c.cardId,
             Icon = c.icon,
             Title = c.cardName,
-            Description = (e != null ? e.title + "\n" : "") + c.description,
+            Description = (e != null ? e.title + "\n" : "") + c.DisplayDescription,
             Rarity = 5,
             LevelLine = "FINAL EVOLUTION",
             Category = c.category,

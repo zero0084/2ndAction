@@ -178,5 +178,9 @@ public enum EffectType
     WindSpeedPct,
     TornadoLevel,
     BloodBladeLevel,        // 満HPの間は出血の確率が2倍
-    UltimateLevel           // #100 ULTIMATE(2026-10-04): キャラ固有の必殺技のLv(Gauge/威力/前進/BUFF)
+    UltimateLevel,          // #100 ULTIMATE(2026-10-04): キャラ固有の必殺技のLv(Gauge/威力/前進/BUFF)
+    // 属性20枚の再設計(2026-10-30)
+    LightningCounterLevel,  // 命中を重ねると必ず落雷(Lv1 で13回ごと → Lv9 で5回ごと。ElementStats.LightningEvery)
+    HitLifestealPct,        // 命中で与えたダメージに対する吸収(HP)の割合
+    IceBreakPct             // 冷えた/凍結したボスの BREAK の溜まりやすさ(凍結で満額、冷えは半分)
 }

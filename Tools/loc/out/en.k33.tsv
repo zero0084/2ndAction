@@ -1,0 +1,27 @@
+10196	This card is already in your deck.
+10197	To switch to the same card at a different Lv, remove it from your deck first.
+10198	Your deck had more than one copy of the same card, so the extra copies were removed from it.
+10199	On-hit drain
+10200	BREAK buildup against chilled/frozen bosses
+10201	Tornado: power {0} × {1} hits; radius {2}m; pulls targets {3}m per hit
+10202	Guaranteed lightning every {0} hits
+10203	Boss hits can also heal at 1/4 of the on-kill chance; HP drained from hits against bosses ×2.
+10204	Hits can burn enemies for 3s. Lv1: 20% chance, 6 damage/s. Each additional Lv: chance +4 pp, damage/s +1.5.
+10205	Burn damage +8%/Lv; duration +0.25s/Lv. Also grants burn on hit: 8% chance at Lv1, +2 pp per additional Lv. Burn damage/s also +0.5/Lv.
+10206	Burning enemies spread fire on defeat; enemies killed by this fire spread it further. Spread depth: 2 at Lv1–3, 3 at Lv4–6, 4 at Lv7–9. Power and radius increase with Lv. Also grants burn on hit: 8% chance at Lv1, +2 pp per additional Lv.
+10207	Blocking with a Shield triggers a burst of fire around you, burning enemies hit for 4s. Power and radius increase with Lv. Also allows you to hold 1 Shield.
+10208	Hits can chill and slow enemies. Lv1: 20% chance, 28% slow. Each additional Lv: chance +4 pp, slow +2.5 pp, chill duration +0.1s. At 5 chill stacks, enemies freeze: mobs stop; bosses are greatly slowed and gain BREAK buildup faster.
+10209	Chill stacks needed to freeze: 4 at Lv1–3, 3 at Lv4–6, 2 at Lv7–9. Freeze duration +0.08s/Lv; chill duration +0.15s/Lv. Also grants chill on hit: 8% chance at Lv1, +2 pp per additional Lv.
+10210	Attack against chilled or frozen enemies +3%/Lv. Freezing an enemy deals extra damage that increases with Lv. BREAK buildup against chilled/frozen bosses +6%/Lv (half while only chilled). Also grants chill on hit: 8% chance at Lv1, +2 pp per additional Lv; 4 stacks cause freeze.
+10211	Hits can trigger lightning. Lv1: 8% chance, base power 9. Each additional Lv: chance +2 pp, base power +1.5. A strike is also guaranteed every 13 hits at Lv1, falling to every 5 hits at Lv9. Lightning can hit each enemy only once every 0.4s.
+10212	Lightning power +6%/Lv. Lightning briefly stuns mobs. Also enables lightning strikes: 3% chance at Lv1, +1 pp per additional Lv.
+10213	Lightning chains to nearby enemies: 1 at Lv1–3, 2 at Lv4–6, 3 at Lv7–9. Chain range +0.2m/Lv. With no next target, remaining chains hit the same enemy at reduced power. Also enables lightning strikes: 5% chance at Lv1, +1 pp per additional Lv.
+10214	Lightning power +4%/Lv. Extra chain targets: +1 at Lv1–3, +2 at Lv4–6, +3 at Lv7–9. Strikes also deal area damage; radius increases with Lv. Also enables lightning strikes: 5% chance at Lv1, +1 pp per additional Lv.
+10215	Hits can launch a piercing wind blade forward. Lv1: 12% chance, power 9. Each additional Lv: chance +3 pp, power +1. Attacks made in midair have ×1.5 trigger chance. Wind blades deal +50% damage to airborne enemies. Attack range +1%/Lv.
+10216	Wind blade speed +5%/Lv; travel distance +0.4m/Lv. Extra pierces for wind blades and projectiles: +1 at Lv1–3, +2 at Lv4–6, +3 at Lv7–9. Also enables wind blades: 6% chance at Lv1, +2 pp per additional Lv.
+10217	Wind blade hits create a tornado that pulls in nearby mobs and deals damage 3 times at Lv1–3, 4 at Lv4–6, 5 at Lv7–9. Power, radius and pull increase with Lv. Deals half damage to bosses. Also enables wind blades: 6% chance at Lv1, +2 pp per additional Lv.
+10218	On hit, drain HP equal to a portion of the damage dealt: 1% at Lv1, +0.5 pp per additional Lv. Enemy kills also have a chance to restore 1 heart: 8% at Lv1, +4 pp per additional Lv.
+10219	Chance to restore 1 heart on an enemy kill +4 pp/Lv. Boss hits can also trigger this heal at one-quarter of the on-kill chance. HP drained from hits against bosses is doubled.
+10220	Drain and SECOND WIND restore extra hearts: +1 at Lv1–3, +2 at Lv4–6, +3 at Lv7–9. Healing beyond full HP grants 1 Shield, up to 1 above your normal Shield limit.
+10221	At 50% HP or below: attack +8%/Lv; HP drained on hit and bleed chance ×2. At 25% HP or below, the chance to restore 1 heart on a kill also gains +5 pp/Lv, including boss kills.
+10222	Hits can cause bleed, healing you for a portion of bleed damage: 10% at Lv1, +2 pp per additional Lv. Bleed at Lv1: 15% chance, 5 damage/s. Each additional Lv: chance +4 pp, damage/s +1. At full HP: bleed chance ×2; attack +2%/Lv.

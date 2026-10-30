@@ -1,0 +1,27 @@
+10196	Diese Karte ist bereits in deinem Deck.
+10197	Um sie gegen dieselbe Karte mit einem anderen Lv zu tauschen, entferne zuerst die aktuelle Karte aus dem Deck.
+10198	Dein Deck enthielt mehrere Exemplare derselben Karte. Das erste blieb im Deck, die weiteren wurden daraus entfernt.
+10199	Absorption bei Treffern
+10200	BREAK-Aufbau gegen unterkühlte oder eingefrorene Bosse
+10201	Tornado: Stärke {0} × {1} Treffer; Radius {2}m; zieht Ziele pro Treffer um {3}m heran
+10202	Garantierter Blitzschlag alle {0} Treffer
+10203	Bosstreffer können ebenfalls heilen, mit 1/4 der Heilchance beim Besiegen eines Gegners; durch Bosstreffer absorbierte HP ×2.
+10204	Treffer können Gegner für 3s in Brand setzen. Lv1: Chance 20%, 6 Schaden/s. Je weiteres Lv: Chance +4%, Schaden/s +1.5.
+10205	Brandschaden +8%/Lv, Branddauer +0.25s/Lv. Diese Karte allein kann bei Treffern in Brand setzen: Chance 8% bei Lv1, danach +2% je weiteres Lv. Brandschaden/s zusätzlich +0.5/Lv.
+10206	Besiegte brennende Gegner verbreiten Feuer auf Gegner in der Nähe; dadurch besiegte Gegner verbreiten es weiter. Ausbreitung über 2 Stufen bei Lv1–3, 3 bei Lv4–6, 4 bei Lv7–9. Stärke und Radius steigen mit dem Lv. Diese Karte allein kann bei Treffern in Brand setzen: Chance 8% bei Lv1, danach +2% je weiteres Lv.
+10207	Blockst du einen Angriff mit einem Shield, löst du einen Flammenkonter um dich aus, der getroffene Gegner für 4s in Brand setzt. Stärke und Radius steigen mit dem Lv. Diese Karte allein erlaubt dir auch, 1 Shield zu besitzen.
+10208	Treffer können Gegner unterkühlen und verlangsamen. Lv1: Chance 20%, Verlangsamung 28%. Je weiteres Lv: Chance +4%, Verlangsamung +2.5%, Kältedauer +0.1s. Bei 5 Kältestapeln frieren Gegner ein: Schergen stoppen; Bosse werden stark verlangsamt und bauen schneller BREAK auf.
+10209	Weniger Kältestapel zum Einfrieren nötig: 4 bei Lv1–3, 3 bei Lv4–6, 2 bei Lv7–9. Einfrierdauer +0.08s/Lv, Kältedauer +0.15s/Lv. Diese Karte allein kann bei Treffern unterkühlen: Chance 8% bei Lv1, danach +2% je weiteres Lv.
+10210	Angriff gegen unterkühlte oder eingefrorene Gegner +3%/Lv. Einfrieren verursacht Zusatzschaden, der mit dem Lv steigt. BREAK-Aufbau gegen unterkühlte oder eingefrorene Bosse +6%/Lv (halber Bonus bei bloßer Unterkühlung). Diese Karte allein kann bei Treffern unterkühlen: Chance 8% bei Lv1, danach +2% je weiteres Lv; 4 Kältestapel frieren ein.
+10211	Treffer können Blitzschläge auslösen. Lv1: Chance 8%, Grundstärke 9. Je weiteres Lv: Chance +2%, Grundstärke +1.5. Zusätzlich garantierter Blitzschlag alle 13 Treffer bei Lv1, bis hin zu alle 5 Treffer bei Lv9. Derselbe Gegner kann höchstens einmal alle 0.4s von einem Blitzschlag getroffen werden.
+10212	Blitzschlagstärke +6%/Lv. Blitzschläge lähmen Schergen kurz. Diese Karte allein kann auch Blitzschläge auslösen: Chance 3% bei Lv1, danach +1% je weiteres Lv.
+10213	Blitzschläge springen auf andere Gegner in der Nähe über: 1 bei Lv1–3, 2 bei Lv4–6, 3 bei Lv7–9. Sprungreichweite +0.2m/Lv. Ohne nächstes Ziel treffen die übrigen Sprünge denselben Gegner mit verringerter Stärke. Diese Karte allein kann auch Blitzschläge auslösen: Chance 5% bei Lv1, danach +1% je weiteres Lv.
+10214	Blitzschlagstärke +4%/Lv. Zusätzliche Sprungziele: +1 bei Lv1–3, +2 bei Lv4–6, +3 bei Lv7–9. Blitzschläge verursachen auch Schaden um den Einschlagspunkt; der Radius steigt mit dem Lv. Diese Karte allein kann auch Blitzschläge auslösen: Chance 5% bei Lv1, danach +1% je weiteres Lv.
+10215	Treffer können eine durchbohrende Windklinge nach vorn auslösen. Lv1: Chance 12%, Stärke 9. Je weiteres Lv: Chance +3%, Stärke +1. Bei Angriffen aus der Luft ist die Auslösechance ×1.5. Windklingen verursachen +50% Schaden gegen Gegner in der Luft. Angriffsreichweite +1%/Lv.
+10216	Windklingentempo +5%/Lv, Flugweite +0.4m/Lv. Zusätzlich durchbohrte Ziele für Windklingen und Geschosse: +1 bei Lv1–3, +2 bei Lv4–6, +3 bei Lv7–9. Diese Karte allein kann auch Windklingen auslösen: Chance 6% bei Lv1, danach +2% je weiteres Lv.
+10217	Windklingentreffer erzeugen einen Tornado, der nahe Schergen heranzieht und bei Lv1–3 3-mal, bei Lv4–6 4-mal, bei Lv7–9 5-mal Schaden verursacht. Stärke, Radius und Sog steigen mit dem Lv. Halber Schaden gegen Bosse. Diese Karte allein kann auch Windklingen auslösen: Chance 6% bei Lv1, danach +2% je weiteres Lv.
+10218	Treffer absorbieren einen Teil des verursachten Schadens und stellen damit HP wieder her: 1% bei Lv1, danach +0.5% je weiteres Lv. Besiegte Gegner können zudem 1 Herz heilen: Chance 8% bei Lv1, danach +4% je weiteres Lv.
+10219	Chance, beim Besiegen eines Gegners 1 Herz zu heilen, +4%/Lv. Bosstreffer können diese Heilung ebenfalls mit 1/4 dieser Chance auslösen. Die durch Bosstreffer absorbierte HP-Menge wird verdoppelt.
+10220	Absorption und SECOND WIND heilen zusätzliche Herzen: +1 bei Lv1–3, +2 bei Lv4–6, +3 bei Lv7–9. Heilung über die maximalen HP hinaus gewährt 1 Shield, bis zu 1 über deinem normalen Shield-Limit.
+10221	Bei 50% HP oder weniger: Angriff +8%/Lv; bei Treffern absorbierte HP und Blutungschance ×2. Bei 25% HP oder weniger steigt zudem die Chance, beim Besiegen eines Gegners 1 Herz zu heilen, um +5%/Lv, auch bei Bossen.
+10222	Treffer können Blutung verursachen; ein Teil des Blutungsschadens stellt deine HP wieder her: 10% bei Lv1, danach +2% je weiteres Lv. Blutung bei Lv1: Chance 15%, 5 Schaden/s. Je weiteres Lv: Chance +4%, Schaden/s +1. Bei vollen HP: Blutungschance ×2, Angriff +2%/Lv.

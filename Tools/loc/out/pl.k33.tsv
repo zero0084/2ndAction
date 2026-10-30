@@ -1,0 +1,27 @@
+10196	Ta karta jest już w talii.
+10197	Aby zastąpić ją taką samą kartą o innym Lv, najpierw usuń obecną kartę z talii.
+10198	W talii było kilka kopii tej samej karty. Pierwsza pozostała w talii, a pozostałe zostały z niej usunięte.
+10199	Wchłanianie przy trafieniu
+10200	Przyrost BREAK u wychłodzonych lub zamrożonych bossów
+10201	Tornado: siła {0} × {1} trafień; promień {2}m; przyciąga cele o {3}m przy każdym trafieniu
+10202	Gwarantowany piorun co {0} trafień
+10203	Trafienia w bossów też mogą leczyć z szansą równą 1/4 szansy leczenia po pokonaniu wroga; ilość HP wchłanianego przy trafieniu bossa ×2.
+10204	Trafienia mogą podpalić wrogów na 3s. Na Lv1: szansa 20%, 6 obrażeń/s. Za każdy kolejny Lv: szansa +4%, obrażenia/s +1.5.
+10205	Obrażenia od podpalenia +8%/Lv, czas trwania +0.25s/Lv. Sama ta karta też może podpalić przy trafieniu: szansa 8% na Lv1, potem +2% za każdy kolejny Lv. Obrażenia od podpalenia/s również +0.5/Lv.
+10206	Pokonanie płonącego wroga podpala pobliskich wrogów; wrogowie pokonani przez ten ogień rozprzestrzeniają go dalej. Ogień rozchodzi się przez 2 etapy na Lv1–3, 3 na Lv4–6, 4 na Lv7–9. Siła i promień rosną z Lv. Sama ta karta też może podpalić przy trafieniu: szansa 8% na Lv1, potem +2% za każdy kolejny Lv.
+10207	Zablokowanie ataku tarczą Shield wyzwala wokół ognistą kontrę, która podpala trafionych wrogów na 4s. Siła i promień rosną z Lv. Sama ta karta pozwala też mieć 1 Shield.
+10208	Trafienia mogą wychłodzić i spowolnić wrogów. Na Lv1: szansa 20%, spowolnienie 28%. Za każdy kolejny Lv: szansa +4%, spowolnienie +2.5%, czas wychłodzenia +0.1s. 5 nałożonych wychłodzeń zamraża: zwykli wrogowie zatrzymują się; bossowie znacznie zwalniają i szybciej gromadzą BREAK.
+10209	Mniej nałożonych wychłodzeń potrzebnych do zamrożenia: 4 na Lv1–3, 3 na Lv4–6, 2 na Lv7–9. Czas zamrożenia +0.08s/Lv, czas wychłodzenia +0.15s/Lv. Sama ta karta też może wychłodzić przy trafieniu: szansa 8% na Lv1, potem +2% za każdy kolejny Lv.
+10210	Atak przeciw wychłodzonym lub zamrożonym wrogom +3%/Lv. Zamrożenie zadaje dodatkowe obrażenia rosnące z Lv. Przyrost BREAK u wychłodzonych lub zamrożonych bossów +6%/Lv (połowa premii przy samym wychłodzeniu). Sama ta karta też może wychłodzić przy trafieniu: szansa 8% na Lv1, potem +2% za każdy kolejny Lv; 4 nałożone wychłodzenia zamrażają.
+10211	Trafienia mogą przywołać piorun. Na Lv1: szansa 8%, siła bazowa 9. Za każdy kolejny Lv: szansa +2%, siła bazowa +1.5. Piorun jest też gwarantowany co 13 trafień na Lv1, aż do co 5 trafień na Lv9. Ten sam wróg może zostać trafiony piorunem najwyżej 1 raz na 0.4s.
+10212	Siła pioruna +6%/Lv. Pioruny na chwilę unieruchamiają zwykłych wrogów. Sama ta karta też może przywoływać pioruny: szansa 3% na Lv1, potem +1% za każdy kolejny Lv.
+10213	Pioruny przeskakują na innych pobliskich wrogów: 1 na Lv1–3, 2 na Lv4–6, 3 na Lv7–9. Zasięg przeskoków +0.2m/Lv. Gdy nie ma kolejnego celu, pozostałe przeskoki trafiają tego samego wroga z mniejszą siłą. Sama ta karta też może przywoływać pioruny: szansa 5% na Lv1, potem +1% za każdy kolejny Lv.
+10214	Siła pioruna +4%/Lv. Dodatkowe cele łańcucha: +1 na Lv1–3, +2 na Lv4–6, +3 na Lv7–9. Pioruny zadają też obrażenia wokół miejsca uderzenia; promień rośnie z Lv. Sama ta karta też może przywoływać pioruny: szansa 5% na Lv1, potem +1% za każdy kolejny Lv.
+10215	Trafienia mogą wypuścić do przodu ostrze wiatru przebijające wrogów. Na Lv1: szansa 12%, siła 9. Za każdy kolejny Lv: szansa +3%, siła +1. Przy atakach wykonywanych w powietrzu szansa aktywacji ×1.5. Ostrza wiatru zadają +50% obrażeń wrogom w powietrzu. Zasięg ataku +1%/Lv.
+10216	Prędkość ostrzy wiatru +5%/Lv, zasięg lotu +0.4m/Lv. Dodatkowe cele przebijane przez ostrza wiatru i pociski: +1 na Lv1–3, +2 na Lv4–6, +3 na Lv7–9. Sama ta karta też może wypuszczać ostrza wiatru: szansa 6% na Lv1, potem +2% za każdy kolejny Lv.
+10217	Trafienie ostrzem wiatru tworzy tornado, które przyciąga pobliskich zwykłych wrogów i zadaje obrażenia 3 razy na Lv1–3, 4 na Lv4–6, 5 na Lv7–9. Siła, promień i przyciąganie rosną z Lv. Zadaje bossom połowę obrażeń. Sama ta karta też może wypuszczać ostrza wiatru: szansa 6% na Lv1, potem +2% za każdy kolejny Lv.
+10218	Trafienia wchłaniają HP równe części zadanych obrażeń: 1% na Lv1, potem +0.5% za każdy kolejny Lv. Pokonanie wroga może też przywrócić 1 serce: szansa 8% na Lv1, potem +4% za każdy kolejny Lv.
+10219	Szansa na odzyskanie 1 serca po pokonaniu wroga +4%/Lv. Trafienia w bossów też mogą uruchomić to leczenie z szansą równą 1/4 tej wartości. Ilość HP wchłanianego przy trafieniu bossa jest podwojona.
+10220	Wchłanianie i SECOND WIND przywracają dodatkowe serca: +1 na Lv1–3, +2 na Lv4–6, +3 na Lv7–9. Leczenie ponad maksymalne HP daje 1 Shield, pozwalając przekroczyć zwykły limit Shield o 1.
+10221	Przy 50% HP lub mniej: atak +8%/Lv; ilość HP wchłanianego przy trafieniu i szansa krwawienia ×2. Przy 25% HP lub mniej szansa na odzyskanie 1 serca po pokonaniu wroga również zyskuje +5%/Lv, także w przypadku bossów.
+10222	Trafienia mogą wywołać krwawienie; część zadanych przez nie obrażeń przywraca HP: 10% na Lv1, potem +2% za każdy kolejny Lv. Krwawienie na Lv1: szansa 15%, 5 obrażeń/s. Za każdy kolejny Lv: szansa +4%, obrażenia/s +1. Przy pełnym HP: szansa krwawienia ×2, atak +2%/Lv.

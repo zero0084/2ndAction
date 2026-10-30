@@ -23,12 +23,12 @@ public static class CardBehaviorText
             case EffectType.SonicBladeLevel: return Loc.Src("飛ぶ斬撃 威力{0}・基本飛距離{1}m(速度で延長)", P(0.25f + 0.03f * lv), M(3f + 0.2f * lv));
             case EffectType.CounterLevel: return Loc.Src("Shield で防いだ時の反撃 威力{0}・範囲3m", P(1f + 0.25f * lv));
             case EffectType.PerfectGuardLevel: return Loc.Src("Shield で防いだ後の無敵 {0}秒", M(0.4f + 0.1f * lv));
-            case EffectType.FlameCounterLevel: return Loc.Src("Shield で防いだ時の炎の反撃 威力{0}・炎上 毎秒{1}", P(0.6f + 0.15f * lv), (4 + lv).ToString());
+            case EffectType.FlameCounterLevel: return Loc.Src("Shield で防いだ時の炎の反撃 威力{0}・炎上 毎秒{1}", P(CardProcs.FlameCounterPower(lv)), (4 + lv).ToString());
             case EffectType.SecondWindLevel: return Loc.Src("被弾でHP30%以下 → ハート{0}回復・再発動まで{1}m", (1 + (lv >= 5 ? 1 : 0) + (lv >= 9 ? 1 : 0)).ToString(), Mathf.Max(1000, 10000 - 500 * (lv - 1)).ToString("#,0"));
             case EffectType.LastChanceLevel: return Loc.Src("被弾でハート1つ以下 → 無敵{0}秒", (1f + 0.15f * lv).ToString("0.##"));
             case EffectType.PhoenixLevel: return Loc.Src("復活時のHP ハート{0}(2秒無敵)", (1 + lv / 2).ToString());
             case EffectType.OverhealLevel: return Loc.Src("満タンで溢れた回復は Shield 1つに(最大数+1まで)");
-            case EffectType.PredatorLevel: return Loc.Src("ボス命中時もHP吸収(通常の吸収確率の1/10)");
+            case EffectType.PredatorLevel: return Loc.Reviewed(LocPendingReview.PredatorText, "ボス命中時もHP吸収(通常の吸収確率の1/10)");
             case EffectType.PierceLevel: return Loc.Src("近接: 後方{0}体へ追加攻撃 威力{1} / 飛び道具 貫通+{2}", (1 + lv / 3).ToString(), P(0.35f + 0.04f * lv), Mathf.CeilToInt(lv / 3f).ToString());
             case EffectType.ShockwaveLevel: return Loc.Src("衝撃波 威力{0}・幅{1}m(飛び道具は半径{2}m)", P(0.25f + 0.035f * lv), M(1.8f + 0.12f * lv), M(1f + 0.08f * lv));
             case EffectType.ChainExplosionLevel: return Loc.Src("撃破時の爆発 威力{0}・半径{1}m(連鎖は3段まで)", P(0.4f + 0.06f * lv), M(1.6f + 0.08f * lv));
@@ -41,9 +41,15 @@ public static class CardBehaviorText
             case EffectType.HeavyArmorLevel: return Loc.Src("ハート2つ以上の被弾をハート1つ分軽く");
             case EffectType.BossRushLevel: return Loc.Src("ボスがもう1体加わる確率 {0}%", Mathf.Min(100, 8 * lv).ToString());
             case EffectType.WantedLevel: return Loc.Src("賞金首 {0}mごと・HP×{1}・撃破で{2} MILE", Mathf.Max(1500, 3000 - 150 * (lv - 1)).ToString("#,0"), M(3f + 0.3f * lv), (20 + 10 * lv).ToString());
-            case EffectType.InfernoLevel: return Loc.Src("炎上中の敵を撃破 → 延焼 威力{0}・半径{1}m", (6 + 2 * lv).ToString(), M(2f + 0.1f * lv));
-            case EffectType.AbsoluteZeroLevel: return Loc.Src("冷えた/凍結した敵への攻撃+{0}%・凍結時の砕け 威力{1}", (3 * lv).ToString(), (10 + 3 * lv).ToString());
-            case EffectType.TornadoLevel: return Loc.Src("竜巻 威力{0}×3回・半径{1}m", (4 + lv).ToString(), (1.2f + 0.06f * lv).ToString("0.##"));
+            case EffectType.InfernoLevel: return Loc.Src("炎上中の敵を撃破 → 延焼 威力{0}・半径{1}m", CardProcs.InfernoDamage(lv).ToString("0"), M(CardProcs.InfernoRadius(lv)));
+            case EffectType.AbsoluteZeroLevel: return Loc.Src("冷えた/凍結した敵への攻撃+{0}%・凍結時の砕け 威力{1}", (3 * lv).ToString(), ElementSystem.ShatterBase(lv).ToString("0"));
+            // 2026-10-30: 回数と引き寄せを足した新しい文。訳が入るまでは前の文(回数の所は前の「×3回」のまま)
+            case EffectType.TornadoLevel:
+                return Loc.Ready(LocPendingReview.TornadoText)
+                    ? Loc.Src(LocPendingReview.TornadoText, CardProcs.TornadoDamage(lv).ToString("0"), CardProcs.TornadoPulses(lv).ToString(), CardProcs.TornadoRadius(lv).ToString("0.##"), CardProcs.TornadoPull(lv).ToString("0.##"))
+                    : Loc.Src("竜巻 威力{0}×3回・半径{1}m", CardProcs.TornadoDamage(lv).ToString("0"), CardProcs.TornadoRadius(lv).ToString("0.##"));
+            case EffectType.LightningCounterLevel:
+                return Loc.Ready(LocPendingReview.LightningCounterText) ? Loc.Src(LocPendingReview.LightningCounterText, ElementStats.LightningEveryFor(lv).ToString()) : "";
             case EffectType.BloodBladeLevel: return Loc.Src("HP満タンの時 出血の確率×2");
             case EffectType.ShieldGuard: return Loc.Src("このカードだけでも Shield を1つ持てる");
             case EffectType.UltimateLevel:

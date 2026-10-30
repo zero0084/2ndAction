@@ -34,6 +34,33 @@ public class ElementStatus : MonoBehaviour
     public int ChillStacks => chillStacks;
     public bool IsBoss => isBoss;
 
+    // 2026-10-30 マルチ: JOIN の見た目だけの状態(HOST から届いた知らせ。ダメージも判定もしない)
+    bool remote;
+    public static ElementStatus ForRemote(Component victim)
+    {
+        var s = For(victim);
+        if (s != null) s.remote = true;
+        return s;
+    }
+    public void RemoteState(NetElementFx.StateKind kind, float seconds, int tier)
+    {
+        switch (kind)
+        {
+            case NetElementFx.StateKind.Burn: bool fresh = burnLeft <= 0f; burnLeft = Mathf.Max(burnLeft, seconds); if (fresh) ElementVfx.BurnApplied(target); break;
+            case NetElementFx.StateKind.Chill: chillLeft = Mathf.Max(chillLeft, seconds); chillSlow = Mathf.Max(chillSlow, 0.01f); ElementVfx.ChillApplied(target, false); break;
+            case NetElementFx.StateKind.Freeze: freezeLeft = Mathf.Max(freezeLeft, seconds); ElementVfx.ChillApplied(target, true); break;
+            case NetElementFx.StateKind.Bleed: bool fb = bleedLeft <= 0f; bleedLeft = Mathf.Max(bleedLeft, seconds); if (fb) ElementVfx.BleedApplied(target); break;
+            case NetElementFx.StateKind.Charged: MarkCharged(seconds); ElementVfx.StrikeImpact(target, Mathf.Max(1, tier)); break;
+            case NetElementFx.StateKind.Wind: MarkWind(seconds); ElementVfx.WindHit(target); break;
+        }
+    }
+    bool TargetAlive => remote ? target != null && target.gameObject.activeInHierarchy && !(target is EnemyController en && en.IsDying) : ElementSystem.IsAlive(target);
+    // HOST: 状態が付いた/延びた時に JOIN へ知らせる(同じ状態の延長は NetElementFx が0.5秒に1回まで)
+    void Notify(NetElementFx.StateKind kind, float seconds, ElementType el)
+    {
+        if (!remote && NetCombat.Authority) NetElementFx.State(target, kind, seconds, ElementVfx.Tier(el));
+    }
+
     public static ElementStatus For(Component victim)
     {
         if (victim == null) return null;
@@ -76,17 +103,18 @@ public class ElementStatus : MonoBehaviour
 
     public void AddBurn(float dps, float duration)
     {
-        if (burnLeft > 0f) burnBoost = Mathf.Min(0.5f, burnBoost + 0.1f); else burnBoost = 0f;
+        if (burnLeft > 0f) burnBoost = Mathf.Min(isBoss ? 0.15f : 0.5f, burnBoost + 0.1f); else burnBoost = 0f; // 2026-10-30: ボスは +15% まで(炎は群れ向き)
         burnDps = Mathf.Max(burnLeft > 0f ? burnDps : 0f, dps);
         burnLeft = Mathf.Max(burnLeft, duration);
+        Notify(NetElementFx.StateKind.Burn, burnLeft, ElementType.Fire);
     }
 
     public void AddShock(float seconds) { shockLeft = Mathf.Max(shockLeft, seconds); }
 
     // 2026-10-30(視認性): 見た目だけの状態。落雷を受けた直後の「帯電」/ 風刃・竜巻を受けた直後の「風」(性能には関係しない)
     float chargedLeft, windLeft;
-    public void MarkCharged(float seconds = 0.8f) { chargedLeft = Mathf.Max(chargedLeft, seconds); }
-    public void MarkWind(float seconds = 1.0f) { windLeft = Mathf.Max(windLeft, seconds); }
+    public void MarkCharged(float seconds = 0.8f) { chargedLeft = Mathf.Max(chargedLeft, seconds); Notify(NetElementFx.StateKind.Charged, seconds, ElementType.Thunder); }
+    public void MarkWind(float seconds = 1.0f) { windLeft = Mathf.Max(windLeft, seconds); Notify(NetElementFx.StateKind.Wind, seconds, ElementType.Wind); }
     public bool Charged => chargedLeft > 0f || shockLeft > 0f;
     public bool Windswept => windLeft > 0f;
 
@@ -95,6 +123,7 @@ public class ElementStatus : MonoBehaviour
         bleedDps = Mathf.Max(bleedLeft > 0f ? bleedDps : 0f, dps);
         bleedLeft = Mathf.Max(bleedLeft, duration);
         bleedHeal = Mathf.Max(bleedHeal, healFraction);
+        Notify(NetElementFx.StateKind.Bleed, bleedLeft, ElementType.Blood);
     }
 
     // 返り値: このChillで凍結したか
@@ -103,18 +132,22 @@ public class ElementStatus : MonoBehaviour
         absoluteZero = Mathf.Max(absoluteZero, absoluteZeroLevel);
         chillSlow = Mathf.Max(chillLeft > 0f ? chillSlow : 0f, slow);
         chillLeft = Mathf.Max(chillLeft, duration);
+        Notify(NetElementFx.StateKind.Chill, chillLeft, ElementType.Ice);
         if (freezeLeft > 0f || freezeStacks <= 0) return false;
         chillStacks++;
         if (chillStacks < freezeStacks) return false;
         chillStacks = 0;
         freezeLeft = freezeDuration;
+        Notify(NetElementFx.StateKind.Freeze, freezeLeft, ElementType.Ice);
         return true;
     }
 
     void Update()
     {
-        if (target == null || !ElementSystem.IsAlive(target)) { if (burnLeft > 0f) DiedBurning = true; Clear(); return; }
+        if (target == null || !TargetAlive) { if (burnLeft > 0f) DiedBurning = true; Clear(); return; }
         float dt = Time.deltaTime;
+        if (chillLeft > 0f) ElementTelemetry.ChilledSeconds += dt;
+        if (freezeLeft > 0f) ElementTelemetry.FrozenSeconds += dt;
         if (chillLeft > 0f) { chillLeft -= dt; if (chillLeft <= 0f) { chillLeft = 0f; chillSlow = 0f; chillStacks = 0; } }
         if (freezeLeft > 0f) freezeLeft = Mathf.Max(0f, freezeLeft - dt);
         if (shockLeft > 0f) shockLeft = Mathf.Max(0f, shockLeft - dt);

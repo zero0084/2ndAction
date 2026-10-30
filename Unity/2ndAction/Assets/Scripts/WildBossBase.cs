@@ -1605,6 +1605,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (BossBattle.DebugNoStagger) return;
         if (tune == null || tune.staggerMax <= 0f || Broken || phaseRoaring || entering || breakRecovering) return;
         float before = StaggerFraction;
+        v *= ElementSystem.IceStaggerMul(gameObject, v); // 2026-10-30: 冷えた/凍結したボスは BREAK が溜まりやすい(氷の役割)
         stagger += v * staggerDefense * (Time.time < breakResistUntil ? PostBreakStaggerScale : 1f); // BREAK の直後は溜まりにくい(2026-10-18、続けて BREAK し続けない)
         lastStaggerTime = Time.time;
         if (stagger < tune.staggerMax) { TryFlinch(before, StaggerFraction); return; } // 怯み(2026-10-18)

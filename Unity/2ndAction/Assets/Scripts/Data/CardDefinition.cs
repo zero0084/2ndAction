@@ -62,4 +62,7 @@ public class CardDefinition : ScriptableObject
     // Character Card slots) renders identically without recomputing the
     // loop, and so a future Rarity display tweak is a one-line change.
     public string RarityStars => new string('★', Mathf.Clamp(rarity, 1, 5));
+
+    // 2026-10-30: 画面に出す説明。説明を書き換えたカード(CardDescHistory)は、新しい説明の訳がまだ無い言語では前の(レビュー済みの)説明
+    public string DisplayDescription => CardDescHistory.Has(cardId) && !Loc.Ready(description) ? (CardDescHistory.Previous(cardId) ?? description) : description;
 }

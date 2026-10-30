@@ -1,0 +1,54 @@
+10196 [ru] Эта карта уже есть в колоде.
+10196 [pl] Ta karta jest już w talii.
+10197 [ru] Чтобы заменить её такой же картой другого Lv, сначала уберите текущую карту из колоды.
+10197 [pl] Aby zastąpić ją taką samą kartą o innym Lv, najpierw usuń obecną kartę z talii.
+10198 [ru] В колоде было несколько копий одной карты. Первая осталась в колоде, остальные убраны из неё.
+10198 [pl] W talii było kilka kopii tej samej karty. Pierwsza pozostała w talii, a pozostałe zostały z niej usunięte.
+10199 [ru] Поглощение при попадании
+10199 [pl] Wchłanianie przy trafieniu
+10200 [ru] Накопление BREAK у охлаждённых или замороженных боссов
+10200 [pl] Przyrost BREAK u wychłodzonych lub zamrożonych bossów
+10201 [ru] Смерч: сила {0} × {1} попаданий; радиус {2}m; притягивает цели на {3}m при каждом попадании
+10201 [pl] Tornado: siła {0} × {1} trafień; promień {2}m; przyciąga cele o {3}m przy każdym trafieniu
+10202 [ru] Гарантированный удар молнии каждые {0} попаданий
+10202 [pl] Gwarantowany piorun co {0} trafień
+10203 [ru] Попадания по боссам тоже могут лечить с шансом, равным 1/4 шанса лечения при победе над врагом; количество HP, поглощаемых при попадании по боссам, ×2.
+10203 [pl] Trafienia w bossów też mogą leczyć z szansą równą 1/4 szansy leczenia po pokonaniu wroga; ilość HP wchłanianego przy trafieniu bossa ×2.
+10204 [ru] Попадания могут поджечь врага на 3s. На Lv1: шанс 20%, 6 урона/s. За каждый следующий Lv: шанс +4%, урон/s +1.5.
+10204 [pl] Trafienia mogą podpalić wrogów na 3s. Na Lv1: szansa 20%, 6 obrażeń/s. Za każdy kolejny Lv: szansa +4%, obrażenia/s +1.5.
+10205 [ru] Урон от горения +8%/Lv, длительность +0.25s/Lv. Даже одна эта карта может поджечь при попадании: шанс 8% на Lv1, далее +2% за каждый следующий Lv. Урон от горения/s также +0.5/Lv.
+10205 [pl] Obrażenia od podpalenia +8%/Lv, czas trwania +0.25s/Lv. Sama ta karta też może podpalić przy trafieniu: szansa 8% na Lv1, potem +2% za każdy kolejny Lv. Obrażenia od podpalenia/s również +0.5/Lv.
+10206 [ru] Победа над горящим врагом поджигает ближайших врагов; враги, погибшие от этого огня, распространяют его дальше. Глубина распространения: 2 этапа на Lv1–3, 3 на Lv4–6, 4 на Lv7–9. Сила и радиус растут с Lv. Даже одна эта карта может поджечь при попадании: шанс 8% на Lv1, далее +2% за каждый следующий Lv.
+10206 [pl] Pokonanie płonącego wroga podpala pobliskich wrogów; wrogowie pokonani przez ten ogień rozprzestrzeniają go dalej. Ogień rozchodzi się przez 2 etapy na Lv1–3, 3 na Lv4–6, 4 na Lv7–9. Siła i promień rosną z Lv. Sama ta karta też może podpalić przy trafieniu: szansa 8% na Lv1, potem +2% za każdy kolejny Lv.
+10207 [ru] Блок атаки щитом Shield вызывает вокруг огненный ответный удар, поджигающий задетых врагов на 4s. Сила и радиус растут с Lv. Даже одна эта карта позволяет иметь 1 Shield.
+10207 [pl] Zablokowanie ataku tarczą Shield wyzwala wokół ognistą kontrę, która podpala trafionych wrogów na 4s. Siła i promień rosną z Lv. Sama ta karta pozwala też mieć 1 Shield.
+10208 [ru] Попадания могут охладить и замедлить врагов. На Lv1: шанс 20%, замедление 28%. За каждый следующий Lv: шанс +4%, замедление +2.5%, длительность охлаждения +0.1s. 5 накопленных охлаждений вызывают заморозку: обычные враги останавливаются; боссы сильно замедляются и быстрее накапливают BREAK.
+10208 [pl] Trafienia mogą wychłodzić i spowolnić wrogów. Na Lv1: szansa 20%, spowolnienie 28%. Za każdy kolejny Lv: szansa +4%, spowolnienie +2.5%, czas wychłodzenia +0.1s. 5 nałożonych wychłodzeń zamraża: zwykli wrogowie zatrzymują się; bossowie znacznie zwalniają i szybciej gromadzą BREAK.
+10209 [ru] Меньше накопленных охлаждений для заморозки: 4 на Lv1–3, 3 на Lv4–6, 2 на Lv7–9. Длительность заморозки +0.08s/Lv, охлаждения +0.15s/Lv. Даже одна эта карта может охладить при попадании: шанс 8% на Lv1, далее +2% за каждый следующий Lv.
+10209 [pl] Mniej nałożonych wychłodzeń potrzebnych do zamrożenia: 4 na Lv1–3, 3 na Lv4–6, 2 na Lv7–9. Czas zamrożenia +0.08s/Lv, czas wychłodzenia +0.15s/Lv. Sama ta karta też może wychłodzić przy trafieniu: szansa 8% na Lv1, potem +2% za każdy kolejny Lv.
+10210 [ru] Атака против охлаждённых или замороженных врагов +3%/Lv. В момент заморозки наносится дополнительный урон, растущий с Lv. Накопление BREAK у охлаждённых или замороженных боссов +6%/Lv (бонус вдвое меньше, если босс только охлаждён). Даже одна эта карта может охладить при попадании: шанс 8% на Lv1, далее +2% за каждый следующий Lv; 4 накопленных охлаждения вызывают заморозку.
+10210 [pl] Atak przeciw wychłodzonym lub zamrożonym wrogom +3%/Lv. Zamrożenie zadaje dodatkowe obrażenia rosnące z Lv. Przyrost BREAK u wychłodzonych lub zamrożonych bossów +6%/Lv (połowa premii przy samym wychłodzeniu). Sama ta karta też może wychłodzić przy trafieniu: szansa 8% na Lv1, potem +2% za każdy kolejny Lv; 4 nałożone wychłodzenia zamrażają.
+10211 [ru] Попадания могут вызвать удар молнии. На Lv1: шанс 8%, базовая сила 9. За каждый следующий Lv: шанс +2%, базовая сила +1.5. Также гарантирован удар молнии каждые 13 попаданий на Lv1, вплоть до каждых 5 на Lv9. По одному врагу молния бьёт не чаще 1 раза в 0.4s.
+10211 [pl] Trafienia mogą przywołać piorun. Na Lv1: szansa 8%, siła bazowa 9. Za każdy kolejny Lv: szansa +2%, siła bazowa +1.5. Piorun jest też gwarantowany co 13 trafień na Lv1, aż do co 5 trafień na Lv9. Ten sam wróg może zostać trafiony piorunem najwyżej 1 raz na 0.4s.
+10212 [ru] Сила молнии +6%/Lv. Удары молнии на миг останавливают обычных врагов. Даже одна эта карта может вызывать удары молнии: шанс 3% на Lv1, далее +1% за каждый следующий Lv.
+10212 [pl] Siła pioruna +6%/Lv. Pioruny na chwilę unieruchamiają zwykłych wrogów. Sama ta karta też może przywoływać pioruny: szansa 3% na Lv1, potem +1% za każdy kolejny Lv.
+10213 [ru] Молния перескакивает на других ближайших врагов: 1 на Lv1–3, 2 на Lv4–6, 3 на Lv7–9. Дальность перескока +0.2m/Lv. Если следующей цели нет, оставшиеся удары цепи бьют по тому же врагу с уменьшенной силой. Даже одна эта карта может вызывать удары молнии: шанс 5% на Lv1, далее +1% за каждый следующий Lv.
+10213 [pl] Pioruny przeskakują na innych pobliskich wrogów: 1 na Lv1–3, 2 na Lv4–6, 3 na Lv7–9. Zasięg przeskoków +0.2m/Lv. Gdy nie ma kolejnego celu, pozostałe przeskoki trafiają tego samego wroga z mniejszą siłą. Sama ta karta też może przywoływać pioruny: szansa 5% na Lv1, potem +1% za każdy kolejny Lv.
+10214 [ru] Сила молнии +4%/Lv. Дополнительные цели цепи: +1 на Lv1–3, +2 на Lv4–6, +3 на Lv7–9. Молния также наносит урон вокруг места удара; радиус растёт с Lv. Даже одна эта карта может вызывать удары молнии: шанс 5% на Lv1, далее +1% за каждый следующий Lv.
+10214 [pl] Siła pioruna +4%/Lv. Dodatkowe cele łańcucha: +1 na Lv1–3, +2 na Lv4–6, +3 na Lv7–9. Pioruny zadają też obrażenia wokół miejsca uderzenia; promień rośnie z Lv. Sama ta karta też może przywoływać pioruny: szansa 5% na Lv1, potem +1% za każdy kolejny Lv.
+10215 [ru] Попадания могут выпустить вперёд клинок ветра, пронзающий врагов. На Lv1: шанс 12%, сила 9. За каждый следующий Lv: шанс +3%, сила +1. При атаке из воздуха шанс срабатывания ×1.5. Клинки ветра наносят +50% урона врагам в воздухе. Дальность атаки +1%/Lv.
+10215 [pl] Trafienia mogą wypuścić do przodu ostrze wiatru przebijające wrogów. Na Lv1: szansa 12%, siła 9. Za każdy kolejny Lv: szansa +3%, siła +1. Przy atakach wykonywanych w powietrzu szansa aktywacji ×1.5. Ostrza wiatru zadają +50% obrażeń wrogom w powietrzu. Zasięg ataku +1%/Lv.
+10216 [ru] Скорость клинков ветра +5%/Lv, дальность полёта +0.4m/Lv. Дополнительные пробиваемые цели для клинков ветра и снарядов: +1 на Lv1–3, +2 на Lv4–6, +3 на Lv7–9. Даже одна эта карта может выпускать клинки ветра: шанс 6% на Lv1, далее +2% за каждый следующий Lv.
+10216 [pl] Prędkość ostrzy wiatru +5%/Lv, zasięg lotu +0.4m/Lv. Dodatkowe cele przebijane przez ostrza wiatru i pociski: +1 na Lv1–3, +2 na Lv4–6, +3 na Lv7–9. Sama ta karta też może wypuszczać ostrza wiatru: szansa 6% na Lv1, potem +2% za każdy kolejny Lv.
+10217 [ru] В месте попадания клинка ветра возникает смерч, притягивающий обычных врагов поблизости и наносящий урон 3 раза на Lv1–3, 4 на Lv4–6, 5 на Lv7–9. Сила, радиус и притяжение растут с Lv. Урон по боссам вдвое меньше. Даже одна эта карта может выпускать клинки ветра: шанс 6% на Lv1, далее +2% за каждый следующий Lv.
+10217 [pl] Trafienie ostrzem wiatru tworzy tornado, które przyciąga pobliskich zwykłych wrogów i zadaje obrażenia 3 razy na Lv1–3, 4 na Lv4–6, 5 na Lv7–9. Siła, promień i przyciąganie rosną z Lv. Zadaje bossom połowę obrażeń. Sama ta karta też może wypuszczać ostrza wiatru: szansa 6% na Lv1, potem +2% za każdy kolejny Lv.
+10218 [ru] При попадании поглощает HP в размере части нанесённого урона: 1% на Lv1, далее +0.5% за каждый следующий Lv. Победа над врагом также может восстановить 1 сердце: шанс 8% на Lv1, далее +4% за каждый следующий Lv.
+10218 [pl] Trafienia wchłaniają HP równe części zadanych obrażeń: 1% na Lv1, potem +0.5% za każdy kolejny Lv. Pokonanie wroga może też przywrócić 1 serce: szansa 8% na Lv1, potem +4% za każdy kolejny Lv.
+10219 [ru] Шанс восстановить 1 сердце при победе над врагом +4%/Lv. Попадания по боссам тоже могут вызвать это лечение с шансом, равным 1/4 указанного. Количество HP, поглощаемых при попадании по боссам, удваивается.
+10219 [pl] Szansa na odzyskanie 1 serca po pokonaniu wroga +4%/Lv. Trafienia w bossów też mogą uruchomić to leczenie z szansą równą 1/4 tej wartości. Ilość HP wchłanianego przy trafieniu bossa jest podwojona.
+10220 [ru] Поглощение и SECOND WIND восстанавливают дополнительные сердца: +1 на Lv1–3, +2 на Lv4–6, +3 на Lv7–9. Лечение сверх максимума HP даёт 1 Shield, позволяя иметь на 1 Shield больше обычного лимита.
+10220 [pl] Wchłanianie i SECOND WIND przywracają dodatkowe serca: +1 na Lv1–3, +2 na Lv4–6, +3 na Lv7–9. Leczenie ponad maksymalne HP daje 1 Shield, pozwalając przekroczyć zwykły limit Shield o 1.
+10221 [ru] При 50% HP и ниже: атака +8%/Lv; количество HP, поглощаемых при попадании, и шанс кровотечения ×2. При 25% HP и ниже шанс восстановить 1 сердце при победе над врагом также получает +5%/Lv, включая победы над боссами.
+10221 [pl] Przy 50% HP lub mniej: atak +8%/Lv; ilość HP wchłanianego przy trafieniu i szansa krwawienia ×2. Przy 25% HP lub mniej szansa na odzyskanie 1 serca po pokonaniu wroga również zyskuje +5%/Lv, także w przypadku bossów.
+10222 [ru] Попадания могут вызвать кровотечение; часть урона от него восстанавливает HP: 10% на Lv1, далее +2% за каждый следующий Lv. Кровотечение на Lv1: шанс 15%, 5 урона/s. За каждый следующий Lv: шанс +4%, урон/s +1. При полном HP: шанс кровотечения ×2, атака +2%/Lv.
+10222 [pl] Trafienia mogą wywołać krwawienie; część zadanych przez nie obrażeń przywraca HP: 10% na Lv1, potem +2% za każdy kolejny Lv. Krwawienie na Lv1: szansa 15%, 5 obrażeń/s. Za każdy kolejny Lv: szansa +4%, obrażenia/s +1. Przy pełnym HP: szansa krwawienia ×2, atak +2%/Lv.

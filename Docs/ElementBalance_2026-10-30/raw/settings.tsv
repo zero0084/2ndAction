@@ -1,0 +1,5 @@
+key	value
+gachaRarityWeights	50,30,15,4,1
+gachaThresholds	0,5000,20000,50000,100000
+deckCapacity	12
+feReadyMeters	5000

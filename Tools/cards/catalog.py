@@ -1,7 +1,8 @@
 # カード資料(2026-10-30)を作る: CardCatalogExport の TSV + 翻訳の表 + roles.py → xlsx / md
 #   python catalog.py <TSVのフォルダ> <出力フォルダ>
+# (2026-10-30 属性20枚の再設計の式に合わせた。文章の所見 A(...) は再設計前の資料のもの)
 # 数値の計算は ElementStats / CardRules.Scale / GachaStage / GameManager.DrawFromGachaPool と同じ式(式を変えた時はここも合わせる)
-import csv, json, math, os, sys
+import csv, json, math, os, re, sys
 from collections import Counter, OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from roles import R
@@ -78,11 +79,11 @@ def el_stats(el, levels):
     if el == "Fire":
         on = g["BurnChance"] > 0 and g["BurnPower"] > 0
         dps = g["BurnPower"] * (1 + max(0, g["BurnPowerPct"])); dur = 3 + max(0, g["BurnDuration"])
-        s = f"炎上 確率{min(1,g['BurnChance'])*100:.0f}% / 毎秒{dps:.1f} × {dur:.2g}秒(1回の炎上で約{dps*dur:.0f}、重ねると最大+50%)" if on else "炎上しない"
+        s = f"炎上 確率{min(1,g['BurnChance'])*100:.0f}% / 毎秒{dps:.1f} × {dur:.2g}秒(1回の炎上で約{dps*dur:.0f}、重ねると最大+50%・ボスは+15%)" if on else "炎上しない"
         if g["InfernoLevel"] > 0:
-            lv = int(g["InfernoLevel"]); s += f" / 延焼(炎上中の敵を撃破) 威力{6+2*lv}・半径{2+0.1*lv:.1f}m"
+            lv = int(g["InfernoLevel"]); s += f" / 延焼(炎上中の敵を撃破) 威力{8+2.5*lv:g}・半径{2.2+0.12*lv:.2f}m・{2+(lv-1)//3}段"
         if g["FlameCounterLevel"] > 0:
-            lv = int(g["FlameCounterLevel"]); s += f" / Shieldで防ぐと炎の反撃 威力{round(20*(0.6+0.15*lv))}"
+            lv = int(g["FlameCounterLevel"]); s += f" / Shieldで防ぐと炎の反撃 威力{round(20*(1.0+0.2*lv))}"
         return on, s
     if el == "Ice":
         slow = clamp(g["ChillSlow"], 0, 0.7)
@@ -90,18 +91,18 @@ def el_stats(el, levels):
         fz = max(2, 5 - round(g["FreezeThresholdReduce"])) if slow > 0 else 0
         s = f"冷え 確率{min(1,g['ChillChance'])*100:.0f}% / 行動-{slow*100:.0f}% × {2+max(0,g['ChillDuration']):.2g}秒 / 凍結={fz}回冷やす → {1+max(0,g['FreezeDuration']):.2g}秒停止(ボスは強い減速)"
         if g["AbsoluteZeroLevel"] > 0:
-            lv = int(g["AbsoluteZeroLevel"]); s += f" / 冷えた敵へ攻撃+{3*lv}%・凍結で砕け 威力{10+3*lv}"
+            lv = int(g["AbsoluteZeroLevel"]); s += f" / 冷えた敵へ攻撃+{3*lv}%・凍結で砕け 威力{12+4*lv}・ボスのBREAK蓄積+{6*lv}%"
         return on, s
     if el == "Thunder":
         on = g["LightningChance"] > 0 and g["LightningPower"] > 0
-        dmg = g["LightningPower"] * (1 + max(0, g["LightningDamagePct"]))
+        dmg = g["LightningPower"] * (1 + max(0, g["LightningDamagePct"])) * 0.5 # ElementStats.LightningScale(2026-10-30)
         s = f"落雷 確率{min(1,g['LightningChance'])*100:.1f}% / 威力{dmg:.1f} / 連鎖{int(clamp(round(g['LightningChains']),0,8))}体(距離{3.5+g['LightningRange']:.2g}m) / 範囲{clamp(g['LightningSplash'],0,3):.2g}m / 雑魚停止{clamp(g['LightningShock'],0,0.6):.2g}秒"
         return on, s
     if el == "Wind":
         on = (g["WindBladeChance"] > 0 and g["WindBladePower"] > 0)
         s = f"風刃 確率{min(1,g['WindBladeChance'])*100:.0f}% / 威力{g['WindBladePower']:.1f} / 貫通{2+int(round(g['WindPierce']))}体 / 射程{6+g['WindRange']:.2g}m / 速さ×{1+g['WindSpeedPct']:.2f}"
         if g["TornadoLevel"] > 0:
-            lv = int(g["TornadoLevel"]); s += f" / 風刃の命中で竜巻 威力{4+lv}×3・半径{1.2+0.06*lv:.2f}m"
+            lv = int(g["TornadoLevel"]); s += f" / 風刃の命中で竜巻 威力{5+1.25*lv:g}×{3+(lv-1)//3}・半径{1.4+0.1*lv:.2f}m・引き寄せ{0.25+0.04*lv:.2f}m(ボスへは半分)"
         return on, s
     if el == "Blood":
         on = g["BleedChance"] > 0 and g["BleedPower"] > 0
@@ -281,7 +282,7 @@ A("\n**属性 × カテゴリ**\n\n| 属性 | " + " | ".join(CAT_JA.values()) + 
 for k, v in EL_JA.items(): A(f"| {v} | " + " | ".join(str(el_cat[k][c]) for c in CAT_JA) + " |")
 A("\n## 2. 属性カード\n")
 A("属性は「命中した時に確率で起きる追加の現象」です。どのキャラでも同じカードなら同じ効果になります。属性同士の相性や相互作用はありません(炎で凍結が溶ける、なども無し)。")
-A("属性のダメージは、属性ごとの基礎の値に **(1 + 無条件の攻撃の強化の半分)** を掛けたものです。条件付きの攻撃カード(空中・締め・ボス特効など)は乗りません。下の数値は攻撃の強化が無い時の値で、通常の1発は 20(黒剣士の基礎)です。\n")
+A("属性のダメージは、属性ごとの基礎の値に **(1 + 無条件の攻撃の強化の3/4)**(CardRules.ElementAttackShare 0.75。2026-10-30 の再設計で 0.5 → 0.75) を掛けたものです。条件付きの攻撃カード(空中・締め・ボス特効など)は乗りません。下の数値は攻撃の強化が無い時の値で、通常の1発は 20(黒剣士の基礎)です。\n")
 TREE = {
  "Fire": "FLAME BLADE ★4(入口: 命中で炎上)\n ├─ BURNING SOUL ★3(炎上を強く・長く) ── COMBO BLAZING EDGE(FLAME BLADE+BURNING SOUL)\n │    └─ INFERNO ★4(炎上中の敵を倒すと延焼) ── COMBO WILDFIRE(BURNING SOUL+INFERNO)\n └─ FLAME COUNTER ★3(DEFENSE: Shieldで防ぐと炎の反撃。系統のCOMBOは無し)",
  "Ice": "FROST EDGE ★4(入口: 命中で冷やす)\n └─ ICE PRISON ★3(凍結しやすく) ── COMBO FROZEN PRISON(FROST EDGE+ICE PRISON)\n      └─ ABSOLUTE ZERO ★4(冷えた敵へ火力+凍結で砕け) ── COMBO SHATTER(ICE PRISON+ABSOLUTE ZERO)",
@@ -292,18 +293,13 @@ TREE = {
 for el, ids in FAMILY.items():
     n = len(ids); rr = Counter(int(byid[i]["rarity"]) for i in ids)
     A(f"### {EL_JA[el]}({n}枚: " + " / ".join(f"★{r} {rr[r]}" for r in sorted(rr)) + ")\n")
-    A("```\n" + TREE[el] + "\n```\n")
+    RAR_BY_NAME = {c["name"]: c["rarity"] for c in cards}
+    A("```\n" + re.sub(r"([A-Z][A-Z ]*[A-Z]) ★\d", lambda m: m.group(1) + " ★" + RAR_BY_NAME.get(m.group(1), "?"), TREE[el]) + "\n```\n") # ★は今の値で
     A("| 場合 | 属性の効果 | 数値 |\n|---|---|---|")
     for lab, (on, s) in scenarios(el, ids): A(f"| {lab} | {'発動' if on else '発動しない'} | {s} |")
     A("")
-A("### 属性の気づき(相談用・数値は変えていない)\n")
-A("- **入口のカードがどれも★4**(FLAME BLADE / FROST EDGE / THUNDER STRIKE / WIND CUTTER)で、解放は BEST 20,000m(ガチャ段階3)。一方、上位寄りの BURNING SOUL / ICE PRISON / CHAIN LIGHTNING / GALE は★3(5,000m)。**先に手に入るのが上位カードで、入口が後**という逆転があります。")
-A("- 上位カードは、入口のカードが無くても小さな基礎値(確率1〜7%・威力2〜6 の「固定」分)で単独発動します。ただし Lv で伸びるのは主に自分の専門の値(延焼・連鎖・竜巻・砕け・時間・射程など)で、**INFERNO / ABSOLUTE ZERO / CHAIN LIGHTNING / TORNADO は単独だと確率と威力が Lv9 でも Lv1 と同じ**です(例: INFERNO Lv9 単独 = 炎上確率5%・毎秒3)。BURNING SOUL / ICE PRISON / GALE / THUNDER LORD / HIGH VOLTAGE も確率の伸びは +2%/Lv 以下です。**入口なしで上位を取ると、Lv を上げても体感が増えにくい**ことが「薄い」と感じる原因の1つだと思います(xlsx「属性の段階」)。")
-A("- 入口の Lv9 単独でも、確率は 21〜55%(雷 21% / 風 34% / 炎・氷 55%)。落雷は Lv9 で威力19.5(通常の1発 20 とほぼ同じ)が 21% の確率なので、1発あたりの上乗せの期待値は約 +20% です。")
-A("- 属性のダメージは攻撃の強化が半分しか乗りません(攻撃×属性の掛け算で強くなりすぎない設計)。また、確率で起きるので、1発の重さに比べて期待値は小さめです(例: FLAME BLADE Lv1 = 15%で炎上、毎秒5×3秒)。")
-A("- 炎上・出血は重ね掛けでダメージが増えず(強い方と長い方を残し、上限+50%)、落雷は同じ敵に0.4秒に1回、風刃は0.25秒に1回までです。")
-A("- COMBO は同じ属性の中の2枚の組み合わせだけです(属性をまたぐ COMBO は無し)。FINAL EVOLUTION は99枚すべてにあり、属性の入口4枚は専用の強化(炎獄・雷神状態など)があります。")
-A("- マルチでは、JOIN 側の命中には属性が乗りません(HOST に届くのはダメージの値だけ)。COMBO / FINAL EVOLUTION もマルチでは無効です。\n")
+A("### 属性の気づき\n")
+A("- 2026-10-30 の属性20枚の再設計(役割・レア度・解放・Lv1/Lv9・攻撃の強化の乗り方)の所見と試験の数値は Docs/ElementBalance_2026-10-30/report.md。再設計前の所見は Docs/CardCatalog_2026-10-30/card_catalog.md。\n")
 A("## 3. COMBO 対象(15組・30枚が関係)\n")
 A("| COMBO | 必要な2枚 | 効果 |\n|---|---|---|")
 for k in combos: A(f"| {k['name']}{'(リスク)' if k['risk']=='1' else ''} | " + " + ".join(byid[a]["name"] for a in k["abilities"].split("+")) + f" | {k['description']} |")
@@ -322,8 +318,10 @@ for lab, p, pool, buckets, tw in stage_probs:
     per = [(W[r - 1] / tw / buckets[r]) if buckets[r] else 0 for r in range(1, 6)]
     A(f"| {lab} | {len(pool)} | " + " | ".join(str(buckets[r]) for r in range(1, 6)) + " | " + " / ".join(f"{x*100:.2f}%" if x else "—" for x in per) + " |")
 A("\n**抽選の気づき(相談用)**\n")
-A("- 段階3(20,000m)で★5は #100 ULTIMATE の1枚だけなので、ULTIMATE が **1回1.00%**(★4 の1枚 0.12% の約8倍)で出ます。段階4で 0.33%、段階5で 0.12% に下がります。")
-A("- 全解放後の1枚あたりは ★4 = 0.11%、★5 = 0.12% でほぼ同じです(★4 が36枚と多いため)。★3 は 0.44%、★1 は 5.56%。")
+_s3 = next(x for x in stage_probs if x[0].startswith("段階3")); _s5 = stage_probs[-1]
+_pc = lambda sp, r: (W[r - 1] / sp[4] / sp[3][r]) if sp[3][r] else 0
+A(f"- 段階3(20,000m)の★5は {_s3[3][5]}枚で、1枚あたり **{_pc(_s3, 5)*100:.2f}%**(★4 の1枚 {_pc(_s3, 4)*100:.2f}% の約{_pc(_s3, 5)/_pc(_s3, 4):.0f}倍)。")
+A(f"- 全解放後の1枚あたりは ★4 = {_pc(_s5, 4)*100:.2f}%、★5 = {_pc(_s5, 5)*100:.2f}%、★3 = {_pc(_s5, 3)*100:.2f}%、★1 = {_pc(_s5, 1)*100:.2f}%。")
 A("- ラン中の3択はレア度の重みが無く、デッキに入れた12枚が等確率です。レア度は「ガチャで出にくい」だけで、ラン中の出やすさには関係しません。")
 A("\n## 6. 全100枚(要約。全項目は xlsx)\n")
 A("| No | 名前 | ★ | カテゴリ | 属性 | Lv1 | Lv9 | 主な用途 | 役割タグ | COMBO | 解放 |\n|---|---|---|---|---|---|---|---|---|---|---|")

@@ -1,0 +1,54 @@
+10196 [th] การ์ดใบนี้อยู่ในเด็คแล้ว
+10196 [vi] Thẻ này đã có trong bộ bài.
+10197 [th] หากต้องการเปลี่ยนเป็นการ์ดชนิดเดียวกันที่มี Lv ต่างกัน ให้นำใบปัจจุบันออกจากเด็คก่อน
+10197 [vi] Để đổi sang một bản của cùng thẻ này có Lv khác, hãy gỡ bản hiện tại khỏi bộ bài trước.
+10198 [th] ในเด็คมีการ์ดชนิดเดียวกันหลายใบ จึงเก็บใบแรกไว้และนำใบที่ 2 เป็นต้นไปออกจากเด็ค
+10198 [vi] Bộ bài có nhiều bản của cùng một thẻ. Bản đầu tiên được giữ lại, các bản còn lại đã được gỡ khỏi bộ bài.
+10199 [th] การดูดซับเมื่อโจมตีโดน
+10199 [vi] Hấp thụ khi đánh trúng
+10200 [th] ปริมาณสะสม BREAK ต่อบอสที่ติดเย็นหรือถูกแช่แข็ง
+10200 [vi] Lượng tích lũy BREAK lên boss bị lạnh hoặc đóng băng
+10201 [th] ทอร์นาโด: พลัง {0} × {1} ครั้ง; รัศมี {2}m; ดึงเป้าหมายเข้ามา {3}m ต่อครั้ง
+10201 [vi] Lốc xoáy: uy lực {0} × {1} lần trúng; bán kính {2}m; kéo mục tiêu vào {3}m mỗi lần trúng
+10202 [th] เกิดฟ้าผ่าแน่นอนทุกครั้งที่โจมตีโดนครบ {0} ครั้ง
+10202 [vi] Chắc chắn có sét đánh sau mỗi {0} lần đánh trúng
+10203 [th] โจมตีโดนบอสมีโอกาสฟื้นฟูเช่นกัน โดยมีโอกาสเป็น 1/4 ของตอนกำจัดศัตรู; ปริมาณ HP ที่ดูดซับจากการโจมตีโดนบอส ×2
+10203 [vi] Đánh trúng boss cũng có thể hồi HP với tỉ lệ bằng 1/4 tỉ lệ hồi khi hạ địch; lượng HP hấp thụ từ đòn đánh trúng boss ×2.
+10204 [th] โจมตีโดนมีโอกาสทำให้ศัตรูลุกไหม้ 3s Lv1: โอกาส 20%, ดาเมจ 6/s ทุก Lv ถัดไป: โอกาส +4%, ดาเมจ/s +1.5
+10204 [vi] Đánh trúng có thể thiêu đốt địch trong 3s. Lv1: tỉ lệ 20%, 6 sát thương/s. Mỗi Lv tiếp theo: tỉ lệ +4%, sát thương/s +1.5.
+10205 [th] ดาเมจลุกไหม้ +8%/Lv, เวลาลุกไหม้ +0.25s/Lv การ์ดนี้ใบเดียวก็ทำให้ลุกไหม้เมื่อโจมตีโดนได้: โอกาส 8% ที่ Lv1 จากนั้น +2% ต่อ Lv ถัดไป ดาเมจลุกไหม้/s เพิ่มอีก +0.5/Lv
+10205 [vi] Sát thương thiêu đốt +8%/Lv, thời gian +0.25s/Lv. Chỉ riêng thẻ này cũng có thể gây thiêu đốt khi đánh trúng: tỉ lệ 8% ở Lv1, sau đó +2% mỗi Lv tiếp theo. Sát thương thiêu đốt/s cũng +0.5/Lv.
+10206 [th] เมื่อกำจัดศัตรูที่ลุกไหม้ ไฟจะลามไปยังศัตรูใกล้เคียง และศัตรูที่ตายจากไฟลามจะลามไฟต่อ จำนวนขั้นที่ไฟลาม: 2 ที่ Lv1–3, 3 ที่ Lv4–6, 4 ที่ Lv7–9 พลังและรัศมีเพิ่มตาม Lv การ์ดนี้ใบเดียวก็ทำให้ลุกไหม้เมื่อโจมตีโดนได้: โอกาส 8% ที่ Lv1 จากนั้น +2% ต่อ Lv ถัดไป
+10206 [vi] Hạ địch đang bị thiêu đốt làm lửa lan sang địch gần đó; địch bị hạ bởi lửa lan cũng tiếp tục lan lửa. Số đợt lan nối tiếp: 2 ở Lv1–3, 3 ở Lv4–6, 4 ở Lv7–9. Uy lực và bán kính tăng theo Lv. Chỉ riêng thẻ này cũng có thể gây thiêu đốt khi đánh trúng: tỉ lệ 8% ở Lv1, sau đó +2% mỗi Lv tiếp theo.
+10207 [th] เมื่อกันการโจมตีด้วย Shield จะปล่อยเปลวไฟสวนกลับรอบตัว ทำให้ศัตรูที่โดนลุกไหม้ 4s พลังและรัศมีเพิ่มตาม Lv การ์ดนี้ใบเดียวก็ทำให้ถือ Shield ได้ 1 อัน
+10207 [vi] Đỡ đòn bằng Shield kích hoạt phản công bằng lửa xung quanh, thiêu đốt địch trúng đòn trong 4s. Uy lực và bán kính tăng theo Lv. Chỉ riêng thẻ này cũng cho phép giữ 1 Shield.
+10208 [th] โจมตีโดนมีโอกาสทำให้ศัตรูติดเย็นและช้าลง Lv1: โอกาส 20%, ช้าลง 28% ทุก Lv ถัดไป: โอกาส +4%, ช้าลง +2.5%, เวลาติดเย็น +0.1s ติดเย็นซ้อนครบ 5 ครั้งจะถูกแช่แข็ง: ศัตรูทั่วไปหยุด ส่วนบอสช้าลงมากและสะสม BREAK ได้เร็วขึ้น
+10208 [vi] Đánh trúng có thể gây lạnh và làm chậm địch. Lv1: tỉ lệ 20%, làm chậm 28%. Mỗi Lv tiếp theo: tỉ lệ +4%, làm chậm +2.5%, thời gian lạnh +0.1s. Lạnh chồng đủ 5 lần sẽ đóng băng: quái thường dừng lại; boss bị làm chậm mạnh và tích lũy BREAK nhanh hơn.
+10209 [th] ลดจำนวนครั้งติดเย็นซ้อนที่ต้องใช้เพื่อแช่แข็ง: 4 ที่ Lv1–3, 3 ที่ Lv4–6, 2 ที่ Lv7–9 เวลาแช่แข็ง +0.08s/Lv, เวลาติดเย็น +0.15s/Lv การ์ดนี้ใบเดียวก็ทำให้ติดเย็นเมื่อโจมตีโดนได้: โอกาส 8% ที่ Lv1 จากนั้น +2% ต่อ Lv ถัดไป
+10209 [vi] Giảm số lần lạnh chồng cần để đóng băng: 4 ở Lv1–3, 3 ở Lv4–6, 2 ở Lv7–9. Thời gian đóng băng +0.08s/Lv, thời gian lạnh +0.15s/Lv. Chỉ riêng thẻ này cũng có thể gây lạnh khi đánh trúng: tỉ lệ 8% ở Lv1, sau đó +2% mỗi Lv tiếp theo.
+10210 [th] พลังโจมตีต่อศัตรูที่ติดเย็นหรือถูกแช่แข็ง +3%/Lv สร้างดาเมจเพิ่มเติมทันทีที่แช่แข็ง โดยพลังเพิ่มตาม Lv ปริมาณสะสม BREAK ต่อบอสที่ติดเย็นหรือถูกแช่แข็ง +6%/Lv (โบนัสเหลือครึ่งหนึ่งหากติดเย็นอย่างเดียว) การ์ดนี้ใบเดียวก็ทำให้ติดเย็นเมื่อโจมตีโดนได้: โอกาส 8% ที่ Lv1 จากนั้น +2% ต่อ Lv ถัดไป; ซ้อนครบ 4 ครั้งจะแช่แข็ง
+10210 [vi] Sức tấn công lên địch bị lạnh hoặc đóng băng +3%/Lv. Gây thêm sát thương ngay khi đóng băng, uy lực tăng theo Lv. Lượng tích lũy BREAK lên boss bị lạnh hoặc đóng băng +6%/Lv (một nửa mức tăng nếu chỉ bị lạnh). Chỉ riêng thẻ này cũng có thể gây lạnh khi đánh trúng: tỉ lệ 8% ở Lv1, sau đó +2% mỗi Lv tiếp theo; lạnh chồng 4 lần sẽ đóng băng.
+10211 [th] โจมตีโดนมีโอกาสเกิดฟ้าผ่า Lv1: โอกาส 8%, พลังพื้นฐาน 9 ทุก Lv ถัดไป: โอกาส +2%, พลังพื้นฐาน +1.5 นอกจากนี้ยังเกิดฟ้าผ่าแน่นอนทุก 13 ครั้งที่โจมตีโดนที่ Lv1 โดยลดเหลือทุก 5 ครั้งที่ Lv9 ศัตรูตัวเดิมโดนฟ้าผ่าได้สูงสุด 1 ครั้งต่อ 0.4s
+10211 [vi] Đánh trúng có thể gọi sét đánh. Lv1: tỉ lệ 8%, uy lực cơ bản 9. Mỗi Lv tiếp theo: tỉ lệ +2%, uy lực cơ bản +1.5. Ngoài ra, chắc chắn có sét sau mỗi 13 lần đánh trúng ở Lv1, giảm còn mỗi 5 lần ở Lv9. Mỗi địch chỉ có thể bị sét đánh tối đa 1 lần mỗi 0.4s.
+10212 [th] พลังฟ้าผ่า +6%/Lv ฟ้าผ่าทำให้ศัตรูทั่วไปหยุดชะงักชั่วครู่ การ์ดนี้ใบเดียวก็ทำให้เกิดฟ้าผ่าได้: โอกาส 3% ที่ Lv1 จากนั้น +1% ต่อ Lv ถัดไป
+10212 [vi] Uy lực sét +6%/Lv. Sét đánh làm quái thường đứng yên trong chốc lát. Chỉ riêng thẻ này cũng có thể gọi sét đánh: tỉ lệ 3% ở Lv1, sau đó +1% mỗi Lv tiếp theo.
+10213 [th] ฟ้าผ่ากระโดดต่อไปยังศัตรูตัวอื่นที่อยู่ใกล้: 1 ตัวที่ Lv1–3, 2 ตัวที่ Lv4–6, 3 ตัวที่ Lv7–9 ระยะลูกโซ่ +0.2m/Lv หากไม่มีเป้าหมายถัดไป ลูกโซ่ที่เหลือจะผ่าศัตรูตัวเดิมด้วยพลังที่ลดลง การ์ดนี้ใบเดียวก็ทำให้เกิดฟ้าผ่าได้: โอกาส 5% ที่ Lv1 จากนั้น +1% ต่อ Lv ถัดไป
+10213 [vi] Sét đánh lan sang địch khác ở gần: 1 ở Lv1–3, 2 ở Lv4–6, 3 ở Lv7–9. Tầm lan +0.2m/Lv. Nếu không có mục tiêu tiếp theo, các lần lan còn lại đánh vào cùng địch đó với uy lực giảm. Chỉ riêng thẻ này cũng có thể gọi sét đánh: tỉ lệ 5% ở Lv1, sau đó +1% mỗi Lv tiếp theo.
+10214 [th] พลังฟ้าผ่า +4%/Lv เป้าหมายลูกโซ่เพิ่มเติม: +1 ตัวที่ Lv1–3, +2 ตัวที่ Lv4–6, +3 ตัวที่ Lv7–9 ฟ้าผ่าสร้างดาเมจรอบจุดที่ผ่าด้วย โดยรัศมีเพิ่มตาม Lv การ์ดนี้ใบเดียวก็ทำให้เกิดฟ้าผ่าได้: โอกาส 5% ที่ Lv1 จากนั้น +1% ต่อ Lv ถัดไป
+10214 [vi] Uy lực sét +4%/Lv. Mục tiêu dây chuyền bổ sung: +1 ở Lv1–3, +2 ở Lv4–6, +3 ở Lv7–9. Sét cũng gây sát thương quanh điểm đánh; bán kính tăng theo Lv. Chỉ riêng thẻ này cũng có thể gọi sét đánh: tỉ lệ 5% ở Lv1, sau đó +1% mỗi Lv tiếp theo.
+10215 [th] โจมตีโดนมีโอกาสปล่อยใบมีดลมที่ทะลุศัตรูไปข้างหน้า Lv1: โอกาส 12%, พลัง 9 ทุก Lv ถัดไป: โอกาส +3%, พลัง +1 เมื่อโจมตีขณะอยู่กลางอากาศ โอกาสเกิดใบมีดลม ×1.5 ใบมีดลมสร้างดาเมจต่อศัตรูกลางอากาศ +50% ระยะโจมตี +1%/Lv
+10215 [vi] Đánh trúng có thể phóng lưỡi gió xuyên địch về phía trước. Lv1: tỉ lệ 12%, uy lực 9. Mỗi Lv tiếp theo: tỉ lệ +3%, uy lực +1. Tấn công khi đang ở trên không có tỉ lệ kích hoạt ×1.5. Lưỡi gió gây +50% sát thương lên địch trên không. Tầm đánh +1%/Lv.
+10216 [th] ความเร็วใบมีดลม +5%/Lv, ระยะบิน +0.4m/Lv จำนวนเป้าหมายที่ใบมีดลมและกระสุนทะลุได้เพิ่มเติม: +1 ที่ Lv1–3, +2 ที่ Lv4–6, +3 ที่ Lv7–9 การ์ดนี้ใบเดียวก็ปล่อยใบมีดลมได้: โอกาส 6% ที่ Lv1 จากนั้น +2% ต่อ Lv ถัดไป
+10216 [vi] Tốc độ lưỡi gió +5%/Lv, tầm bay +0.4m/Lv. Số mục tiêu lưỡi gió và đạn xuyên thêm: +1 ở Lv1–3, +2 ở Lv4–6, +3 ở Lv7–9. Chỉ riêng thẻ này cũng có thể phóng lưỡi gió: tỉ lệ 6% ở Lv1, sau đó +2% mỗi Lv tiếp theo.
+10217 [th] จุดที่ใบมีดลมโดนจะเกิดทอร์นาโด ดึงศัตรูทั่วไปที่อยู่ใกล้เข้ามาและสร้างดาเมจ 3 ครั้งที่ Lv1–3, 4 ครั้งที่ Lv4–6, 5 ครั้งที่ Lv7–9 พลัง รัศมี และแรงดึงเพิ่มตาม Lv ดาเมจต่อบอสเหลือครึ่งหนึ่ง การ์ดนี้ใบเดียวก็ปล่อยใบมีดลมได้: โอกาส 6% ที่ Lv1 จากนั้น +2% ต่อ Lv ถัดไป
+10217 [vi] Lưỡi gió đánh trúng tạo lốc xoáy, kéo quái thường ở gần vào và gây sát thương 3 lần ở Lv1–3, 4 ở Lv4–6, 5 ở Lv7–9. Uy lực, bán kính và lực kéo tăng theo Lv. Gây một nửa sát thương lên boss. Chỉ riêng thẻ này cũng có thể phóng lưỡi gió: tỉ lệ 6% ở Lv1, sau đó +2% mỗi Lv tiếp theo.
+10218 [th] เมื่อโจมตีโดน จะดูดซับ HP ตามสัดส่วนของดาเมจที่สร้างเพื่อฟื้นฟู HP: 1% ที่ Lv1 จากนั้น +0.5% ต่อ Lv ถัดไป เมื่อกำจัดศัตรูก็มีโอกาสฟื้นหัวใจ 1 ดวง: 8% ที่ Lv1 จากนั้น +4% ต่อ Lv ถัดไป
+10218 [vi] Khi đánh trúng, hấp thụ HP bằng một phần sát thương đã gây để hồi HP: 1% ở Lv1, sau đó +0.5% mỗi Lv tiếp theo. Hạ địch cũng có tỉ lệ hồi 1 tim: 8% ở Lv1, sau đó +4% mỗi Lv tiếp theo.
+10219 [th] โอกาสฟื้นหัวใจ 1 ดวงเมื่อกำจัดศัตรู +4%/Lv เมื่อโจมตีโดนบอสก็เกิดการฟื้นฟูนี้ได้ โดยมีโอกาสเป็น 1/4 ของโอกาสดังกล่าว ปริมาณ HP ที่ดูดซับจากการโจมตีโดนบอสเป็น 2 เท่า
+10219 [vi] Tỉ lệ hồi 1 tim khi hạ địch +4%/Lv. Đánh trúng boss cũng có thể kích hoạt lần hồi này với tỉ lệ bằng 1/4 tỉ lệ đó. Lượng HP hấp thụ từ đòn đánh trúng boss tăng gấp đôi.
+10220 [th] การดูดซับและ SECOND WIND ฟื้นหัวใจเพิ่ม: +1 ที่ Lv1–3, +2 ที่ Lv4–6, +3 ที่ Lv7–9 การฟื้นฟูส่วนที่เกิน HP สูงสุดจะให้ Shield 1 อัน โดยถือได้เกินขีดจำกัด Shield ปกติสูงสุด 1 อัน
+10220 [vi] Hấp thụ và SECOND WIND hồi thêm tim: +1 ở Lv1–3, +2 ở Lv4–6, +3 ở Lv7–9. Lượng hồi vượt HP tối đa cho 1 Shield, cho phép giữ nhiều hơn giới hạn Shield thông thường tối đa 1.
+10221 [th] เมื่อ HP ไม่เกิน 50%: พลังโจมตี +8%/Lv; ปริมาณ HP ที่ดูดซับเมื่อโจมตีโดนและโอกาสทำให้เลือดไหล ×2 เมื่อ HP ไม่เกิน 25% โอกาสฟื้นหัวใจ 1 ดวงเมื่อกำจัดศัตรูจะเพิ่มอีก +5%/Lv รวมถึงบอสด้วย
+10221 [vi] Khi HP từ 50% trở xuống: sức tấn công +8%/Lv; lượng HP hấp thụ khi đánh trúng và tỉ lệ gây chảy máu ×2. Khi HP từ 25% trở xuống, tỉ lệ hồi 1 tim khi hạ địch cũng tăng thêm +5%/Lv, kể cả khi hạ boss.
+10222 [th] โจมตีโดนมีโอกาสทำให้เลือดไหล และฟื้นฟู HP ตามสัดส่วนของดาเมจเลือดไหล: 10% ที่ Lv1 จากนั้น +2% ต่อ Lv ถัดไป เลือดไหลที่ Lv1: โอกาส 15%, ดาเมจ 5/s ทุก Lv ถัดไป: โอกาส +4%, ดาเมจ/s +1 เมื่อ HP เต็ม: โอกาสเลือดไหล ×2, พลังโจมตี +2%/Lv
+10222 [vi] Đánh trúng có thể gây chảy máu, hồi HP bằng một phần sát thương chảy máu: 10% ở Lv1, sau đó +2% mỗi Lv tiếp theo. Chảy máu ở Lv1: tỉ lệ 15%, 5 sát thương/s. Mỗi Lv tiếp theo: tỉ lệ +4%, sát thương/s +1. Khi HP đầy: tỉ lệ chảy máu ×2, sức tấn công +2%/Lv.

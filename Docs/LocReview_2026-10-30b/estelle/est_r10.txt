@@ -1,0 +1,54 @@
+10196 [sw] Kadi hii tayari iko kwenye deki.
+10196 [bn] এই কার্ডটি ইতিমধ্যে ডেকে আছে।
+10197 [sw] Ili kutumia kadi hiyo hiyo yenye Lv tofauti, ondoa kwanza ile iliyo kwenye deki.
+10197 [bn] ভিন্ন Lv-এর একই কার্ডে বদলাতে, আগে ডেকে থাকা কার্ডটি সরাও।
+10198 [sw] Deki ilikuwa na nakala nyingi za kadi ileile, hivyo ya kwanza imebaki na nakala za ziada zimeondolewa kwenye deki.
+10198 [bn] ডেকে একই কার্ডের একাধিক কপি ছিল, তাই প্রথমটি রেখে বাড়তি কপিগুলো ডেক থেকে সরানো হয়েছে।
+10199 [sw] Kufyonza HP unapogonga
+10199 [bn] আঘাত লাগলে শোষণ
+10200 [sw] Kiasi cha BREAK kinachokusanyika dhidi ya mabosi wenye baridi au walioganda
+10200 [bn] ঠান্ডা বা জমে থাকা বসের ওপর BREAK সঞ্চয়ের পরিমাণ
+10201 [sw] Kimbunga: nguvu {0} × mapigo {1}; nusu kipenyo {2}m; huvuta walengwa kwa {3}m kila pigo
+10201 [bn] ঘূর্ণি: শক্তি {0} × {1} বার; ব্যাসার্ধ {2}m; প্রতি আঘাতে লক্ষ্যকে {3}m টেনে আনে
+10202 [sw] Radi ya uhakika kila mapigo {0} yanayolenga shabaha
+10202 [bn] প্রতি {0}টি আঘাত লাগলে নিশ্চিত বজ্রপাত
+10203 [sw] Kumpiga bosi pia kunaweza kurejesha HP kwa uwezekano wa 1/4 ya ule wa kuua adui; kiasi cha HP kinachofyonzwa kwa kumpiga bosi ×2.
+10203 [bn] বসকে আঘাত লাগলেও শত্রু মারার সময়কার সম্ভাবনার 1/4 সম্ভাবনায় HP ফেরে; বসকে আঘাত লাগিয়ে শোষিত HP-এর পরিমাণ ×2।
+10204 [sw] Ukigonga, kuna uwezekano wa kumuunguza adui kwa 3s. Lv1: uwezekano 20%, uharibifu 6/s. Kila Lv ya ziada: uwezekano +4%, uharibifu/s +1.5.
+10204 [bn] আঘাত লাগলে সম্ভাবনা অনুযায়ী শত্রুর গায়ে 3s আগুন ধরে। Lv1: সম্ভাবনা 20%, ক্ষতি 6/s। প্রতি অতিরিক্ত Lv-এ: সম্ভাবনা +4%, ক্ষতি/s +1.5।
+10205 [sw] Uharibifu wa kuungua +8%/Lv; muda +0.25s/Lv. Kadi hii peke yake pia inaweza kuunguza ukigonga: uwezekano 8% kwa Lv1, +2% kwa kila Lv ya ziada. Uharibifu wa kuungua/s pia +0.5/Lv.
+10205 [bn] আগুনের ক্ষতি +8%/Lv, স্থায়িত্ব +0.25s/Lv। শুধু এই কার্ডেও আঘাত লাগলে আগুন ধরতে পারে: Lv1-এ সম্ভাবনা 8%, প্রতি অতিরিক্ত Lv-এ +2%। আগুনের ক্ষতি/s-ও +0.5/Lv।
+10206 [sw] Adui anayeungua akiuawa, moto huenea kwa maadui wa karibu; waliouawa na moto huo huusambaza zaidi. Hatua za kuenea: 2 kwa Lv1–3, 3 kwa Lv4–6, 4 kwa Lv7–9. Nguvu na eneo huongezeka kwa Lv. Kadi hii peke yake pia inaweza kuunguza ukigonga: uwezekano 8% kwa Lv1, +2% kwa kila Lv ya ziada.
+10206 [bn] আগুনে জ্বলা শত্রু মরলে কাছের শত্রুদের গায়ে আগুন ছড়ায়; সেই আগুনে মরা শত্রু থেকেও আরও ছড়ায়। ছড়ানোর ধাপ: Lv1–3-এ 2, Lv4–6-এ 3, Lv7–9-এ 4। Lv বাড়লে শক্তি ও পরিসর বাড়ে। শুধু এই কার্ডেও আঘাত লাগলে আগুন ধরতে পারে: Lv1-এ সম্ভাবনা 8%, প্রতি অতিরিক্ত Lv-এ +2%।
+10207 [sw] Ukizuia shambulio kwa Shield, moto wa kujibu hulipuka karibu nawe na kuwaunguza maadui unaowagonga kwa 4s. Nguvu na eneo huongezeka kwa Lv. Kadi hii peke yake pia hukuwezesha kuwa na Shield 1.
+10207 [bn] Shield দিয়ে আক্রমণ ঠেকালে চারপাশে আগুনের পাল্টা আঘাত হয়, যা লাগলে শত্রুর গায়ে 4s আগুন জ্বলে। Lv বাড়লে শক্তি ও পরিসর বাড়ে। শুধু এই কার্ডেও 1টি Shield রাখা যায়।
+10208 [sw] Ukigonga, kuna uwezekano wa kumpa adui baridi na kumpunguza kasi. Lv1: uwezekano 20%, upunguzaji wa kasi 28%. Kila Lv ya ziada: uwezekano +4%, upunguzaji wa kasi +2.5%, muda wa baridi +0.1s. Baridi ikirundikana mara 5, adui huganda: maadui wadogo husimama; mabosi hupungua kasi sana na BREAK hukusanyika haraka zaidi.
+10208 [bn] আঘাত লাগলে সম্ভাবনা অনুযায়ী শত্রুর ঠান্ডা লাগে ও গতি কমে। Lv1: সম্ভাবনা 20%, গতি হ্রাস 28%। প্রতি অতিরিক্ত Lv-এ: সম্ভাবনা +4%, গতি হ্রাস +2.5%, ঠান্ডার স্থায়িত্ব +0.1s। ঠান্ডা 5 বার জমলে শত্রু জমে যায়: সাধারণ শত্রু থেমে যায়; বসের গতি অনেক কমে এবং BREAK দ্রুত জমে।
+10209 [sw] Baridi inayohitajika kuganda hupungua: mara 4 kwa Lv1–3, 3 kwa Lv4–6, 2 kwa Lv7–9. Muda wa kuganda +0.08s/Lv; muda wa baridi +0.15s/Lv. Kadi hii peke yake pia inaweza kutia baridi ukigonga: uwezekano 8% kwa Lv1, +2% kwa kila Lv ya ziada.
+10209 [bn] জমে যেতে প্রয়োজনীয় ঠান্ডার সংখ্যা কমে: Lv1–3-এ 4 বার, Lv4–6-এ 3 বার, Lv7–9-এ 2 বার। জমে থাকার সময় +0.08s/Lv, ঠান্ডার স্থায়িত্ব +0.15s/Lv। শুধু এই কার্ডেও আঘাত লাগলে ঠান্ডা লাগতে পারে: Lv1-এ সম্ভাবনা 8%, প্রতি অতিরিক্ত Lv-এ +2%।
+10210 [sw] Nguvu ya shambulio dhidi ya maadui wenye baridi au walioganda +3%/Lv. Kuganda huleta uharibifu wa ziada unaoongezeka kwa Lv. BREAK dhidi ya mabosi wenye baridi au walioganda hukusanyika kwa +6%/Lv (nusu ya nyongeza hiyo wakiwa na baridi tu). Kadi hii peke yake pia inaweza kutia baridi ukigonga: uwezekano 8% kwa Lv1, +2% kwa kila Lv ya ziada; ikirundikana mara 4, adui huganda.
+10210 [bn] ঠান্ডা বা জমে থাকা শত্রুর বিরুদ্ধে আক্রমণশক্তি +3%/Lv। শত্রু জমে গেলে অতিরিক্ত ক্ষতি হয়, যা Lv বাড়লে বাড়ে। ঠান্ডা বা জমে থাকা বসের ওপর BREAK সঞ্চয় +6%/Lv (শুধু ঠান্ডা থাকলে এই বৃদ্ধির অর্ধেক)। শুধু এই কার্ডেও আঘাত লাগলে ঠান্ডা লাগতে পারে: Lv1-এ সম্ভাবনা 8%, প্রতি অতিরিক্ত Lv-এ +2%; ঠান্ডা 4 বার জমলে শত্রু জমে যায়।
+10211 [sw] Ukigonga, kuna uwezekano wa radi kupiga. Lv1: uwezekano 8%, nguvu ya msingi 9. Kila Lv ya ziada: uwezekano +2%, nguvu ya msingi +1.5. Radi pia hupiga kwa uhakika kila unapogonga mara 13 kwa Lv1, au mara 5 kwa Lv9. Adui mmoja hupigwa na radi mara 1 tu kwa kila 0.4s.
+10211 [bn] আঘাত লাগলে সম্ভাবনা অনুযায়ী বজ্রপাত হয়। Lv1: সম্ভাবনা 8%, মূল শক্তি 9। প্রতি অতিরিক্ত Lv-এ: সম্ভাবনা +2%, মূল শক্তি +1.5। এ ছাড়া Lv1-এ প্রতি 13টি আঘাত লাগলে নিশ্চিত বজ্রপাত হয়, Lv9-এ তা প্রতি 5টি আঘাতে হয়। একই শত্রুতে প্রতি 0.4s-এ সর্বোচ্চ 1 বার বজ্রপাত লাগে।
+10212 [sw] Nguvu ya radi +6%/Lv. Radi husimamisha maadui wadogo kwa muda mfupi. Kadi hii peke yake pia inaweza kusababisha radi: uwezekano 3% kwa Lv1, +1% kwa kila Lv ya ziada.
+10212 [bn] বজ্রপাতের শক্তি +6%/Lv। বজ্রপাত সাধারণ শত্রুকে মুহূর্তের জন্য থামায়। শুধু এই কার্ডেও বজ্রপাত হতে পারে: Lv1-এ সম্ভাবনা 3%, প্রতি অতিরিক্ত Lv-এ +1%।
+10213 [sw] Radi huruka kwa maadui wengine wa karibu: 1 kwa Lv1–3, 2 kwa Lv4–6, 3 kwa Lv7–9. Umbali wa mnyororo +0.2m/Lv. Bila shabaha inayofuata, miruko iliyobaki humpiga adui yuleyule kwa nguvu iliyopunguzwa. Kadi hii peke yake pia inaweza kusababisha radi: uwezekano 5% kwa Lv1, +1% kwa kila Lv ya ziada.
+10213 [bn] বজ্রপাত চেইনে কাছের অন্য শত্রুতে ছড়ায়: Lv1–3-এ 1টি, Lv4–6-এ 2টি, Lv7–9-এ 3টি। চেইনের দূরত্ব +0.2m/Lv। পরের লক্ষ্য না থাকলে বাকি চেইনগুলো কম শক্তিতে একই শত্রুকে আঘাত করে। শুধু এই কার্ডেও বজ্রপাত হতে পারে: Lv1-এ সম্ভাবনা 5%, প্রতি অতিরিক্ত Lv-এ +1%।
+10214 [sw] Nguvu ya radi +4%/Lv. Maadui wa ziada katika mnyororo: +1 kwa Lv1–3, +2 kwa Lv4–6, +3 kwa Lv7–9. Radi pia huleta uharibifu kuzunguka mahali inapopiga; eneo huongezeka kwa Lv. Kadi hii peke yake pia inaweza kusababisha radi: uwezekano 5% kwa Lv1, +1% kwa kila Lv ya ziada.
+10214 [bn] বজ্রপাতের শক্তি +4%/Lv। চেইনের অতিরিক্ত লক্ষ্য: Lv1–3-এ +1টি, Lv4–6-এ +2টি, Lv7–9-এ +3টি শত্রু। বজ্রপাতের চারপাশেও ক্ষতি হয়; Lv বাড়লে পরিসর বাড়ে। শুধু এই কার্ডেও বজ্রপাত হতে পারে: Lv1-এ সম্ভাবনা 5%, প্রতি অতিরিক্ত Lv-এ +1%।
+10215 [sw] Ukigonga, kuna uwezekano wa kurusha mbele wembe wa upepo unaotoboa maadui. Lv1: uwezekano 12%, nguvu 9. Kila Lv ya ziada: uwezekano +3%, nguvu +1. Ukishambulia ukiwa hewani, uwezekano huwa ×1.5. Wembe wa upepo huleta uharibifu +50% kwa maadui walio hewani. Eneo la shambulio +1%/Lv.
+10215 [bn] আঘাত লাগলে সম্ভাবনা অনুযায়ী সামনে শত্রু ভেদ করা বাতাসের ফলা বেরোয়। Lv1: সম্ভাবনা 12%, শক্তি 9। প্রতি অতিরিক্ত Lv-এ: সম্ভাবনা +3%, শক্তি +1। আকাশে থাকা অবস্থায় আক্রমণ করলে সক্রিয় হওয়ার সম্ভাবনা ×1.5। আকাশে থাকা শত্রুর ওপর বাতাসের ফলার ক্ষতি +50%। আক্রমণের পরিসর +1%/Lv।
+10216 [sw] Kasi ya wembe wa upepo +5%/Lv; umbali wa kuruka +0.4m/Lv. Idadi ya maadui wa ziada wanaotobolewa na wembe wa upepo na makombora: +1 kwa Lv1–3, +2 kwa Lv4–6, +3 kwa Lv7–9. Kadi hii peke yake pia inaweza kutoa wembe wa upepo: uwezekano 6% kwa Lv1, +2% kwa kila Lv ya ziada.
+10216 [bn] বাতাসের ফলার গতি +5%/Lv, উড়ে যাওয়ার দূরত্ব +0.4m/Lv। বাতাসের ফলা ও প্রজেক্টাইলের অতিরিক্ত শত্রু ভেদ করার সংখ্যা: Lv1–3-এ +1, Lv4–6-এ +2, Lv7–9-এ +3। শুধু এই কার্ডেও বাতাসের ফলা বেরোতে পারে: Lv1-এ সম্ভাবনা 6%, প্রতি অতিরিক্ত Lv-এ +2%।
+10217 [sw] Wembe wa upepo ukigonga, kimbunga hutokea hapo, huvuta maadui wadogo wa karibu na kuleta uharibifu mara 3 kwa Lv1–3, 4 kwa Lv4–6, 5 kwa Lv7–9. Nguvu, eneo na mvuto huongezeka kwa Lv. Uharibifu kwa mabosi ni nusu. Kadi hii peke yake pia inaweza kutoa wembe wa upepo: uwezekano 6% kwa Lv1, +2% kwa kila Lv ya ziada.
+10217 [bn] বাতাসের ফলা যেখানে লাগে সেখানে ঘূর্ণি ওঠে। কাছের সাধারণ শত্রুদের টেনে এনে Lv1–3-এ 3 বার, Lv4–6-এ 4 বার, Lv7–9-এ 5 বার ক্ষতি করে। Lv বাড়লে শক্তি, পরিসর ও টান বাড়ে। বসের ওপর ক্ষতি অর্ধেক। শুধু এই কার্ডেও বাতাসের ফলা বেরোতে পারে: Lv1-এ সম্ভাবনা 6%, প্রতি অতিরিক্ত Lv-এ +2%।
+10218 [sw] Ukigonga, unafyonza HP sawa na sehemu ya uharibifu uliosababisha: 1% kwa Lv1, +0.5% kwa kila Lv ya ziada. Kuua adui pia kuna uwezekano wa kurejesha moyo 1: 8% kwa Lv1, +4% kwa kila Lv ya ziada.
+10218 [bn] আঘাত লাগলে দেওয়া ক্ষতির একটি অংশের সমান HP শোষণ করে ফেরায়: Lv1-এ 1%, প্রতি অতিরিক্ত Lv-এ +0.5%। শত্রু মারলেও 1 হার্ট ফেরার সম্ভাবনা থাকে: Lv1-এ 8%, প্রতি অতিরিক্ত Lv-এ +4%।
+10219 [sw] Uwezekano wa kurejesha moyo 1 ukiua adui +4%/Lv. Kumpiga bosi pia kunaweza kurejesha moyo huo kwa 1/4 ya uwezekano wa kuua adui. Kiasi cha HP kinachofyonzwa kwa kumpiga bosi ni mara 2.
+10219 [bn] শত্রু মারলে 1 হার্ট ফেরার সম্ভাবনা +4%/Lv। বসকে আঘাত লাগলেও ওই সম্ভাবনার 1/4 সম্ভাবনায় একই আরোগ্য হয়। বসকে আঘাত লাগিয়ে শোষিত HP-এর পরিমাণ 2 গুণ।
+10220 [sw] Kufyonza na SECOND WIND hurejesha mioyo ya ziada: +1 kwa Lv1–3, +2 kwa Lv4–6, +3 kwa Lv7–9. Uponyaji unaozidi HP kamili hubadilika kuwa Shield 1; unaweza kuwa na Shield hadi kikomo cha kawaida +1.
+10220 [bn] শোষণ ও SECOND WIND-এর আরোগ্য বাড়ে: Lv1–3-এ হার্ট +1, Lv4–6-এ +2, Lv7–9-এ +3। সর্বোচ্চ HP ছাড়িয়ে যাওয়া আরোগ্য 1টি Shield-এ বদলে যায়; স্বাভাবিক Shield সীমার চেয়ে +1 পর্যন্ত রাখা যায়।
+10221 [sw] HP ikiwa 50% au chini: nguvu ya shambulio +8%/Lv; kiasi cha HP kinachofyonzwa ukigonga na uwezekano wa kuvuja damu ×2. HP ikiwa 25% au chini, uwezekano wa kurejesha moyo 1 ukiua adui pia +5%/Lv, ikijumuisha mabosi.
+10221 [bn] HP 50% বা কম হলে: আক্রমণশক্তি +8%/Lv; আঘাত লাগিয়ে শোষিত HP-এর পরিমাণ ও রক্তক্ষরণের সম্ভাবনা ×2। HP 25% বা কম হলে শত্রু মারার সময় 1 হার্ট ফেরার সম্ভাবনাও +5%/Lv, বস মারাও এর অন্তর্ভুক্ত।
+10222 [sw] Ukigonga, kuna uwezekano wa kusababisha kuvuja damu; sehemu ya uharibifu huo hurejesha HP yako: 10% kwa Lv1, +2% kwa kila Lv ya ziada. Kuvuja damu kwa Lv1: uwezekano 15%, uharibifu 5/s. Kila Lv ya ziada: uwezekano +4%, uharibifu/s +1. HP ikiwa imejaa: uwezekano wa kuvuja damu ×2; nguvu ya shambulio +2%/Lv.
+10222 [bn] আঘাত লাগলে সম্ভাবনা অনুযায়ী রক্তক্ষরণ হয়, যার ক্ষতির একটি অংশ HP ফেরায়: Lv1-এ 10%, প্রতি অতিরিক্ত Lv-এ +2%। Lv1-এ রক্তক্ষরণ: সম্ভাবনা 15%, ক্ষতি 5/s। প্রতি অতিরিক্ত Lv-এ: সম্ভাবনা +4%, ক্ষতি/s +1। HP পূর্ণ থাকলে: রক্তক্ষরণের সম্ভাবনা ×2, আক্রমণশক্তি +2%/Lv।

@@ -440,7 +440,7 @@ public class ArenaController : MonoBehaviour
             bool owned = CardInventory.GetTotalCount(d.cardId) > 0;
             LocGUI.Label(new Rect(tx, rr.y + 2f, rr.width - tx - 90f, 22f), d.cardName + (owned ? "" : "  <color=#8ce6ff>試用</color>"), UiKit.Label(15f, TextAnchor.MiddleLeft, true));
             var dl = new GUIStyle(UiKit.Label(11f, TextAnchor.UpperLeft, false, Dim)); dl.wordWrap = true; dl.clipping = TextClipping.Clip;
-            LocGUI.Label(new Rect(tx, rr.y + 24f, rr.width - tx - 90f, rr.height - 26f), d.description ?? "", dl);
+            LocGUI.Label(new Rect(tx, rr.y + 24f, rr.width - tx - 90f, rr.height - 26f), d.DisplayDescription ?? "", dl);
             if (UiKit.Button(new Rect(rr.xMax - 82f, rr.y + 8f, 78f, rr.height - 16f), "+ 追加", 15f, false, false)) AddCard(d.cardId, false, 1);
         }
         EndList();

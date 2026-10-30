@@ -59,13 +59,22 @@ public sealed class ElementStats
 
     public float LightningChance => Chance(Get(EffectType.LightningChance));
     public float LightningPower => Mathf.Max(0f, Get(EffectType.LightningPower));
-    public float LightningDamage => LightningPower * (1f + Mathf.Max(0f, Get(EffectType.LightningDamagePct))) * Scale;
+    // 2026-10-30: 雷は 0.5 倍(系統を揃えると落雷の1発で雑魚が倒れ、連鎖と合わせて雑魚の群れに炎の3倍速かった。0.6 でもボス・雑魚とも一番だった)
+    public const float LightningScale = 0.5f;
+    public float LightningDamage => LightningPower * (1f + Mathf.Max(0f, Get(EffectType.LightningDamagePct))) * Scale * LightningScale;
     public int LightningChains => Mathf.Clamp(Mathf.RoundToInt(Get(EffectType.LightningChains)), 0, 8);
     public float LightningRange => BaseLightningRange + Mathf.Max(0f, Get(EffectType.LightningRange));
     public float LightningSplash => Mathf.Clamp(Get(EffectType.LightningSplash), 0f, 3f);
     public float LightningShock => Mathf.Clamp(Get(EffectType.LightningShock), 0f, 0.6f);
 
     public float WindBladeChance => Chance(Get(EffectType.WindBladeChance));
+    // 2026-10-30: 空中で攻撃すると風刃が出やすい(×1.5)/ 空中の敵には風刃のダメージ+50%(風の役割 = 空中戦)
+    public const float WindAirChanceMul = 1.5f, WindAirTargetBonus = 0.5f;
+    // 2026-10-30: 命中を重ねると必ず落雷(THUNDER STRIKE の Lv。Lv1 で13回ごと → Lv9 で5回ごと。0 = 無し)
+    public static int LightningEveryFor(int lv) => lv <= 0 ? 0 : Mathf.Max(5, 14 - lv);
+    public int LightningEvery => LightningEveryFor(Mathf.RoundToInt(Get(EffectType.LightningCounterLevel)));
+    public float HitLifesteal => Mathf.Clamp(Get(EffectType.HitLifestealPct), 0f, 0.25f);
+    public float IceBreak => Mathf.Max(0f, Get(EffectType.IceBreakPct));
     public float WindBladePower => Mathf.Max(0f, Get(EffectType.WindBladePower));
     public float WindBladeDamage => WindBladePower * Scale;
     public int WindPierce => Mathf.Clamp(Mathf.RoundToInt(Get(EffectType.WindPierce)), 0, 20);
