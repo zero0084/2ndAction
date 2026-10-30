@@ -182,5 +182,19 @@ public enum EffectType
     // 属性20枚の再設計(2026-10-30)
     LightningCounterLevel,  // 命中を重ねると必ず落雷(Lv1 で13回ごと → Lv9 で5回ごと。ElementStats.LightningEvery)
     HitLifestealPct,        // 命中で与えたダメージに対する吸収(HP)の割合
-    IceBreakPct             // 冷えた/凍結したボスの BREAK の溜まりやすさ(凍結で満額、冷えは半分)
+    IceBreakPct,            // 冷えた/凍結したボスの BREAK の溜まりやすさ(凍結で満額、冷えは半分)
+    // 2026-10-31 カード拡張(属性 12 枚)。どれも Lv が強さになる挙動(数値は ElementSystem.Expansion、表示は CardBehaviorText)。
+    // アセットには数(int)で入るので、必ず末尾へ足す(途中に入れない)
+    ScorchLevel,            // 炎上中の敵への攻撃力
+    FireWhirlLevel,         // 炎上が近くの敵へ移る / 風刃が炎を運ぶ
+    CombustionLevel,        // 炎上を4回重ねると爆発
+    PermafrostLevel,        // 冷えの重なりで減速が強くなる
+    GlacierGuardLevel,      // 凍結で Shield が回復
+    ShatterStrikeLevel,     // 凍結中の敵を砕く追撃 / ボスは BREAK
+    ConductorLevel,         // 帯電中の敵への攻撃力 / 冷えた敵への落雷
+    VoltSurgeLevel,          // 1回の攻撃の命中3回ごとに追加の落雷
+    JudgmentLevel,          // 落雷を溜めて大落雷
+    SlipstreamLevel,        // 走る速さで風刃が強く
+    UpdraftLevel,        // 空中の敵への攻撃力 / 空中での風の追撃
+    TempestLevel            // 風刃が連続で飛ぶ
 }

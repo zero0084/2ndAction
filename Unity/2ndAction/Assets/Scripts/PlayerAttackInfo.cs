@@ -44,6 +44,7 @@ public class PlayerAttackInfo : MonoBehaviour
     [System.NonSerialized] public bool elementProc;
     // カードバランス v3: 風刃(TORNADO の起点)
     [System.NonSerialized] public bool windBlade;
+    [System.NonSerialized] public float bossScale = 1f; // 2026-10-31: ボス(雑魚以外)への倍率(TEMPEST の続けて飛ぶ風刃 = 0.5)
     // First / Combo / Finisher (2026-10-03, PlayerController.AttackSeq.cs): tag and press id given when the attack was made
     [System.NonSerialized] public AttackSeqTag seqTag;
     [System.NonSerialized] public int seqMoveId;
@@ -126,6 +127,8 @@ public class PlayerAttackInfo : MonoBehaviour
             damage += flat;
         }
         int result = ScaleDamage(attack, damage, true);
+        // 2026-10-31 カード拡張: TEMPEST の続けて飛ぶ風刃はボスへ半分(竜巻と同じ。ボス1体へ集中しないように)
+        if (info != null && info.bossScale < 0.999f && victim != null && !(victim is EnemyController)) result = Mathf.Max(1, Mathf.RoundToInt(result * info.bossScale));
         // 属性(2026-10-03): 敵/ボスへの命中はすべてここを通る。カードで得た属性の効果(炎上/冷気/落雷/風刃/出血)を判定する
         if (victim != null)
         {

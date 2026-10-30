@@ -1060,6 +1060,32 @@ public static class CardDatabaseBuilder
         yield return new Spec { id = "character_ultimate", name = "ULTIMATE", sortOrder = so++, category = CardCategory.Special, description = "キャラ固有の必殺技",
             glyph = IconGlyph.WingSword, glyphColor = new Color(1f, 0.82f, 0.25f), effects = new[] { (EffectType.UltimateLevel, 1f) },
             rarity = 5, unlockDistance = 20000f, gachaStage = 3 };
+
+        // --- #101〜#112 カード拡張(2026-10-31、属性 12 枚)。名前/説明は LocCardExpansion、効果・レア度・解放は Editor/CardBalanceV3.cs が入れる。
+        //     アイコンは Assets/Art/Icons/CardIcons/<id>.png(エステルと制作)。無い間は手続き生成の仮のアイコン --- //
+        foreach (var x in ExpansionSpecs()) { var sp = x; sp.sortOrder = so++; yield return sp; }
+    }
+
+    static IEnumerable<Spec> ExpansionSpecs()
+    {
+        Spec X(string id, CardCategory cat, IconGlyph g, Color col, EffectType t, int rar, ElementType el)
+        {
+            var c = LocCardExpansion.Find(id);
+            return new Spec { id = id, name = c.name, category = cat, description = c.desc, glyph = g, glyphColor = col, effects = new[] { (t, 1f) },
+                rarity = rar, unlockDistance = rar >= 4 ? 20000f : rar == 3 ? 5000f : 0f, gachaStage = rar >= 4 ? 3 : rar == 3 ? 2 : 1, element = el };
+        }
+        yield return X("scorch", CardCategory.Attack, IconGlyph.CrossSwords, new Color(1f, 0.45f, 0.15f), EffectType.ScorchLevel, 2, ElementType.Fire);
+        yield return X("fire_whirl", CardCategory.Attack, IconGlyph.SpeedLines, new Color(1f, 0.55f, 0.2f), EffectType.FireWhirlLevel, 3, ElementType.Fire);
+        yield return X("combustion", CardCategory.Attack, IconGlyph.Ring, new Color(1f, 0.3f, 0.1f), EffectType.CombustionLevel, 4, ElementType.Fire);
+        yield return X("permafrost", CardCategory.Attack, IconGlyph.ArmorPlate, new Color(0.6f, 0.85f, 1f), EffectType.PermafrostLevel, 2, ElementType.Ice);
+        yield return X("glacier_guard", CardCategory.Defense, IconGlyph.Shield, new Color(0.7f, 0.9f, 1f), EffectType.GlacierGuardLevel, 3, ElementType.Ice);
+        yield return X("shatter_strike", CardCategory.Attack, IconGlyph.CrossSwords, new Color(0.8f, 0.95f, 1f), EffectType.ShatterStrikeLevel, 4, ElementType.Ice);
+        yield return X("conductor", CardCategory.Attack, IconGlyph.Ring, new Color(1f, 0.95f, 0.4f), EffectType.ConductorLevel, 2, ElementType.Thunder);
+        yield return X("volt_surge", CardCategory.Attack, IconGlyph.SpeedLines, new Color(1f, 0.9f, 0.3f), EffectType.VoltSurgeLevel, 3, ElementType.Thunder);
+        yield return X("judgment_bolt", CardCategory.Attack, IconGlyph.ArrowUp, new Color(1f, 0.85f, 0.2f), EffectType.JudgmentLevel, 4, ElementType.Thunder);
+        yield return X("slipstream", CardCategory.Attack, IconGlyph.SpeedLines, new Color(0.6f, 1f, 0.8f), EffectType.SlipstreamLevel, 2, ElementType.Wind);
+        yield return X("updraft", CardCategory.Attack, IconGlyph.ArrowUp, new Color(0.55f, 1f, 0.85f), EffectType.UpdraftLevel, 3, ElementType.Wind);
+        yield return X("tempest", CardCategory.Attack, IconGlyph.WingSword, new Color(0.5f, 0.95f, 0.75f), EffectType.TempestLevel, 4, ElementType.Wind);
     }
 
     // アイコン素材追加(2026-09-11) - existingIconPathで指定された実アート

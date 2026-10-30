@@ -1,0 +1,75 @@
+10223	Deck wechseln
+10224	Verwenden
+10225	Umbenennen
+10226	Kopieren
+10227	Zurücksetzen
+10228	In Verwendung
+10229	Zieldeck auswählen
+10230	„{0}“ mit dem Inhalt von „{1}“ überschreiben?
+10231	Alle Karten und den Namen von „{0}“ löschen?
+10233	Während eines Laufs kann das Deck nicht gewechselt werden.
+10234	Zu „{0}“ gewechselt, dem zuletzt auf dieser Karte/in diesem Modus verwendeten Deck.
+10235	{0} nicht mehr vorhandene Karten wurden aus dem Deck entfernt.
+10236	Deck auswählen
+10237	Leer
+10238	Du kannst jetzt bis zu 8 Decks speichern und zwischen ihnen wechseln. Dein aktuelles Deck wurde in „Deck 1“ gespeichert.
+10239	VERSENGEN
+10240	FEUERWIRBEL
+10241	VERBRENNUNG
+10242	DAUERFROST
+10243	GLETSCHERSCHUTZ
+10244	EISBRECHERSCHLAG
+10245	LEITER
+10246	STROMSCHUB
+10247	URTEILSBLITZ
+10248	WINDSTROM
+10249	AUFWIND
+10250	STURMGEWALT
+10251	Angriff gegen brennende Gegner +6%, danach +4%/Lv (+38% bei Lv9). Gilt auch für Bosse. Diese Karte kann auch allein bei Treffern Brand verursachen: Chance 8% bei Lv1, +2 Prozentpunkte je weiteres Lv.
+10252	Jede 1s kann sich Brand von einem brennenden Gegner auf einen Gegner in der Nähe ausbreiten (Chance 15% bei Lv1, +3 Prozentpunkte je weiteres Lv). Windklingen, die brennende Gegner treffen, übertragen das Feuer auch auf Gegner in der Umgebung. Diese Karte kann auch allein bei Treffern Brand verursachen: Chance 8% bei Lv1, +2 Prozentpunkte je weiteres Lv.
+10253	Werden bei einem bereits brennenden Gegner 4 Brandstapel angesammelt, explodiert er, fügt Gegnern in der Nähe Schaden zu und setzt sie in Brand (der Brand des explodierenden Gegners endet). Stärke und Radius steigen mit dem Lv. Jeder Gegner kann höchstens einmal alle 4s explodieren (Bosse alle 6s). Diese Karte kann auch allein bei Treffern Brand verursachen: Chance 8% bei Lv1, +2 Prozentpunkte je weiteres Lv.
+10254	Die Verlangsamung steigt mit den Kältestapeln: Ab dem 2. Stapel +3.5% Verlangsamung je Stapel (+7.5% bei Lv9), für bis zu 3 zusätzliche Stapel. Kältedauer +0.15s/Lv. Diese Karte kann auch allein bei Treffern Kälte verursachen: Chance 8% bei Lv1, +2 Prozentpunkte je weiteres Lv.
+10255	Mit dieser Karte allein kannst du 1 Shield besitzen. Einen Gegner einzufrieren oder 3 Kältestapel anzuwenden stellt 1 Shield wieder her (einmal alle 19s bei Lv1, je weiteres Lv 1s kürzer). Diese Karte kann auch allein bei Treffern Kälte verursachen: Chance 8% bei Lv1, +2 Prozentpunkte je weiteres Lv.
+10256	Treffer gegen eingefrorene Gegner oder Gegner mit mindestens 3 Kältestapeln lösen einen zusätzlichen eisbrechenden Angriff aus (halber Schaden an Gegnern in der Nähe). Einfrieren und Kältestapel werden entfernt. Bosse können unter denselben Bedingungen ebenfalls getroffen werden und bauen BREAK auf (einmal alle 8s pro Boss). Stärke und BREAK steigen mit dem Lv. Diese Karte kann auch allein bei Treffern Kälte verursachen: Chance 8% bei Lv1, +2 Prozentpunkte je weiteres Lv.
+10257	Von Blitzschlägen getroffene Gegner sind 2s lang elektrisch geladen. Angriff gegen geladene Gegner +6%, danach +4%/Lv. Blitzschlagschaden gegen unterkühlte oder eingefrorene Gegner +8%, danach +4%/Lv; Kettenblitze erreichen sie leichter. Diese Karte kann auch allein Blitzschläge auslösen: Chance 5% bei Lv1, +1 Prozentpunkt je weiteres Lv.
+10258	Alle 3 Treffer eines einzelnen Angriffs lösen einen zusätzlichen Blitzschlag aus (maximal 3). Ideal für Mehrfachtreffer und Flächenangriffe. Zusätzliche Blitzschläge verursachen 65% des normalen Blitzschlagschadens, danach +5 Prozentpunkte je weiteres Lv. Diese Karte kann auch allein Blitzschläge auslösen: Chance 5% bei Lv1, +1 Prozentpunkt je weiteres Lv.
+10259	Blitzschläge laden Energie auf. Bei voller Ladung wird der nächste Blitzschlag zum Urteilsblitz, der auch Gegner in der Nähe verletzt, Schergen kurz betäubt und bei Bossen BREAK aufbaut. Benötigt 10 Blitzschläge bei Lv1 (6 bei Lv9); Stärke ×2.2 bei Lv1 (×3.8 bei Lv9). Höchstens einmal alle 4s. Diese Karte kann auch allein Blitzschläge auslösen: Chance 5% bei Lv1, +1 Prozentpunkt je weiteres Lv.
+10260	Je schneller du läufst, desto stärker und häufiger werden Windklingen (Steigerung ab 40km/h, Maximum bei 120km/h). Beim Maximum Stärke +14% und Auslösechance +1.5 Prozentpunkte, danach Stärke +4% und Chance +0.5 Prozentpunkte je weiteres Lv. Diese Karte kann auch allein Windklingen auslösen: Chance 6% bei Lv1, +2 Prozentpunkte je weiteres Lv.
+10261	Angriff gegen Gegner in der Luft (hochgeschleudert oder fliegend) +6%, danach +4%/Lv. Triffst du sie selbst aus der Luft, wird ein zusätzlicher Windangriff ausgelöst (Stärke 7.5, danach +1.5/Lv). Diese Karte kann auch allein Windklingen auslösen: Chance 6% bei Lv1, +2 Prozentpunkte je weiteres Lv.
+10262	Windklingen werden nacheinander abgefeuert: 2 bei Lv1–6, 3 bei Lv7–9. Nachfolgende Windklingen verursachen 30% des normalen Schadens, danach +3 Prozentpunkte je weiteres Lv. Diese Karte kann auch allein Windklingen auslösen: Chance 6% bei Lv1, +2 Prozentpunkte je weiteres Lv. Nachfolgende Windklingen-Salven werden höchstens 1-mal pro Sekunde ausgelöst und verursachen bei Bossen nur halben Schaden.
+10263	Angriff gegen brennende Gegner +{0}%
+10264	Brand breitet sich auf Gegner innerhalb von {0}m aus (Chance {1}% jede 1s) / Windklingen übertragen Feuer im Radius von {2}m
+10265	Explosion bei 4 Brandstapeln: Stärke {0}, Radius {1}m
+10266	Verlangsamung +{0}% je Kältestapel ab dem 2. (maximal 3)
+10267	Einfrieren / 3 Kältestapel stellen 1 Shield wieder her (einmal alle {0}s)
+10268	Eisbrechender Angriff gegen eingefrorene Gegner oder Gegner mit 3+ Kältestapeln: Stärke {0}, Boss-BREAK +{1}%
+10269	Angriff gegen geladene Gegner +{0}% / Blitzschlagschaden gegen unterkühlte Gegner +{1}%
+10270	Zusätzlicher Blitzschlag alle 3 Treffer eines einzelnen Angriffs (Stärke {0}%, maximal 3)
+10271	Urteilsblitz nach {0} Blitzschlägen: Stärke ×{1}, Boss-BREAK +{2}%
+10272	Je schneller, desto stärkere Windklingen: bis zu +{0}% Stärke und +{1} Prozentpunkte Chance (120km/h)
+10273	Angriff gegen Gegner in der Luft +{0}% / Treffer aus der Luft lösen zusätzlichen Windangriff aus, Stärke {1}
+10274	{0} Windklingen nacheinander (nachfolgende Klingen mit {1}% Stärke)
+10275	SENGENDE HITZE
+10276	FEUERSTURM
+10277	GROSSE EXPLOSION
+10278	EWIGER FROST
+10279	GLETSCHERBOLLWERK
+10280	ZERPULVERN
+10281	SUPRALEITER
+10282	ÜBERSTROM
+10283	GÖTTLICHES URTEIL
+10284	RÜCKENWIND
+10285	AUFSTEIGENDER DRACHE
+10286	GROSSER STURM
+10287	Für 10s Angriff gegen brennende Gegner ×1.8
+10288	Für 10s breitet sich Brand leichter und weiter aus
+10289	Für 10s Explosionsstärke und -radius ×1.8
+10290	Für 10s Verlangsamung durch Kältestapel ×1.8
+10291	Für 10s kürzeres Intervall zur Shield-Wiederherstellung durch Einfrieren
+10292	Für 10s Stärke eisbrechender Zusatzangriffe und BREAK ×1.8
+10293	Für 10s Boni gegen geladene und unterkühlte Gegner ×1.8
+10294	Für 10s Stärke zusätzlicher Blitzschläge ×1.8
+10295	Für 10s benötigt der Urteilsblitz weniger Blitzschläge und wird stärker
+10296	Für 10s Geschwindigkeitsbonus auf Windklingen ×1.8
+10297	Für 10s Angriff und Zusatzangriffe gegen Gegner in der Luft ×1.8
+10298	Für 10s erhöhte Stärke nachfolgender Windklingen

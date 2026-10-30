@@ -97,7 +97,7 @@ public static class LocPendingReview
     public const string TornadoText = "竜巻：威力{0}×{1}回・半径{2}m・1回ごとに{3}m引き寄せ";                            // ID 10201 {0}=威力 {1}=回数 {2}=半径 {3}=引き寄せ
     public const string LightningCounterText = "命中{0}回ごとに必ず落雷";                                          // ID 10202 {0}=回数
     public const string PredatorText = "ボス命中時にも撃破時の1/4の確率で回復・ボスへの命中による吸収量2倍";          // ID 10203
-    // ID 10223〜10238(2026-10-31 デッキのプリセット): レビュー待ち(Docs/LocReview_2026-10-31)。
+    // ID 10223〜10238(2026-10-31 デッキのプリセット。10232 は欠番): エステルのレビュー後に30言語へ反映済み(Docs/LocReview_2026-10-31)。
     public const string PresetListTitle = "デッキの切り替え";                                                   // ID 10223(一覧の見出し)
     public const string PresetUse = "使う";                                                                     // ID 10224(選んだプリセットを使用中にする)
     public const string PresetRename = "名前の変更";                                                            // ID 10225
@@ -107,7 +107,6 @@ public static class LocPendingReview
     public const string PresetCopyPick = "コピー先のデッキを選んでください";                                     // ID 10229
     public const string PresetCopyConfirm = "「{0}」の中身を「{1}」で上書きします。よろしいですか?";             // ID 10230 {0}=コピー先 {1}=コピー元
     public const string PresetClearConfirm = "「{0}」のカードと名前を消します。よろしいですか?";                 // ID 10231 {0}=デッキの名前
-    public const string PresetNameHint = "デッキの名前(最大16文字)";                                          // ID 10232
     public const string PresetLocked = "ラン中はデッキを切り替えられません";                                     // ID 10233
     public const string PresetAppliedToast = "このマップ/モードで前回使った「{0}」に切り替えました";            // ID 10234 {0}=デッキの名前
     public const string PresetDroppedToast = "今は持っていないカード{0}枚をデッキから外しました";                // ID 10235 {0}=枚数
@@ -119,9 +118,6 @@ public static class LocPendingReview
     public static string Pend(string key) => Loc.Ready(key) ? key : null;
 
     // 2026-10-30: 10196〜10203 はエステルのレビュー後に30言語へ反映済み(Tools/loc/keys_extra33)→ 外した
-    public static readonly (string id, string key)[] Pending = {
-        ("10223", PresetListTitle), ("10224", PresetUse), ("10225", PresetRename), ("10226", PresetCopy), ("10227", PresetClear), ("10228", PresetInUse),
-        ("10229", PresetCopyPick), ("10230", PresetCopyConfirm), ("10231", PresetClearConfirm), ("10232", PresetNameHint), ("10233", PresetLocked),
-        ("10234", PresetAppliedToast), ("10235", PresetDroppedToast), ("10236", PresetRoomLabel), ("10237", PresetEmpty), ("10238", PresetMigratedNotice),
-    };
+    // 2026-10-31: 10223〜10298(デッキのプリセット 15件・カード拡張 60件。10232 は欠番)はエステルのレビュー後に30言語へ反映済み(Tools/loc/keys_extra34)→ 外した
+    public static readonly (string id, string key)[] Pending = { };
 }

@@ -1,0 +1,75 @@
+10223 [es] Cambiar mazo
+10224 [es] Usar
+10225 [es] Renombrar
+10226 [es] Copiar
+10227 [es] Restablecer
+10228 [es] En uso
+10229 [es] Elige el mazo de destino
+10230 [es] ¿Sobrescribir "{0}" con el contenido de "{1}"?
+10231 [es] ¿Eliminar todas las cartas y el nombre de "{0}"?
+10233 [es] No puedes cambiar de mazo durante una carrera.
+10234 [es] Se ha cambiado a "{0}", el último mazo usado en este mapa/modo.
+10235 [es] Se han quitado del mazo {0} cartas que ya no posees.
+10236 [es] Mazo a usar
+10237 [es] Vacío
+10238 [es] Ahora puedes guardar hasta 8 mazos y cambiar entre ellos. Tu mazo actual se ha guardado en "Mazo 1".
+10239 [es] ABRASADOR
+10240 [es] TORBELLINO DE FUEGO
+10241 [es] COMBUSTIÓN
+10242 [es] HIELO PERPETUO
+10243 [es] GUARDIA GLACIAL
+10244 [es] GOLPE QUEBRANTAHIELOS
+10245 [es] CONDUCTOR
+10246 [es] SOBRECARGA ELÉCTRICA
+10247 [es] RAYO DEL JUICIO
+10248 [es] ESTELA DE VIENTO
+10249 [es] CORRIENTE ASCENDENTE
+10250 [es] TEMPESTAD
+10251 [es] Ataque contra enemigos quemados +6%, luego +4%/Lv (+38% en Lv9). También afecta a los jefes. Por sí sola, esta carta también puede quemar al golpear: prob. 8% en Lv1, +2 puntos porcentuales por cada Lv adicional.
+10252 [es] Cada 1s, las quemaduras pueden propagarse a un enemigo cercano (prob. 15% en Lv1, +3 puntos porcentuales por cada Lv adicional). Las hojas de viento que golpean a enemigos quemados también propagan el fuego a los enemigos cercanos. Por sí sola, esta carta también puede quemar al golpear: prob. 8% en Lv1, +2 puntos porcentuales por cada Lv adicional.
+10253 [es] Al acumular 4 quemaduras en un enemigo que ya está quemado, este explota, daña y quema a los enemigos cercanos (la quemadura del objetivo desaparece). La potencia y el radio aumentan con el Lv. Cada enemigo puede explotar una vez cada 4s (6s para jefes). Por sí sola, esta carta también puede quemar al golpear: prob. 8% en Lv1, +2 puntos porcentuales por cada Lv adicional.
+10254 [es] La ralentización aumenta al acumular frío: desde la 2.ª acumulación, +3.5% de ralentización por acumulación (+7.5% en Lv9), hasta 3 acumulaciones adicionales. Duración del frío +0.15s/Lv. Por sí sola, esta carta también puede enfriar al golpear: prob. 8% en Lv1, +2 puntos porcentuales por cada Lv adicional.
+10255 [es] Esta carta permite tener 1 Shield incluso por sí sola. Congelar a un enemigo o aplicarle 3 acumulaciones de frío restaura 1 Shield (una vez cada 19s en Lv1, 1s menos por cada Lv adicional). Por sí sola, esta carta también puede enfriar al golpear: prob. 8% en Lv1, +2 puntos porcentuales por cada Lv adicional.
+10256 [es] Golpear a un enemigo congelado o con 3 o más acumulaciones de frío activa un ataque adicional que rompe el hielo (inflige la mitad del daño a enemigos cercanos). Se eliminan la congelación y las acumulaciones de frío. Los jefes también pueden sufrir este efecto y acumulan BREAK (una vez cada 8s por jefe). La potencia y el BREAK aumentan con el Lv. Por sí sola, esta carta también puede enfriar al golpear: prob. 8% en Lv1, +2 puntos porcentuales por cada Lv adicional.
+10257 [es] Los enemigos alcanzados por rayos quedan cargados durante 2s. Ataque contra enemigos cargados +6%, luego +4%/Lv. Daño de rayos contra enemigos enfriados o congelados +8%, luego +4%/Lv, y los rayos encadenados los alcanzan más fácilmente. Por sí sola, esta carta también puede invocar rayos: prob. 5% en Lv1, +1 punto porcentual por cada Lv adicional.
+10258 [es] Cada 3 impactos de un mismo ataque provocan un rayo adicional (máximo 3). Ideal para ataques de múltiples impactos y de área. Los rayos adicionales infligen el 65% del daño de un rayo normal, +5 puntos porcentuales por cada Lv adicional. Por sí sola, esta carta también puede invocar rayos: prob. 5% en Lv1, +1 punto porcentual por cada Lv adicional.
+10259 [es] Los rayos acumulan energía. Al llenarse, el siguiente rayo se convierte en un Rayo del Juicio, que también daña a enemigos cercanos, aturde brevemente a los esbirros y acumula BREAK en los jefes. Requiere 10 rayos en Lv1 (6 en Lv9); potencia ×2.75 en Lv1 (×4.75 en Lv9). Máximo una vez cada 4s. Por sí sola, esta carta también puede invocar rayos: prob. 5% en Lv1, +1 punto porcentual por cada Lv adicional.
+10260 [es] Las hojas de viento ganan potencia y se activan con más frecuencia cuanto más rápido corres (desde 40km/h hasta el máximo a 120km/h). Al máximo, potencia +14% y prob. +1.5 puntos porcentuales; luego +4% de potencia y +0.5 puntos porcentuales de prob. por cada Lv adicional. Por sí sola, esta carta también puede lanzar hojas de viento: prob. 6% en Lv1, +2 puntos porcentuales por cada Lv adicional.
+10261 [es] Ataque contra enemigos en el aire (lanzados o voladores) +6%, luego +4%/Lv. Golpearlos mientras tú también estás en el aire activa un ataque adicional de viento (potencia 7.5, +1.5/Lv). Por sí sola, esta carta también puede lanzar hojas de viento: prob. 6% en Lv1, +2 puntos porcentuales por cada Lv adicional.
+10262 [es] Las hojas de viento se lanzan en sucesión: 2 en Lv1–6 y 3 en Lv7–9. Las hojas adicionales infligen el 55% del daño normal, +5 puntos porcentuales por cada Lv adicional. Por sí sola, esta carta también puede lanzar hojas de viento: prob. 6% en Lv1, +2 puntos porcentuales por cada Lv adicional.
+10263 [es] Ataque contra enemigos quemados +{0}%
+10264 [es] La quemadura se propaga a enemigos a {0}m (prob. {1}% cada 1s) / las hojas de viento propagan fuego en un radio de {2}m
+10265 [es] Explosión al acumular 4 quemaduras: potencia {0}, radio {1}m
+10266 [es] Ralentización +{0}% por acumulación de frío desde la 2.ª (máximo 3)
+10267 [es] Congelar / acumular 3 veces frío restaura 1 Shield (una vez cada {0}s)
+10268 [es] Rompe el hielo de enemigos congelados o con 3+ acumulaciones de frío: potencia {0}, BREAK de jefes +{1}%
+10269 [es] Ataque contra enemigos cargados +{0}% / daño de rayos contra enemigos enfriados +{1}%
+10270 [es] Rayo adicional cada 3 impactos de un mismo ataque (potencia {0}%, máximo 3)
+10271 [es] Rayo del Juicio tras {0} rayos: potencia ×{1}, BREAK de jefes +{2}%
+10272 [es] A mayor velocidad, más potencia de las hojas de viento: hasta +{0}% de potencia y +{1} puntos porcentuales de prob. (120km/h)
+10273 [es] Ataque contra enemigos en el aire +{0}% / golpear en el aire activa un ataque adicional de viento, potencia {1}
+10274 [es] {0} hojas de viento consecutivas (hojas adicionales al {1}% de potencia)
+10275 [es] CALOR ABRASADOR
+10276 [es] TORMENTA DE FUEGO
+10277 [es] GRAN EXPLOSIÓN
+10278 [es] ESCARCHA ETERNA
+10279 [es] BALUARTE GLACIAL
+10280 [es] PULVERIZACIÓN
+10281 [es] SUPERCONDUCTOR
+10282 [es] SOBRECORRIENTE
+10283 [es] JUICIO DIVINO
+10284 [es] VIENTO A FAVOR
+10285 [es] DRAGÓN ASCENDENTE
+10286 [es] GRAN TORMENTA
+10287 [es] Durante 10s, ataque contra enemigos quemados ×1.8
+10288 [es] Durante 10s, las quemaduras se propagan más fácilmente y a mayor distancia
+10289 [es] Durante 10s, potencia y radio de explosión ×1.8
+10290 [es] Durante 10s, ralentización por acumulaciones de frío ×1.8
+10291 [es] Durante 10s, se reduce el intervalo de recuperación de Shield al congelar
+10292 [es] Durante 10s, potencia del ataque adicional que rompe el hielo y BREAK ×1.8
+10293 [es] Durante 10s, bonificaciones contra enemigos cargados y enfriados ×1.8
+10294 [es] Durante 10s, potencia de los rayos adicionales ×1.8
+10295 [es] Durante 10s, el Rayo del Juicio requiere menos rayos y aumenta su potencia
+10296 [es] Durante 10s, bonificación de velocidad a las hojas de viento ×1.8
+10297 [es] Durante 10s, ataque y ataques adicionales contra enemigos en el aire ×1.8
+10298 [es] Durante 10s, aumenta la potencia de las hojas de viento adicionales

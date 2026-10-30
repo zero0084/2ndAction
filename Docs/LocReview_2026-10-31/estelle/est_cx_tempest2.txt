@@ -1,0 +1,28 @@
+10262y [zh-Hans] 后续风刃每1秒最多触发1次，对首领造成的伤害减半。
+10262y [zh-Hant] 後續風刃每1秒最多觸發1次，對首領造成的傷害減半。
+10262y [ko] 후속 바람 칼날은 1초에 최대 1회 발동하며, 보스에게 주는 피해는 절반이다.
+10262y [es] Las ráfagas adicionales se activan como máximo 1 vez por segundo y causan la mitad de daño a los jefes.
+10262y [fr] Les salves supplémentaires se déclenchent au maximum 1 fois par seconde et infligent la moitié des dégâts aux boss.
+10262y [de] Nachfolgende Windklingen-Salven werden höchstens 1-mal pro Sekunde ausgelöst und verursachen bei Bossen nur halben Schaden.
+10262y [it] Le raffiche aggiuntive si attivano al massimo 1 volta al secondo e infliggono metà dei danni ai boss.
+10262y [pt-BR] As rajadas adicionais são ativadas no máximo 1 vez por segundo e causam metade do dano aos chefes.
+10262y [ru] Дополнительные залпы клинков ветра срабатывают не чаще 1 раза в секунду и наносят боссам половину урона.
+10262y [pl] Dodatkowe serie ostrzy wiatru aktywują się najwyżej 1 raz na sekundę i zadają bossom połowę obrażeń.
+10262y [tr] Ek rüzgâr bıçağı salvoları saniyede en fazla 1 kez tetiklenir ve boss'lara yarı hasar verir.
+10262y [ar] تُفعّل دفعات نصال الريح الإضافية مرة واحدة كحد أقصى كل 1 ثانية، وتُلحق نصف الضرر بالزعماء.
+10262y [hi] अतिरिक्त पवन-धार की बौछारें हर 1 सेकंड में अधिकतम 1 बार सक्रिय होती हैं और बॉस को आधा डैमेज देती हैं।
+10262y [id] Rentetan bilah angin tambahan hanya bisa aktif maksimal 1 kali per detik dan menghasilkan setengah damage pada bos.
+10262y [th] ชุดใบมีดลมที่ตามมาจะทำงานได้สูงสุด 1 ครั้งต่อวินาที และสร้างดาเมจต่อบอสเพียงครึ่งหนึ่ง
+10262y [vi] Các loạt lưỡi gió bổ sung chỉ kích hoạt tối đa 1 lần mỗi giây và gây một nửa sát thương lên boss.
+10262y [ms] Rentetan bilah angin tambahan hanya boleh diaktifkan paling banyak 1 kali sesaat dan memberikan separuh kerosakan kepada bos.
+10262y [fil] Ang mga dagdag na bugso ng talim ng hangin ay maa-activate nang hanggang 1 beses lang bawat segundo at kalahati lang ang damage sa mga boss.
+10262y [sw] Misururu ya ziada ya wembe za upepo huwashwa mara 1 tu kwa kila sekunde na huleta nusu ya uharibifu kwa mabosi.
+10262y [bn] অতিরিক্ত বাতাসের ফলার ঝাঁক প্রতি 1 সেকেন্ডে সর্বোচ্চ 1 বার সক্রিয় হয় এবং বসের অর্ধেক ক্ষতি করে।
+10262y [ta] கூடுதல் காற்று வாள் தொடர்கள் ஒவ்வொரு 1 வினாடிக்கும் அதிகபட்சம் 1 முறை மட்டுமே செயல்படும்; பாஸ்களுக்கு பாதிச் சேதம் மட்டுமே ஏற்படுத்தும்.
+10262y [fa] رگبارهای اضافی تیغ باد حداکثر 1 بار در هر ثانیه فعال می‌شوند و به باس‌ها نصف آسیب وارد می‌کنند.
+10262y [uk] Додаткові залпи клинків вітру спрацьовують не частіше ніж 1 раз на секунду й завдають босам половину урону.
+10262y [cs] Dodatečné salvy větrných čepelí se spouštějí nejvýše 1krát za sekundu a způsobují bossům poloviční poškození.
+10262y [ro] Salvele suplimentare de lame de vânt se declanșează cel mult 1 dată pe secundă și provoacă jumătate din daune împotriva boșilor.
+10262y [km] ការបាញ់ផ្លែខ្យល់បន្ថែមជាបន្តបន្ទាប់អាចកើតឡើងបានច្រើនបំផុត 1 ដងក្នុងមួយវិនាទី ហើយបង្កការខូចខាតត្រឹមពាក់កណ្តាលលើបូស។
+10262y [lo] ການປ່ອຍໃບມີດລົມຊຸດເພີ່ມຈະເກີດຂຶ້ນໄດ້ສູງສຸດ 1 ຄັ້ງຕໍ່ວິນາທີ ແລະ ສ້າງຄວາມເສຍຫາຍຕໍ່ບອສພຽງເຄິ່ງໜຶ່ງ.
+10262y [my] နောက်ဆက်တွဲလေဓားများကို 1s တိုင်း အများဆုံး 1 ကြိမ်သာ လွှတ်နိုင်ပြီး ဘော့စ်များကို ဒဏ်တစ်ဝက်သာ ပေးသည်။

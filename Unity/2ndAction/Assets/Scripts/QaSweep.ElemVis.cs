@@ -28,7 +28,7 @@ public partial class QaSweep
         bool video = Arg("-evVideo", "0") == "1";
         L($"[ev] mode={(ElementVfx.Legacy ? "OLD" : "NEW")} parts={string.Join(",", parts)}");
         aeOverlayY = 0.86f; // 画面の下(敵の頭上のマークと重ならない)
-        evTsv.Append("part\telement\tcase\tsecs\thits\tprocs\tper100\tstatus\telemDamage\tdirect\tsharePct\tkills\telemKills\tchains\tfreezes\tshatters\ttornados\tinfernos\tlifesteal\tbleedHeal\tpeakParticles\tpeakAuras\tpeakMarked\tsfx\tsfxThinned\tdropped\tfpsAvg\tfpsMin\tmemMB\tforced\tfrozenSec\tchilledSec\ticeStagger\thealHp\thitHeal\ttornadoPulls\twindAirHits\tbossKills\tbreaks\tgoalSec\tatkShare\n");
+        evTsv.Append("part\telement\tcase\tsecs\thits\tprocs\tper100\tstatus\telemDamage\tdirect\tsharePct\tkills\telemKills\tchains\tfreezes\tshatters\ttornados\tinfernos\tlifesteal\tbleedHeal\tpeakParticles\tpeakAuras\tpeakMarked\tsfx\tsfxThinned\tdropped\tfpsAvg\tfpsMin\tmemMB\tforced\tfrozenSec\tchilledSec\ticeStagger\thealHp\thitHeal\ttornadoPulls\twindAirHits\tbossKills\tbreaks\tgoalSec\tatkShare\texpansion\n");
         if (video) { demoDir = System.IO.Path.Combine(outDir, "frames"); System.IO.Directory.CreateDirectory(demoDir); demoFrame = 0; }
         var vtsv = new StringBuilder("element\tcase\tfrom\tto\n");
 
@@ -58,7 +58,7 @@ public partial class QaSweep
                 foreach (var sc in Arg("-evScen", "zako100,boss,rush,bossrush").Split(','))
                     yield return EvBuildCase(b, sc);
         if (parts.Contains("cards"))
-            foreach (var id in ElementDevLoadout.Families.SelectMany(f => f.family).Distinct())
+            foreach (var id in ElementDevLoadout.Families.SelectMany(f => f.family).Distinct().Where(x => Arg("-evCards", "") == "" || Arg("-evCards", "").Split(',').Contains(x)))
                 foreach (int lv in new[] { 1, 9 })
                     yield return EvCardCase(id, lv);
         if (parts.Contains("rush")) { yield return EvRealCase("none", 90500f, "rush"); yield return EvRealCase("all", 90500f, "rush"); } // 90〜95km の雑魚の大群(属性なし/5属性 Lv9)
@@ -133,9 +133,9 @@ public partial class QaSweep
         float per100 = ElementTelemetry.Hits > 0 ? pr * 100f / ElementTelemetry.Hits : 0f;
         float share = total > 0 ? ed * 100f / total : 0f;
         float mem = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() / (1024f * 1024f);
-        evTsv.Append($"{part}\t{el}\t{cs}\t{secs:F0}\t{ElementTelemetry.Hits}\t{pr}\t{per100:F1}\t{stc}\t{ed}\t{ElementTelemetry.DirectDamage}\t{share:F1}\t{kills}\t{ek}\t{ElementTelemetry.Chains}\t{ElementTelemetry.Freezes}\t{ElementTelemetry.Shatters}\t{ElementTelemetry.Tornados}\t{ElementTelemetry.Infernos}\t{ElementTelemetry.LifestealHeals}\t{ElementTelemetry.BleedHealHp}\t{ElementVfx.PeakParticles}\t{ElementAura.PeakAuras}\t{ElementAura.PeakMarked}\t{ElementVfx.SfxPlayed}\t{ElementVfx.SfxThinned}\t{ElementVfx.Dropped}\t{fpsAvg:F1}\t{fpsMin:F1}\t{mem:F0}\t{ElementSystem.ForcedStrikes}\t{ElementTelemetry.FrozenSeconds:F1}\t{ElementTelemetry.ChilledSeconds:F1}\t{ElementTelemetry.IceStagger:F1}\t{ElementTelemetry.HealHp}\t{ElementTelemetry.HitHealHp}\t{CardProcs.TornadoPulls}\t{ElementSystem.WindAirBonusHits}\t{evBossKills}\t{evBreaks}\t{evGoalSec:F1}\t{ElementSystem.ElementAttackShareNow:F2}\n");
+        evTsv.Append($"{part}\t{el}\t{cs}\t{secs:F0}\t{ElementTelemetry.Hits}\t{pr}\t{per100:F1}\t{stc}\t{ed}\t{ElementTelemetry.DirectDamage}\t{share:F1}\t{kills}\t{ek}\t{ElementTelemetry.Chains}\t{ElementTelemetry.Freezes}\t{ElementTelemetry.Shatters}\t{ElementTelemetry.Tornados}\t{ElementTelemetry.Infernos}\t{ElementTelemetry.LifestealHeals}\t{ElementTelemetry.BleedHealHp}\t{ElementVfx.PeakParticles}\t{ElementAura.PeakAuras}\t{ElementAura.PeakMarked}\t{ElementVfx.SfxPlayed}\t{ElementVfx.SfxThinned}\t{ElementVfx.Dropped}\t{fpsAvg:F1}\t{fpsMin:F1}\t{mem:F0}\t{ElementSystem.ForcedStrikes}\t{ElementTelemetry.FrozenSeconds:F1}\t{ElementTelemetry.ChilledSeconds:F1}\t{ElementTelemetry.IceStagger:F1}\t{ElementTelemetry.HealHp}\t{ElementTelemetry.HitHealHp}\t{CardProcs.TornadoPulls}\t{ElementSystem.WindAirBonusHits}\t{evBossKills}\t{evBreaks}\t{evGoalSec:F1}\t{ElementSystem.ElementAttackShareNow:F2}\t{ElementSystem.ExpansionReport()}\n");
         System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, "elem.tsv"), evTsv.ToString());
-        L($"[ev] {part} {el} {cs}: hits {ElementTelemetry.Hits} procs {pr} ({per100:F1}/100) status {stc} dmg {ed} ({share:F1}%) kills {kills} elemKills {ek} | particles peak {ElementVfx.PeakParticles} auras {ElementAura.PeakAuras} marks {ElementAura.PeakMarked} sfx {ElementVfx.SfxPlayed}/{ElementVfx.SfxThinned} dropped {ElementVfx.Dropped}{(fpsAvg > 0 ? $" fps {fpsAvg:F0}/{fpsMin:F0}" : "")}");
+        L($"[ev] {part} {el} {cs}: hits {ElementTelemetry.Hits} procs {pr} ({per100:F1}/100) status {stc} dmg {ed} ({share:F1}%) kills {kills} elemKills {ek} | particles peak {ElementVfx.PeakParticles} auras {ElementAura.PeakAuras} marks {ElementAura.PeakMarked} sfx {ElementVfx.SfxPlayed}/{ElementVfx.SfxThinned} dropped {ElementVfx.Dropped}{(fpsAvg > 0 ? $" fps {fpsAvg:F0}/{fpsMin:F0}" : "")} | {ElementSystem.ExpansionReport()}");
     }
 
     // ---------------------------------------------------------------- vis(撮影)
@@ -286,6 +286,9 @@ public partial class QaSweep
         void C(string id, int lv) { var c = CardDatabase.FindBaseById(id); if (c != null) gm.ApplyCardEffectsStacked(c, lv); }
         if (b == "normal") { foreach (var id in new[] { "attack_up", "attack_speed_up", "first_strike", "combo_plus", "ground_fighter", "double_attack" }) C(id, 9); return; }
         if (b == "mixed") { foreach (var id in new[] { "flame_blade", "burning_soul", "thunder_strike", "chain_lightning" }) C(id, 9); }
+        // 2026-10-31 カード拡張: 炎×風(FIRE WHIRL で風刃が炎を運ぶ)/ 氷×雷(CONDUCTOR で冷えた敵への落雷)の 7 枚
+        else if (b == "firewind") { foreach (var id in new[] { "flame_blade", "burning_soul", "fire_whirl", "combustion", "wind_cutter", "gale", "tornado" }) C(id, 9); }
+        else if (b == "icethunder") { foreach (var id in new[] { "frost_edge", "ice_prison", "shatter_strike", "thunder_strike", "chain_lightning", "conductor", "judgment_bolt" }) C(id, 9); }
         else if (b == "bloodlow") ElementDevLoadout.ApplySpec(gm, "blood9");
         else if (b != "none") ElementDevLoadout.ApplySpec(gm, b + "9");
         C("attack_up", 9); C("attack_speed_up", 9); // 2026-10-30: 普通の強化はどのビルドにも Lv9(実際のランの終盤に近い攻撃力)
@@ -379,7 +382,7 @@ public partial class QaSweep
     }
     // bloodlow = HP をハート25%に保つ(無敵のまま。回復しても毎フレーム戻す)。BLOOD RUSH / 出血の低HPボーナスの確認
     void EvPinHp(string b) { if (b == "bloodlow" && gm != null) typeof(GameManager).GetProperty("Lives").SetValue(gm, Mathf.Max(1, Mathf.RoundToInt(gm.maxLives * 0.25f))); } // DebugSetLives は Editor だけ
-    static ElementType BuildType(string b) => b == "bloodlow" ? ElementType.Blood : b == "fire" ? ElementType.Fire : b == "ice" ? ElementType.Ice : b == "thunder" ? ElementType.Thunder : b == "wind" ? ElementType.Wind : b == "blood" ? ElementType.Blood : ElementType.None;
+    static ElementType BuildType(string b) => b == "bloodlow" ? ElementType.Blood : b.StartsWith("fire") ? ElementType.Fire : b.StartsWith("ice") ? ElementType.Ice : b.StartsWith("thunder") ? ElementType.Thunder : b.StartsWith("wind") ? ElementType.Wind : b == "blood" ? ElementType.Blood : ElementType.None;
 
     // ---------------------------------------------------------------- cards(20枚を1枚ずつ: Lv1 / Lv9、100回の命中。雑魚は HP 400 で時々倒れる = 撃破で起きる効果も入る)
     IEnumerator EvCardCase(string id, int lv)

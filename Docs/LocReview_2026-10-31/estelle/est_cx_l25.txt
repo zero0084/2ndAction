@@ -1,0 +1,75 @@
+10223 [ro] Schimbă pachetul
+10224 [ro] Folosește
+10225 [ro] Redenumește
+10226 [ro] Copiază
+10227 [ro] Resetează
+10228 [ro] În uz
+10229 [ro] Alege pachetul de destinație
+10230 [ro] Suprascrii conținutul lui „{0}” cu cel al lui „{1}”?
+10231 [ro] Ștergi toate cărțile și numele pachetului „{0}”?
+10233 [ro] Nu poți schimba pachetul în timpul unei curse.
+10234 [ro] Ai trecut la „{0}”, ultimul pachet folosit pe această hartă/în acest mod.
+10235 [ro] Au fost eliminate din pachet {0} cărți pe care nu le mai deții.
+10236 [ro] Pachet de folosit
+10237 [ro] Gol
+10238 [ro] Acum poți salva până la 8 pachete și poți comuta între ele. Pachetul actual a fost salvat în „Pachet 1”.
+10239 [ro] PÂRJOL
+10240 [ro] VÂRTEJ DE FOC
+10241 [ro] COMBUSTIE
+10242 [ro] ÎNGHEȚ PERPETUU
+10243 [ro] GARDĂ GLACIARĂ
+10244 [ro] LOVITURĂ SPARGEGHEAȚĂ
+10245 [ro] CONDUCTOR
+10246 [ro] SUPRATENSIUNE
+10247 [ro] TRĂSNETUL JUDECĂȚII
+10248 [ro] CURENT DE VITEZĂ
+10249 [ro] CURENT ASCENDENT
+10250 [ro] FURTUNĂ NĂPRASNICĂ
+10251 [ro] Atac împotriva inamicilor care ard +6%, apoi +4%/Lv (+38% la Lv9). Funcționează și împotriva boșilor. Această carte poate aprinde inamicii la lovire și singură: șansă 8% la Lv1, +2 puncte procentuale pentru fiecare Lv în plus.
+10252 [ro] La fiecare 1s, arderea se poate răspândi de la un inamic care arde la unul apropiat (șansă 15% la Lv1, +3 puncte procentuale pentru fiecare Lv în plus). Lamele de vânt care lovesc inamici în flăcări răspândesc și focul la inamicii din apropiere. Această carte poate aprinde inamicii la lovire și singură: șansă 8% la Lv1, +2 puncte procentuale pentru fiecare Lv în plus.
+10253 [ro] Aplicarea a 4 acumulări de ardere unui inamic care arde deja provoacă o explozie ce rănește și aprinde inamicii din apropiere (arderea inamicului care explodează dispare). Puterea și raza cresc odată cu Lv. Fiecare inamic poate exploda cel mult o dată la 4s (boșii la 6s). Această carte poate aprinde inamicii la lovire și singură: șansă 8% la Lv1, +2 puncte procentuale pentru fiecare Lv în plus.
+10254 [ro] Încetinirea crește odată cu acumulările de răcire: începând cu a 2-a acumulare, încetinire +3.5% per acumulare (+7.5% la Lv9), până la 3 acumulări suplimentare. Durata răcirii +0.15s/Lv. Această carte poate răci inamicii la lovire și singură: șansă 8% la Lv1, +2 puncte procentuale pentru fiecare Lv în plus.
+10255 [ro] Această carte îți permite să deții 1 Shield chiar și singură. Înghețarea unui inamic sau aplicarea a 3 acumulări de răcire reface 1 Shield (o dată la 19s la Lv1, interval redus cu 1s pentru fiecare Lv în plus). Această carte poate răci inamicii la lovire și singură: șansă 8% la Lv1, +2 puncte procentuale pentru fiecare Lv în plus.
+10256 [ro] Lovirea unui inamic înghețat sau cu cel puțin 3 acumulări de răcire declanșează un atac suplimentar care sparge gheața (jumătate din daune pentru inamicii din apropiere). Înghețarea și acumulările de răcire dispar. Boșii pot suferi același efect și acumulează BREAK (o dată la 8s pentru fiecare boss). Puterea și BREAK cresc odată cu Lv. Această carte poate răci inamicii la lovire și singură: șansă 8% la Lv1, +2 puncte procentuale pentru fiecare Lv în plus.
+10257 [ro] Inamicii loviți de trăsnete devin încărcați electric timp de 2s. Atac împotriva inamicilor încărcați +6%, apoi +4%/Lv. Daunele trăsnetelor împotriva inamicilor răciți sau înghețați +8%, apoi +4%/Lv; fulgerele în lanț ajung mai ușor la ei. Această carte poate declanșa trăsnete și singură: șansă 5% la Lv1, +1 punct procentual pentru fiecare Lv în plus.
+10258 [ro] La fiecare 3 lovituri reușite dintr-un singur atac se declanșează un trăsnet suplimentar (maximum 3). Eficient cu atacurile cu lovituri multiple și cele de zonă. Trăsnetele suplimentare provoacă 65% din daunele normale ale trăsnetelor, apoi +5 puncte procentuale pentru fiecare Lv în plus. Această carte poate declanșa trăsnete și singură: șansă 5% la Lv1, +1 punct procentual pentru fiecare Lv în plus.
+10259 [ro] Trăsnetele acumulează energie. Când încărcarea este completă, următorul trăsnet devine Trăsnetul Judecății, provocând daune și inamicilor din apropiere, amețind scurt inamicii obișnuiți și acumulând BREAK pe boși. Necesită 10 trăsnete la Lv1 (6 la Lv9); putere ×2.75 la Lv1 (×4.75 la Lv9). Cel mult o dată la 4s. Această carte poate declanșa trăsnete și singură: șansă 5% la Lv1, +1 punct procentual pentru fiecare Lv în plus.
+10260 [ro] Cu cât alergi mai repede, cu atât lamele de vânt devin mai puternice și se declanșează mai des (creștere de la 40km/h, maxim la 120km/h). La maxim, putere +14% și șansă de activare +1.5 puncte procentuale, apoi putere +4% și șansă +0.5 puncte procentuale pentru fiecare Lv în plus. Această carte poate lansa lame de vânt și singură: șansă 6% la Lv1, +2 puncte procentuale pentru fiecare Lv în plus.
+10261 [ro] Atac împotriva inamicilor aflați în aer (aruncați în sus sau zburători) +6%, apoi +4%/Lv. Dacă îi lovești când ești și tu în aer, se declanșează un atac suplimentar de vânt (putere 7.5, apoi +1.5/Lv). Această carte poate lansa lame de vânt și singură: șansă 6% la Lv1, +2 puncte procentuale pentru fiecare Lv în plus.
+10262 [ro] Lamele de vânt sunt lansate succesiv: 2 la Lv1–6, 3 la Lv7–9. Lamele următoare provoacă 55% din daunele normale, apoi +5 puncte procentuale pentru fiecare Lv în plus. Această carte poate lansa lame de vânt și singură: șansă 6% la Lv1, +2 puncte procentuale pentru fiecare Lv în plus.
+10263 [ro] Atac împotriva inamicilor care ard +{0}%
+10264 [ro] Arderea se răspândește la inamicii din raza de {0}m (șansă {1}% la fiecare 1s) / lamele de vânt răspândesc focul pe o rază de {2}m
+10265 [ro] Explozie la 4 acumulări de ardere: putere {0}, rază {1}m
+10266 [ro] Încetinire +{0}% per acumulare de răcire începând cu a 2-a (maximum 3)
+10267 [ro] Înghețarea / 3 acumulări de răcire refac 1 Shield (o dată la {0}s)
+10268 [ro] Sparge gheața inamicilor înghețați sau cu 3+ acumulări de răcire: putere {0}, BREAK al bossului +{1}%
+10269 [ro] Atac împotriva inamicilor încărcați +{0}% / daune de trăsnet împotriva inamicilor răciți +{1}%
+10270 [ro] Trăsnet suplimentar la fiecare 3 lovituri reușite dintr-un atac (putere {0}%, maximum 3)
+10271 [ro] Trăsnetul Judecății după {0} trăsnete: putere ×{1}, BREAK al bossului +{2}%
+10272 [ro] Cu cât viteza e mai mare, cu atât lamele de vânt sunt mai puternice: până la +{0}% putere și +{1} puncte procentuale șansă (120km/h)
+10273 [ro] Atac împotriva inamicilor aflați în aer +{0}% / loviturile date din aer declanșează un atac suplimentar de vânt, putere {1}
+10274 [ro] {0} lame de vânt succesive (puterea lamelor următoare {1}%)
+10275 [ro] ARȘIȚĂ MISTUITOARE
+10276 [ro] FURTUNĂ DE FOC
+10277 [ro] EXPLOZIE URIAȘĂ
+10278 [ro] GER ETERN
+10279 [ro] BASTION GLACIAR
+10280 [ro] PULVERIZARE
+10281 [ro] SUPRACONDUCTOR
+10282 [ro] SUPRACURENT
+10283 [ro] JUDECATĂ DIVINĂ
+10284 [ro] VÂNT DIN SPATE
+10285 [ro] DRAGON ASCENDENT
+10286 [ro] FURTUNĂ MARE
+10287 [ro] Timp de 10s, atac împotriva inamicilor care ard ×1.8
+10288 [ro] Timp de 10s, arderea se răspândește mai ușor și mai departe
+10289 [ro] Timp de 10s, puterea și raza exploziilor ×1.8
+10290 [ro] Timp de 10s, încetinirea din acumulările de răcire ×1.8
+10291 [ro] Timp de 10s, intervalul de refacere a Shield prin înghețare scade
+10292 [ro] Timp de 10s, puterea atacurilor suplimentare care sparg gheața și BREAK ×1.8
+10293 [ro] Timp de 10s, bonusurile împotriva inamicilor încărcați și răciți ×1.8
+10294 [ro] Timp de 10s, puterea trăsnetelor suplimentare ×1.8
+10295 [ro] Timp de 10s, Trăsnetul Judecății necesită mai puține trăsnete și devine mai puternic
+10296 [ro] Timp de 10s, bonusul de viteză pentru lamele de vânt ×1.8
+10297 [ro] Timp de 10s, atacul și atacurile suplimentare împotriva inamicilor aflați în aer ×1.8
+10298 [ro] Timp de 10s, puterea lamelor de vânt următoare crește

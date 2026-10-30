@@ -1,0 +1,283 @@
+[10223]
+JA: デッキの切り替え
+EN: Switch Deck
+
+[10224]
+JA: 使う
+EN: Use
+
+[10225]
+JA: 名前の変更
+EN: Rename
+
+[10226]
+JA: コピー
+EN: Copy
+
+[10227]
+JA: 初期化
+EN: Reset
+
+[10228]
+JA: 使用中
+EN: In Use
+
+[10229]
+JA: コピー先のデッキを選んでください
+EN: Choose a destination deck
+
+[10230]
+JA: 「{1}」の中身を「{0}」で上書きします。よろしいですか?
+EN: Overwrite "{1}" with the contents of "{0}"?
+
+[10231]
+JA: 「{0}」のカードと名前を消します。よろしいですか?
+EN: Remove all cards and the name from "{0}"?
+
+[10233]
+JA: ラン中はデッキを切り替えられません
+EN: You can't switch decks during a run.
+
+[10234]
+JA: このマップ/モードで前回使った「{0}」に切り替えました
+EN: Switched to "{0}", the deck last used for this map/mode.
+
+[10235]
+JA: 今は持っていないカード{0}枚をデッキから外しました
+EN: Removed {0} cards you no longer own from the deck.
+
+[10236]
+JA: 使うデッキ
+EN: Deck
+
+[10237]
+JA: 空
+EN: Empty
+
+[10238]
+JA: デッキを8つまで保存して切り替えられるようになりました。今のデッキは「デッキ 1」に入っています。
+EN: You can now save up to 8 decks and switch between them. Your current deck is saved in "Deck 1".
+
+[10239]
+JA: SCORCH
+EN: SCORCH
+
+[10240]
+JA: FIRE WHIRL
+EN: FIRE WHIRL
+
+[10241]
+JA: COMBUSTION
+EN: COMBUSTION
+
+[10242]
+JA: PERMAFROST
+EN: PERMAFROST
+
+[10243]
+JA: GLACIER GUARD
+EN: GLACIER GUARD
+
+[10244]
+JA: SHATTER STRIKE
+EN: SHATTER STRIKE
+
+[10245]
+JA: CONDUCTOR
+EN: CONDUCTOR
+
+[10246]
+JA: VOLT SURGE
+EN: VOLT SURGE
+
+[10247]
+JA: JUDGMENT BOLT
+EN: JUDGMENT BOLT
+
+[10248]
+JA: SLIPSTREAM
+EN: SLIPSTREAM
+
+[10249]
+JA: UPDRAFT
+EN: UPDRAFT
+
+[10250]
+JA: TEMPEST
+EN: TEMPEST
+
+[10251]
+JA: 炎上中の敵への攻撃力+6%、以降+4%/Lv(Lv9で+38%)。ボスにも有効。単独でも命中時に炎上を付与：確率はLv1で8%、以降+2%/Lv
+EN: Attack against burning enemies +6%, then +4%/Lv (+38% at Lv9). Also works on bosses. Can inflict burn on hit by itself: 8% chance at Lv1, +2 pp per additional Lv.
+
+[10252]
+JA: 炎上中の敵の近くにいる敵へ、1秒ごとに確率で炎上が移る(Lv1で15%、以降+3%/Lv)。風刃が炎上中の敵に当たると、周りの敵にも炎を運ぶ。単独でも命中時に炎上を付与：確率はLv1で8%、以降+2%/Lv
+EN: Every second, burn may spread from a burning enemy to a nearby enemy (15% at Lv1, +3 pp per additional Lv). Wind blades hitting burning enemies also spread fire to nearby enemies. Can inflict burn on hit by itself: 8% chance at Lv1, +2 pp per additional Lv.
+
+[10253]
+JA: 炎上中の敵に炎上を4回重ねると爆発し、周りの敵にダメージを与えて炎上させる(爆発した敵の炎上は消える)。威力と範囲はLvで増加。同じ敵の爆発は4秒(ボスは6秒)に1回。単独でも命中時に炎上を付与：確率はLv1で8%、以降+2%/Lv
+EN: Applying 4 burn stacks to a burning enemy triggers an explosion, damaging and burning nearby enemies (the exploding enemy's burn ends). Power and radius increase with Lv. Each enemy can explode once every 4s (6s for bosses). Can inflict burn on hit by itself: 8% chance at Lv1, +2 pp per additional Lv.
+
+[10254]
+JA: 冷えが重なるほど減速が強くなる：2回目から1回ごとに減速+3.5%(Lv9で+7.5%)、最大3回分。冷え時間+0.15秒/Lv。単独でも命中時に冷えを付与：確率はLv1で8%、以降+2%/Lv
+EN: Slow increases with chill stacks: starting from the 2nd stack, +3.5% slow per stack (+7.5% at Lv9), up to 3 additional stacks. Chill duration +0.15s/Lv. Can inflict chill on hit by itself: 8% chance at Lv1, +2 pp per additional Lv.
+
+[10255]
+JA: このカードだけでもShieldを1つ持てる。敵を凍結させるか冷えを3回重ねるとShieldが1つ回復する(Lv1で19秒に1回、以降1秒ずつ短縮)。単独でも命中時に冷えを付与：確率はLv1で8%、以降+2%/Lv
+EN: This card alone lets you hold 1 Shield. Freezing an enemy or applying 3 chill stacks restores 1 Shield (once every 19s at Lv1, reduced by 1s per additional Lv). Can inflict chill on hit by itself: 8% chance at Lv1, +2 pp per additional Lv.
+
+[10256]
+JA: 凍結中、または冷えが3回以上重なった敵に攻撃を当てると氷を砕く追撃(周りの敵にも半分)。凍結と冷えの重なりは消える。ボスは同じ条件で砕け、BREAKが溜まる(同じボスは8秒に1回)。威力とBREAKはLvで増加。単独でも命中時に冷えを付与：確率はLv1で8%、以降+2%/Lv
+EN: Hitting a frozen enemy or one with 3+ chill stacks triggers a shatter follow-up (half damage to nearby enemies). Freeze and chill stacks are removed. Bosses can also be shattered under the same conditions, building up BREAK (once every 8s per boss). Power and BREAK increase with Lv. Can inflict chill on hit by itself: 8% chance at Lv1, +2 pp per additional Lv.
+
+[10257]
+JA: 落雷を受けた敵が2秒帯電し、帯電中の敵への攻撃力+6%(以降+4%/Lv)。冷え・凍結中の敵への落雷+8%(以降+4%/Lv)、連鎖も届きやすい。単独でも落雷が発生：確率はLv1で5%、以降+1%/Lv
+EN: Lightning strikes charge enemies for 2s. Attack against charged enemies +6%, then +4%/Lv. Lightning damage against chilled or frozen enemies +8%, then +4%/Lv, with easier chaining to them. Can trigger lightning by itself: 5% chance at Lv1, +1 pp per additional Lv.
+
+[10258]
+JA: 1回の攻撃の命中3回ごとに追加の落雷(最大3本)。多段攻撃や範囲攻撃と相性が良い。追加の落雷の威力は通常の65%(以降+5%/Lv)。単独でも落雷が発生：確率はLv1で5%、以降+1%/Lv
+EN: Every 3 hits from a single attack trigger an extra lightning strike (up to 3). Works well with multi-hit and area attacks. Extra strikes deal 65% of normal lightning damage, then +5 pp per additional Lv. Can trigger lightning by itself: 5% chance at Lv1, +1 pp per additional Lv.
+
+[10259]
+JA: 落雷を重ねると雷力が溜まり、満タンで次の落雷が大落雷になる(周りにもダメージ・雑魚を一瞬停止・ボスはBREAKが溜まる)。必要な回数はLv1で10回(Lv9で6回)、威力はLv1で2.75倍(Lv9で4.75倍)。大落雷は4秒に1回まで。単独でも落雷が発生：確率はLv1で5%、以降+1%/Lv
+EN: Lightning strikes build charge. When full, the next strike becomes a Judgment Bolt, damaging nearby enemies, briefly stunning regular enemies, and building up BREAK on bosses. Requires 10 strikes at Lv1 (6 at Lv9); power ×2.75 at Lv1 (×4.75 at Lv9). At most once every 4s. Can trigger lightning by itself: 5% chance at Lv1, +1 pp per additional Lv.
+
+[10260]
+JA: 走る速さに応じて風刃が強くなり、出やすくなる(40km/hから伸びて120km/hで最大)。最大で威力+14%・確率+1.5%、以降1Lvごとに+4%・+0.5%。単独でも風刃が発生：確率はLv1で6%、以降+2%/Lv
+EN: Wind blades grow stronger and trigger more often as you run faster (scaling from 40km/h to a maximum at 120km/h). At maximum speed, +14% power and +1.5 pp trigger chance, then +4% power and +0.5 pp chance per additional Lv. Can release wind blades by itself: 6% chance at Lv1, +2 pp per additional Lv.
+
+[10261]
+JA: 空中の敵(打ち上げた敵・飛ぶ敵)への攻撃力+6%(以降+4%/Lv)。自分も空中で当てると風の追撃(威力7.5、以降+1.5/Lv)。単独でも風刃が発生：確率はLv1で6%、以降+2%/Lv
+EN: Attack against airborne enemies (launched or flying) +6%, then +4%/Lv. Hitting them while airborne yourself triggers a wind follow-up (power 7.5, then +1.5/Lv). Can release wind blades by itself: 6% chance at Lv1, +2 pp per additional Lv.
+
+[10262]
+JA: 風刃が続けて飛ぶ：Lv1〜6で2本、Lv7〜9で3本。後の風刃の威力は55%(以降+5%/Lv)。単独でも風刃が発生：確率はLv1で6%、以降+2%/Lv
+EN: Wind blades fire in succession: 2 at Lv1–6, 3 at Lv7–9. Follow-up blades deal 55% of normal damage, then +5 pp per additional Lv. Can release wind blades by itself: 6% chance at Lv1, +2 pp per additional Lv.
+
+[10263]
+JA: 炎上中の敵への攻撃+{0}%
+EN: Attack vs burning enemies +{0}%
+
+[10264]
+JA: 炎上が{0}m以内の敵へ移る(1秒ごとに{1}%)・風刃が炎を運ぶ 半径{2}m
+EN: Burn spreads to enemies within {0}m ({1}% per second) / wind blades spread fire within {2}m
+
+[10265]
+JA: 炎上を4回重ねると爆発 威力{0}・半径{1}m
+EN: Explodes at 4 burn stacks: power {0}, radius {1}m
+
+[10266]
+JA: 冷えの2回目以降、1回ごとに減速+{0}%(最大3回分)
+EN: Slow +{0}% per chill stack after the 1st (up to 3)
+
+[10267]
+JA: 凍結/冷え3回でShieldが1つ回復({0}秒に1回)
+EN: Freeze / 3 chill stacks restores 1 Shield (once every {0}s)
+
+[10268]
+JA: 凍結/冷え3回以上の敵を砕く 威力{0}・ボスはBREAK+{1}%
+EN: Shatter frozen enemies or those with 3+ chill stacks: power {0}, boss BREAK +{1}%
+
+[10269]
+JA: 帯電中の敵への攻撃+{0}%・冷えた敵への落雷+{1}%
+EN: Attack vs charged enemies +{0}% / lightning vs chilled enemies +{1}%
+
+[10270]
+JA: 1回の攻撃の命中3回ごとに落雷(威力{0}%・最大3本)
+EN: Extra lightning every 3 hits from one attack ({0}% power, up to 3)
+
+[10271]
+JA: 落雷{0}回で大落雷 威力×{1}・ボスはBREAK+{2}%
+EN: Judgment Bolt after {0} strikes: power ×{1}, boss BREAK +{2}%
+
+[10272]
+JA: 速いほど風刃が強い 最大で威力+{0}%・確率+{1}%(120km/h)
+EN: Faster = stronger wind blades: up to +{0}% power, +{1} pp chance (120km/h)
+
+[10273]
+JA: 空中の敵への攻撃+{0}%・空中で当てると風の追撃 威力{1}
+EN: Attack vs airborne enemies +{0}% / airborne hits trigger wind follow-up, power {1}
+
+[10274]
+JA: 風刃が{0}本続けて飛ぶ(後の風刃は威力{1}%)
+EN: {0} wind blades in succession (follow-ups at {1}% power)
+
+[10275]
+JA: 焦熱
+EN: Searing Heat
+
+[10276]
+JA: 火炎旋風
+EN: Firestorm
+
+[10277]
+JA: 大爆炎
+EN: Grand Blast
+
+[10278]
+JA: 永久凍土
+EN: Eternal Frost
+
+[10279]
+JA: 氷河の守り
+EN: Glacial Bulwark
+
+[10280]
+JA: 粉砕
+EN: Pulverize
+
+[10281]
+JA: 超伝導
+EN: Superconductor
+
+[10282]
+JA: 過電流
+EN: Overcurrent
+
+[10283]
+JA: 天罰
+EN: Divine Judgment
+
+[10284]
+JA: 追い風
+EN: Tailwind
+
+[10285]
+JA: 昇り龍
+EN: Rising Dragon
+
+[10286]
+JA: 大嵐
+EN: Great Storm
+
+[10287]
+JA: 10秒間 炎上中の敵への攻撃×1.8
+EN: For 10s, attack vs burning enemies ×1.8
+
+[10288]
+JA: 10秒間 炎上が移りやすく、届く範囲も広がる
+EN: For 10s, burn spreads more easily and reaches farther
+
+[10289]
+JA: 10秒間 爆発の威力と範囲×1.8
+EN: For 10s, explosion power and radius ×1.8
+
+[10290]
+JA: 10秒間 冷えの重なりによる減速×1.8
+EN: For 10s, slow from chill stacks ×1.8
+
+[10291]
+JA: 10秒間 凍結でShieldが回復する間隔が短くなる
+EN: For 10s, freezing restores Shield more often
+
+[10292]
+JA: 10秒間 砕く追撃の威力とBREAK×1.8
+EN: For 10s, shatter power and BREAK ×1.8
+
+[10293]
+JA: 10秒間 帯電中・冷えた敵への強化×1.8
+EN: For 10s, bonuses vs charged and chilled enemies ×1.8
+
+[10294]
+JA: 10秒間 追加の落雷の威力×1.8
+EN: For 10s, extra lightning power

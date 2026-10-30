@@ -923,6 +923,8 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     public int UltimatesUsed { get; private set; }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public void DebugAddStagger(float v) => AddStagger(v);
+    // 2026-10-31 カード拡張: BREAK ゲージの割合で足す(AddStagger を通る)
+    public void AddCardStagger(float fraction) { if (battle != null && battle.staggerMax > 0f && fraction > 0f) AddStagger(battle.staggerMax * fraction); }
 #endif
     public bool Broken => state == State.Stunned;
     SpriteRenderer chargeOrb;

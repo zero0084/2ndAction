@@ -1,0 +1,75 @@
+10223 [ms] Tukar dek
+10224 [ms] Gunakan
+10225 [ms] Tukar nama
+10226 [ms] Salin
+10227 [ms] Tetapkan semula
+10228 [ms] Sedang digunakan
+10229 [ms] Pilih dek destinasi
+10230 [ms] Tulis ganti kandungan "{0}" dengan kandungan "{1}"?
+10231 [ms] Padam semua kad dan nama daripada "{0}"?
+10233 [ms] Dek tidak boleh ditukar semasa larian.
+10234 [ms] Bertukar kepada "{0}", dek yang terakhir digunakan pada peta/mod ini.
+10235 [ms] {0} kad yang tidak lagi anda miliki telah dikeluarkan daripada dek.
+10236 [ms] Dek untuk digunakan
+10237 [ms] Kosong
+10238 [ms] Kini anda boleh menyimpan sehingga 8 dek dan bertukar antara dek tersebut. Dek semasa anda telah disimpan dalam "Dek 1".
+10239 [ms] BAHANG MEMBARA
+10240 [ms] PUSARAN API
+10241 [ms] PEMBAKARAN
+10242 [ms] FROS KEKAL
+10243 [ms] PELINDUNG GLASIER
+10244 [ms] HENTAMAN PEMECAH AIS
+10245 [ms] KONDUKTOR
+10246 [ms] LONJAKAN ELEKTRIK
+10247 [ms] PETIR PENGHAKIMAN
+10248 [ms] ALIRAN LAJU
+10249 [ms] ARUS MENAIK
+10250 [ms] RIBUT DAHSYAT
+10251 [ms] Serangan terhadap musuh yang terbakar +6%, kemudian +4%/Lv (+38% pada Lv9). Berkesan terhadap bos juga. Kad ini sendiri juga boleh membakar musuh apabila serangan mengena: peluang 8% pada Lv1, +2 mata peratusan setiap Lv tambahan.
+10252 [ms] Setiap 1s, kesan terbakar boleh merebak daripada musuh yang terbakar kepada musuh berdekatan (peluang 15% pada Lv1, +3 mata peratusan setiap Lv tambahan). Bilah angin yang mengenai musuh terbakar turut menyebarkan api kepada musuh berdekatan. Kad ini sendiri juga boleh membakar musuh apabila serangan mengena: peluang 8% pada Lv1, +2 mata peratusan setiap Lv tambahan.
+10253 [ms] Mengenakan 4 lapisan kesan terbakar pada musuh yang sudah terbakar mencetuskan letupan yang mencederakan dan membakar musuh berdekatan (kesan terbakar pada musuh yang meletup tamat). Kuasa dan jejari meningkat mengikut Lv. Setiap musuh boleh meletup paling banyak sekali setiap 4s (6s untuk bos). Kad ini sendiri juga boleh membakar musuh apabila serangan mengena: peluang 8% pada Lv1, +2 mata peratusan setiap Lv tambahan.
+10254 [ms] Perlambatan meningkat apabila lapisan sejuk bertambah: mulai lapisan ke-2, perlambatan +3.5% setiap lapisan (+7.5% pada Lv9), sehingga 3 lapisan tambahan. Tempoh sejuk +0.15s/Lv. Kad ini sendiri juga boleh menyejukkan musuh apabila serangan mengena: peluang 8% pada Lv1, +2 mata peratusan setiap Lv tambahan.
+10255 [ms] Kad ini sahaja membolehkan anda memiliki 1 Shield. Membekukan musuh atau mengenakan 3 lapisan sejuk memulihkan 1 Shield (sekali setiap 19s pada Lv1, sela masa berkurang 1s setiap Lv tambahan). Kad ini sendiri juga boleh menyejukkan musuh apabila serangan mengena: peluang 8% pada Lv1, +2 mata peratusan setiap Lv tambahan.
+10256 [ms] Mengenai musuh yang membeku atau mempunyai 3 lapisan sejuk atau lebih mencetuskan serangan susulan yang memecahkan ais (separuh kerosakan kepada musuh berdekatan). Kesan beku dan lapisan sejuk dihapuskan. Bos juga menerima kesan ini dengan syarat yang sama dan mengumpulkan BREAK (sekali setiap 8s bagi setiap bos). Kuasa dan BREAK meningkat mengikut Lv. Kad ini sendiri juga boleh menyejukkan musuh apabila serangan mengena: peluang 8% pada Lv1, +2 mata peratusan setiap Lv tambahan.
+10257 [ms] Musuh yang terkena panahan petir menjadi bercas elektrik selama 2s. Serangan terhadap musuh bercas +6%, kemudian +4%/Lv. Kerosakan petir terhadap musuh yang sejuk atau membeku +8%, kemudian +4%/Lv, dan petir berantai lebih mudah mencapai mereka. Kad ini sendiri juga boleh mencetuskan panahan petir: peluang 5% pada Lv1, +1 mata peratusan setiap Lv tambahan.
+10258 [ms] Setiap 3 serangan yang mengena daripada satu serangan mencetuskan panahan petir tambahan (maksimum 3). Sesuai untuk serangan berbilang hit dan serangan kawasan. Petir tambahan memberikan 65% kerosakan petir biasa, kemudian +5 mata peratusan setiap Lv tambahan. Kad ini sendiri juga boleh mencetuskan panahan petir: peluang 5% pada Lv1, +1 mata peratusan setiap Lv tambahan.
+10259 [ms] Panahan petir mengumpulkan tenaga. Apabila cas penuh, panahan seterusnya menjadi Petir Penghakiman yang turut mencederakan musuh berdekatan, melumpuhkan musuh biasa seketika dan mengumpulkan BREAK pada bos. Memerlukan 10 panahan petir pada Lv1 (6 pada Lv9); kuasa ×2.75 pada Lv1 (×4.75 pada Lv9). Paling banyak sekali setiap 4s. Kad ini sendiri juga boleh mencetuskan panahan petir: peluang 5% pada Lv1, +1 mata peratusan setiap Lv tambahan.
+10260 [ms] Semakin laju anda berlari, semakin kuat dan kerap bilah angin muncul (meningkat mulai 40km/h, maksimum pada 120km/h). Pada kelajuan maksimum, kuasa +14% dan peluang pengaktifan +1.5 mata peratusan, kemudian kuasa +4% dan peluang +0.5 mata peratusan setiap Lv tambahan. Kad ini sendiri juga boleh melepaskan bilah angin: peluang 6% pada Lv1, +2 mata peratusan setiap Lv tambahan.
+10261 [ms] Serangan terhadap musuh di udara (dilambung ke atas atau terbang) +6%, kemudian +4%/Lv. Mengenai mereka ketika anda juga berada di udara mencetuskan serangan susulan angin (kuasa 7.5, kemudian +1.5/Lv). Kad ini sendiri juga boleh melepaskan bilah angin: peluang 6% pada Lv1, +2 mata peratusan setiap Lv tambahan.
+10262 [ms] Bilah angin dilepaskan berturut-turut: 2 pada Lv1–6, 3 pada Lv7–9. Bilah susulan memberikan 55% kerosakan biasa, kemudian +5 mata peratusan setiap Lv tambahan. Kad ini sendiri juga boleh melepaskan bilah angin: peluang 6% pada Lv1, +2 mata peratusan setiap Lv tambahan.
+10263 [ms] Serangan terhadap musuh terbakar +{0}%
+10264 [ms] Kesan terbakar merebak kepada musuh dalam jarak {0}m (peluang {1}% setiap 1s) / bilah angin menyebarkan api dalam jejari {2}m
+10265 [ms] Letupan pada 4 lapisan kesan terbakar: kuasa {0}, jejari {1}m
+10266 [ms] Perlambatan +{0}% setiap lapisan sejuk mulai lapisan ke-2 (maksimum 3)
+10267 [ms] Membekukan / mengenakan 3 lapisan sejuk memulihkan 1 Shield (sekali setiap {0}s)
+10268 [ms] Memecahkan ais pada musuh beku atau dengan 3+ lapisan sejuk: kuasa {0}, BREAK bos +{1}%
+10269 [ms] Serangan terhadap musuh bercas +{0}% / kerosakan petir terhadap musuh sejuk +{1}%
+10270 [ms] Petir tambahan setiap 3 hit daripada satu serangan (kuasa {0}%, maksimum 3)
+10271 [ms] Petir Penghakiman selepas {0} panahan petir: kuasa ×{1}, BREAK bos +{2}%
+10272 [ms] Semakin laju, semakin kuat bilah angin: sehingga kuasa +{0}% dan peluang +{1} mata peratusan (120km/h)
+10273 [ms] Serangan terhadap musuh di udara +{0}% / serangan yang mengena ketika anda di udara mencetuskan serangan susulan angin, kuasa {1}
+10274 [ms] {0} bilah angin berturut-turut (kuasa bilah susulan {1}%)
+10275 [ms] HABA MEMBAKAR
+10276 [ms] RIBUT API
+10277 [ms] LETUPAN BESAR
+10278 [ms] FROS ABADI
+10279 [ms] KUBU GLASIER
+10280 [ms] PENGHANCURAN
+10281 [ms] SUPERKONDUKTOR
+10282 [ms] ARUS BERLEBIHAN
+10283 [ms] PENGHAKIMAN SUCI
+10284 [ms] ANGIN DARI BELAKANG
+10285 [ms] NAGA MENJULANG
+10286 [ms] RIBUT BESAR
+10287 [ms] Selama 10s, serangan terhadap musuh terbakar ×1.8
+10288 [ms] Selama 10s, kesan terbakar lebih mudah merebak dan mencapai jarak lebih jauh
+10289 [ms] Selama 10s, kuasa dan jejari letupan ×1.8
+10290 [ms] Selama 10s, perlambatan akibat lapisan sejuk ×1.8
+10291 [ms] Selama 10s, sela masa pemulihan Shield melalui pembekuan dipendekkan
+10292 [ms] Selama 10s, kuasa serangan susulan pemecah ais dan BREAK ×1.8
+10293 [ms] Selama 10s, bonus terhadap musuh bercas dan sejuk ×1.8
+10294 [ms] Selama 10s, kuasa panahan petir tambahan ×1.8
+10295 [ms] Selama 10s, Petir Penghakiman memerlukan lebih sedikit panahan petir dan kuasanya meningkat
+10296 [ms] Selama 10s, bonus kelajuan kepada bilah angin ×1.8
+10297 [ms] Selama 10s, serangan dan serangan susulan terhadap musuh di udara ×1.8
+10298 [ms] Selama 10s, kuasa bilah angin susulan meningkat

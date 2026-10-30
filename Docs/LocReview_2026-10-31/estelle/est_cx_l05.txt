@@ -1,0 +1,75 @@
+10223 [fr] Changer de deck
+10224 [fr] Utiliser
+10225 [fr] Renommer
+10226 [fr] Copier
+10227 [fr] Réinitialiser
+10228 [fr] En cours d'utilisation
+10229 [fr] Choisissez le deck de destination
+10230 [fr] Écraser « {0} » avec le contenu de « {1} » ?
+10231 [fr] Supprimer toutes les cartes et le nom de « {0} » ?
+10233 [fr] Impossible de changer de deck pendant une course.
+10234 [fr] Deck remplacé par « {0} », le dernier utilisé sur cette carte/dans ce mode.
+10235 [fr] {0} cartes que vous ne possédez plus ont été retirées du deck.
+10236 [fr] Deck à utiliser
+10237 [fr] Vide
+10238 [fr] Vous pouvez désormais enregistrer jusqu'à 8 decks et passer de l'un à l'autre. Votre deck actuel a été enregistré dans « Deck 1 ».
+10239 [fr] BRÛLURE ARDENTE
+10240 [fr] TOURBILLON DE FEU
+10241 [fr] COMBUSTION
+10242 [fr] GEL PERPÉTUEL
+10243 [fr] GARDE GLACIAIRE
+10244 [fr] FRAPPE BRISANTE
+10245 [fr] CONDUCTEUR
+10246 [fr] SURTENSION
+10247 [fr] FOUDRE DU JUGEMENT
+10248 [fr] SILLAGE
+10249 [fr] COURANT ASCENDANT
+10250 [fr] TEMPÊTE
+10251 [fr] Attaque contre les ennemis brûlés +6%, puis +4%/Lv (+38% à Lv9). Fonctionne aussi sur les boss. Cette carte peut également brûler à l'impact à elle seule : chance 8% à Lv1, +2 points de pourcentage par Lv supplémentaire.
+10252 [fr] Chaque 1s, la brûlure peut se propager d'un ennemi brûlé à un ennemi proche (chance 15% à Lv1, +3 points de pourcentage par Lv supplémentaire). Les lames de vent touchant un ennemi brûlé propagent aussi le feu aux ennemis proches. Cette carte peut également brûler à l'impact à elle seule : chance 8% à Lv1, +2 points de pourcentage par Lv supplémentaire.
+10253 [fr] Appliquer 4 cumuls de brûlure à un ennemi déjà brûlé provoque une explosion qui blesse et brûle les ennemis proches (la brûlure de la cible disparaît). Puissance et rayon augmentent avec le Lv. Chaque ennemi peut exploser une fois toutes les 4s (6s pour les boss). Cette carte peut également brûler à l'impact à elle seule : chance 8% à Lv1, +2 points de pourcentage par Lv supplémentaire.
+10254 [fr] Le ralentissement augmente avec les cumuls de froid : dès le 2e cumul, ralentissement +3.5% par cumul (+7.5% à Lv9), jusqu'à 3 cumuls supplémentaires. Durée du froid +0.15s/Lv. Cette carte peut également refroidir à l'impact à elle seule : chance 8% à Lv1, +2 points de pourcentage par Lv supplémentaire.
+10255 [fr] Cette carte permet à elle seule de posséder 1 Shield. Geler un ennemi ou lui appliquer 3 cumuls de froid restaure 1 Shield (une fois toutes les 19s à Lv1, intervalle réduit de 1s par Lv supplémentaire). Cette carte peut également refroidir à l'impact à elle seule : chance 8% à Lv1, +2 points de pourcentage par Lv supplémentaire.
+10256 [fr] Toucher un ennemi gelé ou ayant au moins 3 cumuls de froid déclenche une attaque supplémentaire qui brise la glace (moitié des dégâts aux ennemis proches). Le gel et les cumuls de froid disparaissent. Les boss peuvent aussi subir cet effet et accumulent du BREAK (une fois toutes les 8s par boss). Puissance et BREAK augmentent avec le Lv. Cette carte peut également refroidir à l'impact à elle seule : chance 8% à Lv1, +2 points de pourcentage par Lv supplémentaire.
+10257 [fr] Les ennemis frappés par la foudre sont chargés électriquement pendant 2s. Attaque contre les ennemis chargés +6%, puis +4%/Lv. Dégâts de foudre contre les ennemis refroidis ou gelés +8%, puis +4%/Lv ; les éclairs en chaîne les atteignent plus facilement. Cette carte peut aussi appeler la foudre à elle seule : chance 5% à Lv1, +1 point de pourcentage par Lv supplémentaire.
+10258 [fr] Tous les 3 coups au but d'une même attaque, un éclair supplémentaire frappe (maximum 3). Idéal pour les attaques à coups multiples et de zone. Les éclairs supplémentaires infligent 65% des dégâts normaux, puis +5 points de pourcentage par Lv supplémentaire. Cette carte peut aussi appeler la foudre à elle seule : chance 5% à Lv1, +1 point de pourcentage par Lv supplémentaire.
+10259 [fr] Les éclairs accumulent de l'énergie. Une fois la charge pleine, le prochain éclair devient une Foudre du jugement, blessant aussi les ennemis proches, étourdissant brièvement les sbires et accumulant du BREAK sur les boss. Nécessite 10 éclairs à Lv1 (6 à Lv9) ; puissance ×2.75 à Lv1 (×4.75 à Lv9). Une fois toutes les 4s maximum. Cette carte peut aussi appeler la foudre à elle seule : chance 5% à Lv1, +1 point de pourcentage par Lv supplémentaire.
+10260 [fr] Plus vous courez vite, plus les lames de vent sont puissantes et fréquentes (progression dès 40km/h, maximum à 120km/h). Au maximum, puissance +14% et chance +1.5 point de pourcentage, puis puissance +4% et chance +0.5 point de pourcentage par Lv supplémentaire. Cette carte peut aussi lancer des lames de vent à elle seule : chance 6% à Lv1, +2 points de pourcentage par Lv supplémentaire.
+10261 [fr] Attaque contre les ennemis en l'air (projetés ou volants) +6%, puis +4%/Lv. Les toucher en étant vous-même en l'air déclenche une attaque supplémentaire de vent (puissance 7.5, puis +1.5/Lv). Cette carte peut aussi lancer des lames de vent à elle seule : chance 6% à Lv1, +2 points de pourcentage par Lv supplémentaire.
+10262 [fr] Les lames de vent sont lancées à la suite : 2 à Lv1–6, 3 à Lv7–9. Les lames suivantes infligent 55% des dégâts normaux, puis +5 points de pourcentage par Lv supplémentaire. Cette carte peut aussi lancer des lames de vent à elle seule : chance 6% à Lv1, +2 points de pourcentage par Lv supplémentaire.
+10263 [fr] Attaque contre les ennemis brûlés +{0}%
+10264 [fr] La brûlure se propage aux ennemis à {0}m (chance {1}% chaque 1s) / les lames de vent propagent le feu sur un rayon de {2}m
+10265 [fr] Explosion après 4 cumuls de brûlure : puissance {0}, rayon {1}m
+10266 [fr] Ralentissement +{0}% par cumul de froid dès le 2e (maximum 3)
+10267 [fr] Geler / appliquer 3 cumuls de froid restaure 1 Shield (une fois toutes les {0}s)
+10268 [fr] Brise la glace des ennemis gelés ou ayant 3+ cumuls de froid : puissance {0}, BREAK des boss +{1}%
+10269 [fr] Attaque contre les ennemis chargés +{0}% / dégâts de foudre contre les ennemis refroidis +{1}%
+10270 [fr] Éclair supplémentaire tous les 3 coups au but d'une même attaque (puissance {0}%, maximum 3)
+10271 [fr] Foudre du jugement après {0} éclairs : puissance ×{1}, BREAK des boss +{2}%
+10272 [fr] Plus la vitesse augmente, plus les lames de vent sont puissantes : puissance +{0}% et chance +{1} points de pourcentage au maximum (120km/h)
+10273 [fr] Attaque contre les ennemis en l'air +{0}% / les coups portés en l'air déclenchent une attaque de vent supplémentaire, puissance {1}
+10274 [fr] {0} lames de vent successives (lames suivantes à {1}% de puissance)
+10275 [fr] CHALEUR ARDENTE
+10276 [fr] TEMPÊTE DE FEU
+10277 [fr] GRANDE EXPLOSION
+10278 [fr] GEL ÉTERNEL
+10279 [fr] REMPART GLACIAIRE
+10280 [fr] PULVÉRISATION
+10281 [fr] SUPRACONDUCTEUR
+10282 [fr] SURINTENSITÉ
+10283 [fr] JUGEMENT DIVIN
+10284 [fr] VENT ARRIÈRE
+10285 [fr] DRAGON ASCENDANT
+10286 [fr] GRANDE TEMPÊTE
+10287 [fr] Pendant 10s, attaque contre les ennemis brûlés ×1.8
+10288 [fr] Pendant 10s, la brûlure se propage plus facilement et plus loin
+10289 [fr] Pendant 10s, puissance et rayon des explosions ×1.8
+10290 [fr] Pendant 10s, ralentissement dû aux cumuls de froid ×1.8
+10291 [fr] Pendant 10s, intervalle de récupération de Shield par gel réduit
+10292 [fr] Pendant 10s, puissance des attaques brisant la glace et BREAK ×1.8
+10293 [fr] Pendant 10s, bonus contre les ennemis chargés et refroidis ×1.8
+10294 [fr] Pendant 10s, puissance des éclairs supplémentaires ×1.8
+10295 [fr] Pendant 10s, la Foudre du jugement nécessite moins d'éclairs et gagne en puissance
+10296 [fr] Pendant 10s, bonus de vitesse aux lames de vent ×1.8
+10297 [fr] Pendant 10s, attaque et attaques supplémentaires contre les ennemis en l'air ×1.8
+10298 [fr] Pendant 10s, puissance des lames de vent supplémentaires augmentée

@@ -26,7 +26,8 @@ CAT_JA = OrderedDict([("Attack", "ATTACK"), ("Defense", "DEFENSE"), ("Movement",
 EL_JA = OrderedDict([("Fire", "炎"), ("Ice", "氷"), ("Thunder", "雷"), ("Wind", "風"), ("Blood", "血(その他)"), ("None", "なし")])
 W = [float(x) for x in settings["gachaRarityWeights"].split(",")]
 TH = [float(x) for x in settings["gachaThresholds"].split(",")]
-assert len(cards) == 100, len(cards)
+N = len(cards)  # 2026-10-31: 112 枚(属性 12 枚を追加)
+assert N >= 100, N
 byid = {c["id"]: c for c in cards}
 for c in cards:
     assert c["id"] in R, c["id"]
@@ -120,10 +121,10 @@ def el_stats(el, levels):
 
 # 属性ごとのカード(並びは系統の流れ)
 FAMILY = OrderedDict([
-    ("Fire", ["flame_blade", "burning_soul", "inferno", "flame_counter"]),
-    ("Ice", ["frost_edge", "ice_prison", "absolute_zero"]),
-    ("Thunder", ["thunder_strike", "chain_lightning", "high_voltage", "thunder_lord"]),
-    ("Wind", ["wind_cutter", "gale", "tornado"]),
+    ("Fire", ["flame_blade", "burning_soul", "inferno", "flame_counter", "scorch", "fire_whirl", "combustion"]),
+    ("Ice", ["frost_edge", "ice_prison", "absolute_zero", "permafrost", "glacier_guard", "shatter_strike"]),
+    ("Thunder", ["thunder_strike", "chain_lightning", "high_voltage", "thunder_lord", "conductor", "volt_surge", "judgment_bolt"]),
+    ("Wind", ["wind_cutter", "gale", "tornado", "slipstream", "updraft", "tempest"]),
     ("Blood", ["vampire", "predator", "overheal", "blood_rush", "blood_blade", "phoenix"]),
 ])
 for el, ids in FAMILY.items():
@@ -187,7 +188,7 @@ def sheet(title, header, data, widths=None, wrap=True, first=False):
     return ws
 
 hdr = list(rows[0].keys())
-ws = sheet("全100枚", hdr, [list(r.values()) for r in rows],
+ws = sheet(f"全{N}枚", hdr, [list(r.values()) for r in rows],
            [5, 18, 20, 18, 9, 4, 11, 6, 34, 34, 44, 44, 26, 18, 6, 9, 16, 22, 40, 34, 26, 7, 9, 10, 8, 9, 26, 40], first=True)
 for cell in ws["X"][1:]: cell.number_format = "0.00%"
 ELFILL = {"炎": "FDE2D2", "氷": "DCEFFC", "雷": "FFF6CC", "風": "DDF6E8", "血(その他)": "F6D8DD"}
@@ -271,8 +272,8 @@ xlsx = os.path.join(OUT, "card_catalog.xlsx"); wb.save(xlsx)
 # ---------------------------------------------------------------- md
 L = []
 A = L.append
-A("# One More Mile 現行カード 100枚 資料(2026-10-30)\n")
-A("実装(コード/アセット)から自動で書き出した値です。**レア度・性能・属性・出現率は変更していません。** 全項目の一覧は `card_catalog.xlsx`(シート「全100枚」)。\n")
+A(f"# One More Mile 現行カード {N}枚 資料\n")
+A("実装(コード/アセット)から自動で書き出した値です。**レア度・性能・属性・出現率は変更していません。** 全項目の一覧は `card_catalog.xlsx`(シート「全" + str(N) + "枚」)。\n")
 A("## 1. レア度の分布\n")
 A("| | ★1 | ★2 | ★3 | ★4 | ★5 | 計 |\n|---|---|---|---|---|---|---|")
 for r in dist[:1 + len(CAT_JA)]: A("| " + " | ".join(str(x) for x in r) + " |")
@@ -307,7 +308,7 @@ in_combo = sorted({a for k in combos for a in k["abilities"].split("+")}, key=la
 A(f"\nCOMBO に関係するカード: {len(in_combo)}枚 — " + "、".join(byid[i]["name"] for i in in_combo) + "\n")
 A("## 4. FINAL EVOLUTION 対象\n")
 fe_n = sum(1 for c in cards if c["feTitle"])
-A(f"**{fe_n}枚**(100枚のうち #100 ULTIMATE だけ対象外)。そのランで能力 Lv9 → {float(settings['feReadyMeters']):,.0f}m 走ると READY → LEVEL UP / ボス報酬の3択に最大1枠 → 選ぶと60秒(ランが実際に進んでいる時間)だけ限界突破。終わるとすぐ READY に戻ります。専用の処理がある代表カードは ATTACK UP / SPEED UP / ATTACK RANGE UP / VAMPIRE / PHOENIX / FLAME BLADE / THUNDER STRIKE / EXP UP / GREED。ほかは「自分の効果×倍率 + 追加の効果」です。各カードの内容は xlsx の「FINAL EVOLUTION」シート。\n")
+A(f"**{fe_n}枚**({N}枚のうち #100 ULTIMATE だけ対象外)。そのランで能力 Lv9 → {float(settings['feReadyMeters']):,.0f}m 走ると READY → LEVEL UP / ボス報酬の3択に最大1枠 → 選ぶと60秒(ランが実際に進んでいる時間)だけ限界突破。終わるとすぐ READY に戻ります。専用の処理がある代表カードは ATTACK UP / SPEED UP / ATTACK RANGE UP / VAMPIRE / PHOENIX / FLAME BLADE / THUNDER STRIKE / EXP UP / GREED。ほかは「自分の効果×倍率 + 追加の効果」です。各カードの内容は xlsx の「FINAL EVOLUTION」シート。\n")
 A("## 5. 出現条件と抽選の仕様(現行)\n")
 A("1. **解放(ガチャに出るようになる)**: BEST 距離とガチャ段階の両方を満たしたカード。段階は BEST 0 / 5,000 / 20,000 / 50,000 / 100,000m。PATHFINDER だけ BEST 500m。")
 A("2. **ガチャ**: まず★を重み(★1 50 / ★2 30 / ★3 15 / ★4 4 / ★5 1、引ける★の中だけで割る)で選び、その★の中で等確率に1枚。")
@@ -323,7 +324,7 @@ _pc = lambda sp, r: (W[r - 1] / sp[4] / sp[3][r]) if sp[3][r] else 0
 A(f"- 段階3(20,000m)の★5は {_s3[3][5]}枚で、1枚あたり **{_pc(_s3, 5)*100:.2f}%**(★4 の1枚 {_pc(_s3, 4)*100:.2f}% の約{_pc(_s3, 5)/_pc(_s3, 4):.0f}倍)。")
 A(f"- 全解放後の1枚あたりは ★4 = {_pc(_s5, 4)*100:.2f}%、★5 = {_pc(_s5, 5)*100:.2f}%、★3 = {_pc(_s5, 3)*100:.2f}%、★1 = {_pc(_s5, 1)*100:.2f}%。")
 A("- ラン中の3択はレア度の重みが無く、デッキに入れた12枚が等確率です。レア度は「ガチャで出にくい」だけで、ラン中の出やすさには関係しません。")
-A("\n## 6. 全100枚(要約。全項目は xlsx)\n")
+A(f"\n## 6. 全{N}枚(要約。全項目は xlsx)\n")
 A("| No | 名前 | ★ | カテゴリ | 属性 | Lv1 | Lv9 | 主な用途 | 役割タグ | COMBO | 解放 |\n|---|---|---|---|---|---|---|---|---|---|---|")
 for r in rows:
     A(f"| {r['No']} | {r['英語名']} | {r['★']} | {r['カテゴリ']} | {r['属性の種類'] if r['属性']=='あり' else ''} | {r['Lv1の効果']} | {r['Lv9の効果']} | {r['主な用途']} | {r['役割タグ']} | {r['COMBO対象'] if r['COMBO対象']!='—' else ''} | {r['解放条件(ガチャ)']} |")

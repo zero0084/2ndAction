@@ -1,0 +1,75 @@
+10223	ui	デッキのプリセット: 一覧の見出し	デッキの切り替え
+10224	ui	デッキのプリセット: 選んだプリセットを使用中にする	使う
+10225	ui	デッキのプリセット: PresetRename	名前の変更
+10226	ui	デッキのプリセット: PresetCopy	コピー
+10227	ui	デッキのプリセット: 中身と名前を消す	初期化
+10228	ui	デッキのプリセット: 一覧の印	使用中
+10229	ui	デッキのプリセット: PresetCopyPick	コピー先のデッキを選んでください
+10230	ui	デッキのプリセット: PresetCopyConfirm	「{0}」の中身を「{1}」で上書きします。よろしいですか?
+10231	ui	デッキのプリセット: PresetClearConfirm	「{0}」のカードと名前を消します。よろしいですか?
+10233	ui	デッキのプリセット: PresetLocked	ラン中はデッキを切り替えられません
+10234	ui	デッキのプリセット: PresetAppliedToast	このマップ/モードで前回使った「{0}」に切り替えました
+10235	ui	デッキのプリセット: PresetDroppedToast	今は持っていないカード{0}枚をデッキから外しました
+10236	ui	デッキのプリセット: マルチの部屋の画面	使うデッキ
+10237	ui	デッキのプリセット: 中身の無いプリセット	空
+10238	ui	デッキのプリセット: 更新後に1回だけ	デッキを8つまで保存して切り替えられるようになりました。今のデッキは「デッキ 1」に入っています。
+10239	card	カード名 scorch(英字のカード名。各言語の既存のカード名と同じ扱い)	SCORCH
+10240	card	カード名 fire_whirl(英字のカード名。各言語の既存のカード名と同じ扱い)	FIRE WHIRL
+10241	card	カード名 combustion(英字のカード名。各言語の既存のカード名と同じ扱い)	COMBUSTION
+10242	card	カード名 permafrost(英字のカード名。各言語の既存のカード名と同じ扱い)	PERMAFROST
+10243	card	カード名 glacier_guard(英字のカード名。各言語の既存のカード名と同じ扱い)	GLACIER GUARD
+10244	card	カード名 shatter_strike(英字のカード名。各言語の既存のカード名と同じ扱い)	SHATTER STRIKE
+10245	card	カード名 conductor(英字のカード名。各言語の既存のカード名と同じ扱い)	CONDUCTOR
+10246	card	カード名 volt_surge(英字のカード名。各言語の既存のカード名と同じ扱い)	VOLT SURGE
+10247	card	カード名 judgment_bolt(英字のカード名。各言語の既存のカード名と同じ扱い)	JUDGMENT BOLT
+10248	card	カード名 slipstream(英字のカード名。各言語の既存のカード名と同じ扱い)	SLIPSTREAM
+10249	card	カード名 updraft(英字のカード名。各言語の既存のカード名と同じ扱い)	UPDRAFT
+10250	card	カード名 tempest(英字のカード名。各言語の既存のカード名と同じ扱い)	TEMPEST
+10251	card	SCORCH の説明(カード詳細・3択)	炎上中の敵への攻撃力+6%、以降+4%/Lv(Lv9で+38%)。ボスにも有効。単独でも命中時に炎上を付与：確率はLv1で8%、以降+2%/Lv
+10252	card	FIRE WHIRL の説明(カード詳細・3択)	炎上中の敵の近くにいる敵へ、1秒ごとに確率で炎上が移る(Lv1で15%、以降+3%/Lv)。風刃が炎上中の敵に当たると、周りの敵にも炎を運ぶ。単独でも命中時に炎上を付与：確率はLv1で8%、以降+2%/Lv
+10253	card	COMBUSTION の説明(カード詳細・3択)	炎上中の敵に炎上を4回重ねると爆発し、周りの敵にダメージを与えて炎上させる(爆発した敵の炎上は消える)。威力と範囲はLvで増加。同じ敵の爆発は4秒(ボスは6秒)に1回。単独でも命中時に炎上を付与：確率はLv1で8%、以降+2%/Lv
+10254	card	PERMAFROST の説明(カード詳細・3択)	冷えが重なるほど減速が強くなる：2回目から1回ごとに減速+3.5%(Lv9で+7.5%)、最大3回分。冷え時間+0.15秒/Lv。単独でも命中時に冷えを付与：確率はLv1で8%、以降+2%/Lv
+10255	card	GLACIER GUARD の説明(カード詳細・3択)	このカードだけでもShieldを1つ持てる。敵を凍結させるか冷えを3回重ねるとShieldが1つ回復する(Lv1で19秒に1回、以降1秒ずつ短縮)。単独でも命中時に冷えを付与：確率はLv1で8%、以降+2%/Lv
+10256	card	SHATTER STRIKE の説明(カード詳細・3択)	凍結中、または冷えが3回以上重なった敵に攻撃を当てると氷を砕く追撃(周りの敵にも半分)。凍結と冷えの重なりは消える。ボスは同じ条件で砕け、BREAKが溜まる(同じボスは8秒に1回)。威力とBREAKはLvで増加。単独でも命中時に冷えを付与：確率はLv1で8%、以降+2%/Lv
+10257	card	CONDUCTOR の説明(カード詳細・3択)	落雷を受けた敵が2秒帯電し、帯電中の敵への攻撃力+6%(以降+4%/Lv)。冷え・凍結中の敵への落雷+8%(以降+4%/Lv)、連鎖も届きやすい。単独でも落雷が発生：確率はLv1で5%、以降+1%/Lv
+10258	card	VOLT SURGE の説明(カード詳細・3択)	1回の攻撃の命中3回ごとに追加の落雷(最大3本)。多段攻撃や範囲攻撃と相性が良い。追加の落雷の威力は通常の65%(以降+5%/Lv)。単独でも落雷が発生：確率はLv1で5%、以降+1%/Lv
+10259	card	JUDGMENT BOLT の説明(カード詳細・3択)	落雷を重ねると雷力が溜まり、満タンで次の落雷が大落雷になる(周りにもダメージ・雑魚を一瞬停止・ボスはBREAKが溜まる)。必要な回数はLv1で10回(Lv9で6回)、威力はLv1で2.2倍(Lv9で3.8倍)。大落雷は4秒に1回まで。単独でも落雷が発生：確率はLv1で5%、以降+1%/Lv
+10260	card	SLIPSTREAM の説明(カード詳細・3択)	走る速さに応じて風刃が強くなり、出やすくなる(40km/hから伸びて120km/hで最大)。最大で威力+14%・確率+1.5%、以降1Lvごとに+4%・+0.5%。単独でも風刃が発生：確率はLv1で6%、以降+2%/Lv
+10261	card	UPDRAFT の説明(カード詳細・3択)	空中の敵(打ち上げた敵・飛ぶ敵)への攻撃力+6%(以降+4%/Lv)。自分も空中で当てると風の追撃(威力7.5、以降+1.5/Lv)。単独でも風刃が発生：確率はLv1で6%、以降+2%/Lv
+10262	card	TEMPEST の説明(カード詳細・3択)	風刃が続けて飛ぶ：Lv1〜6で2本、Lv7〜9で3本。後の風刃の威力は30%(以降+3%/Lv)。単独でも風刃が発生：確率はLv1で6%、以降+2%/Lv。続けて飛ぶのは1秒に1回まで、ボスへのダメージは半分
+10263	card	SCORCH の効果の行(カード詳細の Lv1/Lv9。{n} に数値)	炎上中の敵への攻撃+{0}%
+10264	card	FIRE WHIRL の効果の行(カード詳細の Lv1/Lv9。{n} に数値)	炎上が{0}m以内の敵へ移る(1秒ごとに{1}%)・風刃が炎を運ぶ 半径{2}m
+10265	card	COMBUSTION の効果の行(カード詳細の Lv1/Lv9。{n} に数値)	炎上を4回重ねると爆発 威力{0}・半径{1}m
+10266	card	PERMAFROST の効果の行(カード詳細の Lv1/Lv9。{n} に数値)	冷えの2回目以降、1回ごとに減速+{0}%(最大3回分)
+10267	card	GLACIER GUARD の効果の行(カード詳細の Lv1/Lv9。{n} に数値)	凍結/冷え3回でShieldが1つ回復({0}秒に1回)
+10268	card	SHATTER STRIKE の効果の行(カード詳細の Lv1/Lv9。{n} に数値)	凍結/冷え3回以上の敵を砕く 威力{0}・ボスはBREAK+{1}%
+10269	card	CONDUCTOR の効果の行(カード詳細の Lv1/Lv9。{n} に数値)	帯電中の敵への攻撃+{0}%・冷えた敵への落雷+{1}%
+10270	card	VOLT SURGE の効果の行(カード詳細の Lv1/Lv9。{n} に数値)	1回の攻撃の命中3回ごとに落雷(威力{0}%・最大3本)
+10271	card	JUDGMENT BOLT の効果の行(カード詳細の Lv1/Lv9。{n} に数値)	落雷{0}回で大落雷 威力×{1}・ボスはBREAK+{2}%
+10272	card	SLIPSTREAM の効果の行(カード詳細の Lv1/Lv9。{n} に数値)	速いほど風刃が強い 最大で威力+{0}%・確率+{1}%(120km/h)
+10273	card	UPDRAFT の効果の行(カード詳細の Lv1/Lv9。{n} に数値)	空中の敵への攻撃+{0}%・空中で当てると風の追撃 威力{1}
+10274	card	TEMPEST の効果の行(カード詳細の Lv1/Lv9。{n} に数値)	風刃が{0}本続けて飛ぶ(後の風刃は威力{1}%)
+10275	fe	SCORCH の FINAL EVOLUTION の題	焦熱
+10276	fe	FIRE WHIRL の FINAL EVOLUTION の題	火炎旋風
+10277	fe	COMBUSTION の FINAL EVOLUTION の題	大爆炎
+10278	fe	PERMAFROST の FINAL EVOLUTION の題	永久凍土
+10279	fe	GLACIER GUARD の FINAL EVOLUTION の題	氷河の守り
+10280	fe	SHATTER STRIKE の FINAL EVOLUTION の題	粉砕
+10281	fe	CONDUCTOR の FINAL EVOLUTION の題	超伝導
+10282	fe	VOLT SURGE の FINAL EVOLUTION の題	過電流
+10283	fe	JUDGMENT BOLT の FINAL EVOLUTION の題	天罰
+10284	fe	SLIPSTREAM の FINAL EVOLUTION の題	追い風
+10285	fe	UPDRAFT の FINAL EVOLUTION の題	昇り龍
+10286	fe	TEMPEST の FINAL EVOLUTION の題	大嵐
+10287	fe	SCORCH の FINAL EVOLUTION の説明	10秒間 炎上中の敵への攻撃×1.8
+10288	fe	FIRE WHIRL の FINAL EVOLUTION の説明	10秒間 炎上が移りやすく、届く範囲も広がる
+10289	fe	COMBUSTION の FINAL EVOLUTION の説明	10秒間 爆発の威力と範囲×1.8
+10290	fe	PERMAFROST の FINAL EVOLUTION の説明	10秒間 冷えの重なりによる減速×1.8
+10291	fe	GLACIER GUARD の FINAL EVOLUTION の説明	10秒間 凍結でShieldが回復する間隔が短くなる
+10292	fe	SHATTER STRIKE の FINAL EVOLUTION の説明	10秒間 砕く追撃の威力とBREAK×1.8
+10293	fe	CONDUCTOR の FINAL EVOLUTION の説明	10秒間 帯電中・冷えた敵への強化×1.8
+10294	fe	VOLT SURGE の FINAL EVOLUTION の説明	10秒間 追加の落雷の威力×1.8
+10295	fe	JUDGMENT BOLT の FINAL EVOLUTION の説明	10秒間 大落雷に必要な回数が減り、威力が上がる
+10296	fe	SLIPSTREAM の FINAL EVOLUTION の説明	10秒間 速さによる風刃の強化×1.8
+10297	fe	UPDRAFT の FINAL EVOLUTION の説明	10秒間 空中の敵への攻撃と追撃×1.8
+10298	fe	TEMPEST の FINAL EVOLUTION の説明	10秒間 続けて飛ぶ風刃の威力が上がる

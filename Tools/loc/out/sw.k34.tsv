@@ -1,0 +1,75 @@
+10223	Badilisha deki
+10224	Tumia
+10225	Badilisha jina
+10226	Nakili
+10227	Weka upya
+10228	Inatumika
+10229	Chagua deki lengwa
+10230	Ungependa kubadilisha yaliyomo kwenye "{0}" kwa yaliyomo kwenye "{1}"?
+10231	Ungependa kufuta kadi zote na jina la "{0}"?
+10233	Huwezi kubadilisha deki wakati wa mbio.
+10234	Umehamia kwenye "{0}", deki iliyotumika mwisho kwenye ramani/modi hii.
+10235	Kadi {0} ambazo humiliki tena zimeondolewa kwenye deki.
+10236	Deki ya kutumia
+10237	Tupu
+10238	Sasa unaweza kuhifadhi hadi deki 8 na kubadilisha kati yake. Deki yako ya sasa imehifadhiwa kwenye "Deki 1".
+10239	KUUNGUZA
+10240	MZUNGUKO WA MOTO
+10241	MOTO WA MLIPUKO
+10242	BARAFU YA KUDUMU
+10243	ULINZI WA BARAFU
+10244	PIGO LA KUVUNJA BARAFU
+10245	KIPITISHI UMEME
+10246	MSUKUMO WA UMEME
+10247	RADI YA HUKUMU
+10248	MKONDO WA KASI
+10249	MKONDO WA HEWA UNAOPANDA
+10250	DHORUBA KALI
+10251	Nguvu ya shambulio dhidi ya maadui wanaoungua +6%, kisha +4%/Lv (+38% katika Lv9). Hufanya kazi pia kwa mabosi. Kadi hii peke yake inaweza kumuunguza adui inapogonga: uwezekano 8% katika Lv1, +2 pointi za asilimia kwa kila Lv ya ziada.
+10252	Kila 1s, moto unaweza kuenea kutoka kwa adui anayeungua hadi kwa adui aliye karibu (uwezekano 15% katika Lv1, +3 pointi za asilimia kwa kila Lv ya ziada). Wembe wa upepo ukigonga adui anayeungua, hueneza moto pia kwa maadui wa karibu. Kadi hii peke yake inaweza kumuunguza adui inapogonga: uwezekano 8% katika Lv1, +2 pointi za asilimia kwa kila Lv ya ziada.
+10253	Moto ukirundikana mara 4 kwa adui ambaye tayari anaungua, mlipuko hutokea na kuleta uharibifu na kuwasha moto kwa maadui wa karibu (moto wa adui aliyelipuka huisha). Nguvu na eneo la mlipuko huongezeka kulingana na Lv. Adui yuleyule anaweza kulipuka mara 1 tu kila 4s (6s kwa mabosi). Kadi hii peke yake inaweza kumuunguza adui inapogonga: uwezekano 8% katika Lv1, +2 pointi za asilimia kwa kila Lv ya ziada.
+10254	Kadiri baridi inavyorundikana, ndivyo upunguzaji wa kasi unavyoongezeka: kuanzia mrundikano wa 2, upunguzaji wa kasi +3.5% kwa kila mrundikano (+7.5% katika Lv9), hadi mirundikano 3 ya ziada. Muda wa baridi +0.15s/Lv. Kadi hii peke yake inaweza kumpa adui baridi inapogonga: uwezekano 8% katika Lv1, +2 pointi za asilimia kwa kila Lv ya ziada.
+10255	Kadi hii peke yake hukuruhusu kuwa na 1 Shield. Kumgandisha adui au kumwekea mirundikano 3 ya baridi hurejesha 1 Shield (mara 1 kila 19s katika Lv1, muda hupungua kwa 1s kwa kila Lv ya ziada). Kadi hii peke yake inaweza kumpa adui baridi inapogonga: uwezekano 8% katika Lv1, +2 pointi za asilimia kwa kila Lv ya ziada.
+10256	Kugonga adui aliyeganda au mwenye mirundikano 3 au zaidi ya baridi husababisha shambulio la ziada linalovunja barafu (nusu ya uharibifu kwa maadui wa karibu). Kuganda na mirundikano ya baridi huondolewa. Mabosi pia huathiriwa kwa masharti hayo na hukusanya BREAK (mara 1 kila 8s kwa kila bosi). Nguvu na BREAK huongezeka kulingana na Lv. Kadi hii peke yake inaweza kumpa adui baridi inapogonga: uwezekano 8% katika Lv1, +2 pointi za asilimia kwa kila Lv ya ziada.
+10257	Maadui wanaopigwa na radi hupata chaji ya umeme kwa 2s. Nguvu ya shambulio dhidi ya maadui wenye chaji +6%, kisha +4%/Lv. Uharibifu wa radi dhidi ya maadui wenye baridi au walioganda +8%, kisha +4%/Lv, na radi za mfululizo huwafikia kwa urahisi zaidi. Kadi hii peke yake inaweza kusababisha radi: uwezekano 5% katika Lv1, +1 pointi ya asilimia kwa kila Lv ya ziada.
+10258	Kila migongo 3 ya shambulio moja husababisha radi ya ziada (hadi radi 3). Inafaa kwa mashambulio ya migongo mingi na ya eneo. Radi za ziada huleta 65% ya uharibifu wa radi ya kawaida, kisha +5 pointi za asilimia kwa kila Lv ya ziada. Kadi hii peke yake inaweza kusababisha radi: uwezekano 5% katika Lv1, +1 pointi ya asilimia kwa kila Lv ya ziada.
+10259	Radi hukusanya nishati. Nishati ikijaa, radi inayofuata hugeuka kuwa Radi ya Hukumu, ikileta uharibifu pia kwa maadui wa karibu, kuwaduwaza maadui wa kawaida kwa muda mfupi na kukusanya BREAK kwa mabosi. Inahitaji radi 10 katika Lv1 (6 katika Lv9); nguvu ×2.2 katika Lv1 (×3.8 katika Lv9). Mara 1 tu kila 4s. Kadi hii peke yake inaweza kusababisha radi: uwezekano 5% katika Lv1, +1 pointi ya asilimia kwa kila Lv ya ziada.
+10260	Kadiri unavyokimbia haraka, ndivyo wembe za upepo zinavyokuwa na nguvu zaidi na kutokea mara nyingi zaidi (huongezeka kuanzia 40km/h, hufikia kiwango cha juu katika 120km/h). Katika kasi ya juu, nguvu +14% na uwezekano wa kutokea +1.5 pointi za asilimia, kisha nguvu +4% na uwezekano +0.5 pointi za asilimia kwa kila Lv ya ziada. Kadi hii peke yake inaweza kurusha wembe wa upepo: uwezekano 6% katika Lv1, +2 pointi za asilimia kwa kila Lv ya ziada.
+10261	Nguvu ya shambulio dhidi ya maadui walio hewani (waliorushwa juu au wanaoruka) +6%, kisha +4%/Lv. Ukiwagonga ukiwa pia hewani, shambulio la ziada la upepo hutokea (nguvu 7.5, kisha +1.5/Lv). Kadi hii peke yake inaweza kurusha wembe wa upepo: uwezekano 6% katika Lv1, +2 pointi za asilimia kwa kila Lv ya ziada.
+10262	Wembe za upepo hurushwa mfululizo: 2 katika Lv1–6, 3 katika Lv7–9. Wembe zinazofuata huleta 30% ya uharibifu wa kawaida, kisha +3 pointi za asilimia kwa kila Lv ya ziada. Kadi hii peke yake inaweza kurusha wembe wa upepo: uwezekano 6% katika Lv1, +2 pointi za asilimia kwa kila Lv ya ziada. Misururu ya ziada ya wembe za upepo huwashwa mara 1 tu kwa kila sekunde na huleta nusu ya uharibifu kwa mabosi.
+10263	Shambulio dhidi ya maadui wanaoungua +{0}%
+10264	Moto huenea kwa maadui ndani ya {0}m (uwezekano {1}% kila 1s) / wembe za upepo hueneza moto katika eneo lenye nusu kipenyo cha {2}m
+10265	Mlipuko baada ya mirundikano 4 ya moto: nguvu {0}, nusu kipenyo {1}m
+10266	Upunguzaji wa kasi +{0}% kwa kila mrundikano wa baridi kuanzia wa 2 (hadi 3)
+10267	Kugandisha / mirundikano 3 ya baridi hurejesha 1 Shield (mara 1 kila {0}s)
+10268	Huvunja barafu ya maadui walioganda au wenye mirundikano 3+ ya baridi: nguvu {0}, BREAK ya bosi +{1}%
+10269	Shambulio dhidi ya maadui wenye chaji +{0}% / uharibifu wa radi dhidi ya maadui wenye baridi +{1}%
+10270	Radi ya ziada kila migongo 3 ya shambulio moja (nguvu {0}%, hadi 3)
+10271	Radi ya Hukumu baada ya radi {0}: nguvu ×{1}, BREAK ya bosi +{2}%
+10272	Kasi zaidi huimarisha wembe za upepo: hadi nguvu +{0}% na uwezekano +{1} pointi za asilimia (120km/h)
+10273	Shambulio dhidi ya maadui walio hewani +{0}% / kugonga ukiwa hewani husababisha shambulio la ziada la upepo, nguvu {1}
+10274	Wembe {0} za upepo mfululizo (nguvu ya zinazofuata {1}%)
+10275	JOTO KALI LA KUUNGUZA
+10276	DHORUBA YA MOTO
+10277	MLIPUKO MKUBWA
+10278	BARIDI YA MILELE
+10279	NGOME YA BARAFU
+10280	KUSAGA VIPANDE
+10281	KIPITISHI BORA SANA
+10282	MKONDO MKUBWA WA UMEME
+10283	HUKUMU YA KIMUNGU
+10284	UPEPO WA KUSUKUMA
+10285	JOKA LINALOPAA
+10286	DHORUBA KUBWA
+10287	Kwa 10s, shambulio dhidi ya maadui wanaoungua ×1.8
+10288	Kwa 10s, moto huenea kwa urahisi zaidi na kufika mbali zaidi
+10289	Kwa 10s, nguvu na nusu kipenyo cha mlipuko ×1.8
+10290	Kwa 10s, upunguzaji wa kasi kutokana na mirundikano ya baridi ×1.8
+10291	Kwa 10s, muda kati ya kurejesha Shield kwa kugandisha unapungua
+10292	Kwa 10s, nguvu ya mashambulio ya ziada yanayovunja barafu na BREAK ×1.8
+10293	Kwa 10s, nyongeza dhidi ya maadui wenye chaji na baridi ×1.8
+10294	Kwa 10s, nguvu ya radi za ziada ×1.8
+10295	Kwa 10s, Radi ya Hukumu inahitaji radi chache zaidi na nguvu yake huongezeka
+10296	Kwa 10s, nyongeza ya kasi kwa wembe za upepo ×1.8
+10297	Kwa 10s, shambulio na mashambulio ya ziada dhidi ya maadui walio hewani ×1.8
+10298	Kwa 10s, nguvu ya wembe za upepo zinazofuata huongezeka

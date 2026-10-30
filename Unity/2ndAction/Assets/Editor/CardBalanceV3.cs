@@ -190,10 +190,44 @@ public static class CardBalanceV3
         yield return Card("tornado", "風刃の命中地点に竜巻が発生。周囲の雑魚を引き寄せ、Lv1〜3で3回、Lv4〜6で4回、Lv7〜9で5回ダメージを与える。威力・範囲・引き寄せはLvで強化。ボスへのダメージは半分。単独でも風刃が発生：確率はLv1で6%、以降+2%/Lv", ElementType.Wind,
             new E(EffectType.TornadoLevel, 1f), new E(EffectType.WindBladeChance, 0.02f), new E(EffectType.WindBladeChance, 0.04f, Once), new E(EffectType.WindBladePower, 1f), new E(EffectType.WindBladePower, 5f, Once));
 
+        // ---- カード拡張(2026-10-31、属性 12 枚 #101〜#112)。名前・説明は LocCardExpansion。各属性 入口 ★2(最初から)→ 発展 ★3(5km)→ 完成 ★4(20km)
+        foreach (var c in ExpansionTable()) yield return c;
+
         // ---- #100 ULTIMATE(2026-10-04): 新しい cardId。数値は UltimateTuning(Lv1/5/9 の前進・威力・BUFF・Gauge の溜まりやすさ)
         yield return Named(Card(UltimateCardId, "Gaugeが100%で発動(左下のボタン)。キャラ固有の必殺技で画面内の通常の敵を一撃で倒し、ボスには最大HPの20〜40%のダメージ(Lvで上がる)。そのまま大きく前進し(Lv1 300m → Lv9 1000m。ボス関門などの手前で止まり、ボス戦中は前進しない)、しばらく強化が続く(Lv1 5秒 → Lv9 12秒)。Gaugeは距離・撃破・ボスへのダメージで溜まる",
             new E(EffectType.UltimateLevel, 1f)), "ULTIMATE");
     }
+
+    static IEnumerable<C> ExpansionTable()
+    {
+        // 単独でも属性が発動する基礎(既存の発展カードと同じ: 確率 Lv1 8%・以降 +2%/Lv など)
+        E[] fire = { new E(EffectType.BurnChance, 0.02f), new E(EffectType.BurnChance, 0.06f, Once), new E(EffectType.BurnPower, 0.5f), new E(EffectType.BurnPower, 3.5f, Once) };
+        E[] ice = { new E(EffectType.ChillChance, 0.02f), new E(EffectType.ChillChance, 0.06f, Once), new E(EffectType.ChillSlow, 0.20f, Once) };
+        E[] bolt = { new E(EffectType.LightningChance, 0.01f), new E(EffectType.LightningChance, 0.04f, Once), new E(EffectType.LightningPower, 0.3f), new E(EffectType.LightningPower, 3f, Once) };
+        E[] wind = { new E(EffectType.WindBladeChance, 0.02f), new E(EffectType.WindBladeChance, 0.04f, Once), new E(EffectType.WindBladePower, 1f), new E(EffectType.WindBladePower, 5f, Once) };
+        C X(string id, ElementType el, int rar, E[] fx)
+        {
+            var t = LocCardExpansion.Find(id);
+            return Rar(Named(Card(id, t.desc, el, fx), t.name), rar, rar >= 4 ? 3 : rar == 3 ? 2 : 1, rar >= 4 ? 20000f : rar == 3 ? 5000f : 0f);
+        }
+        E[] With(E[] b, params E[] own) { var l = new List<E>(own); l.AddRange(b); return l.ToArray(); }
+        yield return X("scorch", ElementType.Fire, 2, With(fire, new E(EffectType.ScorchLevel, 1f)));
+        yield return X("fire_whirl", ElementType.Fire, 3, With(fire, new E(EffectType.FireWhirlLevel, 1f)));
+        yield return X("combustion", ElementType.Fire, 4, With(fire, new E(EffectType.CombustionLevel, 1f)));
+        yield return X("permafrost", ElementType.Ice, 2, With(ice, new E(EffectType.PermafrostLevel, 1f), new E(EffectType.ChillDuration, 0.15f)));
+        yield return X("glacier_guard", ElementType.Ice, 3, With(ice, new E(EffectType.GlacierGuardLevel, 1f), new E(EffectType.ShieldGuard, 1f, Once)));
+        yield return X("shatter_strike", ElementType.Ice, 4, With(ice, new E(EffectType.ShatterStrikeLevel, 1f)));
+        yield return X("conductor", ElementType.Thunder, 2, With(bolt, new E(EffectType.ConductorLevel, 1f)));
+        yield return X("volt_surge", ElementType.Thunder, 3, With(bolt, new E(EffectType.VoltSurgeLevel, 1f)));
+        yield return X("judgment_bolt", ElementType.Thunder, 4, With(bolt, new E(EffectType.JudgmentLevel, 1f)));
+        yield return X("slipstream", ElementType.Wind, 2, With(wind, new E(EffectType.SlipstreamLevel, 1f)));
+        yield return X("updraft", ElementType.Wind, 3, With(wind, new E(EffectType.UpdraftLevel, 1f)));
+        yield return X("tempest", ElementType.Wind, 4, With(wind, new E(EffectType.TempestLevel, 1f)));
+    }
+
+    public static readonly string[] ExpansionIds = { "scorch", "fire_whirl", "combustion", "permafrost", "glacier_guard", "shatter_strike", "conductor", "volt_surge", "judgment_bolt", "slipstream", "updraft", "tempest" };
+    [MenuItem("Tools/OneMoreMile/Apply card expansion (2026-10-31, 12 element cards)")]
+    public static void ApplyExpansion() => ApplyFiltered(new HashSet<string>(ExpansionIds));
 
     public static int CardCount { get { int n = 0; foreach (var _ in Table()) n++; return n; } }
 

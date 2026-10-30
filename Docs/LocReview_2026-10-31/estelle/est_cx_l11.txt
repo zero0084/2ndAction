@@ -1,0 +1,75 @@
+10223 [tr] Deste değiştir
+10224 [tr] Kullan
+10225 [tr] Yeniden adlandır
+10226 [tr] Kopyala
+10227 [tr] Sıfırla
+10228 [tr] Kullanımda
+10229 [tr] Hedef desteyi seçin
+10230 [tr] "{0}" destesinin üzerine "{1}" destesinin içeriği yazılsın mı?
+10231 [tr] "{0}" destesindeki tüm kartlar ve deste adı silinsin mi?
+10233 [tr] Koşu sırasında deste değiştirilemez.
+10234 [tr] Bu harita/modda son kullanılan "{0}" destesine geçildi.
+10235 [tr] Artık sahip olmadığınız {0} kart desteden çıkarıldı.
+10236 [tr] Kullanılacak deste
+10237 [tr] Boş
+10238 [tr] Artık en fazla 8 deste kaydedebilir ve aralarında geçiş yapabilirsiniz. Mevcut desteniz "Deste 1" olarak kaydedildi.
+10239 [tr] KAVURMA
+10240 [tr] ALEV GİRDABI
+10241 [tr] YANMA PATLAMASI
+10242 [tr] KALICI DON
+10243 [tr] BUZUL KORUMASI
+10244 [tr] BUZ PARÇALAYAN DARBE
+10245 [tr] İLETKEN
+10246 [tr] ELEKTRİK DALGASI
+10247 [tr] YARGI YILDIRIMI
+10248 [tr] HIZ AKIMI
+10249 [tr] YÜKSELEN HAVA AKIMI
+10250 [tr] ŞİDDETLİ FIRTINA
+10251 [tr] Yanan düşmanlara karşı saldırı +6%, sonraki her Lv için +4% (Lv9'da +38%). Boss'lara da etki eder. Bu kart tek başına da isabetle yakma uygulayabilir: Lv1'de şans 8%, sonraki her Lv için +2 yüzde puan.
+10252 [tr] Her 1s'de yanma, yanan bir düşmandan yakındaki başka bir düşmana yayılabilir (Lv1'de şans 15%, sonraki her Lv için +3 yüzde puan). Yanan düşmanlara isabet eden rüzgâr bıçakları da ateşi yakındaki düşmanlara yayar. Bu kart tek başına da isabetle yakma uygulayabilir: Lv1'de şans 8%, sonraki her Lv için +2 yüzde puan.
+10253 [tr] Zaten yanan bir düşmana 4 yanma birikimi uygulandığında patlama olur; yakındaki düşmanlara hasar verir ve onları yakar (patlayan düşmanın yanması sona erer). Güç ve yarıçap Lv ile artar. Aynı düşman en fazla 4s'de bir patlayabilir (boss'lar için 6s). Bu kart tek başına da isabetle yakma uygulayabilir: Lv1'de şans 8%, sonraki her Lv için +2 yüzde puan.
+10254 [tr] Üşüme biriktikçe yavaşlatma artar: 2. birikimden itibaren birikim başına +3.5% yavaşlatma (Lv9'da +7.5%), en fazla 3 ek birikim. Üşüme süresi +0.15s/Lv. Bu kart tek başına da isabetle üşüme uygulayabilir: Lv1'de şans 8%, sonraki her Lv için +2 yüzde puan.
+10255 [tr] Bu kart tek başına bile 1 Shield bulundurmanızı sağlar. Bir düşmanı dondurmak veya 3 üşüme birikimi uygulamak 1 Shield yeniler (Lv1'de 19s'de bir, sonraki her Lv için aralık 1s kısalır). Bu kart tek başına da isabetle üşüme uygulayabilir: Lv1'de şans 8%, sonraki her Lv için +2 yüzde puan.
+10256 [tr] Donmuş veya en az 3 üşüme birikimi olan düşmana isabet etmek, buzu parçalayan ek bir saldırı tetikler (yakındaki düşmanlara yarı hasar). Donma ve üşüme birikimleri silinir. Boss'lar da aynı koşullarda parçalanma etkisine uğrar ve BREAK biriktirir (aynı boss için 8s'de bir). Güç ve BREAK Lv ile artar. Bu kart tek başına da isabetle üşüme uygulayabilir: Lv1'de şans 8%, sonraki her Lv için +2 yüzde puan.
+10257 [tr] Yıldırım isabet eden düşmanlar 2s boyunca elektrik yüklü olur. Elektrik yüklü düşmanlara karşı saldırı +6%, sonraki her Lv için +4%. Üşümüş veya donmuş düşmanlara yıldırım hasarı +8%, sonraki her Lv için +4%; zincirleme yıldırımlar bu düşmanlara daha kolay ulaşır. Bu kart tek başına da yıldırım düşürebilir: Lv1'de şans 5%, sonraki her Lv için +1 yüzde puan.
+10258 [tr] Tek bir saldırının her 3 isabetinde ek bir yıldırım düşer (en fazla 3). Çok vuruşlu ve alan saldırılarıyla iyi çalışır. Ek yıldırımlar normal yıldırım hasarının 65%'ini verir; sonraki her Lv için +5 yüzde puan. Bu kart tek başına da yıldırım düşürebilir: Lv1'de şans 5%, sonraki her Lv için +1 yüzde puan.
+10259 [tr] Yıldırımlar enerji biriktirir. Enerji dolduğunda sonraki yıldırım Yargı Yıldırımı olur; yakındaki düşmanlara da hasar verir, sıradan düşmanları kısa süre sersemletir ve boss'larda BREAK biriktirir. Lv1'de 10 yıldırım gerekir (Lv9'da 6); güç Lv1'de ×2.75 (Lv9'da ×4.75). En fazla 4s'de bir. Bu kart tek başına da yıldırım düşürebilir: Lv1'de şans 5%, sonraki her Lv için +1 yüzde puan.
+10260 [tr] Ne kadar hızlı koşarsanız rüzgâr bıçakları o kadar güçlü ve sık olur (40km/h'den itibaren artar, 120km/h'de en yüksek değere ulaşır). En yüksek hızda güç +14% ve tetiklenme şansı +1.5 yüzde puan; sonraki her Lv için güç +4% ve şans +0.5 yüzde puan. Bu kart tek başına da rüzgâr bıçağı fırlatabilir: Lv1'de şans 6%, sonraki her Lv için +2 yüzde puan.
+10261 [tr] Havadaki düşmanlara (havaya fırlatılmış veya uçan) karşı saldırı +6%, sonraki her Lv için +4%. Siz de havadayken bu düşmanlara isabet ederseniz ek rüzgâr saldırısı tetiklenir (güç 7.5, sonraki her Lv için +1.5). Bu kart tek başına da rüzgâr bıçağı fırlatabilir: Lv1'de şans 6%, sonraki her Lv için +2 yüzde puan.
+10262 [tr] Rüzgâr bıçakları art arda fırlatılır: Lv1–6'da 2, Lv7–9'da 3 adet. Sonraki bıçaklar normal hasarın 55%'ini verir; sonraki her Lv için +5 yüzde puan. Bu kart tek başına da rüzgâr bıçağı fırlatabilir: Lv1'de şans 6%, sonraki her Lv için +2 yüzde puan.
+10263 [tr] Yanan düşmanlara karşı saldırı +{0}%
+10264 [tr] Yanma {0}m içindeki düşmanlara yayılır (her 1s'de şans {1}%) / rüzgâr bıçakları ateşi {2}m yarıçapta yayar
+10265 [tr] 4 yanma birikiminde patlama: güç {0}, yarıçap {1}m
+10266 [tr] 2. üşüme birikiminden itibaren birikim başına yavaşlatma +{0}% (en fazla 3)
+10267 [tr] Donma / 3 üşüme birikimi 1 Shield yeniler (her {0}s'de en fazla 1 kez)
+10268 [tr] Donmuş veya 3+ üşüme birikimi olan düşmanların buzunu parçalar: güç {0}, boss BREAK +{1}%
+10269 [tr] Elektrik yüklü düşmanlara karşı saldırı +{0}% / üşümüş düşmanlara yıldırım hasarı +{1}%
+10270 [tr] Tek bir saldırının her 3 isabetinde ek yıldırım (güç {0}%, en fazla 3)
+10271 [tr] {0} yıldırımdan sonra Yargı Yıldırımı: güç ×{1}, boss BREAK +{2}%
+10272 [tr] Hız arttıkça rüzgâr bıçakları güçlenir: en fazla güç +{0}% ve şans +{1} yüzde puan (120km/h)
+10273 [tr] Havadaki düşmanlara karşı saldırı +{0}% / havadayken isabet ek rüzgâr saldırısı tetikler, güç {1}
+10274 [tr] Art arda {0} rüzgâr bıçağı (sonraki bıçakların gücü {1}%)
+10275 [tr] KAVURUCU SICAK
+10276 [tr] ATEŞ FIRTINASI
+10277 [tr] BÜYÜK PATLAMA
+10278 [tr] EBEDÎ AYAZ
+10279 [tr] BUZUL SİPERİ
+10280 [tr] PARAMPARÇA
+10281 [tr] SÜPER İLETKEN
+10282 [tr] AŞIRI AKIM
+10283 [tr] İLAHİ YARGI
+10284 [tr] ARKADAN ESEN RÜZGÂR
+10285 [tr] YÜKSELEN EJDERHA
+10286 [tr] BÜYÜK FIRTINA
+10287 [tr] 10s boyunca yanan düşmanlara karşı saldırı ×1.8
+10288 [tr] 10s boyunca yanma daha kolay ve daha uzağa yayılır
+10289 [tr] 10s boyunca patlama gücü ve yarıçapı ×1.8
+10290 [tr] 10s boyunca üşüme birikimlerinin yavaşlatma etkisi ×1.8
+10291 [tr] 10s boyunca dondurmayla Shield yenileme aralığı kısalır
+10292 [tr] 10s boyunca buz parçalayan ek saldırıların gücü ve BREAK ×1.8
+10293 [tr] 10s boyunca elektrik yüklü ve üşümüş düşmanlara karşı bonuslar ×1.8
+10294 [tr] 10s boyunca ek yıldırımların gücü ×1.8
+10295 [tr] 10s boyunca Yargı Yıldırımı için daha az yıldırım gerekir ve gücü artar
+10296 [tr] 10s boyunca hızın rüzgâr bıçaklarına sağladığı bonus ×1.8
+10297 [tr] 10s boyunca havadaki düşmanlara karşı saldırı ve ek saldırı gücü ×1.8
+10298 [tr] 10s boyunca sonraki rüzgâr bıçaklarının gücü artar

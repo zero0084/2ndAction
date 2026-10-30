@@ -1,0 +1,28 @@
+10262x [zh-Hans] 后续风刃每1秒最多触发1次。
+10262x [zh-Hant] 後續風刃每1秒最多觸發1次。
+10262x [ko] 후속 바람 칼날은 1초에 최대 1회 발동한다.
+10262x [es] Las ráfagas adicionales se activan como máximo 1 vez por segundo.
+10262x [fr] Les salves supplémentaires se déclenchent au maximum 1 fois par seconde.
+10262x [de] Nachfolgende Windklingen-Salven werden höchstens 1-mal pro Sekunde ausgelöst.
+10262x [it] Le raffiche aggiuntive si attivano al massimo 1 volta al secondo.
+10262x [pt-BR] As rajadas adicionais são ativadas no máximo 1 vez por segundo.
+10262x [ru] Дополнительные залпы клинков ветра срабатывают не чаще 1 раза в секунду.
+10262x [pl] Dodatkowe serie ostrzy wiatru aktywują się najwyżej 1 raz na sekundę.
+10262x [tr] Ek rüzgâr bıçağı salvoları saniyede en fazla 1 kez tetiklenir.
+10262x [ar] تُفعّل دفعات نصال الريح الإضافية مرة واحدة كحد أقصى كل 1 ثانية.
+10262x [hi] अतिरिक्त पवन-धार की बौछारें हर 1 सेकंड में अधिकतम 1 बार सक्रिय होती हैं।
+10262x [id] Rentetan bilah angin tambahan hanya bisa aktif maksimal 1 kali per detik.
+10262x [th] ชุดใบมีดลมที่ตามมาจะทำงานได้สูงสุด 1 ครั้งต่อวินาที
+10262x [vi] Các loạt lưỡi gió bổ sung chỉ kích hoạt tối đa 1 lần mỗi giây.
+10262x [ms] Rentetan bilah angin tambahan hanya boleh diaktifkan paling banyak 1 kali sesaat.
+10262x [fil] Ang mga dagdag na bugso ng talim ng hangin ay maa-activate nang hanggang 1 beses lang bawat segundo.
+10262x [sw] Misururu ya ziada ya wembe za upepo huwashwa mara 1 tu kwa kila sekunde.
+10262x [bn] অতিরিক্ত বাতাসের ফলার ঝাঁক প্রতি 1 সেকেন্ডে সর্বোচ্চ 1 বার সক্রিয় হয়।
+10262x [ta] கூடுதல் காற்று வாள் தொடர்கள் ஒவ்வொரு 1 வினாடிக்கும் அதிகபட்சம் 1 முறை மட்டுமே செயல்படும்.
+10262x [fa] رگبارهای اضافی تیغ باد حداکثر 1 بار در هر ثانیه فعال می‌شوند.
+10262x [uk] Додаткові залпи клинків вітру спрацьовують не частіше ніж 1 раз на секунду.
+10262x [cs] Dodatečné salvy větrných čepelí se spouštějí nejvýše 1krát za sekundu.
+10262x [ro] Salvele suplimentare de lame de vânt se declanșează cel mult 1 dată pe secundă.
+10262x [km] ការបាញ់ផ្លែខ្យល់បន្ថែមជាបន្តបន្ទាប់អាចកើតឡើងបានច្រើនបំផុត 1 ដងក្នុងមួយវិនាទី។
+10262x [lo] ການປ່ອຍໃບມີດລົມຊຸດເພີ່ມຈະເກີດຂຶ້ນໄດ້ສູງສຸດ 1 ຄັ້ງຕໍ່ວິນາທີ.
+10262x [my] နောက်ဆက်တွဲလေဓားများကို 1s တိုင်း အများဆုံး 1 ကြိမ်သာ လွှတ်နိုင်သည်။

@@ -96,6 +96,15 @@ public partial class PlayerController
             var st = victim.GetComponent<ElementStatus>();
             if (st != null && (st.Chilled || st.Frozen)) c += 0.03f * az;
         }
+        // 2026-10-31 カード拡張: SCORCH(炎上中の敵)/ CONDUCTOR(帯電中の敵)/ UPDRAFT(空中の敵)
+        int scorch = Mathf.RoundToInt(CT(EffectType.ScorchLevel)), cond = Mathf.RoundToInt(CT(EffectType.ConductorLevel)), sky = Mathf.RoundToInt(CT(EffectType.UpdraftLevel));
+        if ((scorch > 0 || cond > 0) && victim != null)
+        {
+            var es = victim.GetComponent<ElementStatus>();
+            if (es != null && scorch > 0 && es.Burning) c += ElementSystem.ScorchPct(scorch);
+            if (es != null && cond > 0 && es.Charged) c += ElementSystem.ConductorPct(cond);
+        }
+        if (sky > 0 && airTarget) c += ElementSystem.UpdraftPct(sky);
         return c;
     }
 

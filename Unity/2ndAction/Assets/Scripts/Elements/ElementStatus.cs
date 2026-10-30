@@ -21,6 +21,17 @@ public class ElementStatus : MonoBehaviour
     float burnBoost, shockLeft;
     int absoluteZero;
     float tick;
+    // 2026-10-31 カード拡張: 炎上を重ねた回数(COMBUSTION)/ 冷えの重なりごとの減速(PERMAFROST)/ 爆発・砕けの間隔
+    int burnStacks;
+    float permaPerStack;
+    public int BurnStacks => burnStacks;
+    public float BurnDps => burnDps;
+    public Component Target => target;
+    [System.NonSerialized] public float LastCombust = -99f, LastShatter = -99f;
+    // 冷えの減速(PERMAFROST: 2 重目から 1 重ごとに足す。最大 3 重分・合計 85% まで)
+    float SlowNow => Mathf.Min(0.85f, chillSlow + permaPerStack * Mathf.Clamp(chillStacks - 1, 0, 3));
+    public void EndBurn() { burnLeft = 0f; burnBoost = 0f; burnStacks = 0; }
+    public void EndFreeze() { freezeLeft = 0f; chillStacks = 0; }
     SpriteRenderer marker;
 
     public bool Burning => burnLeft > 0f;
@@ -78,7 +89,7 @@ public class ElementStatus : MonoBehaviour
         {
             if (isBoss) return AiTimeScale;
             if (freezeLeft > 0f || shockLeft > 0f) return 0f;
-            if (chillLeft > 0f) return 1f - chillSlow;
+            if (chillLeft > 0f) return 1f - SlowNow;
             return 1f;
         }
     }
@@ -89,7 +100,7 @@ public class ElementStatus : MonoBehaviour
         get
         {
             if (freezeLeft > 0f) return Mathf.Max(0.3f, BossFreezeScale - 0.02f * absoluteZero);
-            if (chillLeft > 0f) return 1f - chillSlow * BossChillFactor;
+            if (chillLeft > 0f) return 1f - SlowNow * BossChillFactor;
             return 1f;
         }
     }
@@ -104,6 +115,7 @@ public class ElementStatus : MonoBehaviour
     public void AddBurn(float dps, float duration)
     {
         if (burnLeft > 0f) burnBoost = Mathf.Min(isBoss ? 0.15f : 0.5f, burnBoost + 0.1f); else burnBoost = 0f; // 2026-10-30: ボスは +15% まで(炎は群れ向き)
+        burnStacks = burnLeft > 0f ? burnStacks + 1 : 1; // 2026-10-31 COMBUSTION: 燃えている間に重ねた回数
         burnDps = Mathf.Max(burnLeft > 0f ? burnDps : 0f, dps);
         burnLeft = Mathf.Max(burnLeft, duration);
         Notify(NetElementFx.StateKind.Burn, burnLeft, ElementType.Fire);
@@ -127,9 +139,10 @@ public class ElementStatus : MonoBehaviour
     }
 
     // 返り値: このChillで凍結したか
-    public bool AddChill(float slow, float duration, int freezeStacks, float freezeDuration, int absoluteZeroLevel = 0)
+    public bool AddChill(float slow, float duration, int freezeStacks, float freezeDuration, int absoluteZeroLevel = 0, float perStackSlow = 0f)
     {
         absoluteZero = Mathf.Max(absoluteZero, absoluteZeroLevel);
+        if (perStackSlow > 0f) permaPerStack = Mathf.Max(chillLeft > 0f ? permaPerStack : 0f, perStackSlow);
         chillSlow = Mathf.Max(chillLeft > 0f ? chillSlow : 0f, slow);
         chillLeft = Mathf.Max(chillLeft, duration);
         Notify(NetElementFx.StateKind.Chill, chillLeft, ElementType.Ice);
@@ -148,7 +161,7 @@ public class ElementStatus : MonoBehaviour
         float dt = Time.deltaTime;
         if (chillLeft > 0f) ElementTelemetry.ChilledSeconds += dt;
         if (freezeLeft > 0f) ElementTelemetry.FrozenSeconds += dt;
-        if (chillLeft > 0f) { chillLeft -= dt; if (chillLeft <= 0f) { chillLeft = 0f; chillSlow = 0f; chillStacks = 0; } }
+        if (chillLeft > 0f) { chillLeft -= dt; if (chillLeft <= 0f) { chillLeft = 0f; chillSlow = 0f; chillStacks = 0; permaPerStack = 0f; } }
         if (freezeLeft > 0f) freezeLeft = Mathf.Max(0f, freezeLeft - dt);
         if (shockLeft > 0f) shockLeft = Mathf.Max(0f, shockLeft - dt);
         if (chargedLeft > 0f) chargedLeft = Mathf.Max(0f, chargedLeft - dt);
@@ -172,6 +185,7 @@ public class ElementStatus : MonoBehaviour
                     try { ElementSystem.DealQuiet(target, n, burnLeft > 0f ? ElementType.Fire : ElementType.Blood); }
                     finally { if (both) ElementTelemetry.Suppress = false; }
                     if (burnLeft > 0f) ElementVfx.BurnTick(target, Bounds, Size, FireTier);
+                    if (burnLeft > 0f) ElementSystem.FireWhirlTick(this); // 2026-10-31 FIRE WHIRL: 近くの敵へ移る
                     if (bleed > 0f && bleedHeal > 0f)
                     {
                         healCarry += bleed * bleedHeal;
@@ -182,6 +196,7 @@ public class ElementStatus : MonoBehaviour
                 if (target == null || !ElementSystem.IsAlive(target)) { if (burnLeft > 0f) DiedBurning = true; Clear(); return; }
             }
             burnLeft = Mathf.Max(0f, burnLeft - dt);
+            if (burnLeft <= 0f) burnStacks = 0;
             bleedLeft = Mathf.Max(0f, bleedLeft - dt);
         }
         else tick = 0f;
@@ -193,6 +208,7 @@ public class ElementStatus : MonoBehaviour
         burnLeft = bleedLeft = chillLeft = freezeLeft = shockLeft = chargedLeft = windLeft = 0f;
         burnBoost = 0f;
         chillStacks = 0;
+        burnStacks = 0; permaPerStack = 0f;
         if (marker != null) marker.enabled = false;
         if (aura != null) aura.Hide();
     }

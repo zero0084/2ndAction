@@ -1,0 +1,75 @@
+10223	Switch Deck
+10224	Use
+10225	Rename
+10226	Copy
+10227	Reset
+10228	In Use
+10229	Choose a destination deck
+10230	Overwrite "{0}" with the contents of "{1}"?
+10231	Remove all cards and the name from "{0}"?
+10233	You can't switch decks during a run.
+10234	Switched to "{0}", the deck last used for this map/mode.
+10235	Removed {0} cards you no longer own from the deck.
+10236	Deck
+10237	Empty
+10238	You can now save up to 8 decks and switch between them. Your current deck is saved in "Deck 1".
+10239	SCORCH
+10240	FIRE WHIRL
+10241	COMBUSTION
+10242	PERMAFROST
+10243	GLACIER GUARD
+10244	SHATTER STRIKE
+10245	CONDUCTOR
+10246	VOLT SURGE
+10247	JUDGMENT BOLT
+10248	SLIPSTREAM
+10249	UPDRAFT
+10250	TEMPEST
+10251	Attack against burning enemies +6%, then +4%/Lv (+38% at Lv9). Also works on bosses. Can inflict burn on hit by itself: 8% chance at Lv1, +2 pp per additional Lv.
+10252	Every second, burn may spread from a burning enemy to a nearby enemy (15% at Lv1, +3 pp per additional Lv). Wind blades hitting burning enemies also spread fire to nearby enemies. Can inflict burn on hit by itself: 8% chance at Lv1, +2 pp per additional Lv.
+10253	Applying 4 burn stacks to a burning enemy triggers an explosion, damaging and burning nearby enemies (the exploding enemy's burn ends). Power and radius increase with Lv. Each enemy can explode once every 4s (6s for bosses). Can inflict burn on hit by itself: 8% chance at Lv1, +2 pp per additional Lv.
+10254	Slow increases with chill stacks: starting from the 2nd stack, +3.5% slow per stack (+7.5% at Lv9), up to 3 additional stacks. Chill duration +0.15s/Lv. Can inflict chill on hit by itself: 8% chance at Lv1, +2 pp per additional Lv.
+10255	This card alone lets you hold 1 Shield. Freezing an enemy or applying 3 chill stacks restores 1 Shield (once every 19s at Lv1, reduced by 1s per additional Lv). Can inflict chill on hit by itself: 8% chance at Lv1, +2 pp per additional Lv.
+10256	Hitting a frozen enemy or one with 3+ chill stacks triggers a shatter follow-up (half damage to nearby enemies). Freeze and chill stacks are removed. Bosses can also be shattered under the same conditions, building up BREAK (once every 8s per boss). Power and BREAK increase with Lv. Can inflict chill on hit by itself: 8% chance at Lv1, +2 pp per additional Lv.
+10257	Lightning strikes charge enemies for 2s. Attack against charged enemies +6%, then +4%/Lv. Lightning damage against chilled or frozen enemies +8%, then +4%/Lv, with easier chaining to them. Can trigger lightning by itself: 5% chance at Lv1, +1 pp per additional Lv.
+10258	Every 3 hits from a single attack trigger an extra lightning strike (up to 3). Works well with multi-hit and area attacks. Extra strikes deal 65% of normal lightning damage, then +5 pp per additional Lv. Can trigger lightning by itself: 5% chance at Lv1, +1 pp per additional Lv.
+10259	Lightning strikes build charge. When full, the next strike becomes a Judgment Bolt, damaging nearby enemies, briefly stunning regular enemies, and building up BREAK on bosses. Requires 10 strikes at Lv1 (6 at Lv9); power ×2.2 at Lv1 (×3.8 at Lv9). At most once every 4s. Can trigger lightning by itself: 5% chance at Lv1, +1 pp per additional Lv.
+10260	Wind blades grow stronger and trigger more often as you run faster (scaling from 40km/h to a maximum at 120km/h). At maximum speed, +14% power and +1.5 pp trigger chance, then +4% power and +0.5 pp chance per additional Lv. Can release wind blades by itself: 6% chance at Lv1, +2 pp per additional Lv.
+10261	Attack against airborne enemies (launched or flying) +6%, then +4%/Lv. Hitting them while airborne yourself triggers a wind follow-up (power 7.5, then +1.5/Lv). Can release wind blades by itself: 6% chance at Lv1, +2 pp per additional Lv.
+10262	Wind blades fire in succession: 2 at Lv1–6, 3 at Lv7–9. Follow-up blades deal 30% of normal damage, then +3 pp per additional Lv. Can release wind blades by itself: 6% chance at Lv1, +2 pp per additional Lv. Follow-up volleys trigger at most once per second and deal half damage to bosses.
+10263	Attack vs burning enemies +{0}%
+10264	Burn spreads to enemies within {0}m ({1}% per second) / wind blades spread fire within {2}m
+10265	Explodes at 4 burn stacks: power {0}, radius {1}m
+10266	Slow +{0}% per chill stack after the 1st (up to 3)
+10267	Freeze / 3 chill stacks restores 1 Shield (once every {0}s)
+10268	Shatter frozen enemies or those with 3+ chill stacks: power {0}, boss BREAK +{1}%
+10269	Attack vs charged enemies +{0}% / lightning vs chilled enemies +{1}%
+10270	Extra lightning every 3 hits from one attack ({0}% power, up to 3)
+10271	Judgment Bolt after {0} strikes: power ×{1}, boss BREAK +{2}%
+10272	Faster = stronger wind blades: up to +{0}% power, +{1} pp chance (120km/h)
+10273	Attack vs airborne enemies +{0}% / airborne hits trigger wind follow-up, power {1}
+10274	{0} wind blades in succession (follow-ups at {1}% power)
+10275	Searing Heat
+10276	Firestorm
+10277	Grand Blast
+10278	Eternal Frost
+10279	Glacial Bulwark
+10280	Pulverize
+10281	Superconductor
+10282	Overcurrent
+10283	Divine Judgment
+10284	Tailwind
+10285	Rising Dragon
+10286	Great Storm
+10287	For 10s, attack vs burning enemies ×1.8
+10288	For 10s, burn spreads more easily and reaches farther
+10289	For 10s, explosion power and radius ×1.8
+10290	For 10s, slow from chill stacks ×1.8
+10291	For 10s, freezing restores Shield more often
+10292	For 10s, shatter power and BREAK ×1.8
+10293	For 10s, bonuses vs charged and chilled enemies ×1.8
+10294	For 10s, extra lightning power ×1.8
+10295	For 10s, Judgment Bolt needs fewer strikes and hits harder
+10296	For 10s, speed bonus to wind blades ×1.8
+10297	For 10s, attack and follow-ups vs airborne enemies ×1.8
+10298	For 10s, follow-up wind blades hit harder

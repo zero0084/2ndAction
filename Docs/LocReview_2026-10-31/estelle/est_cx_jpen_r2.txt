@@ -1,0 +1,19 @@
+[10294]
+JA: 10秒間 追加の落雷の威力×1.8
+EN: For 10s, extra lightning power ×1.8
+
+[10295]
+JA: 10秒間 大落雷に必要な回数が減り、威力が上がる
+EN: For 10s, Judgment Bolt needs fewer strikes and hits harder
+
+[10296]
+JA: 10秒間 速さによる風刃の強化×1.8
+EN: For 10s, speed bonus to wind blades ×1.8
+
+[10297]
+JA: 10秒間 空中の敵への攻撃と追撃×1.8
+EN: For 10s, attack and follow-ups vs airborne enemies ×1.8
+
+[10298]
+JA: 10秒間 続けて飛ぶ風刃の威力が上がる
+EN: For 10s, follow-up wind blades hit harder

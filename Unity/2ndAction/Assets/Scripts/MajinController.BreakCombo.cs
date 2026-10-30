@@ -26,6 +26,8 @@ public partial class MajinController
     public void DebugSetHp(int hp) { Hp = Mathf.Clamp(hp, 1, Mathf.Max(1, maxHp)); if (hpBar != null) hpBar.SetFraction((float)Hp / Mathf.Max(1, maxHp)); }
     public float DebugStaggerMax => battle != null ? battle.staggerMax : 0f;
     public void DebugAddStaggerQa(float v) => AddStagger(v);
+    // 2026-10-31 カード拡張: BREAK ゲージの割合で足す(AddStagger を通る)
+    public void AddCardStagger(float fraction) { if (battle != null && battle.staggerMax > 0f && fraction > 0f) AddStagger(battle.staggerMax * fraction); }
     public void DebugResetResist() { breakResistUntil = -99f; }
     public float DebugBreakDuration => battle != null ? battle.breakDuration : 0f;
 #endif

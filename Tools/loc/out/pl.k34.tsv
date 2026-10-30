@@ -1,0 +1,75 @@
+10223	Zmień talię
+10224	Użyj
+10225	Zmień nazwę
+10226	Kopiuj
+10227	Zresetuj
+10228	W użyciu
+10229	Wybierz talię docelową
+10230	Nadpisać „{0}” zawartością „{1}”?
+10231	Usunąć wszystkie karty i nazwę talii „{0}”?
+10233	Nie można zmieniać talii podczas biegu.
+10234	Przełączono na „{0}”, talię ostatnio używaną na tej mapie/w tym trybie.
+10235	Usunięto z talii {0} kart, których już nie posiadasz.
+10236	Talia do użycia
+10237	Pusta
+10238	Możesz teraz zapisać do 8 talii i przełączać się między nimi. Twoja obecna talia została zapisana jako „Talia 1”.
+10239	PRZYPALENIE
+10240	OGNISTY WIR
+10241	SPALANIE
+10242	WIECZNA ZMARZLINA
+10243	LODOWCOWA OSŁONA
+10244	KRUSZĄCE UDERZENIE
+10245	PRZEWODNIK
+10246	IMPULS ELEKTRYCZNY
+10247	PIORUN SĄDU
+10248	STRUMIEŃ PĘDU
+10249	PRĄD WZNOSZĄCY
+10250	NAWAŁNICA
+10251	Atak przeciw podpalonym wrogom +6%, następnie +4%/Lv (+38% na Lv9). Działa również na bossów. Ta karta może też samodzielnie podpalać przy trafieniu: szansa 8% na Lv1, +2 punkty procentowe za każdy kolejny Lv.
+10252	Co 1s podpalenie może przenieść się z płonącego wroga na pobliskiego przeciwnika (szansa 15% na Lv1, +3 punkty procentowe za każdy kolejny Lv). Ostrza wiatru trafiające płonących wrogów również rozprzestrzeniają ogień na pobliskich przeciwników. Ta karta może też samodzielnie podpalać przy trafieniu: szansa 8% na Lv1, +2 punkty procentowe za każdy kolejny Lv.
+10253	Nałożenie 4 efektów podpalenia na już płonącego wroga powoduje wybuch, który zadaje obrażenia i podpala pobliskich przeciwników (podpalenie wybuchającego wroga znika). Siła i promień rosną wraz z Lv. Każdy wróg może wybuchnąć najwyżej raz na 4s (bossowie raz na 6s). Ta karta może też samodzielnie podpalać przy trafieniu: szansa 8% na Lv1, +2 punkty procentowe za każdy kolejny Lv.
+10254	Spowolnienie rośnie wraz z nałożonym wychłodzeniem: od 2. nałożenia spowolnienie +3.5% za każde kolejne (+7.5% na Lv9), maksymalnie 3 dodatkowe nałożenia. Czas wychłodzenia +0.15s/Lv. Ta karta może też samodzielnie wychładzać przy trafieniu: szansa 8% na Lv1, +2 punkty procentowe za każdy kolejny Lv.
+10255	Ta karta sama pozwala posiadać 1 Shield. Zamrożenie wroga lub nałożenie 3 efektów wychłodzenia przywraca 1 Shield (raz na 19s na Lv1, odstęp krótszy o 1s za każdy kolejny Lv). Ta karta może też samodzielnie wychładzać przy trafieniu: szansa 8% na Lv1, +2 punkty procentowe za każdy kolejny Lv.
+10256	Trafienie zamrożonego wroga lub wroga z co najmniej 3 nałożonymi efektami wychłodzenia wywołuje dodatkowy atak kruszący lód (połowa obrażeń dla pobliskich wrogów). Zamrożenie i nałożone wychłodzenie znikają. Bossowie również podlegają temu efektowi i gromadzą BREAK (raz na 8s na danego bossa). Siła i BREAK rosną wraz z Lv. Ta karta może też samodzielnie wychładzać przy trafieniu: szansa 8% na Lv1, +2 punkty procentowe za każdy kolejny Lv.
+10257	Wrogowie trafieni piorunem zostają naelektryzowani na 2s. Atak przeciw naelektryzowanym wrogom +6%, następnie +4%/Lv. Obrażenia od piorunów przeciw wychłodzonym lub zamrożonym wrogom +8%, następnie +4%/Lv; pioruny łańcuchowe łatwiej do nich docierają. Ta karta może też samodzielnie przywoływać pioruny: szansa 5% na Lv1, +1 punkt procentowy za każdy kolejny Lv.
+10258	Co 3 trafienia jednym atakiem wywoływany jest dodatkowy piorun (maksymalnie 3). Szczególnie skuteczne przy atakach wielokrotnych i obszarowych. Dodatkowe pioruny zadają 65% normalnych obrażeń, następnie +5 punktów procentowych za każdy kolejny Lv. Ta karta może też samodzielnie przywoływać pioruny: szansa 5% na Lv1, +1 punkt procentowy za każdy kolejny Lv.
+10259	Uderzenia piorunów gromadzą energię. Po pełnym naładowaniu następny piorun zmienia się w Piorun Sądu, który rani również pobliskich wrogów, na chwilę ogłusza zwykłych przeciwników i zwiększa BREAK bossów. Wymaga 10 piorunów na Lv1 (6 na Lv9); siła ×2.2 na Lv1 (×3.8 na Lv9). Najwyżej raz na 4s. Ta karta może też samodzielnie przywoływać pioruny: szansa 5% na Lv1, +1 punkt procentowy za każdy kolejny Lv.
+10260	Im szybciej biegniesz, tym silniejsze i częstsze są ostrza wiatru (wzmocnienie od 40km/h, maksimum przy 120km/h). Przy maksimum siła +14% i szansa aktywacji +1.5 punktu procentowego, następnie siła +4% i szansa +0.5 punktu procentowego za każdy kolejny Lv. Ta karta może też samodzielnie wypuszczać ostrza wiatru: szansa 6% na Lv1, +2 punkty procentowe za każdy kolejny Lv.
+10261	Atak przeciw wrogom w powietrzu (wyrzuconym w górę lub latającym) +6%, następnie +4%/Lv. Trafienie ich, gdy sam jesteś w powietrzu, wywołuje dodatkowy atak wiatrem (siła 7.5, następnie +1.5/Lv). Ta karta może też samodzielnie wypuszczać ostrza wiatru: szansa 6% na Lv1, +2 punkty procentowe za każdy kolejny Lv.
+10262	Ostrza wiatru są wystrzeliwane kolejno: 2 na Lv1–6, 3 na Lv7–9. Kolejne ostrza zadają 30% normalnych obrażeń, następnie +3 punktów procentowych za każdy kolejny Lv. Ta karta może też samodzielnie wypuszczać ostrza wiatru: szansa 6% na Lv1, +2 punkty procentowe za każdy kolejny Lv. Dodatkowe serie ostrzy wiatru aktywują się najwyżej 1 raz na sekundę i zadają bossom połowę obrażeń.
+10263	Atak przeciw podpalonym wrogom +{0}%
+10264	Podpalenie przenosi się na wrogów w zasięgu {0}m (szansa {1}% co 1s) / ostrza wiatru rozprzestrzeniają ogień w promieniu {2}m
+10265	Wybuch po 4 nałożeniach podpalenia: siła {0}, promień {1}m
+10266	Spowolnienie +{0}% za każde nałożenie wychłodzenia od 2. (maksymalnie 3)
+10267	Zamrożenie / 3 nałożenia wychłodzenia przywracają 1 Shield (raz na {0}s)
+10268	Kruszy lód na zamrożonych wrogach lub wrogach z 3+ nałożeniami wychłodzenia: siła {0}, BREAK bossów +{1}%
+10269	Atak przeciw naelektryzowanym wrogom +{0}% / obrażenia od piorunów przeciw wychłodzonym wrogom +{1}%
+10270	Dodatkowy piorun co 3 trafienia jednym atakiem (siła {0}%, maksymalnie 3)
+10271	Piorun Sądu po {0} uderzeniach piorunów: siła ×{1}, BREAK bossów +{2}%
+10272	Im większa prędkość, tym silniejsze ostrza wiatru: maksymalnie siła +{0}% i szansa +{1} punktów procentowych (120km/h)
+10273	Atak przeciw wrogom w powietrzu +{0}% / trafienie z powietrza wywołuje dodatkowy atak wiatrem, siła {1}
+10274	{0} ostrzy wiatru kolejno (siła kolejnych ostrzy {1}%)
+10275	ŻAR PALĄCY
+10276	BURZA OGNIA
+10277	POTĘŻNY WYBUCH
+10278	WIECZNY MRÓZ
+10279	LODOWCOWY BASTION
+10280	ROZTRZASKANIE
+10281	NADPRZEWODNIK
+10282	PRZETĘŻENIE
+10283	BOSKI OSĄD
+10284	WIATR W PLECY
+10285	WZNOSZĄCY SIĘ SMOK
+10286	WIELKA BURZA
+10287	Przez 10s atak przeciw podpalonym wrogom ×1.8
+10288	Przez 10s podpalenie rozprzestrzenia się łatwiej i na większą odległość
+10289	Przez 10s siła i promień wybuchów ×1.8
+10290	Przez 10s spowolnienie od nałożonego wychłodzenia ×1.8
+10291	Przez 10s krótszy odstęp między przywracaniem Shield przez zamrożenie
+10292	Przez 10s siła dodatkowych ataków kruszących lód i BREAK ×1.8
+10293	Przez 10s premie przeciw naelektryzowanym i wychłodzonym wrogom ×1.8
+10294	Przez 10s siła dodatkowych piorunów ×1.8
+10295	Przez 10s Piorun Sądu wymaga mniej uderzeń piorunów i zyskuje na sile
+10296	Przez 10s wzmocnienie ostrzy wiatru wynikające z prędkości ×1.8
+10297	Przez 10s atak i dodatkowe ataki przeciw wrogom w powietrzu ×1.8
+10298	Przez 10s zwiększona siła kolejnych ostrzy wiatru

@@ -1,0 +1,75 @@
+10223 [id] Ganti dek
+10224 [id] Gunakan
+10225 [id] Ubah nama
+10226 [id] Salin
+10227 [id] Reset
+10228 [id] Sedang digunakan
+10229 [id] Pilih dek tujuan
+10230 [id] Timpa isi "{0}" dengan isi "{1}"?
+10231 [id] Hapus semua kartu dan nama dari "{0}"?
+10233 [id] Dek tidak bisa diganti selama berlari.
+10234 [id] Beralih ke "{0}", dek yang terakhir digunakan di peta/mode ini.
+10235 [id] {0} kartu yang tidak lagi kamu miliki telah dihapus dari dek.
+10236 [id] Dek yang digunakan
+10237 [id] Kosong
+10238 [id] Sekarang kamu bisa menyimpan hingga 8 dek dan berganti di antaranya. Dek saat ini telah disimpan di "Dek 1".
+10239 [id] PANAS MEMBARA
+10240 [id] PUSARAN API
+10241 [id] PEMBAKARAN
+10242 [id] BEKU ABADI
+10243 [id] PENJAGA GLETSER
+10244 [id] HANTAMAN PEMECAH ES
+10245 [id] KONDUKTOR
+10246 [id] LONJAKAN LISTRIK
+10247 [id] PETIR PENGHAKIMAN
+10248 [id] ARUS KECEPATAN
+10249 [id] ARUS NAIK
+10250 [id] BADAI DAHSYAT
+10251 [id] Serangan terhadap musuh yang terbakar +6%, lalu +4%/Lv (+38% di Lv9). Berlaku juga untuk bos. Kartu ini sendiri juga bisa membakar musuh saat hit: peluang 8% di Lv1, +2 poin persentase tiap Lv tambahan.
+10252 [id] Setiap 1s, api bisa menyebar dari musuh yang terbakar ke musuh di dekatnya (peluang 15% di Lv1, +3 poin persentase tiap Lv tambahan). Bilah angin yang mengenai musuh terbakar juga menyebarkan api ke musuh sekitar. Kartu ini sendiri juga bisa membakar musuh saat hit: peluang 8% di Lv1, +2 poin persentase tiap Lv tambahan.
+10253 [id] Memberikan 4 tumpukan efek terbakar pada musuh yang sudah terbakar memicu ledakan yang melukai dan membakar musuh sekitar (efek terbakar pada musuh yang meledak berakhir). Daya dan radius meningkat sesuai Lv. Setiap musuh hanya bisa meledak sekali setiap 4s (6s untuk bos). Kartu ini sendiri juga bisa membakar musuh saat hit: peluang 8% di Lv1, +2 poin persentase tiap Lv tambahan.
+10254 [id] Perlambatan meningkat seiring tumpukan dingin: mulai tumpukan ke-2, perlambatan +3.5% per tumpukan (+7.5% di Lv9), hingga 3 tumpukan tambahan. Durasi dingin +0.15s/Lv. Kartu ini sendiri juga bisa memberi efek dingin saat hit: peluang 8% di Lv1, +2 poin persentase tiap Lv tambahan.
+10255 [id] Kartu ini sendiri memungkinkanmu memiliki 1 Shield. Membekukan musuh atau memberikan 3 tumpukan dingin memulihkan 1 Shield (sekali setiap 19s di Lv1, interval berkurang 1s tiap Lv tambahan). Kartu ini sendiri juga bisa memberi efek dingin saat hit: peluang 8% di Lv1, +2 poin persentase tiap Lv tambahan.
+10256 [id] Mengenai musuh yang membeku atau memiliki 3+ tumpukan dingin memicu serangan susulan yang menghancurkan es (setengah damage ke musuh sekitar). Efek beku dan tumpukan dingin dihapus. Bos juga terkena efek ini dengan syarat yang sama dan mengakumulasi BREAK (sekali setiap 8s per bos). Daya dan BREAK meningkat sesuai Lv. Kartu ini sendiri juga bisa memberi efek dingin saat hit: peluang 8% di Lv1, +2 poin persentase tiap Lv tambahan.
+10257 [id] Musuh yang terkena sambaran petir menjadi bermuatan listrik selama 2s. Serangan terhadap musuh bermuatan +6%, lalu +4%/Lv. Damage petir terhadap musuh yang dingin atau membeku +8%, lalu +4%/Lv, dan petir berantai lebih mudah menjangkau mereka. Kartu ini sendiri juga bisa memicu sambaran petir: peluang 5% di Lv1, +1 poin persentase tiap Lv tambahan.
+10258 [id] Setiap 3 hit dari satu serangan memicu sambaran petir tambahan (maksimal 3). Cocok untuk serangan multi-hit dan area. Petir tambahan menghasilkan 65% damage petir normal, lalu +5 poin persentase tiap Lv tambahan. Kartu ini sendiri juga bisa memicu sambaran petir: peluang 5% di Lv1, +1 poin persentase tiap Lv tambahan.
+10259 [id] Sambaran petir mengumpulkan energi. Saat penuh, sambaran berikutnya menjadi Petir Penghakiman yang juga melukai musuh sekitar, membuat musuh biasa tertegun sesaat, dan mengakumulasi BREAK pada bos. Membutuhkan 10 sambaran di Lv1 (6 di Lv9); daya ×2.75 di Lv1 (×4.75 di Lv9). Maksimal sekali setiap 4s. Kartu ini sendiri juga bisa memicu sambaran petir: peluang 5% di Lv1, +1 poin persentase tiap Lv tambahan.
+10260 [id] Semakin cepat kamu berlari, semakin kuat dan sering bilah angin muncul (meningkat mulai 40km/h, maksimal pada 120km/h). Pada kecepatan maksimum, daya +14% dan peluang aktivasi +1.5 poin persentase, lalu daya +4% dan peluang +0.5 poin persentase tiap Lv tambahan. Kartu ini sendiri juga bisa meluncurkan bilah angin: peluang 6% di Lv1, +2 poin persentase tiap Lv tambahan.
+10261 [id] Serangan terhadap musuh di udara (terlempar ke atas atau terbang) +6%, lalu +4%/Lv. Mengenai mereka saat kamu juga berada di udara memicu serangan susulan angin (daya 7.5, lalu +1.5/Lv). Kartu ini sendiri juga bisa meluncurkan bilah angin: peluang 6% di Lv1, +2 poin persentase tiap Lv tambahan.
+10262 [id] Bilah angin diluncurkan beruntun: 2 pada Lv1–6, 3 pada Lv7–9. Bilah susulan menghasilkan 55% damage normal, lalu +5 poin persentase tiap Lv tambahan. Kartu ini sendiri juga bisa meluncurkan bilah angin: peluang 6% di Lv1, +2 poin persentase tiap Lv tambahan.
+10263 [id] Serangan terhadap musuh terbakar +{0}%
+10264 [id] Api menyebar ke musuh dalam {0}m (peluang {1}% setiap 1s) / bilah angin menyebarkan api dalam radius {2}m
+10265 [id] Meledak pada 4 tumpukan efek terbakar: daya {0}, radius {1}m
+10266 [id] Perlambatan +{0}% per tumpukan dingin mulai tumpukan ke-2 (maksimal 3)
+10267 [id] Membekukan / memberikan 3 tumpukan dingin memulihkan 1 Shield (sekali setiap {0}s)
+10268 [id] Menghancurkan es pada musuh beku atau dengan 3+ tumpukan dingin: daya {0}, BREAK bos +{1}%
+10269 [id] Serangan terhadap musuh bermuatan +{0}% / damage petir terhadap musuh dingin +{1}%
+10270 [id] Petir tambahan setiap 3 hit dari satu serangan (daya {0}%, maksimal 3)
+10271 [id] Petir Penghakiman setelah {0} sambaran: daya ×{1}, BREAK bos +{2}%
+10272 [id] Semakin cepat, semakin kuat bilah angin: hingga daya +{0}% dan peluang +{1} poin persentase (120km/h)
+10273 [id] Serangan terhadap musuh di udara +{0}% / hit saat kamu di udara memicu serangan susulan angin, daya {1}
+10274 [id] {0} bilah angin beruntun (daya bilah susulan {1}%)
+10275 [id] PANAS MEMBAKAR
+10276 [id] BADAI API
+10277 [id] LEDAKAN BESAR
+10278 [id] EMBUN BEKU ABADI
+10279 [id] BENTENG GLETSER
+10280 [id] PENGHANCURAN
+10281 [id] SUPERKONDUKTOR
+10282 [id] ARUS BERLEBIH
+10283 [id] PENGHAKIMAN ILAHI
+10284 [id] ANGIN PENDORONG
+10285 [id] NAGA MENANJAK
+10286 [id] BADAI BESAR
+10287 [id] Selama 10s, serangan terhadap musuh terbakar ×1.8
+10288 [id] Selama 10s, api lebih mudah menyebar dan menjangkau lebih jauh
+10289 [id] Selama 10s, daya dan radius ledakan ×1.8
+10290 [id] Selama 10s, perlambatan akibat tumpukan dingin ×1.8
+10291 [id] Selama 10s, interval pemulihan Shield melalui pembekuan berkurang
+10292 [id] Selama 10s, daya serangan susulan pemecah es dan BREAK ×1.8
+10293 [id] Selama 10s, bonus terhadap musuh bermuatan dan dingin ×1.8
+10294 [id] Selama 10s, daya sambaran petir tambahan ×1.8
+10295 [id] Selama 10s, Petir Penghakiman membutuhkan lebih sedikit sambaran dan dayanya meningkat
+10296 [id] Selama 10s, bonus kecepatan pada bilah angin ×1.8
+10297 [id] Selama 10s, serangan dan serangan susulan terhadap musuh di udara ×1.8
+10298 [id] Selama 10s, daya bilah angin susulan meningkat

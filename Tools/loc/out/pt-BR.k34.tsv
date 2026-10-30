@@ -1,0 +1,75 @@
+10223	Trocar de deck
+10224	Usar
+10225	Renomear
+10226	Copiar
+10227	Redefinir
+10228	Em uso
+10229	Escolha o deck de destino
+10230	Sobrescrever "{0}" com o conteúdo de "{1}"?
+10231	Remover todas as cartas e o nome de "{0}"?
+10233	Não é possível trocar de deck durante uma corrida.
+10234	Deck alterado para "{0}", o último usado neste mapa/modo.
+10235	{0} cartas que você não possui mais foram removidas do deck.
+10236	Deck a usar
+10237	Vazio
+10238	Agora você pode salvar até 8 decks e alternar entre eles. Seu deck atual foi salvo em "Deck 1".
+10239	CHAMUSCAR
+10240	REDEMOINHO DE FOGO
+10241	COMBUSTÃO
+10242	GELO PERPÉTUO
+10243	GUARDA GLACIAL
+10244	GOLPE ESTILHAÇANTE
+10245	CONDUTOR
+10246	SURTO ELÉTRICO
+10247	RAIO DO JULGAMENTO
+10248	ESTEIRA DE VENTO
+10249	CORRENTE ASCENDENTE
+10250	TEMPESTADE
+10251	Ataque contra inimigos queimando +6%, depois +4%/Lv (+38% no Lv9). Também funciona contra chefes. Esta carta também pode causar queimadura ao acertar, mesmo sozinha: chance de 8% no Lv1, +2 pontos percentuais por Lv adicional.
+10252	A cada 1s, a queimadura pode se espalhar de um inimigo queimando para outro próximo (chance de 15% no Lv1, +3 pontos percentuais por Lv adicional). Lâminas de vento que atingem inimigos queimando também espalham fogo para inimigos próximos. Esta carta também pode causar queimadura ao acertar, mesmo sozinha: chance de 8% no Lv1, +2 pontos percentuais por Lv adicional.
+10253	Aplicar 4 acúmulos de queimadura a um inimigo que já está queimando provoca uma explosão, causando dano e queimando inimigos próximos (a queimadura do alvo que explodiu termina). O poder e o raio aumentam com o Lv. Cada inimigo pode explodir no máximo uma vez a cada 4s (6s para chefes). Esta carta também pode causar queimadura ao acertar, mesmo sozinha: chance de 8% no Lv1, +2 pontos percentuais por Lv adicional.
+10254	A lentidão aumenta com os acúmulos de resfriamento: a partir do 2º acúmulo, lentidão +3.5% por acúmulo (+7.5% no Lv9), até 3 acúmulos adicionais. Duração do resfriamento +0.15s/Lv. Esta carta também pode resfriar ao acertar, mesmo sozinha: chance de 8% no Lv1, +2 pontos percentuais por Lv adicional.
+10255	Esta carta permite ter 1 Shield mesmo sozinha. Congelar um inimigo ou aplicar 3 acúmulos de resfriamento restaura 1 Shield (uma vez a cada 19s no Lv1, intervalo reduzido em 1s por Lv adicional). Esta carta também pode resfriar ao acertar, mesmo sozinha: chance de 8% no Lv1, +2 pontos percentuais por Lv adicional.
+10256	Acertar um inimigo congelado ou com 3 ou mais acúmulos de resfriamento ativa um ataque adicional que estilhaça o gelo (metade do dano aos inimigos próximos). O congelamento e os acúmulos de resfriamento são removidos. Chefes também sofrem esse efeito e acumulam BREAK (uma vez a cada 8s por chefe). O poder e o BREAK aumentam com o Lv. Esta carta também pode resfriar ao acertar, mesmo sozinha: chance de 8% no Lv1, +2 pontos percentuais por Lv adicional.
+10257	Inimigos atingidos por raios ficam eletricamente carregados por 2s. Ataque contra inimigos carregados +6%, depois +4%/Lv. Dano de raios contra inimigos resfriados ou congelados +8%, depois +4%/Lv, e raios em cadeia os alcançam mais facilmente. Esta carta também pode invocar raios sozinha: chance de 5% no Lv1, +1 ponto percentual por Lv adicional.
+10258	A cada 3 acertos de um único ataque, um raio adicional é invocado (máximo de 3). Ideal para ataques de múltiplos acertos e em área. Raios adicionais causam 65% do dano de um raio normal, depois +5 pontos percentuais por Lv adicional. Esta carta também pode invocar raios sozinha: chance de 5% no Lv1, +1 ponto percentual por Lv adicional.
+10259	Raios acumulam energia. Quando a carga fica cheia, o próximo raio se torna um Raio do Julgamento, causando dano também a inimigos próximos, atordoando brevemente inimigos comuns e acumulando BREAK nos chefes. Requer 10 raios no Lv1 (6 no Lv9); poder ×2.2 no Lv1 (×3.8 no Lv9). No máximo uma vez a cada 4s. Esta carta também pode invocar raios sozinha: chance de 5% no Lv1, +1 ponto percentual por Lv adicional.
+10260	Quanto mais rápido você corre, mais fortes e frequentes ficam as lâminas de vento (aumento a partir de 40km/h, máximo em 120km/h). No máximo, poder +14% e chance de ativação +1.5 ponto percentual; depois poder +4% e chance +0.5 ponto percentual por Lv adicional. Esta carta também pode lançar lâminas de vento sozinha: chance de 6% no Lv1, +2 pontos percentuais por Lv adicional.
+10261	Ataque contra inimigos no ar (lançados para cima ou voadores) +6%, depois +4%/Lv. Acertá-los enquanto você também está no ar ativa um ataque adicional de vento (poder 7.5, depois +1.5/Lv). Esta carta também pode lançar lâminas de vento sozinha: chance de 6% no Lv1, +2 pontos percentuais por Lv adicional.
+10262	Lâminas de vento são lançadas em sequência: 2 no Lv1–6 e 3 no Lv7–9. As lâminas seguintes causam 30% do dano normal, depois +3 pontos percentuais por Lv adicional. Esta carta também pode lançar lâminas de vento sozinha: chance de 6% no Lv1, +2 pontos percentuais por Lv adicional. As rajadas adicionais são ativadas no máximo 1 vez por segundo e causam metade do dano aos chefes.
+10263	Ataque contra inimigos queimando +{0}%
+10264	Queimadura se espalha para inimigos a até {0}m (chance de {1}% a cada 1s) / lâminas de vento espalham fogo em um raio de {2}m
+10265	Explosão com 4 acúmulos de queimadura: poder {0}, raio {1}m
+10266	Lentidão +{0}% por acúmulo de resfriamento a partir do 2º (máximo de 3)
+10267	Congelar / aplicar 3 acúmulos de resfriamento restaura 1 Shield (uma vez a cada {0}s)
+10268	Estilhaça inimigos congelados ou com 3+ acúmulos de resfriamento: poder {0}, BREAK dos chefes +{1}%
+10269	Ataque contra inimigos carregados +{0}% / dano de raios contra inimigos resfriados +{1}%
+10270	Raio adicional a cada 3 acertos de um único ataque (poder {0}%, máximo de 3)
+10271	Raio do Julgamento após {0} raios: poder ×{1}, BREAK dos chefes +{2}%
+10272	Quanto maior a velocidade, mais fortes as lâminas de vento: até +{0}% de poder e +{1} pontos percentuais de chance (120km/h)
+10273	Ataque contra inimigos no ar +{0}% / acertos enquanto você está no ar ativam ataque adicional de vento, poder {1}
+10274	{0} lâminas de vento em sequência (lâminas seguintes com {1}% do poder)
+10275	CALOR ABRASADOR
+10276	TEMPESTADE DE FOGO
+10277	GRANDE EXPLOSÃO
+10278	GELO ETERNO
+10279	BALUARTE GLACIAL
+10280	PULVERIZAÇÃO
+10281	SUPERCONDUTOR
+10282	SOBRECORRENTE
+10283	JULGAMENTO DIVINO
+10284	VENTO A FAVOR
+10285	DRAGÃO ASCENDENTE
+10286	GRANDE TEMPESTADE
+10287	Por 10s, ataque contra inimigos queimando ×1.8
+10288	Por 10s, a queimadura se espalha com mais facilidade e alcança distâncias maiores
+10289	Por 10s, poder e raio das explosões ×1.8
+10290	Por 10s, lentidão causada por acúmulos de resfriamento ×1.8
+10291	Por 10s, intervalo de recuperação de Shield ao congelar reduzido
+10292	Por 10s, poder dos ataques adicionais que estilhaçam o gelo e BREAK ×1.8
+10293	Por 10s, bônus contra inimigos carregados e resfriados ×1.8
+10294	Por 10s, poder dos raios adicionais ×1.8
+10295	Por 10s, o Raio do Julgamento exige menos raios e fica mais poderoso
+10296	Por 10s, bônus de velocidade para lâminas de vento ×1.8
+10297	Por 10s, ataque e ataques adicionais contra inimigos no ar ×1.8
+10298	Por 10s, aumenta o poder das lâminas de vento seguintes

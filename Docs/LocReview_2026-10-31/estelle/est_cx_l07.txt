@@ -1,0 +1,75 @@
+10223 [it] Cambia mazzo
+10224 [it] Usa
+10225 [it] Rinomina
+10226 [it] Copia
+10227 [it] Reimposta
+10228 [it] In uso
+10229 [it] Scegli il mazzo di destinazione
+10230 [it] Sovrascrivere "{0}" con il contenuto di "{1}"?
+10231 [it] Eliminare tutte le carte e il nome di "{0}"?
+10233 [it] Non puoi cambiare mazzo durante una corsa.
+10234 [it] Passaggio a "{0}", l'ultimo mazzo usato in questa mappa/modalità.
+10235 [it] Rimosse dal mazzo {0} carte che non possiedi più.
+10236 [it] Mazzo da usare
+10237 [it] Vuoto
+10238 [it] Ora puoi salvare fino a 8 mazzi e passare dall'uno all'altro. Il mazzo attuale è stato salvato in "Mazzo 1".
+10239 [it] ARSURA
+10240 [it] VORTICE DI FUOCO
+10241 [it] COMBUSTIONE
+10242 [it] GELO PERENNE
+10243 [it] GUARDIA GLACIALE
+10244 [it] COLPO FRANTUMANTE
+10245 [it] CONDUTTORE
+10246 [it] SCARICA ELETTRICA
+10247 [it] FULMINE DEL GIUDIZIO
+10248 [it] SCIA DI VENTO
+10249 [it] CORRENTE ASCENSIONALE
+10250 [it] TEMPESTA
+10251 [it] Attacco contro nemici incendiati +6%, poi +4%/Lv (+38% a Lv9). Funziona anche sui boss. Questa carta può incendiare i nemici all'impatto anche da sola: prob. 8% a Lv1, +2 punti percentuali per ogni Lv successivo.
+10252 [it] Ogni 1s, l'incendio può propagarsi da un nemico incendiato a uno vicino (prob. 15% a Lv1, +3 punti percentuali per ogni Lv successivo). Le lame di vento che colpiscono nemici incendiati propagano il fuoco anche ai nemici vicini. Questa carta può incendiare i nemici all'impatto anche da sola: prob. 8% a Lv1, +2 punti percentuali per ogni Lv successivo.
+10253 [it] Applicare 4 accumuli di incendio a un nemico già incendiato provoca un'esplosione che danneggia e incendia i nemici vicini (l'incendio del bersaglio termina). Potenza e raggio aumentano con il Lv. Ogni nemico può esplodere una volta ogni 4s (6s per i boss). Questa carta può incendiare i nemici all'impatto anche da sola: prob. 8% a Lv1, +2 punti percentuali per ogni Lv successivo.
+10254 [it] Il rallentamento aumenta con gli accumuli di raffreddamento: dal 2° accumulo, rallentamento +3.5% per accumulo (+7.5% a Lv9), fino a 3 accumuli aggiuntivi. Durata del raffreddamento +0.15s/Lv. Questa carta può raffreddare i nemici all'impatto anche da sola: prob. 8% a Lv1, +2 punti percentuali per ogni Lv successivo.
+10255 [it] Questa carta permette di avere 1 Shield anche da sola. Congelare un nemico o applicare 3 accumuli di raffreddamento ripristina 1 Shield (una volta ogni 19s a Lv1, intervallo ridotto di 1s per ogni Lv successivo). Questa carta può raffreddare i nemici all'impatto anche da sola: prob. 8% a Lv1, +2 punti percentuali per ogni Lv successivo.
+10256 [it] Colpire un nemico congelato o con almeno 3 accumuli di raffreddamento attiva un attacco aggiuntivo che frantuma il ghiaccio (metà danno ai nemici vicini). Il congelamento e gli accumuli di raffreddamento vengono rimossi. Anche i boss subiscono l'effetto e accumulano BREAK (una volta ogni 8s per boss). Potenza e BREAK aumentano con il Lv. Questa carta può raffreddare i nemici all'impatto anche da sola: prob. 8% a Lv1, +2 punti percentuali per ogni Lv successivo.
+10257 [it] I nemici colpiti dai fulmini restano elettricamente carichi per 2s. Attacco contro nemici carichi +6%, poi +4%/Lv. Danni da fulmine contro nemici raffreddati o congelati +8%, poi +4%/Lv; i fulmini a catena li raggiungono più facilmente. Questa carta può evocare fulmini anche da sola: prob. 5% a Lv1, +1 punto percentuale per ogni Lv successivo.
+10258 [it] Ogni 3 colpi a segno di un singolo attacco provocano un fulmine aggiuntivo (massimo 3). Ideale per attacchi a colpi multipli e ad area. I fulmini aggiuntivi infliggono il 65% dei danni normali, poi +5 punti percentuali per ogni Lv successivo. Questa carta può evocare fulmini anche da sola: prob. 5% a Lv1, +1 punto percentuale per ogni Lv successivo.
+10259 [it] I fulmini accumulano energia. Quando la carica è piena, il fulmine successivo diventa un Fulmine del Giudizio, che danneggia anche i nemici vicini, stordisce brevemente i nemici comuni e accumula BREAK sui boss. Richiede 10 fulmini a Lv1 (6 a Lv9); potenza ×2.75 a Lv1 (×4.75 a Lv9). Massimo una volta ogni 4s. Questa carta può evocare fulmini anche da sola: prob. 5% a Lv1, +1 punto percentuale per ogni Lv successivo.
+10260 [it] Più corri veloce, più le lame di vento diventano potenti e frequenti (aumento da 40km/h, massimo a 120km/h). Al massimo, potenza +14% e prob. +1.5 punti percentuali, poi potenza +4% e prob. +0.5 punti percentuali per ogni Lv successivo. Questa carta può lanciare lame di vento anche da sola: prob. 6% a Lv1, +2 punti percentuali per ogni Lv successivo.
+10261 [it] Attacco contro nemici in aria (lanciati in alto o volanti) +6%, poi +4%/Lv. Colpirli mentre sei anche tu in aria attiva un attacco aggiuntivo di vento (potenza 7.5, poi +1.5/Lv). Questa carta può lanciare lame di vento anche da sola: prob. 6% a Lv1, +2 punti percentuali per ogni Lv successivo.
+10262 [it] Le lame di vento vengono lanciate in successione: 2 a Lv1–6, 3 a Lv7–9. Le lame successive infliggono il 55% dei danni normali, poi +5 punti percentuali per ogni Lv successivo. Questa carta può lanciare lame di vento anche da sola: prob. 6% a Lv1, +2 punti percentuali per ogni Lv successivo.
+10263 [it] Attacco contro nemici incendiati +{0}%
+10264 [it] L'incendio si propaga ai nemici entro {0}m (prob. {1}% ogni 1s) / le lame di vento propagano il fuoco entro un raggio di {2}m
+10265 [it] Esplosione con 4 accumuli di incendio: potenza {0}, raggio {1}m
+10266 [it] Rallentamento +{0}% per accumulo di raffreddamento dal 2° (massimo 3)
+10267 [it] Congelare / applicare 3 accumuli di raffreddamento ripristina 1 Shield (una volta ogni {0}s)
+10268 [it] Frantuma il ghiaccio dei nemici congelati o con 3+ accumuli di raffreddamento: potenza {0}, BREAK dei boss +{1}%
+10269 [it] Attacco contro nemici carichi +{0}% / danni da fulmine contro nemici raffreddati +{1}%
+10270 [it] Fulmine aggiuntivo ogni 3 colpi a segno di un singolo attacco (potenza {0}%, massimo 3)
+10271 [it] Fulmine del Giudizio dopo {0} fulmini: potenza ×{1}, BREAK dei boss +{2}%
+10272 [it] Più velocità, più potenza alle lame di vento: fino a +{0}% potenza e +{1} punti percentuali di prob. (120km/h)
+10273 [it] Attacco contro nemici in aria +{0}% / colpire mentre sei in aria attiva un attacco aggiuntivo di vento, potenza {1}
+10274 [it] {0} lame di vento consecutive (lame successive al {1}% della potenza)
+10275 [it] CALORE ARDENTE
+10276 [it] TEMPESTA DI FUOCO
+10277 [it] GRANDE ESPLOSIONE
+10278 [it] GELO ETERNO
+10279 [it] BALUARDO GLACIALE
+10280 [it] POLVERIZZAZIONE
+10281 [it] SUPERCONDUTTORE
+10282 [it] SOVRACORRENTE
+10283 [it] GIUDIZIO DIVINO
+10284 [it] VENTO A FAVORE
+10285 [it] DRAGO ASCENDENTE
+10286 [it] GRANDE TEMPESTA
+10287 [it] Per 10s, attacco contro nemici incendiati ×1.8
+10288 [it] Per 10s, l'incendio si propaga più facilmente e più lontano
+10289 [it] Per 10s, potenza e raggio delle esplosioni ×1.8
+10290 [it] Per 10s, rallentamento da accumuli di raffreddamento ×1.8
+10291 [it] Per 10s, intervallo di recupero di Shield tramite congelamento ridotto
+10292 [it] Per 10s, potenza degli attacchi che frantumano il ghiaccio e BREAK ×1.8
+10293 [it] Per 10s, bonus contro nemici carichi e raffreddati ×1.8
+10294 [it] Per 10s, potenza dei fulmini aggiuntivi ×1.8
+10295 [it] Per 10s, il Fulmine del Giudizio richiede meno fulmini e aumenta di potenza
+10296 [it] Per 10s, bonus della velocità alle lame di vento ×1.8
+10297 [it] Per 10s, attacco e attacchi aggiuntivi contro nemici in aria ×1.8
+10298 [it] Per 10s, aumenta la potenza delle lame di vento successive

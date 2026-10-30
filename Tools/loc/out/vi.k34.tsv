@@ -1,0 +1,75 @@
+10223	Đổi bộ bài
+10224	Sử dụng
+10225	Đổi tên
+10226	Sao chép
+10227	Đặt lại
+10228	Đang sử dụng
+10229	Chọn bộ bài đích
+10230	Ghi đè nội dung của "{0}" bằng nội dung của "{1}"?
+10231	Xóa toàn bộ lá bài và tên của "{0}"?
+10233	Không thể đổi bộ bài trong khi chạy.
+10234	Đã chuyển sang "{0}", bộ bài được dùng gần nhất ở bản đồ/chế độ này.
+10235	Đã loại {0} lá bài bạn không còn sở hữu khỏi bộ bài.
+10236	Bộ bài sử dụng
+10237	Trống
+10238	Giờ bạn có thể lưu tối đa 8 bộ bài và chuyển đổi giữa chúng. Bộ bài hiện tại đã được lưu vào "Bộ bài 1".
+10239	THIÊU ĐỐT
+10240	LỐC LỬA
+10241	BÙNG CHÁY
+10242	BĂNG GIÁ VĨNH CỬU
+10243	HỘ VỆ BĂNG HÀ
+10244	ĐÒN PHÁ BĂNG
+10245	VẬT DẪN ĐIỆN
+10246	XUNG ĐIỆN
+10247	SÉT PHÁN XÉT
+10248	LUỒNG GIÓ TỐC ĐỘ
+10249	LUỒNG GIÓ THĂNG
+10250	CUỒNG PHONG
+10251	Tấn công lên địch đang bị thiêu đốt +6%, sau đó +4%/Lv (+38% ở Lv9). Có hiệu lực với cả boss. Riêng lá bài này cũng có thể gây thiêu đốt khi đánh trúng: tỉ lệ 8% ở Lv1, tăng 2 điểm phần trăm mỗi Lv tiếp theo.
+10252	Mỗi 1s, thiêu đốt có thể lan từ địch đang cháy sang địch gần đó (tỉ lệ 15% ở Lv1, tăng 3 điểm phần trăm mỗi Lv tiếp theo). Lưỡi gió đánh trúng địch đang cháy cũng lan lửa sang địch xung quanh. Riêng lá bài này cũng có thể gây thiêu đốt khi đánh trúng: tỉ lệ 8% ở Lv1, tăng 2 điểm phần trăm mỗi Lv tiếp theo.
+10253	Khi cộng dồn 4 lần thiêu đốt lên địch đã bị thiêu đốt, địch sẽ phát nổ, gây sát thương và thiêu đốt địch xung quanh (thiêu đốt trên mục tiêu phát nổ sẽ biến mất). Uy lực và bán kính tăng theo Lv. Mỗi địch chỉ có thể phát nổ tối đa 1 lần mỗi 4s (boss là 6s). Riêng lá bài này cũng có thể gây thiêu đốt khi đánh trúng: tỉ lệ 8% ở Lv1, tăng 2 điểm phần trăm mỗi Lv tiếp theo.
+10254	Càng cộng dồn nhiều lớp lạnh, hiệu ứng làm chậm càng mạnh: từ lớp thứ 2, làm chậm +3.5% mỗi lớp (+7.5% ở Lv9), tối đa 3 lớp cộng thêm. Thời gian lạnh +0.15s/Lv. Riêng lá bài này cũng có thể gây lạnh khi đánh trúng: tỉ lệ 8% ở Lv1, tăng 2 điểm phần trăm mỗi Lv tiếp theo.
+10255	Chỉ với lá bài này, bạn cũng có thể sở hữu 1 Shield. Đóng băng địch hoặc cộng dồn 3 lớp lạnh sẽ hồi 1 Shield (mỗi 19s một lần ở Lv1, giảm 1s mỗi Lv tiếp theo). Riêng lá bài này cũng có thể gây lạnh khi đánh trúng: tỉ lệ 8% ở Lv1, tăng 2 điểm phần trăm mỗi Lv tiếp theo.
+10256	Đánh trúng địch đang đóng băng hoặc có từ 3 lớp lạnh trở lên sẽ kích hoạt đòn đánh tiếp theo phá băng (gây một nửa sát thương lên địch xung quanh). Hiệu ứng đóng băng và các lớp lạnh bị xóa. Boss cũng chịu hiệu ứng này khi đủ điều kiện và tích lũy BREAK (tối đa 1 lần mỗi 8s trên cùng boss). Uy lực và BREAK tăng theo Lv. Riêng lá bài này cũng có thể gây lạnh khi đánh trúng: tỉ lệ 8% ở Lv1, tăng 2 điểm phần trăm mỗi Lv tiếp theo.
+10257	Địch trúng sét sẽ bị tích điện trong 2s. Tấn công lên địch tích điện +6%, sau đó +4%/Lv. Sát thương sét lên địch bị lạnh hoặc đóng băng +8%, sau đó +4%/Lv; sét dây chuyền cũng dễ lan đến chúng hơn. Riêng lá bài này cũng có thể gọi sét: tỉ lệ 5% ở Lv1, tăng 1 điểm phần trăm mỗi Lv tiếp theo.
+10258	Cứ mỗi 3 lần đánh trúng từ một đòn tấn công sẽ kích hoạt thêm một tia sét (tối đa 3 tia). Phù hợp với đòn đánh nhiều hit và tấn công diện rộng. Sét bổ sung gây 65% sát thương sét thông thường, sau đó tăng 5 điểm phần trăm mỗi Lv tiếp theo. Riêng lá bài này cũng có thể gọi sét: tỉ lệ 5% ở Lv1, tăng 1 điểm phần trăm mỗi Lv tiếp theo.
+10259	Sét đánh sẽ tích lũy năng lượng. Khi đầy, tia sét tiếp theo trở thành Sét Phán Xét, gây sát thương cả địch xung quanh, làm choáng quái thường trong chốc lát và tích lũy BREAK lên boss. Cần 10 lần sét đánh ở Lv1 (6 lần ở Lv9); uy lực ×2.2 ở Lv1 (×3.8 ở Lv9). Tối đa 1 lần mỗi 4s. Riêng lá bài này cũng có thể gọi sét: tỉ lệ 5% ở Lv1, tăng 1 điểm phần trăm mỗi Lv tiếp theo.
+10260	Chạy càng nhanh, lưỡi gió càng mạnh và càng dễ kích hoạt (tăng từ 40km/h, đạt tối đa ở 120km/h). Ở tốc độ tối đa, uy lực +14% và tỉ lệ kích hoạt +1.5 điểm phần trăm, sau đó uy lực +4% và tỉ lệ +0.5 điểm phần trăm mỗi Lv tiếp theo. Riêng lá bài này cũng có thể phóng lưỡi gió: tỉ lệ 6% ở Lv1, tăng 2 điểm phần trăm mỗi Lv tiếp theo.
+10261	Tấn công lên địch trên không (bị hất tung hoặc biết bay) +6%, sau đó +4%/Lv. Nếu bản thân cũng đang ở trên không khi đánh trúng, sẽ kích hoạt đòn đánh tiếp theo bằng gió (uy lực 7.5, sau đó +1.5/Lv). Riêng lá bài này cũng có thể phóng lưỡi gió: tỉ lệ 6% ở Lv1, tăng 2 điểm phần trăm mỗi Lv tiếp theo.
+10262	Lưỡi gió được phóng liên tiếp: 2 lưỡi ở Lv1–6, 3 lưỡi ở Lv7–9. Các lưỡi gió tiếp theo gây 30% sát thương thông thường, sau đó tăng 3 điểm phần trăm mỗi Lv tiếp theo. Riêng lá bài này cũng có thể phóng lưỡi gió: tỉ lệ 6% ở Lv1, tăng 2 điểm phần trăm mỗi Lv tiếp theo. Các loạt lưỡi gió bổ sung chỉ kích hoạt tối đa 1 lần mỗi giây và gây một nửa sát thương lên boss.
+10263	Tấn công lên địch đang bị thiêu đốt +{0}%
+10264	Thiêu đốt lan sang địch trong phạm vi {0}m (tỉ lệ {1}% mỗi 1s) / lưỡi gió lan lửa trong bán kính {2}m
+10265	Phát nổ khi cộng dồn 4 lớp thiêu đốt: uy lực {0}, bán kính {1}m
+10266	Làm chậm +{0}% mỗi lớp lạnh từ lớp thứ 2 (tối đa 3 lớp)
+10267	Đóng băng / cộng dồn 3 lớp lạnh hồi 1 Shield (mỗi {0}s một lần)
+10268	Phá băng địch đang đóng băng hoặc có 3+ lớp lạnh: uy lực {0}, BREAK của boss +{1}%
+10269	Tấn công lên địch tích điện +{0}% / sát thương sét lên địch bị lạnh +{1}%
+10270	Sét bổ sung sau mỗi 3 hit của một đòn tấn công (uy lực {0}%, tối đa 3 tia)
+10271	Sét Phán Xét sau {0} lần sét đánh: uy lực ×{1}, BREAK của boss +{2}%
+10272	Tốc độ càng cao, lưỡi gió càng mạnh: uy lực tối đa +{0}% và tỉ lệ +{1} điểm phần trăm (120km/h)
+10273	Tấn công lên địch trên không +{0}% / đánh trúng khi bản thân ở trên không kích hoạt đòn gió tiếp theo, uy lực {1}
+10274	Phóng liên tiếp {0} lưỡi gió (uy lực lưỡi tiếp theo {1}%)
+10275	NHIỆT LỰC THIÊU ĐỐT
+10276	BÃO LỬA
+10277	ĐẠI BÙNG NỔ
+10278	BĂNG GIÁ VĨNH HẰNG
+10279	THÀNH LŨY BĂNG HÀ
+10280	NGHIỀN NÁT
+10281	SIÊU DẪN
+10282	QUÁ DÒNG
+10283	THIÊN PHẠT
+10284	GIÓ THUẬN
+10285	RỒNG THĂNG THIÊN
+10286	ĐẠI CUỒNG PHONG
+10287	Trong 10s, tấn công lên địch đang bị thiêu đốt ×1.8
+10288	Trong 10s, thiêu đốt lan dễ hơn và xa hơn
+10289	Trong 10s, uy lực và bán kính vụ nổ ×1.8
+10290	Trong 10s, hiệu ứng làm chậm do cộng dồn lạnh ×1.8
+10291	Trong 10s, giảm thời gian chờ giữa các lần hồi Shield nhờ đóng băng
+10292	Trong 10s, uy lực đòn đánh tiếp theo phá băng và BREAK ×1.8
+10293	Trong 10s, hiệu ứng tăng cường đối với địch tích điện và bị lạnh ×1.8
+10294	Trong 10s, uy lực sét bổ sung ×1.8
+10295	Trong 10s, Sét Phán Xét cần ít lần sét đánh hơn và tăng uy lực
+10296	Trong 10s, hiệu ứng tăng sức mạnh lưỡi gió theo tốc độ ×1.8
+10297	Trong 10s, tấn công và đòn đánh tiếp theo lên địch trên không ×1.8
+10298	Trong 10s, tăng uy lực các lưỡi gió tiếp theo

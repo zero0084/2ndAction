@@ -1,0 +1,75 @@
+10223	Palitan ang deck
+10224	Gamitin
+10225	Palitan ang pangalan
+10226	Kopyahin
+10227	I-reset
+10228	Ginagamit
+10229	Piliin ang deck na pagkokopyahan
+10230	Palitan ang laman ng "{0}" ng laman ng "{1}"?
+10231	Burahin ang lahat ng card at pangalan ng "{0}"?
+10233	Hindi puwedeng magpalit ng deck habang tumatakbo.
+10234	Lumipat sa "{0}", ang huling deck na ginamit sa mapa/mode na ito.
+10235	Inalis sa deck ang {0} card na wala ka na.
+10236	Deck na gagamitin
+10237	Walang laman
+10238	Puwede ka na ngayong mag-save ng hanggang 8 deck at magpalit sa pagitan ng mga ito. Na-save ang kasalukuyan mong deck sa "Deck 1".
+10239	MATINDING PASO
+10240	IPU-IPO NG APOY
+10241	PAGSIKLAB
+10242	WALANG HANGGANG YELO
+10243	BANTAY NG GLASYER
+10244	BASAG-YELONG HAMPAS
+10245	KONDUKTOR
+10246	BUGSO NG KURYENTE
+10247	KIDLAT NG PAGHATOL
+10248	BUGSO NG BILIS
+10249	PAAKYAT NA HANGIN
+10250	MALAKAS NA BAGYO
+10251	Atake laban sa nasusunog na kalaban +6%, pagkatapos +4%/Lv (+38% sa Lv9). Epektibo rin sa mga boss. Kahit mag-isa, puwedeng magsunog ang card na ito kapag tumama: tsansa 8% sa Lv1, +2 porsiyentong puntos bawat dagdag na Lv.
+10252	Bawat 1s, maaaring kumalat ang apoy mula sa nasusunog na kalaban papunta sa kalabang malapit dito (tsansa 15% sa Lv1, +3 porsiyentong puntos bawat dagdag na Lv). Kapag tumama ang talim ng hangin sa nasusunog na kalaban, ikinakalat din nito ang apoy sa mga kalabang malapit. Kahit mag-isa, puwedeng magsunog ang card na ito kapag tumama: tsansa 8% sa Lv1, +2 porsiyentong puntos bawat dagdag na Lv.
+10253	Kapag nakaipon ng 4 patong ng pagkasunog ang kalabang nasusunog na, sasabog ito, magdudulot ng damage at susunog sa mga kalabang malapit (mawawala ang pagkasunog ng kalabang sumabog). Tumataas ang lakas at radius ayon sa Lv. Ang parehong kalaban ay puwedeng sumabog nang 1 beses lang bawat 4s (6s para sa boss). Kahit mag-isa, puwedeng magsunog ang card na ito kapag tumama: tsansa 8% sa Lv1, +2 porsiyentong puntos bawat dagdag na Lv.
+10254	Mas bumabagal ang kalaban habang dumarami ang patong ng lamig: mula sa ika-2 patong, pagbagal +3.5% bawat patong (+7.5% sa Lv9), hanggang 3 dagdag na patong. Tagal ng lamig +0.15s/Lv. Kahit mag-isa, puwedeng magpalamig ang card na ito kapag tumama: tsansa 8% sa Lv1, +2 porsiyentong puntos bawat dagdag na Lv.
+10255	Kahit ang card na ito lang, puwede kang magkaroon ng 1 Shield. Ang pagyeyelo sa kalaban o paglalagay ng 3 patong ng lamig ay nagbabalik ng 1 Shield (1 beses bawat 19s sa Lv1, umiikli ng 1s bawat dagdag na Lv). Kahit mag-isa, puwedeng magpalamig ang card na ito kapag tumama: tsansa 8% sa Lv1, +2 porsiyentong puntos bawat dagdag na Lv.
+10256	Kapag tinamaan ang nagyeyelong kalaban o may 3 o higit pang patong ng lamig, magkakaroon ng dagdag na atakeng bumabasag ng yelo (kalahating damage sa mga kalabang malapit). Mawawala ang pagyeyelo at mga patong ng lamig. Epektibo rin ito sa mga boss sa parehong kondisyon at nag-iipon ng BREAK (1 beses bawat 8s sa bawat boss). Tumataas ang lakas at BREAK ayon sa Lv. Kahit mag-isa, puwedeng magpalamig ang card na ito kapag tumama: tsansa 8% sa Lv1, +2 porsiyentong puntos bawat dagdag na Lv.
+10257	Ang mga kalabang tinamaan ng kidlat ay nagkakaroon ng kargang elektrikal nang 2s. Atake laban sa mga kalabang may karga +6%, pagkatapos +4%/Lv. Damage ng kidlat laban sa malamig o nagyeyelong kalaban +8%, pagkatapos +4%/Lv, at mas madaling umabot sa kanila ang magkakaugnay na kidlat. Kahit mag-isa, puwedeng magpakidlat ang card na ito: tsansa 5% sa Lv1, +1 porsiyentong puntos bawat dagdag na Lv.
+10258	Bawat 3 tama mula sa iisang atake ay nagpapabagsak ng dagdag na kidlat (hanggang 3). Bagay sa mga multi-hit at area attack. Ang dagdag na kidlat ay may 65% ng normal na damage ng kidlat, pagkatapos +5 porsiyentong puntos bawat dagdag na Lv. Kahit mag-isa, puwedeng magpakidlat ang card na ito: tsansa 5% sa Lv1, +1 porsiyentong puntos bawat dagdag na Lv.
+10259	Nag-iipon ng enerhiya ang mga kidlat. Kapag puno na, ang susunod na kidlat ay magiging Kidlat ng Paghatol, na nagdudulot din ng damage sa mga kalabang malapit, pansamantalang nagpapatigil sa mga ordinaryong kalaban, at nag-iipon ng BREAK sa mga boss. Kailangan ng 10 kidlat sa Lv1 (6 sa Lv9); lakas ×2.2 sa Lv1 (×3.8 sa Lv9). Hanggang 1 beses bawat 4s. Kahit mag-isa, puwedeng magpakidlat ang card na ito: tsansa 5% sa Lv1, +1 porsiyentong puntos bawat dagdag na Lv.
+10260	Habang bumibilis ang takbo, lumalakas at mas madalas lumabas ang mga talim ng hangin (nagsisimulang tumaas sa 40km/h, pinakamataas sa 120km/h). Sa pinakamataas na bilis, lakas +14% at tsansa ng paglabas +1.5 porsiyentong puntos, pagkatapos lakas +4% at tsansa +0.5 porsiyentong puntos bawat dagdag na Lv. Kahit mag-isa, puwedeng magpalipad ng talim ng hangin ang card na ito: tsansa 6% sa Lv1, +2 porsiyentong puntos bawat dagdag na Lv.
+10261	Atake laban sa mga kalabang nasa ere (napalipad pataas o lumilipad) +6%, pagkatapos +4%/Lv. Kapag tinamaan sila habang nasa ere ka rin, magkakaroon ng dagdag na atake ng hangin (lakas 7.5, pagkatapos +1.5/Lv). Kahit mag-isa, puwedeng magpalipad ng talim ng hangin ang card na ito: tsansa 6% sa Lv1, +2 porsiyentong puntos bawat dagdag na Lv.
+10262	Sunod-sunod na lumalabas ang mga talim ng hangin: 2 sa Lv1–6, 3 sa Lv7–9. Ang mga kasunod na talim ay may 30% ng normal na damage, pagkatapos +3 porsiyentong puntos bawat dagdag na Lv. Kahit mag-isa, puwedeng magpalipad ng talim ng hangin ang card na ito: tsansa 6% sa Lv1, +2 porsiyentong puntos bawat dagdag na Lv. Ang mga dagdag na bugso ng talim ng hangin ay maa-activate nang hanggang 1 beses lang bawat segundo at kalahati lang ang damage sa mga boss.
+10263	Atake laban sa nasusunog na kalaban +{0}%
+10264	Kumakalat ang pagkasunog sa mga kalabang nasa loob ng {0}m (tsansa {1}% bawat 1s) / ikinakalat ng talim ng hangin ang apoy sa radius na {2}m
+10265	Sasabog sa 4 patong ng pagkasunog: lakas {0}, radius {1}m
+10266	Pagbagal +{0}% bawat patong ng lamig mula sa ika-2 (hanggang 3)
+10267	Pagyeyelo / 3 patong ng lamig ay nagbabalik ng 1 Shield (1 beses bawat {0}s)
+10268	Binabasag ang yelo ng nagyeyelong kalaban o may 3+ patong ng lamig: lakas {0}, BREAK ng boss +{1}%
+10269	Atake laban sa kalabang may kargang elektrikal +{0}% / damage ng kidlat sa malamig na kalaban +{1}%
+10270	Dagdag na kidlat bawat 3 tama ng iisang atake (lakas {0}%, hanggang 3)
+10271	Kidlat ng Paghatol pagkatapos ng {0} kidlat: lakas ×{1}, BREAK ng boss +{2}%
+10272	Mas mabilis, mas malakas ang talim ng hangin: hanggang +{0}% lakas at +{1} porsiyentong puntos na tsansa (120km/h)
+10273	Atake laban sa kalabang nasa ere +{0}% / tama habang nasa ere ka ay nagdudulot ng dagdag na atake ng hangin, lakas {1}
+10274	{0} sunod-sunod na talim ng hangin (lakas ng kasunod na talim {1}%)
+10275	NAKAPAPASONG INIT
+10276	BAGYO NG APOY
+10277	MALAKING PAGSABOG
+10278	WALANG HANGGANG LAMIG
+10279	KUTA NG GLASYER
+10280	PAGDURUG
+10281	SUPERKONDUKTOR
+10282	SOBRANG KURYENTE
+10283	BANAL NA PAGHATOL
+10284	HANGING TULAK
+10285	PAAKYAT NA DRAGON
+10286	MALAKING BAGYO
+10287	Sa loob ng 10s, atake laban sa nasusunog na kalaban ×1.8
+10288	Sa loob ng 10s, mas madaling kumalat ang pagkasunog at mas malayo ang naaabot nito
+10289	Sa loob ng 10s, lakas at radius ng pagsabog ×1.8
+10290	Sa loob ng 10s, pagbagal mula sa mga patong ng lamig ×1.8
+10291	Sa loob ng 10s, mas maikli ang pagitan ng pagbawi ng Shield sa pagyeyelo
+10292	Sa loob ng 10s, lakas ng dagdag na atakeng bumabasag ng yelo at BREAK ×1.8
+10293	Sa loob ng 10s, mga bonus laban sa kalabang may kargang elektrikal at malamig ×1.8
+10294	Sa loob ng 10s, lakas ng dagdag na kidlat ×1.8
+10295	Sa loob ng 10s, mas kaunting kidlat ang kailangan para sa Kidlat ng Paghatol at mas lumalakas ito
+10296	Sa loob ng 10s, bonus ng bilis sa talim ng hangin ×1.8
+10297	Sa loob ng 10s, atake at dagdag na atake laban sa mga kalabang nasa ere ×1.8
+10298	Sa loob ng 10s, tumataas ang lakas ng mga kasunod na talim ng hangin

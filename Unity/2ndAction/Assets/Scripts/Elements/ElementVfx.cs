@@ -59,10 +59,11 @@ public class ElementVfx : MonoBehaviour
         bool Has(string id) => gm.CardLevel(id) > 0;
         switch (e)
         {
-            case ElementType.Fire: return Has("inferno") ? 3 : Has("burning_soul") ? 2 : 1;
-            case ElementType.Ice: return Has("absolute_zero") ? 3 : Has("ice_prison") ? 2 : 1;
-            case ElementType.Thunder: return Has("thunder_lord") ? 3 : Has("chain_lightning") || Has("high_voltage") ? 2 : 1;
-            case ElementType.Wind: return Has("tornado") ? 3 : Has("gale") ? 2 : 1;
+            // 2026-10-31 カード拡張: 完成(★4)の COMBUSTION / SHATTER STRIKE / JUDGMENT BOLT / TEMPEST は段階3、発展(★3)は段階2
+            case ElementType.Fire: return Has("inferno") || Has("combustion") ? 3 : Has("burning_soul") || Has("fire_whirl") ? 2 : 1;
+            case ElementType.Ice: return Has("absolute_zero") || Has("shatter_strike") ? 3 : Has("ice_prison") || Has("glacier_guard") ? 2 : 1;
+            case ElementType.Thunder: return Has("thunder_lord") || Has("judgment_bolt") ? 3 : Has("chain_lightning") || Has("high_voltage") || Has("volt_surge") ? 2 : 1;
+            case ElementType.Wind: return Has("tornado") || Has("tempest") ? 3 : Has("gale") || Has("updraft") ? 2 : 1;
             case ElementType.Blood: return Has("phoenix") || Has("blood_blade") ? 3 : Has("predator") || Has("blood_rush") || Has("overheal") ? 2 : 1;
         }
         return 1;

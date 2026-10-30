@@ -77,6 +77,7 @@ public class FinalEvolutionTuning : ScriptableObject
             default: return new Color(1f, 0.55f, 0.2f);
         }
     }
+    static Entry TX(string id, Module m) { var c = LocCardExpansion.Find(id); return T(id, m, 10f, 1.8f, c.feTitle, c.feDesc); }
     static Entry T(string id, Module m, float secs, float amp, string title, string desc, params Bonus[] b) =>
         new Entry { abilityId = id, module = m, kind = Kind.Time, durationSeconds = secs, amplify = amp, title = title, description = desc, bonuses = new List<Bonus>(b), aura = AuraOf(m) };
     static Entry D(string id, Module m, float meters, float amp, string title, string desc, params Bonus[] b) =>
@@ -143,6 +144,11 @@ public class FinalEvolutionTuning : ScriptableObject
             T("absolute_zero", Module.Ice, 10f, 1.8f, "絶対零度", "10秒間 凍結した雑魚の砕け/冷えた敵への攻撃×1.8"),
             T("chain_lightning", Module.Lightning, 10f, 1.8f, "雷鎖", "10秒間 落雷の連鎖が3体→5体、連鎖の距離も延長"),
             T("thunder_lord", Module.Lightning, 10f, 1.8f, "雷帝", "10秒間 雷の威力/連鎖/範囲×1.8"),
+            // 2026-10-31 カード拡張(属性 12 枚): 自分の効果(Lv)×1.8。題と説明は LocCardExpansion
+            TX("scorch", Module.Fire), TX("fire_whirl", Module.Fire), TX("combustion", Module.Fire),
+            TX("permafrost", Module.Ice), TX("glacier_guard", Module.Ice), TX("shatter_strike", Module.Ice),
+            TX("conductor", Module.Lightning), TX("volt_surge", Module.Lightning), TX("judgment_bolt", Module.Lightning),
+            TX("slipstream", Module.Wind), TX("updraft", Module.Wind), TX("tempest", Module.Wind),
             T("gale", Module.Wind, 10f, 1.8f, "暴風", "10秒間 風刃の速さ/距離/貫通×1.8"),
             T("tornado", Module.Wind, 10f, 1.8f, "大竜巻", "10秒間 竜巻の威力が約1.5倍になり、範囲も拡大"),
 

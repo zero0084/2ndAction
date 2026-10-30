@@ -11,6 +11,9 @@ public static class CardBehaviorText
 
     static string P(float k) => Mathf.RoundToInt(ProcBase0 * k).ToString();
     static string M(float v) => v.ToString("0.#");
+    static string Pct(float v) => Mathf.RoundToInt(v * 100f).ToString();
+    // カード拡張の効果の行(LocCardExpansion の文。訳のレビューが済むまで、その言語では日本語の文を出す)
+    static string Exp(string id, params string[] args) => Loc.Src(LocCardExpansion.Find(id).behavior, args);
 
     // 2026-10-29: 日本語の元の文(数値は差し込み済み)を返す。訳は表示の時に Loc.Auto が型(各キー)で行う
     //  (合成カードの説明は作り置きなので、作った時の言語で固まらないように。並べ替えも表示の時に1回だけ)
@@ -51,6 +54,19 @@ public static class CardBehaviorText
             case EffectType.LightningCounterLevel:
                 return Loc.Ready(LocPendingReview.LightningCounterText) ? Loc.Src(LocPendingReview.LightningCounterText, ElementStats.LightningEveryFor(lv).ToString()) : "";
             case EffectType.BloodBladeLevel: return Loc.Src("HP満タンの時 出血の確率×2");
+            // 2026-10-31 カード拡張(属性 12 枚)。文は LocCardExpansion(訳のレビュー待ち)。数値は ElementSystem.Expansion と同じ式
+            case EffectType.ScorchLevel: return Exp("scorch", Pct(ElementSystem.ScorchPct(lv)));
+            case EffectType.FireWhirlLevel: return Exp("fire_whirl", M(ElementSystem.FireWhirlRange(lv)), Pct(ElementSystem.FireWhirlChance(lv)), M(ElementSystem.FireWhirlWindRadius(lv)));
+            case EffectType.CombustionLevel: return Exp("combustion", ElementSystem.CombustionPower(lv).ToString("0"), M(ElementSystem.CombustionRadius(lv)));
+            case EffectType.PermafrostLevel: return Exp("permafrost", (ElementSystem.PermafrostPerStack(lv) * 100f).ToString("0.#"));
+            case EffectType.GlacierGuardLevel: return Exp("glacier_guard", ElementSystem.GlacierGuardInterval(lv).ToString("0"));
+            case EffectType.ShatterStrikeLevel: return Exp("shatter_strike", ElementSystem.ShatterStrikePower(lv).ToString("0"), Pct(ElementSystem.ShatterStrikeBreak(lv)));
+            case EffectType.ConductorLevel: return Exp("conductor", Pct(ElementSystem.ConductorPct(lv)), Pct(ElementSystem.ConductorChillBonus(lv)));
+            case EffectType.VoltSurgeLevel: return Exp("volt_surge", Pct(ElementSystem.VoltSurgeMul(lv)));
+            case EffectType.JudgmentLevel: return Exp("judgment_bolt", ElementSystem.JudgmentNeed(lv).ToString(), ElementSystem.JudgmentMul(lv).ToString("0.##"), Pct(ElementSystem.JudgmentBreak(lv)));
+            case EffectType.SlipstreamLevel: return Exp("slipstream", Pct(ElementSystem.SlipstreamDmg(lv)), (ElementSystem.SlipstreamChance(lv) * 100f).ToString("0.#"));
+            case EffectType.UpdraftLevel: return Exp("updraft", Pct(ElementSystem.UpdraftPct(lv)), M(ElementSystem.UpdraftPower(lv)));
+            case EffectType.TempestLevel: return Exp("tempest", (1 + ElementSystem.TempestExtra(lv)).ToString(), Pct(ElementSystem.TempestMul(lv)));
             case EffectType.ShieldGuard: return Loc.Src("このカードだけでも Shield を1つ持てる");
             case EffectType.UltimateLevel:
             {

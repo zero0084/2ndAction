@@ -14,6 +14,15 @@ public static class ElementDevLoadout
         new Family { key = "thunder", type = ElementType.Thunder, entry = new[] { "thunder_strike" }, family = new[] { "thunder_strike", "chain_lightning", "high_voltage", "thunder_lord" } },
         new Family { key = "wind", type = ElementType.Wind, entry = new[] { "wind_cutter" }, family = new[] { "wind_cutter", "gale", "tornado" } },
         // 血の「入口」は命中で効く出血(BLOOD BLADE)。VAMPIRE は撃破で判定する吸収
+        // 2026-10-31 カード拡張: 新しい 3 枚だけ(…n)/ 既存+新しい全部(…a)
+        new Family { key = "firen", type = ElementType.Fire, entry = new[] { "scorch" }, family = new[] { "scorch", "fire_whirl", "combustion" } },
+        new Family { key = "icen", type = ElementType.Ice, entry = new[] { "permafrost" }, family = new[] { "permafrost", "glacier_guard", "shatter_strike" } },
+        new Family { key = "thundern", type = ElementType.Thunder, entry = new[] { "conductor" }, family = new[] { "conductor", "volt_surge", "judgment_bolt" } },
+        new Family { key = "windn", type = ElementType.Wind, entry = new[] { "slipstream" }, family = new[] { "slipstream", "updraft", "tempest" } },
+        new Family { key = "firea", type = ElementType.Fire, entry = new[] { "flame_blade" }, family = new[] { "flame_blade", "burning_soul", "inferno", "flame_counter", "scorch", "fire_whirl", "combustion" } },
+        new Family { key = "icea", type = ElementType.Ice, entry = new[] { "frost_edge" }, family = new[] { "frost_edge", "ice_prison", "absolute_zero", "permafrost", "glacier_guard", "shatter_strike" } },
+        new Family { key = "thundera", type = ElementType.Thunder, entry = new[] { "thunder_strike" }, family = new[] { "thunder_strike", "chain_lightning", "high_voltage", "thunder_lord", "conductor", "volt_surge", "judgment_bolt" } },
+        new Family { key = "winda", type = ElementType.Wind, entry = new[] { "wind_cutter" }, family = new[] { "wind_cutter", "gale", "tornado", "slipstream", "updraft", "tempest" } },
         new Family { key = "blood", type = ElementType.Blood, entry = new[] { "blood_blade" }, family = new[] { "vampire", "predator", "overheal", "blood_rush", "blood_blade", "phoenix" } },
     };
 
@@ -35,7 +44,9 @@ public static class ElementDevLoadout
             string key = item.Substring(0, item.Length - digits);
             foreach (var f in Families)
             {
-                if (key != "all" && key != f.key) continue;
+                // "all" = 既存の 5 系統(2026-10-30 の試験と同じ)/ "allx" = 新しいカードも含めた全部(2026-10-31)
+                bool expansion = f.key.EndsWith("n") || f.key.EndsWith("a");
+                if (key == "all" ? expansion : key == "allx" ? !(f.key.EndsWith("a") || f.key == "blood") : key != f.key) continue;
                 foreach (var id in entryOnly ? f.entry : f.family)
                 {
                     var c = CardDatabase.FindBaseById(id);

@@ -1,0 +1,75 @@
+10223	Změnit balíček
+10224	Použít
+10225	Přejmenovat
+10226	Kopírovat
+10227	Resetovat
+10228	Používá se
+10229	Vyberte cílový balíček
+10230	Přepsat obsah „{0}“ obsahem „{1}“?
+10231	Smazat všechny karty a název balíčku „{0}“?
+10233	Během běhu nelze změnit balíček.
+10234	Přepnuto na „{0}“, naposledy použitý balíček na této mapě/v tomto režimu.
+10235	Z balíčku bylo odebráno {0} karet, které již nevlastníte.
+10236	Balíček k použití
+10237	Prázdný
+10238	Nyní můžete uložit až 8 balíčků a přepínat mezi nimi. Váš současný balíček byl uložen do „Balíček 1“.
+10239	SEŽEHNUTÍ
+10240	OHNIVÝ VÍR
+10241	VZPLANUTÍ
+10242	VĚČNĚ ZMRZLÁ PŮDA
+10243	LEDOVCOVÁ OCHRANA
+10244	TŘÍŠTIVÝ ÚDER
+10245	VODIČ
+10246	ELEKTRICKÝ NÁRAZ
+10247	BLESK SOUDU
+10248	PROUD RYCHLOSTI
+10249	VZESTUPNÝ PROUD
+10250	BOUŘE
+10251	Útok proti hořícím nepřátelům +6%, poté +4%/Lv (+38% na Lv9). Platí i na bosse. Tato karta může i sama zapálit nepřítele při zásahu: šance 8% na Lv1, +2 procentní body za každý další Lv.
+10252	Každou 1s se může zapálení rozšířit z hořícího nepřítele na blízkého nepřítele (šance 15% na Lv1, +3 procentní body za každý další Lv). Větrné čepele, které zasáhnou hořícího nepřítele, také šíří oheň na nepřátele v okolí. Tato karta může i sama zapálit nepřítele při zásahu: šance 8% na Lv1, +2 procentní body za každý další Lv.
+10253	Nahromadění 4 vrstev zapálení na již hořícím nepříteli vyvolá výbuch, který poškodí a zapálí okolní nepřátele (zapálení vybuchlého nepřítele skončí). Síla a poloměr rostou s Lv. Každý nepřítel může vybuchnout nejvýše jednou za 4s (bossové za 6s). Tato karta může i sama zapálit nepřítele při zásahu: šance 8% na Lv1, +2 procentní body za každý další Lv.
+10254	Zpomalení sílí s nahromaděným prochlazením: od 2. vrstvy zpomalení +3.5% za každou vrstvu (+7.5% na Lv9), maximálně 3 další vrstvy. Doba prochlazení +0.15s/Lv. Tato karta může i sama prochladit nepřítele při zásahu: šance 8% na Lv1, +2 procentní body za každý další Lv.
+10255	Tato karta sama umožňuje mít 1 Shield. Zmrazení nepřítele nebo nahromadění 3 vrstev prochlazení obnoví 1 Shield (jednou za 19s na Lv1, interval se zkracuje o 1s za každý další Lv). Tato karta může i sama prochladit nepřítele při zásahu: šance 8% na Lv1, +2 procentní body za každý další Lv.
+10256	Zásah zamrzlého nepřítele nebo nepřítele s alespoň 3 vrstvami prochlazení vyvolá dodatečný útok, který roztříští led (poloviční poškození okolním nepřátelům). Zmrazení i vrstvy prochlazení zmizí. Bossové mohou být za stejných podmínek také zasaženi tímto efektem a hromadí BREAK (jednou za 8s na každého bosse). Síla a BREAK rostou s Lv. Tato karta může i sama prochladit nepřítele při zásahu: šance 8% na Lv1, +2 procentní body za každý další Lv.
+10257	Nepřátelé zasažení bleskem jsou na 2s elektricky nabití. Útok proti nabitým nepřátelům +6%, poté +4%/Lv. Poškození bleskem proti prochladlým nebo zamrzlým nepřátelům +8%, poté +4%/Lv; řetězové blesky je také snáze zasáhnou. Tato karta může i sama vyvolat blesk: šance 5% na Lv1, +1 procentní bod za každý další Lv.
+10258	Každé 3 zásahy jednoho útoku vyvolají další úder blesku (maximálně 3). Hodí se k vícenásobným a plošným útokům. Dodatečné blesky způsobují 65% běžného poškození bleskem, poté +5 procentních bodů za každý další Lv. Tato karta může i sama vyvolat blesk: šance 5% na Lv1, +1 procentní bod za každý další Lv.
+10259	Údery blesku hromadí energii. Při plném nabití se další blesk změní v Blesk soudu, který poškodí i okolní nepřátele, krátce omráčí běžné nepřátele a hromadí BREAK u bossů. Vyžaduje 10 blesků na Lv1 (6 na Lv9); síla ×2.2 na Lv1 (×3.8 na Lv9). Nejvýše jednou za 4s. Tato karta může i sama vyvolat blesk: šance 5% na Lv1, +1 procentní bod za každý další Lv.
+10260	Čím rychleji běžíte, tím silnější a častější jsou větrné čepele (zesilování od 40km/h, maximum při 120km/h). Na maximu síla +14% a šance na aktivaci +1.5 procentního bodu, poté síla +4% a šance +0.5 procentního bodu za každý další Lv. Tato karta může i sama vysílat větrné čepele: šance 6% na Lv1, +2 procentní body za každý další Lv.
+10261	Útok proti nepřátelům ve vzduchu (vyhozeným vzhůru nebo létajícím) +6%, poté +4%/Lv. Pokud je zasáhnete, když jste sami ve vzduchu, spustí se dodatečný větrný útok (síla 7.5, poté +1.5/Lv). Tato karta může i sama vysílat větrné čepele: šance 6% na Lv1, +2 procentní body za každý další Lv.
+10262	Větrné čepele se vysílají za sebou: 2 na Lv1–6, 3 na Lv7–9. Následující čepele způsobují 30% běžného poškození, poté +3 procentních bodů za každý další Lv. Tato karta může i sama vysílat větrné čepele: šance 6% na Lv1, +2 procentní body za každý další Lv. Dodatečné salvy větrných čepelí se spouštějí nejvýše 1krát za sekundu a způsobují bossům poloviční poškození.
+10263	Útok proti hořícím nepřátelům +{0}%
+10264	Zapálení se šíří na nepřátele do {0}m (šance {1}% každou 1s) / větrné čepele šíří oheň v poloměru {2}m
+10265	Výbuch při 4 vrstvách zapálení: síla {0}, poloměr {1}m
+10266	Zpomalení +{0}% za každou vrstvu prochlazení od 2. (maximálně 3)
+10267	Zmrazení / 3 vrstvy prochlazení obnoví 1 Shield (jednou za {0}s)
+10268	Roztříští led na zamrzlých nepřátelích nebo nepřátelích s 3+ vrstvami prochlazení: síla {0}, BREAK bosse +{1}%
+10269	Útok proti nabitým nepřátelům +{0}% / poškození bleskem proti prochladlým nepřátelům +{1}%
+10270	Dodatečný blesk za každé 3 zásahy jednoho útoku (síla {0}%, maximálně 3)
+10271	Blesk soudu po {0} úderech blesku: síla ×{1}, BREAK bosse +{2}%
+10272	Čím vyšší rychlost, tím silnější větrné čepele: až +{0}% síly a +{1} procentního bodu šance (120km/h)
+10273	Útok proti nepřátelům ve vzduchu +{0}% / zásah při pobytu ve vzduchu vyvolá dodatečný větrný útok, síla {1}
+10274	{0} větrných čepelí za sebou (síla následujících čepelí {1}%)
+10275	SPALUJÍCÍ ŽÁR
+10276	OHNIVÁ BOUŘE
+10277	MOHUTNÝ VÝBUCH
+10278	VĚČNÝ MRÁZ
+10279	LEDOVCOVÁ BAŠTA
+10280	ROZDRCENÍ
+10281	SUPRAVODIČ
+10282	NADPROUD
+10283	BOŽSKÝ SOUD
+10284	VÍTR V ZÁDECH
+10285	STOUPAJÍCÍ DRAK
+10286	VELKÁ BOUŘE
+10287	Po dobu 10s útok proti hořícím nepřátelům ×1.8
+10288	Po dobu 10s se zapálení šíří snáze a na větší vzdálenost
+10289	Po dobu 10s síla a poloměr výbuchů ×1.8
+10290	Po dobu 10s zpomalení z nahromaděného prochlazení ×1.8
+10291	Po dobu 10s se zkrátí interval obnovování Shield při zmrazení
+10292	Po dobu 10s síla dodatečných útoků tříštících led a BREAK ×1.8
+10293	Po dobu 10s bonusy proti nabitým a prochladlým nepřátelům ×1.8
+10294	Po dobu 10s síla dodatečných úderů blesku ×1.8
+10295	Po dobu 10s vyžaduje Blesk soudu méně úderů blesku a má vyšší sílu
+10296	Po dobu 10s posílení větrných čepelí díky rychlosti ×1.8
+10297	Po dobu 10s útok a dodatečné útoky proti nepřátelům ve vzduchu ×1.8
+10298	Po dobu 10s se zvyšuje síla následujících větrných čepelí

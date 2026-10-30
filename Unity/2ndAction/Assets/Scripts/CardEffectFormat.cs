@@ -57,6 +57,10 @@ public static class CardEffectFormat
             case EffectType.BossRushLevel: case EffectType.WantedLevel: case EffectType.InfernoLevel: case EffectType.AbsoluteZeroLevel:
             case EffectType.TornadoLevel: case EffectType.BloodBladeLevel: case EffectType.ShieldGuard: case EffectType.UltimateLevel:
             case EffectType.LightningCounterLevel:
+            // 2026-10-31 カード拡張(属性 12 枚)
+            case EffectType.ScorchLevel: case EffectType.FireWhirlLevel: case EffectType.CombustionLevel: case EffectType.PermafrostLevel:
+            case EffectType.GlacierGuardLevel: case EffectType.ShatterStrikeLevel: case EffectType.ConductorLevel: case EffectType.VoltSurgeLevel:
+            case EffectType.JudgmentLevel: case EffectType.SlipstreamLevel: case EffectType.UpdraftLevel: case EffectType.TempestLevel:
                 return true;
         }
         return false;
