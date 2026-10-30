@@ -1116,6 +1116,51 @@ MonoBehaviour:
     minInterval: 0.5
     priority: 2
     maxVoices: 2
+  - id: 110
+    clips:
+    - {fileID: 8300000, guid: 98959a2567adb09408d2252f59a7cdc7, type: 3}
+    volume: 0.8
+    pitchJitter: 0.06
+    volumeJitter: 0.08
+    minInterval: 0.08
+    priority: 0
+    maxVoices: 2
+  - id: 111
+    clips:
+    - {fileID: 8300000, guid: 8a6a41495adb2724e8ec322c47cd10b7, type: 3}
+    volume: 0.75
+    pitchJitter: 0.06
+    volumeJitter: 0.08
+    minInterval: 0.08
+    priority: 0
+    maxVoices: 2
+  - id: 112
+    clips:
+    - {fileID: 8300000, guid: 30f59c9adbe7cae45b0ba8fe3cc0aae4, type: 3}
+    volume: 0.8
+    pitchJitter: 0.06
+    volumeJitter: 0.08
+    minInterval: 0.08
+    priority: 0
+    maxVoices: 2
+  - id: 113
+    clips:
+    - {fileID: 8300000, guid: bf33e984edbb0454ea5b5fae9b850f18, type: 3}
+    volume: 0.75
+    pitchJitter: 0.06
+    volumeJitter: 0.08
+    minInterval: 0.08
+    priority: 0
+    maxVoices: 2
+  - id: 114
+    clips:
+    - {fileID: 8300000, guid: 7f15e53b7202f4e48aa5dc6b00317ac8, type: 3}
+    volume: 0.85
+    pitchJitter: 0.06
+    volumeJitter: 0.08
+    minInterval: 0.08
+    priority: 0
+    maxVoices: 2
   weaponSe:
   - weapon: 0
     normal:

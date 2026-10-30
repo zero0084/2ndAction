@@ -189,6 +189,8 @@ public enum SeId
     BossRoarBeast, BossRoarDragon, BossRoarInsect, BossRoarGolem, BossRoarHumanoid, BossRoarReaper, BossRoarMech,
     BossGrowlBeast, BossGrowlDragon, BossGrowlInsect, BossGrowlGolem, BossGrowlHumanoid, BossGrowlReaper, BossGrowlMech,
     BossDeathBeast, BossDeathDragon, BossDeathInsect, BossDeathGolem, BossDeathHumanoid, BossDeathReaper, BossDeathMech,
+    // ---- 2026-10-30 属性の発動(小さめ・間引き。ElementVfx.Sfx) ----
+    ElemFire, ElemIce, ElemThunder, ElemWind, ElemBlood,
 }
 
 [Serializable]

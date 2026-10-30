@@ -111,6 +111,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaGacha") { mode = "gacha"; dir = a[i + 1]; }
             if (a[i] == "-qaDeck") { mode = "deck"; dir = a[i + 1]; }
             if (a[i] == "-qaDeckDup") { mode = "deckdup"; dir = a[i + 1]; }
+            if (a[i] == "-qaElemVis") { mode = "elemvis"; dir = a[i + 1]; }
             if (a[i] == "-qaUnlock") { mode = "unlock"; dir = a[i + 1]; }
             if (a[i] == "-qaLoc") { mode = "loc"; dir = a[i + 1]; }
             if (a[i] == "-qaOnline") { mode = "online"; dir = a[i + 1]; }
@@ -307,6 +308,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "gacha") yield return GachaModeQa();
         else if (mode == "deck") yield return DeckModeQa();
         else if (mode == "deckdup") yield return DeckDupMode();
+        else if (mode == "elemvis") yield return ElemVisMode();
         else if (mode == "unlock") yield return UnlockModeQa();
         else if (mode == "loc") yield return LocModeQa();
         else if (mode == "online") yield return OnlineModeQa();

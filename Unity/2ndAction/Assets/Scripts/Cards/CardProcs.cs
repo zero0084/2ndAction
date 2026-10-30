@@ -174,6 +174,8 @@ public static partial class CardProcs
         var gm = GM;
         if (gm == null || e == null || gm.IsGameOver) return;
         Vector3 at = CenterOf(e);
+        ElementTelemetry.EnemyDeaths++;
+        ElementVfx.NoteKill(at); // VAMPIRE の吸収は撃破で判定する → 血がこの敵から戻る(2026-10-30)
         var st = e.GetComponent<ElementStatus>();
         bool burning = st != null && st.BurningOrDiedBurning;
         ComboOnKill(e, st); // COMBO(WILDFIRE)
@@ -200,7 +202,9 @@ public static partial class CardProcs
             if (hitThisChain.Contains(c)) continue; // 同じ連鎖では同じ相手へ1回
             hitThisChain.Add(c);
             bool wasAlive = ElementSystem.IsAlive(c);
-            ElementSystem.DealQuiet(c, Mathf.Max(1, Mathf.RoundToInt(dmg)), ElementType.Fire);
+            ElementTelemetry.Suppress = true; // CHAIN EXPLOSION は属性のカードではない(計測では Other)
+            try { ElementSystem.DealQuiet(c, Mathf.Max(1, Mathf.RoundToInt(dmg)), ElementType.Fire); }
+            finally { ElementTelemetry.Suppress = false; }
             // 連鎖: 爆発で倒れた敵からさらに爆発(世代の上限まで)
             if (wasAlive && c is EnemyController en && !ElementSystem.IsAlive(en) && gen + 1 < CardRules.ChainExplosionMaxGeneration && GM != null)
                 GM.StartCoroutine(ChainExplosion(CenterOf(en), lv, gen + 1, hitThisChain));
@@ -211,12 +215,12 @@ public static partial class CardProcs
     {
         yield return new WaitForSeconds(0.06f);
         if (!TakeProc()) yield break;
-        Infernos++;
+        Infernos++; ElementTelemetry.Infernos++; ElementTelemetry.Proc(ElementType.Fire);
         var e = GM != null ? GM.Elements : null;
         float radius = 2.0f + 0.1f * lv;
         float scale = ElementSystem.DamageScale;
         float dmg = (6f + 2f * lv) * scale * Mathf.Pow(0.7f, gen);
-        if (TakeFx()) OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, at, new Color(1f, 0.4f, 0.12f, 0.9f), 0.32f, 0.5f, radius * 0.9f, -1f, 0f);
+        if (TakeFx()) { if (ElementVfx.New) ElementVfx.InfernoBurst(at, radius); else OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, at, new Color(1f, 0.4f, 0.12f, 0.9f), 0.32f, 0.5f, radius * 0.9f, -1f, 0f); }
         var targets = new List<Component>();
         CollectTargets(at, radius, targets);
         float burnDps = e != null && e.BurnPower > 0f ? e.BurnDps : (4f + lv) * scale;
@@ -227,7 +231,7 @@ public static partial class CardProcs
             hitThisChain.Add(c);
             bool wasAlive = ElementSystem.IsAlive(c);
             ElementSystem.DealQuiet(c, Mathf.Max(1, Mathf.RoundToInt(dmg)), ElementType.Fire);
-            if (ElementSystem.IsAlive(c)) ElementStatus.For(c).AddBurn(burnDps, burnDur);
+            if (ElementSystem.IsAlive(c)) { ElementStatus.For(c).AddBurn(burnDps, burnDur); ElementTelemetry.StatusOn(ElementType.Fire); ElementVfx.BurnApplied(c); }
             if (wasAlive && c is EnemyController en && !ElementSystem.IsAlive(en) && gen + 1 < 2 && GM != null)
                 GM.StartCoroutine(InfernoBurst(CenterOf(en), lv, gen + 1, hitThisChain));
         }
@@ -242,16 +246,20 @@ public static partial class CardProcs
 
     static IEnumerator Tornado(Vector3 at, int lv)
     {
-        Tornados++;
+        Tornados++; ElementTelemetry.Tornados++;
         float radius = 1.2f + 0.06f * lv;
         float dmg = (4f + lv) * ElementSystem.DamageScale;
         for (int i = 0; i < 3; i++)
         {
             if (!TakeProc()) yield break;
-            if (TakeFx()) OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, at + Vector3.up * 0.5f, new Color(0.7f, 1f, 0.85f, 0.7f), 0.3f, radius * 0.6f, radius, -1f, 0f, Vector3.up * 0.8f, 180f);
+            if (TakeFx()) { if (ElementVfx.New) ElementVfx.Tornado(at, radius, i); else OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, at + Vector3.up * 0.5f, new Color(0.7f, 1f, 0.85f, 0.7f), 0.3f, radius * 0.6f, radius, -1f, 0f, Vector3.up * 0.8f, 180f); }
             var targets = new List<Component>();
             CollectTargets(at + Vector3.up * 0.6f, radius, targets);
-            foreach (var c in targets) ElementSystem.DealQuiet(c, Mathf.Max(1, Mathf.RoundToInt(dmg)), ElementType.Wind);
+            foreach (var c in targets)
+            {
+                ElementSystem.DealQuiet(c, Mathf.Max(1, Mathf.RoundToInt(dmg)), ElementType.Wind);
+                if (ElementVfx.New && ElementSystem.IsAlive(c)) { ElementStatus.For(c).MarkWind(); ElementVfx.WindRing(c); } // 巻き込んだ敵のまわりに風の輪
+            }
             yield return new WaitForSeconds(0.4f);
         }
     }
@@ -277,9 +285,9 @@ public static partial class CardProcs
             {
                 if (!TakeProc()) break;
                 ElementSystem.DealQuiet(c, Mathf.Max(1, Mathf.RoundToInt(ProcBase * (0.6f + 0.15f * fc))), ElementType.Fire);
-                if (ElementSystem.IsAlive(c)) ElementStatus.For(c).AddBurn(burnDps, Mathf.Max(3f, e.BurnDuration));
+                if (ElementSystem.IsAlive(c)) { ElementStatus.For(c).AddBurn(burnDps, Mathf.Max(3f, e.BurnDuration)); ElementTelemetry.StatusOn(ElementType.Fire); ElementVfx.BurnApplied(c); }
             }
-            FlameCounters++;
+            FlameCounters++; ElementTelemetry.Proc(ElementType.Fire);
         }
         ComboOnShieldBlock(pc); // COMBO(AEGIS COUNTER): 最後の Shield が割れた時
     }

@@ -165,6 +165,17 @@ public class DragonHealthBar : MonoBehaviour
         foreach (var t in ticks) if (t != null && bgSr != null) { Color c = t.color; c.a = 0.9f * (bgBaseColor.a > 0f ? bgSr.color.a / bgBaseColor.a : 1f); t.color = c; }
     }
 
+    // 2026-10-30: ボスの頭上の属性マークを HP バーの上に置くため、対象から HP バーを引けるように
+    static readonly System.Collections.Generic.List<DragonHealthBar> all = new System.Collections.Generic.List<DragonHealthBar>();
+    void OnEnable() { if (!all.Contains(this)) all.Add(this); }
+    void OnDisable() { all.Remove(this); }
+    public static DragonHealthBar For(Transform t)
+    {
+        if (t == null) return null;
+        foreach (var b in all) if (b != null && b.target == t) return b;
+        return null;
+    }
+
     public static DragonHealthBar Create(Sprite squareSprite, Transform target, float maxWidth, float barHeight)
     {
         GameObject go = new GameObject("DragonHpBar");

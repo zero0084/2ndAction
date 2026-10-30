@@ -83,6 +83,13 @@ public class ElementStatus : MonoBehaviour
 
     public void AddShock(float seconds) { shockLeft = Mathf.Max(shockLeft, seconds); }
 
+    // 2026-10-30(視認性): 見た目だけの状態。落雷を受けた直後の「帯電」/ 風刃・竜巻を受けた直後の「風」(性能には関係しない)
+    float chargedLeft, windLeft;
+    public void MarkCharged(float seconds = 0.8f) { chargedLeft = Mathf.Max(chargedLeft, seconds); }
+    public void MarkWind(float seconds = 1.0f) { windLeft = Mathf.Max(windLeft, seconds); }
+    public bool Charged => chargedLeft > 0f || shockLeft > 0f;
+    public bool Windswept => windLeft > 0f;
+
     public void AddBleed(float dps, float duration, float healFraction)
     {
         bleedDps = Mathf.Max(bleedLeft > 0f ? bleedDps : 0f, dps);
@@ -111,6 +118,8 @@ public class ElementStatus : MonoBehaviour
         if (chillLeft > 0f) { chillLeft -= dt; if (chillLeft <= 0f) { chillLeft = 0f; chillSlow = 0f; chillStacks = 0; } }
         if (freezeLeft > 0f) freezeLeft = Mathf.Max(0f, freezeLeft - dt);
         if (shockLeft > 0f) shockLeft = Mathf.Max(0f, shockLeft - dt);
+        if (chargedLeft > 0f) chargedLeft = Mathf.Max(0f, chargedLeft - dt);
+        if (windLeft > 0f) windLeft = Mathf.Max(0f, windLeft - dt);
         if (burnLeft > 0f || bleedLeft > 0f)
         {
             tick += dt;
@@ -124,12 +133,17 @@ public class ElementStatus : MonoBehaviour
                 if (dmg > 0f)
                 {
                     int n = Mathf.Max(1, Mathf.RoundToInt(dmg));
-                    ElementSystem.DealQuiet(target, n, burnLeft > 0f ? ElementType.Fire : ElementType.Blood);
+                    // 計測(2026-10-30): 炎上と出血が同時の時は1回のダメージなので、属性ごとの分は割合で数える(ダメージの処理は今までどおり)
+                    bool both = burnLeft > 0f && bleed > 0f;
+                    if (both) { ElementTelemetry.Suppress = true; ElementTelemetry.Damage[(int)ElementType.Blood] += Mathf.RoundToInt(n * bleed / dmg); ElementTelemetry.Damage[(int)ElementType.Fire] += n - Mathf.RoundToInt(n * bleed / dmg); }
+                    try { ElementSystem.DealQuiet(target, n, burnLeft > 0f ? ElementType.Fire : ElementType.Blood); }
+                    finally { if (both) ElementTelemetry.Suppress = false; }
+                    if (burnLeft > 0f) ElementVfx.BurnTick(target, Bounds, Size, FireTier);
                     if (bleed > 0f && bleedHeal > 0f)
                     {
                         healCarry += bleed * bleedHeal;
                         int heal = Mathf.FloorToInt(healCarry);
-                        if (heal > 0) { healCarry -= heal; ElementSystem.HealFromBleed(heal); }
+                        if (heal > 0) { healCarry -= heal; ElementSystem.HealFromBleed(heal, target); }
                     }
                 }
                 if (target == null || !ElementSystem.IsAlive(target)) { if (burnLeft > 0f) DiedBurning = true; Clear(); return; }
@@ -143,15 +157,49 @@ public class ElementStatus : MonoBehaviour
 
     void Clear()
     {
-        burnLeft = bleedLeft = chillLeft = freezeLeft = shockLeft = 0f;
+        burnLeft = bleedLeft = chillLeft = freezeLeft = shockLeft = chargedLeft = windLeft = 0f;
         burnBoost = 0f;
         chillStacks = 0;
         if (marker != null) marker.enabled = false;
+        if (aura != null) aura.Hide();
     }
 
-    // 状態の目印(頭上の小さな菱形。炎=橙/出血=赤/冷気=水色/凍結=白)。演出の最終形ではない
+    void OnDisable() { if (aura != null) aura.Hide(); }
+    void OnDestroy() { if (aura != null) aura.Dispose(); aura = null; }
+
+    // ---- 2026-10-30 視認性: 体の大きさ(当たり判定から。毎フレーム探さない)
+    Collider2D bodyCol;
+    float sizeCache = 1f; Bounds boundsCache; int boundsFrame = -1;
+    public Bounds Bounds { get { RefreshBounds(); return boundsCache; } }
+    public float Size { get { RefreshBounds(); return sizeCache; } }
+    void RefreshBounds()
+    {
+        if (boundsFrame == Time.frameCount) return;
+        boundsFrame = Time.frameCount;
+        if (bodyCol == null || !bodyCol.enabled)
+        {
+            boundsCache = ElementVfx.BoundsOf(target);
+            bodyCol = target is WildBossBase wb ? wb.DebugHurtCol : target != null ? target.GetComponentInChildren<Collider2D>() : null;
+        }
+        else boundsCache = bodyCol.bounds;
+        sizeCache = Mathf.Clamp(Mathf.Max(boundsCache.size.x, boundsCache.size.y) / 1.6f, 0.8f, 3.2f);
+    }
+    int FireTier => ElementVfx.Tier(ElementType.Fire);
+    public float BurnBoost => burnBoost;
+    ElementAura aura;
+
+    // 状態の目印(頭上の小さな菱形。炎=橙/出血=赤/冷気=水色/凍結=白)。2026-10-30 からは旧表示(-elemVfx old)の時だけ
     void UpdateMarker()
     {
+        if (ElementVfx.New)
+        {
+            if (marker != null) marker.enabled = false;
+            bool any = Burning || Chilled || Frozen || Bleeding || Charged || Windswept;
+            if (!any) { if (aura != null) aura.Hide(); return; }
+            if (aura == null) aura = new ElementAura(this);
+            aura.Update(target);
+            return;
+        }
         Color? c = Frozen ? new Color(0.92f, 0.97f, 1f) : Burning ? new Color(1f, 0.55f, 0.15f) : Bleeding ? new Color(0.85f, 0.1f, 0.2f) : Chilled ? new Color(0.45f, 0.8f, 1f) : (Color?)null;
         if (c == null) { if (marker != null) marker.enabled = false; return; }
         if (marker == null)

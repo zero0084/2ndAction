@@ -764,6 +764,7 @@ public partial class GameManager : MonoBehaviour
             if (DebugMode) Debug.Log($"[CardStack] CharacterCard slot {i}: {card.cardName} equippedLv={stacks} -> ApplyCardEffects called {stacks}x at Run start (runStackSoFar={GetCurrentRunStack(card.cardId)})");
         }
         SnapshotRunStartAbilities(); // カード長期育成(2026-10-04): ランの開始時点の能力Lv(Final Evolution の資格の判定用)
+        ElementDevLoadout.ApplyAtRunStart(this); // 開発版だけ: 属性の確認用(-elemLoadout)
     }
 
     public float retryDelayAfterGameOver = 3f;
@@ -3743,7 +3744,13 @@ public partial class GameManager : MonoBehaviour
         chance = Mathf.Min(CardRules.LifestealChanceCap, chance) * chanceScale;
         if (chance > 0f) chance = Mathf.Min(1f, chance + FinalEvolution.LifestealChanceAdd * chanceScale); // FINAL EVOLUTION(VAMPIRE)
         if (chance <= 0f) return;
-        if (Random.value < chance) { LifestealProcs++; CardHeal(HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart); }
+        if (Random.value < chance)
+        {
+            LifestealProcs++; ElementTelemetry.LifestealHeals++; ElementTelemetry.Proc(ElementType.Blood);
+            CardHeal(HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart);
+            // 2026-10-30(視認性): 吸収した敵(撃破の直後なら倒した敵、それ以外は最後に当てた所)から、血がプレイヤーへ戻る
+            ElementVfx.BloodReturn(Time.time - ElementVfx.LastKillTime < 0.5f ? ElementVfx.LastKillPos : ElementVfx.LastHitPos, HealHearts(CardRules.BaseHealHearts));
+        }
     }
 
     // 10〜12人目(2026-09-28) - 吸血鬼の吸血回復用の公開入口(回復量と頻度の上限は吸血鬼側で管理)。

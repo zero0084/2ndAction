@@ -77,6 +77,11 @@ public static class ElementSystem
     {
         var gm = GameManager.Instance;
         if (gm == null || gm.IsGameOver || !Authoritative) return;
+        // 計測(2026-10-30): 命中の数と直接のダメージ。風刃(属性の追加攻撃)の命中は風のダメージ、ほかのカードの追加攻撃は Other
+        if (info != null && info.windBlade) { ElementTelemetry.OnDamage(ElementType.Wind, damage, false); ElementVfx.WindHit(Normalize(victim)); var ws = Normalize(victim); if (ElementVfx.New && ws != null && IsAlive(ws)) ElementStatus.For(ws).MarkWind(); }
+        else if (info != null && info.elementProc) ElementTelemetry.OnDamage(ElementType.None, damage, false);
+        else ElementTelemetry.OnHit(damage);
+        ElementVfx.LastHitPos = victim != null ? victim.transform.position + Vector3.up * 0.8f : ElementVfx.LastHitPos;
         ElementStats e = gm.Elements;
         if (!e.AnyActive) return;
         if (info != null && info.elementProc && !info.windBlade) return; // カードの追加攻撃(衝撃波/斬撃)からは属性を判定しない
@@ -91,15 +96,20 @@ public static class ElementSystem
             float bdps = e.BurnDps * FinalEvolution.BurnDpsMul;
             ElementStatus.For(victim).AddBurn(bdps, e.BurnDuration);
             BurnProcs++;
+            ElementTelemetry.Proc(ElementType.Fire); ElementTelemetry.StatusOn(ElementType.Fire);
+            ElementVfx.BurnApplied(victim);
             FinalEvolution.OnBurnApplied(victim, bdps, e.BurnDuration);
         }
         // 氷: 行動を遅く、重なると凍結(ボスは強めの減速)
         if (e.ChillChance > 0f && e.ChillSlow > 0f && Roll() < e.ChillChance)
         {
             var st = ElementStatus.For(victim);
-            if (st.AddChill(e.ChillSlow, e.ChillDuration, e.FreezeStacks, e.FreezeDuration, e.AbsoluteZero))
+            bool froze = st.AddChill(e.ChillSlow, e.ChillDuration, e.FreezeStacks, e.FreezeDuration, e.AbsoluteZero);
+            ElementTelemetry.Proc(ElementType.Ice); ElementTelemetry.StatusOn(ElementType.Ice);
+            ElementVfx.ChillApplied(victim, froze);
+            if (froze)
             {
-                FreezeProcs++;
+                FreezeProcs++; ElementTelemetry.Freezes++;
                 if (e.AbsoluteZero > 0) AbsoluteZeroShatter(victim, e.AbsoluteZero);
                 CardProcs.ComboOnFreeze(victim, info); // COMBO(FROZEN PRISON)
             }
@@ -114,6 +124,8 @@ public static class ElementSystem
             float dps = e.BleedPower * DamageScale * (1f + e.BloodLowHpBonus * Mathf.Clamp01(missing));
             ElementStatus.For(victim).AddBleed(dps, e.BleedDuration, e.BleedLifesteal);
             BleedProcs++;
+            ElementTelemetry.Proc(ElementType.Blood); ElementTelemetry.StatusOn(ElementType.Blood);
+            ElementVfx.BleedApplied(victim);
         }
         // 雷: 落雷(当たった相手)+ 近くの別の敵へ連鎖 + 周りへの範囲
         // FINAL EVOLUTION(THUNDER STRIKE): 落雷しやすく連鎖+1。1体へ0.4秒に1回の制限と、落雷から落雷を出さない決まりはそのまま
@@ -121,6 +133,7 @@ public static class ElementSystem
         if (lChance > 0f && e.LightningPower > 0f && Roll() < lChance && LightningReady(victim))
         {
             LightningProcs++;
+            ElementTelemetry.Proc(ElementType.Thunder);
             int ldmg = Mathf.Max(1, Mathf.RoundToInt(e.LightningDamage * HitWeight));
             var last = Chain(victim, ldmg, e.LightningChains + FinalEvolution.LightningChainsAdd, e.LightningRange, e.LightningSplash, e.LightningShock);
             CardProcs.ComboOnLightning(victim, last, ldmg, info); // COMBO(THUNDER CHAIN / STORM LORD)
@@ -131,6 +144,7 @@ public static class ElementSystem
             lastWindBlade = Time.time;
             SpawnWindBlade(e);
             WindBlades++;
+            ElementTelemetry.Proc(ElementType.Wind);
         }
     }
 
@@ -138,10 +152,11 @@ public static class ElementSystem
     // ABSOLUTE ZERO: 凍結した瞬間に砕ける冷気のダメージ。ボスは凍結の代わりの減速がさらに強くなる(ElementStatus)
     static void AbsoluteZeroShatter(Component victim, int lv)
     {
-        Shatters++;
+        Shatters++; ElementTelemetry.Shatters++;
+        ElementVfx.Shatter(CenterOf(victim), ElementVfx.SizeOf(victim, out _));
         float dmg = (10f + 3f * lv) * DamageScale * HitWeight;
         DealQuiet(victim, Mathf.Max(1, Mathf.RoundToInt(dmg)), ElementType.Ice);
-        OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, CenterOf(victim), new Color(0.75f, 0.95f, 1f, 0.9f), 0.25f, 0.4f, 1.3f, -1f, 0f);
+        if (ElementVfx.Legacy) OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, CenterOf(victim), new Color(0.75f, 0.95f, 1f, 0.9f), 0.25f, 0.4f, 1.3f, -1f, 0f);
     }
 
     // 子の当たり判定から呼ばれた時も本体に揃える
@@ -172,15 +187,17 @@ public static class ElementSystem
             case DragonController d: d.TakeDamage(dmg); dealt = true; break;
             case MajinController m: m.TakeDamage(dmg); dealt = true; break;
         }
-        if (dealt) ElementDamage += dmg;
+        if (dealt) { ElementDamage += dmg; ElementTelemetry.OnDamage(element, dmg, !IsAlive(victim)); }
     }
 
-    public static void HealFromBleed(int amount)
+    public static void HealFromBleed(int amount, Component from = null)
     {
         var gm = GameManager.Instance;
         if (gm == null || amount <= 0) return;
         gm.KitHeal(amount);
         BleedHealed += amount;
+        ElementTelemetry.BleedHealHp += amount;
+        if (from != null && ElementVfx.New) ElementVfx.BloodReturn(CenterOf(from), 0); // 敵からプレイヤーへ戻る(2026-10-30)
     }
 
     static readonly List<Component> chainBuf = new List<Component>();
@@ -189,6 +206,8 @@ public static class ElementSystem
     {
         DealQuiet(c, dmg, ElementType.Thunder);
         LightningHits++;
+        if (ElementVfx.New && IsAlive(c)) { ElementStatus.For(c).MarkCharged(); }
+        ElementVfx.StrikeImpact(c, ElementVfx.Tier(ElementType.Thunder));
         if (shock > 0f && c is EnemyController && IsAlive(c)) ElementStatus.For(c).AddShock(shock);
         if (splash > 0f)
         {
@@ -224,7 +243,8 @@ public static class ElementSystem
             Component next = chainBuf[best];
             chainBuf.RemoveAt(best);
             Vector3 to = CenterOf(next);
-            Bolt(cur, to);
+            Bolt(cur, to, true);
+            ElementTelemetry.Chains++;
             dmg = Mathf.Max(1, Mathf.RoundToInt(dmg * 0.75f)); // 連鎖するほど少し弱く
             Strike(next, dmg, splash, shock);
             cur = to;
@@ -237,13 +257,14 @@ public static class ElementSystem
     public static void ComboStrike(Vector3 from, Component to, int dmg)
     {
         if (to == null || !IsAlive(to)) return;
-        Bolt(from, CenterOf(to));
+        Bolt(from, CenterOf(to), true);
         Strike(to, dmg, 0f, 0f);
     }
 
     // 稲妻の見た目(短い線。最終演出ではない)
-    static void Bolt(Vector3 a, Vector3 b)
+    static void Bolt(Vector3 a, Vector3 b, bool chain = false)
     {
+        if (ElementVfx.New) { ElementVfx.Bolt(a, b, ElementVfx.Tier(ElementType.Thunder), chain); return; } // 2026-10-30: 太い芯+光の縁、連鎖は少し長く残す(プール)
         var go = new GameObject("ElementBolt");
         var lr = go.AddComponent<LineRenderer>();
         lr.sharedMaterial = SharedMaterials.SpritesDefault; // 共有(出すたびに作ると消えずに残る。2026-10-08)
@@ -279,5 +300,18 @@ public static class ElementSystem
         proj.pierce = 2 + CardProcs.ComboWindPierceBonus; // 風の貫通の追加(WindPierce)は KitProjectile.Start で足される / COMBO(GALE EDGE)の+1
         var info = proj.GetComponent<PlayerAttackInfo>();
         if (info != null) { info.elementProc = true; info.windBlade = true; info.seqTag = AttackSeqTag.None; info.seqMoveId = 0; }
+        if (ElementVfx.New)
+        {
+            // 2026-10-30: 風は透明なので背景に埋もれないよう、少し濃い緑の縁を後ろに敷く + 出した時にプレイヤーに短い風の線
+            var sr = proj.GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                sr.color = new Color(0.82f, 1f, 0.93f, 0.95f);
+                var edge = new GameObject("WindEdge"); edge.transform.SetParent(proj.transform, false);
+                edge.transform.localScale = new Vector3(1.18f, 1.9f, 1f);
+                var er = edge.AddComponent<SpriteRenderer>(); er.sprite = sr.sprite; er.color = new Color(0.05f, 0.42f, 0.36f, 0.75f); er.sortingOrder = sr.sortingOrder - 1;
+            }
+            ElementVfx.WindRelease(pos, dir);
+        }
     }
 }

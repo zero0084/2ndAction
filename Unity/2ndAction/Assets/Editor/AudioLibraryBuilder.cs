@@ -311,6 +311,25 @@ public static class AudioLibraryBuilder
         }
     }
 
+    // 2026-10-30 属性の発動の SE(Tools/audio/gen_audio_elem.py)。今のアセットへ足すだけ(他の割り当てはそのまま)。batchmode: -executeMethod AudioLibraryBuilder.ApplyElementSe
+    [MenuItem("Tools/OneMoreMile/Audio/Apply element SE 2026-10-30")]
+    public static void ApplyElementSe()
+    {
+        ConfigureImports();
+        var lib = AssetDatabase.LoadAssetAtPath<AudioLibrary>(AssetPath);
+        if (lib == null) { Debug.LogError("ApplyElementSe: no library"); return; }
+        var list = new (SeId id, string clip, float vol)[] { (SeId.ElemFire, "elem_fire_v1", 0.8f), (SeId.ElemIce, "elem_ice_v1", 0.75f), (SeId.ElemThunder, "elem_thunder_v1", 0.8f), (SeId.ElemWind, "elem_wind_v1", 0.75f), (SeId.ElemBlood, "elem_blood_v1", 0.85f) };
+        foreach (var (id, clip, vol) in list)
+        {
+            var c = Se(clip);
+            if (c == null) { Debug.LogError("ApplyElementSe: no clip " + clip); continue; }
+            var e = E(id, vol, 0.06f, 0.08f, c); e.priority = SePriority.Low; e.maxVoices = 2; e.volumeJitter = 0.08f;
+            lib.se.RemoveAll(x => x != null && x.id == id); lib.se.Add(e);
+        }
+        EditorUtility.SetDirty(lib); AssetDatabase.SaveAssets();
+        Debug.Log($"ApplyElementSe: applied ({lib.se.Count} SE entries)");
+    }
+
     // 仮音源の取り込み設定: 曲=ストリーミング、環境音/ジングル=圧縮のままメモリ、SE=展開して即再生
     static void ConfigureImports()
     {
