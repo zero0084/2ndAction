@@ -104,10 +104,10 @@
 
 ## 7. 確認環境
 
-- Windows: 開発版の試験版で上記。確認用の Windows ビルド: @@WIN@@
-- Android エミュレーター: @@EMU@@
+- Windows: 開発版の試験版で上記。確認用の Windows ビルド: `Unity/2ndAction/Builds/WindowsProductSandbox/OneMoreMile.exe`(製品版・製品名「One More Mile Test」= 本物の保存とは別。起動 45 秒の確認で例外 0、本物の保存は変化なし、試験版の保存の旧デッキはプリセット 1 へ移行されたことをログで確認)。**ここで製品版だけのコンパイルエラーが見つかり修正しました**(ボスの AddCardStagger が開発用の #if の中にあった。b77a8c17。開発版の APK 403 には影響なし)
+- Android エミュレーター: APK 403 を入れて -qaDeckPreset all = 合格(例外 0、帯・一覧・名前の変更・コピー先の撮影あり)、-qaElemVis cards(新カード 12 枚 × Lv1/Lv9)= 24 件すべて完了・例外 0。イベント型(FIRE WHIRL の燃え広がり / COMBUSTION / SHATTER STRIKE / VOLT SURGE / JUDGMENT BOLT / TEMPEST)は Windows と同じく発動。エラーは AssetPackManager のクラスが無い 1 件だけで APK 402 と同じ(既存)
 - Android 実機: **未確認**。
-- APK: @@APK@@
+- APK: 403(versionCode 403 / targetSdk 36 / 開発版 / 約 425MB)。記録コミット 2c0e678a。製品版の修正 b77a8c17 は APK 403 の後(開発版は同じ動き)
 
 ## 8. 未確認・残り
 
