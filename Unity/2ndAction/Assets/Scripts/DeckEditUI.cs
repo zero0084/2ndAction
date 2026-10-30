@@ -298,6 +298,8 @@ public class DeckEditUI : MonoBehaviour
         if (ownedScrollRect != null) ownedScrollRect.verticalNormalizedPosition = 1f;
         if (deckScrollRect != null) deckScrollRect.verticalNormalizedPosition = 1f;
         ApplyOrientationLayout();
+        if (presetUi == null) presetUi = gameObject.AddComponent<DeckPresetUi>(); // 2026-10-31: デッキのプリセット
+        presetUi.Bind(this);
         if (rootGroup != null)
         {
             rootGroup.alpha = 0f;
@@ -457,6 +459,7 @@ public class DeckEditUI : MonoBehaviour
     // Androidの戻る(2026-10-01): 確認ダイアログが出ていればそれを閉じる、無ければ画面を閉じる
     public void HandleBack()
     {
+        if (presetUi != null && presetUi.HandleBack()) return; // 2026-10-31: プリセットの一覧が開いていれば、それだけを閉じる
         if (confirmDialog != null && confirmDialog.IsOpen) { confirmDialog.Cancel(); return; }
         Close();
     }
@@ -747,8 +750,14 @@ public class DeckEditUI : MonoBehaviour
     void RefreshHeadings()
     {
         if (collectionHeader != null) collectionHeader.text = CollectionLabel;
-        if (deckHeader != null) deckHeader.text = Loc.T("デッキ");
+        if (deckHeader != null) deckHeader.text = ""; // 2026-10-31: 見出しの位置にはプリセットの帯(DeckPresetUi)を出す
     }
+
+    // ---- デッキのプリセット(2026-10-31)
+    DeckPresetUi presetUi;
+    public RectTransform DeckHeaderRect => deckHeader != null ? deckHeader.rectTransform : null;
+    public void RefreshAfterPresetChange() { ResetDetail(); Refresh(); }
+    public DeckPresetUi DebugPresetUi => presetUi;
 
     void BuildEmptyState()
     {

@@ -163,6 +163,9 @@ public static class DeckCapacityNotice
             NoticeQueue.Enqueue("deck_duplicates", "デッキを整理しました", body, null);
             SaveStoreSaveDeckNow(gm);
         }
+        // 2026-10-31: デッキのプリセット(旧セーブから初めて作った時に1回だけ。新規のプレイヤーには出さない)
+        if (hadSavedDeck && DeckPresets.MigratedFromOldSave == 1)
+            NoticeQueue.Enqueue("deck_presets", LocPendingReview.PresetListTitle, LocPendingReview.PresetMigratedNotice, null);
         if (!hadSavedDeck || SaveStore.GetInt(Key, 0) != 0) return;
         if (gm.DeckCards.Count >= GameManager.DeckCapacity) { SaveStore.SetInt(Key, 1); return; }
         NoticeQueue.Enqueue("deck12", "デッキ上限が12枚になりました",

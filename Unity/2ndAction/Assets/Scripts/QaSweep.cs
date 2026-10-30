@@ -111,6 +111,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaGacha") { mode = "gacha"; dir = a[i + 1]; }
             if (a[i] == "-qaDeck") { mode = "deck"; dir = a[i + 1]; }
             if (a[i] == "-qaDeckDup") { mode = "deckdup"; dir = a[i + 1]; }
+            if (a[i] == "-qaDeckPreset") { mode = "deckpreset"; dir = a[i + 1]; } // 2026-10-31 デッキのプリセット
             if (a[i] == "-qaElemVis") { mode = "elemvis"; dir = a[i + 1]; }
             if (a[i] == "-qaUnlock") { mode = "unlock"; dir = a[i + 1]; }
             if (a[i] == "-qaLoc") { mode = "loc"; dir = a[i + 1]; }
@@ -206,7 +207,7 @@ public partial class QaSweep : MonoBehaviour
             if (type == LogType.Exception) { anyException = true; excCount++; if (exceptions.Count < 30) exceptions.Add(c + " | " + tr.Split('\n')[0]); }
         };
         // ホームのお知らせ(解放/デッキ12枚 等)は、それを確かめるテスト以外では自動で閉じる(テスト機の古いデータで毎回出るため)
-        NoticeQueue.QaAutoAcknowledge = !(mode == "deck" || mode == "deckdup" || mode == "unlock" || mode == "clearunlock" || mode == "tutorial" || mode == "gacha" || mode == "saverecover");
+        NoticeQueue.QaAutoAcknowledge = !(mode == "deck" || mode == "deckdup" || mode == "deckpreset" || mode == "unlock" || mode == "clearunlock" || mode == "tutorial" || mode == "gacha" || mode == "saverecover");
         // 2026-10-10: マップ/キャラの解放を確かめるテスト以外は、全部を選べるようにする(保存しない)。未解放で別のマップへ黙って替わっていた
         UnlockRules.QaOverride = !(mode == "unlock" || mode == "clearunlock" || mode == "tutorial" || mode == "records" || mode == "save" || mode == "saveshots");
         if (Arg("-comboLegacy", "0") == "1") { ComboRevision.Legacy = true; L("[qa] ComboRevision.Legacy = true (2026-10-21 のコンボの改修を切った比較)"); }
@@ -308,6 +309,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "gacha") yield return GachaModeQa();
         else if (mode == "deck") yield return DeckModeQa();
         else if (mode == "deckdup") yield return DeckDupMode();
+        else if (mode == "deckpreset") yield return DeckPresetMode();
         else if (mode == "elemvis") yield return ElemVisMode();
         else if (mode == "unlock") yield return UnlockModeQa();
         else if (mode == "loc") yield return LocModeQa();

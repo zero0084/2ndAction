@@ -520,6 +520,7 @@ public class NetDebugUI : MonoBehaviour
         foreach (NetPlayer p in NetPlayer.All)
             sb.Append($"{p.Tag}  {(p.OwnerClientId == 0 ? "HOST" : "JOIN")}  {CharLabel(p.CharacterId.Value.ToString())}{(p.IsOwner ? "  (" + L("自分") + ")" : "")}").Append('\n');
         GUILayout.Label(sb.ToString(), smallStyle);
+        DrawRoomDeck(roomName); // 2026-10-31: 使うデッキ(出発前だけ選べる)
         if (host && LanDiscovery.Advertising) GUILayout.Label(L("近くの端末の「FIND GAME」に表示中"), smallStyle);
         if (host && onl && OnlineServices.Current != null) GUILayout.Label(L("オンラインの「FIND GAME」に表示中"), smallStyle);
         if (onl && Debug.isDebugBuild) GUILayout.Label("DEV " + NetStats.PingLine(), smallStyle);
@@ -536,6 +537,27 @@ public class NetDebugUI : MonoBehaviour
         GUI.enabled = true;
         GUILayout.Space(6f);
         if (PadNav.LayoutButton(GUILayout.Button(L("閉じる(部屋はそのまま)"), buttonStyle, GUILayout.Height(48f)))) PanelOpen = false;
+    }
+
+    // デッキのプリセット(2026-10-31): 部屋に入った時に、このモードで前回使ったデッキへ(1回だけ)。出発までは ◀ ▶ で選べる
+    static string deckAppliedRoom;
+    void DrawRoomDeck(string roomName)
+    {
+        var gm = GameManager.Instance;
+        if (gm == null || !DeckPresets.Loaded) return;
+        string key = (NetSession.IsHost ? "H:" : "J:") + roomName;
+        if (deckAppliedRoom != key && Event.current.type == EventType.Layout) { deckAppliedRoom = key; gm.ApplyRememberedPreset(""); } // マップは HOST が決めるので、モード(LOCAL/ONLINE)の記録
+        bool can = gm.CanChangeDeckNow;
+        GUILayout.BeginHorizontal();
+        GUILayout.Label(L(LocPendingReview.PresetRoomLabel), smallStyle, GUILayout.Width(150f));
+        GUI.enabled = can;
+        int a = DeckPresets.Active;
+        if (PadNav.LayoutButton(GUILayout.Button("◀", buttonStyle, GUILayout.Width(56f), GUILayout.Height(44f)))) gm.ActivatePreset((a + DeckPresets.Count - 1) % DeckPresets.Count);
+        GUILayout.Label(Loc.Shape((a + 1) + "  " + Loc.Plain(DeckPresets.DisplayName(a)) + "   " + gm.DeckCards.Count + "/" + GameManager.DeckCapacity), labelStyle, GUILayout.Height(44f));
+        if (PadNav.LayoutButton(GUILayout.Button("▶", buttonStyle, GUILayout.Width(56f), GUILayout.Height(44f)))) gm.ActivatePreset((a + 1) % DeckPresets.Count);
+        GUI.enabled = true;
+        GUILayout.EndHorizontal();
+        if (!can) GUILayout.Label(L(LocPendingReview.PresetLocked), smallStyle);
     }
 
     // ADVANCED(開発用): 従来の IP を直接入力する画面

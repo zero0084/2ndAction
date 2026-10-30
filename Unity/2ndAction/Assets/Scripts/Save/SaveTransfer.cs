@@ -201,6 +201,7 @@ public static class SaveTransfer
         {
             if (!int.TryParse(v, NumberStyles.Integer, inv, out int i)) return "not an int";
             if (key == GameManager.TotalMileKey) return i < 0 || i > 2000000000 ? "MILE out of range" : null;
+            if (key == DeckPresets.ActiveKey) return i < 0 || i >= DeckPresets.Count ? "deck preset index" : null; // 2026-10-31
             return i < 0 ? "negative" : null;
         }
         if (t == SaveType.Float)
@@ -243,6 +244,19 @@ public static class SaveTransfer
                 var ids = SplitList(v);
                 if (ids.Count > GameManager.DeckCapacity) return "deck too large";
                 foreach (var id in ids) if (!CardKnown(id)) return "unknown deck card";
+                return null;
+            }
+            case DeckPresets.PresetsKey: // 2026-10-31
+            {
+                DeckPresets.SaveWrapper w;
+                try { w = JsonUtility.FromJson<DeckPresets.SaveWrapper>(v); } catch { return "deck presets json"; }
+                if (w == null || w.presets == null || w.presets.Count > DeckPresets.Count) return "deck presets";
+                foreach (var pr in w.presets)
+                {
+                    if (pr == null || pr.cards == null) return "deck preset empty";
+                    if (pr.cards.Count > GameManager.DeckCapacity) return "deck preset too large";
+                    foreach (var id in pr.cards) if (!CardKnown(id)) return "unknown deck preset card";
+                }
                 return null;
             }
             case UnlockRules.StagesKey:

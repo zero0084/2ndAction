@@ -94,6 +94,7 @@ public partial class GameManager : MonoBehaviour
             // 初期カードをもう1枚ずつ渡していた(新規インストール/進行の初期化の後、デッキを編集するまで)。1回だけにする。
             SaveDeck();
         }
+        DeckPresets.Load(deckCards); // 2026-10-31: デッキのプリセット(初回は今のデッキをプリセット 1 へ)
         DeckCapacityNotice.Check(this, hasSavedDeck);
     }
 
@@ -125,6 +126,7 @@ public partial class GameManager : MonoBehaviour
     {
         if (DebugRun.BlocksSave("DeckCardIds")) return;
         SaveStore.SetString(DeckKey, string.Join(",", deckCards));
+        DeckPresets.SyncActive(deckCards); // 2026-10-31: 使用中のプリセットも同じ保存で
         SaveStore.Save();
     }
 
@@ -213,6 +215,8 @@ public partial class GameManager : MonoBehaviour
     {
         int deckCount = 0;
         for (int d = 0; d < deckCards.Count; d++) if (deckCards[d] == cardId) deckCount++;
+        // 2026-10-31: 使用中でないプリセットに入っているカードも 1 枚ぶん守る(プリセットは同時に使わないので最大の 1 枚。キャラカード枠と同じ考え方)
+        if (deckCount <= 0 && DeckPresets.InInactivePreset(cardId)) deckCount = 1;
         if (deckCount <= 0) return 0;
 
         var levels = new List<int>();
@@ -595,6 +599,7 @@ public partial class GameManager : MonoBehaviour
         StageDefinition def = StageDatabase.FindById(stageId);
         if (def == null || !StageDatabase.IsAvailable(def)) return;
         SelectedStageId = stageId;
+        ApplyRememberedPreset(stageId); // 2026-10-31: このマップで前回使ったプリセットへ(中身は書き換えない)
         if (DebugRun.BlocksSave("SelectedStageId")) return;
         SaveStore.SetString(SelectedStageKey, stageId);
         SaveStore.Save();
@@ -1634,6 +1639,7 @@ public partial class GameManager : MonoBehaviour
         // 2026-10-08: このランの途中の数値(確定は成功の時だけ)。闘技場/練習も作るが確定はしない(WritesBlocked)
         RunLedger.BeginNew(activeRunStageId, activeRunCharacterId, NetRunLauncher.IsMultiplayerRun);
         UnlockManager.ClearRun(); // 2026-10-13: 前のランの仮の解放を持ち越さない
+        DeckPresets.Remember(DeckPresets.ModeNow(), activeRunStageId); // 2026-10-31: このモード/マップで使ったプリセット(闘技場/DEBUG RUN は書かない)
         if (TerrainManager.Instance != null) TerrainManager.Instance.ApplyStageTheme(activeRunStageId);
         ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
         SetCharacterCardOwner(activeRunCharacterId); // そのキャラのキャラカード枠(2026-10-02)
