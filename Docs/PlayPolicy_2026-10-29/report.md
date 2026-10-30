@@ -129,7 +129,7 @@
 
 | 案 | 内容 | 時期 | 影響 |
 |---|---|---|---|
-| **A** | Target API を Automatic → **36 に固定**(PlayerSettings の1行) | **クローズドテスト用の製品版を作る前**(推奨) | 今と同じ 36 のまま、Unity/SDK の更新で勝手に 37 にならない。ゲームの動きは変わらない |
+| **A** | Target API を Automatic → **36 に固定**(PlayerSettings の1行) | **2026-10-31 実施済み**(followup.md §1) | 今と同じ 36 のまま、Unity/SDK の更新で勝手に 37 にならない。ゲームの動きは変わらない |
 | B | LOCAL PLAY の入口で ACCESS_LOCAL_NETWORK を求める(Java の小さな部品 or Unity の Permission API)、拒否時の説明と設定への案内、manifest に権限を追加 | target 37 にする時(2027年夏まで) | LOCAL PLAY の画面と文言(30 言語)、Play Console の申告 |
 | C | 部屋の検索・接続の失敗時に理由を出す(EPERM/タイムアウトを「ローカル通信が許可されていない」と区別) | B と同時 | LanDiscovery/NetSession |
 | D | R8(Minify Release)を有効化 | 任意(2027年2月の基準では不要) | 広告/課金 SDK の keep 規則の確認が必要。今は**やらない方が安全** |
