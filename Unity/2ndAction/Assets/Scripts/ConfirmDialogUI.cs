@@ -26,8 +26,10 @@ public class ConfirmDialogUI : MonoBehaviour
     public bool IsOpen => root != null && root.activeSelf;
     const float MessageSideInset = 36f;
 
-    public void Show(string message, System.Action confirmCallback, System.Action cancelCallback = null)
+    // danger = 取り消せない操作(カードの分解の最後の1枚/高いレア度など): 「はい」を赤に(2026-10-31)
+    public void Show(string message, System.Action confirmCallback, System.Action cancelCallback = null, bool danger = false)
     {
+        SetDanger(danger);
         var sc = UguiScrollText.Wrap(messageText); // 2026-10-08: 長い確認文はスクロール
         // 2026-10-28: 文の左右に余白(組み立ての時の幅の指定で余白が 0 になっていて、長い文が金の飾り枠の上まで広がっていた)
         if (sc != null && sc.Viewport != null && sc.Viewport.anchorMin.x != sc.Viewport.anchorMax.x)
@@ -40,6 +42,18 @@ public class ConfirmDialogUI : MonoBehaviour
         onCancel = cancelCallback;
         if (root != null) root.SetActive(true);
     }
+
+    Image yesImage; Color yesNormal; bool yesCaptured;
+    void SetDanger(bool on)
+    {
+        if (yesRect == null) return;
+        if (!yesCaptured) { yesImage = yesRect.GetComponent<Image>(); if (yesImage != null) yesNormal = yesImage.color; yesCaptured = true; }
+        if (yesImage != null) yesImage.color = on ? new Color(0.62f, 0.16f, 0.12f, 1f) : yesNormal;
+    }
+    public bool Danger => yesImage != null && yesImage.color != yesNormal; // 確認用
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public void DebugYes() { if (!IsOpen) return; System.Action c = onConfirm; Hide(); c?.Invoke(); }
+#endif
 
     // Androidの戻る: 「いいえ」と同じ
     public void Cancel()

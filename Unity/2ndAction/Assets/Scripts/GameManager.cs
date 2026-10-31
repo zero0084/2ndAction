@@ -6618,6 +6618,7 @@ public partial class GameManager : MonoBehaviour
     void DoBack()
     {
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
+        if (TitleScreen.Showing) return; // 2026-10-31: タイトル画面の間の戻る(Esc/Android の戻る)は後ろのホームへ通さない
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (DebugPanel.Instance != null && DebugPanel.Instance.Back()) return;
 #endif

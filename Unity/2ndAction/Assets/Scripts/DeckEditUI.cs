@@ -23,7 +23,7 @@ using UnityEngine.UI;
 // RewardCardSequence's own comments note the EventSystem/Button pipeline
 // isn't always reliably delivered on this project's target devices, this
 // screen uses TouchInputUtil's raw hit-test as its ONLY input path instead.
-public class DeckEditUI : MonoBehaviour
+public partial class DeckEditUI : MonoBehaviour
 {
     public GameObject root;
     public CanvasGroup rootGroup;
@@ -381,6 +381,7 @@ public class DeckEditUI : MonoBehaviour
             var bgo = new GameObject("CharSlotBack" + i, typeof(RectTransform));
             bgo.transform.SetParent(rootRt, false);
             var br = (RectTransform)bgo.transform;
+            charSlotBackRts[i] = br;
             br.anchorMin = br.anchorMax = top; br.pivot = new Vector2(0.5f, 1f);
             br.sizeDelta = new Vector2(sw + 14f, sh + 14f);
             br.anchoredPosition = new Vector2(x0 + i * (sw + gap), CharPanelTop - 71f);
@@ -396,6 +397,7 @@ public class DeckEditUI : MonoBehaviour
             hold.sizeDelta = new Vector2(72f, 108f);
             hold.anchoredPosition = new Vector2(x0 + i * (sw + gap), CharPanelTop - 71f - (sh + 14f) * 0.5f);
             hold.localScale = new Vector3(CharSlotScale, CharSlotScale, 1f);
+            charSlotHolderRts[i] = hold;
             sc.rect.SetParent(hold, false);
             sc.rect.anchorMin = sc.rect.anchorMax = sc.rect.pivot = new Vector2(0.5f, 0.5f);
             sc.rect.sizeDelta = new Vector2(72f, 108f);
@@ -443,17 +445,18 @@ public class DeckEditUI : MonoBehaviour
         }
     }
 
-    // 縦画面(2026-10-08、依頼E-1): 上にデッキ(+キャラカード)、下に一覧と詳細を並べる(PortraitColumns)
-    PortraitColumns portraitColumns;
+    // 縦画面(2026-10-08、依頼E-1)→ 2026-10-31 配置 V2(縦/横とも)
     void ApplyOrientationLayout()
     {
         if (root == null) return;
         UiConventions.PlaceBack(backButtonRect); // 2026-10-09(依頼G-2): 戻るは画面共通の左上
         BuildCharPanel();
         BuildPolish();
-        if (portraitColumns == null) { portraitColumns = root.GetComponent<PortraitColumns>(); if (portraitColumns == null) portraitColumns = root.AddComponent<PortraitColumns>(); }
+        // 2026-10-31: 配置 V2(上段 = キャラカード + デッキ 6×2、下段 = 所持の一覧 + 小さな詳細。DeckEditUI.Layout.cs)。縦/横とも自前で置く
+        //  (以前の PortraitColumns = 縦画面で3列を積み直す方式は使わない)
         Canvas.ForceUpdateCanvases();
-        portraitColumns.Apply();
+        ApplyLayoutV2();
+        if (bigRoot != null && bigRoot.activeSelf) LayoutBigDetail();
     }
 
     // Androidの戻る(2026-10-01): 確認ダイアログが出ていればそれを閉じる、無ければ画面を閉じる
@@ -461,11 +464,15 @@ public class DeckEditUI : MonoBehaviour
     {
         if (presetUi != null && presetUi.HandleBack()) return; // 2026-10-31: プリセットの一覧が開いていれば、それだけを閉じる
         if (confirmDialog != null && confirmDialog.IsOpen) { confirmDialog.Cancel(); return; }
+        if (BigDetailOpen) { CloseBigDetail(); return; } // 2026-10-31: 大きな詳細だけを閉じる
         Close();
     }
 
     public void Close()
     {
+        if (gesture == Gesture.Drag) EndDrag();
+        pointerActive = false;
+        if (bigRoot != null) bigRoot.SetActive(false);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Cancel);
         // Presentation pass - DECK->TOP now goes through the shared wipe
         // (see ScreenTransitionManager); this screen's own CanvasGroup
@@ -688,6 +695,7 @@ public class DeckEditUI : MonoBehaviour
         }
         RefreshHeadings();
         RefreshEmptyState();
+        RefreshCategoryRow();
 
         RefreshConvertButton();
     }
@@ -698,6 +706,17 @@ public class DeckEditUI : MonoBehaviour
     // Deck itself doesn't know which specific level it holds.
     void RefreshConvertButton()
     {
+        // 2026-10-31: 小さな詳細のボタンは「詳細」(大きな詳細を開く。分解はそこから)。デッキ側から選んだ時も出す
+        if (CompactDetail)
+        {
+            bool sel = !string.IsNullOrEmpty(detailCardId) && !(detailCollapsed && !layoutPortrait);
+            if (convertButtonRect != null) convertButtonRect.gameObject.SetActive(sel);
+            if (!sel) return;
+            Image b = convertButtonRect.GetComponent<Image>();
+            if (b != null) b.color = new Color(0.55f, 0.42f, 0.14f, 0.9f);
+            if (convertButtonLabel != null) convertButtonLabel.text = Loc.T("詳細");
+            return;
+        }
         bool hasSelection = detailLevel >= 1 && !string.IsNullOrEmpty(detailCardId);
         if (convertButtonRect != null) convertButtonRect.gameObject.SetActive(hasSelection);
         if (!hasSelection) return;
@@ -831,7 +850,7 @@ public class DeckEditUI : MonoBehaviour
     void RefreshEmptyState()
     {
         if (emptyState == null) return;
-        bool show = string.IsNullOrEmpty(detailCardId);
+        bool show = string.IsNullOrEmpty(detailCardId) && !CompactDetail; // 配置 V2 では内訳はデッキの横(RefreshCategoryRow)
         if (emptyState.activeSelf != show) emptyState.SetActive(show);
         var gm = GameManager.Instance;
         if (!show || gm == null) return;
@@ -861,7 +880,7 @@ public class DeckEditUI : MonoBehaviour
         if (detailPlaceholderLabel != null)
         {
             detailPlaceholderLabel.gameObject.SetActive(true);
-            detailPlaceholderLabel.text = Loc.Auto(detailPlaceholder);
+            detailPlaceholderLabel.text = CompactDetail && Loc.Ready(LocDeckEdit.Hint) ? Loc.T(LocDeckEdit.Hint) : Loc.Auto(detailPlaceholder);
             if (detailText != null) detailText.text = "";
         }
         else if (detailText != null) detailText.text = Loc.Auto(detailPlaceholder);
@@ -871,6 +890,7 @@ public class DeckEditUI : MonoBehaviour
         focusLevel = -1;
         RefreshConvertButton();
         RefreshEmptyState();
+        RelayoutDetail();
     }
 
     // level = -1 for a Deck-slot-originated selection (Deck doesn't track
@@ -888,7 +908,7 @@ public class DeckEditUI : MonoBehaviour
         if (detailDivider != null) detailDivider.SetActive(true);
         if (detailPreviewCard != null && gmForData != null)
         {
-            detailPreviewCard.gameObject.SetActive(true);
+            detailPreviewCard.gameObject.SetActive(!CompactDetail); // 配置 V2: 小さな詳細はカードの絵を出さない(一覧のカードと大きな詳細で見る)
             detailPreviewCard.ShowFrontImmediate(gmForData.MakeOwnedCardData(card, shownLevel, 0));
             detailPreviewCard.SetInteractable(false);
         }
@@ -956,6 +976,7 @@ public class DeckEditUI : MonoBehaviour
         detailCardId = card.cardId;
         detailLevel = level;
         RefreshConvertButton();
+        RelayoutDetail();
     }
 
     // カード長期育成(2026-10-04): このカード(主能力)をどこまで育てたか。詳細の画面だけで進みの数字まで出す
@@ -1157,6 +1178,7 @@ public class DeckEditUI : MonoBehaviour
     // field already declared above (shared with おすすめ編成/全て外す).
     void OnConvertTapped()
     {
+        if (CompactDetail) { if (!string.IsNullOrEmpty(detailCardId)) OpenBigDetail(detailCardId, detailLevel >= 1 ? detailLevel : LevelOfKey(detailCardId)); return; } // 2026-10-31: 「詳細」
         if (detailLevel < 1 || string.IsNullOrEmpty(detailCardId)) return;
         var gm = GameManager.Instance;
         if (gm == null) return;
@@ -1332,73 +1354,16 @@ public class DeckEditUI : MonoBehaviour
         // out) is mid-flight.
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
-        if (portraitColumns != null && portraitColumns.NeedsApply) { pointerActive = false; ApplyOrientationLayout(); UiInputGate.LatchUntilRelease(); return; } // 向き/大きさが変わった: 並べ直し、押しかけの指は捨てる
+        UpdateToast();
+        if (LayoutNeedsApply) { pointerActive = false; if (gesture == Gesture.Drag) EndDrag(); ApplyOrientationLayout(); UiInputGate.LatchUntilRelease(); return; } // 向き/大きさが変わった: 並べ直し、押しかけの指は捨てる
 
-        if (confirmDialog != null && confirmDialog.IsOpen) UiHit.Probe(p => confirmDialog.HandleTap(p), 5); else UiHit.Probe(HandleTap); // パッド操作中: 押せる枠を集める
-        PadScroll();
-        // タッチ/マウス + ゲームパッドの決定(フォーカスの中心を叩く)。2026-10-06
-        PointerInput.Read(this, out bool down, out bool up, out bool held, out Vector2 screenPos);
-
-        // Modal - while the confirm dialog is open, every tap resolves
-        // against it alone (Yes/No, or dismissed) and nothing underneath
-        // (cards, scroll, filter tabs) sees it at all. No drag/scroll
-        // concern here, so a plain release-to-resolve is enough - no need
-        // for the tap-vs-drag threshold logic below.
-        if (confirmDialog != null && confirmDialog.IsOpen)
-        {
-            if (up) confirmDialog.HandleTap(screenPos);
-            return;
-        }
-
-        if (down)
-        {
-            pointerActive = true;
-            pointerDownScreenPos = screenPos;
-            draggedPastThreshold = false;
-            activeScrollRect = FindScrollRectContaining(screenPos);
-            if (activeScrollRect != null)
-            {
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(activeScrollRect.viewport, screenPos, null, out lastViewportLocalPos);
-            }
-            return;
-        }
-
-        if (!pointerActive) return;
-
-        if (held)
-        {
-            if (!draggedPastThreshold && Vector2.Distance(screenPos, pointerDownScreenPos) > dragTapThreshold)
-            {
-                draggedPastThreshold = true;
-            }
-
-            if (draggedPastThreshold && activeScrollRect != null)
-            {
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(activeScrollRect.viewport, screenPos, null, out Vector2 currentLocalPos);
-                float deltaY = currentLocalPos.y - lastViewportLocalPos.y;
-                lastViewportLocalPos = currentLocalPos;
-
-                float contentH = activeScrollRect.content.rect.height;
-                float viewportH = activeScrollRect.viewport.rect.height;
-                float range = contentH - viewportH;
-                // Content follows the finger 1:1 (standard drag-to-pan
-                // feel); verticalNormalizedPosition is inverted (1=top,
-                // 0=bottom) relative to that, and Unity's own setter
-                // already clamps it to [0,1] for us.
-                if (range > 0f)
-                {
-                    activeScrollRect.verticalNormalizedPosition -= deltaY / range;
-                }
-            }
-            return;
-        }
-
-        if (up)
-        {
-            pointerActive = false;
-            if (!draggedPastThreshold) HandleTap(pointerDownScreenPos);
-            activeScrollRect = null;
-        }
+        // パッド操作中: 押せる枠を集める(手前の窓だけ)
+        if (confirmDialog != null && confirmDialog.IsOpen) UiHit.Probe(p => confirmDialog.HandleTap(p), 5);
+        else if (BigDetailOpen) UiHit.Probe(HandleBigTap, 4);
+        else UiHit.Probe(HandleTap);
+        if (!OverlayOpen) PadScroll();
+        // タッチ/マウス + ゲームパッドの決定(フォーカスの中心を叩く)。2026-10-31: タップ/長押し/ドラッグ/スクロールを見分ける(DeckEditUI.Drag.cs)
+        UpdatePointer();
     }
 
     // ゲームパッド: 一覧の端から先へ進もうとした時/右スティックで、見えている範囲を動かす(2026-10-06)
@@ -1412,7 +1377,7 @@ public class DeckEditUI : MonoBehaviour
             if (sr == null || sr.viewport == null) continue;
             int req = PadNav.ScrollRequestForUgui(sr.viewport);
             if (req == 0) continue;
-            float range = sr.content.rect.height - sr.viewport.rect.height;
+            float range = sr.content.rect.height * Mathf.Abs(sr.content.localScale.y) - sr.viewport.rect.height;
             if (range > 0f) sr.verticalNormalizedPosition = Mathf.Clamp01(sr.verticalNormalizedPosition - req * sr.viewport.rect.height * 0.5f / range);
         }
     }
@@ -1441,6 +1406,12 @@ public class DeckEditUI : MonoBehaviour
         if (clearButtonRect != null && UiHit.Hit(clearButtonRect, screenPos))
         {
             OnClearAllTapped();
+            return;
+        }
+
+        if (detailToggleRt != null && detailToggleRt.gameObject.activeInHierarchy && UiHit.Hit(detailToggleRt, screenPos))
+        {
+            ToggleDetailCollapsed();
             return;
         }
 

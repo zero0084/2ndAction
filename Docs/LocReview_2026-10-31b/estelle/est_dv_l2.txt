@@ -1,0 +1,156 @@
+10323 [it] Tocca per iniziare
+10324 [it] Premi un tasto o un pulsante qualsiasi
+10325 [it] Tocca: Aggiungi/Rimuovi  Tieni premuto: Dettagli  Trascina: Sposta
+10326 [it] Sostituire "{0}" nel mazzo con "{1}"?
+10327 [it] Rilascia qui per rimuovere dal mazzo
+10328 [it] Mazzo pieno (max 12 carte)
+10329 [it] Nessuna copia disponibile (in uso nel mazzo o come carta personaggio)
+10330 [it] Effetti per Lv
+10331 [it] Attuale
+10332 [it] COMBO (si attiva quando le carte sono possedute insieme)
+10333 [it] Non applicabile
+10334 [it] Utilizzo
+10335 [it] Nel tuo mazzo
+10336 [it] Equipaggiata come carta personaggio
+10337 [it] In un altro mazzo salvato (preset)
+10338 [it] Non in uso
+10339 [it] Condizione di sblocco
+10340 [it] Distanza migliore: {0}m / Gacha carte Lv.{1}
+10341 [it] Possedute: {0} (Smontabili: {1})
+10342 [it] Smonta
+10343 [it] Smontare 1 copia di questa carta per {0} MILE?
+10344 [it] Le carte smontate non possono essere recuperate.
+10345 [it] Questa è la tua ultima copia. Se la smonti, non potrai usarla finché non ne otterrai un'altra.
+10346 [it] Carta di alta rarità (★{0} Lv.{1}).
+10347 [it] Le carte in uso non possono essere smontate. Rimuovile prima da mazzi, preset o carte personaggio.
+10348 [it] Smontata: +{0} MILE
+10323 [pt-BR] Toque para começar
+10324 [pt-BR] Pressione qualquer tecla ou botão
+10325 [pt-BR] Toque: Adic./Remover  Segure: Detalhes  Arraste: Mover
+10326 [pt-BR] Substituir "{0}" no deck por "{1}"?
+10327 [pt-BR] Solte aqui para remover do deck
+10328 [pt-BR] Deck cheio (máx. 12 cartas)
+10329 [pt-BR] Nenhuma cópia disponível (em uso no deck ou como carta de personagem)
+10330 [pt-BR] Efeitos por Lv
+10331 [pt-BR] Atual
+10332 [pt-BR] COMBO (ativa ao possuir as cartas juntas)
+10333 [pt-BR] Não aplicável
+10334 [pt-BR] Uso
+10335 [pt-BR] No seu deck
+10336 [pt-BR] Equipada como carta de personagem
+10337 [pt-BR] Em outro deck salvo (predefinição)
+10338 [pt-BR] Não está em uso
+10339 [pt-BR] Condição de desbloqueio
+10340 [pt-BR] Melhor distância: {0}m / Gacha de cartas Lv.{1}
+10341 [pt-BR] Possui: {0} (Desmontáveis: {1})
+10342 [pt-BR] Desmontar
+10343 [pt-BR] Desmontar 1 cópia desta carta por {0} MILE?
+10344 [pt-BR] Cartas desmontadas não podem ser recuperadas.
+10345 [pt-BR] Esta é sua última cópia. Se desmontá-la, não poderá usá-la até conseguir outra.
+10346 [pt-BR] Carta de alta raridade (★{0} Lv.{1}).
+10347 [pt-BR] Cartas em uso não podem ser desmontadas. Remova-as dos decks, predefinições ou cartas de personagem primeiro.
+10348 [pt-BR] Desmontada: +{0} MILE
+10323 [ru] Коснитесь, чтобы начать
+10324 [ru] Нажмите любую клавишу или кнопку
+10325 [ru] Касание: Доб./Убр.  Удержание: Подробно  Перетаскивание: Переместить
+10326 [ru] Заменить «{0}» в колоде на «{1}»?
+10327 [ru] Отпустите здесь, чтобы убрать из колоды
+10328 [ru] Колода заполнена (макс. 12 карт)
+10329 [ru] Нет доступных копий (используются в колоде или как карты персонажа)
+10330 [ru] Эффекты по Lv
+10331 [ru] Текущий
+10332 [ru] COMBO (срабатывает при совместном владении картами)
+10333 [ru] Не применимо
+10334 [ru] Использование
+10335 [ru] В вашей колоде
+10336 [ru] Используется как карта персонажа
+10337 [ru] В другой сохранённой колоде (пресет)
+10338 [ru] Не используется
+10339 [ru] Условие разблокировки
+10340 [ru] Лучшая дистанция: {0}m / Гача карт Lv.{1}
+10341 [ru] В наличии: {0} (Можно разобрать: {1})
+10342 [ru] Разобрать
+10343 [ru] Разобрать 1 экземпляр этой карты за {0} MILE?
+10344 [ru] Разобранные карты нельзя восстановить.
+10345 [ru] Это ваш последний экземпляр. После разборки карту нельзя будет использовать, пока вы не получите её снова.
+10346 [ru] Карта высокой редкости (★{0} Lv.{1}).
+10347 [ru] Используемые карты нельзя разобрать. Сначала уберите их из колод, пресетов или карт персонажа.
+10348 [ru] Разобрано: +{0} MILE
+10323 [pl] Dotknij, aby rozpocząć
+10324 [pl] Naciśnij dowolny klawisz lub przycisk
+10325 [pl] Dotknij: Dodaj/Usuń  Przytrzymaj: Szczegóły  Przeciągnij: Przenieś
+10326 [pl] Zastąpić „{0}” w talii kartą „{1}”?
+10327 [pl] Puść tutaj, aby usunąć z talii
+10328 [pl] Talia pełna (maks. 12 kart)
+10329 [pl] Brak dostępnych kopii (używane w talii lub jako karty postaci)
+10330 [pl] Efekty według Lv
+10331 [pl] Obecny
+10332 [pl] COMBO (aktywuje się, gdy karty są posiadane razem)
+10333 [pl] Nie dotyczy
+10334 [pl] Użycie
+10335 [pl] W twojej talii
+10336 [pl] Wyposażona jako karta postaci
+10337 [pl] W innej zapisanej talii (presecie)
+10338 [pl] Nieużywana
+10339 [pl] Warunek odblokowania
+10340 [pl] Najlepszy dystans: {0}m / Gacha kart Lv.{1}
+10341 [pl] Posiadane: {0} (Do rozłożenia: {1})
+10342 [pl] Rozłóż
+10343 [pl] Rozłożyć 1 kopię tej karty za {0} MILE?
+10344 [pl] Rozłożonych kart nie można odzyskać.
+10345 [pl] To twoja ostatnia kopia. Po rozłożeniu nie użyjesz tej karty, dopóki nie zdobędziesz kolejnej.
+10346 [pl] Karta o wysokiej rzadkości (★{0} Lv.{1}).
+10347 [pl] Kart w użyciu nie można rozłożyć. Najpierw usuń je z talii, presetów lub kart postaci.
+10348 [pl] Rozłożono: +{0} MILE
+10323 [tr] Başlamak için dokun
+10324 [tr] Herhangi bir tuşa veya düğmeye bas
+10325 [tr] Dokun: Ekle/Çıkar  Basılı tut: Ayrıntı  Sürükle: Taşı
+10326 [tr] Destedeki "{0}" kartını "{1}" ile değiştirmek istiyor musun?
+10327 [tr] Desteden çıkarmak için buraya bırak
+10328 [tr] Deste dolu (en fazla 12 kart)
+10329 [tr] Kullanılabilir kopya yok (destede veya karakter kartı olarak kullanımda)
+10330 [tr] Lv'ye göre etkiler
+10331 [tr] Mevcut
+10332 [tr] COMBO (kartlar birlikte sahip olunduğunda etkinleşir)
+10333 [tr] Geçerli değil
+10334 [tr] Kullanım durumu
+10335 [tr] Destende
+10336 [tr] Karakter kartı olarak kuşanılmış
+10337 [tr] Başka bir kayıtlı destede (ön ayar)
+10338 [tr] Kullanımda değil
+10339 [tr] Kilit açma koşulu
+10340 [tr] En iyi mesafe: {0}m / Kart Gacha Lv.{1}
+10341 [tr] Sahip: {0} (Parçalanabilir: {1})
+10342 [tr] Parçala
+10343 [tr] Bu kartın 1 kopyasını {0} MILE karşılığında parçalamak istiyor musun?
+10344 [tr] Parçalanan kartlar geri alınamaz.
+10345 [tr] Bu son kopyan. Parçalarsan tekrar elde edene kadar kullanamazsın.
+10346 [tr] Yüksek nadirlikte kart (★{0} Lv.{1}).
+10347 [tr] Kullanımdaki kartlar parçalanamaz. Önce destelerden, ön ayarlardan veya karakter kartlarından çıkar.
+10348 [tr] Parçalandı: +{0} MILE
+10323 [uk] Торкніться, щоб почати
+10324 [uk] Натисніть будь-яку клавішу або кнопку
+10325 [uk] Дотик: Дод./Прибр.  Утримання: Детально  Перетягування: Перемістити
+10326 [uk] Замінити «{0}» у колоді на «{1}»?
+10327 [uk] Відпустіть тут, щоб прибрати з колоди
+10328 [uk] Колода заповнена (макс. 12 карт)
+10329 [uk] Немає доступних копій (використовуються в колоді або як карти персонажа)
+10330 [uk] Ефекти за Lv
+10331 [uk] Поточний
+10332 [uk] COMBO (спрацьовує при спільному володінні картами)
+10333 [uk] Не застосовується
+10334 [uk] Використання
+10335 [uk] У вашій колоді
+10336 [uk] Використовується як карта персонажа
+10337 [uk] В іншій збереженій колоді (пресет)
+10338 [uk] Не використовується
+10339 [uk] Умова розблокування
+10340 [uk] Найкраща дистанція: {0}m / Гача карт Lv.{1}
+10341 [uk] У наявності: {0} (Можна розібрати: {1})
+10342 [uk] Розібрати
+10343 [uk] Розібрати 1 примірник цієї карти за {0} MILE?
+10344 [uk] Розібрані карти не можна відновити.
+10345 [uk] Це ваш останній примірник. Після розбирання карту не можна буде використовувати, доки ви не отримаєте її знову.
+10346 [uk] Карта високої рідкісності (★{0} Lv.{1}).
+10347 [uk] Використовувані карти не можна розібрати. Спочатку приберіть їх із колод, пресетів або карт персонажа.
+10348 [uk] Розібрано: +{0} MILE

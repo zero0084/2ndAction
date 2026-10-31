@@ -19,7 +19,7 @@ public class DeckPresetUi : MonoBehaviour
 
     public void Bind(DeckEditUI ui) { deck = ui; }
 
-    bool Visible => deck != null && deck.root != null && deck.root.activeInHierarchy && GameManager.Instance != null && DeckPresets.Loaded;
+    bool Visible => deck != null && deck.root != null && deck.root.activeInHierarchy && GameManager.Instance != null && DeckPresets.Loaded && !deck.OverlayOpen; // 2026-10-31: 大きな詳細/確認の窓の間は出さない
 
     void OnDisable() { Open = false; }
 

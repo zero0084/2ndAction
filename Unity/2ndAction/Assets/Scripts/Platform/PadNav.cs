@@ -78,6 +78,7 @@ public class PadNav : MonoBehaviour
         ScrollRequest = 0;
         confirmPending = false;
         if (Suspended) { MenuActive = false; return; } // キー設定の待ち受け中(押したボタン/スティックを割り当てに使う。フォーカスを動かさない)
+        if (TitleScreen.BlocksInput) { MenuActive = false; return; } // 2026-10-31: タイトルの間は後ろのホームの項目を選ばない/決定しない(タイトルを始めた Enter で「設定」が開いていた)
         int top = int.MinValue;
         foreach (var c in prev) if (c.layer > top) top = c.layer;
         TopLayer = top;

@@ -1,0 +1,156 @@
+10323 [zh-Hans] 点击开始
+10324 [zh-Hans] 按任意键或按钮开始
+10325 [zh-Hans] 点击：添加/移除  长按：详情  拖动：移动
+10326 [zh-Hans] 要将卡组中的“{0}”替换为“{1}”吗？
+10327 [zh-Hans] 在此松开即可从卡组移除
+10328 [zh-Hans] 卡组已满（最多12张）
+10329 [zh-Hans] 没有可用卡牌（已用于卡组或角色卡牌）
+10330 [zh-Hans] 各Lv效果
+10331 [zh-Hans] 当前
+10332 [zh-Hans] COMBO（同时持有时触发）
+10333 [zh-Hans] 不适用
+10334 [zh-Hans] 使用情况
+10335 [zh-Hans] 已加入卡组
+10336 [zh-Hans] 已装备为角色卡牌
+10337 [zh-Hans] 已加入其他保存的卡组（预设）
+10338 [zh-Hans] 未使用
+10339 [zh-Hans] 解锁条件
+10340 [zh-Hans] 最远距离：{0}m / 卡牌抽取 Lv.{1}
+10341 [zh-Hans] 持有 {0}张（可分解 {1}张）
+10342 [zh-Hans] 分解
+10343 [zh-Hans] 要分解这张卡牌的1张副本，获得 {0} MILE 吗？
+10344 [zh-Hans] 分解后的卡牌无法恢复。
+10345 [zh-Hans] 这是你拥有的最后1张该卡牌。分解后，重新获得前将无法使用。
+10346 [zh-Hans] 这是高稀有度卡牌（★{0} Lv.{1}）。
+10347 [zh-Hans] 使用中的卡牌无法分解。请先将其从卡组、预设或角色卡牌中移除。
+10348 [zh-Hans] 分解成功：+{0} MILE
+10323 [zh-Hant] 點擊開始
+10324 [zh-Hant] 按任意鍵或按鈕開始
+10325 [zh-Hant] 點擊：加入/移除  長按：詳情  拖曳：移動
+10326 [zh-Hant] 要將牌組中的「{0}」替換為「{1}」嗎？
+10327 [zh-Hant] 在此放開即可從牌組移除
+10328 [zh-Hant] 牌組已滿（最多12張）
+10329 [zh-Hant] 沒有可用卡牌（已用於牌組或角色卡牌）
+10330 [zh-Hant] 各Lv效果
+10331 [zh-Hant] 目前
+10332 [zh-Hant] COMBO（同時持有時觸發）
+10333 [zh-Hant] 不適用
+10334 [zh-Hant] 使用情況
+10335 [zh-Hant] 已加入牌組
+10336 [zh-Hant] 已裝備為角色卡牌
+10337 [zh-Hant] 已加入其他儲存的牌組（預設）
+10338 [zh-Hant] 未使用
+10339 [zh-Hant] 解鎖條件
+10340 [zh-Hant] 最遠距離：{0}m / 卡牌抽取 Lv.{1}
+10341 [zh-Hant] 持有 {0}張（可分解 {1}張）
+10342 [zh-Hant] 分解
+10343 [zh-Hant] 要分解這張卡牌的1張副本，獲得 {0} MILE 嗎？
+10344 [zh-Hant] 分解後的卡牌無法復原。
+10345 [zh-Hant] 這是你擁有的最後1張該卡牌。分解後，重新獲得前將無法使用。
+10346 [zh-Hant] 這是高稀有度卡牌（★{0} Lv.{1}）。
+10347 [zh-Hant] 使用中的卡牌無法分解。請先將其從牌組、預設或角色卡牌中移除。
+10348 [zh-Hant] 分解成功：+{0} MILE
+10323 [ko] 탭하여 시작
+10324 [ko] 아무 키나 버튼을 눌러 시작
+10325 [ko] 탭: 추가/제거  길게 누르기: 상세  드래그: 이동
+10326 [ko] 덱의 "{0}"을(를) "{1}"(으)로 교체할까요?
+10327 [ko] 여기서 놓으면 덱에서 제거됩니다
+10328 [ko] 덱이 가득 찼습니다(최대 12장)
+10329 [ko] 사용 가능한 카드가 없습니다(덱 또는 캐릭터 카드로 사용 중)
+10330 [ko] Lv별 효과
+10331 [ko] 현재
+10332 [ko] COMBO (함께 보유하면 발동)
+10333 [ko] 해당 없음
+10334 [ko] 사용 현황
+10335 [ko] 덱에 포함됨
+10336 [ko] 캐릭터 카드로 장착 중
+10337 [ko] 다른 저장된 덱(프리셋)에 포함됨
+10338 [ko] 사용하지 않음
+10339 [ko] 해금 조건
+10340 [ko] 최고 도달 거리: {0}m / 카드 뽑기 Lv.{1}
+10341 [ko] 보유 {0}장(분해 가능 {1}장)
+10342 [ko] 분해
+10343 [ko] 이 카드 1장을 분해하고 {0} MILE을(를) 받을까요?
+10344 [ko] 분해한 카드는 복구할 수 없습니다.
+10345 [ko] 이 카드의 마지막 1장입니다. 분해하면 다시 획득할 때까지 사용할 수 없습니다.
+10346 [ko] 희귀도가 높은 카드입니다(★{0} Lv.{1}).
+10347 [ko] 사용 중인 카드는 분해할 수 없습니다. 덱, 프리셋 또는 캐릭터 카드에서 먼저 제거하세요.
+10348 [ko] 분해 완료: +{0} MILE
+10323 [es] Toca para empezar
+10324 [es] Pulsa cualquier tecla o botón
+10325 [es] Tocar: Añadir/Quitar  Mantener: Detalles  Arrastrar: Mover
+10326 [es] ¿Cambiar "{0}" de tu mazo por "{1}"?
+10327 [es] Suelta aquí para quitar del mazo
+10328 [es] Mazo lleno (máx. 12 cartas)
+10329 [es] No hay copias disponibles (en uso en el mazo o como cartas de personaje)
+10330 [es] Efectos por Lv
+10331 [es] Actual
+10332 [es] COMBO (se activa al tenerlas juntas)
+10333 [es] No aplicable
+10334 [es] Uso
+10335 [es] En tu mazo
+10336 [es] Equipada como carta de personaje
+10337 [es] En otro mazo guardado (preajuste)
+10338 [es] En uso: No
+10339 [es] Condición de desbloqueo
+10340 [es] Mejor distancia: {0}m / Gacha de cartas Lv.{1}
+10341 [es] Tienes {0} (Desmontables: {1})
+10342 [es] Desmontar
+10343 [es] ¿Desmontar 1 copia de esta carta por {0} MILE?
+10344 [es] Las cartas desmontadas no se pueden recuperar.
+10345 [es] Es tu última copia. Si la desmontas, no podrás usarla hasta conseguir otra.
+10346 [es] Es una carta de alta rareza (★{0} Lv.{1}).
+10347 [es] No puedes desmontar cartas en uso. Quítalas del mazo, los preajustes o las cartas de personaje primero.
+10348 [es] Desmontada: +{0} MILE
+10323 [fr] Touchez pour commencer
+10324 [fr] Appuyez sur une touche ou un bouton
+10325 [fr] Toucher : Ajouter/Retirer  Maintenir : Détails  Glisser : Déplacer
+10326 [fr] Remplacer « {0} » de votre deck par « {1} » ?
+10327 [fr] Relâchez ici pour retirer du deck
+10328 [fr] Deck plein (12 cartes max.)
+10329 [fr] Aucune copie disponible (utilisée dans le deck ou comme carte de personnage)
+10330 [fr] Effets par Lv
+10331 [fr] Actuel
+10332 [fr] COMBO (s'active si les cartes sont détenues ensemble)
+10333 [fr] Sans objet
+10334 [fr] Utilisation
+10335 [fr] Dans votre deck
+10336 [fr] Équipée comme carte de personnage
+10337 [fr] Dans un autre deck sauvegardé (préréglage)
+10338 [fr] Non utilisée
+10339 [fr] Condition de déblocage
+10340 [fr] Meilleure distance : {0}m / Gacha de cartes Lv.{1}
+10341 [fr] Possédées : {0} (Démontables : {1})
+10342 [fr] Démonter
+10343 [fr] Démonter 1 exemplaire de cette carte pour {0} MILE ?
+10344 [fr] Les cartes démontées ne peuvent pas être récupérées.
+10345 [fr] C'est votre dernier exemplaire. Si vous le démontez, vous ne pourrez plus utiliser cette carte avant d'en obtenir un autre.
+10346 [fr] Carte de haute rareté (★{0} Lv.{1}).
+10347 [fr] Impossible de démonter une carte en usage. Retirez-la des decks, préréglages ou cartes de personnage.
+10348 [fr] Démontée : +{0} MILE
+10323 [de] Tippen zum Starten
+10324 [de] Beliebige Taste oder Knopf drücken
+10325 [de] Tippen: Hinzu/Entf.  Halten: Details  Ziehen: Verschieben
+10326 [de] „{0}“ im Deck durch „{1}“ ersetzen?
+10327 [de] Hier loslassen, um aus dem Deck zu entfernen
+10328 [de] Deck voll (max. 12 Karten)
+10329 [de] Keine verfügbaren Exemplare (im Deck oder als Charakterkarten verwendet)
+10330 [de] Effekte nach Lv
+10331 [de] Aktuell
+10332 [de] COMBO (aktiviert sich, wenn Karten zusammen besessen werden)
+10333 [de] Nicht zutreffend
+10334 [de] Verwendung
+10335 [de] In deinem Deck
+10336 [de] Als Charakterkarte ausgerüstet
+10337 [de] In anderem gespeicherten Deck (Preset)
+10338 [de] Nicht in Verwendung
+10339 [de] Freischaltbedingung
+10340 [de] Beste Distanz: {0}m / Karten-Gacha Lv.{1}
+10341 [de] Besitz: {0} (Zerlegbar: {1})
+10342 [de] Zerlegen
+10343 [de] 1 Exemplar dieser Karte für {0} MILE zerlegen?
+10344 [de] Zerlegte Karten können nicht wiederhergestellt werden.
+10345 [de] Dies ist dein letztes Exemplar. Nach dem Zerlegen kannst du die Karte erst wieder nutzen, wenn du sie erneut erhältst.
+10346 [de] Karte mit hoher Seltenheit (★{0} Lv.{1}).
+10347 [de] Karten in Verwendung können nicht zerlegt werden. Entferne sie zuerst aus Decks, Presets oder Charakterkarten.
+10348 [de] Zerlegt: +{0} MILE

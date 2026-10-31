@@ -1,0 +1,156 @@
+10323 [cs] Klepni pro spuštění
+10324 [cs] Stiskni libovolnou klávesu nebo tlačítko
+10325 [cs] Klepnout: Přidat/Odebrat  Podržet: Detaily  Přetáhnout: Přesunout
+10326 [cs] Nahradit „{0}“ v balíčku kartou „{1}“?
+10327 [cs] Uvolni zde pro odebrání z balíčku
+10328 [cs] Balíček je plný (max. 12 karet)
+10329 [cs] Žádné dostupné kopie (použité v balíčku nebo jako karty postavy)
+10330 [cs] Efekty podle Lv
+10331 [cs] Aktuální
+10332 [cs] COMBO (aktivuje se při společném vlastnictví karet)
+10333 [cs] Nelze použít
+10334 [cs] Použití
+10335 [cs] Ve tvém balíčku
+10336 [cs] Vybavena jako karta postavy
+10337 [cs] V jiném uloženém balíčku (předvolbě)
+10338 [cs] Nepoužívá se
+10339 [cs] Podmínka odemčení
+10340 [cs] Nejlepší vzdálenost: {0}m / Gacha karet Lv.{1}
+10341 [cs] Vlastníš: {0} (K rozložení: {1})
+10342 [cs] Rozložit
+10343 [cs] Rozložit 1 kopii této karty za {0} MILE?
+10344 [cs] Rozložené karty nelze obnovit.
+10345 [cs] Toto je tvá poslední kopie. Po rozložení ji nebudeš moci používat, dokud nezískáš další.
+10346 [cs] Karta vysoké vzácnosti (★{0} Lv.{1}).
+10347 [cs] Používané karty nelze rozložit. Nejprve je odeber z balíčků, předvoleb nebo karet postavy.
+10348 [cs] Rozloženo: +{0} MILE
+10323 [ro] Atinge pentru a începe
+10324 [ro] Apasă orice tastă sau buton
+10325 [ro] Atinge: Adaugă/Scoate  Ține apăsat: Detalii  Trage: Mută
+10326 [ro] Înlocuiești „{0}” din pachet cu „{1}”?
+10327 [ro] Eliberează aici pentru a scoate din pachet
+10328 [ro] Pachet plin (max. 12 cărți)
+10329 [ro] Nicio copie disponibilă (folosită în pachet sau ca o carte de personaj)
+10330 [ro] Efecte pe Lv
+10331 [ro] Actual
+10332 [ro] COMBO (se activează când deții cărțile împreună)
+10333 [ro] Nu se aplică
+10334 [ro] Utilizare
+10335 [ro] În pachetul tău
+10336 [ro] Echipată ca o carte de personaj
+10337 [ro] În alt pachet salvat (presetare)
+10338 [ro] Nu este în uz
+10339 [ro] Condiție de deblocare
+10340 [ro] Cea mai bună distanță: {0}m / Gacha de cărți Lv.{1}
+10341 [ro] Deții: {0} (Dezasamblabile: {1})
+10342 [ro] Dezasamblează
+10343 [ro] Dezasamblezi 1 copie a acestei cărți pentru {0} MILE?
+10344 [ro] Cărțile dezasamblate nu pot fi recuperate.
+10345 [ro] Aceasta este ultima ta copie. Dacă o dezasamblezi, nu o vei mai putea folosi până când obții alta.
+10346 [ro] Carte de raritate mare (★{0} Lv.{1}).
+10347 [ro] Cărțile în uz nu pot fi dezasamblate. Scoate-le mai întâi din pachete, presetări sau cărți de personaj.
+10348 [ro] Dezasamblată: +{0} MILE
+10323 [id] Ketuk untuk mulai
+10324 [id] Tekan tombol apa saja
+10325 [id] Ketuk: Tambah/Hapus  Tahan: Detail  Seret: Pindah
+10326 [id] Ganti "{0}" di dek dengan "{1}"?
+10327 [id] Lepas di sini untuk menghapus dari dek
+10328 [id] Dek penuh (maks. 12 kartu)
+10329 [id] Tidak ada salinan tersedia (dipakai di dek atau sebagai kartu karakter)
+10330 [id] Efek per Lv
+10331 [id] Saat ini
+10332 [id] COMBO (aktif jika kartu dimiliki bersama)
+10333 [id] Tidak berlaku
+10334 [id] Penggunaan
+10335 [id] Ada di dekmu
+10336 [id] Dipakai sebagai kartu karakter
+10337 [id] Ada di dek tersimpan lain (preset)
+10338 [id] Tidak dipakai
+10339 [id] Syarat membuka
+10340 [id] Jarak terbaik: {0}m / Gacha kartu Lv.{1}
+10341 [id] Punya: {0} (Bisa dibongkar: {1})
+10342 [id] Bongkar
+10343 [id] Bongkar 1 salinan kartu ini untuk {0} MILE?
+10344 [id] Kartu yang dibongkar tidak bisa dipulihkan.
+10345 [id] Ini salinan terakhirmu. Jika dibongkar, kamu tidak bisa memakainya sampai mendapatkannya lagi.
+10346 [id] Kartu langka tingkat tinggi (★{0} Lv.{1}).
+10347 [id] Kartu yang dipakai tidak bisa dibongkar. Lepaskan dulu dari dek, preset, atau kartu karakter.
+10348 [id] Dibongkar: +{0} MILE
+10323 [ms] Ketik untuk mula
+10324 [ms] Tekan sebarang kekunci atau butang
+10325 [ms] Ketik: Tambah/Buang  Tahan: Butiran  Seret: Alih
+10326 [ms] Gantikan "{0}" dalam dek dengan "{1}"?
+10327 [ms] Lepaskan di sini untuk buang dari dek
+10328 [ms] Dek penuh (maks. 12 kad)
+10329 [ms] Tiada salinan tersedia (digunakan dalam dek atau sebagai kad watak)
+10330 [ms] Kesan mengikut Lv
+10331 [ms] Semasa
+10332 [ms] COMBO (aktif apabila kad dimiliki bersama)
+10333 [ms] Tidak berkenaan
+10334 [ms] Penggunaan
+10335 [ms] Dalam dek anda
+10336 [ms] Dilengkapkan sebagai kad watak
+10337 [ms] Dalam dek tersimpan lain (pratetap)
+10338 [ms] Tidak digunakan
+10339 [ms] Syarat buka kunci
+10340 [ms] Jarak terbaik: {0}m / Gacha kad Lv.{1}
+10341 [ms] Ada: {0} (Boleh diuraikan: {1})
+10342 [ms] Uraikan
+10343 [ms] Uraikan 1 salinan kad ini untuk {0} MILE?
+10344 [ms] Kad yang diuraikan tidak boleh dipulihkan.
+10345 [ms] Ini salinan terakhir anda. Jika diuraikan, anda tidak boleh menggunakannya sehingga mendapatkannya semula.
+10346 [ms] Kad berkelangkaan tinggi (★{0} Lv.{1}).
+10347 [ms] Kad yang digunakan tidak boleh diuraikan. Keluarkannya daripada dek, pratetap atau kad watak dahulu.
+10348 [ms] Diuraikan: +{0} MILE
+10323 [fil] I-tap para magsimula
+10324 [fil] Pindutin ang kahit anong key o button
+10325 [fil] Tap: Idagdag/Alisin  Hold: Detalye  Drag: Ilipat
+10326 [fil] Palitan ang "{0}" sa deck ng "{1}"?
+10327 [fil] Bitawan dito para alisin sa deck
+10328 [fil] Puno na ang deck (max 12 card)
+10329 [fil] Walang available na kopya (ginagamit sa deck o bilang card ng karakter)
+10330 [fil] Mga epekto bawat Lv
+10331 [fil] Kasalukuyan
+10332 [fil] COMBO (umaandar kapag magkasamang hawak ang mga card)
+10333 [fil] Hindi naaangkop
+10334 [fil] Paggamit
+10335 [fil] Nasa deck mo
+10336 [fil] Naka-equip bilang card ng karakter
+10337 [fil] Nasa ibang naka-save na deck (preset)
+10338 [fil] Hindi ginagamit
+10339 [fil] Kondisyon sa pag-unlock
+10340 [fil] Pinakamalayong distansya: {0}m / Card Gacha Lv.{1}
+10341 [fil] Hawak: {0} (Puwedeng i-dismantle: {1})
+10342 [fil] I-dismantle
+10343 [fil] I-dismantle ang 1 kopya ng card na ito kapalit ng {0} MILE?
+10344 [fil] Hindi na maibabalik ang mga na-dismantle na card.
+10345 [fil] Ito na ang huli mong kopya. Kapag na-dismantle, hindi mo ito magagamit hangga't hindi ka nakakakuha ng isa pa.
+10346 [fil] Card na mataas ang rarity (★{0} Lv.{1}).
+10347 [fil] Hindi puwedeng i-dismantle ang mga card na ginagamit. Alisin muna sa mga deck, preset, o card ng karakter.
+10348 [fil] Na-dismantle: +{0} MILE
+10323 [vi] Chạm để bắt đầu
+10324 [vi] Nhấn phím hoặc nút bất kỳ
+10325 [vi] Chạm: Thêm/Bỏ  Giữ: Chi tiết  Kéo: Di chuyển
+10326 [vi] Thay "{0}" trong bộ bài bằng "{1}"?
+10327 [vi] Thả tại đây để bỏ khỏi bộ bài
+10328 [vi] Bộ bài đã đầy (tối đa 12 thẻ)
+10329 [vi] Không có bản sao khả dụng (đang dùng trong bộ bài hoặc làm thẻ nhân vật)
+10330 [vi] Hiệu ứng theo Lv
+10331 [vi] Hiện tại
+10332 [vi] COMBO (kích hoạt khi sở hữu các thẻ cùng nhau)
+10333 [vi] Không áp dụng
+10334 [vi] Trạng thái sử dụng
+10335 [vi] Trong bộ bài của bạn
+10336 [vi] Đang trang bị làm thẻ nhân vật
+10337 [vi] Trong bộ bài đã lưu khác (thiết lập sẵn)
+10338 [vi] Không sử dụng
+10339 [vi] Điều kiện mở khóa
+10340 [vi] Quãng đường xa nhất: {0}m / Gacha thẻ Lv.{1}
+10341 [vi] Có: {0} (Có thể phân giải: {1})
+10342 [vi] Phân giải
+10343 [vi] Phân giải 1 bản sao thẻ này để nhận {0} MILE?
+10344 [vi] Thẻ đã phân giải không thể khôi phục.
+10345 [vi] Đây là bản sao cuối cùng của bạn. Nếu phân giải, bạn sẽ không thể dùng thẻ này cho đến khi nhận được bản khác.
+10346 [vi] Thẻ có độ hiếm cao (★{0} Lv.{1}).
+10347 [vi] Không thể phân giải thẻ đang dùng. Hãy gỡ khỏi bộ bài, thiết lập sẵn hoặc thẻ nhân vật trước.
+10348 [vi] Đã phân giải: +{0} MILE

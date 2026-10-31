@@ -115,6 +115,8 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaHudCam") { mode = "hudcam"; dir = a[i + 1]; } // 2026-10-31 HUD の刷新/表示モード/ボス戦の構図
             if (a[i] == "-qaCardArt") { mode = "cardart"; dir = a[i + 1]; } // 2026-10-31 カードの絵とレイアウトの見直し
             if (a[i] == "-qaKeyNav") { mode = "keynav"; dir = a[i + 1]; } // 2026-10-31 Windows のキーボード/マウス操作
+            if (a[i] == "-qaDeckV2") { mode = "deckv2"; dir = a[i + 1]; } // 2026-10-31 デッキ編集の配置/ドラッグ/長押し/分解
+            if (a[i] == "-qaTitle") { mode = "title"; dir = a[i + 1]; } // 2026-10-31 タイトル画面(-titleScreen 1 と一緒に)
             if (a[i] == "-qaElemVis") { mode = "elemvis"; dir = a[i + 1]; }
             if (a[i] == "-qaUnlock") { mode = "unlock"; dir = a[i + 1]; }
             if (a[i] == "-qaLoc") { mode = "loc"; dir = a[i + 1]; }
@@ -316,6 +318,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "hudcam") yield return HudCamMode();
         else if (mode == "cardart") yield return CardArtMode();
         else if (mode == "keynav") yield return KeyNavMode();
+        else if (mode == "deckv2") yield return DeckV2Mode();
+        else if (mode == "title") yield return TitleModeQa();
         else if (mode == "elemvis") yield return ElemVisMode();
         else if (mode == "unlock") yield return UnlockModeQa();
         else if (mode == "loc") yield return LocModeQa();

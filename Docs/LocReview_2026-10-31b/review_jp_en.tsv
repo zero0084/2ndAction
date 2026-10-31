@@ -1,0 +1,27 @@
+id	category	note	ja	en
+10323	ui	タイトル画面の案内(Android などタッチの機器)。ゆっくり明滅	タップして開始	Tap to Start
+10324	ui	タイトル画面の案内(PC)。キーボードのどのキー/マウスのクリック/ゲームパッドのボタンでも始まる	キー / クリック / パッドで開始	Press Any Key / Click / Pad Button
+10325	ui	デッキ編集: 何も選んでいない時の小さな詳細欄の操作の案内(1行に収めたい)	タップ: デッキへ出し入れ  長押し: 詳細  ドラッグ: 移動	Tap: Add/Remove  Hold: Details  Drag: Move
+10326	ui	デッキ編集: 埋まっている枠へカードをドラッグした時の確認。{0}=いまデッキにあるカード名 {1}=入れるカード名	デッキの「{0}」を「{1}」に入れ替えますか？	Replace "{0}" in your deck with "{1}"?
+10327	ui	デッキ編集: デッキのカードをドラッグ中、所持カード一覧の上に出る案内	ここで離すとデッキから外します	Release here to remove from deck
+10328	ui	デッキ編集: デッキが満杯の時の短い案内	デッキがいっぱいです(12枚まで)	Your deck is full (max 12 cards)
+10329	ui	デッキ編集: 入れようとしたカードの空きが無い時(デッキ・キャラカードで全部使っている)	空いているカードがありません(デッキ・キャラカードで使用中)	No free copies (in use in the deck or as character cards)
+10330	ui	カードの大きな詳細: 見出し。下に Lv1 / 現在 / Lv9 の効果が並ぶ	Lvごとの効果	Effect by Level
+10331	ui	カードの大きな詳細: 「Lv5(現在)」のように今の Lv に付ける短い印	現在	Current
+10332	ui	カードの大きな詳細: 見出し。このカードと一緒に持つと発動する COMBO の一覧(COMBO はゲームの用語、訳さない)	COMBO(一緒に持つと発動)	COMBO (triggers when held together)
+10333	ui	カードの大きな詳細: COMBO / FINAL EVOLUTION の対象でない時	対象外	Not applicable
+10334	ui	カードの大きな詳細: 見出し。デッキ・キャラカード・プリセットでの使用状況	使用状況	Usage
+10335	ui	カードの大きな詳細: 使用状況の行	デッキに入っています	In your deck
+10336	ui	カードの大きな詳細: 使用状況の行	キャラカードに装備中	Equipped as a character card
+10337	ui	カードの大きな詳細: 使用状況の行。保存してある別のデッキ(プリセット)に入っている	ほかのデッキ(プリセット)に入っています	In another saved deck (preset)
+10338	ui	カードの大きな詳細: 使用状況の行。どこにも使っていない	装備していません	Not in use
+10339	ui	カードの大きな詳細: 見出し。このカードがガチャに出るようになる条件	解放条件	Unlock Condition
+10340	ui	カードの大きな詳細: 解放条件の行。{0}=距離(3桁区切りの数字) {1}=ガチャの段階の数字	最高到達距離 {0}m / カードガチャ Lv.{1}	Best distance {0}m / Card Gacha Lv.{1}
+10341	ui	カードの大きな詳細: 所持数。{0}=持っている枚数 {1}=そのうち分解に使える空き(装備していない)枚数	所持 {0}枚(分解できる空き {1}枚)	Owned: {0} ({1} free to dismantle)
+10342	ui	カードの分解のボタン(後ろに「+250 MILE」のような数字が付く)。分解=カードを MILE(ゲーム内の通貨)に戻すこと	分解	Dismantle
+10343	ui	分解の確認。{0}=受け取る MILE の数	このカード1枚を分解して {0} MILE を受け取りますか？	Dismantle 1 copy of this card for {0} MILE?
+10344	ui	分解の確認の最後の注意	分解したカードは元に戻せません。	Dismantled cards cannot be restored.
+10345	ui	分解の確認: そのカードを1枚しか持っていない時の強い注意	これはこのカードの最後の1枚です。分解すると、もう一度手に入れるまで使えません。	This is your last copy. Once dismantled, you can't use it until you get it again.
+10346	ui	分解の確認: レア度が高い/Lv が高い時の注意。{0}=★の数 {1}=Lv	レア度の高いカードです(★{0} Lv.{1})。	This is a high-rarity card (★{0} Lv.{1}).
+10347	ui	分解できない時の案内(装備中で空きが無い)。自動では外さない	装備中のカードは分解できません。デッキ・プリセット・キャラカードから外してください。	Equipped cards can't be dismantled. Remove it from your deck, presets, or character cards first.
+10348	ui	分解した後の短い案内。{0}=受け取った MILE	分解しました: +{0} MILE	Dismantled: +{0} MILE
