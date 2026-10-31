@@ -56,10 +56,12 @@ public class UiScroll
                     pressed = dragging = false;
                     break;
                 case EventType.ScrollWheel:
-                    if (view.Contains(e.mousePosition)) { y = Mathf.Clamp(y + e.delta.y * 20f, 0f, max); e.Use(); }
+                    // 2026-10-31: 手前に別の窓(より上の層の押せる物)がある時は、後ろの一覧を動かさない
+                    if (view.Contains(e.mousePosition) && PadNav.CurrentLayer >= PadNav.TopLayer) { y = Mathf.Clamp(y + e.delta.y * 20f, 0f, max); e.Use(); }
                     break;
                 case EventType.Layout:
                     int req = PadNav.ScrollRequestFor(PadNav.ToScreen(view));
+                    if (req == 0) req = PadNav.ClaimFallbackScroll(); // フォーカスが一覧の外(文章だけの画面)でも PageUp/PageDown で読める
                     if (req != 0) y = Mathf.Clamp(y + req * view.height * 0.5f, 0f, max);
                     break;
             }

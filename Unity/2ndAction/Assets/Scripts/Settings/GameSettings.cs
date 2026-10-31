@@ -190,6 +190,7 @@ public static class UiKit
             fieldStyle.normal.textColor = fieldStyle.hover.textColor = fieldStyle.focused.textColor = fieldStyle.onFocused.textColor = UiTheme.Text;
         }
         fieldStyle.fontSize = Mathf.RoundToInt(size);
+        PadNav.NoteTextField(); // 2026-10-31: 入力中はキーで項目を動かさない
         return GUI.TextField(r, value ?? "", maxLength, fieldStyle);
     }
 

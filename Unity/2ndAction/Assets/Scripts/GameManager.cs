@@ -1333,6 +1333,8 @@ public partial class GameManager : MonoBehaviour
     {
         UnlockRules.ClearRunFlags(); // 新しいシーン = ランの外(前のランの「飛ばした」印を持ち越さない)
         Instance = this;
+        PadNav.ScreenKey = () => Instance != null ? Instance.ScreenKeyNow() : null; // 2026-10-31: 画面ごとのフォーカスの記憶
+        PadNav.DefaultFocus = key => Instance != null ? Instance.DefaultFocusFor(key) : null;
         // RUN BUILD HUD(2026-09-29): ラン中の取得カード一覧。このRunのカード状態を表示するだけのView
         // (GameManagerと同じObjectに付くので、シーン再読込=次Run/Homeで一緒に作り直される)。
         if (GetComponent<RunBuildHud>() == null) gameObject.AddComponent<RunBuildHud>();
@@ -2236,6 +2238,9 @@ public partial class GameManager : MonoBehaviour
         why = "";
         bool down = Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.R);
         if (!down && !PadNav.MenuActive && GameInput.Consume(GameAction.Confirm)) down = true; // ゲームパッドの A / Enter(2026-10-06)
+        if (!down && resultHomeKeyPressed) down = true; // メニュー操作中に「ホームへ戻る」を選んで決定した(2026-10-31)
+        resultHomeKeyPressed = false;
+        if (!down && GameInput.MouseBackDown()) down = true; // 2026-10-31: マウスの戻るボタンも Esc と同じ
         if (!down && GameInput.Consume(GameAction.Cancel)) down = true; // 戻る(B / Esc)はボタンがあっても「ホームへ」(2026-10-10: MILE 2倍のボタンが選ばれていても戻れる)
         for (int i = 0; !down && i < Input.touchCount; i++) if (Input.GetTouch(i).phase == TouchPhase.Began) down = true;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -4772,7 +4777,7 @@ public partial class GameManager : MonoBehaviour
                     lastGachaMachineHitRect = machineHit;
                     // 確認中も本体は押せる(確認を閉じて次の1回)。確認中のパッド/キーの選択は確認の層の中で行う
                     bool machineInteractable = (roomInteractable || (gachaResultOpen && !showNewRunConfirm && !NetDebugUI.BlocksHomeInput && !UiInputGate.Blocked));
-                    if (machineInteractable && ((!gachaResultOpen && PadNav.Button(machineHit)) | GUI.Button(machineHit, GUIContent.none, GUIStyle.none)) && roomFadeAlpha > 0.99f)
+                    if (machineInteractable && ((!gachaResultOpen && !HomeSignsTakeFocus && PadNav.Button(machineHit)) | GUI.Button(machineHit, GUIContent.none, GUIStyle.none)) && roomFadeAlpha > 0.99f)
                     {
                         OnGachaMachineTapped();
                     }
@@ -4877,6 +4882,7 @@ public partial class GameManager : MonoBehaviour
     //  ・距離と MILE は常に上(スクロールしない)。カード/更新/細かい結果は入らない時だけ中でスクロール。ボタンは常に下
     public Rect LastResultPanelRect { get; private set; } // お知らせ(トースト)を重ねないため(2026-10-10)
     public Rect LastResultHomeRect { get; private set; }  // ホームへ戻るボタン(タップの判定。ResultTapThisFrame)
+    bool resultHomeKeyPressed; // キー/パッドの決定で「ホームへ戻る」が押された(次の Update で ResultTapThisFrame が受け取る)
     double resultPrevBest = -1; // このランの前の BEST(成功の確定の直前に覚える。更新の表示「前 → 今回」)
     readonly UiScroll resultScroll = new UiScroll();
     float ResultScale => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.6f);
@@ -5004,7 +5010,9 @@ public partial class GameManager : MonoBehaviour
         // ⑥ ホームへ戻る(共通のボタン。結果を読む間の待ち時間が終わるまでは押せない見た目)
         bool retryAllowed = SecondsSinceGameOver >= retryDelayAfterGameOver;
         LastResultHomeRect = home;
-        UiKit.Button(home, Loc.T("ホームへ戻る"), 24f * s, true, true, retryAllowed); // 押した判定は Update の ResultTapThisFrame(パッド/キーも同じ所)
+        // 押した判定は Update の ResultTapThisFrame。2026-10-31: キー/パッドでボタンを選んで決定した時(PadNav の決定)も同じ道へ
+        //  (以前はメニュー操作中の決定がボタンに使われて捨てられ、Enter でホームへ戻れなかった)
+        if (UiKit.Button(home, Loc.T("ホームへ戻る"), 24f * s, true, true, retryAllowed) && !Input.GetMouseButton(0) && Input.touchCount == 0) resultHomeKeyPressed = true;
         if (!ResultShown && Event.current.type == EventType.Repaint) { ResultShown = true; DeathLog($"Result shown (reason={DeathReason}, timeScale={Time.timeScale:F2})"); }
     }
 
@@ -6309,9 +6317,11 @@ public partial class GameManager : MonoBehaviour
     // GUI.Button call entirely rather than just ignoring its result, so a
     // tap over a hotspot can't "consume" the event out from under the
     // popup's own OK button drawn later this same OnGUI pass.
+    // 2026-10-31(Windows の操作): 名前の札がある時は、キー/パッドの候補は札だけ(部屋の物は大きく重なっていて、矢印での移動が飛び飛びになっていた)
+    bool HomeSignsTakeFocus => !HomePortrait && UiIcons.Home(HomeSignIcons[0]) != null;
     bool DrawRoomHotspot(Rect rect, ref float flashTimer, bool interactable = true)
     {
-        bool tapped = interactable && (PadNav.Button(rect) | GUI.Button(rect, GUIContent.none, GUIStyle.none));
+        bool tapped = interactable && ((!HomeSignsTakeFocus && PadNav.Button(rect)) | GUI.Button(rect, GUIContent.none, GUIStyle.none));
         if (tapped)
         {
             flashTimer = roomHotspotFlashDuration;
@@ -6338,7 +6348,7 @@ public partial class GameManager : MonoBehaviour
     // 「常時強く発光/点滅はしない、タップ時だけ軽く反応する」を近似する。
     bool DrawDoorHotspot(Rect rect, ref float flashTimer, bool interactable, float roomFadeAlpha)
     {
-        bool tapped = interactable && (PadNav.Button(rect) | GUI.Button(rect, GUIContent.none, GUIStyle.none));
+        bool tapped = interactable && ((!HomeSignsTakeFocus && PadNav.Button(rect)) | GUI.Button(rect, GUIContent.none, GUIStyle.none));
         if (tapped)
         {
             flashTimer = roomHotspotFlashDuration;
@@ -6482,7 +6492,7 @@ public partial class GameManager : MonoBehaviour
         _ = nameLabel; _ = nameStyle;
         if (roomFadeAlpha > 0.5f && UnlockRules.AnyNewCharacter) DrawNewDot(frameRect); // 2026-10-08: 新しい仲間が増えた
 
-        bool tapped = roomInteractable && (PadNav.Button(rect) | GUI.Button(rect, GUIContent.none, GUIStyle.none));
+        bool tapped = roomInteractable && ((!HomeSignsTakeFocus && PadNav.Button(rect)) | GUI.Button(rect, GUIContent.none, GUIStyle.none));
         if (tapped)
         {
             characterHotspotFlashTimer = roomHotspotFlashDuration;
@@ -6545,13 +6555,51 @@ public partial class GameManager : MonoBehaviour
     // 遷移中は何もしない(連打で二重に開閉しない)。ホームではアプリを終了させない。
     void HandleBackButton()
     {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (Input.GetKeyDown(KeyCode.Escape) || GameInput.MouseBackDown() || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Tab))
+            Debug.Log($"[KeyNav] esc={Input.GetKeyDown(KeyCode.Escape)} back={GameInput.MouseBackDown()} enter={Input.GetKeyDown(KeyCode.Return)} tab={Input.GetKeyDown(KeyCode.Tab)} screen={ScreenKeyNow()} capture={SettingsPanel.CapturingInput} text={GameInput.TextInputActive} focus={PadNav.HasFocus} menu={PadNav.MenuActive}");
+#endif
         // キー設定の待ち受け中(2026-10-25): 押したキー/ボタンは割り当てに使う。Esc だけ取り消し(戻る)
-        if (SettingsPanel.CapturingInput) { if (Input.GetKeyDown(KeyCode.Escape)) DoBack(); return; }
-        if (Input.GetKeyDown(KeyCode.Escape)) { DoBack(); return; }
+        if (SettingsPanel.CapturingInput) { if (Input.GetKeyDown(KeyCode.Escape) || GameInput.MouseBackDown()) DoBack(); return; }
+        // 2026-10-31(Windows の操作): マウスの戻るボタンは Esc と同じ(1回で一番手前を1段だけ戻す。ラン中は一時停止を開く)
+        if (Input.GetKeyDown(KeyCode.Escape) || GameInput.MouseBackDown()) { DoBack(); return; }
         // ゲームパッドの B / Backspace(2026-10-06): メニューを操作している時/ホームだけ(ラン中の B は下攻撃)
         if (GameInput.Down(GameAction.Cancel) && (PadNav.MenuActive || !HasStarted)) DoBack();
         // START / P: 一時停止(II と同じ条件)。闘技場では設定を開く/閉じる
         if (GameInput.Down(GameAction.Pause)) PadPause();
+    }
+
+    // 初めて開いた画面で最初に選ぶ項目: ホームは「出発/続きから」(主な操作)。ほかは左上の項目のまま
+    Vector2? DefaultFocusFor(string key)
+    {
+        if (key == "home" && LastHomeSignRects != null && LastHomeSignRects.Length > 4 && LastHomeSignRects[4].width > 0f) return LastHomeSignRects[4].center;
+        if (key == "result" && LastResultHomeRect.width > 0f) return LastResultHomeRect.center; // RESULT は「ホームへ戻る」から(画面の画素の矩形)
+        if (key == "pause") return null; // 一時停止: 一番上の「再開」(左上から = 既定)
+        return null;
+    }
+
+    // 今の画面の名前(キーボード/パッドのフォーカスを画面ごとに覚えて、戻った時に前の項目へ戻すため)
+    string ScreenKeyNow()
+    {
+        if (SettingsPanel.IsVisible) return SettingsPanel.CapturingInput ? "keys" : "settings";
+        if (LicensesUi.IsOpen) return "licenses";
+        if (RankingPanel.IsOpen) return "ranking";
+        if (NetDebugUI.PanelOpen) return "multi";
+        if (!HasStarted)
+        {
+            if (deckEditOpen) return "deck";
+            if (cardFusionOpen) return "fusion";
+            if (characterSelectOpen) return "char";
+            if (stageSelectOpen) return "stage";
+            if (gachaResultOpen) return "gacha";
+            if (showNewRunConfirm) return "newrun";
+            return "home";
+        }
+        if (IsGameOver) return "result";
+        if (showReturnHomeConfirm) return "returnhome";
+        if (showPauseMenu) return "pause";
+        if (levelUpPending) return "choice";
+        return "run";
     }
 
     void PadPause()

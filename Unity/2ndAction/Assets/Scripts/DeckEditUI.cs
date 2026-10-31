@@ -1404,6 +1404,9 @@ public class DeckEditUI : MonoBehaviour
     // ゲームパッド: 一覧の端から先へ進もうとした時/右スティックで、見えている範囲を動かす(2026-10-06)
     void PadScroll()
     {
+        // 2026-10-31: マウスのホイール(ポインターの下の一覧。確認の窓が開いている間は動かさない)
+        var wheelSr = FindScrollRectContaining(Input.mousePosition);
+        if (wheelSr != null) UguiWheel.Apply(wheelSr, confirmDialog != null && confirmDialog.IsOpen);
         foreach (var sr in new[] { ownedScrollRect, deckScrollRect })
         {
             if (sr == null || sr.viewport == null) continue;

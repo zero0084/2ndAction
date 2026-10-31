@@ -208,7 +208,7 @@ public class DeckPresetUi : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     // 確認用(QaSweep -qaDeckPreset): 一覧/名前の入力/コピー先の選択を開く
     public void DebugOpenList() => OpenList();
-    public void DebugRename(int i) { OpenList(); selected = i; var p = DeckPresets.Get(i); nameEdit = p != null ? p.name : ""; mode = Mode.Rename; }
+    public void DebugRename(int i) { OpenList(); selected = i; var p = DeckPresets.Get(i); nameEdit = p != null ? p.name : ""; mode = Mode.Rename; focusName = true; } // 2026-10-31: 本物の「名前の変更」と同じく入力欄に焦点
     public void DebugPickCopy(int from) { OpenList(); selected = copyFrom = from; mode = Mode.PickCopyTarget; }
     public void DebugClose() => Close();
 #endif

@@ -112,7 +112,7 @@ public static class InputBindings
         S(GameAction.Jump, K(KeyCode.Space), 0, K(KeyCode.Mouse1), K(GamepadBindings.A), 0);
         S(GameAction.AttackUp, K(KeyCode.W), K(KeyCode.UpArrow), WheelUp, RSUp, 0);
         S(GameAction.AttackForward, K(KeyCode.D), K(KeyCode.RightArrow), K(KeyCode.Mouse0), K(GamepadBindings.X), RSRight);
-        S(GameAction.AttackBack, K(KeyCode.A), K(KeyCode.LeftArrow), K(KeyCode.Mouse3), K(GamepadBindings.Y), RSLeft);
+        S(GameAction.AttackBack, K(KeyCode.A), K(KeyCode.LeftArrow), 0, K(GamepadBindings.Y), RSLeft); // 2026-10-31: マウスの戻るボタン(Mouse3)は「戻る/一時停止」専用(ReservedMouseBack)
         S(GameAction.AttackDown, K(KeyCode.S), K(KeyCode.DownArrow), WheelDown, K(GamepadBindings.B), RSDown);
         S(GameAction.Ultimate, K(KeyCode.C), 0, K(KeyCode.Mouse2), K(GamepadBindings.RB), RT);
         S(GameAction.Hold, K(KeyCode.H), 0, 0, K(GamepadBindings.Back), 0);
@@ -188,10 +188,16 @@ public static class InputBindings
             if (kp.Length != 2) return false;
             var k = ParseInts(kp[0], KeySlots + 1); var pd = ParseInts(kp[1], PadSlots);
             if (k == null || pd == null) return false;
+            for (int j = 0; j < k.Length; j++) if (IsReserved(k[j])) k[j] = 0; // 2026-10-31: 以前の初期の表(後攻撃 = マウスの戻るボタン)の移行
             keys[(int)a] = k; pad[(int)a] = pd;
         }
         return true;
     }
+
+    // 2026-10-31(Windows の操作): 割り当てに使わない入力。マウスの戻るボタン = 戻る/閉じる(ラン中は一時停止、Esc と同じ)、
+    //  Tab / Shift+Tab = メニューの次/前の項目。キー設定で行動に割り当てると二重に動くので、表に入れない
+    public const int ReservedMouseBack = (int)KeyCode.Mouse3;
+    public static bool IsReserved(int code) => code == ReservedMouseBack || code == (int)KeyCode.Tab;
 
     static int[] ParseInts(string s, int len)
     {
@@ -267,6 +273,7 @@ public static class InputBindings
     // その行動に割り当てたキーボードのキー(固定の物も)が押されているか
     public static bool KeyboardHeld(GameAction a)
     {
+        if (GameInput.TextInputActive) return false; // 2026-10-31: 文字の入力中はキーで項目を動かしたり、ゲームの操作をしない
         foreach (int c in keys[(int)a]) if (IsKeyboardCode(c) && CodeHeld(c)) return true;
         foreach (int c in fixedKeys[(int)a]) if (CodeHeld(c)) return true;
         return false;
@@ -360,7 +367,7 @@ public static class InputBindings
     // この欄に入れてよい入力か
     public static bool Accepts(Column col, int code)
     {
-        if (code <= 0 || code == (int)KeyCode.Escape) return false;
+        if (code <= 0 || code == (int)KeyCode.Escape || IsReserved(code)) return false;
         if (IsPadColumn(col)) return IsPadCode(code);
         if (col == Column.Mouse) return IsMouseCode(code);
         return IsKeyboardCode(code);
@@ -372,7 +379,7 @@ public static class InputBindings
     public static int PollPress(bool keyboard, bool mouse, bool padIn)
     {
         int found = 0;
-        if (Input.GetKeyDown(KeyCode.Escape)) return -1;
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown((KeyCode)ReservedMouseBack)) return -1; // マウスの戻るボタンも取り消し(2026-10-31)
         if (keyboard) for (int c = 1; c < (int)KeyCode.Mouse0 && found == 0; c++) if (System.Enum.IsDefined(typeof(KeyCode), c) && Input.GetKeyDown((KeyCode)c)) found = c;
         if (mouse && found == 0)
         {

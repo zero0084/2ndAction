@@ -545,6 +545,13 @@ public class CharacterSelectUI : MonoBehaviour
         }
 
         UiHit.Probe(HandleTap); // パッド操作中: 押せる枠を集める
+        // 2026-10-31(Windows の操作): キャラの列の上でホイール = 前/次のキャラ(1目盛りで1人。下へ回すと次)
+        if (Mathf.Abs(UguiWheel.Delta) > 0.01f && !UiInputGate.ModalOpen && carouselScroll != null && VisibleCount > 0)
+        {
+            var vp = carouselScroll.viewport != null ? carouselScroll.viewport : (RectTransform)carouselScroll.transform;
+            if (RectTransformUtility.RectangleContainsScreenPoint(vp, Input.mousePosition, null))
+                BeginSnap(Mathf.Clamp(selectedIndex + (UguiWheel.Delta < 0f ? 1 : -1), 0, VisibleCount - 1));
+        }
         // タッチ/マウス + ゲームパッドの決定(フォーカスの中心を叩く)。2026-10-06
         PointerInput.Read(this, out bool down, out bool up, out bool held, out Vector2 screenPos);
 

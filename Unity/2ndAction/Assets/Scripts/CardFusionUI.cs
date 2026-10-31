@@ -1349,6 +1349,9 @@ public class CardFusionUI : MonoBehaviour
     // ゲームパッド: 一覧の端から先へ進もうとした時/右スティックで、見えている範囲を動かす(2026-10-06)
     void PadScroll()
     {
+        // 2026-10-31: マウスのホイール(ポインターの下の一覧。確認/結果の窓が開いている間は窓の中だけ)
+        var wheelSr = PickScroll(Input.mousePosition);
+        if (wheelSr != null && UguiWheel.Apply(wheelSr) && wheelSr == gridScroll) savedGridScroll = gridScroll.verticalNormalizedPosition;
         foreach (var sr in new[] { gridScroll, detailScroll, resultScroll })
         {
             if (sr == null || sr.viewport == null || !sr.gameObject.activeInHierarchy) continue;

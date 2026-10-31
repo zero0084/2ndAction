@@ -52,7 +52,22 @@ public class GameInput : MonoBehaviour
     static readonly bool[] consumed = new bool[(int)GameAction.Count];
     static readonly float[] repeatAt = new float[(int)GameAction.Count];
     static readonly bool[] repeatFire = new bool[(int)GameAction.Count];
+    static readonly bool[] latched = new bool[(int)GameAction.Count];
     static int frame = -1;
+
+    // 2026-10-31(Windows の操作): 文字の入力中(IMGUI の入力欄にキーの焦点がある)。キーボードの行動は全部止める(PadNav が毎フレーム更新)
+    public static bool TextInputActive;
+    // マウスの戻るボタン(PC)。戻る/閉じる。ラン中は Esc と同じく一時停止を開く(GameManager.HandleBackButton)
+    public static bool MouseBackDown() => (PlatformCaps.SupportsMouse && Input.GetMouseButtonDown(3)) || DebugMouseBackFrame == Time.frameCount;
+    public static int DebugMouseBackFrame = -1; // 自動テスト用: このフレームにマウスの戻るボタンを押したことにする
+
+    // 押しっぱなしの持ち越しを止める: 今押されている入力は、一度離すまで「押されていない」ことにする。
+    //  メニューの決定(Enter / Space)で画面が変わった直後に、同じ押下が次の画面の決定やジャンプとして働かないように
+    public static void LatchHeld()
+    {
+        for (int i = 0; i < held.Length; i++) if (held[i] || prevHeld[i]) latched[i] = true;
+    }
+    public static void LatchAction(GameAction a) { latched[(int)a] = true; }
 
     // 最後に使った機器。タッチ/マウスを使えばフォーカスの枠を消し、パッド/キーで出す
     public static InputDeviceKind LastDevice { get; private set; } = InputDeviceKind.Touch;
@@ -121,6 +136,7 @@ public class GameInput : MonoBehaviour
         injected.Clear();
         foreach (var a in pulsed) { held[(int)a] = true; prevHeld[(int)a] = false; }
         pulsed.Clear();
+        for (int i = 0; i < held.Length; i++) { if (!held[i]) latched[i] = false; else if (latched[i]) held[i] = false; } // 一度離すまで押されていない
         if (touch) LastDevice = InputDeviceKind.Touch;
         else if (mouse) { LastDevice = InputDeviceKind.Mouse; LastSourceName = "mouse"; }
         // 押し続けた時の繰り返し(メニューの移動/スクロール)

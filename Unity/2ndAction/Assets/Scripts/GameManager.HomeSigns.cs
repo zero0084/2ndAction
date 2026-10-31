@@ -96,7 +96,8 @@ public partial class GameManager
         // タップの範囲: 大きい札は見た目より少し広く(縦の余白ぶん。隣の札とは重ならない間隔で並べる)
         Rect hitR = scale > 1.01f ? new Rect(r.x - fs * 0.3f, r.y - fs * 0.25f, r.width + fs * 0.6f, r.height + fs * 0.5f) : r;
         if (scale > 1.01f) LastHomeSignHitRects[idx] = hitR;
-        bool hit = interactable && fade > 0.99f && GUI.Button(hitR, GUIContent.none, GUIStyle.none);
+        // 2026-10-31(Windows の操作): 札もキー/パッドの候補(Enter で物を押したのと同じ)
+        bool hit = interactable && fade > 0.99f && ((HomeSignsTakeFocus && PadNav.Button(hitR)) | GUI.Button(hitR, GUIContent.none, GUIStyle.none));
         if (hit) HomeSignTaps++;
         return hit;
     }

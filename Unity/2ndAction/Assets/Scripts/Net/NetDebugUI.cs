@@ -593,6 +593,7 @@ public class NetDebugUI : MonoBehaviour
         {
             GUILayout.BeginHorizontal();
             GUILayout.Label("ポート", labelStyle, GUILayout.Width(90f));
+            PadNav.NoteTextField();
             portInput = GUILayout.TextField(portInput, 5, fieldStyle, GUILayout.Width(120f), GUILayout.Height(44f));
             GUILayout.EndHorizontal();
             GUILayout.Space(6f);
@@ -605,6 +606,7 @@ public class NetDebugUI : MonoBehaviour
             GUILayout.Space(10f);
             GUILayout.Label("JOIN: HOST端末に表示されたIPを入力", labelStyle);
             GUILayout.BeginHorizontal();
+            PadNav.NoteTextField();
             hostIpInput = GUILayout.TextField(hostIpInput, 15, fieldStyle, GUILayout.Height(48f));
             if (PadNav.LayoutButton(GUILayout.Button("JOIN", buttonStyle, GUILayout.Width(140f), GUILayout.Height(48f))))
             {

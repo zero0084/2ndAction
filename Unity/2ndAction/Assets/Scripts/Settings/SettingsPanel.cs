@@ -201,7 +201,7 @@ public partial class SettingsPanel : MonoBehaviour
                 if (dragging) { scroll.y = Mathf.Clamp(scroll.y - (e.mousePosition.y - lastDragY), 0f, max); lastDragY = e.mousePosition.y; GUIUtility.hotControl = 0; e.Use(); }
             }
             else if (e.type == EventType.MouseUp) { if (dragging) e.Use(); pressed = dragging = false; }
-            else if (e.type == EventType.ScrollWheel && view.Contains(e.mousePosition)) { scroll.y = Mathf.Clamp(scroll.y + e.delta.y * 20f, 0f, max); e.Use(); }
+            else if (e.type == EventType.ScrollWheel && view.Contains(e.mousePosition) && !langOpen && !PanelModalOpen) { scroll.y = Mathf.Clamp(scroll.y + e.delta.y * 20f, 0f, max); e.Use(); }
             // ゲームパッド: 端から先へ進もうとした時/右スティックで動かす(2026-10-06)
             if (e.type == EventType.Layout) { int req = PadNav.ScrollRequestFor(PadNav.ToScreen(view)); if (req != 0) scroll.y = Mathf.Clamp(scroll.y + req * view.height * 0.5f, 0f, max); }
         }
@@ -655,6 +655,7 @@ public partial class SettingsPanel : MonoBehaviour
         if (!nameEditing) nameEdit = Codename.Current;
         GUI.SetNextControlName("codename");
         var style = new GUIStyle(GUI.skin.textField) { fontSize = 20, alignment = TextAnchor.MiddleLeft };
+        PadNav.NoteTextField();
         string edited = GUI.TextField(fr, nameEdit ?? "", 40, style);
         if (edited != nameEdit) { nameEdit = edited; nameEditing = true; }
         if (GUI.GetNameOfFocusedControl() == "codename") nameEditing = true;

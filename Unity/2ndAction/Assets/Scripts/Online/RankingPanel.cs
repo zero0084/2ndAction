@@ -178,6 +178,7 @@ public class RankingPanel : MonoBehaviour
         LocGUI.Label(new Rect(r.x, y, nameOwnRow ? r.width : 180f, nameOwnRow ? 30f : 44f), "コードネーム", nameLbl);
         if (nameOwnRow) y += 32f;
         var style = new GUIStyle(GUI.skin.textField) { fontSize = 20, alignment = TextAnchor.MiddleLeft };
+        PadNav.NoteTextField(); // 2026-10-31
         nameEdit = GUI.TextField(nameOwnRow ? new Rect(r.x, y + 2f, r.width, 42f) : new Rect(r.x + 180f, y + 2f, r.width - 180f, 42f), nameEdit ?? "", 40, style);
         y += 50f;
         LocGUI.Label(new Rect(r.x, y, r.width, 26f), $"最大{Codename.MaxLength}文字。本名などの個人情報は入れないでください。", UiKit.Label(15f, TextAnchor.UpperLeft, false, new Color(0.75f, 0.8f, 0.9f)));
