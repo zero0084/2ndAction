@@ -567,6 +567,43 @@ public partial class DeckEditUI : MonoBehaviour
         Debug.Log($"[DeckEdit] deck grid {cols}x{rows}, scale {k:F2} (viewport {vp.rect.width:F0}x{vp.rect.height:F0})");
     }
 
+    // 所持カードの一覧の元(デッキ編集とカード合成で同じ条件: 1枚以上持っていて、カードとして読める束。並びは sortOrder → Lv)。
+    //  レア度・種類・解放の条件は付けない(★5 / #100 ULTIMATE も他と同じ)
+    public static List<CardInventory.Stack> OwnedStacksSorted()
+    {
+        var list = new List<CardInventory.Stack>();
+        foreach (var st in CardInventory.Stacks) if (st.count > 0 && CardDatabase.FindById(st.cardId) != null) list.Add(st);
+        list.Sort((a, b) =>
+        {
+            CardDefinition ca = CardDatabase.FindById(a.cardId);
+            CardDefinition cb = CardDatabase.FindById(b.cardId);
+            int byOrder = ca.sortOrder.CompareTo(cb.sortOrder);
+            return byOrder != 0 ? byOrder : a.level.CompareTo(b.level);
+        });
+        return list;
+    }
+    int ownedStackTotal;
+
+    // 一覧の枠が足りなければ、同じ枠を複製して足す(グリッドの中なのでそのまま並ぶ)
+    void EnsureOwnedPool(int need)
+    {
+        if (ownedCards == null || ownedCards.Length == 0 || ownedCards.Length >= need) return;
+        var src = ownedCards[0];
+        var list = new List<RewardCardUI>(ownedCards);
+        while (list.Count < need)
+        {
+            var go = Instantiate(src.gameObject, src.transform.parent);
+            go.name = "OwnedCard_" + list.Count;
+            list.Add(go.GetComponent<RewardCardUI>());
+        }
+        ownedCards = list.ToArray();
+        Debug.Log($"[DeckEdit] owned card slots grown to {ownedCards.Length}");
+    }
+    public int DebugOwnedShownCount => displayedStacks.Count;
+    public int DebugOwnedSlotCount => ownedCards.Length;
+    public bool DebugOwnedShows(string key) { int i = displayedStacks.FindIndex(st => st.cardId == key); return i >= 0 && i < ownedCards.Length && ownedCards[i].gameObject.activeSelf; }
+    public void DebugSetFilter(string f) { activeFilter = f; RefreshFilterHighlight(); Refresh(); }
+
     void Refresh()
     {
         EnsureDeckSlots();
@@ -581,35 +618,24 @@ public partial class DeckEditUI : MonoBehaviour
         // predictable layout (CardDatabase's own sortOrder, then ascending
         // level) - same convention CardFusionUI's owned list uses.
         bool focusFound = false;
+        // 2026-11-01(★5が出ない不具合): 一覧の枠はシーンに 160 枠しか無く、所持の束(Lv違い・合成の違いは別の束)を並び順の先頭から
+        // 入れていた。カードが 112 種になって束が 160 を超え、並び順の最後(★5 = sortOrder が大きい)が枠からあふれて出ていなかった
+        // (種類の絞り込みも枠を隠すだけだったので、絞っても出なかった)。→ 所持の束を作る → 絞り込む → 足りない枠は増やす、の順に
         displayedStacks.Clear();
-        displayedStacks.AddRange(CardInventory.Stacks);
-        displayedStacks.Sort((a, b) =>
-        {
-            CardDefinition ca = CardDatabase.FindById(a.cardId);
-            CardDefinition cb = CardDatabase.FindById(b.cardId);
-            int byOrder = (ca != null ? ca.sortOrder : 0).CompareTo(cb != null ? cb.sortOrder : 0);
-            return byOrder != 0 ? byOrder : a.level.CompareTo(b.level);
-        });
+        displayedStacks.AddRange(OwnedStacksSorted());
+        ownedStackTotal = displayedStacks.Count;                      // 「所持カード (n)」は絞り込みに関係なく全部の数
+        displayedStacks.RemoveAll(st => !MatchesFilter(CardDatabase.FindById(st.cardId).category, activeFilter));
+        EnsureOwnedPool(displayedStacks.Count);
 
         for (int i = 0; i < ownedCards.Length; i++)
         {
-            if (i >= displayedStacks.Count || displayedStacks[i].count <= 0)
+            if (i >= displayedStacks.Count)
             {
                 ownedCards[i].gameObject.SetActive(false);
                 continue;
             }
             CardInventory.Stack stack = displayedStacks[i];
             CardDefinition card = CardDatabase.FindById(stack.cardId);
-            if (card == null) { ownedCards[i].gameObject.SetActive(false); continue; }
-
-            // The active category filter only hides/shows slots - it never
-            // affects the "(n)" count above (see the field comment on
-            // filterButtonRects).
-            if (!MatchesFilter(card.category, activeFilter))
-            {
-                ownedCards[i].gameObject.SetActive(false);
-                continue;
-            }
 
             ownedCards[i].gameObject.SetActive(true);
             ownedCards[i].ShowFrontImmediate(gm.MakeOwnedCardData(card, stack.level, stack.count));
@@ -691,7 +717,7 @@ public partial class DeckEditUI : MonoBehaviour
             int total = CardMastery.TotalCards;
             collectionCountText.horizontalOverflow = HorizontalWrapMode.Overflow;
             collectionCountText.supportRichText = true;
-            collectionCountText.text = CollectionLabel + $" ({displayedStacks.Count})  <size=17><color=#ffe6a0>MAX {CardMastery.MaxCount}/{total}  AWAKENED {CardMastery.AwakenedCount}/{total}</color></size>";
+            collectionCountText.text = CollectionLabel + $" ({ownedStackTotal})  <size=17><color=#ffe6a0>MAX {CardMastery.MaxCount}/{total}  AWAKENED {CardMastery.AwakenedCount}/{total}</color></size>";
         }
         RefreshHeadings();
         RefreshEmptyState();

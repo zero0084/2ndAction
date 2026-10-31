@@ -524,11 +524,9 @@ public class CardFusionUI : MonoBehaviour
         float keepScroll = gridScroll != null ? gridScroll.verticalNormalizedPosition : 1f;
         shown.Clear();
         int totalCopies = 0;
-        foreach (var s in CardInventory.Stacks)
+        foreach (var s in DeckEditUI.OwnedStacksSorted()) // 2026-11-01: 所持の一覧の元はデッキ編集と同じ(1枚以上・カードとして読める束。レア度の条件なし)
         {
-            if (s.count <= 0) continue;
             CardDefinition def = CardDatabase.FindById(s.cardId);
-            if (def == null) continue;
             totalCopies += s.count;
             if (MatchesFilter(def)) shown.Add(s);
         }
