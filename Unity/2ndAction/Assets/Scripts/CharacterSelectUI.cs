@@ -23,7 +23,7 @@ using UnityEngine.UI;
 // SELECTが保存するのはGameManager.SelectedCharacterId(表示・次回NEW RUNの
 // 既定値としての文字列)のみで、実際のプレイヤーキャラクターのスプライト/
 // 性能は今回一切変更しない。
-public class CharacterSelectUI : MonoBehaviour
+public partial class CharacterSelectUI : MonoBehaviour
 {
     public RectTransform root;
     public CanvasGroup rootGroup;
@@ -237,10 +237,14 @@ public class CharacterSelectUI : MonoBehaviour
         if (portrait)
         {
             float W = rootRt.rect.width, H = rootRt.rect.height, m = 30f;
-            float iw = Mathf.Min(560f, (W - 3f * m) * 0.54f), vw = W - 3f * m - iw, vh = Mathf.Min(880f, vw * 1.57f, 780f);
+            float iw = Mathf.Min(560f, (W - 3f * m) * 0.5f), vw = W - 3f * m - iw, vh = Mathf.Min(880f, vw * 1.57f, 780f); // 2026-10-31: 情報 0.54 → 0.5(立ち絵の幅を少し広く)
             float top = H * 0.5f - 190f, cy = top - 390f; // 右上の設定ボタンの下から
             var mid = new Vector2(0.5f, 0.5f);
-            if (layoutRts[0] != null) { var v = layoutRts[0]; v.anchorMin = v.anchorMax = v.pivot = mid; v.sizeDelta = new Vector2(vw, vh); v.anchoredPosition = new Vector2(-W * 0.5f + m + vw * 0.5f, cy); }
+            // 2026-10-31: 立ち絵は表示領域(MainVisualClip)の中へ。領域は左の列で、上は戻るの下から、下は情報パネルの下端まで(以前は情報の中段に小さく)
+            //  高さは幅に見合う分(幅 × 1.95)まで、カルーセルの上まで使う(情報パネルの下の空きも使う)
+            float carTopPre = Mathf.Min((top - 780f - 20f) - layoutHome[2].size.y * 0.5f, (top - 780f - 20f + (-H * 0.5f + 140f)) * 0.5f + 20f) + layoutHome[2].size.y * 0.5f;
+            float clipTop = H * 0.5f - 110f, clipBottom = Mathf.Max(carTopPre + 16f, clipTop - vw * 1.95f);
+            PlaceVisualClip(new Vector2(-W * 0.5f + m + vw * 0.5f, (clipTop + clipBottom) * 0.5f), new Vector2(vw, clipTop - clipBottom));
             if (layoutRts[1] != null) { var v = layoutRts[1]; v.anchorMin = v.anchorMax = v.pivot = mid; v.sizeDelta = new Vector2(iw, 780f); v.anchoredPosition = new Vector2(W * 0.5f - m - iw * 0.5f, cy); }
             float rowH = layoutHome[2].size.y;
             float freeTop = top - 780f - 20f, freeBottom = -H * 0.5f + 140f; // 情報の下 〜 戻る/決定の上 の真ん中
@@ -250,6 +254,24 @@ public class CharacterSelectUI : MonoBehaviour
             if (layoutRts[3] != null) layoutRts[3].anchoredPosition = new Vector2(m + 20f, carY);
             if (layoutRts[4] != null) layoutRts[4].anchoredPosition = new Vector2(m + carouselViewportWidth - 20f, carY);
             if (layoutRts[5] != null) layoutRts[5].anchoredPosition = new Vector2(m + carouselViewportWidth * 0.5f, carY - rowH * 0.5f - 4f);
+        }
+        else
+        {
+            // 2026-10-31(横画面): カルーセルを少し細くして(734 → 最大 600)、カルーセルと情報パネルの間を立ち絵の表示領域にする(重ならない)
+            float W = rootRt.rect.width, H = rootRt.rect.height;
+            var info = layoutRts[1];
+            // 情報パネル(右に留めてある: 右端 = 画面の右 + pos.x)の左端。中心基準の座標
+            float infoLeft = info != null && info.anchorMin.x == 1f ? W * 0.5f + info.anchoredPosition.x - info.sizeDelta.x : W * 0.5f - 624f;
+            float carX = layoutHome[2].pos.x;
+            float carW = Mathf.Clamp(W * 0.5f + infoLeft - carX - 20f - 20f - 520f, 460f, 600f);
+            carouselViewportWidth = carW;
+            if (layoutRts[2] != null) layoutRts[2].sizeDelta = new Vector2(carW, layoutHome[2].size.y);
+            float carY = layoutHome[2].pos.y;
+            if (layoutRts[4] != null) layoutRts[4].anchoredPosition = new Vector2(carX + carW - 20f, layoutHome[4].pos.y);
+            if (layoutRts[5] != null) layoutRts[5].anchoredPosition = new Vector2(carX + carW * 0.5f, layoutHome[5].pos.y);
+            float left = -W * 0.5f + carX + carW + 24f, right = infoLeft - 20f;
+            float topY = H * 0.5f - 96f, bottomY = -H * 0.5f + 24f;
+            PlaceVisualClip(new Vector2((left + right) * 0.5f, (topY + bottomY) * 0.5f), new Vector2(right - left, topY - bottomY));
         }
         if (carouselContent != null && VisibleCount > 0) carouselContent.anchoredPosition = new Vector2(TargetContentXForIndex(selectedIndex), carouselContent.anchoredPosition.y);
     }
@@ -404,20 +426,22 @@ public class CharacterSelectUI : MonoBehaviour
             if (instant || mainVisualGroup == null)
             {
                 mainVisualImage.sprite = sprite;
+                FitMainVisual(def.characterId); // 2026-10-31: キャラごとの倍率と位置
                 if (mainVisualGroup != null) mainVisualGroup.alpha = 1f;
             }
             else
             {
                 if (visualCrossFadeCoroutine != null) StopCoroutine(visualCrossFadeCoroutine);
-                visualCrossFadeCoroutine = StartCoroutine(CrossFadeMainVisual(sprite));
+                visualCrossFadeCoroutine = StartCoroutine(CrossFadeMainVisual(sprite, def.characterId));
             }
         }
     }
 
-    IEnumerator CrossFadeMainVisual(Sprite newSprite)
+    IEnumerator CrossFadeMainVisual(Sprite newSprite, string id)
     {
         yield return FadeCanvasGroup(mainVisualGroup, 0f, crossFadeDuration);
         mainVisualImage.sprite = newSprite;
+        FitMainVisual(id); // 見えていない間に大きさ/位置を替える(切り替えの途中で伸び縮みしない)
         yield return FadeCanvasGroup(mainVisualGroup, 1f, crossFadeDuration);
     }
 
