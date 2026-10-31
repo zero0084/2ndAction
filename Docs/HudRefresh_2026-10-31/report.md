@@ -106,9 +106,12 @@
 | `-qaHomeLayout`(横/縦) | 合格(ボタンとガチャ機械が重ならない・画面内) |
 | マルチ(HOST/JOIN 2プロセス、ボス戦あり 90 秒) | 例外 0(両方) |
 | Windows 製品版のビルド + 起動 | 成功・例外 0 |
+| Android エミュレーター(APK 404、2400×1080): `-qaHudCam` 横/縦(通常走行・4モード・設定・単体ボス) | 合格・例外 0。横のボス戦の地表 0.27 |
 | 本物の保存 | すべての試験の前後で変化なし(試験版「One More Mile Test」と -fileSave) |
 
 ## 10. 残課題・未確認
+
+- APK: 404(versionCode 404 / targetSdk 36 / 開発版 / 約 425MB)。記録コミット 8d634c9c。Windows の確認用(製品版・本物の保存とは別の「One More Mile Test」): `Unity/2ndAction/Builds/WindowsProductSandbox/OneMoreMile.exe`
 
 - **Android 実機: 未確認**(タッチでのカード欄のタップ、HUD の大きさ「大」での切り欠きの近く、縦画面のボスの欄と必殺技ボタンの間隔)。
 - マルチの JOIN 側の画面は撮影できていません(例外が無いことだけ確認)。
