@@ -1908,14 +1908,15 @@ public partial class GameManager : MonoBehaviour
 
     // 縦画面(2026-10-08、依頼E-1): 狭い幅では BEST / Lv / HP の3つが1段に入らず重なる → 1段目 = Lv/EXP(左)+HP(右)、
     // BEST → 距離 → 速度 は2段目から左の列に積む(右の列はデッキの表示)。横画面は今までどおり
-    public static bool HudStacked => Screen.height > Screen.width && StableSafeArea.Rect.width / HudK < 168f + 380f + HeartsPanelWidth + UiMargin * 2f + 24f;
+    public static bool HudStacked => Screen.height > Screen.width && StableSafeArea.Rect.width / HudK < (HudPrefs.Legacy ? 168f + 380f + HeartsPanelWidth + UiMargin * 2f + 24f : 220f + LvChipW + HeartsPanelWidth + HudStyle.Margin * 2f + 24f);
 
     // ===== ラン中の HUD の大きさ(2026-10-10、全体点検) =====
     // HUD(BEST/距離/速度/Lv/HP/歯車/II)は画素で固定の大きさだったため、高解像度のスマホ(短辺 1080)では 720 の時の 2/3 に見え、
     // 文字が 1.3mm ほどしかなかった → 短辺 720 を基準に k 倍(1〜1.8)。配置は「720 の時の配置(設計の単位)」を k 倍した実際の画素で返す
     // (タッチの判定は今までどおり実際の画素の矩形で行える)。描く時だけ GUI.matrix を k 倍にして設計の単位の矩形で描く(BeginHud/EndHud)。
     // PC の 720p では k = 1(今までと同じ)
-    public static float HudK => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 1.8f);
+    // 2026-10-31: ラン中は設定「HUD の大きさ」(75/100/125%)も掛ける(ホームの画面には掛けない)
+    public static float HudK => HudKBase * RunHudScale;
     static Rect HudReal(float x, float y, float w, float h) { float k = HudK; return new Rect(x * k, y * k, w * k, h * k); }
     float VSafeLeft => SafeLeft() / HudK;
     float VSafeTop => SafeTop() / HudK;
@@ -1978,13 +1979,14 @@ public partial class GameManager : MonoBehaviour
         }
     }
 
-    Rect GetLevelExpPanelRect() => HudStacked
+    Rect GetLevelExpPanelRect() => !HudPrefs.Legacy ? GetLvChipRect() : HudStacked
         ? HudReal(VSafeLeft + UiMargin, VSafeTop + UiMargin, VW - VSafeLeft - VSafeRight - UiMargin * 2f - HeartsPanelWidth - 10f, HudPanelHeight)
         : HudReal(VW / 2f - 190f, VSafeTop + UiMargin, 380f, HudPanelHeight);
     // 2026-10-01: 幅は固定(最大HPが増えても枠を広げない)。中身は DrawHeartsPanel が枠に収まるように描く。
     const float HeartsPanelWidth = 220f;
     Rect GetHeartsPanelRect()
     {
+        if (!HudPrefs.Legacy) return GetHpRectV2();
         return HudReal(VW - VSafeRight - UiMargin - HeartsPanelWidth, VSafeTop + UiMargin, HeartsPanelWidth, HudPanelHeight);
     }
 
@@ -2100,7 +2102,7 @@ public partial class GameManager : MonoBehaviour
     //  ・1行に「アイコン+名前」。アイコンは字の高さに合わせた大きさ(字の 1.3 倍、ボタンの高さの 52% まで)。まとまりはボタンの中央
     //  ・字の大きさは「列ごと」に1つ(PlanHomeIconRow: 列の中で一番入りにくい名前に合わせる)。同じ列で大きさがばらばらにならない
     //  ・どうしても字が小さくなりすぎる(0.55 倍未満)長い言語では、その列は字だけ(名前の方がアイコンより大事)
-    struct HomeIconPlan { public bool icons; public float font; }
+    struct HomeIconPlan { public bool icons, stacked; public float font; }
     const float HomeIconPerFont = 1.3f, HomeIconGap = 6f;
     float HomeIconFont(Rect r, string label, float fs)
     {
@@ -2115,6 +2117,13 @@ public partial class GameManager : MonoBehaviour
     {
         float f = fs;
         foreach (var b in row) f = Mathf.Min(f, HomeIconFont(b.r, b.label, fs));
+        // 2026-10-31: 横に並べると字が元の 85% より小さくなり、上下に積める高さがあるボタンは、アイコンを上・名前を下に
+        if (f < fs * 0.85f && row.Count > 0 && row[0].r.height >= 44f)
+        {
+            float s = fs * 0.82f;
+            foreach (var b in row) s = Mathf.Min(s, FitFont(b.label, OrnateTextW(b.r), fs * 0.82f));
+            if (s > f) return new HomeIconPlan { icons = true, stacked = true, font = s };
+        }
         if (f >= fs * 0.55f) return new HomeIconPlan { icons = true, font = f };
         float t = fs;
         foreach (var b in row) t = Mathf.Min(t, FitFont(b.label, OrnateTextW(b.r), fs));
@@ -2122,6 +2131,17 @@ public partial class GameManager : MonoBehaviour
     }
     bool DrawHomeIconButton(Rect r, Texture2D icon, string label, HomeIconPlan plan, bool primary)
     {
+        if (icon != null && plan.stacked)
+        {
+            // 2026-10-31(UI 全体の改善): 狭いボタン(横画面の右の列)はアイコンを上・名前を下に(横に並べると字が小さくなりすぎた)
+            bool hit2 = DrawStyledButton(r, "", plan.font, primary: primary, ornate: true);
+            var st2 = UiKit.Label(plan.font, TextAnchor.MiddleCenter, true, Color.white);
+            float iconS2 = Mathf.Round(r.height * 0.36f), lineH = plan.font * 1.25f;
+            float top = r.y + (r.height - iconS2 - lineH) * 0.5f;
+            UiIcons.Draw(new Rect(r.center.x - iconS2 * 0.5f, top, iconS2, iconS2), icon);
+            LocGUI.Label(new Rect(r.x, top + iconS2 - plan.font * 0.05f, r.width, lineH), label, st2);
+            return hit2;
+        }
         if (icon == null || !plan.icons)
             return DrawStyledButton(r, label, Mathf.Min(plan.font, FitFont(label, OrnateTextW(r), plan.font)), primary: primary, ornate: true);
         bool hit = DrawStyledButton(r, "", plan.font, primary: primary, ornate: true);
@@ -3485,6 +3505,7 @@ public partial class GameManager : MonoBehaviour
 #endif
         if (ArenaMode.Active) ArenaMode.OnPlayerHpLost(livesBeforeHit - Lives);
         heartDamageFlashTimer = heartDamageFlashDuration;
+        NoteHudDamage(); // 2026-10-31: 非表示モードでは被弾の直後だけ HP を見せる
         // マルチプレイPhase 2.5: HOST自身のHPの変化もHOSTの表(全員へ配る正解)へ即反映する。
         if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
         if (Lives <= 0 && FinalEvolution.TryEmergencyRevive(this))
@@ -3575,7 +3596,7 @@ public partial class GameManager : MonoBehaviour
         if (IsGameOver) return;
         // 回復/最大HPの要求を送った直後は、HOSTが処理するまでの古い表で巻き戻さない(被弾の確定は常に反映)。
         if (!fromHit && Time.realtimeSinceStartup < netLocalHpRequestUntil && hp < Lives) return;
-        if (hp < Lives) heartDamageFlashTimer = heartDamageFlashDuration;
+        if (hp < Lives) { heartDamageFlashTimer = heartDamageFlashDuration; NoteHudDamage(); }
         maxLives = Mathf.Max(1, max);
         Lives = Mathf.Clamp(hp, 0, Mathf.Max(maxLives, hp));
     }
@@ -4385,6 +4406,8 @@ public partial class GameManager : MonoBehaviour
             // placed boxes.
             // 闘技場(2026-10-06): BEST とレベル/経験値は関係が無いので出さない(距離は「○km地点相当」の強さとして出す)
             BeginHud(); // 2026-10-10: HUD は短辺 720 を基準に k 倍(HudK)
+            if (!HudPrefs.Legacy) DrawHudV2(); // 2026-10-31: 刷新した HUD(GameManager.HudV2.cs)
+            else {
             if (!ArenaMode.Active) DrawStatPanel(V(GetBestPanelRect()), "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor);
             DrawStatPanel(V(GetDistancePanelRect()), "DISTANCE", FormatDistanceExact(SprintActive && SprintRunner.Instance != null ? SprintRunner.Instance.DistanceNow : MaxDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity); // 疾走中(リングの3択)は疾走の距離
             DrawSpeedHud();
@@ -4393,6 +4416,7 @@ public partial class GameManager : MonoBehaviour
 
             if (!ArenaMode.Active) DrawLevelAndExp();
             DrawHeartsPanel();
+            }
             EndHud();
             DrawEscapeTakeHome(); // 脱出の長押しの間: 今回の持ち帰り/帰還後の所持/ガチャの回数
 
@@ -4424,9 +4448,13 @@ public partial class GameManager : MonoBehaviour
             if (!IsGameOver && !levelUpPending && !IsBossPresentationActive())
             {
                 int padLayer = PadNav.BeginLayer(PadNav.HudLayer); // II はラン中の HUD(パッドでは START で開く)
+                hudScaleOff = true; // 2026-10-31: 一時停止のボタンとメニューは HUD の大きさの設定を掛けない(押せる大きさを保つ)
                 BeginHud();
+                Color pauseKeep = GUI.color;
+                if (HudPrefs.HiddenMode && !showPauseMenu) GUI.color = new Color(1f, 1f, 1f, 0.55f); // 非表示モード: 控えめに(押せる範囲は同じ)
                 bool pauseTapped = DrawStyledButton(V(GetPauseButtonRect()), "", 22f, primary: showPauseMenu);
                 UiIcons.DrawPause(V(GetPauseButtonRect())); // 2026-10-20: 文字の II → 角の丸い白銀の太い縦棒2本(エステルさんと相談: 操作の記号は白、コードで正確に)
+                GUI.color = pauseKeep;
                 EndHud();
                 PadNav.EndLayer(padLayer);
                 if (pauseTapped)
@@ -4437,6 +4465,7 @@ public partial class GameManager : MonoBehaviour
                     else TimeControl.Resume(pauseMenuTimeOwner);
                 }
                 if (showPauseMenu) { int pl = PadNav.BeginLayer(4); DrawPauseMenu(); PadNav.EndLayer(pl); }
+                hudScaleOff = false;
             }
         }
         { int pl = PadNav.BeginLayer(5); DrawReturnHomeConfirm(); PadNav.EndLayer(pl); }
@@ -5238,7 +5267,7 @@ public partial class GameManager : MonoBehaviour
     void DrawHeartsPanel()
     {
         Rect rect = V(GetHeartsPanelRect());
-        UiBackdrop.Draw(rect, 0.85f);
+        HudBox(rect, 0.85f);
 
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
         labelStyle.fontSize = HudLabelFontSize;
@@ -6674,7 +6703,13 @@ public partial class GameManager : MonoBehaviour
 
     // Item 9 - small Gameplay Pause/Menu button (bottom-right, mirroring
     // the title screen's gear icon at bottom-left).
-    Rect GetPauseButtonRect() => HudReal(VW - VSafeRight - UiMargin - 52f, VH - VSafeBottom - UiMargin - 52f, 52f, 52f);
+    Rect GetPauseButtonRect()
+    {
+        bool keep = hudScaleOff; hudScaleOff = true; // 2026-10-31: HUD の大きさの設定に関係なく同じ大きさ(押せる範囲を保つ)
+        var r = HudReal(VW - VSafeRight - UiMargin - 52f, VH - VSafeBottom - UiMargin - 52f, 52f, 52f);
+        hudScaleOff = keep;
+        return r;
+    }
     // タップ攻撃(2026-10-23): ラン中の画面のボタン(一時停止/取得カードの欄/COMBO の印)の上で始まった指は攻撃にしない。
     // screenPos は Input の座標(左下が原点)
     // 確認用(-qaHomeLayout): ガチャ機械の絵の範囲(押せる範囲)と、右上のボタンの範囲(IMGUI の座標)

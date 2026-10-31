@@ -137,7 +137,7 @@ public partial class SettingsPanel : MonoBehaviour
         else if (wide)
         {
             float colW = (view.width - 30f) * 0.5f;
-            contentH = Mathf.Max(drawnH, Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureScreen() + 16f + MeasureProfile() + MeasureTransfer() + MeasureNoAds(), MeasureDisplay() + MeasureControls() + 16f + MeasurePrivacy() + MeasureAbout()));
+            contentH = Mathf.Max(drawnH, Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureScreen() + 16f + MeasureProfile() + MeasureTransfer() + MeasureNoAds(), MeasureHud(colW) + 16f + MeasureDisplay() + MeasureControls() + 16f + MeasurePrivacy() + MeasureAbout()));
             BeginScroll(view, contentH);
             float ya = DrawAudio(0f, 0f, colW, interactive);
             ya = DrawLanguage(0f, ya + 16f, colW, interactive);
@@ -145,7 +145,8 @@ public partial class SettingsPanel : MonoBehaviour
             ya = DrawProfile(0f, ya + 16f, colW, interactive);
             ya = DrawTransfer(0f, ya, colW, interactive);
             ya = DrawNoAds(0f, ya, colW, interactive);
-            float y2 = DrawDisplay(colW + 30f, 0f, colW, interactive);
+            float y2 = DrawHud(colW + 30f, 0f, colW, interactive); // 2026-10-31: 画面情報の表示(ラン中の一時停止から開いた時に最初に見える所)
+            y2 = DrawDisplay(colW + 30f, y2 + 16f, colW, interactive);
             y2 = DrawControls(colW + 30f, y2 + 16f, colW, interactive);
             y2 = DrawPrivacy(colW + 30f, y2, colW, interactive);
             y2 = DrawAbout(colW + 30f, y2, colW, interactive);
@@ -154,11 +155,12 @@ public partial class SettingsPanel : MonoBehaviour
         }
         else
         {
-            contentH = Mathf.Max(drawnH, MeasureAudio() + MeasureLanguage() + MeasureScreen() + MeasureDisplay() + MeasureControls() + MeasureProfile() + MeasureTransfer() + MeasureNoAds() + MeasurePrivacy() + MeasureAbout() + 64f);
+            contentH = Mathf.Max(drawnH, MeasureAudio() + MeasureLanguage() + MeasureScreen() + MeasureHud(view.width) + 16f + MeasureDisplay() + MeasureControls() + MeasureProfile() + MeasureTransfer() + MeasureNoAds() + MeasurePrivacy() + MeasureAbout() + 64f);
             BeginScroll(view, contentH);
             float y = DrawAudio(0f, 0f, view.width, interactive);
             y = DrawLanguage(0f, y + 16f, view.width, interactive);
             if (PlatformCaps.SupportsWindowMode) y = DrawScreen(0f, y + 16f, view.width, interactive);
+            y = DrawHud(0f, y + 16f, view.width, interactive); // 2026-10-31: 画面情報の表示
             y = DrawDisplay(0f, y + 16f, view.width, interactive);
             y = DrawControls(0f, y + 16f, view.width, interactive);
             y = DrawProfile(0f, y + 16f, view.width, interactive);

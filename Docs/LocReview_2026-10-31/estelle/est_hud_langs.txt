@@ -1,0 +1,672 @@
+10299 [zh-Hans] HUD显示
+10300 [zh-Hans] 简洁
+10301 [zh-Hans] 隐藏
+10302 [zh-Hans] 自定义
+10303 [zh-Hans] 标准：整齐显示所有信息。
+10304 [zh-Hans] 简洁：仅显示HP、距离、速度以及首领HP和BREAK。
+10305 [zh-Hans] 隐藏：隐藏HUD信息，仅在受伤或HP较低时显示HP。
+10306 [zh-Hans] 自定义：选择要显示的项目。
+10307 [zh-Hans] 当前距离
+10308 [zh-Hans] Lv / EXP
+10309 [zh-Hans] 角色卡牌
+10310 [zh-Hans] 首领HP
+10311 [zh-Hans] BREAK槽
+10312 [zh-Hans] 连击数
+10313 [zh-Hans] FINAL EVOLUTION剩余时间
+10314 [zh-Hans] 操作指引与提示
+10315 [zh-Hans] 多人游戏玩家
+10316 [zh-Hans] HUD大小
+10317 [zh-Hans] 小
+10318 [zh-Hans] 大
+10319 [zh-Hans] HUD背景
+10320 [zh-Hans] 较淡
+10321 [zh-Hans] 最低
+10322 [zh-Hans] 暂停按钮始终显示。跑步过程中也可以从暂停菜单更改这些设置。
+10299 [zh-Hant] HUD顯示
+10300 [zh-Hant] 簡潔
+10301 [zh-Hant] 隱藏
+10302 [zh-Hant] 自訂
+10303 [zh-Hant] 標準：整齊顯示所有資訊。
+10304 [zh-Hant] 簡潔：僅顯示HP、距離、速度以及首領HP和BREAK。
+10305 [zh-Hant] 隱藏：隱藏HUD資訊，僅在受傷或HP偏低時顯示HP。
+10306 [zh-Hant] 自訂：選擇要顯示的項目。
+10307 [zh-Hant] 目前距離
+10308 [zh-Hant] Lv / EXP
+10309 [zh-Hant] 角色卡牌
+10310 [zh-Hant] 首領HP
+10311 [zh-Hant] BREAK量表
+10312 [zh-Hant] 連擊數
+10313 [zh-Hant] FINAL EVOLUTION剩餘時間
+10314 [zh-Hant] 操作指引與提示
+10315 [zh-Hant] 多人遊戲玩家
+10316 [zh-Hant] HUD大小
+10317 [zh-Hant] 小
+10318 [zh-Hant] 大
+10319 [zh-Hant] HUD背景
+10320 [zh-Hant] 較淡
+10321 [zh-Hant] 最低
+10322 [zh-Hant] 暫停按鈕會一直顯示。跑步過程中也可以從暫停選單變更這些設定。
+10299 [ko] HUD 표시
+10300 [ko] 간단
+10301 [ko] 숨김
+10302 [ko] 사용자 지정
+10303 [ko] 표준: 모든 정보를 깔끔하게 표시합니다.
+10304 [ko] 간단: HP, 거리, 속도, 보스 HP와 BREAK만 표시합니다.
+10305 [ko] 숨김: HUD 정보를 숨깁니다. 피해를 입거나 HP가 낮을 때만 HP를 표시합니다.
+10306 [ko] 사용자 지정: 표시할 항목을 선택할 수 있습니다.
+10307 [ko] 현재 거리
+10308 [ko] Lv / EXP
+10309 [ko] 캐릭터 카드
+10310 [ko] 보스 HP
+10311 [ko] BREAK 게이지
+10312 [ko] 콤보 수
+10313 [ko] FINAL EVOLUTION 남은 시간
+10314 [ko] 조작 안내 및 알림
+10315 [ko] 멀티플레이 참가자
+10316 [ko] HUD 크기
+10317 [ko] 작게
+10318 [ko] 크게
+10319 [ko] HUD 배경
+10320 [ko] 연하게
+10321 [ko] 최소
+10322 [ko] 일시 정지 버튼은 항상 표시됩니다. 달리는 중에도 일시 정지 메뉴에서 이 설정을 변경할 수 있습니다.
+10299 [es] Mostrar HUD
+10300 [es] Simple
+10301 [es] Oculto
+10302 [es] Personalizado
+10303 [es] Estándar: Muestra toda la información de forma ordenada.
+10304 [es] Simple: Solo muestra HP, distancia, velocidad y HP/BREAK del jefe.
+10305 [es] Oculto: Oculta la información del HUD. El HP solo aparece al recibir daño o cuando está bajo.
+10306 [es] Personalizado: Elige qué elementos mostrar.
+10307 [es] Distancia actual
+10308 [es] Lv / EXP
+10309 [es] Cartas de personaje
+10310 [es] HP del jefe
+10311 [es] Barra de BREAK
+10312 [es] Número de combos
+10313 [es] Tiempo restante de FINAL EVOLUTION
+10314 [es] Guías y avisos
+10315 [es] Jugadores multijugador
+10316 [es] Tamaño del HUD
+10317 [es] Pequeño
+10318 [es] Grande
+10319 [es] Fondo del HUD
+10320 [es] Tenue
+10321 [es] Mínimo
+10322 [es] El botón de Pausa siempre está visible. Puedes cambiar estos ajustes desde el menú de pausa durante una carrera.
+10299 [fr] Affichage du HUD
+10300 [fr] Simple
+10301 [fr] Masqué
+10302 [fr] Personnalisé
+10303 [fr] Standard : affiche toutes les informations de façon claire.
+10304 [fr] Simple : affiche uniquement les HP, la distance, la vitesse et les HP/BREAK du boss.
+10305 [fr] Masqué : masque les informations du HUD. Les HP n'apparaissent qu'en cas de dégâts ou lorsqu'ils sont faibles.
+10306 [fr] Personnalisé : choisissez les éléments à afficher.
+10307 [fr] Distance actuelle
+10308 [fr] Lv / EXP
+10309 [fr] Cartes de personnage
+10310 [fr] HP du boss
+10311 [fr] Jauge BREAK
+10312 [fr] Nombre de combos
+10313 [fr] Temps restant de FINAL EVOLUTION
+10314 [fr] Guides et alertes
+10315 [fr] Joueurs multijoueur
+10316 [fr] Taille du HUD
+10317 [fr] Petit
+10318 [fr] Grand
+10319 [fr] Fond du HUD
+10320 [fr] Discret
+10321 [fr] Minimal
+10322 [fr] Le bouton Pause reste toujours visible. Vous pouvez modifier ces options depuis le menu Pause pendant une course.
+10299 [de] HUD-Anzeige
+10300 [de] Einfach
+10301 [de] Ausgeblendet
+10302 [de] Benutzerdefiniert
+10303 [de] Standard: Zeigt alle Informationen übersichtlich an.
+10304 [de] Einfach: Zeigt nur HP, Distanz, Tempo sowie Boss-HP und BREAK an.
+10305 [de] Ausgeblendet: Blendet HUD-Infos aus. HP erscheinen nur bei erlittenem Schaden oder niedrigen HP.
+10306 [de] Benutzerdefiniert: Wähle die angezeigten Elemente aus.
+10307 [de] Aktuelle Distanz
+10308 [de] Lv / EXP
+10309 [de] Charakterkarten
+10310 [de] Boss-HP
+10311 [de] BREAK-Anzeige
+10312 [de] Combo-Anzahl
+10313 [de] FINAL EVOLUTION-Restzeit
+10314 [de] Hinweise & Meldungen
+10315 [de] Mehrspieler
+10316 [de] HUD-Größe
+10317 [de] Klein
+10318 [de] Groß
+10319 [de] HUD-Hintergrund
+10320 [de] Dezent
+10321 [de] Minimal
+10322 [de] Die Pause-Taste bleibt immer sichtbar. Du kannst diese Einstellungen während eines Laufs im Pause-Menü ändern.
+10299 [it] Visualizzazione HUD
+10300 [it] Semplice
+10301 [it] Nascosto
+10302 [it] Personalizzato
+10303 [it] Standard: mostra tutte le informazioni in modo ordinato.
+10304 [it] Semplice: mostra solo HP, distanza, velocità e HP/BREAK del boss.
+10305 [it] Nascosto: nasconde le informazioni dell'HUD. Gli HP appaiono solo quando subisci danni o sono bassi.
+10306 [it] Personalizzato: scegli cosa mostrare.
+10307 [it] Distanza attuale
+10308 [it] Lv / EXP
+10309 [it] Carte personaggio
+10310 [it] HP del boss
+10311 [it] Barra BREAK
+10312 [it] Numero di combo
+10313 [it] Tempo rimasto di FINAL EVOLUTION
+10314 [it] Guide e avvisi
+10315 [it] Giocatori multiplayer
+10316 [it] Dimensione HUD
+10317 [it] Piccolo
+10318 [it] Grande
+10319 [it] Sfondo HUD
+10320 [it] Tenue
+10321 [it] Minimo
+10322 [it] Il pulsante Pausa è sempre visibile. Puoi modificare queste opzioni dal menu Pausa durante una corsa.
+10299 [pt-BR] Exibição do HUD
+10300 [pt-BR] Simples
+10301 [pt-BR] Oculto
+10302 [pt-BR] Personalizado
+10303 [pt-BR] Padrão: mostra todas as informações de forma organizada.
+10304 [pt-BR] Simples: mostra apenas HP, distância, velocidade e HP/BREAK do chefe.
+10305 [pt-BR] Oculto: esconde as informações do HUD. O HP aparece apenas ao sofrer dano ou quando está baixo.
+10306 [pt-BR] Personalizado: escolha o que mostrar.
+10307 [pt-BR] Distância atual
+10308 [pt-BR] Lv / EXP
+10309 [pt-BR] Cartas de personagem
+10310 [pt-BR] HP do chefe
+10311 [pt-BR] Barra de BREAK
+10312 [pt-BR] Contagem de combos
+10313 [pt-BR] Tempo restante de FINAL EVOLUTION
+10314 [pt-BR] Guias e avisos
+10315 [pt-BR] Jogadores do multiplayer
+10316 [pt-BR] Tamanho do HUD
+10317 [pt-BR] Pequeno
+10318 [pt-BR] Grande
+10319 [pt-BR] Fundo do HUD
+10320 [pt-BR] Suave
+10321 [pt-BR] Mínimo
+10322 [pt-BR] O botão Pausa fica sempre visível. Você pode alterar esses ajustes pelo menu de pausa durante uma corrida.
+10299 [ru] Отображение HUD
+10300 [ru] Простой
+10301 [ru] Скрытый
+10302 [ru] Настраиваемый
+10303 [ru] Стандарт: вся информация отображается в удобном виде.
+10304 [ru] Простой: показывает только HP, дистанцию, скорость, а также HP и BREAK босса.
+10305 [ru] Скрытый: скрывает информацию HUD. HP отображаются только при получении урона или низком HP.
+10306 [ru] Настраиваемый: выберите, что показывать.
+10307 [ru] Текущая дистанция
+10308 [ru] Lv / EXP
+10309 [ru] Карты персонажа
+10310 [ru] HP босса
+10311 [ru] Шкала BREAK
+10312 [ru] Счётчик комбо
+10313 [ru] Осталось времени FINAL EVOLUTION
+10314 [ru] Подсказки и уведомления
+10315 [ru] Игроки в мультиплеере
+10316 [ru] Размер HUD
+10317 [ru] Маленький
+10318 [ru] Большой
+10319 [ru] Фон HUD
+10320 [ru] Слабый
+10321 [ru] Минимальный
+10322 [ru] Кнопка «Пауза» всегда видна. Во время забега эти настройки можно изменить в меню паузы.
+10299 [pl] Wyświetlanie HUD
+10300 [pl] Prosty
+10301 [pl] Ukryty
+10302 [pl] Niestandardowy
+10303 [pl] Standard: wyświetla wszystkie informacje w przejrzystym układzie.
+10304 [pl] Prosty: pokazuje tylko HP, dystans, prędkość oraz HP i BREAK bossa.
+10305 [pl] Ukryty: ukrywa informacje HUD. HP pojawia się tylko po otrzymaniu obrażeń lub gdy jest niskie.
+10306 [pl] Niestandardowy: wybierz wyświetlane elementy.
+10307 [pl] Aktualny dystans
+10308 [pl] Lv / EXP
+10309 [pl] Karty postaci
+10310 [pl] HP bossa
+10311 [pl] Pasek BREAK
+10312 [pl] Licznik combo
+10313 [pl] Pozostały czas FINAL EVOLUTION
+10314 [pl] Wskazówki i powiadomienia
+10315 [pl] Gracze wieloosobowi
+10316 [pl] Rozmiar HUD
+10317 [pl] Mały
+10318 [pl] Duży
+10319 [pl] Tło HUD
+10320 [pl] Delikatne
+10321 [pl] Minimalne
+10322 [pl] Przycisk Pauza jest zawsze widoczny. Podczas biegu możesz zmienić te ustawienia w menu pauzy.
+10299 [tr] HUD Görünümü
+10300 [tr] Basit
+10301 [tr] Gizli
+10302 [tr] Özelleştirilmiş
+10303 [tr] Standart: Tüm bilgileri düzenli bir şekilde gösterir.
+10304 [tr] Basit: Yalnızca HP, mesafe, hız ve boss HP/BREAK değerlerini gösterir.
+10305 [tr] Gizli: HUD bilgilerini gizler. HP yalnızca hasar aldığında veya düşük olduğunda görünür.
+10306 [tr] Özelleştirilmiş: Gösterilecek öğeleri seçin.
+10307 [tr] Mevcut Mesafe
+10308 [tr] Lv / EXP
+10309 [tr] Karakter Kartları
+10310 [tr] Boss HP
+10311 [tr] BREAK Göstergesi
+10312 [tr] Kombo Sayısı
+10313 [tr] FINAL EVOLUTION Kalan Süre
+10314 [tr] Rehberler ve Bildirimler
+10315 [tr] Çok Oyunculu Katılımcılar
+10316 [tr] HUD Boyutu
+10317 [tr] Küçük
+10318 [tr] Büyük
+10319 [tr] HUD Arka Planı
+10320 [tr] Soluk
+10321 [tr] Minimum
+10322 [tr] Duraklat düğmesi her zaman görünür. Koşu sırasında bu ayarları duraklatma menüsünden değiştirebilirsiniz.
+10299 [uk] Відображення HUD
+10300 [uk] Простий
+10301 [uk] Прихований
+10302 [uk] Власний
+10303 [uk] Стандарт: показує всю інформацію у зручному вигляді.
+10304 [uk] Простий: показує лише HP, дистанцію, швидкість, а також HP і BREAK боса.
+10305 [uk] Прихований: приховує інформацію HUD. HP з'являється лише після отримання урону або коли HP низький.
+10306 [uk] Власний: виберіть, що показувати.
+10307 [uk] Поточна дистанція
+10308 [uk] Lv / EXP
+10309 [uk] Карти персонажа
+10310 [uk] HP боса
+10311 [uk] Шкала BREAK
+10312 [uk] Лічильник комбо
+10313 [uk] Залишок часу FINAL EVOLUTION
+10314 [uk] Підказки та сповіщення
+10315 [uk] Гравці в мультиплеєрі
+10316 [uk] Розмір HUD
+10317 [uk] Малий
+10318 [uk] Великий
+10319 [uk] Фон HUD
+10320 [uk] Слабкий
+10321 [uk] Мінімальний
+10322 [uk] Кнопка «Пауза» завжди видима. Під час забігу ці налаштування можна змінити в меню паузи.
+10299 [cs] Zobrazení HUD
+10300 [cs] Jednoduchý
+10301 [cs] Skrytý
+10302 [cs] Vlastní
+10303 [cs] Standard: přehledně zobrazuje všechny informace.
+10304 [cs] Jednoduchý: zobrazuje pouze HP, vzdálenost, rychlost a HP/BREAK bosse.
+10305 [cs] Skrytý: skryje informace HUD. HP se zobrazí jen při utržení poškození nebo při nízkém HP.
+10306 [cs] Vlastní: vyberte, co se má zobrazovat.
+10307 [cs] Aktuální vzdálenost
+10308 [cs] Lv / EXP
+10309 [cs] Karty postavy
+10310 [cs] HP bosse
+10311 [cs] Ukazatel BREAK
+10312 [cs] Počet komb
+10313 [cs] Zbývající čas FINAL EVOLUTION
+10314 [cs] Pokyny a upozornění
+10315 [cs] Hráči v multiplayeru
+10316 [cs] Velikost HUD
+10317 [cs] Malý
+10318 [cs] Velký
+10319 [cs] Pozadí HUD
+10320 [cs] Jemné
+10321 [cs] Minimální
+10322 [cs] Tlačítko Pauza je vždy viditelné. Během běhu můžete tato nastavení změnit v nabídce pauzy.
+10299 [ro] Afișare HUD
+10300 [ro] Simplu
+10301 [ro] Ascuns
+10302 [ro] Personalizat
+10303 [ro] Standard: afișează toate informațiile într-un mod ordonat.
+10304 [ro] Simplu: afișează doar HP, distanța, viteza și HP/BREAK ale bossului.
+10305 [ro] Ascuns: ascunde informațiile HUD. HP apare doar când primești daune sau când este scăzut.
+10306 [ro] Personalizat: alege ce elemente să afișezi.
+10307 [ro] Distanța actuală
+10308 [ro] Lv / EXP
+10309 [ro] Cărți de personaj
+10310 [ro] HP al bossului
+10311 [ro] Bară BREAK
+10312 [ro] Număr de combo-uri
+10313 [ro] Timp rămas FINAL EVOLUTION
+10314 [ro] Ghiduri și notificări
+10315 [ro] Jucători multiplayer
+10316 [ro] Dimensiune HUD
+10317 [ro] Mic
+10318 [ro] Mare
+10319 [ro] Fundal HUD
+10320 [ro] Discret
+10321 [ro] Minim
+10322 [ro] Butonul Pauză este mereu vizibil. Poți modifica aceste setări din meniul de pauză în timpul unei curse.
+10299 [id] Tampilan HUD
+10300 [id] Sederhana
+10301 [id] Tersembunyi
+10302 [id] Kustom
+10303 [id] Standar: menampilkan semua informasi dengan rapi.
+10304 [id] Sederhana: hanya menampilkan HP, jarak, kecepatan, serta HP/BREAK bos.
+10305 [id] Tersembunyi: menyembunyikan informasi HUD. HP hanya muncul saat terkena damage atau ketika HP rendah.
+10306 [id] Kustom: pilih informasi yang ingin ditampilkan.
+10307 [id] Jarak saat ini
+10308 [id] Lv / EXP
+10309 [id] Kartu karakter
+10310 [id] HP bos
+10311 [id] Bilah BREAK
+10312 [id] Jumlah kombo
+10313 [id] Sisa waktu FINAL EVOLUTION
+10314 [id] Panduan dan notifikasi
+10315 [id] Pemain multiplayer
+10316 [id] Ukuran HUD
+10317 [id] Kecil
+10318 [id] Besar
+10319 [id] Latar HUD
+10320 [id] Samar
+10321 [id] Minimal
+10322 [id] Tombol Jeda selalu terlihat. Kamu bisa mengubah pengaturan ini dari menu jeda saat berlari.
+10299 [ms] Paparan HUD
+10300 [ms] Ringkas
+10301 [ms] Tersembunyi
+10302 [ms] Tersuai
+10303 [ms] Standard: memaparkan semua maklumat dengan teratur.
+10304 [ms] Ringkas: hanya memaparkan HP, jarak, kelajuan serta HP dan BREAK bos.
+10305 [ms] Tersembunyi: menyembunyikan maklumat HUD. HP hanya muncul apabila menerima kerosakan atau apabila HP rendah.
+10306 [ms] Tersuai: pilih maklumat yang ingin dipaparkan.
+10307 [ms] Jarak semasa
+10308 [ms] Lv / EXP
+10309 [ms] Kad watak
+10310 [ms] HP bos
+10311 [ms] Bar BREAK
+10312 [ms] Bilangan kombo
+10313 [ms] Baki masa FINAL EVOLUTION
+10314 [ms] Panduan dan notis
+10315 [ms] Pemain berbilang
+10316 [ms] Saiz HUD
+10317 [ms] Kecil
+10318 [ms] Besar
+10319 [ms] Latar HUD
+10320 [ms] Pudar
+10321 [ms] Minimum
+10322 [ms] Butang Jeda sentiasa dipaparkan. Anda boleh mengubah tetapan ini melalui menu jeda semasa larian.
+10299 [fil] Display ng HUD
+10300 [fil] Simple
+10301 [fil] Nakatago
+10302 [fil] Custom
+10303 [fil] Standard: ipinapakita ang lahat ng impormasyon nang maayos.
+10304 [fil] Simple: HP, distansya, bilis, at HP/BREAK ng boss lang ang ipinapakita.
+10305 [fil] Nakatago: itinatago ang impormasyon ng HUD. Lumalabas lang ang HP kapag napinsala ka o mababa ang HP.
+10306 [fil] Custom: piliin ang mga ipapakita.
+10307 [fil] Kasalukuyang distansya
+10308 [fil] Lv / EXP
+10309 [fil] Mga card ng karakter
+10310 [fil] HP ng boss
+10311 [fil] BREAK bar
+10312 [fil] Bilang ng combo
+10313 [fil] Natitirang oras ng FINAL EVOLUTION
+10314 [fil] Gabay at abiso
+10315 [fil] Mga manlalaro sa multiplayer
+10316 [fil] Laki ng HUD
+10317 [fil] Maliit
+10318 [fil] Malaki
+10319 [fil] Background ng HUD
+10320 [fil] Malabo
+10321 [fil] Minimal
+10322 [fil] Laging nakikita ang button na I-pause. Puwede mong baguhin ang mga setting na ito sa pause menu habang tumatakbo.
+10299 [vi] Hiển thị HUD
+10300 [vi] Đơn giản
+10301 [vi] Ẩn
+10302 [vi] Tùy chỉnh
+10303 [vi] Tiêu chuẩn: hiển thị đầy đủ thông tin một cách gọn gàng.
+10304 [vi] Đơn giản: chỉ hiển thị HP, quãng đường, tốc độ và HP/BREAK của boss.
+10305 [vi] Ẩn: ẩn thông tin HUD. HP chỉ xuất hiện khi chịu sát thương hoặc khi HP thấp.
+10306 [vi] Tùy chỉnh: chọn các mục muốn hiển thị.
+10307 [vi] Quãng đường hiện tại
+10308 [vi] Lv / EXP
+10309 [vi] Thẻ nhân vật
+10310 [vi] HP của boss
+10311 [vi] Thanh BREAK
+10312 [vi] Số combo
+10313 [vi] Thời gian còn lại của FINAL EVOLUTION
+10314 [vi] Hướng dẫn và thông báo
+10315 [vi] Người chơi nhiều người
+10316 [vi] Kích thước HUD
+10317 [vi] Nhỏ
+10318 [vi] Lớn
+10319 [vi] Nền HUD
+10320 [vi] Mờ
+10321 [vi] Tối thiểu
+10322 [vi] Nút Tạm dừng luôn hiển thị. Bạn có thể thay đổi các cài đặt này từ menu tạm dừng khi đang chạy.
+10299 [ar] عرض HUD
+10300 [ar] بسيط
+10301 [ar] مخفي
+10302 [ar] مخصص
+10303 [ar] قياسي: يعرض جميع المعلومات بشكل منظم.
+10304 [ar] بسيط: يعرض فقط HP والمسافة والسرعة وHP وBREAK للزعيم.
+10305 [ar] مخفي: يخفي معلومات HUD. يظهر HP فقط عند تلقي الضرر أو انخفاض HP.
+10306 [ar] مخصص: اختر العناصر التي تريد عرضها.
+10307 [ar] المسافة الحالية
+10308 [ar] Lv / EXP
+10309 [ar] بطاقات الشخصيات
+10310 [ar] HP الزعيم
+10311 [ar] مقياس BREAK
+10312 [ar] عدد الضربات المتتالية
+10313 [ar] الوقت المتبقي لـ FINAL EVOLUTION
+10314 [ar] إرشادات وتنبيهات
+10315 [ar] لاعبو الوضع الجماعي
+10316 [ar] حجم HUD
+10317 [ar] صغير
+10318 [ar] كبير
+10319 [ar] خلفية HUD
+10320 [ar] باهتة
+10321 [ar] الحد الأدنى
+10322 [ar] زر إيقاف مؤقت ظاهر دائمًا. يمكنك تغيير هذه الإعدادات من قائمة الإيقاف المؤقت أثناء الجري.
+10299 [fa] نمایش HUD
+10300 [fa] ساده
+10301 [fa] مخفی
+10302 [fa] سفارشی
+10303 [fa] استاندارد: همهٔ اطلاعات را به‌صورت مرتب نمایش می‌دهد.
+10304 [fa] ساده: فقط HP، مسافت، سرعت و HP و BREAK باس را نشان می‌دهد.
+10305 [fa] مخفی: اطلاعات HUD را پنهان می‌کند. HP فقط هنگام آسیب دیدن یا پایین بودن HP نمایش داده می‌شود.
+10306 [fa] سفارشی: موارد موردنظر برای نمایش را انتخاب کنید.
+10307 [fa] مسافت فعلی
+10308 [fa] Lv / EXP
+10309 [fa] کارت‌های شخصیت
+10310 [fa] HP باس
+10311 [fa] نوار BREAK
+10312 [fa] تعداد کمبو
+10313 [fa] زمان باقی‌ماندهٔ FINAL EVOLUTION
+10314 [fa] راهنماها و اعلان‌ها
+10315 [fa] بازیکنان چندنفره
+10316 [fa] اندازهٔ HUD
+10317 [fa] کوچک
+10318 [fa] بزرگ
+10319 [fa] پس‌زمینهٔ HUD
+10320 [fa] کم‌رنگ
+10321 [fa] حداقل
+10322 [fa] دکمهٔ توقف همیشه نمایش داده می‌شود. هنگام دویدن نیز می‌توانید این تنظیمات را از منوی توقف تغییر دهید.
+10299 [hi] HUD डिस्प्ले
+10300 [hi] सरल
+10301 [hi] छिपा हुआ
+10302 [hi] कस्टम
+10303 [hi] मानक: सभी जानकारी साफ़-सुथरे ढंग से दिखाता है।
+10304 [hi] सरल: केवल HP, दूरी, गति और बॉस का HP व BREAK दिखाता है।
+10305 [hi] छिपा हुआ: HUD जानकारी छिपाता है। HP केवल चोट लगने पर या HP कम होने पर दिखता है।
+10306 [hi] कस्टम: दिखाए जाने वाले आइटम चुनें।
+10307 [hi] वर्तमान दूरी
+10308 [hi] Lv / EXP
+10309 [hi] कैरेक्टर कार्ड
+10310 [hi] बॉस HP
+10311 [hi] BREAK गेज
+10312 [hi] कॉम्बो संख्या
+10313 [hi] FINAL EVOLUTION का बचा समय
+10314 [hi] गाइड और सूचनाएँ
+10315 [hi] मल्टीप्लेयर खिलाड़ी
+10316 [hi] HUD का आकार
+10317 [hi] छोटा
+10318 [hi] बड़ा
+10319 [hi] HUD बैकग्राउंड
+10320 [hi] हल्का
+10321 [hi] न्यूनतम
+10322 [hi] रोकें बटन हमेशा दिखाई देता है। दौड़ के दौरान भी आप रोकें मेन्यू से ये सेटिंग्स बदल सकते हैं।
+10299 [bn] HUD প্রদর্শন
+10300 [bn] সরল
+10301 [bn] লুকানো
+10302 [bn] কাস্টম
+10303 [bn] মানক: সব তথ্য সুন্দরভাবে সাজিয়ে দেখায়।
+10304 [bn] সরল: শুধু HP, দূরত্ব, গতি এবং বসের HP ও BREAK দেখায়।
+10305 [bn] লুকানো: HUD-এর তথ্য লুকিয়ে রাখে। আঘাত পেলে বা HP কম থাকলেই শুধু HP দেখায়।
+10306 [bn] কাস্টম: কোন তথ্য দেখাবেন তা বেছে নিন।
+10307 [bn] বর্তমান দূরত্ব
+10308 [bn] Lv / EXP
+10309 [bn] চরিত্রের কার্ড
+10310 [bn] বসের HP
+10311 [bn] BREAK গেজ
+10312 [bn] কম্বোর সংখ্যা
+10313 [bn] FINAL EVOLUTION-এর বাকি সময়
+10314 [bn] নির্দেশনা ও বিজ্ঞপ্তি
+10315 [bn] মাল্টিপ্লেয়ার খেলোয়াড়
+10316 [bn] HUD-এর আকার
+10317 [bn] ছোট
+10318 [bn] বড়
+10319 [bn] HUD-এর পটভূমি
+10320 [bn] হালকা
+10321 [bn] ন্যূনতম
+10322 [bn] বিরতি বোতাম সব সময় দেখা যায়। দৌড় চলাকালীনও বিরতি মেনু থেকে এই সেটিংস বদলাতে পারবেন।
+10299 [ta] HUD காட்சி
+10300 [ta] எளிமை
+10301 [ta] மறைவு
+10302 [ta] தனிப்பயன்
+10303 [ta] இயல்புநிலை: எல்லாத் தகவல்களையும் ஒழுங்காகக் காட்டும்.
+10304 [ta] எளிமை: HP, தூரம், வேகம், பாஸின் HP மற்றும் BREAK மட்டுமே காட்டும்.
+10305 [ta] மறைவு: HUD தகவல்களை மறைக்கும். தாக்குதல் பட்டாலோ HP குறைவாக இருந்தாலோ மட்டுமே HP காட்டப்படும்.
+10306 [ta] தனிப்பயன்: காட்ட வேண்டியவற்றைத் தேர்ந்தெடுக்கலாம்.
+10307 [ta] தற்போதைய தூரம்
+10308 [ta] Lv / EXP
+10309 [ta] கதாபாத்திர கார்டுகள்
+10310 [ta] பாஸ் HP
+10311 [ta] BREAK அளவுகோல்
+10312 [ta] காம்போ எண்ணிக்கை
+10313 [ta] FINAL EVOLUTION மீதமுள்ள நேரம்
+10314 [ta] வழிகாட்டிகள் மற்றும் அறிவிப்புகள்
+10315 [ta] பலர் விளையாட்டு வீரர்கள்
+10316 [ta] HUD அளவு
+10317 [ta] சிறியது
+10318 [ta] பெரியது
+10319 [ta] HUD பின்னணி
+10320 [ta] மங்கலானது
+10321 [ta] குறைந்தபட்சம்
+10322 [ta] இடைநிறுத்து பொத்தான் எப்போதும் தெரியும். ஓட்டத்தின் போதும் இடைநிறுத்து மெனுவிலிருந்து இந்த அமைப்புகளை மாற்றலாம்.
+10299 [sw] Onyesho la HUD
+10300 [sw] Rahisi
+10301 [sw] Imefichwa
+10302 [sw] Maalum
+10303 [sw] Kawaida: huonyesha taarifa zote kwa mpangilio mzuri.
+10304 [sw] Rahisi: huonyesha HP, umbali, kasi na HP/BREAK ya bosi pekee.
+10305 [sw] Imefichwa: huficha taarifa za HUD. HP huonekana tu unapopata madhara au HP inapokuwa chini.
+10306 [sw] Maalum: chagua vitu vya kuonyesha.
+10307 [sw] Umbali wa sasa
+10308 [sw] Lv / EXP
+10309 [sw] Kadi za mhusika
+10310 [sw] HP ya bosi
+10311 [sw] Kipimo cha BREAK
+10312 [sw] Idadi ya kombo
+10313 [sw] Muda uliobaki wa FINAL EVOLUTION
+10314 [sw] Maelekezo na arifa
+10315 [sw] Wachezaji wa wachezaji wengi
+10316 [sw] Ukubwa wa HUD
+10317 [sw] Ndogo
+10318 [sw] Kubwa
+10319 [sw] Mandharinyuma ya HUD
+10320 [sw] Hafifu
+10321 [sw] Kiwango cha chini
+10322 [sw] Kitufe cha Sitisha huonekana kila wakati. Unaweza kubadilisha mipangilio hii kupitia menyu ya kusitisha wakati wa mbio.
+10299 [th] การแสดง HUD
+10300 [th] เรียบง่าย
+10301 [th] ซ่อน
+10302 [th] กำหนดเอง
+10303 [th] มาตรฐาน: แสดงข้อมูลทั้งหมดอย่างเป็นระเบียบ
+10304 [th] เรียบง่าย: แสดงเฉพาะ HP ระยะทาง ความเร็ว และ HP กับ BREAK ของบอส
+10305 [th] ซ่อน: ซ่อนข้อมูล HUD โดยจะแสดง HP เฉพาะเมื่อได้รับความเสียหายหรือเมื่อ HP ต่ำ
+10306 [th] กำหนดเอง: เลือกรายการที่ต้องการแสดง
+10307 [th] ระยะทางปัจจุบัน
+10308 [th] Lv / EXP
+10309 [th] การ์ดตัวละคร
+10310 [th] HP บอส
+10311 [th] เกจ BREAK
+10312 [th] จำนวนคอมโบ
+10313 [th] เวลาที่เหลือของ FINAL EVOLUTION
+10314 [th] คำแนะนำและการแจ้งเตือน
+10315 [th] ผู้เล่นหลายคน
+10316 [th] ขนาด HUD
+10317 [th] เล็ก
+10318 [th] ใหญ่
+10319 [th] พื้นหลัง HUD
+10320 [th] จาง
+10321 [th] น้อยที่สุด
+10322 [th] ปุ่มหยุดชั่วคราวจะแสดงอยู่เสมอ คุณสามารถเปลี่ยนการตั้งค่าเหล่านี้จากเมนูหยุดชั่วคราวระหว่างการวิ่งได้
+10299 [km] ការបង្ហាញ HUD
+10300 [km] សាមញ្ញ
+10301 [km] លាក់
+10302 [km] កំណត់តាមចិត្ត
+10303 [km] ស្តង់ដារ៖ បង្ហាញព័ត៌មានទាំងអស់យ៉ាងមានរបៀបរៀបរយ។
+10304 [km] សាមញ្ញ៖ បង្ហាញតែ HP ចម្ងាយ ល្បឿន និង HP និង BREAK របស់បូស។
+10305 [km] លាក់៖ លាក់ព័ត៌មាន HUD។ HP បង្ហាញតែពេលទទួលការខូចខាត ឬពេល HP ទាបប៉ុណ្ណោះ។
+10306 [km] កំណត់តាមចិត្ត៖ ជ្រើសរើសធាតុដែលចង់បង្ហាញ។
+10307 [km] ចម្ងាយបច្ចុប្បន្ន
+10308 [km] Lv / EXP
+10309 [km] កាតតួអង្គ
+10310 [km] HP បូស
+10311 [km] រង្វាស់ BREAK
+10312 [km] ចំនួនកុំបូ
+10313 [km] ពេលវេលានៅសល់នៃ FINAL EVOLUTION
+10314 [km] ការណែនាំ និងការជូនដំណឹង
+10315 [km] អ្នកលេងច្រើននាក់
+10316 [km] ទំហំ HUD
+10317 [km] តូច
+10318 [km] ធំ
+10319 [km] ផ្ទៃខាងក្រោយ HUD
+10320 [km] ស្រាល
+10321 [km] អប្បបរមា
+10322 [km] ប៊ូតុងផ្អាកតែងតែបង្ហាញ។ អ្នកអាចផ្លាស់ប្តូរការកំណត់ទាំងនេះពីម៉ឺនុយផ្អាក ខណៈកំពុងរត់បាន។
+10299 [lo] ການສະແດງ HUD
+10300 [lo] ແບບງ່າຍ
+10301 [lo] ເຊື່ອງ
+10302 [lo] ປັບແຕ່ງ
+10303 [lo] ມາດຕະຖານ: ສະແດງຂໍ້ມູນທັງໝົດຢ່າງເປັນລະບຽບ.
+10304 [lo] ແບບງ່າຍ: ສະແດງພຽງ HP, ໄລຍະທາງ, ຄວາມໄວ ແລະ HP ກັບ BREAK ຂອງບອສ.
+10305 [lo] ເຊື່ອງ: ເຊື່ອງຂໍ້ມູນ HUD. HP ຈະສະແດງພຽງເມື່ອໄດ້ຮັບຄວາມເສຍຫາຍ ຫຼື HP ຕ່ຳ.
+10306 [lo] ປັບແຕ່ງ: ເລືອກລາຍການທີ່ຕ້ອງການສະແດງ.
+10307 [lo] ໄລຍະທາງປັດຈຸບັນ
+10308 [lo] Lv / EXP
+10309 [lo] ບັດຕົວລະຄອນ
+10310 [lo] HP ຂອງບອສ
+10311 [lo] ແຖບ BREAK
+10312 [lo] ຈຳນວນຄອມໂບ
+10313 [lo] ເວລາທີ່ເຫຼືອຂອງ FINAL EVOLUTION
+10314 [lo] ຄຳແນະນຳ ແລະ ການແຈ້ງເຕືອນ
+10315 [lo] ຜູ້ຫຼິ້ນຫຼາຍຄົນ
+10316 [lo] ຂະໜາດ HUD
+10317 [lo] ນ້ອຍ
+10318 [lo] ໃຫຍ່
+10319 [lo] ພື້ນຫຼັງ HUD
+10320 [lo] ຈາງ
+10321 [lo] ຕ່ຳສຸດ
+10322 [lo] ປຸ່ມຢຸດຊົ່ວຄາວຈະສະແດງຢູ່ສະເໝີ. ທ່ານສາມາດປ່ຽນການຕັ້ງຄ່າເຫຼົ່ານີ້ຈາກເມນູຢຸດຊົ່ວຄາວໃນຂະນະແລ່ນໄດ້.
+10299 [my] HUD ပြသမှု
+10300 [my] ရိုးရှင်း
+10301 [my] ဖျောက်ထား
+10302 [my] စိတ်ကြိုက်
+10303 [my] စံ: အချက်အလက်အားလုံးကို စနစ်တကျ ပြသသည်။
+10304 [my] ရိုးရှင်း: HP၊ အကွာအဝေး၊ အမြန်နှုန်းနှင့် ဘော့စ်၏ HP နှင့် BREAK ကိုသာ ပြသသည်။
+10305 [my] ဖျောက်ထား: HUD အချက်အလက်များကို ဖျောက်ထားသည်။ ထိခိုက်ဒဏ်ရာရချိန် သို့မဟုတ် HP နည်းနေချိန်တွင်သာ HP ကို ပြသသည်။
+10306 [my] စိတ်ကြိုက်: ပြသလိုသော အချက်အလက်များကို ရွေးချယ်နိုင်သည်။
+10307 [my] လက်ရှိအကွာအဝေး
+10308 [my] Lv / EXP
+10309 [my] ဇာတ်ကောင်ကတ်များ
+10310 [my] ဘော့စ် HP
+10311 [my] BREAK တိုင်းတာဘား
+10312 [my] ကွန်ဘိုအရေအတွက်
+10313 [my] FINAL EVOLUTION ကျန်ရှိချိန်
+10314 [my] လမ်းညွှန်ချက်များနှင့် အသိပေးချက်များ
+10315 [my] ကစားသူအများအပြား
+10316 [my] HUD အရွယ်အစား
+10317 [my] သေး
+10318 [my] ကြီး
+10319 [my] HUD နောက်ခံ
+10320 [my] ဖျော့
+10321 [my] အနည်းဆုံး
+10322 [my] ခဏရပ် ခလုတ်ကို အမြဲပြသထားသည်။ ပြေးနေစဉ်တွင်လည်း ခဏရပ် မီနူးမှ ဤဆက်တင်များကို ပြောင်းလဲနိုင်သည်။

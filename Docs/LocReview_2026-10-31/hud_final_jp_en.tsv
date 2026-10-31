@@ -1,0 +1,25 @@
+id	category	note	ja	en
+10299	ui	設定の見出し: ラン中の画面の情報(HUD)の表示	画面情報の表示	HUD Display
+10300	ui	表示モード: 必要な情報だけ	シンプル	Simple
+10301	ui	表示モード: HUD をほぼ隠す	非表示	Hidden
+10302	ui	表示モード: 項目を自分で選ぶ	カスタム	Custom
+10303	ui	表示モードの説明	標準: すべての情報を整理して表示します	Standard: Shows all info in a clean layout.
+10304	ui	表示モードの説明	シンプル: HP・距離・速度・ボスのHPとBREAKだけを表示します	Simple: Shows only HP, distance, speed, and boss HP/BREAK.
+10305	ui	表示モードの説明	非表示: 画面情報を隠します。被弾時とHPが少ない時だけHPを表示します	Hidden: Hides HUD info. HP appears only when hit or low.
+10306	ui	表示モードの説明	カスタム: 表示する項目を選べます	Custom: Choose what to show.
+10307	ui	カスタムの項目	現在の距離	Current Distance
+10308	ui	カスタムの項目(レベルと経験値の帯)	Lv・EXP	Lv / EXP
+10309	ui	カスタムの項目(キャラ固有のカードの欄)	キャラカード	Character Cards
+10310	ui	カスタムの項目	ボスのHP	Boss HP
+10311	ui	カスタムの項目	BREAKゲージ	BREAK Gauge
+10312	ui	カスタムの項目(連続命中の数 N HIT)	コンボ数	Combo Count
+10313	ui	カスタムの項目	FINAL EVOLUTIONの残り時間	FINAL EVOLUTION Timer
+10314	ui	カスタムの項目(SPEED UP!などの知らせ)	操作ガイド・補助情報	Guides & Notices
+10315	ui	カスタムの項目(マルチの参加者の一覧)	マルチの参加者	Multiplayer Players
+10316	ui	設定の行	HUDの大きさ	HUD Size
+10317	ui	HUDの大きさの選択肢(75%)	小	Small
+10318	ui	HUDの大きさの選択肢(125%)	大	Large
+10319	ui	設定の行(背景の板の濃さ)	HUDの背景	HUD Background
+10320	ui	HUDの背景の選択肢	薄め	Faint
+10321	ui	HUDの背景の選択肢	最小	Minimal
+10322	ui	設定の説明	一時停止ボタンはどのモードでも表示されます。ラン中も一時停止メニューから設定を変更できます	The pause button is always visible. You can change these settings from the pause menu during a run.

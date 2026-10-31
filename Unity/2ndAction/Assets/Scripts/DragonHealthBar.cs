@@ -22,11 +22,34 @@ public class DragonHealthBar : MonoBehaviour
         {
             transform.position = target.position + offset;
         }
+        // 2026-10-31(UI 全体の改善): ボスの HP/BREAK は画面上の専用の欄(BossHudPanel)へまとめた。頭の上の帯は描かない
+        // (複数のボスで帯が重なって、どの敵の HP か分からなかった)。値はここで持ち続け、欄がそれを読む。改修前の表示(-hudLegacy)では今までどおり
+        bool world = HudPrefs.Legacy;
+        if (world != worldShown)
+        {
+            worldShown = world;
+            foreach (var r in GetComponentsInChildren<SpriteRenderer>(true)) r.enabled = world;
+        }
     }
+    bool worldShown = true;
+
+    // 画面上の欄(BossHudPanel)が読む値
+    public float Fraction { get; private set; } = 1f;
+    public float SubFraction { get; private set; }
+    public bool SubEnabled => subFill != null;
+    public bool SubBroken { get; private set; }
+    public float[] PhaseThresholds { get; private set; }
+    public float FlashUntil => flashUntil;
+    // 登場の演出が終わって帯が出ている(消えていく途中は false)
+    public bool Revealed => transform.localScale.y > 0.5f && bgSr != null && bgBaseColor.a > 0f && bgSr.color.a > bgBaseColor.a * 0.5f;
+    public int Serial { get; private set; }
+    static int serialNext;
+    public static System.Collections.Generic.IReadOnlyList<DragonHealthBar> All => all;
 
     public void SetFraction(float f)
     {
         f = Mathf.Clamp01(f);
+        Fraction = f;
         if (fill == null) return;
 
         float w = maxWidth * f;
@@ -105,11 +128,11 @@ public class DragonHealthBar : MonoBehaviour
         var bg = new GameObject("SubBg"); bg.transform.SetParent(transform, false);
         bg.transform.localPosition = new Vector3(0f, y, 0f);
         bg.transform.localScale = new Vector3(maxWidth + 0.06f, height + 0.05f, 1f);
-        subBg = bg.AddComponent<SpriteRenderer>(); subBg.sprite = squareSprite; subBg.color = new Color(0.08f, 0.08f, 0.1f, 0.8f); subBg.sortingOrder = 30;
+        subBg = bg.AddComponent<SpriteRenderer>(); subBg.sprite = squareSprite; subBg.color = new Color(0.08f, 0.08f, 0.1f, 0.8f); subBg.sortingOrder = 30; subBg.enabled = worldShown;
         var f = new GameObject("SubFill"); f.transform.SetParent(transform, false);
         f.transform.localPosition = new Vector3(-maxWidth * 0.5f, y, 0f);
         f.transform.localScale = new Vector3(0.0001f, height, 1f);
-        subFill = f.AddComponent<SpriteRenderer>(); subFill.sprite = squareSprite; subFill.color = new Color(1f, 0.82f, 0.25f, 1f); subFill.sortingOrder = 31;
+        subFill = f.AddComponent<SpriteRenderer>(); subFill.sprite = squareSprite; subFill.color = new Color(1f, 0.82f, 0.25f, 1f); subFill.sortingOrder = 31; subFill.enabled = worldShown;
     }
 
     // 0..1。broken=trueの間は白く点滅(BREAK中)
@@ -117,6 +140,7 @@ public class DragonHealthBar : MonoBehaviour
     {
         if (subFill == null) return;
         f = Mathf.Clamp01(f);
+        SubFraction = f; SubBroken = broken;
         float w = maxWidth * f;
         Vector3 p = subFill.transform.localPosition;
         subFill.transform.localScale = new Vector3(Mathf.Max(0.0001f, w), subHeight, 1f);
@@ -132,6 +156,7 @@ public class DragonHealthBar : MonoBehaviour
     {
         foreach (var t in ticks) if (t != null) Destroy(t.gameObject);
         ticks.Clear();
+        PhaseThresholds = thresholds;
         if (thresholds == null) return;
         float hgt = fill != null ? fill.localScale.y : 0.24f;
         foreach (float th in thresholds)
@@ -140,6 +165,7 @@ public class DragonHealthBar : MonoBehaviour
             go.transform.localPosition = new Vector3(-maxWidth * 0.5f + maxWidth * Mathf.Clamp01(th), 0f, 0f);
             go.transform.localScale = new Vector3(0.05f, hgt + 0.12f, 1f);
             var sr = go.AddComponent<SpriteRenderer>(); sr.sprite = squareSprite; sr.color = new Color(1f, 0.95f, 0.75f, 0.9f); sr.sortingOrder = 32;
+            sr.enabled = worldShown;
             ticks.Add(sr);
         }
     }
@@ -181,6 +207,7 @@ public class DragonHealthBar : MonoBehaviour
         GameObject go = new GameObject("DragonHpBar");
         DragonHealthBar bar = go.AddComponent<DragonHealthBar>();
         bar.target = target;
+        bar.Serial = ++serialNext; // 画面上の欄の並び(先に出たボスが上)
         bar.maxWidth = maxWidth;
 
         GameObject bg = new GameObject("Background");

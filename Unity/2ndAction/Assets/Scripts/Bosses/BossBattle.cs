@@ -165,7 +165,8 @@ public class BossBattleHud : MonoBehaviour
             LocGUI.Label(r, t, small);
         }
 
-        if (!string.IsNullOrEmpty(bannerText) && Time.unscaledTime < bannerUntil)
+        // 2026-10-31: 画面情報の表示でボスの HP も BREAK も出さない時は、帯(BREAK!/段階)も出さない
+        if (!string.IsNullOrEmpty(bannerText) && Time.unscaledTime < bannerUntil && (HudPrefs.Show(HudPrefs.Item.BossHp) || HudPrefs.Show(HudPrefs.Item.BreakGauge)))
         {
             float age = Time.unscaledTime - bannerStart, left = bannerUntil - Time.unscaledTime;
             float a = Mathf.Clamp01(age / 0.15f) * Mathf.Clamp01(left / 0.35f);

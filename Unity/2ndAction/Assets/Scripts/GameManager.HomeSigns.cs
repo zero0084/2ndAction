@@ -18,6 +18,7 @@ public partial class GameManager
     public static string[] HomeSignLabels => new[] { "キャラ選択", "デッキ編集", "カード合成", "ガチャ", "出発" };
     // 2026-10-22(画面側の完成度向上): 札のアイコン(UiIcons.Home)。縦画面の下のボタン列も同じ絵
     public static readonly string[] HomeSignIcons = { "character", "deck", "fusion", "gacha", "depart" };
+    float homeSignUnifiedH; // 2026-10-31: 5枚の札の高さ
     float homeSignUnifiedW; // 小さい札4枚(キャラ選択/デッキ編集/カード合成/ガチャ)の幅をそろえる(一番長い札に合わせる)
     public static int HomeSignTaps { get; private set; } // 確認用
     public Rect[] LastHomeSignRects { get; private set; } = new Rect[6];      // 4 = 出発 / 続きから、5 = はじめから
@@ -27,7 +28,7 @@ public partial class GameManager
     float HomeSignFont => Mathf.Clamp(bgRoomRect.height * 0.03f, 13f, 30f);
 
     // 札を1枚描く。押されたら true(タップの範囲 = 札)
-    bool DrawHomeSign(int idx, Vector2 anchor, bool below, string label, bool interactable, float fade, float phase, string sub = null, float scale = 1f, bool primary = false, Texture2D icon = null, float minW = 0f)
+    bool DrawHomeSign(int idx, Vector2 anchor, bool below, string label, bool interactable, float fade, float phase, string sub = null, float scale = 1f, bool primary = false, Texture2D icon = null, float minW = 0f, float minH = 0f)
     {
         float fs = HomeSignFont * scale;
         float padX = scale > 1.01f ? 2.2f : 1.4f, padY = scale > 1.01f ? 1.0f : 0.5f; // 大きい札は文字の周りの余白も広く
@@ -49,6 +50,7 @@ public partial class GameManager
         float iconS = icon != null ? Mathf.Round(sz.y * 1.25f) : 0f, iconGap = icon != null ? fs * 0.3f : 0f;
         float w = Mathf.Max(sz.x, subSz.x) + iconS + iconGap + fs * padX, h = Mathf.Max(sz.y + subSz.y, iconS) + fs * padY;
         w = Mathf.Max(w, Mathf.Min(minW, maxW));
+        h = Mathf.Max(h, minH); // 2026-10-31: 札の高さをそろえる(2行のキャラ選択に合わせる)
         Rect r = new Rect(anchor.x - w * 0.5f, below ? anchor.y : anchor.y - h, w, h);
         // 画面(安全な範囲)の中へ
         r.x = Mathf.Clamp(r.x, SafeLeft() + 4f, Screen.width - SafeRight() - 4f - r.width);
@@ -104,29 +106,35 @@ public partial class GameManager
         if (fade < 0.05f) return;
         for (int i = 0; i < LastHomeSignRects.Length; i++) { LastHomeSignRects[i] = Rect.zero; LastHomeSignHitRects[i] = Rect.zero; }
         // 小さい札4枚の幅をそろえる(アイコンが入った時だけ。文字だけの今の形は変えない)
-        homeSignUnifiedW = 0f;
+        homeSignUnifiedW = 0f; homeSignUnifiedH = 0f;
         if (UiIcons.Home(HomeSignIcons[0]) != null)
         {
             var mst = new GUIStyle(GUI.skin.label) { fontSize = Mathf.RoundToInt(HomeSignFont), fontStyle = FontStyle.Bold, wordWrap = false };
             float lh = mst.CalcSize(new GUIContent("A")).y;
-            for (int k = 0; k < 4; k++) homeSignUnifiedW = Mathf.Max(homeSignUnifiedW, mst.CalcSize(new GUIContent(Loc.Auto(HomeSignLabels[k]))).x);
+            for (int k = 0; k < HomeSignLabels.Length; k++) homeSignUnifiedW = Mathf.Max(homeSignUnifiedW, mst.CalcSize(new GUIContent(Loc.Auto(HomeSignLabels[k]))).x); // 2026-10-31: 出発も同じ幅
             homeSignUnifiedW += Mathf.Round(lh * 1.25f) + HomeSignFont * 0.3f + HomeSignFont * 1.4f;
+            // 2026-10-31(UI 全体の改善): 高さも5枚でそろえる(キャラ選択の2行の札に合わせる。1行の札は文字を上下の中央に)
+            var sst = new GUIStyle(GUI.skin.label) { fontSize = Mathf.RoundToInt(HomeSignFont * 0.72f), wordWrap = false };
+            homeSignUnifiedH = lh + sst.CalcSize(new GUIContent("A")).y + HomeSignFont * 0.5f;
         }
+        // 縦画面: 部屋の札のうち、下の施設のボタンと同じ物(キャラ選択/デッキ編集/カード合成/ガチャ)は出さない(同じ名前が2か所に並んでいた)。
+        //  部屋の物はそのまま押せる。出発/続きから は部屋にしかないので出す
+        bool roomDup = HomePortrait;
         // キャラ選択: 肖像画の下(2行目に今のキャラの名前。以前の名前の表示はここへまとめた)
         var cdef = CharacterDatabase.FindById(SelectedCharacterId);
-        if (DrawHomeSign(0, new Vector2(characterRect.center.x, characterRect.yMax + 4f), true, HomeSignLabels[0], interactable, fade, 0f, cdef != null ? Loc.Auto(cdef.displayName) : null, icon: UiIcons.Home(HomeSignIcons[0]), minW: homeSignUnifiedW)) // 2行目のキャラ名もレビュー済みの訳(keys.tsv の char の行)へ。以前は英語のまま
+        if (!roomDup && DrawHomeSign(0, new Vector2(characterRect.center.x, characterRect.yMax + 4f), true, HomeSignLabels[0], interactable, fade, 0f, cdef != null ? Loc.Auto(cdef.displayName) : null, icon: UiIcons.Home(HomeSignIcons[0]), minW: homeSignUnifiedW, minH: homeSignUnifiedH)) // 2行目のキャラ名もレビュー済みの訳(keys.tsv の char の行)へ。以前は英語のまま
         { characterHotspotFlashTimer = roomHotspotFlashDuration; PlayRoomTap(); OpenCharacterSelect(); }
         // デッキ編集: ベッドの上のカードの上
         Vector2 deckAt = new Vector2(bgRoomRect.x + bgRoomRect.width * 0.17f, bgRoomRect.y + bgRoomRect.height * 0.63f);
-        if (DrawHomeSign(1, deckAt, false, HomeSignLabels[1], interactable, fade, 1f, icon: UiIcons.Home(HomeSignIcons[1]), minW: homeSignUnifiedW))
+        if (!roomDup && DrawHomeSign(1, deckAt, false, HomeSignLabels[1], interactable, fade, 1f, icon: UiIcons.Home(HomeSignIcons[1]), minW: homeSignUnifiedW, minH: homeSignUnifiedH))
         { bedHotspotFlashTimer = roomHotspotFlashDuration; PlayRoomTap(); OpenDeckEdit(); }
         // カード合成: 本の山の上
-        if (DrawHomeSign(2, new Vector2(bookRect.center.x, bookRect.y + bookRect.height * 0.12f), false, HomeSignLabels[2], interactable, fade, 2f, icon: UiIcons.Home(HomeSignIcons[2]), minW: homeSignUnifiedW))
+        if (!roomDup && DrawHomeSign(2, new Vector2(bookRect.center.x, bookRect.y + bookRect.height * 0.12f), false, HomeSignLabels[2], interactable, fade, 2f, icon: UiIcons.Home(HomeSignIcons[2]), minW: homeSignUnifiedW, minH: homeSignUnifiedH))
         { bookHotspotFlashTimer = roomHotspotFlashDuration; PlayRoomTap(); OpenCardFusion(); }
         // ガチャ: 機械の下(上は横画面の設定/マルチのボタンと重なる)。横画面で「広告で1回引く」が機械の下にある時は、その下
         float gachaY = machineRect.yMax + 4f;
         if (!HomePortrait && AdGachaAvailable) gachaY = machineRect.yMax + 6f + 54f * GachaUiScale + 6f;
-        if (machineRect.width > 1f && !gachaResultOpen && DrawHomeSign(3, new Vector2(machineRect.center.x, gachaY), true, HomeSignLabels[3], interactable, fade, 3f, icon: UiIcons.Home(HomeSignIcons[3]), minW: homeSignUnifiedW))
+        if (!roomDup && machineRect.width > 1f && !gachaResultOpen && DrawHomeSign(3, new Vector2(machineRect.center.x, gachaY), true, HomeSignLabels[3], interactable, fade, 3f, icon: UiIcons.Home(HomeSignIcons[3]), minW: homeSignUnifiedW, minH: homeSignUnifiedH))
         { deskHotspotFlashTimer = roomHotspotFlashDuration; OnGachaMachineTapped(); }
         if (HomeShowsContinueChoice)
         {
@@ -141,7 +149,7 @@ public partial class GameManager
             { PlayRoomTap(); showNewRunConfirm = true; }
         }
         // 出発: 扉の下(中断中のランが無い時)
-        else if (DrawHomeSign(4, new Vector2(doorRect.center.x, doorRect.yMax + 6f), true, HomeSignLabels[4], interactable, fade, 4f, icon: UiIcons.Home(HomeSignIcons[4])))
+        else if (DrawHomeSign(4, new Vector2(doorRect.center.x, doorRect.yMax + 6f), true, HomeSignLabels[4], interactable, fade, 4f, icon: UiIcons.Home(HomeSignIcons[4]), primary: true, minW: homeSignUnifiedW, minH: homeSignUnifiedH)) // 2026-10-31: 主な操作なので金の地(大きさはほかの札と同じ)
         { doorHotspotFlashTimer = roomHotspotFlashDuration; lastDoorRect = doorRect; OnDoorTapped(); }
     }
 

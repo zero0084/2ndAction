@@ -675,7 +675,7 @@ public static class SaveSystem
         RunCheckpoint.Reload();
         ProgressStats.Reload();
         AdRewards.Reload(); // 広告/パスの報酬の記録(テスト用データと通常のデータで別、2026-10-10)
-        GameSettings.Reload();
+        GameSettings.Reload(); HudPrefs.Reload();
         if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.ReloadPrefs();
     }
 

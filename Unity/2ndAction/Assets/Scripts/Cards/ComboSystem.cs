@@ -149,6 +149,7 @@ public class ComboSystem : MonoBehaviour
             noticeAt = Time.unscaledTime; noticeUntil = noticeAt + 1.1f;
         }
         if (noticing == null || Event.current.type != EventType.Repaint) return;
+        if (!HudPrefs.Show(HudPrefs.Item.Guide)) return; // 2026-10-31: 画面情報の表示(操作ガイド・補助情報)。効果そのものは変わらない
         if (white == null) { white = new Texture2D(1, 1) { hideFlags = HideFlags.HideAndDontSave }; white.SetPixel(0, 0, Color.white); white.Apply(); }
         float t = Time.unscaledTime - noticeAt, k = Mathf.Clamp01(t / 0.12f) * Mathf.Clamp01((noticeUntil - Time.unscaledTime) / 0.25f);
         float s = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height) / 720f);

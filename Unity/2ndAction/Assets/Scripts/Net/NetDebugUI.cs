@@ -114,7 +114,7 @@ public class NetDebugUI : MonoBehaviour
         }
         else if (NetSession.IsActive || NetRunLauncher.IsMultiplayerRun)
         {
-            DrawRunHud(w, safeTop);
+            if (HudPrefs.Show(HudPrefs.Item.Party) || !NetSession.IsActive) DrawRunHud(w, safeTop); // 2026-10-31: 画面情報の表示(マルチの参加者)。切断の表示はいつも出す
             GUI.matrix = prevMatrix;
             DrawRemoteNameTags();
             GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(s, s, 1f));

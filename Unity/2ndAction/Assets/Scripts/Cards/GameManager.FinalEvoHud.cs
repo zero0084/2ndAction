@@ -19,11 +19,11 @@ public partial class GameManager
         Color keepColor = GUI.color;
         GUI.color = Color.white; // 前に描いた物の色(透明度)を持ち込まない
         if (Event.current.type == EventType.Repaint) { FeHudDrawn++; FeHudSkip = ""; }
-        Rect top = V(ShowTakeHomeHud ? GetMilePanelRect() : GetSpeedPanelRect());
+        Rect top = V(HudPrefs.Legacy ? (ShowTakeHomeHud ? GetMilePanelRect() : GetSpeedPanelRect()) : GetRunPanelRect()); // 2026-10-31: 刷新した HUD は左上の走りの板の下
         int rows = Mathf.Min(3, feHudRows.Count);
         const float headH = 18f, rowH = 22f, pad = 8f;
         var r = new Rect(top.x, top.yMax + HudPanelGap, top.width, headH + rowH * rows + 6f);
-        UiBackdrop.Draw(r, 0.8f);
+        HudBox(r, 0.8f);
         var head = new GUIStyle(GUI.skin.label) { fontSize = 11, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft, normal = { textColor = HudGoldColor } };
         GUI.Label(new Rect(r.x + pad, r.y + 2f, r.width - pad * 2f, headH), "FINAL EVOLUTION", head);
         for (int i = 0; i < rows; i++)

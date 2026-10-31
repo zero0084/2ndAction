@@ -22,7 +22,19 @@ public partial class GameManager
         {
             var gm = Instance;
             if (gm == null || !gm.HasStarted) return 0f;
-            float b = HudStacked ? gm.HudLeftColumnBottom : gm.GetLevelExpPanelRect().yMax;
+            if (HudPrefs.Legacy)
+            {
+                float b0 = HudStacked ? gm.HudLeftColumnBottom : gm.GetLevelExpPanelRect().yMax;
+                return b0 + 10f * HudK;
+            }
+            // 2026-10-31: 刷新した HUD。横 = 中央の Lv(とボスの欄)の下、縦 = 左の列の下。何も出していない時は画面の上の余白の下
+            float b = gm.SafeTop() + HudStyle.Margin * HudK;
+            if (HudStacked) b = Mathf.Max(b, gm.HudLeftColumnBottom, gm.SafeTop() + (HudStyle.Margin + gm.HudRow1HV) * HudK);
+            else
+            {
+                if (HudPrefs.Show(HudPrefs.Item.LevelExp) && !ArenaMode.Active) b = Mathf.Max(b, gm.GetLvChipRect().yMax);
+                if (BossHudPanel.VisibleBottomPx > 0f) b = Mathf.Max(b, BossHudPanel.VisibleBottomPx);
+            }
             return b + 10f * HudK;
         }
     }
@@ -41,7 +53,7 @@ public partial class GameManager
     Rect GetMilePanelRect() => HudReal(VSafeLeft + UiMargin, VBestY + (HudPanelHeight + HudPanelGap) * 2f + 30f + 6f, HudDistanceWidth(), MilePanelHeight);
 
     // 左の列(BEST/距離/速度/持ち帰り予定)のいちばん下(実際の画面の座標)。下に置く物はここから
-    float HudLeftColumnBottom => ShowTakeHomeHud ? GetMilePanelRect().yMax : GetSpeedPanelRect().yMax;
+    float HudLeftColumnBottom => !HudPrefs.Legacy ? HudLeftBottomV2 : ShowTakeHomeHud ? GetMilePanelRect().yMax : GetSpeedPanelRect().yMax;
 
     // 金貨の絵(持ち帰り予定の印)。シーンを読み直しても消えないように HideAndDontSave
     static Texture2D mileCoin;

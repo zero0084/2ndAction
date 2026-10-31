@@ -79,6 +79,9 @@ public class CameraFollow : MonoBehaviour
         cam = GetComponent<Camera>();
         Instance = this;
         FloatingOrigin.Shifted += OnOriginShifted;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (HudPrefs.DevArg("-bossCamOff") == "1") BossFramingDisabled = true; // 改修前の構図(比較の撮影用)
+#endif
     }
     void OnDestroy() { FloatingOrigin.Shifted -= OnOriginShifted; if (Instance == this) Instance = null; }
     // 2026-10-10(全体点検): 判定用の画面の中心(LogicalCenterX)は時間が止まっている間(カード選択/ヒットストップ)は更新しないので、
@@ -109,6 +112,28 @@ public class CameraFollow : MonoBehaviour
 
     public bool IsShaking => shakeTimer > 0f; // 確認用(QA)
 
+    // ===== ボス戦の構図(2026-10-31、UI 全体の改善) =====
+    // 横画面のボス戦は、カメラがプレイヤーの足元を画面の中央に置くため画面の下半分が地面の断面になり、キャラとボスが小さかった。
+    // ボス戦の間だけ: 少し寄る(既定 13%)+ 地表を画面の下から 27% 前後に置く。地形・当たり・判定の画面幅(GameView)は変えない(見た目だけ)。
+    //  ・交戦中のボス(BossCamFraming)とプレイヤーが画面に収まるよう、寄りを自動で弱める(複数のボス・打ち上げ・飛ぶボス)
+    //  ・頭/ボスの上端は画面の下から bossTopFrac まで(上は HUD とボスの欄)、足元は bossBottomFrac より上
+    //  ・始まり/終わりは bossBlendSeconds でなめらかに。走りながらの戦い(停止しない)は寄りを弱める(高速の見通し)
+    //  ・縦画面(横から見る表示)は今までどおり(地表はもともと画面の下寄り)
+    [Header("Boss fight framing (ボス戦の構図)")]
+    public float bossZoomIn = 0.13f;
+    [Range(0.15f, 0.45f)] public float bossGroundFrac = 0.27f;
+    public float bossTopFrac = 0.80f, bossBottomFrac = 0.10f;
+    public float bossBlendSeconds = 0.55f;
+    public static bool BossFramingDisabled; // 確認用(改修前の構図と比べる: -bossCamOff 1)
+    float bossBlend, bossZoom = 1f, bossZoomVel, bossY, bossYVel, bossGround, bossGroundVel, followY;
+    bool bossGroundInit;
+    int bossCount; float bossHoldUntil;
+    readonly System.Collections.Generic.List<Bounds> bossBounds = new System.Collections.Generic.List<Bounds>();
+    public float BossBlend => bossBlend;            // 確認用
+    public float BossZoomApplied { get; private set; } = 1f;
+    public int BossFramedCount => bossCount;
+    static float BossEase(float t) => t * t * (3f - 2f * t);
+
     void LateUpdate()
     {
         var pc = PlayerController.Instance;
@@ -126,6 +151,14 @@ public class CameraFollow : MonoBehaviour
             LogicalHalfWidth = targetHorizontalHalfWidth * zoom;
             PortraitSide = PortraitRunView.UseSidePortrait;
             cam.orthographicSize = (PortraitSide ? portraitHalfWidth : targetHorizontalHalfWidth) * zoom / aspect;
+            // ボス戦の寄り(見た目だけ。LogicalHalfWidth は上で決めた値のまま)。一時停止/ヒットストップの間は進めない
+            if (Time.timeScale > 0f)
+            {
+                bool want = WantsBossFraming();
+                bossBlend = Mathf.MoveTowards(bossBlend, want ? 1f : 0f, Time.unscaledDeltaTime / Mathf.Max(0.05f, bossBlendSeconds));
+            }
+            BossZoomApplied = Mathf.Lerp(1f, bossZoom, BossEase(bossBlend));
+            cam.orthographicSize *= BossZoomApplied;
         }
 
         if (shakeTimer > 0f) shakeTimer = Mathf.Max(0f, shakeTimer - Time.unscaledDeltaTime);
@@ -180,8 +213,20 @@ public class CameraFollow : MonoBehaviour
         else
         {
             surfaceInit = false;
-            float smoothedY = Mathf.SmoothDamp(pos.y, target.position.y, ref velocity.y, diving ? yDampingDiveAttack : yDamping);
-            pos.y = smoothedY;
+            if (bossBlend <= 0f)
+            {
+                float smoothedY = Mathf.SmoothDamp(pos.y, target.position.y, ref velocity.y, diving ? yDampingDiveAttack : yDamping);
+                pos.y = smoothedY;
+                followY = pos.y; bossY = pos.y; bossGroundInit = false; bossYVel = 0f;
+                bossZoom = Mathf.SmoothDamp(bossZoom, 1f, ref bossZoomVel, 0.3f);
+            }
+            else
+            {
+                // ふだんの追従(プレイヤーの足元)とボス戦の構図を混ぜる(始まり/終わりがなめらか)
+                followY = Mathf.SmoothDamp(followY, target.position.y, ref velocity.y, diving ? yDampingDiveAttack : yDamping);
+                UpdateBossFraming(pos.x);
+                pos.y = Mathf.Lerp(followY, bossY, BossEase(bossBlend));
+            }
         }
 
         if (shakeTimer > 0f)
@@ -192,5 +237,54 @@ public class CameraFollow : MonoBehaviour
         }
 
         transform.position = pos;
+    }
+
+    bool WantsBossFraming()
+    {
+        if (BossFramingDisabled || PortraitSide || target == null) return false;
+        var pc = PlayerController.Instance;
+        if (pc == null || target != pc.transform || pc.IsAscending) return false;
+        bossCount = BossCamFraming.Collect(pc.transform.position.x, bossBounds);
+        if (bossCount > 0) bossHoldUntil = Time.unscaledTime + 1.5f;
+        // 近くで戦っている間(離れていったボスも 60m まで)と、見失って 1.5 秒は構図を続ける(寄り/戻りを繰り返さない)
+        return bossCount > 0 || BossCamFraming.NearCount > 0 || Time.unscaledTime < bossHoldUntil;
+    }
+
+    // 寄りの量と高さを決める(横画面)。cam.orthographicSize は今の寄りを掛けた後の値
+    void UpdateBossFraming(float camX)
+    {
+        var pc = PlayerController.Instance;
+        if (cam == null || pc == null) return;
+        float aspect = Screen.height > 0 ? (float)Screen.width / Screen.height : 1.78f;
+        float baseOrtho = cam.orthographicSize / Mathf.Max(0.01f, BossZoomApplied);
+        float px = pc.transform.position.x, py = pc.transform.position.y;
+        // 地表: 足元の地面の高さ(穴の上では最後に見た地面)。跳んでも動かない
+        float? g = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(px) : null;
+        float gy = g ?? (pc.IsGrounded ? py : bossGround);
+        if (!bossGroundInit) { bossGround = gy; bossGroundInit = true; bossGroundVel = 0f; }
+        bossGround = Mathf.SmoothDamp(bossGround, gy, ref bossGroundVel, 0.25f);
+        // 収める物: プレイヤー(頭まで)と交戦中のボス
+        float top = py + 2.6f, bottom = Mathf.Min(py, bossGround), left = px - 1.5f, right = px + 1.5f;
+        for (int i = 0; i < bossCount && i < bossBounds.Count; i++)
+        {
+            var b = bossBounds[i];
+            top = Mathf.Max(top, b.max.y + 1.0f); // 頭の上の印の分
+            bottom = Mathf.Min(bottom, b.min.y);
+            left = Mathf.Min(left, b.min.x - 1.5f); right = Mathf.Max(right, b.max.x + 1.5f);
+        }
+        // 寄りの量: 走りながらの戦いは弱く。横に収まらない / 縦に収まらない時はその分だけ弱める(寄らない = 今までと同じ)
+        float halt = 1f - pc.HaltFactor;
+        float zMin = 1f - bossZoomIn * Mathf.Lerp(0.4f, 1f, halt);
+        float needH = Mathf.Max(camX - left, right - camX) / (0.94f * baseOrtho * aspect);
+        float needV = (top - bottom) / (2f * baseOrtho * (bossTopFrac - bossBottomFrac));
+        float zWant = Mathf.Clamp(Mathf.Max(zMin, needH, needV), zMin, 1f);
+        bossZoom = Mathf.SmoothDamp(bossZoom, zWant, ref bossZoomVel, 0.3f, Mathf.Infinity, Time.unscaledDeltaTime);
+        // 高さ: 地表を画面の下から bossGroundFrac に。上/下の物が出る時だけずらす
+        float ortho = baseOrtho * Mathf.Lerp(1f, bossZoom, BossEase(bossBlend));
+        float y = bossGround + ortho * (1f - 2f * bossGroundFrac);
+        float yMin = top + ortho * (1f - 2f * bossTopFrac);       // 上の物が画面の上から出ない
+        float yMax = py + ortho * (1f - 2f * bossBottomFrac);     // プレイヤーの足元が下から出ない
+        if (yMin > yMax) y = yMax; else y = Mathf.Clamp(y, yMin, yMax);
+        bossY = Mathf.SmoothDamp(bossY, y, ref bossYVel, 0.18f);
     }
 }

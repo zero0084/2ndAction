@@ -37,6 +37,9 @@ public class RunBuildHud : MonoBehaviour
     public float minSlot = 40f, maxSlot = 62f;
     public float gapFraction = 0.12f;          // Slot間の隙間(Slotの大きさに対する比)
     public float maxBottomFraction = 0.55f;    // これより下へは伸ばさない(行が増えたらSlotを小さくする)
+    [Header("2026-10-31 HUD の刷新: 標準は小さく(タップ/一時停止で大きく)")]
+    public float smallScale = 0.72f;
+    public float expandSeconds = 6f;
     [Header("Level Up / Boss Reward の3択中")]
     public float choiceScale = 0.82f;
     public float choiceAlpha = 0.8f;
@@ -159,8 +162,18 @@ public class RunBuildHud : MonoBehaviour
         var gm = GameManager.Instance;
         if (gm == null || !gm.HasStarted || gm.IsGameOver || gm.IsOverlayOpen || slots.Count == 0) return false;
         compact = ChoiceOpen(gm);
+        ShowChar = HudPrefs.Show(HudPrefs.Item.CharCards) || gm.PauseMenuOpen; // 一時停止の間は表示の設定に関係なく全部(全12枚を確かめる手段)
+        ShowDeck = HudPrefs.Show(HudPrefs.Item.Deck) || gm.PauseMenuOpen;
+        if (!ShowChar && !ShowDeck) return false;
+        Expanded = HudPrefs.Legacy || gm.PauseMenuOpen || Time.unscaledTime < expandedUntil;
         return true;
     }
+    // 2026-10-31: 表示する段(キャラ/デッキ)と、大きく見せているか(標準は小さく。タップで6秒/一時停止の間は大きく)
+    public bool ShowChar { get; private set; } = true;
+    public bool ShowDeck { get; private set; } = true;
+    public bool Expanded { get; private set; } = true;
+    float expandedUntil; bool tapArmed; Vector2 tapDownAt;
+    bool smallNow;
 
     // 配置(画面座標、IMGUIと同じ左上原点)。Slotの位置はindexだけで決まる(Lvが上がっても動かない)。
     // avoid: 3択中に避ける範囲(カード/説明パネル)。横はその右側の空きに収まる列数へ、縦はその上端までに収める。
@@ -213,17 +226,18 @@ public class RunBuildHud : MonoBehaviour
         float safeTop = Screen.height - (safe.y + safe.height);
         float safeRight = Screen.width - (safe.x + safe.width);
         float hk = GameManager.HudK; // 2026-10-10: GameManager の HUD と同じ倍率(短辺 720 基準)
-        float margin = 28f * hk, hudPanel = 54f * hk, gapBelowHp = 10f * hk; // GameManagerのUiMargin/HudPanelHeight(HPパネルの真下)
-        float right = Screen.width - safeRight - margin;
-        float top = safeTop + margin + hudPanel + gapBelowHp;
-        float s = Mathf.Clamp(Screen.height * slotHeightFraction, minSlot, maxSlot);
+        // 2026-10-31: 上端/右端/縦画面で避ける左の列は GameManager の HUD から(HP の板の真下。改修前の HUD では今までの式)
+        float right = GameManager.RunCardsRightPx;
+        float top = GameManager.RunCardsTopPx;
+        float s = Mathf.Clamp(Screen.height * slotHeightFraction, minSlot, maxSlot) * (HudPrefs.Legacy ? 1f : HudPrefs.ScaleFactor);
         if (compact) s *= choiceScale;
+        else if (smallNow) s *= smallScale;
         float bottom = Screen.height * maxBottomFraction;
         int perRow = maxColumns;
         if (GameManager.HudStacked)
         {
             // 縦画面: 左の列(BEST/距離/速度、幅168)に重ならない。まず枠を少し小さくして列数を保ち、それでも足りなければ列を減らす
-            float leftCol = safe.x + margin + (168f + 10f + 54f) * hk; // + 段の見出し(キャラ/デッキ)の幅
+            float leftCol = GameManager.RunCardsLeftLimitPx + (HudPrefs.Legacy || !smallNow ? 54f * hk : 0f); // + 段の見出し(キャラ/デッキ)の幅
             float avail = right - leftCol;
             float fitS = avail / (maxColumns + (maxColumns - 1) * gapFraction);
             if (fitS < s) s = Mathf.Max(minSlot * 0.9f, fitS);
@@ -287,25 +301,59 @@ public class RunBuildHud : MonoBehaviour
         return new Rect(x0, Screen.height - y1, x1 - x0, y1 - y0);
     }
 
+    // 2026-10-31: 表示する段だけ(キャラ固有/デッキ)を並べる。shown[i] = 描く i 番目の Slot の番号
+    readonly List<int> shown = new List<int>();
+    public IReadOnlyList<int> ShownSlots => shown;
+
     void OnGUI()
     {
         IsVisible = ShouldShow(out bool compact);
         IsCompact = compact;
-        if (!IsVisible) return;
+        if (!IsVisible) { ComboRects.Clear(); return; }
         EnsureStyles();
+        smallNow = !compact && !Expanded;
         // キャラ固有カードを先頭に、デッキから取ったカードを後ろに(GameManager.CollectRunCardIdsの並び)
-        int nChar = 0; while (nChar < slots.Count && slots[nChar].character) nChar++;
-        ComputeLayoutGrouped(nChar, slots.Count - nChar, compact, slotRects, out Rect grid, out float size, compact ? ChoiceAvoidRects() : null);
+        shown.Clear();
+        int nChar = 0;
+        for (int i = 0; i < slots.Count; i++)
+        {
+            if (slots[i].character ? !ShowChar : !ShowDeck) continue;
+            shown.Add(i);
+            if (slots[i].character) nChar++;
+        }
+        if (shown.Count == 0) { IsVisible = false; ComboRects.Clear(); return; }
+        ComputeLayoutGrouped(nChar, shown.Count - nChar, compact, slotRects, out Rect grid, out float size, compact ? ChoiceAvoidRects() : null);
         LastGridRect = grid; LastSlotSize = size;
 
         Color prevColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, compact ? choiceAlpha : 1f);
         float now = Time.unscaledTime;
         DrawGroupLabels(nChar, size, compact);
-        for (int i = 0; i < slots.Count; i++) DrawSlot(slots[i], slotRects[i], now);
-        if (!compact) DrawCombos(grid, size);
+        for (int i = 0; i < shown.Count; i++) DrawSlot(slots[shown[i]], slotRects[i], now);
+        if (!compact && ShowDeck) DrawCombos(grid, size);
+        else ComboRects.Clear();
         GUI.color = prevColor;
+        HandleExpandTap(grid, compact);
     }
+
+    // 標準の小さな表示: 欄を軽くタップすると6秒だけ大きく(名前の見出し付き)。もう一度タップで戻す。
+    // 欄の上で始まった指はタップ攻撃にしない(GameManager.PointerOnRunHudButton)。フリック(指が動いた)では切り替えない
+    void HandleExpandTap(Rect grid, bool compact)
+    {
+        if (HudPrefs.Legacy || compact) { tapArmed = false; return; }
+        var gm = GameManager.Instance;
+        if (gm != null && gm.PauseMenuOpen) { tapArmed = false; return; }
+        var ev = Event.current;
+        Rect hit = new Rect(grid.x - 8f, grid.y - 8f, grid.width + 16f, grid.height + 16f);
+        if (ev.type == EventType.MouseDown && hit.Contains(ev.mousePosition)) { tapArmed = true; tapDownAt = ev.mousePosition; }
+        else if (ev.type == EventType.MouseUp && tapArmed)
+        {
+            tapArmed = false;
+            if (hit.Contains(ev.mousePosition) && (ev.mousePosition - tapDownAt).magnitude < 24f * GameManager.HudKBase)
+                expandedUntil = Time.unscaledTime < expandedUntil ? 0f : Time.unscaledTime + expandSeconds;
+        }
+    }
+    public void DebugSetExpanded(bool on) { expandedUntil = on ? Time.unscaledTime + 9999f : 0f; }
 
     // ===== COMBO(2026-10-06): カード一覧の下に小さなアイコンの列(仮のアイコン = 色の丸+2文字)。タップで内容 =====
     // FINAL EVOLUTION の金の枠/★とは重ねない(カード側は左下の小さな点だけ)。
@@ -405,6 +453,7 @@ public class RunBuildHud : MonoBehaviour
         groupStyle.fontSize = Mathf.Max(11, Mathf.RoundToInt(size * 0.3f));
         float pad = Mathf.Max(3f, size * 0.1f);
         float lw = Mathf.Max(groupStyle.fontSize * 3.4f, size * 1.1f);
+        if (smallNow) lw = 0f; // 2026-10-31: 小さな表示では見出しの字を出さず、板の色(金 = キャラ / 青 = デッキ)だけで分ける
         if (compact)
         {
             float left = LastGridRect.xMin - pad - lw;
@@ -414,7 +463,7 @@ public class RunBuildHud : MonoBehaviour
         // 2026-10-10(全体点検): 縦画面では見出しが左の列(BEST/距離/速度)の下に潜って「キ」だけ見えていた → 左の列の右端まで。入らなければ字を縮め、それでも無理なら板だけ
         if (GameManager.HudStacked && lw > 0f)
         {
-            float colRight = StableSafeArea.Rect.x + (28f + 168f + 6f) * GameManager.HudK;
+            float colRight = GameManager.RunCardsLeftLimitPx - 4f * GameManager.HudK;
             float room = LastGridRect.xMin - pad - colRight;
             if (room < lw)
             {
