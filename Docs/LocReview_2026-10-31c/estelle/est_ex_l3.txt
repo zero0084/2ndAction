@@ -1,0 +1,150 @@
+10349 [cs] Ukončit hru
+10350 [cs] Domovská obrazovka zařízení
+10351 [cs] Pozastavit a přejít na domovskou obrazovku zařízení
+10352 [cs] Uložit a pozastavit
+10353 [cs] Ukončit hru?
+10354 [cs] Přejít na domovskou obrazovku zařízení?
+10355 [cs] Přejde na domovskou obrazovku zařízení bez ukončení aplikace.
+10356 [cs] Příště vyber „Pokračovat“ na domovské obrazovce hry a navážeš od kontrolního bodu na {0}m.
+10357 [cs] Tento běh nelze obnovit (režimy bez ukládání, například Aréna nebo trénink).
+10358 [cs] Místnost se uzavře a běhy ostatních hráčů také skončí. Tento běh nelze obnovit.
+10359 [cs] Opustíš místnost. Do tohoto běhu se už nemůžeš znovu připojit.
+10360 [cs] Běhy pro více hráčů nelze uložit na později.
+10361 [cs] Uloženo. Na domovské obrazovce hry vyber „Pokračovat“ a navážeš od {0}m.
+10362 [cs] Celá obrazovka
+10363 [cs] Celá obrazovka bez okrajů
+10364 [cs] Velikost obrazovky
+10365 [cs] Ponechat tato nastavení?
+10366 [cs] Obnovení původního nastavení za {0}s
+10367 [cs] Ponechat
+10368 [cs] Po kliknutí na „Použít“ stiskni do 15 sekund „Ponechat“, jinak se nastavení zobrazení vrátí zpět. Alt+Enter přepíná mezi oknem a celou obrazovkou. Velikost okna změníš tažením za jeho okraj.
+10369 [cs] Na výšku
+10370 [cs] Na šířku
+10371 [cs] Velikost textu a UI
+10372 [cs] Velké
+10373 [cs] Esc / Tlačítko Zpět na myši: zpět/zavřít (na domovské a titulní obrazovce potvrzení ukončení). Tab / Shift+Tab: pohyb mezi položkami. Enter: potvrdit. Alt+Enter: přepnout celou obrazovku.
+10349 [ro] Ieși din joc
+10350 [ro] Ecranul principal al dispozitivului
+10351 [ro] Suspendă și mergi la ecranul principal al dispozitivului
+10352 [ro] Salvează și suspendă
+10353 [ro] Ieși din joc?
+10354 [ro] Mergi la ecranul principal al dispozitivului?
+10355 [ro] Trece la ecranul principal al dispozitivului fără a închide aplicația.
+10356 [ro] Data viitoare, alege „Continuă” pe ecranul principal al jocului pentru a relua de la punctul de control de la {0}m.
+10357 [ro] Această cursă nu poate fi reluată (moduri fără salvare, precum Arena sau antrenamentul).
+10358 [ro] Camera se va închide, iar cursele celorlalți jucători se vor încheia. Această cursă nu poate fi reluată.
+10359 [ro] Vei părăsi camera. Nu te vei putea alătura din nou acestei curse.
+10360 [ro] Cursele multiplayer nu pot fi salvate pentru a fi reluate mai târziu.
+10361 [ro] Salvat. Alege „Continuă” pe ecranul principal al jocului pentru a relua de la {0}m.
+10362 [ro] Ecran complet
+10363 [ro] Ecran complet fără margini
+10364 [ro] Dimensiunea ecranului
+10365 [ro] Păstrezi aceste setări?
+10366 [ro] Revenire la setările anterioare în {0}s
+10367 [ro] Păstrează
+10368 [ro] După „Aplică”, apasă „Păstrează” în 15 secunde, altfel setările de afișare vor reveni la cele anterioare. Alt+Enter comută între fereastră și ecran complet. Trage de marginile ferestrei pentru a o redimensiona.
+10369 [ro] Portret
+10370 [ro] Peisaj
+10371 [ro] Dimensiune text și UI
+10372 [ro] Mare
+10373 [ro] Esc / Butonul Înapoi al mouse-ului: înapoi/închide (confirmare de ieșire pe ecranul principal al jocului și pe ecranul de titlu). Tab / Shift+Tab: navigare. Enter: confirmare. Alt+Enter: comutare ecran complet.
+10349 [id] Keluar dari game
+10350 [id] Layar utama perangkat
+10351 [id] Tangguhkan dan buka layar utama perangkat
+10352 [id] Simpan & Tangguhkan
+10353 [id] Keluar dari game?
+10354 [id] Buka layar utama perangkat?
+10355 [id] Beralih ke layar utama perangkat tanpa menutup aplikasi.
+10356 [id] Lain kali, pilih "Lanjutkan" di layar utama game untuk melanjutkan dari checkpoint {0}m.
+10357 [id] Lari ini tidak bisa dilanjutkan (mode tanpa penyimpanan, seperti Arena atau latihan).
+10358 [id] Ruangan akan ditutup dan lari pemain lain juga berakhir. Lari ini tidak bisa dilanjutkan.
+10359 [id] Kamu akan keluar dari ruangan. Kamu tidak bisa bergabung kembali ke lari ini.
+10360 [id] Lari multipemain tidak bisa disimpan untuk dilanjutkan nanti.
+10361 [id] Tersimpan. Pilih "Lanjutkan" di layar utama game untuk melanjutkan dari {0}m.
+10362 [id] Layar penuh
+10363 [id] Layar penuh tanpa bingkai
+10364 [id] Ukuran layar
+10365 [id] Pertahankan pengaturan ini?
+10366 [id] Kembali ke pengaturan awal dalam {0} dtk
+10367 [id] Pertahankan
+10368 [id] Setelah "Terapkan", tekan "Pertahankan" dalam 15 detik atau pengaturan tampilan akan dikembalikan. Alt+Enter beralih antara mode jendela dan layar penuh. Seret tepi jendela untuk mengubah ukurannya.
+10369 [id] Potret
+10370 [id] Lanskap
+10371 [id] Ukuran teks & UI
+10372 [id] Besar
+10373 [id] Esc / Tombol Kembali mouse: kembali/tutup (konfirmasi keluar di layar utama game dan layar judul). Tab / Shift+Tab: pindah pilihan. Enter: konfirmasi. Alt+Enter: beralih layar penuh.
+10349 [ms] Keluar permainan
+10350 [ms] Skrin utama peranti
+10351 [ms] Tangguh dan pergi ke skrin utama peranti
+10352 [ms] Simpan & Tangguh
+10353 [ms] Keluar permainan?
+10354 [ms] Pergi ke skrin utama peranti?
+10355 [ms] Beralih ke skrin utama peranti tanpa menutup aplikasi.
+10356 [ms] Lain kali, pilih "Teruskan" pada skrin utama permainan untuk sambung dari pusat pemeriksaan {0}m.
+10357 [ms] Larian ini tidak boleh disambung (mod tanpa simpanan seperti Arena atau latihan).
+10358 [ms] Bilik akan ditutup dan larian pemain lain juga tamat. Larian ini tidak boleh disambung.
+10359 [ms] Anda akan keluar dari bilik. Anda tidak boleh menyertai semula larian ini.
+10360 [ms] Larian berbilang pemain tidak boleh disimpan untuk disambung kemudian.
+10361 [ms] Disimpan. Pilih "Teruskan" pada skrin utama permainan untuk sambung dari {0}m.
+10362 [ms] Skrin penuh
+10363 [ms] Skrin penuh tanpa bingkai
+10364 [ms] Saiz skrin
+10365 [ms] Kekalkan tetapan ini?
+10366 [ms] Kembali ke tetapan asal dalam {0} saat
+10367 [ms] Kekalkan
+10368 [ms] Selepas "Guna", tekan "Kekalkan" dalam 15 saat atau tetapan paparan akan dikembalikan. Alt+Enter bertukar antara mod tetingkap dan skrin penuh. Seret tepi tetingkap untuk ubah saiz.
+10369 [ms] Potret
+10370 [ms] Landskap
+10371 [ms] Saiz teks & UI
+10372 [ms] Besar
+10373 [ms] Esc / Butang Kembali tetikus: kembali/tutup (pengesahan keluar pada skrin utama permainan dan skrin tajuk). Tab / Shift+Tab: navigasi. Enter: sahkan. Alt+Enter: tukar skrin penuh.
+10349 [fil] Lumabas sa laro
+10350 [fil] Home screen ng device
+10351 [fil] I-suspend at pumunta sa home screen ng device
+10352 [fil] I-save at i-suspend
+10353 [fil] Lumabas sa laro?
+10354 [fil] Pumunta sa home screen ng device?
+10355 [fil] Pupunta sa home screen ng device nang hindi isinasara ang app.
+10356 [fil] Sa susunod, piliin ang "Ituloy" sa home screen ng laro para magpatuloy mula sa checkpoint na {0}m.
+10357 [fil] Hindi maipagpapatuloy ang run na ito (mga mode na walang save, tulad ng Arena o practice).
+10358 [fil] Isasara ang room at matatapos din ang run ng ibang manlalaro. Hindi maipagpapatuloy ang run na ito.
+10359 [fil] Aalis ka sa room. Hindi ka na makakabalik sa run na ito.
+10360 [fil] Hindi puwedeng i-save ang multiplayer run para ituloy sa ibang oras.
+10361 [fil] Na-save. Piliin ang "Ituloy" sa home screen ng laro para magpatuloy mula sa {0}m.
+10362 [fil] Fullscreen
+10363 [fil] Borderless Fullscreen
+10364 [fil] Laki ng screen
+10365 [fil] Panatilihin ang mga setting na ito?
+10366 [fil] Babalik sa dating setting sa loob ng {0}s
+10367 [fil] Panatilihin
+10368 [fil] Pagkatapos ng "Apply", pindutin ang "Panatilihin" sa loob ng 15 segundo o babalik ang display settings. Alt+Enter para lumipat sa fullscreen. I-drag ang gilid ng window para baguhin ang laki.
+10369 [fil] Portrait
+10370 [fil] Landscape
+10371 [fil] Laki ng text at UI
+10372 [fil] Malaki
+10373 [fil] Esc / Mouse Back: bumalik/isara (kumpirmasyon sa paglabas sa home ng laro at title screen). Tab / Shift+Tab: mag-navigate. Enter: kumpirmahin. Alt+Enter: palitan ang fullscreen.
+10349 [vi] Thoát trò chơi
+10350 [vi] Màn hình chính của thiết bị
+10351 [vi] Tạm dừng và về màn hình chính của thiết bị
+10352 [vi] Lưu và tạm dừng
+10353 [vi] Thoát trò chơi?
+10354 [vi] Về màn hình chính của thiết bị?
+10355 [vi] Chuyển về màn hình chính của thiết bị mà không đóng ứng dụng.
+10356 [vi] Lần sau, chọn "Tiếp tục" trên màn hình chính của trò chơi để chơi tiếp từ điểm kiểm tra {0}m.
+10357 [vi] Không thể tiếp tục lượt chạy này (các chế độ không lưu, như Đấu trường hoặc luyện tập).
+10358 [vi] Phòng sẽ đóng và lượt chạy của người chơi khác cũng kết thúc. Không thể tiếp tục lượt chạy này.
+10359 [vi] Bạn sẽ rời phòng. Không thể tham gia lại lượt chạy này.
+10360 [vi] Không thể lưu lượt chạy nhiều người để tiếp tục sau.
+10361 [vi] Đã lưu. Chọn "Tiếp tục" trên màn hình chính của trò chơi để chơi tiếp từ {0}m.
+10362 [vi] Toàn màn hình
+10363 [vi] Toàn màn hình không viền
+10364 [vi] Kích thước màn hình
+10365 [vi] Giữ các cài đặt này?
+10366 [vi] Khôi phục cài đặt sau {0} giây
+10367 [vi] Giữ
+10368 [vi] Sau khi chọn "Áp dụng", hãy nhấn "Giữ" trong 15 giây, nếu không cài đặt hiển thị sẽ được khôi phục. Alt+Enter chuyển giữa chế độ cửa sổ và toàn màn hình. Kéo cạnh cửa sổ để đổi kích thước.
+10369 [vi] Dọc
+10370 [vi] Ngang
+10371 [vi] Cỡ chữ và UI
+10372 [vi] Lớn
+10373 [vi] Esc / Nút Quay lại trên chuột: quay lại/đóng (xác nhận thoát ở màn hình chính của trò chơi và màn hình tiêu đề). Tab / Shift+Tab: chuyển mục. Enter: xác nhận. Alt+Enter: chuyển toàn màn hình.

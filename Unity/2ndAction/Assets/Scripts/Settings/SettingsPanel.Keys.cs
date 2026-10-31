@@ -217,9 +217,12 @@ public partial class SettingsPanel
         }
         else if (DisplaySettings.PendingConfirm)
         {
-            LocGUI.Label(new Rect(box.x + 20f, box.y + 26f, bw - 40f, 60f), "この表示のままにしますか？", title);
-            GUI.Label(new Rect(box.x + 20f, box.y + 92f, bw - 40f, 50f), Loc.F("{0}秒後に元の表示に戻ります", Mathf.CeilToInt(DisplaySettings.ConfirmLeft).ToString()), body);
-            if (UiKit.Button(b1, "このままにする", Fit("このままにする", b1.width, 19f), true)) { DisplaySettings.Keep(); if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide); }
+            // 2026-10-31: 15秒(実時間。一時停止中も進む)。文はマスターの指定の「この設定を維持しますか？」へ(訳が入るまでは前の文)
+            LocGUI.Label(new Rect(box.x + 20f, box.y + 26f, bw - 40f, 60f), Loc.Reviewed(LocExit.KeepAsk, "この表示のままにしますか？"), title);
+            string left = Mathf.CeilToInt(DisplaySettings.ConfirmLeft).ToString();
+            GUI.Label(new Rect(box.x + 20f, box.y + 92f, bw - 40f, 50f), Loc.Ready(LocExit.RevertIn) ? Loc.F(LocExit.RevertIn, left) : Loc.F("{0}秒後に元の表示に戻ります", left), body);
+            string keepL = Loc.Reviewed(LocExit.Keep, "このままにする");
+            if (UiKit.Button(b1, keepL, Fit(keepL, b1.width, 19f), true)) { DisplaySettings.Keep(); if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide); }
             if (UiKit.Button(b2, "元に戻す", Fit("元に戻す", b2.width, 19f))) DisplaySettings.Revert("button");
         }
         PadNav.EndLayer(padLayer);
@@ -242,22 +245,31 @@ public partial class SettingsPanel
 
     // ---------------------------------------------------------------- 画面(PC)
     int selMode = -1; int selResIdx = -1;
-    float MeasureScreen() => PlatformCaps.SupportsWindowMode ? HeadH + 4f + RowH * 5f + 22f * 2f + 16f : 0f;
+    float MeasureScreen() => PlatformCaps.SupportsWindowMode ? HeadH + 4f + RowH * 5f + 22f * 4f + 16f : 0f;
     float DrawScreen(float x, float y, float w, bool interactive)
     {
         if (!PlatformCaps.SupportsWindowMode) return y;
         y = Head(x, y, w, "画面");
         if (selMode < 0 || DisplaySettings.PendingConfirm) { selMode = (int)DisplaySettings.CurrentMode; selResIdx = -1; }
-        var mode = (DisplaySettings.Mode)selMode;
+        // 2026-10-31: ウィンドウ / 枠なし全画面 / 全画面(排他。使えるグラフィックスの時だけ)
+        var modes = DisplaySettings.Modes;
+        var modeNames = new string[modes.Length];
+        for (int i = 0; i < modes.Length; i++) modeNames[i] = modes[i] == DisplaySettings.Mode.Windowed ? LocExit.ModeWindow : modes[i] == DisplaySettings.Mode.Exclusive ? LocExit.ModeFull : LocExit.ModeBorderless;
+        int mi = System.Array.IndexOf(modes, (DisplaySettings.Mode)selMode); if (mi < 0) mi = 0;
         RowLabel(x, y, "表示モード");
-        float half = (w - LabelW - 6f) * 0.5f;
-        int c = UiKit.Choice(new Rect(x + LabelW, y + 7f, w - LabelW, RowH - 14f), selMode, new[] { "フルスクリーン", "ウィンドウ" }, Mathf.Min(Fit("フルスクリーン", half, 18f), Fit("ウィンドウ", half, 18f)));
-        if (interactive && c != selMode) { selMode = c; selResIdx = -1; }
+        float each = (w - LabelW - 6f * (modes.Length - 1)) / modes.Length, mfs = 18f;
+        foreach (var n in modeNames) mfs = Mathf.Min(mfs, Fit(n, each, 18f));
+        int c = UiKit.Choice(new Rect(x + LabelW, y + 7f, w - LabelW, RowH - 14f), mi, modeNames, mfs);
+        if (interactive && c != mi) { selMode = (int)modes[c]; selResIdx = -1; }
         y += RowH;
 
         var list = DisplaySettings.Resolutions((DisplaySettings.Mode)selMode);
-        if (selResIdx < 0 || selResIdx >= list.Count) { selResIdx = list.IndexOf(DisplaySettings.CurrentRes); if (selResIdx < 0) selResIdx = list.Count - 1; }
-        RowLabel(x, y, "解像度");
+        if (selResIdx < 0 || selResIdx >= list.Count)
+        {
+            var want = (DisplaySettings.Mode)selMode == DisplaySettings.Mode.Windowed && DisplaySettings.CurrentMode != DisplaySettings.Mode.Windowed ? DisplaySettings.LastWindowSize : DisplaySettings.CurrentRes; // ウィンドウへ戻す時は前のウィンドウの大きさ
+            selResIdx = list.IndexOf(want); if (selResIdx < 0) { list.Add(want); list.Sort((p, q) => p.x != q.x ? p.x.CompareTo(q.x) : p.y.CompareTo(q.y)); selResIdx = list.IndexOf(want); }
+        }
+        RowLabel(x, y, LocExit.ScreenSize);
         float bx = x + LabelW, bw = w - LabelW, btn = Mathf.Min(64f, bw * 0.25f);
         if (UiKit.Button(new Rect(bx, y + 7f, btn, RowH - 14f), "−", 22f, false, false, interactive && selResIdx > 0)) selResIdx--;
         if (UiKit.Button(new Rect(bx + bw - btn, y + 7f, btn, RowH - 14f), "+", 22f, false, false, interactive && selResIdx < list.Count - 1)) selResIdx++;
@@ -279,7 +291,7 @@ public partial class SettingsPanel
         if (interactive && fpsOn && f != fi) DisplaySettings.SetFpsCap(DisplaySettings.FpsOptions[f]);
         y += RowH;
         y = Note(x, y, w, fpsOn ? "ゲームの速さはFPSに関係なく同じです。" : "垂直同期がONの間は、画面のリフレッシュレートに合わせます。");
-        return Note(x, y, w, "表示モードと解像度は「適用」の後、10秒以内に確定しないと元に戻ります。");
+        return Note(x, y, w, Loc.Reviewed(LocExit.ScreenNote, "表示モードと解像度は「適用」の後、10秒以内に確定しないと元に戻ります。"));
     }
 
     static int ChoiceEnabled(Rect r, int current, string[] options, float size, bool enabled)
@@ -293,13 +305,14 @@ public partial class SettingsPanel
     }
 
     // ---------------------------------------------------------------- 操作のキー設定の行(PC)
-    float MeasureKeyRow() => PlatformCaps.SupportsKeyRebind ? RowH + 22f * 2f : 0f;
+    float MeasureKeyRow() => PlatformCaps.SupportsKeyRebind ? RowH + 22f * 5f : 0f;
     float DrawKeyRow(float x, float y, float w, bool interactive)
     {
         if (!PlatformCaps.SupportsKeyRebind) return y;
         RowLabel(x, y, "キー設定");
         if (UiKit.Button(new Rect(x + LabelW, y + 7f, w - LabelW, RowH - 14f), "変更する", 19f, false, false, interactive)) OpenKeyView();
         y += RowH;
-        return Note(x, y, w, "キーボード・マウス・ゲームパッドの割り当てを変えられます。");
+        y = Note(x, y, w, "キーボード・マウス・ゲームパッドの割り当てを変えられます。");
+        return Loc.Ready(LocExit.KeysHelp) ? Note(x, y, w, LocExit.KeysHelp) : y; // 2026-10-31: Tab / マウスの戻るボタン / Alt+Enter の説明(訳が入るまでは出さない)
     }
 }

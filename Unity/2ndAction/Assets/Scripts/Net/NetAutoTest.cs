@@ -29,6 +29,7 @@ public partial class NetAutoTest : MonoBehaviour
     float speedMul = 1f;
     float runSeconds = 40f;
     float leaveAt = -1f;
+    float exitAt = -1f, exitOpenedAt = -1f; // 2026-10-31: -netAutoExitAt t … ラン中に一時停止の「ゲーム終了/中断して端末のホームへ」(AppExit)を押す
     // FloatingOrigin(長距離でシーン全体を戻す処理)を短い間隔で頻繁に起こし、端末ごとに
     // 異なるタイミングで起きるシフトの下でも相手の表示がずれないかを確かめる。
     bool shiftTest;
@@ -358,6 +359,7 @@ public partial class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoSpeed") float.TryParse(next, out speedMul);
             else if (a == "-netAutoRunSeconds") float.TryParse(next, out runSeconds);
             else if (a == "-netAutoLeaveAt") float.TryParse(next, out leaveAt);
+            else if (a == "-netAutoExitAt") float.TryParse(next, out exitAt);
             else if (a == "-netAutoShiftTest") shiftTest = true;
             else if (a == "-netAutoTrace") tracePath = next;
             else if (a == "-netAutoEnemyTrace") enemyTracePath = next;
@@ -557,6 +559,19 @@ public partial class NetAutoTest : MonoBehaviour
                 PickLevelUpCard(gm);
                 Bot();
                 if (rematchTest) RematchTick();
+                if (exitAt > 0f && exitOpenedAt < 0f && runTime >= exitAt)
+                {
+                    exitOpenedAt = runTime;
+                    AppExit.RequestFromPause();
+                    L($"exit: confirm open {AppExit.Open} body: {AppExit.LastBody.Replace("\n", " ")}");
+                }
+                if (exitOpenedAt > 0f && runTime >= exitOpenedAt + 0.8f && AppExit.Open)
+                {
+                    L($"exit: confirming ({AppExit.Current})");
+                    AppExit.DebugConfirm();
+                    if (AppExit.Current != AppExit.Style.QuitApp) { left = true; Next(Step.AfterLeave); }
+                    break;
+                }
                 if (!left && leaveAt > 0f && runTime >= leaveAt)
                 {
                     left = true;

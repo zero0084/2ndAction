@@ -104,7 +104,7 @@ public class LicensesUi : MonoBehaviour
     }
     public static void Close() { IsOpen = false; UiInputGate.LatchUntilRelease(); }
 
-    float S => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);
+    float S => UiScalePref.Menu(Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f));
 
     void OnGUI()
     {

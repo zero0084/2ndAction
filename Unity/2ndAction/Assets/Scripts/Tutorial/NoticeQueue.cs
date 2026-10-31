@@ -91,7 +91,7 @@ public class NoticeQueue : MonoBehaviour
     {
         if (toastNow != null)
         {
-            float ts = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.6f);
+            float ts = UiScalePref.Menu(Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.6f));
             float a = Mathf.Clamp01(toastT / 0.4f) * Mathf.Clamp01((3f - toastT) / 0.25f);
             var r = new Rect(Screen.width * 0.5f - 260 * ts, 96 * ts, 520 * ts, 44 * ts);
             // 2026-10-10(全体点検): 結果画面では見出し(FAILED/GAME CLEAR)に重なっていた → 結果の板の上(入らなければ下)へ
@@ -114,7 +114,7 @@ public class NoticeQueue : MonoBehaviour
         if (!current.HasValue) return;
         var n = current.Value;
         GUI.depth = -1850;
-        float s = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.6f);
+        float s = UiScalePref.Menu(Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.6f));
         if (titleSt == null)
         {
             titleSt = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold, wordWrap = true };

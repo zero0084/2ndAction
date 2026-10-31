@@ -23,6 +23,7 @@ public partial class GameManager
     public static int HomeSignTaps { get; private set; } // 確認用
     public Rect[] LastHomeSignRects { get; private set; } = new Rect[6];      // 4 = 出発 / 続きから、5 = はじめから
     public Rect[] LastHomeSignHitRects { get; private set; } = new Rect[6];
+    readonly Rect[] prevHomeSignHitRects = new Rect[6]; // 前のフレームの札(右上の列が札の上に収まるように。2026-10-31)
     public bool HomeShowsContinueChoice => RunCheckpoint.HasActiveRun && !NetSession.IsActive;
 
     float HomeSignFont => Mathf.Clamp(bgRoomRect.height * 0.03f, 13f, 30f);
@@ -105,7 +106,7 @@ public partial class GameManager
     void DrawHomeSigns(bool interactable, float fade, Rect doorRect, Rect characterRect, Rect bedRect, Rect bookRect, Rect machineRect)
     {
         if (fade < 0.05f) return;
-        for (int i = 0; i < LastHomeSignRects.Length; i++) { LastHomeSignRects[i] = Rect.zero; LastHomeSignHitRects[i] = Rect.zero; }
+        for (int i = 0; i < LastHomeSignRects.Length; i++) { if (LastHomeSignRects[i].width > 0f) prevHomeSignHitRects[i] = LastHomeSignRects[i]; LastHomeSignRects[i] = Rect.zero; LastHomeSignHitRects[i] = Rect.zero; }
         // 小さい札4枚の幅をそろえる(アイコンが入った時だけ。文字だけの今の形は変えない)
         homeSignUnifiedW = 0f; homeSignUnifiedH = 0f;
         if (UiIcons.Home(HomeSignIcons[0]) != null)

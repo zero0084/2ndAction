@@ -117,6 +117,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaKeyNav") { mode = "keynav"; dir = a[i + 1]; } // 2026-10-31 Windows のキーボード/マウス操作
             if (a[i] == "-qaDeckV2") { mode = "deckv2"; dir = a[i + 1]; } // 2026-10-31 デッキ編集の配置/ドラッグ/長押し/分解
             if (a[i] == "-qaTitle") { mode = "title"; dir = a[i + 1]; } // 2026-10-31 タイトル画面(-titleScreen 1 と一緒に)
+            if (a[i] == "-qaExit") { mode = "exit"; dir = a[i + 1]; } // 2026-10-31 終了・中断の入口/画面設定/文字の大きさ
             if (a[i] == "-qaElemVis") { mode = "elemvis"; dir = a[i + 1]; }
             if (a[i] == "-qaUnlock") { mode = "unlock"; dir = a[i + 1]; }
             if (a[i] == "-qaLoc") { mode = "loc"; dir = a[i + 1]; }
@@ -207,6 +208,9 @@ public partial class QaSweep : MonoBehaviour
     IEnumerator Start()
     {
         System.IO.Directory.CreateDirectory(outDir);
+        // 2026-10-31: 試験の間だけ画面の向きを決める(-qaOrient portrait|landscape。保存はしない。エミュレーターの縦の確認用)
+        string qo = Arg("-qaOrient", "");
+        if (qo == "portrait") OrientationControl.Apply(OrientationControl.Mode.Portrait); else if (qo == "landscape") OrientationControl.Apply(OrientationControl.Mode.Landscape);
         Application.logMessageReceived += (c, tr, type) =>
         {
             if (type == LogType.Exception) { anyException = true; excCount++; if (exceptions.Count < 30) exceptions.Add(c + " | " + tr.Split('\n')[0]); }
@@ -320,6 +324,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "keynav") yield return KeyNavMode();
         else if (mode == "deckv2") yield return DeckV2Mode();
         else if (mode == "title") yield return TitleModeQa();
+        else if (mode == "exit") yield return ExitModeQa();
         else if (mode == "elemvis") yield return ElemVisMode();
         else if (mode == "unlock") yield return UnlockModeQa();
         else if (mode == "loc") yield return LocModeQa();
@@ -378,6 +383,16 @@ public partial class QaSweep : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    // 2026-10-31: 試験の途中でアプリ自身が閉じる時(本物の終了の経路を試す)に、結果の行を先に書く
+    void Summary(string why)
+    {
+        L("[summary before the app closes] " + why);
+        foreach (var e in exceptions) L("[EXC] " + e);
+        L(failures == 0 ? "ALL CHECKS PASSED" : $"{failures} CHECK(S) FAILED");
+        L(anyException ? "SOME EXCEPTIONS LOGGED" : "NO EXCEPTIONS LOGGED");
+        System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, $"qa_{mode}.txt"), log.ToString());
     }
 
     // ===================================================================== //

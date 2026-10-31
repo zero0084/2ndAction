@@ -36,6 +36,9 @@ public partial class SettingsPanel : MonoBehaviour
 
     public static void OpenStatic() { if (Instance != null) Instance.Open(); }
     public static void CloseStatic() { if (Instance != null) Instance.Close(); }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public static void DebugScroll(float y) { if (Instance != null) Instance.scroll.y = y; } // 撮影用(2026-10-31)
+#endif
 
     public void Open()
     {
@@ -75,7 +78,7 @@ public partial class SettingsPanel : MonoBehaviour
         else if (state == St.Closing && t >= CloseTime) { state = St.Closed; t = 0f; }
     }
 
-    float S => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);
+    float S => UiScalePref.Menu(Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f));
 
     // メニュー画面(デッキ編集/カード合成/キャラ選択/ステージ選択)の設定ボタン: どの画面も同じ右上の角(戻る/所持MILEと重ならない)。
     public static Rect MenuGearRect()
@@ -476,18 +479,24 @@ public partial class SettingsPanel : MonoBehaviour
     }
 
     // ---------------------------------------------------------------- 表示
-    float MeasureDisplay() => PlatformCaps.SupportsOrientation ? HeadH + 4f + RowH * 5f + 22f + RowH * 2f - 14f + 90f + 44f + 24f + 22f : HeadH + 4f + RowH * 4f + 24f; // 説明が2行に折り返す分。ラン表示は見出しの行+選択の行
+    float MeasureDisplay() => RowH + (PlatformCaps.SupportsOrientation ? HeadH + 4f + RowH * 5f + 22f + RowH * 2f - 14f + 90f + 44f + 24f + 22f : HeadH + 4f + RowH * 4f + 24f); // 説明が2行に折り返す分。ラン表示は見出しの行+選択の行
     float DrawDisplay(float x, float y, float w, bool interactive)
     {
         var gm = GameManager.Instance;
         y = Head(x, y, w, "表示");
+        // 2026-10-31: 文字・UI の大きさ(設定・お知らせ・確認の窓など。小さい画面では効かない)
+        if (Loc.Ready(LocExit.UiSize)) y = ChoiceRow(x, y, w, LocExit.UiSize, UiScalePref.Index, LocExit.UiStandard, Loc.Reviewed(LocExit.UiLarge, "大"), interactive, v => UiScalePref.Set(v));
         if (gm != null && PlatformCaps.SupportsOrientation)
         {
             // 2026-10-09(依頼G): 横 / 縦 は端末の自動回転に関係なくその向きに固定。自動 だけ端末の回転の設定に従う
+            // 2026-10-31: 自動 / 縦固定 / 横固定(分かりやすい言葉と並び。訳が入るまでは前の言葉)
             RowLabel(x, y, "画面の向き");
-            int cur = (int)gm.OrientationMode;
-            int c = UiKit.Choice(new Rect(x + LabelW, y + 7f, w - LabelW, RowH - 14f), cur, new[] { "横画面", "縦画面", "自動" }, 18f);
-            if (interactive && c != cur) gm.SetOrientationMode((OrientationControl.Mode)c);
+            var order = new[] { OrientationControl.Mode.Auto, OrientationControl.Mode.Portrait, OrientationControl.Mode.Landscape };
+            int cur = System.Array.IndexOf(order, gm.OrientationMode);
+            string[] on = Loc.Ready(LocExit.OrientPortrait) && Loc.Ready(LocExit.OrientLandscape)
+                ? new[] { LocExit.OrientAuto, LocExit.OrientPortrait, LocExit.OrientLandscape } : new[] { "自動", "縦画面", "横画面" };
+            int c = UiKit.Choice(new Rect(x + LabelW, y + 7f, w - LabelW, RowH - 14f), cur, on, 18f);
+            if (interactive && c != cur && c >= 0) gm.SetOrientationMode(order[c]);
             y += RowH;
             y = Note(x, y, w, "自動: 端末の自動回転の設定に従います");
         }

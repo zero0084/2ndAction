@@ -66,11 +66,17 @@ public class TitleScreen : MonoBehaviour
         return gm != null && !LoadingScreen.Busy && !BootSplash.Showing && !(ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning);
     }
 
+    // 右下の「ゲーム終了 / 端末のホームへ」(GUI 座標)。ここを押した指/クリックは開始に使わない(2026-10-31)
+    Rect exitRect;
+    bool OnExitButton(Vector2 screenPos) => exitRect.width > 0f && exitRect.Contains(new Vector2(screenPos.x, Screen.height - screenPos.y));
+
     string InputDown()
     {
-        for (int i = 0; i < Input.touchCount; i++) if (Input.GetTouch(i).phase == TouchPhase.Began) return "touch";
-        for (int b = 0; b < 7; b++) if (Input.GetMouseButtonDown(b)) return "mouse" + b;
-        if (Input.anyKeyDown && !Input.GetKeyDown(KeyCode.Escape))
+        for (int i = 0; i < Input.touchCount; i++) if (Input.GetTouch(i).phase == TouchPhase.Began && !OnExitButton(Input.GetTouch(i).position)) return "touch";
+        if (Input.touchCount == 0 && !OnExitButton(Input.mousePosition))
+            for (int b = 0; b < 7; b++) if (Input.GetMouseButtonDown(b)) return "mouse" + b;
+        bool alt = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.AltGr); // Alt+Enter(全画面)/ Alt+F4(終了)では始めない
+        if (Input.anyKeyDown && !Input.GetKeyDown(KeyCode.Escape) && !alt)
         {
             for (int k = 0; k < 20; k++) if (Input.GetKeyDown(KeyCode.JoystickButton0 + k)) return "pad";
             return "key";
@@ -96,6 +102,7 @@ public class TitleScreen : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (DebugPress) { DebugPress = false; inp = "debug"; }
 #endif
+            if (AppExit.Open || UiInputGate.Latched) { inp = null; pending = null; } // 終了の確認の間/その窓を閉じた指が離れるまでは始めない
             if (inp != null) pending = inp;
             if (pending != null && ready && t >= MinShow)
             {
@@ -151,13 +158,25 @@ public class TitleScreen : MonoBehaviour
         float pulse = 0.55f + 0.45f * Mathf.Sin(t * 2.4f);
         float pa = a * Smooth(Mathf.Clamp01((t - 0.35f) / 0.4f)) * (ready ? pulse : 0.25f);
         if (promptStyle == null) promptStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold, wordWrap = true };
-        float k = Mathf.Clamp(Mathf.Min(W, H) / 720f, 1f, 2.6f);
+        float k = UiScalePref.Menu(Mathf.Clamp(Mathf.Min(W, H) / 720f, 1f, 2.6f));
         promptStyle.fontSize = Mathf.RoundToInt(26f * k);
         Rect pr = new Rect(W * 0.1f, H * (portrait ? 0.62f : 0.70f), W * 0.8f, 60f * k);
         promptStyle.normal.textColor = new Color(0f, 0f, 0f, 0.7f * pa);
         LocGUI.Label(new Rect(pr.x + 2f, pr.y + 2f, pr.width, pr.height), PromptText, promptStyle);
         promptStyle.normal.textColor = new Color(1f, 0.92f, 0.72f, pa);
         LocGUI.Label(pr, PromptText, promptStyle);
+        // 右下: ゲーム終了(PC)/ 端末のホームへ(Android)。iOS には置かない(押してもアプリは閉じないため)
+        exitRect = default;
+        if (AppExit.HasExitButton && ready && outT < 0f && !AppExit.Open)
+        {
+            Rect safe = StableSafeArea.Rect;
+            float bh = 54f * k, bw = Mathf.Min(W * 0.4f, 230f * k), m = 18f * k;
+            exitRect = new Rect(safe.xMax - m - bw, (Screen.height - safe.y) - m - bh, bw, bh);
+            GUI.color = new Color(1f, 1f, 1f, a * Smooth(Mathf.Clamp01((t - 0.35f) / 0.4f)) * 0.85f);
+            var bs = new GUIStyle(GUI.skin.button) { fontSize = Mathf.RoundToInt(19f * k), fontStyle = FontStyle.Bold };
+            bs.normal.textColor = bs.hover.textColor = new Color(0.95f, 0.92f, 0.85f);
+            if (GUI.Button(exitRect, Loc.T(AppExit.ButtonLabel), bs)) AppExit.RequestFromTitle();
+        }
         GUI.color = keep;
     }
 

@@ -274,10 +274,12 @@ public static class InputBindings
     public static bool KeyboardHeld(GameAction a)
     {
         if (GameInput.TextInputActive) return false; // 2026-10-31: 文字の入力中はキーで項目を動かしたり、ゲームの操作をしない
-        foreach (int c in keys[(int)a]) if (IsKeyboardCode(c) && CodeHeld(c)) return true;
-        foreach (int c in fixedKeys[(int)a]) if (CodeHeld(c)) return true;
+        bool alt = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.AltGr); // 2026-10-31: Alt+Enter(全画面の切り替え)の Enter は操作に使わない
+        foreach (int c in keys[(int)a]) if (IsKeyboardCode(c) && CodeHeld(c) && !(alt && IsEnter(c))) return true;
+        foreach (int c in fixedKeys[(int)a]) if (CodeHeld(c) && !(alt && IsEnter(c))) return true;
         return false;
     }
+    static bool IsEnter(int c) => c == (int)KeyCode.Return || c == (int)KeyCode.KeypadEnter;
     // マウス(左クリックは PlayerController のタップ/フリックの道を通るのでここでは見ない)
     public static bool MouseHeld(GameAction a)
     {

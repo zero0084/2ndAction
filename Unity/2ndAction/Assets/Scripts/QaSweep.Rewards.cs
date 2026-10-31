@@ -39,6 +39,7 @@ public partial class QaSweep
         if (phase == "all" || phase == "rush") yield return RwRush();
         if (phase == "quit1") yield return RwQuit1();
         if (phase == "quit2") yield return RwQuit2();
+        if (phase == "exitchoice" || phase == "exitpause") yield return RwExit1(phase == "exitpause"); // 2026-10-31: 本物の終了の経路(×/Alt+F4 = Application.Quit、一時停止の「ゲーム終了」)。次のプロセスで quit2
         if (phase == "lvfreq") yield return RwLevelFreq();
         if (phase == "rushlow") yield return RwRushLow();
         if (phase == "titan") yield return RwTitan();
@@ -375,6 +376,35 @@ public partial class QaSweep
         System.IO.File.WriteAllText(Arg("-rwShared", outDir) + "/rw_quit_expect.json", JsonUtility.ToJson(new RwSnapJ(cp)));
         L($"[rw] quit: paused the app with the reward choice open; expect on CONTINUE {RwS(cp)}");
     }
+    // 2026-10-31(終了の入口): 報酬の選択中に ×/Alt+F4 と同じ Application.Quit / 選択の後に一時停止の「ゲーム終了」で、本当にプロセスを閉じる
+    IEnumerator RwExit1(bool viaPause)
+    {
+        L(viaPause ? "== exit from the pause menu (1/2) ==" : "== window close during the reward choice (1/2) ==");
+        CpuParty.Request.Clear();
+        yield return BeginRun(RwChar, "wasteland_road");
+        typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+        yield return RwProgressPastCheckpoint(viaPause ? "exitpause" : "exitchoice");
+        if (viaPause)
+        {
+            autoPickHold = false; // 選んで閉じてから
+            float tw = 0f; while ((gm.IsRewardSequenceRunning || gm.LevelUpPending || gm.PendingLevelUpCount > 0) && tw < 30f) { yield return null; tw += Time.unscaledDeltaTime; }
+            yield return new WaitForSecondsRealtime(1f);
+        }
+        var cp = RwFromData(RunCheckpoint.Load());
+        var hist = RunCheckpoint.Load().upgradeHistoryCardIds;
+        L($"[rw] exit: cards at the checkpoint {string.Join(",", hist)}; hp now {gm.Lives}/{gm.MaxLives}");
+        System.IO.Directory.CreateDirectory(Arg("-rwShared", outDir));
+        System.IO.File.WriteAllText(Arg("-rwShared", outDir) + "/rw_quit_expect.json", JsonUtility.ToJson(new RwSnapJ(cp)));
+        L($"[rw] exit: expect on CONTINUE {RwS(cp)} (choice open {gm.IsRewardSequenceWaitingForSelection})");
+        Summary("exit1 (the app quits through the real exit path; checked by -rwPhase quit2)");
+        if (!viaPause) { Application.Quit(); yield break; } // ×/Alt+F4 と同じ: wantsToQuit → AppExit の保存
+        gm.HandleBackButtonForTest();                         // 一時停止を開く
+        yield return new WaitForSecondsRealtime(0.5f);
+        AppExit.RequestFromPause();
+        yield return new WaitForSecondsRealtime(0.6f);
+        L($"[rw] exit dialog open {AppExit.Open}: {AppExit.LastBody.Replace('\n', ' ')}");
+        AppExit.DebugConfirm();
+    }
     [System.Serializable] class RwSnapJ { public float d, exp, carry; public int lv, em, bm, kills, bkills, cards, lives, pend; public string party; public RwSnapJ(RwSnap s) { d = s.d; exp = s.exp; carry = s.carry; lv = s.lv; em = s.em; bm = s.bm; kills = s.kills; bkills = s.bkills; cards = s.cards; lives = s.lives; pend = s.pend; party = s.party; } public RwSnap S => new RwSnap { d = d, exp = exp, carry = carry, lv = lv, em = em, bm = bm, kills = kills, bkills = bkills, cards = cards, lives = lives, pend = pend, party = party }; }
     IEnumerator RwQuit2()
     {
@@ -383,10 +413,12 @@ public partial class QaSweep
         Check(System.IO.File.Exists(p) && RunCheckpoint.HasActiveRun, "quit2: the suspended run is there after the restart");
         if (!System.IO.File.Exists(p)) yield break;
         var cp = JsonUtility.FromJson<RwSnapJ>(System.IO.File.ReadAllText(p)).S;
+        int hpRestored = -1;
+        System.Action<string> onLog = null;
         yield return ResumeContinue("rw");
         stopKeepAlive = false; StartCoroutine(KeepAlive());
         var back = RwNow();
-        L($"[rw] quit2 continued: {RwS(back)} / expect {RwS(cp)}");
+        L($"[rw] quit2 continued: {RwS(back)} / expect {RwS(cp)}; cards {string.Join(",", RunCheckpoint.Load().upgradeHistoryCardIds)} maxHp {gm.MaxLives} restoredAtLoad {hpRestored}");
         Check(RwSame(back, cp), "quit2: after an app kill during the reward choice, CONTINUE restores the checkpoint state");
         Check(!gm.IsRewardSequenceWaitingForSelection, "quit2: no stale reward choice after the restart");
         // 死亡: 未確定の MILE / 記録が残らない

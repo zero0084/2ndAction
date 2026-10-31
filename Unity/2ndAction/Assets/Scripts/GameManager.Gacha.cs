@@ -186,7 +186,7 @@ public partial class GameManager
         e.Use();
     }
 
-    float GachaUiScale => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.6f);
+    float GachaUiScale => UiScalePref.Menu(Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.6f));
 
     void DrawGachaResultPopup()
     {

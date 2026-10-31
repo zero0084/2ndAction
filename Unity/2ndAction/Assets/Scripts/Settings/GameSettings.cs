@@ -95,12 +95,14 @@ public static class UiInputGate
     static bool latch;
     public static bool SprintPanelOpen; // 疾走出発の行き先パネル(2026-10-05)
     public static bool SupportPanelOpen; // CPU サポートの仲間選び(2026-10-14)
-    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen || SprintPanelOpen || SupportPanelOpen || SaveTransferUi.IsOpen || TutorialRun.PanelOpen || FirstRunGuide.Open || NoticeQueue.Open || RankingPanel.IsOpen || AdManager.Showing || MonetizationUi.Open || DataDeletionUi.IsOpen || LoadingScreen.BlocksInput || BootSplash.BlocksInput || TitleScreen.BlocksInput || ArenaLauncher.Covering || DeckPresetUi.Open; // 闘技場の準備/退出の覆い(2026-10-28)。練習の説明/初回の案内(2026-10-07)、広告の表示中/広告なしパスの画面(2026-10-10)、起動ロゴ(2026-10-24)
+    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen || SprintPanelOpen || SupportPanelOpen || SaveTransferUi.IsOpen || TutorialRun.PanelOpen || FirstRunGuide.Open || NoticeQueue.Open || RankingPanel.IsOpen || AdManager.Showing || MonetizationUi.Open || DataDeletionUi.IsOpen || LoadingScreen.BlocksInput || BootSplash.BlocksInput || TitleScreen.BlocksInput || AppExit.Open || ArenaLauncher.Covering || DeckPresetUi.Open; // 闘技場の準備/退出の覆い(2026-10-28)。練習の説明/初回の案内(2026-10-07)、広告の表示中/広告なしパスの画面(2026-10-10)、起動ロゴ(2026-10-24)
 
     // パネルを閉じた: 今押している指が離れるまで背後へ通さない
     public static void LatchUntilRelease() { latch = true; }
     public static void ClearLatch() { latch = false; } // GameOver の結果画面へ持ち越さない(2026-10-06)
     public static bool DebugLatched => latch; // 確認用(2026-10-15)
+    // 2026-10-31: 押していた指/マウスを離したか(離していれば印を外す)。終了の確認の窓が、開いた押下で確定しないように見る
+    public static bool Latched { get { if (latch && Input.touchCount == 0 && !Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0)) latch = false; return latch; } }
 
     public static bool Blocked
     {

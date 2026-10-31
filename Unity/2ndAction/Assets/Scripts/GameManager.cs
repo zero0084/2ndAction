@@ -2008,6 +2008,7 @@ public partial class GameManager : MonoBehaviour
         if (kind >= 1) idx++;                                                   // 設定の下
         if (kind >= 2 && Platform.Online.LanMultiplayer) idx++;                 // マルチ
         if (kind >= 3 && !NetSession.IsActive) idx++;                           // ランキング
+        if (kind >= 4 && UnlockRules.IsArenaUnlocked && !NetSession.IsActive) idx++; // 闘技場(2026-10-31: その下に終了/端末のホームへ)
         float h = HomeButtonHeight, w = h * 1.9f, gap = 8f;
         float right = Screen.width - SafeRight() - UiMargin;
         // ガチャ機械(押せる範囲)の右端より右に収める。足りない画面(4:3 など)では、ボタンの幅だけ少し狭める(字は列で1つの大きさに縮む)
@@ -2015,12 +2016,20 @@ public partial class GameManager : MonoBehaviour
         if (mh.width > 0f && right - w < mh.xMax + 2f) w = Mathf.Max(h * 1.3f, right - (mh.xMax + 2f)); // 実際に重なる時だけ狭める
         float x = right - w;
         float y0 = GetHomeMileRect().yMax + 10f;
+        // 2026-10-31: 列の下端が、下にある札(ガチャ など)や画面の下に重ならないよう、ボタンの高さを詰める(5つ並ぶ時)
+        int n = 2 + (Platform.Online.LanMultiplayer ? 1 : 0) + (!NetSession.IsActive ? 1 : 0) + (UnlockRules.IsArenaUnlocked && !NetSession.IsActive ? 1 : 0) - (AppExit.HasExitButton ? 0 : 1);
+        float limit = Screen.height - SafeBottom() - UiMargin;
+        foreach (var sr in prevHomeSignHitRects) if (sr.width > 0f && sr.xMax > x && sr.x < x + w && sr.y > y0 + h) limit = Mathf.Min(limit, sr.y - gap);
+        float fitH = (limit - y0 - gap * (n - 1)) / Mathf.Max(1, n);
+        if (fitH < h) { h = Mathf.Max(h * 0.62f, fitH); gap = Mathf.Min(gap, 6f); }
         return new Rect(x, y0 + idx * (h + gap), w, h);
     }
     Rect GetHomeSettingsButtonRect() => HomePortrait ? PortraitChromeSlot(0) : HomeChromeColumn(0);
     Rect GetHomeMultiButtonRect() => HomePortrait ? PortraitChromeSlot(1) : HomeChromeColumn(1);
     Rect GetHomeRankingButtonRect() => HomePortrait ? PortraitChromeSlot(2) : HomeChromeColumn(2);
     Rect GetHomeArenaButtonRect() => HomePortrait ? PortraitChromeSlot(3) : HomeChromeColumn(3);
+    public Rect DebugHomeExitButtonRect => GetHomeExitButtonRect(); // 確認用(画面の画素)
+    Rect GetHomeExitButtonRect() => HomePortrait ? PortraitChromeSlot(4) : HomeChromeColumn(4); // 2026-10-31: ゲーム終了(PC)/ 端末のホームへ(Android)
     // 開発版のDEBUG: 部屋の操作対象(扉/ベッド/本/肖像画/ガチャ)と重ならない、扉と本の間の床の上(画面下)。
     Rect GetHomeDebugButtonRect()
     {
@@ -2068,7 +2077,7 @@ public partial class GameManager : MonoBehaviour
     {
         var pl = PortraitHome();
         int n = 0, idx = -1;
-        bool[] shown = { true, Platform.Online.LanMultiplayer, !NetSession.IsActive, UnlockRules.IsArenaUnlocked && !NetSession.IsActive };
+        bool[] shown = { true, Platform.Online.LanMultiplayer, !NetSession.IsActive, UnlockRules.IsArenaUnlocked && !NetSession.IsActive, AppExit.HasExitButton };
         for (int i = 0; i < shown.Length; i++) { if (i == slot) idx = n; if (shown[i]) n++; }
         if (idx < 0 || !shown[slot]) idx = n; // 出ていない物の場所(呼ばれても画面内のどこか)
         n = Mathf.Max(1, n);
@@ -4030,6 +4039,15 @@ public partial class GameManager : MonoBehaviour
         SaveInterruptState();
     }
 
+    // 2026-10-31: ゲーム終了/端末のホームへ/×ボタン/Alt+F4 の前(AppExit)。中断の保存(既存)と進行の記録。脱出の成功としては扱わない
+    public void SaveForExit(string why)
+    {
+        ProgressStats.Flush(true);
+        SaveInterruptState();
+        SaveStore.Save();
+        Debug.Log($"[Exit] SaveForExit ({why}): started {HasStarted} gameOver {IsGameOver} multi {NetRunLauncher.IsMultiplayerRun} checkpointThisRun {checkpointSnapshotThisRun}");
+    }
+
     void SaveInterruptState()
     {
         interruptSaveDueAt = -1f; lastInterruptSaveAt = Time.realtimeSinceStartup;
@@ -4885,7 +4903,7 @@ public partial class GameManager : MonoBehaviour
     bool resultHomeKeyPressed; // キー/パッドの決定で「ホームへ戻る」が押された(次の Update で ResultTapThisFrame が受け取る)
     double resultPrevBest = -1; // このランの前の BEST(成功の確定の直前に覚える。更新の表示「前 → 今回」)
     readonly UiScroll resultScroll = new UiScroll();
-    float ResultScale => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.6f);
+    float ResultScale => UiScalePref.Menu(Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.6f));
 
     void DrawResults()
     {
@@ -5986,6 +6004,8 @@ public partial class GameManager : MonoBehaviour
         if (showMulti) chromeRow.Add((GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel));
         if (showArena) chromeRow.Add((GetHomeArenaButtonRect(), "闘技場"));
         if (showRanking) chromeRow.Add((GetHomeRankingButtonRect(), "ランキング"));
+        bool showExit = AppExit.HasExitButton;
+        if (showExit) chromeRow.Add((GetHomeExitButtonRect(), AppExit.ButtonLabel));
         HomeIconPlan chromePlan = PlanHomeIconRow(chromeRow, fs);
         if (DrawHomeIconButton(setRect, UiIcons.Gear, "設定", chromePlan, primary: false)) SettingsPanel.OpenStatic();
         if (showMulti && DrawHomeIconButton(GetHomeMultiButtonRect(), UiIcons.Home("multi"), NetDebugUI.HomeButtonLabel, chromePlan, primary: NetSession.IsActive)) NetDebugUI.OpenPanel();
@@ -5999,6 +6019,8 @@ public partial class GameManager : MonoBehaviour
         }
         // ランキング(2026-10-08): 設定の下の段。参加は任意(ランキングの画面で)
         if (showRanking && DrawHomeIconButton(GetHomeRankingButtonRect(), UiIcons.Home("ranking"), "ランキング", chromePlan, primary: false)) RankingPanel.OpenStatic();
+        // 2026-10-31: 終了の入口(PC = ゲーム終了 / Android = 端末のホームへ。iOS は置かない)。押すと確認(初めはキャンセル)
+        if (showExit && DrawHomeIconButton(GetHomeExitButtonRect(), UiIcons.Home("exit"), AppExit.ButtonLabel, chromePlan, primary: false)) AppExit.RequestFromHome();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // 2026-10-09(依頼G-2): 開発版だけの入口。小さく薄く、ポップアップ(ガチャの結果など)が開いている間は出さない
         if (Debug.isDebugBuild && !gachaResultOpen && !UiInputGate.ModalOpen && !NetDebugUI.PanelOpen)
@@ -6575,12 +6597,14 @@ public partial class GameManager : MonoBehaviour
         if (key == "home" && LastHomeSignRects != null && LastHomeSignRects.Length > 4 && LastHomeSignRects[4].width > 0f) return LastHomeSignRects[4].center;
         if (key == "result" && LastResultHomeRect.width > 0f) return LastResultHomeRect.center; // RESULT は「ホームへ戻る」から(画面の画素の矩形)
         if (key == "pause") return null; // 一時停止: 一番上の「再開」(左上から = 既定)
+        if (key == "exit") return AppExit.CancelRect.width > 0f ? AppExit.CancelRect.center : (Vector2?)null; // 2026-10-31: 終了の確認は「キャンセル」から
         return null;
     }
 
     // 今の画面の名前(キーボード/パッドのフォーカスを画面ごとに覚えて、戻った時に前の項目へ戻すため)
     string ScreenKeyNow()
     {
+        if (AppExit.Open) return "exit"; // 2026-10-31: 終了の確認(初めはキャンセル)
         if (SettingsPanel.IsVisible) return SettingsPanel.CapturingInput ? "keys" : "settings";
         if (LicensesUi.IsOpen) return "licenses";
         if (RankingPanel.IsOpen) return "ranking";
@@ -6618,7 +6642,8 @@ public partial class GameManager : MonoBehaviour
     void DoBack()
     {
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
-        if (TitleScreen.Showing) return; // 2026-10-31: タイトル画面の間の戻る(Esc/Android の戻る)は後ろのホームへ通さない
+        if (AppExit.Open) { AppExit.Cancel(); return; } // 2026-10-31: 終了の確認はキャンセル(1段だけ)
+        if (TitleScreen.Showing) { AppExit.RequestFromTitle(); return; } // 2026-10-31: タイトルの戻る = 終了/端末のホームへの確認(後ろのホームへは通さない。iOS は何もしない)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (DebugPanel.Instance != null && DebugPanel.Instance.Back()) return;
 #endif
@@ -6638,6 +6663,8 @@ public partial class GameManager : MonoBehaviour
             if (cardFusionOpen && cardFusionUI != null) { cardFusionUI.HandleBack(); return; }
             if (characterSelectOpen && characterSelectUI != null) { characterSelectUI.Close(); return; }
             if (stageSelectOpen && stageSelectUI != null) { stageSelectUI.Close(); return; }
+            // 2026-10-31: ホームの一番上の階層 = 終了/端末のホームへの確認(手前に別の窓がある時は出さない。iOS は何もしない)
+            if (!UiInputGate.ModalOpen && !AnyOverlayOpen) AppExit.RequestFromHome();
             return;
         }
         if (IsGameOver) return;
@@ -6689,7 +6716,7 @@ public partial class GameManager : MonoBehaviour
         GUI.color = dimPrev;
 
         // 2026-10-14: 画面の大きさに合わせて拡大(以前は固定の画素数で、高解像度の端末では小さかった)。ボタンも高く
-        float s = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);
+        float s = UiScalePref.Menu(Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f));
         Matrix4x4 keepM = GUI.matrix;
         GUI.matrix = Matrix4x4.Scale(new Vector3(s, s, 1f)) * keepM;
         float vw = Screen.width / s, vh = Screen.height / s;
@@ -6790,7 +6817,8 @@ public partial class GameManager : MonoBehaviour
         // 2026-10-10(全体点検): ボタンが小さく、「ホームへ戻る」だけ文字が小さかった → 一回り大きく、3つとも同じ大きさの文字(入らない言語だけ縮める)
         const float pw = 290f, bh = 62f, gap = 10f;
         BeginHud(); // II のボタンと同じ k 倍(設計の単位で並べる)
-        Rect panelRect = new Rect(VW - VSafeRight - UiMargin - pw, VH - VSafeBottom - UiMargin - 52f - (bh * 3f + gap * 2f + 24f) - 6f, pw, bh * 3f + gap * 2f + 24f);
+        int nb = 4; // 再開 / ホームへ戻る / 設定 / 終了・中断(2026-10-31)
+        Rect panelRect = new Rect(VW - VSafeRight - UiMargin - pw, VH - VSafeBottom - UiMargin - 52f - (bh * nb + gap * (nb - 1) + 24f) - 6f, pw, bh * nb + gap * (nb - 1) + 24f);
         OrnateUi.DrawPanel(panelRect, 0.92f);
         // 2026-10-11: 帰還の判断のための今回の持ち帰り/帰還後の所持/ガチャの回数(一時停止のホームへ戻るは中断。受け取りは脱出の時)
         if (ShowTakeHomeHud)
@@ -6809,6 +6837,9 @@ public partial class GameManager : MonoBehaviour
         Rect resumeRect = new Rect(panelRect.x + 12f, panelRect.y + 12f, bw, bh);
         Rect returnRect = new Rect(panelRect.x + 12f, resumeRect.yMax + gap, bw, bh);
         Rect settingsRect = new Rect(panelRect.x + 12f, returnRect.yMax + gap, bw, bh);
+        Rect exitRect = new Rect(panelRect.x + 12f, settingsRect.yMax + gap, bw, bh);
+        // 2026-10-31: PC = ゲーム終了 / Android = 中断して端末のホームへ / iOS = 中断を保存(閉じない)。どれも確認か結果の案内を出す
+        if (DrawStyledButton(exitRect, AppExit.PauseLabel, FitFont(AppExit.PauseLabel, bw - 24f, fs), primary: false)) AppExit.RequestFromPause();
         // 2026-10-28: 歯車と文字をひと組にして中央へ(以前は歯車を決まった位置に置き、長い訳(Einstellungen 等)で文字の頭に重なっていた)
         float sfs = FitFont("設定", bw - 70f, fs);
         if (DrawStyledButton(settingsRect, "", sfs, primary: false)) SettingsPanel.OpenStatic();

@@ -343,7 +343,7 @@ public class TutorialRun : MonoBehaviour
         var gm = GameManager.Instance;
         if (gm != null && gm.IsGameOver) return;
         GUI.depth = -1500;
-        float s = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.6f);
+        float s = UiScalePref.Menu(Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.6f));
         if (titleSt == null)
         {
             titleSt = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold, wordWrap = true };

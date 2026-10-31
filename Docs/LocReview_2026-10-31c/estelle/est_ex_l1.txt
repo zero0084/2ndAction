@@ -1,0 +1,150 @@
+10349 [zh-Hans] 退出游戏
+10350 [zh-Hans] 设备主屏幕
+10351 [zh-Hans] 暂停并返回设备主屏幕
+10352 [zh-Hans] 保存并暂停
+10353 [zh-Hans] 要退出游戏吗？
+10354 [zh-Hans] 要返回设备主屏幕吗？
+10355 [zh-Hans] 不关闭应用，返回设备主屏幕。
+10356 [zh-Hans] 下次可在游戏主页选择“继续游戏”，从 {0}m 检查点继续。
+10357 [zh-Hans] 本次跑程无法继续（竞技场、练习等不保存记录的模式）。
+10358 [zh-Hans] 房间将解散，其他玩家的跑程也会结束。本次跑程无法继续。
+10359 [zh-Hans] 你将退出房间，无法重新加入本次跑程。
+10360 [zh-Hans] 多人游戏的跑程无法保存以供稍后继续。
+10361 [zh-Hans] 已保存。可在游戏主页选择“继续游戏”，从 {0}m 继续。
+10362 [zh-Hans] 全屏
+10363 [zh-Hans] 无边框全屏
+10364 [zh-Hans] 屏幕尺寸
+10365 [zh-Hans] 保留这些设置吗？
+10366 [zh-Hans] {0}秒后恢复原设置
+10367 [zh-Hans] 保留
+10368 [zh-Hans] 点击“应用”后，须在15秒内点击“保留”，否则显示设置将恢复。Alt+Enter切换窗口和全屏模式。拖动窗口边缘可调整大小。
+10369 [zh-Hans] 竖屏
+10370 [zh-Hans] 横屏
+10371 [zh-Hans] 文字与UI大小
+10372 [zh-Hans] 大
+10373 [zh-Hans] Esc / 鼠标返回键：返回/关闭（在游戏主页和标题画面会询问是否退出）。Tab / Shift+Tab：切换项目。Enter：确认。Alt+Enter：切换全屏。
+10349 [zh-Hant] 結束遊戲
+10350 [zh-Hant] 裝置主畫面
+10351 [zh-Hant] 暫停並返回裝置主畫面
+10352 [zh-Hant] 儲存並暫停
+10353 [zh-Hant] 要結束遊戲嗎？
+10354 [zh-Hant] 要返回裝置主畫面嗎？
+10355 [zh-Hant] 不關閉應用程式，返回裝置主畫面。
+10356 [zh-Hant] 下次可在遊戲主畫面選擇「繼續遊戲」，從 {0}m 檢查點繼續。
+10357 [zh-Hant] 本次跑程無法繼續（競技場、練習等不儲存紀錄的模式）。
+10358 [zh-Hant] 房間將解散，其他玩家的跑程也會結束。本次跑程無法繼續。
+10359 [zh-Hant] 你將離開房間，無法重新加入本次跑程。
+10360 [zh-Hant] 多人遊戲的跑程無法儲存以供稍後繼續。
+10361 [zh-Hant] 已儲存。可在遊戲主畫面選擇「繼續遊戲」，從 {0}m 繼續。
+10362 [zh-Hant] 全螢幕
+10363 [zh-Hant] 無邊框全螢幕
+10364 [zh-Hant] 螢幕尺寸
+10365 [zh-Hant] 保留這些設定嗎？
+10366 [zh-Hant] {0}秒後還原設定
+10367 [zh-Hant] 保留
+10368 [zh-Hant] 點擊「套用」後，須在15秒內點擊「保留」，否則顯示設定將還原。Alt+Enter切換視窗與全螢幕。拖曳視窗邊緣可調整大小。
+10369 [zh-Hant] 直向
+10370 [zh-Hant] 橫向
+10371 [zh-Hant] 文字與UI大小
+10372 [zh-Hant] 大
+10373 [zh-Hant] Esc / 滑鼠返回鍵：返回/關閉（在遊戲主畫面與標題畫面會詢問是否結束）。Tab / Shift+Tab：切換項目。Enter：確認。Alt+Enter：切換全螢幕。
+10349 [ko] 게임 종료
+10350 [ko] 기기 홈 화면
+10351 [ko] 일시 중단 후 기기 홈으로
+10352 [ko] 저장 후 일시 중단
+10353 [ko] 게임을 종료할까요?
+10354 [ko] 기기 홈 화면으로 이동할까요?
+10355 [ko] 앱을 종료하지 않고 기기 홈 화면으로 이동합니다.
+10356 [ko] 다음에 게임 홈 화면에서 '이어하기'를 선택하면 {0}m 체크포인트부터 재개할 수 있습니다.
+10357 [ko] 이 달리기는 이어할 수 없습니다(투기장, 연습 등 기록이 저장되지 않는 모드).
+10358 [ko] 방이 해산되며 다른 참가자의 달리기도 종료됩니다. 이 달리기는 이어할 수 없습니다.
+10359 [ko] 방에서 나갑니다. 이 달리기에 다시 참가할 수 없습니다.
+10360 [ko] 멀티플레이 달리기는 중단 상태를 저장할 수 없습니다.
+10361 [ko] 저장했습니다. 게임 홈 화면에서 '이어하기'를 선택하면 {0}m부터 재개할 수 있습니다.
+10362 [ko] 전체 화면
+10363 [ko] 테두리 없는 전체 화면
+10364 [ko] 화면 크기
+10365 [ko] 이 설정을 유지할까요?
+10366 [ko] {0}초 후 이전 설정으로 복원
+10367 [ko] 유지
+10368 [ko] '적용' 후 15초 안에 '유지'를 누르지 않으면 화면 설정이 복원됩니다. Alt+Enter로 창 모드와 전체 화면을 전환하고, 창 가장자리를 드래그해 크기를 조절할 수 있습니다.
+10369 [ko] 세로 고정
+10370 [ko] 가로 고정
+10371 [ko] 글자 및 UI 크기
+10372 [ko] 크게
+10373 [ko] Esc / 마우스 뒤로 버튼: 뒤로/닫기(게임 홈과 타이틀에서는 종료 확인). Tab / Shift+Tab: 항목 이동. Enter: 확인. Alt+Enter: 전체 화면 전환.
+10349 [es] Salir del juego
+10350 [es] Inicio del dispositivo
+10351 [es] Suspender e ir al inicio del dispositivo
+10352 [es] Guardar y suspender
+10353 [es] ¿Salir del juego?
+10354 [es] ¿Ir a la pantalla de inicio del dispositivo?
+10355 [es] Va a la pantalla de inicio del dispositivo sin cerrar la aplicación.
+10356 [es] La próxima vez, elige «Continuar» en el menú principal del juego para reanudar desde el punto de control de {0}m.
+10357 [es] No puedes reanudar esta carrera (modos sin guardado, como la Arena o la práctica).
+10358 [es] Se cerrará la sala y terminarán las carreras de los demás jugadores. Esta carrera no se puede reanudar.
+10359 [es] Saldrás de la sala. No podrás volver a unirte a esta carrera.
+10360 [es] Las carreras multijugador no se pueden guardar para continuarlas después.
+10361 [es] Guardado. Elige «Continuar» en el menú principal del juego para reanudar desde {0}m.
+10362 [es] Pantalla completa
+10363 [es] Pantalla completa sin bordes
+10364 [es] Tamaño de pantalla
+10365 [es] ¿Mantener estos ajustes?
+10366 [es] Se restaurarán los ajustes en {0}s
+10367 [es] Mantener
+10368 [es] Tras «Aplicar», pulsa «Mantener» en 15 segundos o se restaurarán los ajustes de pantalla. Alt+Enter alterna entre ventana y pantalla completa. Arrastra los bordes de la ventana para cambiar su tamaño.
+10369 [es] Vertical
+10370 [es] Horizontal
+10371 [es] Tamaño de texto y UI
+10372 [es] Grande
+10373 [es] Esc / Botón Atrás del ratón: volver/cerrar (confirmación de salida en el menú principal y el título). Tab / Shift+Tab: navegar. Enter: confirmar. Alt+Enter: alternar pantalla completa.
+10349 [fr] Quitter le jeu
+10350 [fr] Accueil de l'appareil
+10351 [fr] Suspendre et aller à l'accueil de l'appareil
+10352 [fr] Sauver et suspendre
+10353 [fr] Quitter le jeu ?
+10354 [fr] Aller à l'écran d'accueil de l'appareil ?
+10355 [fr] Retourne à l'écran d'accueil de l'appareil sans fermer l'application.
+10356 [fr] La prochaine fois, choisissez « Continuer » sur l'accueil du jeu pour reprendre au point de contrôle de {0}m.
+10357 [fr] Cette course ne peut pas être reprise (modes sans sauvegarde, comme l'Arène ou l'entraînement).
+10358 [fr] Le salon sera fermé et les courses des autres joueurs prendront fin. Cette course ne pourra pas être reprise.
+10359 [fr] Vous quitterez le salon. Vous ne pourrez pas rejoindre à nouveau cette course.
+10360 [fr] Les courses multijoueur ne peuvent pas être sauvegardées pour plus tard.
+10361 [fr] Sauvegardé. Choisissez « Continuer » sur l'accueil du jeu pour reprendre à {0}m.
+10362 [fr] Plein écran
+10363 [fr] Plein écran sans bordure
+10364 [fr] Taille de l'écran
+10365 [fr] Conserver ces réglages ?
+10366 [fr] Retour aux réglages précédents dans {0}s
+10367 [fr] Conserver
+10368 [fr] Après « Appliquer », appuyez sur « Conserver » sous 15 secondes, sinon les réglages d'affichage seront rétablis. Alt+Enter bascule entre mode fenêtré et plein écran. Faites glisser les bords de la fenêtre pour la redimensionner.
+10369 [fr] Portrait
+10370 [fr] Paysage
+10371 [fr] Taille du texte et de l'UI
+10372 [fr] Grand
+10373 [fr] Esc / Bouton Retour de la souris : retour/fermer (confirmation pour quitter depuis l'accueil du jeu ou le titre). Tab / Shift+Tab : naviguer. Enter : confirmer. Alt+Enter : basculer en plein écran.
+10349 [de] Spiel beenden
+10350 [de] Geräte-Startbildschirm
+10351 [de] Pausieren und zum Geräte-Startbildschirm
+10352 [de] Speichern und pausieren
+10353 [de] Spiel beenden?
+10354 [de] Zum Startbildschirm des Geräts wechseln?
+10355 [de] Wechselt zum Geräte-Startbildschirm, ohne die App zu schließen.
+10356 [de] Wähle beim nächsten Mal „Fortsetzen“ auf dem Spiel-Startbildschirm, um ab dem Kontrollpunkt bei {0}m weiterzuspielen.
+10357 [de] Dieser Lauf kann nicht fortgesetzt werden (Modi ohne Speicherung, z. B. Arena oder Training).
+10358 [de] Der Raum wird geschlossen und die Läufe der anderen Spieler enden ebenfalls. Dieser Lauf kann nicht fortgesetzt werden.
+10359 [de] Du verlässt den Raum. Du kannst diesem Lauf nicht erneut beitreten.
+10360 [de] Mehrspieler-Läufe können nicht für später gespeichert werden.
+10361 [de] Gespeichert. Wähle „Fortsetzen“ auf dem Spiel-Startbildschirm, um ab {0}m weiterzuspielen.
+10362 [de] Vollbild
+10363 [de] Randloses Vollbild
+10364 [de] Bildschirmgröße
+10365 [de] Diese Einstellungen beibehalten?
+10366 [de] Zurücksetzen in {0}s
+10367 [de] Beibehalten
+10368 [de] Drücke nach „Anwenden“ innerhalb von 15 Sekunden „Beibehalten“, sonst werden die Anzeigeeinstellungen zurückgesetzt. Alt+Enter wechselt zwischen Fenster und Vollbild. Ziehe am Fensterrand, um die Größe zu ändern.
+10369 [de] Hochformat
+10370 [de] Querformat
+10371 [de] Text- und UI-Größe
+10372 [de] Groß
+10373 [de] Esc / Maustaste Zurück: Zurück/Schließen (Beenden-Abfrage auf Spiel-Startbildschirm und Titel). Tab / Shift+Tab: Navigieren. Enter: Bestätigen. Alt+Enter: Vollbild umschalten.

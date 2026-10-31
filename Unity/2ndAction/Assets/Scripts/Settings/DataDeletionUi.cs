@@ -20,7 +20,7 @@ public class DataDeletionUi : MonoBehaviour
     public static void Open() { IsOpen = true; AccountDeletion.Reset(); AccountDeletion.Check(); }
     public static void Close() { if (AccountDeletion.Busy) return; IsOpen = false; UiInputGate.LatchUntilRelease(); }
 
-    float S => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);
+    float S => UiScalePref.Menu(Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f));
 
     void OnGUI()
     {

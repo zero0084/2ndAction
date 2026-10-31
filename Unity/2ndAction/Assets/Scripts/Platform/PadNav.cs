@@ -78,7 +78,7 @@ public class PadNav : MonoBehaviour
         ScrollRequest = 0;
         confirmPending = false;
         if (Suspended) { MenuActive = false; return; } // キー設定の待ち受け中(押したボタン/スティックを割り当てに使う。フォーカスを動かさない)
-        if (TitleScreen.BlocksInput) { MenuActive = false; return; } // 2026-10-31: タイトルの間は後ろのホームの項目を選ばない/決定しない(タイトルを始めた Enter で「設定」が開いていた)
+        if (TitleScreen.BlocksInput && !AppExit.Open) { MenuActive = false; return; } // 2026-10-31: タイトルの間は後ろのホームの項目を選ばない/決定しない(タイトルを始めた Enter で「設定」が開いていた)
         int top = int.MinValue;
         foreach (var c in prev) if (c.layer > top) top = c.layer;
         TopLayer = top;
@@ -185,6 +185,14 @@ public class PadNav : MonoBehaviour
 
     // 自動テスト用: この点に一番近い候補へフォーカス / タッチを使ったことにする
     static bool focusAny;
+    // その画面の選択の記憶を消す(次に開いた時は DefaultFocus から。終了の確認は毎回「キャンセル」から、2026-10-31)
+    public static void ForgetScreen(string baseKey)
+    {
+        var drop = new List<string>();
+        foreach (var k in screenFocus.Keys) if (k == baseKey || k.StartsWith(baseKey + "#")) drop.Add(k);
+        foreach (var k in drop) screenFocus.Remove(k);
+        if (lastScreenKey != null && (lastScreenKey == baseKey || lastScreenKey.StartsWith(baseKey + "#"))) lastScreenKey = null;
+    }
     public static void DebugFocusNear(Vector2 guiPoint) { hasFocus = true; focusPoint = guiPoint; focusAny = true; }
     public static void DebugTouchUsed() { GameInput.DebugMarkDevice(InputDeviceKind.Touch); }
     public static string DebugCandidates() { var sb = new System.Text.StringBuilder(); foreach (var c in prev) sb.Append($"[{c.layer}{(c.ugui ? "u" : "")} {c.r.center.x:F0},{c.r.center.y:F0} {c.r.width:F0}x{c.r.height:F0}] "); return sb.ToString(); }
@@ -370,7 +378,7 @@ public class PadNav : MonoBehaviour
     static Texture2D tex;
     void OnGUI()
     {
-        GUI.depth = -3000; // 一番手前(どのイベントでも設定する)
+        GUI.depth = AppExit.Open ? -31999 : -3000; // 一番手前(どのイベントでも設定する)。2026-10-31: 終了の確認(-31995)の上にも出す
         // 2026-10-31: 文字の入力中か(キーの焦点が入力欄にある)。入力中はキーで項目を動かしたりゲームの操作をしない(GameInput.TextInputActive)。
         //  Enter で入力を終える(次の Enter から項目の決定)。入力欄が描かれなくなったら焦点を外す
         int kc = GUIUtility.keyboardControl;

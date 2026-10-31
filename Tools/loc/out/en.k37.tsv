@@ -1,0 +1,25 @@
+10349	Quit Game
+10350	Home Screen
+10351	Suspend & Go Home
+10352	Save & Suspend
+10353	Quit the game?
+10354	Go to the device home screen?
+10355	Goes to the home screen without closing the app.
+10356	Next time, select "Continue" on the game home screen to resume from the {0}m checkpoint.
+10357	This run can't be resumed (modes without records, such as the Arena or practice).
+10358	The room will close. Other players' runs will end too. This run can't be resumed.
+10359	You will leave the room. You can't rejoin this run.
+10360	Multiplayer runs can't be saved for later.
+10361	Saved. Select "Continue" on the game home screen to resume from {0}m.
+10362	Fullscreen
+10363	Borderless Fullscreen
+10364	Screen Size
+10365	Keep these settings?
+10366	Reverting in {0}s
+10367	Keep
+10368	After "Apply", press "Keep" within 15 seconds or the display settings will revert. Alt+Enter toggles fullscreen. Drag window edges to resize.
+10369	Portrait
+10370	Landscape
+10371	Text & UI Size
+10372	Large
+10373	Esc / Mouse Back: Back/Close (quit prompt on home/title). Tab / Shift+Tab: Navigate. Enter: Confirm. Alt+Enter: Toggle fullscreen.

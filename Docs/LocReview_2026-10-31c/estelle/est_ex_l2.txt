@@ -1,0 +1,150 @@
+10349 [it] Esci dal gioco
+10350 [it] Schermata Home del dispositivo
+10351 [it] Sospendi e vai alla Home del dispositivo
+10352 [it] Salva e sospendi
+10353 [it] Uscire dal gioco?
+10354 [it] Andare alla schermata Home del dispositivo?
+10355 [it] Passa alla schermata Home del dispositivo senza chiudere l'app.
+10356 [it] La prossima volta, seleziona "Continua" nella schermata principale del gioco per riprendere dal checkpoint a {0}m.
+10357 [it] Questa corsa non può essere ripresa (modalità senza salvataggio, come Arena o allenamento).
+10358 [it] La stanza verrà chiusa e termineranno anche le corse degli altri giocatori. Questa corsa non può essere ripresa.
+10359 [it] Uscirai dalla stanza. Non potrai rientrare in questa corsa.
+10360 [it] Le corse multigiocatore non possono essere salvate per riprenderle più tardi.
+10361 [it] Salvato. Seleziona "Continua" nella schermata principale del gioco per riprendere da {0}m.
+10362 [it] Schermo intero
+10363 [it] Schermo intero senza bordi
+10364 [it] Dimensioni schermo
+10365 [it] Mantenere queste impostazioni?
+10366 [it] Ripristino tra {0}s
+10367 [it] Mantieni
+10368 [it] Dopo "Applica", premi "Mantieni" entro 15 secondi, altrimenti le impostazioni dello schermo verranno ripristinate. Alt+Enter passa da finestra a schermo intero. Trascina i bordi della finestra per ridimensionarla.
+10369 [it] Verticale
+10370 [it] Orizzontale
+10371 [it] Dimensioni testo e UI
+10372 [it] Grande
+10373 [it] Esc / Tasto Indietro del mouse: indietro/chiudi (conferma uscita nella schermata principale e nel titolo). Tab / Shift+Tab: naviga. Enter: conferma. Alt+Enter: attiva/disattiva schermo intero.
+10349 [pt-BR] Sair do jogo
+10350 [pt-BR] Tela inicial do dispositivo
+10351 [pt-BR] Suspender e ir à tela inicial do dispositivo
+10352 [pt-BR] Salvar e suspender
+10353 [pt-BR] Sair do jogo?
+10354 [pt-BR] Ir para a tela inicial do dispositivo?
+10355 [pt-BR] Vai para a tela inicial do dispositivo sem fechar o aplicativo.
+10356 [pt-BR] Na próxima vez, selecione "Continuar" na tela inicial do jogo para retomar do ponto de controle de {0}m.
+10357 [pt-BR] Esta corrida não pode ser retomada (modos sem salvamento, como Arena ou treino).
+10358 [pt-BR] A sala será encerrada e as corridas dos outros jogadores também terminarão. Esta corrida não pode ser retomada.
+10359 [pt-BR] Você sairá da sala. Não poderá voltar a esta corrida.
+10360 [pt-BR] Corridas multijogador não podem ser salvas para continuar depois.
+10361 [pt-BR] Salvo. Selecione "Continuar" na tela inicial do jogo para retomar de {0}m.
+10362 [pt-BR] Tela cheia
+10363 [pt-BR] Tela cheia sem bordas
+10364 [pt-BR] Tamanho da tela
+10365 [pt-BR] Manter estas configurações?
+10366 [pt-BR] Revertendo em {0}s
+10367 [pt-BR] Manter
+10368 [pt-BR] Após "Aplicar", pressione "Manter" em até 15 segundos ou as configurações de exibição serão revertidas. Alt+Enter alterna entre janela e tela cheia. Arraste as bordas da janela para redimensioná-la.
+10369 [pt-BR] Retrato
+10370 [pt-BR] Paisagem
+10371 [pt-BR] Tamanho do texto e da UI
+10372 [pt-BR] Grande
+10373 [pt-BR] Esc / Botão Voltar do mouse: voltar/fechar (confirmação para sair na tela inicial do jogo e no título). Tab / Shift+Tab: navegar. Enter: confirmar. Alt+Enter: alternar tela cheia.
+10349 [ru] Выйти из игры
+10350 [ru] Главный экран устройства
+10351 [ru] Приостановить и перейти на главный экран устройства
+10352 [ru] Сохранить и приостановить
+10353 [ru] Выйти из игры?
+10354 [ru] Перейти на главный экран устройства?
+10355 [ru] Переход на главный экран устройства без закрытия приложения.
+10356 [ru] В следующий раз выберите «Продолжить» на главном экране игры, чтобы возобновить забег с контрольной точки {0}m.
+10357 [ru] Этот забег нельзя продолжить (режимы без сохранения, например Арена или тренировка).
+10358 [ru] Комната закроется, и забеги остальных игроков тоже завершатся. Этот забег нельзя продолжить.
+10359 [ru] Вы выйдете из комнаты. Вернуться в этот забег нельзя.
+10360 [ru] Забеги в сетевой игре нельзя сохранить для продолжения позже.
+10361 [ru] Сохранено. Выберите «Продолжить» на главном экране игры, чтобы возобновить забег с {0}m.
+10362 [ru] Полный экран
+10363 [ru] Полный экран без рамки
+10364 [ru] Размер экрана
+10365 [ru] Сохранить эти настройки?
+10366 [ru] Возврат настроек через {0}с
+10367 [ru] Сохранить
+10368 [ru] После «Применить» нажмите «Сохранить» в течение 15 секунд, иначе настройки экрана будут возвращены. Alt+Enter переключает оконный и полноэкранный режимы. Перетащите край окна, чтобы изменить размер.
+10369 [ru] Портретная
+10370 [ru] Альбомная
+10371 [ru] Размер текста и UI
+10372 [ru] Крупный
+10373 [ru] Esc / Кнопка «Назад» мыши: назад/закрыть (подтверждение выхода на главном экране игры и титульном экране). Tab / Shift+Tab: переход между пунктами. Enter: подтвердить. Alt+Enter: переключить полный экран.
+10349 [pl] Wyjdź z gry
+10350 [pl] Ekran główny urządzenia
+10351 [pl] Wstrzymaj i przejdź na ekran główny urządzenia
+10352 [pl] Zapisz i wstrzymaj
+10353 [pl] Wyjść z gry?
+10354 [pl] Przejść na ekran główny urządzenia?
+10355 [pl] Przechodzi na ekran główny urządzenia bez zamykania aplikacji.
+10356 [pl] Następnym razem wybierz „Kontynuuj” na ekranie głównym gry, aby wznowić bieg od punktu kontrolnego {0}m.
+10357 [pl] Tego biegu nie można wznowić (tryby bez zapisu, np. Arena lub trening).
+10358 [pl] Pokój zostanie zamknięty, a biegi pozostałych graczy też się zakończą. Tego biegu nie można wznowić.
+10359 [pl] Opuścisz pokój. Nie możesz ponownie dołączyć do tego biegu.
+10360 [pl] Biegów wieloosobowych nie można zapisać na później.
+10361 [pl] Zapisano. Wybierz „Kontynuuj” na ekranie głównym gry, aby wznowić bieg od {0}m.
+10362 [pl] Pełny ekran
+10363 [pl] Pełny ekran bez ramek
+10364 [pl] Rozmiar ekranu
+10365 [pl] Zachować te ustawienia?
+10366 [pl] Przywrócenie za {0}s
+10367 [pl] Zachowaj
+10368 [pl] Po wybraniu „Zastosuj” naciśnij „Zachowaj” w ciągu 15 sekund, inaczej ustawienia obrazu zostaną przywrócone. Alt+Enter przełącza tryb okienkowy i pełnoekranowy. Przeciągnij krawędź okna, aby zmienić rozmiar.
+10369 [pl] Pionowo
+10370 [pl] Poziomo
+10371 [pl] Rozmiar tekstu i UI
+10372 [pl] Duży
+10373 [pl] Esc / Przycisk Wstecz myszy: wstecz/zamknij (potwierdzenie wyjścia na ekranie głównym gry i ekranie tytułowym). Tab / Shift+Tab: nawigacja. Enter: potwierdź. Alt+Enter: przełącz pełny ekran.
+10349 [tr] Oyundan Çık
+10350 [tr] Cihaz Ana Ekranı
+10351 [tr] Askıya Al ve Cihaz Ana Ekranına Git
+10352 [tr] Kaydet ve Askıya Al
+10353 [tr] Oyundan çıkılsın mı?
+10354 [tr] Cihazın ana ekranına gidilsin mi?
+10355 [tr] Uygulamayı kapatmadan cihazın ana ekranına geçer.
+10356 [tr] Bir dahaki sefere oyunun ana ekranında "Devam Et"i seçerek {0}m kontrol noktasından devam edebilirsin.
+10357 [tr] Bu koşuya devam edilemez (Arena veya antrenman gibi kayıt tutulmayan modlar).
+10358 [tr] Oda kapanacak ve diğer oyuncuların koşuları da sona erecek. Bu koşuya devam edilemez.
+10359 [tr] Odadan ayrılacaksın. Bu koşuya yeniden katılamazsın.
+10360 [tr] Çok oyunculu koşular daha sonra devam etmek için kaydedilemez.
+10361 [tr] Kaydedildi. Oyunun ana ekranında "Devam Et"i seçerek {0}m'den devam edebilirsin.
+10362 [tr] Tam Ekran
+10363 [tr] Kenarlıksız Tam Ekran
+10364 [tr] Ekran Boyutu
+10365 [tr] Bu ayarlar korunsun mu?
+10366 [tr] {0} sn sonra geri alınacak
+10367 [tr] Koru
+10368 [tr] "Uygula"dan sonra 15 saniye içinde "Koru"ya basmazsan ekran ayarları geri alınır. Alt+Enter pencere ve tam ekran arasında geçiş yapar. Boyutlandırmak için pencere kenarlarını sürükle.
+10369 [tr] Dikey
+10370 [tr] Yatay
+10371 [tr] Metin ve UI Boyutu
+10372 [tr] Büyük
+10373 [tr] Esc / Fare Geri Tuşu: geri/kapat (oyun ana ekranında ve başlık ekranında çıkış onayı). Tab / Shift+Tab: gezin. Enter: onayla. Alt+Enter: tam ekranı değiştir.
+10349 [uk] Вийти з гри
+10350 [uk] Головний екран пристрою
+10351 [uk] Призупинити й перейти на головний екран пристрою
+10352 [uk] Зберегти й призупинити
+10353 [uk] Вийти з гри?
+10354 [uk] Перейти на головний екран пристрою?
+10355 [uk] Перехід на головний екран пристрою без закриття застосунку.
+10356 [uk] Наступного разу виберіть «Продовжити» на головному екрані гри, щоб відновити забіг із контрольної точки {0}m.
+10357 [uk] Цей забіг не можна продовжити (режими без збереження, як-от Арена чи тренування).
+10358 [uk] Кімнату буде закрито, а забіги інших гравців теж завершаться. Цей забіг не можна продовжити.
+10359 [uk] Ви вийдете з кімнати. Повернутися до цього забігу не можна.
+10360 [uk] Забіги в багатокористувацькому режимі не можна зберегти для продовження пізніше.
+10361 [uk] Збережено. Виберіть «Продовжити» на головному екрані гри, щоб відновити забіг із {0}m.
+10362 [uk] Повний екран
+10363 [uk] Повний екран без рамки
+10364 [uk] Розмір екрана
+10365 [uk] Зберегти ці налаштування?
+10366 [uk] Повернення налаштувань через {0}с
+10367 [uk] Зберегти
+10368 [uk] Після «Застосувати» натисніть «Зберегти» протягом 15 секунд, інакше налаштування екрана буде відновлено. Alt+Enter перемикає віконний і повноекранний режими. Перетягніть край вікна, щоб змінити розмір.
+10369 [uk] Портретна
+10370 [uk] Альбомна
+10371 [uk] Розмір тексту та UI
+10372 [uk] Великий
+10373 [uk] Esc / Кнопка «Назад» миші: назад/закрити (підтвердження виходу на головному екрані гри й титульному екрані). Tab / Shift+Tab: перехід між пунктами. Enter: підтвердити. Alt+Enter: перемкнути повний екран.

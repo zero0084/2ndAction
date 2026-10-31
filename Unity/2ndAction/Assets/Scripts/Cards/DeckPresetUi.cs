@@ -15,7 +15,7 @@ public class DeckPresetUi : MonoBehaviour
     string nameEdit = "";
     bool focusName;
 
-    float S => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);
+    float S => UiScalePref.Menu(Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f));
 
     public void Bind(DeckEditUI ui) { deck = ui; }
 
