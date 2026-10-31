@@ -113,6 +113,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaDeckDup") { mode = "deckdup"; dir = a[i + 1]; }
             if (a[i] == "-qaDeckPreset") { mode = "deckpreset"; dir = a[i + 1]; } // 2026-10-31 デッキのプリセット
             if (a[i] == "-qaHudCam") { mode = "hudcam"; dir = a[i + 1]; } // 2026-10-31 HUD の刷新/表示モード/ボス戦の構図
+            if (a[i] == "-qaCardArt") { mode = "cardart"; dir = a[i + 1]; } // 2026-10-31 カードの絵とレイアウトの見直し
             if (a[i] == "-qaElemVis") { mode = "elemvis"; dir = a[i + 1]; }
             if (a[i] == "-qaUnlock") { mode = "unlock"; dir = a[i + 1]; }
             if (a[i] == "-qaLoc") { mode = "loc"; dir = a[i + 1]; }
@@ -312,6 +313,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "deckdup") yield return DeckDupMode();
         else if (mode == "deckpreset") yield return DeckPresetMode();
         else if (mode == "hudcam") yield return HudCamMode();
+        else if (mode == "cardart") yield return CardArtMode();
         else if (mode == "elemvis") yield return ElemVisMode();
         else if (mode == "unlock") yield return UnlockModeQa();
         else if (mode == "loc") yield return LocModeQa();

@@ -553,6 +553,24 @@ public class RewardCardUI : MonoBehaviour
         if (levelEmblemAccent != null) levelEmblemAccent.color = on ? AccentFocused : EmblemAccentNormal;
     }
 
+    // 2026-10-31(カードの見直し): 小さく並べたカード(デッキの枠など)で、名前の文字が画面上で読めない大きさになる時は名前を出さない
+    //  (読めない文字を詰め込まない。カードの絵と Lv で見分け、タップの詳細で名前を読む)。大きい画面では今までどおり出る。
+    //  決めるのはカードの大きさ(名前の最大の文字の大きさ)= 同じ大きさのカードは名前の長さに関係なく、全部出すか全部出さないか
+    public const float MinTitlePx = 10f;
+    public bool TitleTooSmall { get; private set; }
+    void LateUpdate()
+    {
+        if (titleText == null || !isFront) return;
+        var cv = titleText.canvas;
+        if (cv == null || cv.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay) { TitleTooSmall = false; return; }
+        int baseSize = titleMaxFontSize > 0 ? titleMaxFontSize : titleText.fontSize;
+        bool small = baseSize * Mathf.Abs(titleText.rectTransform.lossyScale.y) < MinTitlePx;
+        if (small == TitleTooSmall && titleText.enabled == !small) return;
+        TitleTooSmall = small;
+        titleText.enabled = !small;
+        if (namePlate != null) namePlate.SetActive(!small); // 空の名前の板を残さない(絵だけのすっきりした小さなカード)
+    }
+
     void Update()
     {
         UpdateAwakened(); // カード長期育成: AWAKENED の光と粒
@@ -616,6 +634,9 @@ public class RewardCardUI : MonoBehaviour
         int max = titleMaxFontSize;
         int minSingle = Mathf.Max(6, Mathf.RoundToInt(max * 0.72f));
         int minTwo = Mathf.Max(6, Mathf.RoundToInt(max * 0.6f));
+        // 2026-10-31(カードの見直し): 空白の無い1語の名前(ドイツ語の MONSTERANSTURM 等)は2行にすると語の途中で切れる
+        //  (「MONSTERANSTUR / M」)→ 1語の名前は1行のまま、2行の時の最小(60%)よりさらに少しだけ(50%まで)縮めて収める
+        if (s.Trim().IndexOf(' ') < 0) minSingle = Mathf.Max(6, Mathf.RoundToInt(max * 0.5f));
 
         titleText.lineSpacing = 1f;
         for (int size = max; size >= minSingle; size--)
@@ -646,6 +667,7 @@ public class RewardCardUI : MonoBehaviour
             }
         }
         titleText.fontSize = minTwo;
+        if (s.Trim().IndexOf(' ') < 0) { titleText.fontSize = minSingle; titleText.horizontalOverflow = HorizontalWrapMode.Overflow; } // 1語は折り返さない
     }
 
     // カード選択UI再設計(2026-09-12第3弾) - Level Up/Boss Reward選択で

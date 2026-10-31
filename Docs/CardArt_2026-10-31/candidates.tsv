@@ -1,0 +1,24 @@
+no	id	name	priority	group	problem	proposal
+3	attack_up	ATTACK UP	A	不一致	炎に包まれた剣。炎上を付ける FLAME BLADE(火属性)と見分けにくく、属性カードに見える(実際は属性なしの攻撃力アップ)	炎なしの白銀の剣 + 上向きの金の矢印の光(強化)。色は白・金
+15	greed	GREED	A	不一致	金貨の山。MILE が増えるカードに見える(実際は 移動速度アップ + 敵の出現が増える リスク)	駆ける翼の靴の後ろに赤い敵の目の影が迫る(速さ + 敵が増える)。金貨は描かない
+20	executioner	EXECUTIONER	A	不一致	赤黒の剣。攻撃のカードに見える(実際は 敵を倒した時の MILE +15%)	処刑の斧 + 倒した所から金の MILE 硬貨が弾ける
+48	chain_explosion	CHAIN EXPLOSION	A	不一致	青い剣。爆発が描かれていない(実際は 撃破で爆発し、周りへ連鎖)	3つの爆発の輪が鎖のようにつながる(白〜金の衝撃。火属性の赤橙は避ける)
+70	ground_zero	GROUND ZERO	A	不一致	剣のまわりに氷の結晶。氷属性に見える(実際は 地上の攻撃↑・空中の攻撃↓ のリスク)	岩の地面に深く突き立つ重い大剣 + 地割れ(土色・金)。上は暗く(空中は弱い)
+83	the_long_road	THE LONG ROAD	A	重複	#38 LONG HAUL とほぼ同じ絵(金の道とハート)	★5 らしく: 地平線まで続く長い道 + 道の先で昇る大きな金の星(経験値)と小さなハート
+76	boss_rush	BOSS RUSH	A	重複	#45 BOSS CHALLENGE とほぼ同じ(炎の中の王冠)	王冠を2つ重ねる(ボスがもう1体加わる)+ 赤い炎は控えめ
+65	high_voltage	HIGH VOLTAGE	A	重複	#49 THUNDER STRIKE とほぼ同じ(雷をまとう剣)	剣を使わず、放電する金の雷の球 + 周りの小さな敵が止まる(痺れの火花)
+30	aerial_blade	AERIAL BLADE	B	似た剣	翼の剣が5枚あり見分けにくい	空中から下へ放つ三日月の斬撃 + 当たった所の範囲の衝撃(翼は小さく)
+56	sky_master	SKY MASTER	B	似た剣	翼の剣(同上)	大きな一対の翼 + 円を描く矢印(空中ジャンプが戻る)
+63	air_dominion	AIR DOMINION	B	似た剣	翼の剣(同上)	空を舞う鷹のような光 + 4段に積み上がる山形の印(着地しない連続ヒットで強くなる)
+71	skybound	SKYBOUND	B	似た剣	翼の剣(同上)	雲の上へ向く剣 + 下の地面は割れて暗い(空中↑・地上↓ のリスク)
+62	heavy_impact	HEAVY IMPACT	B	似た剣	地面に刺さる剣が4枚あり見分けにくい	上から落ちる大きな槌(下向き)+ 着地の衝撃の輪
+85	ground_breaker	GROUND BREAKER	B	似た剣	地面に刺さる剣(同上)	地面を横へ走る衝撃波の亀裂(左から右へ伸びる)
+18	brake_attack	BRAKE ATTACK	B	似た剣	青い剣が多数あり見分けにくい	地面で滑って止まる靴の火花 + 前に構えた剣(踏みとどまって強く打つ)
+19	first_strike	FIRST STRIKE	B	似た剣	青い剣(同上)	鞘から抜き放つ一閃(居合)+ 先頭の1本だけが強く光る
+22	combo_plus	COMBO PLUS	B	似た剣	青い剣(同上)	3本の斬撃の線、最後の1本だけ大きく金色(締めの一撃)
+27	combo_edge	COMBO EDGE	B	似た剣	青い剣(同上)	細い斬撃の線が段々と増えて明るくなる(ヒットが続くほど強くなる)
+64	combo_master	COMBO MASTER	B	似た剣	青い剣(同上)	突きの先から前へ広がる円錐の衝撃波(締めで前に衝撃)
+87	combo_rush	COMBO RUSH	B	似た剣	青い剣(同上)	残像の重なる連撃(剣が扇状に3〜4本)
+54	rapid_edge	RAPID EDGE	B	似た剣	青い剣(同上)。#8 ATTACK SPEED UP と見分けにくい	2本の短剣の素早い交差の残像(前/後の主攻撃が速い)
+88	air_strike	AIR STRIKE	B	似た剣	青い剣(同上)	上空の飛ぶ敵の影に照準の輪 + 下から突き上げる光
+52	sonic_blade	SONIC BLADE	B	似た剣	剣 + 青い弧。#7 ATTACK RANGE UP と見分けにくい	剣から離れて前へ飛ぶ三日月の衝撃波(音速の線)

@@ -214,6 +214,42 @@ public class CardFusionUI : MonoBehaviour
         return (r, t, fill);
     }
 
+    // フィルターの名前: 1行で 12 以上に収まらない(縦の細いボタン)時は名前を出さず、種類のアイコンだけを中央に(デッキ編集のフィルターと同じ形)
+    void FitFilterLabel((RectTransform rect, Text label, Image fill) b)
+    {
+        if (b.label == null) return;
+        var icon = b.rect.Find("Icon") as RectTransform;
+        b.label.enabled = true;
+        FitOneLine(b.label, 22, 12);
+        bool tooNarrow = b.label.horizontalOverflow == HorizontalWrapMode.Wrap && icon != null;
+        b.label.enabled = !tooNarrow;
+        if (icon != null)
+        {
+            icon.anchorMin = icon.anchorMax = tooNarrow ? new Vector2(0.5f, 0.5f) : new Vector2(0f, 0.5f);
+            icon.pivot = tooNarrow ? new Vector2(0.5f, 0.5f) : new Vector2(0f, 0.5f);
+            icon.anchoredPosition = tooNarrow ? Vector2.zero : new Vector2(8f, 0f);
+        }
+    }
+
+    // 2026-10-31(カードの見直し): ボタンの名前は1行のまま収まる大きさまで縮める(Best Fit は縮める前に語の途中で折り返し、
+    //  ドイツ語の「Verteidigung」が「Verteidigun / g」になっていた)。最小でも入らない時だけ折り返す
+    static void FitOneLine(Text t, int max, int min)
+    {
+        if (t == null || string.IsNullOrEmpty(t.text)) return;
+        float w = t.rectTransform.rect.width;
+        if (w <= 1f) return;
+        t.resizeTextForBestFit = false;
+        var gen = t.cachedTextGeneratorForLayout;
+        float ppu = Mathf.Max(0.01f, t.pixelsPerUnit);
+        for (int size = max; size >= min; size--)
+        {
+            var st = t.GetGenerationSettings(Vector2.zero);
+            st.fontSize = size; st.resizeTextForBestFit = false;
+            if (gen.GetPreferredWidth(t.text, st) / ppu <= w) { t.fontSize = size; t.horizontalOverflow = HorizontalWrapMode.Overflow; return; }
+        }
+        t.fontSize = min; t.horizontalOverflow = HorizontalWrapMode.Wrap;
+    }
+
     // MILE のコイン(UiIcons.Mile。ホームの MILE 欄・ガチャ・RESULT と同じ絵)を板の左に
     void AddMileCoin(RectTransform panel, float size, float left)
     {
@@ -475,9 +511,9 @@ public class CardFusionUI : MonoBehaviour
     {
         var gm = GameManager.Instance;
         if (!built) return;
-        if (mileText != null) mileText.text = Loc.Auto($"所持MILE  {(gm != null ? gm.TotalOwnedMile : 0):N0}");
+        if (mileText != null) mileText.text = Loc.Auto($"所持MILE  {(gm != null ? gm.TotalOwnedMile : 0):N0}"); FitOneLine(mileText, 28, 14); // 2026-10-31: 縦の狭い板で長い言語が2行に折れていた
 
-        for (int i = 0; i < filterButtons.Count; i++) Highlight(filterButtons[i], i == filterIndex);
+        for (int i = 0; i < filterButtons.Count; i++) { Highlight(filterButtons[i], i == filterIndex); FitFilterLabel(filterButtons[i]); }
         for (int i = 0; i < sortButtons.Count; i++)
         {
             Highlight(sortButtons[i], i == sortMode);
@@ -588,6 +624,15 @@ public class CardFusionUI : MonoBehaviour
             var tt = title.GetComponent<Text>(); if (tt != null) { tt.fontSize = layoutPortrait ? 38 : 44; tt.alignment = layoutPortrait ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter; }
         }
         if (mile != null) { mile.sizeDelta = layoutPortrait ? new Vector2(300f, 66f) : new Vector2(330f, 66f); mile.anchoredPosition = layoutPortrait ? new Vector2(-200f, 0f) : new Vector2(-146f, 0f); }
+        // 2026-10-31(カードの見直し): 縦の狭い画面では見出しが所持MILEの板に重なっていた(ドイツ語の「Kartenfusion」など)
+        //  → 見出しの幅を「戻る」の右から所持MILEの板の左までにして、1行に収まる大きさまで縮める
+        if (layoutPortrait && title != null && header != null)
+        {
+            Canvas.ForceUpdateCanvases();
+            float hw = header.rect.width;
+            if (hw > 1f) title.sizeDelta = new Vector2(Mathf.Clamp(hw - 210f - 510f, 140f, 340f), 0f);
+            FitOneLine(title.GetComponent<Text>(), 38, 20);
+        }
         if (layoutPortrait)
         {
             leftPanel.anchorMin = new Vector2(0.01f, 0.43f); leftPanel.anchorMax = new Vector2(0.99f, 1f);
@@ -981,7 +1026,7 @@ public class CardFusionUI : MonoBehaviour
             {
                 int shownMile = Mathf.RoundToInt(Mathf.Lerp(0, r.refundMile, EaseOut(f)));
                 fxMile.text = Loc.Auto($"+{shownMile:N0} MILE");
-                if (mileText != null) mileText.text = Loc.Auto($"所持MILE  {before + shownMile:N0}");
+                if (mileText != null) mileText.text = Loc.Auto($"所持MILE  {before + shownMile:N0}"); FitOneLine(mileText, 28, 14); // 2026-10-31: 縦の狭い板で長い言語が2行に折れていた
             });
             fxCaption.text = Loc.Auto("継承失敗…  カードはMILEに還元されました");
             fxCaption.color = new Color(1f, 0.8f, 0.55f);
@@ -1096,7 +1141,7 @@ public class CardFusionUI : MonoBehaviour
         skipButton.gameObject.SetActive(false);
         dim.color = new Color(0.01f, 0.01f, 0.04f, 0.9f);
         resultPanel.gameObject.SetActive(true);
-        if (mileText != null && GameManager.Instance != null) mileText.text = Loc.Auto($"所持MILE  {GameManager.Instance.TotalOwnedMile:N0}");
+        if (mileText != null && GameManager.Instance != null) mileText.text = Loc.Auto($"所持MILE  {GameManager.Instance.TotalOwnedMile:N0}"); FitOneLine(mileText, 28, 14); // 2026-10-31: 縦の狭い板で長い言語が2行に折れていた
 
         var sb = new StringBuilder();
         if (r.IsSuccess)
