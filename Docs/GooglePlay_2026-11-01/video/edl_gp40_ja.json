@@ -1,0 +1,124 @@
+{
+ "raw": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad",
+ "captions": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/text/captions.tsv",
+ "logo": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Art/UI/TitleLogoV2.png",
+ "end": 3.5,
+ "se_gain": 1.0,
+ "cap_max": 4.5,
+ "loudness": -14,
+ "logo_scale": 1.2,
+ "tp": -2.8,
+ "limit": 0.79,
+ "end_caption": "cap_choice",
+ "note": "Google Play 紹介動画 40秒 仮編集(2026-11-01): HUD シンプル(空中コンボと英語の BREAK は標準)。字幕は Steam 版 v7 と同じ表(エステル採用)。BGM は権利を確認済みの自作曲",
+ "bgm": [
+  {
+   "file": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Audio/Placeholder/Bgm/bgm_wasteland_middle_n.wav",
+   "loop": true,
+   "at": 0,
+   "from": 0,
+   "dur": 24.6,
+   "gain": 0.33,
+   "fade_in": 0.2,
+   "fade_out": 0.8
+  },
+  {
+   "file": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Audio/Placeholder/Bgm/bgm_boss_strong_n.wav",
+   "loop": true,
+   "at": 23.8,
+   "from": 0,
+   "dur": 16.2,
+   "gain": 0.36,
+   "fade_in": 0.3,
+   "fade_out": 3.0
+  }
+ ],
+ "cuts": [
+  {
+   "shot": "gpv/pv_ja/out/raw/gp_run",
+   "dur": 3.0,
+   "caption": "cap_run",
+   "in": 0.8
+  },
+  {
+   "shot": "gpv/pv_ja/out/raw/dual",
+   "dur": 3.0,
+   "caption": "cap_flick",
+   "in": 2.4
+  },
+  {
+   "shot": "gpv/pv_ja/out/raw/dual",
+   "dur": 3.0,
+   "caption": "cap_flick",
+   "in": 8.6
+  },
+  {
+   "shot": "gp/ja1/out/raw/gp_aerial",
+   "dur": 3.0,
+   "caption": "cap_air",
+   "in": 0.3
+  },
+  {
+   "shot": "gpv/pv_ja/out/raw/gp_boss_fight",
+   "dur": 3.0,
+   "caption": "cap_air",
+   "in": 4.6
+  },
+  {
+   "shot": "gpv/pv_ja/out/raw/gp_cards",
+   "dur": 5.0,
+   "caption": "cap_cards",
+   "in": 1.6,
+   "cap_pos": "top"
+  },
+  {
+   "shot": "gpv/pv_ja/out/raw/dual",
+   "dur": 1.3,
+   "caption": "cap_maps",
+   "in": 7.0
+  },
+  {
+   "shot": "gpv/pv_ja/out/raw/gp_cave",
+   "dur": 1.4,
+   "caption": "cap_maps",
+   "in": 2.6,
+   "vf": "eq=gamma=1.08:saturation=1.04"
+  },
+  {
+   "shot": "gpv/pv_ja/out/raw/gp_skyrun",
+   "dur": 1.3,
+   "caption": "cap_maps",
+   "in": 3.5
+  },
+  {
+   "shot": "gpv/pv_ja/out/raw/gp_boss_fight",
+   "dur": 2.8,
+   "caption": "cap_boss",
+   "in": 9.6
+  },
+  {
+   "shot": "gpv/pv_ja/out/raw/gp_boss_fight",
+   "dur": 1.4,
+   "caption": "cap_boss",
+   "in": 11.9
+  },
+  {
+   "shot": "gpv/pv_ja/out/raw/gp_escape_fight",
+   "dur": 3.8,
+   "caption": "cap_boss",
+   "in": 14.9
+  },
+  {
+   "shot": "gpv/pv_ja/out/raw/gp_boss_fight",
+   "dur": 1.6,
+   "caption": null,
+   "in": 28.6
+  },
+  {
+   "shot": "gpv/pv_ja/out/raw/gp_escape_escape",
+   "dur": 2.9,
+   "caption": "cap_escape2",
+   "in": 4.6
+  }
+ ]
+}

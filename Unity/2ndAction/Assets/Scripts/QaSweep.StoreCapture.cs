@@ -48,8 +48,12 @@ public partial class QaSweep
         scMuteBgm = Arg("-scBgm", "0") != "1";
         string lang = Arg("-scLang", "ja");
         if (Loc.Current != lang) Loc.Set(lang, false);
+        // 2026-11-01 Google Play の動画: 画面情報の表示モード(-scHud simple|standard)。撮影用の保存にだけ書く
+        string hud = Arg("-scHud", "");
+        if (hud == "simple") HudPrefs.SetMode(HudPrefs.Mode.Simple); else if (hud == "standard") HudPrefs.SetMode(HudPrefs.Mode.Standard);
         L($"[capture] screen {Screen.width}x{Screen.height} lang={Loc.Current} debugBuild={Debug.isDebugBuild} devGate={DevGate.On} audio {AudioSettings.outputSampleRate}Hz {AudioSettings.speakerMode}");
-        Check(Screen.width == 1920 && Screen.height == 1080, $"the screen is 1920x1080 (got {Screen.width}x{Screen.height})");
+        if (Screen.height > Screen.width) L($"[capture] portrait window {Screen.width}x{Screen.height} (video x{Arg("-scVideoSuper", "1")})"); // 2026-11-01 操作説明ショート(縦)
+        else Check(Screen.width == 1920 && Screen.height == 1080, $"the screen is 1920x1080 (got {Screen.width}x{Screen.height})");
         ScPrepareSave();
         System.IO.Directory.CreateDirectory(System.IO.Path.Combine(outDir, "raw"));
         System.IO.Directory.CreateDirectory(System.IO.Path.Combine(outDir, "stills"));
@@ -88,6 +92,7 @@ public partial class QaSweep
                 "gp_break2" => ScBreakShot(s, "noble_lady", "wasteland_road", (int)WildBossKind.Griffin, 2600f),
                 "gp_skyboss" => ScBossShot(s, "miko", "sky_corridor", 2, (int)SkyBossKind.Behemoth, 16150f, false),
                 "gp_skyrun" => ScRunShot(s, "miko", "sky_corridor", 9000f, 7, 14f),
+                "gp_tutorial" => ScTutorialShot(s, Arg("-scTutorialChar", "dual_blade")), // 2026-11-01 操作説明ショート(縦)
                 "boss" => ScBossShot(s, "swordsman", "wasteland_road", 0, (int)WildBossKind.Cyclops, 12150f),
                 "boss_cave" => ScBossShot(s, "dual_blade", "natural_cave", 1, (int)CaveBossKind.CrystalGolem, 16150f),
                 "boss_sky" => ScBossShot(s, "archer", "sky_corridor", 2, (int)SkyBossKind.Behemoth, 16150f, false), // 天空は足場が細く、脱出の溜め(補助のジャンプが止まる)で落ちる
@@ -109,7 +114,8 @@ public partial class QaSweep
     }
 
     // ---------------------------------------------------------------- 録画
-    void ScRecStart(string name) { scRecStop = false; scRecBusy = true; StartCoroutine(ScRecLoop(name)); }
+    void ScRecStart(string name) { scRecStop = false; scRecBusy = true; scFrameNow = 0; StartCoroutine(ScRecLoop(name)); }
+    int scFrameNow; // 録画したコマの数(操作説明ショートの指の矢印を、後から何コマ目に重ねるか)
     IEnumerator ScRecStop() { scRecStop = true; while (scRecBusy) yield return null; }
     IEnumerator ScRecord(string name, float seconds) { ScRecStart(name); yield return new WaitForSeconds(seconds); yield return ScRecStop(); }
     void ScStill(string tag) { scStillName = tag; }
@@ -136,7 +142,8 @@ public partial class QaSweep
         {
             ScApplyBgmMute();
             yield return new WaitForEndOfFrame();
-            var tex = ScreenCapture.CaptureScreenshotAsTexture();
+            // 2026-11-01: -scVideoSuper N = 動画のコマも N 倍で撮る(縦の 608x1080 の窓 → 1216x2160。画面より高い窓は作れない)
+            var tex = ScreenCapture.CaptureScreenshotAsTexture(Mathf.Max(1, int.Parse(Arg("-scVideoSuper", "1"))));
             if (ff == null)
             {
                 string pix = tex.format == TextureFormat.RGB24 ? "rgb24" : tex.format == TextureFormat.ARGB32 ? "argb" : tex.format == TextureFormat.BGRA32 ? "bgra" : "rgba";
@@ -174,6 +181,7 @@ public partial class QaSweep
                 for (int i = 0; i < n; i++) pcm.Add((short)Mathf.Clamp(Mathf.RoundToInt(ab[i] * 32767f), -32768, 32767));
             }
             frames++;
+            scFrameNow = frames;
         }
         AudioRenderer.Stop();
         Time.captureFramerate = 0;
@@ -335,6 +343,61 @@ public partial class QaSweep
         yield return ScRecStop();
         if (tm != null) tm.enemySpawnChance = 1f;
         yield return ScEnd();
+    }
+
+    // 操作説明ショート(2026-11-01、縦): 自動で走る → 前フリックで前の敵 → 後ろフリックで後ろの敵 → 上フリックで打ち上げ →
+    //  空中で前フリックを続けてコンボ → 下フリックで急降下。入力は実際の操作と同じ入口(フリックの注入)。
+    //  [flick] の行(何コマ目に、どの向き)を後から読み、指と矢印の絵を映像に重ねる(ゲームには描かない)。補助(自動のジャンプ/攻撃)は切る
+    IEnumerator ScTutorialShot(string name, string ch)
+    {
+        yield return ScBegin(ch, "wasteland_road", 1900f, 5, true);
+        var tm = TerrainManager.Instance;
+        if (tm != null) tm.enemySpawnChance = 0f;
+        float zone = ScFlatStage(220f, 700f);
+        yield return ScWaitReach(zone + 10f);
+        if (HighSpeedAssist.Instance != null) { HighSpeedAssist.Instance.SetEnabled(false); HighSpeedAssist.Instance.SetAutoAttack(false); }
+        yield return HaWaitIdle();
+        GameManager.BlockExpGain = true; // 説明の途中でレベルアップの3択が出ないように(撮影の間だけ)
+        ScRecStart(name);
+        yield return ScWait(2.4f);                                   // 自動で走る
+        // 前の敵: 前フリック(1発で倒れる HP)
+        var e1 = HaSpawn(Mathf.Clamp(pc.CurrentAutoRunSpeed * 0.9f, 7f, 14f), "goblin");
+        if (e1 != null) AeHp.SetValue(e1, 1);
+        yield return TutWaitAhead(e1, 2.2f, 4f);
+        yield return TutFlick(PlayerController.FlickDirection.Forward);
+        yield return ScWait(2.4f);
+        // 後ろの敵: 走り抜けた直後の敵へ後ろフリック
+        var e2 = HaSpawn(-1.6f, "goblin");
+        if (e2 != null) AeHp.SetValue(e2, 1);
+        yield return ScWait(0.15f);
+        yield return TutFlick(PlayerController.FlickDirection.Backward);
+        yield return ScWait(2.4f);
+        // 上フリック: 敵の近くでジャンプ → 打ち上げ。空中で前フリックを続ける → 下フリックで急降下
+        var en = HaSpawn(Mathf.Clamp(pc.CurrentAutoRunSpeed * 0.9f, 7f, 14f), "goblin_elite");
+        if (en != null) { AeHp.SetValue(en, -1); HaEnsureHp.Invoke(en, null); }
+        yield return TutWaitAhead(en, AeUpReach() + 1.2f, 4f);
+        yield return TutFlick(PlayerController.FlickDirection.Up);
+        yield return ScWait(0.32f);
+        for (int i = 0; i < 5; i++) { yield return TutFlick(PlayerController.FlickDirection.Forward); yield return ScWait(0.27f); }
+        yield return ScWait(0.3f);
+        yield return TutFlick(PlayerController.FlickDirection.Down);
+        yield return ScWait(1.0f);
+        ScStill("tutorial_end");
+        yield return ScWait(2.4f);
+        yield return ScRecStop();
+        GameManager.BlockExpGain = false;
+        if (tm != null) tm.enemySpawnChance = 1f;
+        yield return ScEnd();
+    }
+    IEnumerator TutFlick(PlayerController.FlickDirection f)
+    {
+        L($"[flick] {f} frame {scFrameNow} grounded {pc.IsGrounded}");
+        yield return HaFlick(f);
+    }
+    IEnumerator TutWaitAhead(EnemyController en, float within, float max)
+    {
+        float w = 0f;
+        while (en != null && en.isActiveAndEnabled && (en.transform.position.x - pc.transform.position.x) * HaFacing() > within && w < max) { yield return null; w += Time.deltaTime; }
     }
 
     // まとめて吹き飛ばす: 平らな所で敵の群れへ(補助 ON、レベルアップで取った追加攻撃つき)
