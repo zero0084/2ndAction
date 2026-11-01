@@ -14,6 +14,9 @@ public partial class QaSweep
         gm = GameManager.Instance;
         UnlockRules.DevUnlockAll = true; // 2026-10-28: まだ解放していない人も撮る
         CharacterSelectUI.PaperFade = Arg("-csPaperFade", "1") != "0"; // 2026-11-01: 0 = 変更前(紙の四角い縁)の見た目で撮る
+        string csLang = Arg("-csLang", ""); // 2026-11-01: Google Play の英語版の撮影
+        if (csLang != "" && Loc.Current != csLang) Loc.Set(csLang, false);
+        if (Arg("-scClean", "0") == "1") StoreCapture.Clean = true; // ストア用の撮影: 開発用の表示(build の番号/DEV BUILD/TEST FILE)を出さない
         yield return new WaitForSecondsRealtime(1.5f);
         gm.OpenCharacterSelect();
         yield return new WaitForSecondsRealtime(1.5f);

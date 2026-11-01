@@ -80,6 +80,10 @@ def main():
                 box = (int(round(x)), int(round(H - (y + h))), int(round(x + w)), int(round(H - y)))
                 crop = shot.crop(box)
                 s, a = sources(proj, cid, slot)
+                if slot == "main":  # 2026-11-01: 立ち絵は外周を黒へなじませて表示する → 外周を除いた中央(縦横 70%)だけで比べる
+                    def inner(im):
+                        w, h = im.size; return im.crop((int(w * 0.15), int(h * 0.15), int(w * 0.85), int(h * 0.85)))
+                    crop, s = inner(crop), inner(s); a = inner(a) if a is not None else None
                 # 2つの衣装の差を見る大きさ(小さすぎると差が消える)
                 size = (max(32, crop.width // 2), max(48, crop.height // 2))
                 v, es, ea = judge(crop, s, a, size)
