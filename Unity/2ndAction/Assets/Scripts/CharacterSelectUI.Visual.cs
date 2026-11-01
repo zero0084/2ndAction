@@ -15,6 +15,12 @@ public partial class CharacterSelectUI
     public static string LastFitId { get; private set; } = "";
     public static bool PaperFade = true; // 確認用(-csPaperFade 0 で変更前の見た目)
     static Material paperFadeMat;
+    // キャラごとの紙の縁(上の縁の幅 = 絵の高さに対する割合、残す所と見なす紙からの離れ方)。表に無いキャラは共通(0.09 / 0.10)
+    //  ペンタトゥットゥルー星人: 頭の上に何も描いていない紙が高さの約23%ある → 上だけ 32% の幅で内側から溶かす。紙の粒を拾わないよう 0.14
+    static readonly System.Collections.Generic.Dictionary<string, Vector2> PaperEdge = new System.Collections.Generic.Dictionary<string, Vector2>
+    {
+        { "pentatuttulu", new Vector2(0.32f, 0.14f) },
+    };
 
     void EnsureVisualClip()
     {
@@ -64,6 +70,12 @@ public partial class CharacterSelectUI
         rect.offsetMax = Vector2.zero;
         var tex = CharacterDatabase.FindById(id)?.mainVisual;
         if (paperFadeMat != null && tex != null) paperFadeMat.SetFloat("_Aspect", (float)tex.width / Mathf.Max(1, tex.height)); // 外周の幅を縦横で同じ太さに
+        if (paperFadeMat != null)
+        {
+            var edge = PaperEdge.TryGetValue(id, out var e) ? e : new Vector2(0.09f, 0.10f);
+            paperFadeMat.SetFloat("_FadeTop", edge.x);
+            paperFadeMat.SetFloat("_InkLow", edge.y);
+        }
         LastFitScale = 1f;
         LastFitId = id;
     }

@@ -2,6 +2,7 @@
 //  ・外周: 四辺から _Fade(絵の高さに対する割合)の幅で透明へ。縁は低い周波数のむらで少し不揃いにする(_Ragged)。角は2辺の掛け算で丸く
 //  ・保護: 紙の色(_Paper)から離れた所(線・色・武器・布)と、紙より白い所(ペンタトゥットゥルー星人の体)は透かさない。
 //    その周り(8px / 18px の輪の平均)にも淡い紙を残す → 黒い剣先などが黒い背景に溶けず、紙の上に描かれたまま見える
+//  ・キャラごと(2026-11-01 ペンタ): 上の何も描いていない余白だけ内側から溶かす(_FadeTop)、紙の粒を残す所と見なさない(_InkLow を上げる)
 //  ・uGUI の Image 用(UI/Default と同じ並べ方・ステンシル・RectMask2D の切り抜き)
 Shader "UI/PaperFade"
 {
@@ -11,6 +12,8 @@ Shader "UI/PaperFade"
         _Color ("Tint", Color) = (1,1,1,1)
         _Paper ("Paper color", Color) = (0.98, 0.925, 0.855, 1)
         _Fade ("Edge fade (fraction of height)", Float) = 0.09
+        _FadeTop ("Top edge fade (fraction of height)", Float) = 0.09
+        _InkLow ("Ink threshold (distance from paper)", Float) = 0.10
         _Ragged ("Ragged edge", Float) = 0.6
         _Aspect ("Width / height of the picture", Float) = 0.6667
         _Protect ("Protect ink / white (0-1)", Float) = 1
@@ -59,7 +62,7 @@ Shader "UI/PaperFade"
             fixed4 _Color, _Paper;
             fixed4 _TextureSampleAdd;
             float4 _ClipRect;
-            float _Fade, _Ragged, _Aspect, _Protect;
+            float _Fade, _FadeTop, _InkLow, _Ragged, _Aspect, _Protect;
 
             v2f vert (appdata_t v)
             {
@@ -83,7 +86,7 @@ Shader "UI/PaperFade"
             {
                 float3 c = tex2D(_MainTex, uv).rgb;
                 float3 d = abs(c - _Paper.rgb);
-                float ink = smoothstep(0.10, 0.32, max(d.r, max(d.g, d.b)));
+                float ink = smoothstep(_InkLow, 0.32, max(d.r, max(d.g, d.b)));
                 float white = smoothstep(0.04, 0.10, min(c.r, min(c.g, c.b)) - _Paper.b);
                 return max(ink, white);
             }
@@ -93,11 +96,11 @@ Shader "UI/PaperFade"
                 fixed4 col = (tex2D(_MainTex, i.texcoord) + _TextureSampleAdd) * i.color;
                 float2 uv = i.texcoord;
                 // 外周(高さを1とした距離)
-                float ex = min(uv.x, 1.0 - uv.x) * _Aspect, ey = min(uv.y, 1.0 - uv.y);
+                float ex = min(uv.x, 1.0 - uv.x) * _Aspect;
                 float2 np = float2(uv.x * _Aspect, uv.y) * 9.0;
                 float n = vnoise(np) * 0.65 + vnoise(np * 2.7) * 0.35;
                 float j = (n - 0.5) * _Fade * _Ragged;
-                float vign = smoothstep(0.0, _Fade, ex + j) * smoothstep(0.0, _Fade, ey + j);
+                float vign = smoothstep(0.0, _Fade, ex + j) * smoothstep(0.0, _Fade, uv.y + j) * smoothstep(0.0, _FadeTop, 1.0 - uv.y + j);
                 // 保護: 中心は5点の平均(紙の粒を拾わない)、周りは輪の平均でなめらかな紙のふち
                 float2 t = _MainTex_TexelSize.xy;
                 float ink = (Ink(uv) + Ink(uv + float2(2, 0) * t) + Ink(uv - float2(2, 0) * t) + Ink(uv + float2(0, 2) * t) + Ink(uv - float2(0, 2) * t)) * 0.2;
