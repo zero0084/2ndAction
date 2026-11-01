@@ -52,14 +52,18 @@ def caption_png(text, path, pos="bottom"):
     f = font(80)  # 2026-10-23 エステル: Steam の小さい再生画面(600px 前後)でも読める大きさに(64 → 80)
     d = ImageDraw.Draw(img)
     x, y = 96, H - 196
-    tw = d.textlength(text, font=f)
+    # 2026-11-01: 字幕の表で「\n」と書いた所で改行(長い英語を、ほかの字幕と同じ大きさで2行に)。行が増えた分だけ上へ
+    text = text.replace("\\n", "\n")
+    n = text.count("\n") + 1
+    y -= (n - 1) * 96
+    tw = max(d.textlength(ln, font=f) for ln in text.split("\n"))
     if tw > W - 2 * x:  # 2026-11-01: 画面の幅に入りきらない長い字幕(英語)だけ、入る大きさまで縮める
         f = font(int(80 * (W - 2 * x) / tw))
     if pos == "band":
         # 2026-10-24 エステル: 設定の画面の上に出す字幕は、位置は同じ(左下)のまま、字幕の後ろに濃い帯を敷く(字の高さ+上下 12〜16px)
         l, t, r, b2 = d.textbbox((x, y), text, font=f, stroke_width=5)
         d.rounded_rectangle([l - 28, y - 40, r + 28, b2 + 16], radius=12, fill=(5, 8, 20, 215))
-    d.text((x, y), text, font=f, fill=(255, 255, 255, 255), stroke_width=5, stroke_fill=(10, 12, 24, 255))
+    d.multiline_text((x, y), text, font=f, fill=(255, 255, 255, 255), stroke_width=5, stroke_fill=(10, 12, 24, 255), spacing=12)
     # 金の短い線(ゲームの UI の金色)
     d.rectangle([x, y - 24, x + 140, y - 17], fill=(232, 196, 102, 255))
     img.save(path)
