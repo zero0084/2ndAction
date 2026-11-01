@@ -13,6 +13,7 @@ public partial class QaSweep
         while ((GameManager.Instance == null || GameManager.Instance.HasStarted) && w < 15f) { yield return null; w += Time.unscaledDeltaTime; }
         gm = GameManager.Instance;
         UnlockRules.DevUnlockAll = true; // 2026-10-28: まだ解放していない人も撮る
+        CharacterSelectUI.PaperFade = Arg("-csPaperFade", "1") != "0"; // 2026-11-01: 0 = 変更前(紙の四角い縁)の見た目で撮る
         yield return new WaitForSecondsRealtime(1.5f);
         gm.OpenCharacterSelect();
         yield return new WaitForSecondsRealtime(1.5f);
@@ -28,6 +29,8 @@ public partial class QaSweep
             var img = ui.mainVisualImage;
             string sprite = img != null && img.sprite != null ? $"{img.sprite.texture.name} {img.sprite.texture.width}x{img.sprite.texture.height}" : "none";
             L($"[sel] {i} {all[i].characterId}: {sprite}");
+            if (CharacterSelectUI.PaperFade && img != null)
+                Check(img.material != null && img.material.shader != null && img.material.shader.name == "UI/PaperFade", $"{all[i].characterId}: the portrait fades its paper edge into the background (material {img.material?.shader?.name})");
             Check(img != null && img.sprite != null && img.sprite.texture == all[i].mainVisual && img.preserveAspect && img.sprite.texture.width * 3 == img.sprite.texture.height * 2, $"{all[i].characterId}: the selected 2:3 fantasy portrait is shown with its aspect preserved");
             // 2026-10-31: 表示領域(立ち絵の枠)が情報パネル/カルーセルに重ならない・画面の中、キャラごとの倍率
             if (ui.VisualClip != null)
