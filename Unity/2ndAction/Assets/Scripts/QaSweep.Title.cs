@@ -33,6 +33,19 @@ public partial class QaSweep
         yield return new WaitForSecondsRealtime(1.2f);
         Check(TitleScreen.Showing, "B: the title waits for an input (does not go home by itself)");
         Shot("title_waiting");
+        // 2026-11-01 キャラの影: -ttExpect <id> = 出ているはずの影(初回は swordsman、前回の起動で -ttSelect したキャラ)
+        string expect = Arg("-ttExpect", "");
+        if (expect != "")
+        {
+            Check(TitleScreen.ShownCharacterId == expect, $"F: the title shows the silhouette of {expect} (shown '{TitleScreen.ShownCharacterId}', selected '{GameManager.Instance?.SelectedCharacterId}')");
+            // 表示例の撮影: 入力を受け付ける状態になり、画面の向きが回り終わって、影/案内のフェードが済んでから撮る
+            //  (エミュレーターは1コマが遅く、準備の途中では影が薄い/回転の途中の画面になる)
+            string ori = Arg("-qaOrient", "");
+            w = 0f;
+            while ((!TitleScreen.InputReady || (ori == "portrait" && Screen.width > Screen.height) || (ori == "landscape" && Screen.width < Screen.height)) && w < 40f) { yield return null; w += Time.unscaledDeltaTime; }
+            yield return new WaitForSecondsRealtime(1.5f);
+        }
+        Shot($"title_{Screen.width}x{Screen.height}_{TitleScreen.ShownCharacterId}");
         float pressAt = Time.realtimeSinceStartup;
         TitleScreen.DebugPress = true;
         w = 0f;
@@ -50,6 +63,33 @@ public partial class QaSweep
         yield return ReloadHome();
         yield return new WaitForSecondsRealtime(0.6f);
         Check(!TitleScreen.Showing && TitleScreen.Starts == 1, "E: reloading the home scene does not show the title again");
+        // -ttSelect <id>: キャラ選択でそのキャラを決定して終わる(次の起動の -ttExpect で確かめる)。
+        //  試験用の保存ファイルの中だけで、そのキャラを正式に解放しておく(開発版の全解放は使わない = 製品と同じ判定で保存/読み込み)
+        string pick = Arg("-ttSelect", "");
+        if (pick != "")
+        {
+            if (!UnlockRules.OfficialCharacterUnlocked(pick))
+            {
+                string cur = SaveStore.GetString(UnlockRules.CharsKey, "");
+                SaveStore.SetString(UnlockRules.CharsKey, string.IsNullOrEmpty(cur) ? pick : cur + "," + pick);
+                SaveStore.Save(); UnlockRules.Reload();
+            }
+            var gmS = GameManager.Instance;
+            gmS.OpenCharacterSelect();
+            yield return new WaitForSecondsRealtime(1.2f);
+            var ui = FindFirstObjectByType<CharacterSelectUI>();
+            // 一覧は解放済みだけを並べる → 見えている中での位置を探す
+            var defAt = typeof(CharacterSelectUI).GetMethod("DefAt", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            int n = ui != null ? ui.VisibleCount : 0, idx = -1;
+            for (int i = 0; i < n; i++) if (((CharacterDefinition)defAt.Invoke(ui, new object[] { i })).characterId == pick) idx = i;
+            Check(ui != null && idx >= 0, $"G: {pick} is in the character select list (index {idx} of {n})");
+            if (ui == null || idx < 0) yield break;
+            ui.DebugSelectAndCenter(idx);
+            yield return new WaitForSecondsRealtime(0.8f);
+            typeof(CharacterSelectUI).GetMethod("Confirm", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(ui, null); // SELECT と同じ処理
+            yield return new WaitForSecondsRealtime(0.8f);
+            Check(gmS.SelectedCharacterId == pick && SaveStore.GetString("SelectedCharacterId", "") == pick, $"G: SELECT saved {pick} as the selected character (saved '{SaveStore.GetString("SelectedCharacterId", "")}')");
+        }
     }
 }
 #endif
