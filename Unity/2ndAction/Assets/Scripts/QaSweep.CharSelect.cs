@@ -28,7 +28,7 @@ public partial class QaSweep
             var img = ui.mainVisualImage;
             string sprite = img != null && img.sprite != null ? $"{img.sprite.texture.name} {img.sprite.texture.width}x{img.sprite.texture.height}" : "none";
             L($"[sel] {i} {all[i].characterId}: {sprite}");
-            Check(img != null && img.sprite != null && img.sprite.texture.width == 700 && img.sprite.texture.height == 1100, $"{all[i].characterId}: the new 700x1100 portrait is shown (not stretched to a power of two)");
+            Check(img != null && img.sprite != null && img.sprite.texture == all[i].mainVisual && img.preserveAspect && img.sprite.texture.width * 3 == img.sprite.texture.height * 2, $"{all[i].characterId}: the selected 2:3 fantasy portrait is shown with its aspect preserved");
             // 2026-10-31: 表示領域(立ち絵の枠)が情報パネル/カルーセルに重ならない・画面の中、キャラごとの倍率
             if (ui.VisualClip != null)
             {
@@ -38,6 +38,18 @@ public partial class QaSweep
                 bool inside = clip.xMin >= -1 && clip.yMin >= -1 && clip.xMax <= scr.xMax + 1 && clip.yMax <= scr.yMax + 1;
                 Check(inside && !clip.Overlaps(info) && !clip.Overlaps(car), $"{all[i].characterId}: the portrait area is on screen and does not overlap the info panel / carousel (clip {clip}, info {info}, carousel {car})");
                 L($"[fit] {all[i].characterId} scale {CharacterSelectUI.LastFitScale:F2} image {img.rectTransform.rect.size} clip {clip.size}");
+            }
+            // 2026-11-01: 立ち絵と選んだカードが画面のどこに描かれたか(画面の左下が原点)。Tools/charart/costume_check.py が
+            //  この範囲を撮影から切り出し、元の衣装(Steam)/布を増やした衣装(Android)のどちらが出ているかを確かめる
+            if (img != null && img.sprite != null) L($"[drawn] {all[i].characterId} main {DrawnRect(img)}");
+            var slot = i < ui.cardSlotRects.Length ? ui.cardSlotRects[i] : null;
+            var cardImg = slot != null ? slot.Find("Portrait")?.GetComponent<UnityEngine.UI.Image>() : null;
+            if (cardImg != null && cardImg.sprite != null)
+            {
+                var ct = cardImg.sprite.texture; var cr = cardImg.sprite.rect;
+                Check(ct == all[i].portrait && (int)cr.x == 0 && (int)cr.y == 0 && (int)cr.width == ct.width && (int)cr.height == ct.height,
+                    $"{all[i].characterId}: the selected card shows this character's whole card art (sprite {cr} of {ct.width}x{ct.height})");
+                L($"[drawn] {all[i].characterId} card {DrawnRect(cardImg)}");
             }
             Shot($"charsel_{Screen.width}x{Screen.height}_{i:00}_{all[i].characterId}");
             yield return new WaitForSecondsRealtime(0.3f);
@@ -67,6 +79,16 @@ public partial class QaSweep
             }
             Time.captureDeltaTime = 0f;
         }
+    }
+
+    // 縦横比を保って描かれた範囲(画面の座標、x y w h)
+    static string DrawnRect(UnityEngine.UI.Image img)
+    {
+        Rect r = ScreenRectOf(img.rectTransform);
+        float sa = img.sprite.rect.width / Mathf.Max(1f, img.sprite.rect.height);
+        float w = r.width, h = r.height;
+        if (img.preserveAspect) { if (w / Mathf.Max(1f, h) > sa) w = h * sa; else h = w / sa; }
+        return $"{r.center.x - w * 0.5f:F1} {r.center.y - h * 0.5f:F1} {w:F1} {h:F1}";
     }
 }
 #endif

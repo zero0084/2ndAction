@@ -831,7 +831,10 @@ public partial class CharacterSelectUI : MonoBehaviour
             var pr = cardSlotRects[i] != null ? cardSlotRects[i].Find("Portrait") : null;
             var pim = pr != null ? pr.GetComponent<Image>() : null;
             var tex = defsNow[i] != null ? defsNow[i].portrait : null;
-            if (pim != null && tex != null && (pim.sprite == null || pim.sprite.texture != tex)) pim.sprite = ToSprite(tex);
+            // 2026-11-01: 同じ絵(GUID)のまま大きさが変わった時も作り直す。焼き込んだ表示の範囲が古い大きさのままだと、
+            //  新しい絵の左下の一部だけが拡大されて出ていた(幻想画のカードへ差し替えた時)
+            if (pim != null && tex != null && (pim.sprite == null || pim.sprite.texture != tex
+                || (int)pim.sprite.rect.width != tex.width || (int)pim.sprite.rect.height != tex.height)) pim.sprite = ToSprite(tex);
         }
         for (int i = 0; i < cardSlotRects.Length && i < cardGlowImages.Length; i++)
         {
