@@ -107,7 +107,9 @@ public class ReadabilityDirector : MonoBehaviour
         bool running = gm != null && gm.HasStarted && pc != null && cam != null;
 
         string stage = gm != null ? gm.ActiveRunStageId : "";
-        TargetLuma = StageLuma(stage, SceneryCycle.NightAmount);
+        // 2026-11-01: 天空回廊の夜は WorldTimeCycle が持つ(SceneryCycle は荒野街道だけ)。以前は天空の夜でも昼の明るさのままだった
+        float night = SceneryCycle.Active ? SceneryCycle.NightAmount : (WorldTimeCycle.Instance != null ? WorldTimeCycle.Instance.NightAmount : 0f);
+        TargetLuma = StageLuma(stage, night);
         // 昼夜の切り替え等はゆっくり(約1.5秒)、ステージが変わった直後(Run開始)はすぐ合わせる
         if (!running) Luma = TargetLuma;
         else Luma = Mathf.Lerp(Luma, TargetLuma, 1f - Mathf.Exp(-Time.unscaledDeltaTime / 1.5f));
@@ -232,6 +234,14 @@ public class ReadabilityDirector : MonoBehaviour
         Vector3 cp = cam.transform.position;
         veilRenderer.transform.position = new Vector3(cp.x + FoldView.CoverShiftX, cp.y, 0f);
         veilRenderer.transform.localScale = new Vector3(h * cam.aspect * FoldView.CoverScaleX, h, 1f);
+        if (!cam.orthographic)
+        {
+            // 2026-11-01: 縦画面の「斜め上から見る」は透視のカメラで orthographicSize が見えている範囲と合わず、幕が一部しか覆っていなかった。
+            // 斜めの時は Player の前後/上下を広く覆う(洞窟の暗さの幕と同じ考え方)
+            Vector3 p0 = pc.transform.position;
+            veilRenderer.transform.position = new Vector3(p0.x + 60f, p0.y + 15f, 0f);
+            veilRenderer.transform.localScale = new Vector3(260f, 180f, 1f);
+        }
         Color c = veilColor;
         c.a = VeilA;
         veilMat.SetFloat(BaseAId, veilBaseA);

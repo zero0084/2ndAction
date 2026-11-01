@@ -84,6 +84,7 @@ public class ForegroundCloudLayer : MonoBehaviour
             go.transform.SetParent(transform, false);
             var sr = go.AddComponent<SpriteRenderer>();
             sr.sprite = cloudSprite;
+            BackgroundTone.Adopt(sr); // 2026-11-01: 背景の絵と同じく色味を控えめに
             sr.sortingOrder = RenderOrder.SkyCloud; // 2026-10-02: 地面/道より奥(以前はEnvironmentFx=1で道の手前に重なっていた)
 
             var c = new Cloud { t = go.transform, sr = sr };

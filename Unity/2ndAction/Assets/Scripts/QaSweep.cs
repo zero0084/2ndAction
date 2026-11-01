@@ -119,6 +119,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaTitle") { mode = "title"; dir = a[i + 1]; } // 2026-10-31 タイトル画面(-titleScreen 1 と一緒に)
             if (a[i] == "-qaExit") { mode = "exit"; dir = a[i + 1]; } // 2026-10-31 終了・中断の入口/画面設定/文字の大きさ
             if (a[i] == "-qaRare5") { mode = "rare5"; dir = a[i + 1]; } // 2026-11-01 デッキ編集で★5が出ない不具合
+            if (a[i] == "-qaBgTone") { mode = "bgtone"; dir = a[i + 1]; } // 2026-11-01 背景を控えめにして敵を見やすく(前後比較)
             if (a[i] == "-qaElemVis") { mode = "elemvis"; dir = a[i + 1]; }
             if (a[i] == "-qaUnlock") { mode = "unlock"; dir = a[i + 1]; }
             if (a[i] == "-qaLoc") { mode = "loc"; dir = a[i + 1]; }
@@ -327,6 +328,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "title") yield return TitleModeQa();
         else if (mode == "exit") yield return ExitModeQa();
         else if (mode == "rare5") yield return Rare5Mode();
+        else if (mode == "bgtone") yield return BgToneMode();
         else if (mode == "elemvis") yield return ElemVisMode();
         else if (mode == "unlock") yield return UnlockModeQa();
         else if (mode == "loc") yield return LocModeQa();

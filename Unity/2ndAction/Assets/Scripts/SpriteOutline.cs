@@ -14,6 +14,15 @@ public class SpriteOutline : MonoBehaviour
     SpriteRenderer main;
     SpriteRenderer[] outlineRenderers;
 
+    // 2026-11-01(背景を控えめにして敵を見やすく): 暗い場面(洞窟/夜/ラスダン)では、黒い縁が暗い背景に溶けて輪郭が分からないため、
+    // 敵だけ縁を淡い色の1色塗り(Shaders/SpriteSolid)に替える。明るい場面は今までどおり黒。切り替えは BackgroundTone が決める。
+    // Player(ReadabilityDirector の縁がある)と他の参加者には使わない。
+    public static bool EnemyLightRim;
+    public static Color EnemyLightColor = new Color(0.76f, 0.83f, 0.96f, 0.45f);
+    static Material solidMat; static bool solidTried;
+    int enemyState = -1; bool lightNow; // 敵かどうかは最初の LateUpdate で(付けた時点ではまだ敵の本体に付いていないことがある)
+    Material defaultMat;
+
     void Awake()
     {
         main = GetComponent<SpriteRenderer>();
@@ -32,10 +41,31 @@ public class SpriteOutline : MonoBehaviour
 
             outlineRenderers[i] = sr;
         }
+        defaultMat = outlineRenderers.Length > 0 ? outlineRenderers[0].sharedMaterial : null;
+    }
+
+    void ApplyRimMode(bool light)
+    {
+        lightNow = light;
+        if (light && !solidTried)
+        {
+            solidTried = true;
+            var sh = Resources.Load<Shader>("Shaders/SpriteSolid");
+            if (sh != null && sh.isSupported) solidMat = new Material(sh) { name = "Enemy Light Rim" };
+        }
+        bool use = light && solidMat != null;
+        for (int i = 0; i < outlineRenderers.Length; i++)
+        {
+            var sr = outlineRenderers[i];
+            sr.sharedMaterial = use ? solidMat : defaultMat;
+            sr.color = use ? EnemyLightColor : color;
+        }
     }
 
     void LateUpdate()
     {
+        if (enemyState < 0) enemyState = GetComponentInParent<EnemyController>() != null ? 1 : 0;
+        if (enemyState == 1 && EnemyLightRim != lightNow) ApplyRimMode(EnemyLightRim);
         Sprite s = main.sprite;
         bool visible = main.enabled;
         for (int i = 0; i < outlineRenderers.Length; i++)

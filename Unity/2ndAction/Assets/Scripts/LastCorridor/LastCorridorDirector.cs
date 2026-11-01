@@ -179,6 +179,7 @@ public class LastCorridorDirector : MonoBehaviour
     bool active;
     TerrainManager tm;
     SpriteRenderer baseBg, overlayBg;
+    public SpriteRenderer OverlayBg => overlayBg; // 背景の色味(BackgroundTone)の対象
     Sprite savedBgSprite;
     float nextPropLX;
     readonly List<Prop> props = new List<Prop>();
