@@ -1,6 +1,6 @@
 {
  "raw": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad",
- "captions": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/text/captions.tsv",
+ "captions": "C:/GameProject/2ndAction/Docs/GooglePlay_2026-11-01/video/captions_gp.tsv",
  "logo": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Art/UI/TitleLogoV2.png",
  "end": 3.5,
  "se_gain": 1.0,
@@ -10,7 +10,7 @@
  "tp": -2.8,
  "limit": 0.79,
  "end_caption": "cap_choice",
- "note": "Google Play 紹介動画 40秒 仮編集(2026-11-01): HUD シンプル(空中コンボと英語の BREAK は標準)。字幕は Steam 版 v7 と同じ表(エステル採用)。BGM は権利を確認済みの自作曲",
+ "note": "Google Play 紹介動画 40秒 最終版候補(2026-11-01 第3回): 字幕は captions_gp.tsv(Steam 版 v7 の表に、4方向の字幕と英語の脱出の字幕だけ差し替え)。空中コンボは BONUS の無い撮り直し(air3)。HUD シンプル(空中コンボと英語の BREAK は標準)。BGM は権利を確認済みの自作曲",
  "bgm": [
   {
    "file": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Audio/Placeholder/Bgm/bgm_wasteland_middle_n.wav",
@@ -53,10 +53,10 @@
    "in": 8.6
   },
   {
-   "shot": "gp/ja1/out/raw/gp_aerial",
+   "shot": "gpv/air3_ja/out/raw/gp_aerial",
    "dur": 3.0,
    "caption": "cap_air",
-   "in": 0.3
+   "in": 0.6
   },
   {
    "shot": "gpv/pv_ja/out/raw/gp_boss_fight",

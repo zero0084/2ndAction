@@ -51,6 +51,9 @@ public partial class QaSweep
         // 2026-11-01 Google Play の動画: 画面情報の表示モード(-scHud simple|standard)。撮影用の保存にだけ書く
         string hud = Arg("-scHud", "");
         if (hud == "simple") HudPrefs.SetMode(HudPrefs.Mode.Simple); else if (hud == "standard") HudPrefs.SetMode(HudPrefs.Mode.Standard);
+        // 2026-11-01 Google Play の最終版(エステルのレビュー): -scNoBonus 1 = この撮影では BONUS ZONE を自然発生させない
+        //  (空中コンボ/操作説明の場面に BONUS の帯が写らないように。BONUS が起きない区間は通常のプレイでもある = 仕様は変えない)
+        if (Arg("-scNoBonus", "0") == "1") { BonusZone.BlockedAt = _ => true; L("[capture] bonus zones blocked for this capture"); }
         L($"[capture] screen {Screen.width}x{Screen.height} lang={Loc.Current} debugBuild={Debug.isDebugBuild} devGate={DevGate.On} audio {AudioSettings.outputSampleRate}Hz {AudioSettings.speakerMode}");
         if (Screen.height > Screen.width) L($"[capture] portrait window {Screen.width}x{Screen.height} (video x{Arg("-scVideoSuper", "1")})"); // 2026-11-01 操作説明ショート(縦)
         else Check(Screen.width == 1920 && Screen.height == 1080, $"the screen is 1920x1080 (got {Screen.width}x{Screen.height})");

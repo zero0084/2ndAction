@@ -52,6 +52,9 @@ def caption_png(text, path, pos="bottom"):
     f = font(80)  # 2026-10-23 エステル: Steam の小さい再生画面(600px 前後)でも読める大きさに(64 → 80)
     d = ImageDraw.Draw(img)
     x, y = 96, H - 196
+    tw = d.textlength(text, font=f)
+    if tw > W - 2 * x:  # 2026-11-01: 画面の幅に入りきらない長い字幕(英語)だけ、入る大きさまで縮める
+        f = font(int(80 * (W - 2 * x) / tw))
     if pos == "band":
         # 2026-10-24 エステル: 設定の画面の上に出す字幕は、位置は同じ(左下)のまま、字幕の後ろに濃い帯を敷く(字の高さ+上下 12〜16px)
         l, t, r, b2 = d.textbbox((x, y), text, font=f, stroke_width=5)

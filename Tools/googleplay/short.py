@@ -4,6 +4,7 @@
 #  ・映像: 縦の窓(608x1080)を 4倍で撮った 2432x4320 から、キャラの周りを切り出して 1080x1920 へ(ゲームのカメラは変えない。表示の拡大だけ)
 #  ・打ち上げ/急降下は 0.6倍、空中コンボは 0.4倍のスロー(その間はゲームの音を消し、BGM だけ)
 #  ・指とフリックの矢印(gesture.py の絵)、字幕(captions_short.tsv)、最後にロゴ(タイトルと同じ TitleLogoV2)は映像に後から重ねる。ゲームには描かない
+#  ・冒頭 4 秒に「映像を拡大している」注記、最後に「技はキャラクターによって異なる」(2026-11-01 エステル/マスターのレビュー)
 #  ・音: ゲームの効果音 + BGM(権利を確認済みの自作曲)→ -14 LUFS、真のピーク -1.2 dBTP 以下(Tools/steam/finalize_audio.py)
 #   python short.py <撮影のフォルダ(out/raw と log.txt がある)> <ja|en> <出力.mp4> <作業フォルダ>
 import csv, io, os, re, subprocess, sys
@@ -39,8 +40,10 @@ def flicks(log):
 
 def caption_layer(text, sub=None):
     img = Image.new("RGBA", (OW, OH), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
-    f = font(72 if len(text) <= 14 else 60)
     lines = text.split("\\n")
+    size = 72
+    while size > 40 and max(ImageDraw.Draw(img).textlength(ln, font=font(size)) for ln in lines) > OW - 140: size -= 2  # 入りきらない(英語)時は縮める
+    f = font(size)
     y = 250
     for ln in lines:
         tw = d.textlength(ln, font=f)
@@ -51,7 +54,16 @@ def caption_layer(text, sub=None):
     return img
 
 
-def end_layer(text, a):
+def note_layer(text):
+    # 冒頭に小さく出す注記(映像を拡大していること)。画面の下、暗い帯の上
+    img = Image.new("RGBA", (OW, OH), (0, 0, 0, 0)); d = ImageDraw.Draw(img); f = font(34)
+    tw = d.textlength(text, font=f)
+    d.rounded_rectangle([(OW - tw) / 2 - 22, OH - 186, (OW + tw) / 2 + 22, OH - 120], radius=12, fill=(5, 8, 20, 160))
+    d.text(((OW - tw) / 2, OH - 178), text, font=f, fill=(235, 235, 240, 255))
+    return img
+
+
+def end_layer(text, a, sub=None):
     img = Image.new("RGBA", (OW, OH), (5, 8, 20, int(200 * a)))
     logo = Image.open(LOGO).convert("RGBA")
     lw = int(OW * 0.86); lh = int(logo.height * lw / logo.width)
@@ -61,6 +73,9 @@ def end_layer(text, a):
     d = ImageDraw.Draw(img); f = font(64)
     tw = d.textlength(text, font=f)
     d.text(((OW - tw) / 2, int(OH * 0.36) + lh // 2 + 70), text, font=f, fill=(255, 255, 255, int(255 * a)), stroke_width=4, stroke_fill=(10, 12, 24, int(255 * a)))
+    if sub:  # 2026-11-01: 技はキャラクターによって異なる、を短く小さく
+        fs = font(38); sw = d.textlength(sub, font=fs)
+        d.text(((OW - sw) / 2, int(OH * 0.36) + lh // 2 + 190), sub, font=fs, fill=(225, 225, 232, int(235 * a)))
     return img
 
 
@@ -124,11 +139,16 @@ def main():
         key = next((k for a, b, k in starts if a <= tt < b), "end")
         if key == "end":
             a0 = next(a for a, b, k in starts if k == "end")
-            img.alpha_composite(end_layer(T("cap_end"), min(1.0, (tt - a0) / 0.5)))
+            img.alpha_composite(end_layer(T("cap_end"), min(1.0, (tt - a0) / 0.5), T("cap_moves")))
         else:
             ck = {"run": "cap_run", "fwd": "cap_fwd", "back": "cap_back", "up": "cap_up", "combo": "cap_combo", "down": "cap_down"}[key]
             if ck not in cap_cache: cap_cache[ck] = caption_layer(T(ck))
             img.alpha_composite(cap_cache[ck])
+            if tt < 4.0:  # 冒頭の 4 秒: 映像を拡大している旨
+                if "note" not in cap_cache: cap_cache["note"] = note_layer(T("cap_zoom"))
+                nl = cap_cache["note"]
+                if tt > 3.5: nl = nl.copy(); nl.putalpha(nl.getchannel("A").point(lambda v, f=(4.0 - tt) / 0.5: int(v * f)))
+                img.alpha_composite(nl)
             for d, gt in gestures:
                 if gt is None: continue
                 k = int((tt - gt) * FPS)
@@ -146,9 +166,17 @@ def main():
         else: af.append(f"anullsrc=r=48000:cl=stereo,atrim=duration={(b - a) / sp:.4f}[a{i}]")
     af.append("".join(f"[a{i}]" for i in range(len(segs))) + f"concat=n={len(segs)}:v=0:a=1,aformat=sample_rates=48000:channel_layouts=stereo[se]")
     af.append(f"[2:a]atrim=duration={total:.3f},volume=0.36,afade=t=in:d=0.2,afade=t=out:st={total - 1.6:.3f}:d=1.6,aformat=sample_rates=48000:channel_layouts=stereo[bgm]")
-    af.append("[se][bgm]amix=inputs=2:normalize=0,loudnorm=I=-14:TP=-2:LRA=11[aout]")
     mix = os.path.join(work, f"mix_{lang}.wav")
-    subprocess.run([FF, "-y", "-loglevel", "error", "-i", base, "-i", raw + ".wav", "-stream_loop", "-1", "-i", BGM, "-filter_complex", ";".join(af), "-map", "[aout]", "-ar", "48000", mix], check=True)
+    # 音の大きさ: 紹介動画(trailer.py)と同じく、測ってから全体の音量を上げ下げ → 4倍の細かさで見るリミッター(-14 LUFS に合わせる)
+    def render_mix(gain_db):
+        chain = af + [f"[se][bgm]amix=inputs=2:normalize=0,volume={gain_db:.2f}dB,aresample=192000,alimiter=limit=0.79:attack=1:release=60:level=false,aresample=48000[aout]"]
+        subprocess.run([FF, "-y", "-loglevel", "error", "-i", base, "-i", raw + ".wav", "-stream_loop", "-1", "-i", BGM, "-filter_complex", ";".join(chain), "-map", "[aout]", "-ar", "48000", mix], check=True)
+        r = subprocess.run([FF, "-hide_banner", "-i", mix, "-af", "ebur128=framelog=quiet", "-f", "null", "-"], capture_output=True, text=True, encoding="utf-8", errors="replace")
+        return float(r.stderr[r.stderr.rindex("Summary:"):].split("I:")[1].split("LUFS")[0])
+    g = 0.0
+    for _ in range(3):
+        g += -14.0 - render_mix(g)
+    print(f"[short] mix gain {g:.2f} dB -> {render_mix(g):.2f} LUFS")
 
     # 4) 合わせる
     tmp = os.path.join(work, f"short_{lang}_tmp.mp4")

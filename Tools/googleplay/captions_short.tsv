@@ -1,8 +1,10 @@
 id	ja	en	note
-cap_run	キャラは自動で走る	Your hero runs on their own	0〜2秒 自動で走る
-cap_fwd	前フリック：前方攻撃	Flick forward: Attack ahead	マスター指定の文言
-cap_back	後ろフリック：後方攻撃	Flick back: Attack behind	マスター指定の文言
-cap_up	上フリック：ジャンプ／打ち上げ	Flick up: Jump / Launch	マスター指定の文言(敵の近くでは打ち上げ)
-cap_combo	当て続けるとコンボ	Keep hitting to build a combo	空中で前フリックを続ける(0.5倍のスロー)
-cap_down	下フリック：空中で急降下	Flick down: Dive (in midair)	マスター指定の文言(地上では出ない)
+cap_run	キャラは自動で走る	Your character runs automatically.	0〜2秒 自動で走る
+cap_fwd	前フリック：前方攻撃	Swipe forward: Attack ahead	マスター指定の文言
+cap_back	後ろフリック：後方攻撃	Swipe back: Attack behind	マスター指定の文言
+cap_up	上フリック：ジャンプ／打ち上げ	Swipe up: Jump / Launch enemies	マスター指定の文言(敵の近くでは打ち上げ)
+cap_combo	当て続けるとコンボ	Keep hitting to build combos	空中で前フリックを続ける(0.4倍のスロー)
+cap_down	下フリック：空中で急降下	Swipe down: Dive while airborne	マスター指定の文言(地上では出ない)
 cap_end	あとは、どこまで走るか。	How far will you go?	最後のロゴと一緒
+cap_moves	技はキャラクターによって異なります	Moves vary by character.	最後に小さく(2026-11-01 エステル/マスター)
+cap_zoom	※操作説明のため、映像を拡大しています	Footage zoomed in to show the controls	冒頭に小さく(英語は仮訳)
