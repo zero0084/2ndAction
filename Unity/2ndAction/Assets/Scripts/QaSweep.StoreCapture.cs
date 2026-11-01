@@ -72,6 +72,22 @@ public partial class QaSweep
                 "aerial_dual" => ScAerialShot(s, "dual_blade"),
                 "crowd" => ScCrowdShot(s, "swordsman"),
                 "cards" => ScCardsShot(s),
+                // 2026-11-01 Google Play のスクリーンショット 8枚(1枚目だけ黒剣士、他は別のキャラ)
+                "gp_run" => ScRunShot(s, "swordsman", "wasteland_road", 6150f, 6, 14f),
+                "gp_boss" => ScBossShot(s, "dragon_lancer", "wasteland_road", 0, (int)WildBossKind.Cyclops, 12150f, false),
+                "gp_aerial" => ScAerialShot(s, "dual_blade"),
+                "gp_cards" => ScCardsShot(s, "gunslinger"),
+                "gp_stage" => ScRunShot(s, "miko", "sky_corridor", 41000f, 8, 12f),
+                "gp_cave" => ScRunShot(s, "fighter", "natural_cave", 18000f, 7, 12f),
+                "gp_escape" => ScBossShot(s, "vampire", "wasteland_road", 0, (int)WildBossKind.Hydra, 30150f, true, 25f),
+                "gp_break" => ScBossShot(s, "noble_lady", "natural_cave", 1, (int)CaveBossKind.CrystalGolem, 16150f, false),
+                // 2.6km 付近(約60km/h、カメラが寄ってキャラが大きく見える)で撮り直す分
+                "gp_run2" => ScRunShot(s, "swordsman", "wasteland_road", 2600f, 5, 14f),
+                "gp_stage2" => ScRunShot(s, "miko", "sky_corridor", 2600f, 5, 14f),
+                "gp_escape2" => ScBossShot(s, "dragon_lancer", "wasteland_road", 0, (int)WildBossKind.Cyclops, 12150f, true, 25f),
+                "gp_break2" => ScBreakShot(s, "noble_lady", "wasteland_road", (int)WildBossKind.Griffin, 2600f),
+                "gp_skyboss" => ScBossShot(s, "miko", "sky_corridor", 2, (int)SkyBossKind.Behemoth, 16150f, false),
+                "gp_skyrun" => ScRunShot(s, "miko", "sky_corridor", 9000f, 7, 14f),
                 "boss" => ScBossShot(s, "swordsman", "wasteland_road", 0, (int)WildBossKind.Cyclops, 12150f),
                 "boss_cave" => ScBossShot(s, "dual_blade", "natural_cave", 1, (int)CaveBossKind.CrystalGolem, 16150f),
                 "boss_sky" => ScBossShot(s, "archer", "sky_corridor", 2, (int)SkyBossKind.Behemoth, 16150f, false), // 天空は足場が細く、脱出の溜め(補助のジャンプが止まる)で落ちる
@@ -341,9 +357,9 @@ public partial class QaSweep
     }
 
     // レベルアップの3択(実際の選択画面)。選んで閉じるまで
-    IEnumerator ScCardsShot(string name)
+    IEnumerator ScCardsShot(string name, string ch = "swordsman")
     {
-        yield return ScBegin("swordsman", "wasteland_road", 14000f, 4);
+        yield return ScBegin(ch, "wasteland_road", 14000f, 4);
         yield return new WaitForSeconds(2f);
         autoPickHold = true;
         ScRecStart(name);
@@ -438,6 +454,32 @@ public partial class QaSweep
         ScStill("result");
         yield return ScWait(1.0f);
         yield return ScRecStop();
+        yield return ScEnd();
+    }
+
+    // BREAK の見せ場(2026-11-01、Google Play): ボス戦の途中で崩し(BREAK)を起こし、その間の連続攻撃を撮る。
+    // BREAK は通常のプレイでも崩しのゲージが溜まると起きる。撮影の時間に収めるため、ゲージを満たす時刻だけを決めている(性能は変えない)
+    IEnumerator ScBreakShot(string name, string ch, string stage, int kind, float distance)
+    {
+        yield return ScBegin(ch, stage, distance, 5);
+        yield return new WaitForSeconds(1.5f);
+        var bm = FindFirstObjectByType<BossManager>();
+        if (bm == null) { L("[capture] no BossManager"); yield return ScEnd(); yield break; }
+        bm.DebugSpawnBossForTest(0, kind);
+        autoPickHold = true; scGuideHold = true;
+        ScRecStart(name);
+        float t = 0f; bool broke = false;
+        while (t < 30f)
+        {
+            yield return ScWait(0.5f); t += 0.5f;
+            var boss = FindObjectsByType<WildBossBase>(FindObjectsSortMode.None).FirstOrDefault(b => b != null && b.isActiveAndEnabled && !b.IsDead && !b.IsEntering);
+            if (boss == null) { if (t > 8f) break; continue; }
+            if (!broke && t >= 6f) { boss.DebugBreak(); broke = true; L($"[capture] {name}: BREAK at {t:F1}s"); }
+            if (broke && Mathf.Repeat(t, 1f) < 0.25f) ScStill($"b{t:00}");
+            if (broke && t >= 16f) break;
+        }
+        yield return ScRecStop();
+        autoPickHold = false; scGuideHold = false;
         yield return ScEnd();
     }
 
