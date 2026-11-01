@@ -100,6 +100,10 @@ public static class BuildAndroid
         string ksPass = System.Environment.GetEnvironmentVariable("OMM_UPLOAD_KEYSTORE_PASS");
         string alias = System.Environment.GetEnvironmentVariable("OMM_UPLOAD_KEY_ALIAS");
         string aliasPass = System.Environment.GetEnvironmentVariable("OMM_UPLOAD_KEY_PASS");
+        // 2026-11-01: Gradle が失敗すると Unity はログへ子プロセスの環境変数を全部書き出す(パスワードも)。
+        // 値は上で読み取ったので、この Unity の環境からは消す(Gradle へは PlayerSettings 経由で渡る)
+        System.Environment.SetEnvironmentVariable("OMM_UPLOAD_KEYSTORE_PASS", null);
+        System.Environment.SetEnvironmentVariable("OMM_UPLOAD_KEY_PASS", null);
         bool upload = !string.IsNullOrEmpty(ks) && File.Exists(ks) && !string.IsNullOrEmpty(ksPass) && !string.IsNullOrEmpty(alias) && !string.IsNullOrEmpty(aliasPass);
         if (!upload) Debug.LogWarning("BuildAndroid: no upload key given (OMM_UPLOAD_KEYSTORE etc.) - building a debug-signed APK only (cannot be uploaded to Google Play)");
 
@@ -140,6 +144,7 @@ public static class BuildAndroid
                 // 鍵を設定した時だけ戻す(触っていない時に空を書き戻すと ProjectSettings に '{inproject}: ' と書かれるため)
                 PlayerSettings.Android.keystoreName = wasKs; PlayerSettings.Android.keyaliasName = wasAlias;
                 PlayerSettings.Android.keystorePass = ""; PlayerSettings.Android.keyaliasPass = "";
+                ScrubGradleSigningPasswords();
             }
             EditorUserBuildSettings.buildAppBundle = wasAab; PlayerSettings.Android.splitApplicationBinary = wasSplit;
             AssetDatabase.SaveAssets();
@@ -157,6 +162,23 @@ public static class BuildAndroid
         foreach (var o in outputs) info.AppendLine(o);
         File.WriteAllText($"Builds/ClosedTest/OneMoreMile_ct{code}_build.txt", info.ToString());
         Debug.Log("BuildAndroid: closed test build info: " + info.ToString().Replace(System.Environment.NewLine, " | "));
+    }
+
+    // Unity は書き出した Gradle の launcher/build.gradle に storePassword / keyPassword をそのまま書く(Library/Bee の中)。
+    // ビルドが終わったら(成功でも失敗でも)空にする。次のビルドでは Unity が毎回書き直す
+    static void ScrubGradleSigningPasswords()
+    {
+        const string root = "Library/Bee/Android/Prj";
+        if (!Directory.Exists(root)) return;
+        var rx = new System.Text.RegularExpressions.Regex(@"(?m)^(\s*(?:storePassword|keyPassword)\s+)(['""]).*?\2\s*$");
+        int n = 0;
+        foreach (var f in Directory.GetFiles(root, "build.gradle", SearchOption.AllDirectories))
+        {
+            string s = File.ReadAllText(f);
+            string t = rx.Replace(s, "$1''");
+            if (t != s) { File.WriteAllText(f, t); n++; }
+        }
+        Debug.Log("BuildAndroid: cleared signing passwords from " + n + " gradle file(s)");
     }
 
     // 容量の調査(2026-10-18): 番号を進めずに、指定の場所へ APK / AAB を作る(比較用。配布しない)
