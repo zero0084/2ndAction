@@ -23,6 +23,7 @@ public class ReleaseBuildGuard : IPreprocessBuildWithReport
         // 2026-10-26: 広告の設定は2つ。OMM_ADS_PROD なし = テスト広告(実際のアプリ ID + Google のテスト用広告ユニット。クローズドテスト用)、
         //  あり = 本番広告(マスターの指示の後だけ)。テスト広告の版では課金の検証(GooglePlayTangle)が無くても作れる(購入の画面は「購入の準備中」のまま)
         bool prodAds = defines.Contains("OMM_ADS_PROD");
+        if (defines.Contains("OMM_RELEASE_PROBE") || defines.Contains("OMM_CAPTURE")) missing.Add("確認用/撮影用の定義(OMM_RELEASE_PROBE / OMM_CAPTURE)を Android の定義から外す(距離ワープ等が使える版を配らない)");
         if (defines.Contains("OMM_ADMOB"))
         {
             if (string.IsNullOrEmpty(MonetizationSetup.ProdAndroidAppId)) missing.Add("AdMob の本番のアプリ ID(MonetizationSetup.ProdAndroidAppId、入れた後に Tools/OneMoreMile/Monetization: Apply SDK Settings)");

@@ -148,7 +148,10 @@ public class EncounterDirector : MonoBehaviour
         // シーンの読み直し(GAME OVER→Retry/HOME)では前のランの状態を捨てる。profileStage も空にする
         // (2026-10-01修正: 以前は profile だけを空にして profileStage を残していたため、同じステージで次のランを始めると
         //  「ステージは変わっていない」と判断されて Profile が読み直されず、そのラン中ずっと敵が出なかった)。
-        UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => { profileStage = null; ResetState(null); boundGm = null; boundStarted = false; };
+        // 2026-11-03(ct416 の不具合): 操作の練習(TutorialRun.Setup)は enabled = false にして、抜ける時に戻していなかった。この Director は
+        //  シーンをまたいで残るので、練習の後はアプリを閉じるまで通常/BONUS の雑魚が1匹も出なかった。シーンの読み直しで必ず有効へ戻す
+        //  (止めたい区画 = 練習/闘技場/試験は、読み直しの後の自分の準備でもう一度止める)
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => { profileStage = null; ResetState(null); boundGm = null; boundStarted = false; if (!enabled && !ProbeLegacyNoReenable) { enabled = true; ReEnabledOnLoad++; Debug.Log("[ENCOUNTER] re-enabled on scene load (was disabled by the previous scene)"); } };
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // 試験用の固定(開発版だけ、2026-10-23: 製品版では記録の対象のランの敵の出方を起動引数で変えられないように)
         string[] args = System.Environment.GetCommandLineArgs();
@@ -161,6 +164,12 @@ public class EncounterDirector : MonoBehaviour
     }
 
     int fixedSeed = int.MinValue;
+    public static int ReEnabledOnLoad; // 確認用: 前のシーンで止められたまま読み直しを迎えた回数
+#if UNITY_EDITOR || DEVELOPMENT_BUILD || OMM_RELEASE_PROBE
+    public static bool ProbeLegacyNoReenable; // 確認用(-probeLegacy): 直す前の動き(読み直しで有効へ戻さない)。ReleaseSpawnProbe が不具合を見つけられるかの確認
+#else
+    const bool ProbeLegacyNoReenable = false;
+#endif
 
     void ResetState(StageEncounterProfile p)
     {

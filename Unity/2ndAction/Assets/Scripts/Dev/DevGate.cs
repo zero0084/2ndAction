@@ -11,7 +11,12 @@ public static class DevGate
 #else
     public const bool CaptureBuild = false;
 #endif
-    public static bool On => Debug.isDebugBuild || CaptureBuild;
+#if OMM_RELEASE_PROBE
+    public const bool ReleaseProbeBuild = true; // 2026-11-03: 敵の出現の確認用ビルド(配らない。ReleaseSpawnProbe が距離を進めるため)
+#else
+    public const bool ReleaseProbeBuild = false;
+#endif
+    public static bool On => Debug.isDebugBuild || CaptureBuild || ReleaseProbeBuild;
 }
 
 // ストア素材の撮影中(QaSweep -storeCapture)。開発用の表示(build の番号 / DEV BUILD / TEST FILE)を出さない。
