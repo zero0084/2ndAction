@@ -1,0 +1,5 @@
+# ボス戦のつなぎのコマ(2026-11-02、BossLink.cs)。種類 / A / B / コマ / 秒
+settle	phoenix_attack	phoenix_idle	lk_p1	0.14
+settle	recover	phoenix_idle	lk_p2	0.14
+settle	phoenix_idle	recover	lk_p2	0.12
+settle	rebirth	phoenix_idle	lk_p2	0.14

@@ -68,6 +68,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaCaveBoss") { mode = "caveboss"; dir = a[i + 1]; }
             if (a[i] == "-qaCeilingAudit") { mode = "ceilaudit"; dir = a[i + 1]; } // 2026-10-16
             if (a[i] == "-qaMotion") { mode = "motion"; dir = a[i + 1]; } // 2026-11-02 動作のつなぎの確認
+            if (a[i] == "-qaBossMotion") { mode = "bossmotion"; dir = a[i + 1]; } // 2026-11-02 ボス戦のアニメーションの見直し
             if (a[i] == "-qaAnimDemo") { mode = "animdemo"; dir = a[i + 1]; } // 2026-10-17 アニメーション強化の確認動画
             if (a[i] == "-qaClothCheck") { mode = "clothcheck"; dir = a[i + 1]; } // 2026-10-25 布表現の見直しの実ゲーム確認
             if (a[i] == "-qaMemProbe") { mode = "memprobe"; dir = a[i + 1]; } // 2026-10-18 容量の調査: メモリと画質の比較
@@ -185,7 +186,7 @@ public partial class QaSweep : MonoBehaviour
         var q = go.AddComponent<QaSweep>();
         q.mode = mode; q.outDir = QaArgs.Dir(dir);
         // 2026-11-02: -legacyMotion = どの試験でも、動作のつなぎ等を直す前の見た目で動かす(前後の比較用)
-        if (System.Array.IndexOf(QaArgs.All, "-legacyMotion") >= 0) { PlayerAnimator.QaLegacyMotion = true; EnemyAnimator.QaLegacyMotion = true; }
+        if (System.Array.IndexOf(QaArgs.All, "-legacyMotion") >= 0) { PlayerAnimator.QaLegacyMotion = true; EnemyAnimator.QaLegacyMotion = true; BossLinkSet.DevDisabled = true; }
     }
 
     static string Arg(string name, string def)
@@ -283,6 +284,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "ceilaudit") yield return CeilingAuditMode();
         else if (mode == "animdemo") yield return AnimDemoMode();
         else if (mode == "motion") yield return MotionMode();
+        else if (mode == "bossmotion") yield return BossMotionMode();
         else if (mode == "clothcheck") yield return ClothCheckMode();
         else if (mode == "memprobe") yield return MemProbeMode();
         else if (mode == "aerial") yield return AerialMode();

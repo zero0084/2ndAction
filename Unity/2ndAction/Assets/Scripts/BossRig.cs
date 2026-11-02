@@ -36,6 +36,7 @@ public class BossRig
         sharedCache.Clear(); sharedPos.Clear();
     }
     Sprite current;
+    public Sprite Current => current; // 確認用(-qaBossMotion)
     Vector2 spriteSize = Vector2.one;
     float amount;
 

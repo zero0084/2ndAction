@@ -51,6 +51,7 @@ public partial class MechDragonBoss : SkyBossBase
         boss.hurtHeightRatio = 0.8f;
     }
 
+    protected override string LinkKey => "Mech"; // つなぎのコマ(2026-11-02): Resources/BossPose/Mech/(今の絵と同じ PPU 256・中心)
     static Sprite Art(string n) => n != null && art != null && art.TryGetValue(n, out var s) ? s : null;
     // 2026-10-19: 撃破の絵(defeat → defeat2)。以前は撃破の後に姿勢の切り替えが止まるため、用意していた絵が出ていなかった
     public override Sprite[] DeathFrames

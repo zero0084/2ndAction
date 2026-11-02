@@ -581,8 +581,14 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         if (BossPoseStats.DevTrace) BossPoseStats.Trace("Dragon", "set" + CurrentFramesSet());
         frameIndex = 0;
         frameTimer = 0f;
-        if (frames != null && frames.Length > 0) sr.sprite = frames[0];
+        leadEndsAt = -1f;
+        if (frames != null && frames.Length > 0 && (linkPlayer == null || state == State.Dead)) sr.sprite = frames[0]; // つなぎのコマがあるボスは次の AnimateSprite で(ここで直に入れると、つなぎの前に1フレームだけ次の絵が出る)
     }
+
+    // 2026-11-02 ボス戦のアニメーションの見直し: 絵が変わる瞬間のつなぎのコマ(見た目だけ。Resources/BossPose/Dragon/links.txt)。
+    //  leadEndsAt = 今の溜めの終わる時刻(溜めの最後に構えのコマを出す。SetFrames の後で入れる。-1 = 溜めではない)
+    BossLinkPlayer linkPlayer; bool linkLoaded;
+    float leadEndsAt = -1f;
 
     void AnimateSprite()
     {
@@ -593,8 +599,10 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         {
             frameTimer = 0f;
             frameIndex = (frameIndex + 1) % currentFrames.Length;
-            sr.sprite = currentFrames[frameIndex];
         }
+        if (!linkLoaded) { linkLoaded = true; var ls = BossLinkSet.Load("Dragon"); if (ls != null) linkPlayer = new BossLinkPlayer(ls); }
+        var pick = currentFrames[Mathf.Min(frameIndex, currentFrames.Length - 1)];
+        sr.sprite = linkPlayer != null && state != State.Dead ? linkPlayer.Filter(pick, leadEndsAt >= Time.time ? leadEndsAt - Time.time : -1f, Time.deltaTime) : pick;
 
         if (flashOverlay != null) flashOverlay.sprite = sr.sprite;
         if (hitFlashOverlay != null) hitFlashOverlay.sprite = sr.sprite;
@@ -632,6 +640,8 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         bool flash = false;
         while (t < telegraphDuration)
         {
+            // 2026-11-02: 溜めの最後の待ちの間だけ「頭から飛び込む直前」のコマ(links.txt の lead)。待ちは間隔より少し延びるので、最後の回に入った時に決める。急降下の時刻は今のまま
+            if (isCharge && t + telegraphBlinkInterval >= telegraphDuration) leadEndsAt = Time.time + telegraphBlinkInterval + 0.05f;
             flash = !flash;
             if (flashOverlay != null) flashOverlay.enabled = flash;
             yield return new WaitForSeconds(telegraphBlinkInterval);
@@ -668,6 +678,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         yield return LerpPosition(transform.position, risePos, riseDuration);
         if (state == State.Dead) yield break;
 
+        SetFrames(idleFrames); // 2026-11-02: 打ち上がった後は羽ばたいて戻る(以前は翼を打ち下ろした1枚のまま約1.3秒すべっていた)
         yield return ReturnToHome(chargeReturnDuration);
         if (state == State.Dead) yield break;
 
@@ -1007,7 +1018,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         BossBattle.EndUltimate(this);
         ultimateRunningFlag = false;
         state = State.Stunned;
-        SetFrames(idleFrames);
+        SetFrames(Pose("stun", idleFrames)); // 2026-11-02: BREAK の間は崩れた姿勢(無ければ今までの羽ばたき)
         StartCoroutine(StunRoutine());
     }
 
@@ -1367,7 +1378,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     float netHitCooldown;
 
     // 2026-10-28(同期の版 11): 技ごとの1枚絵は FramesSet = 10 + 番号で JOIN へ(番号の並びは HOST/JOIN で同じ表)
-    static readonly string[] NetPoseNames = { "inhale", "fire_end", "dive", "descend", "land", "bite_windup", "bite", "takeoff", "orb_charge", "exhaust" };
+    static readonly string[] NetPoseNames = { "inhale", "fire_end", "dive", "descend", "land", "bite_windup", "bite", "takeoff", "orb_charge", "exhaust", "stun" }; // stun(2026-11-02)は末尾に足す
     byte CurrentFramesSet()
     {
         if (poseArt != null && currentFrames != null)

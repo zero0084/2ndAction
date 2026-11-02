@@ -371,8 +371,14 @@ public partial class MajinController : MonoBehaviour
         if (BossPoseStats.DevTrace) BossPoseStats.Trace("Majin", "set" + CurrentFramesSet());
         frameIndex = 0;
         frameTimer = 0f;
-        if (frames != null && frames.Length > 0) sr.sprite = frames[0];
+        leadEndsAt = -1f;
+        if (frames != null && frames.Length > 0 && (linkPlayer == null || state == State.Dead)) sr.sprite = frames[0]; // つなぎのコマがあるボスは次の AnimateSprite で(ここで直に入れると、つなぎの前に1フレームだけ次の絵が出る)
     }
+
+    // 2026-11-02 ボス戦のアニメーションの見直し: 絵が変わる瞬間のつなぎのコマ(見た目だけ。Resources/BossPose/Majin/links.txt)。
+    //  leadEndsAt = 今の溜めの終わる時刻(溜めの最後に構えのコマを出す。SetFrames の後で入れる。-1 = 溜めではない)
+    BossLinkPlayer linkPlayer; bool linkLoaded;
+    float leadEndsAt = -1f;
 
     void AnimateSprite()
     {
@@ -383,8 +389,10 @@ public partial class MajinController : MonoBehaviour
         {
             frameTimer = 0f;
             frameIndex = (frameIndex + 1) % currentFrames.Length;
-            sr.sprite = currentFrames[frameIndex];
         }
+        if (!linkLoaded) { linkLoaded = true; var ls = BossLinkSet.Load("Majin"); if (ls != null) linkPlayer = new BossLinkPlayer(ls); }
+        var pick = currentFrames[Mathf.Min(frameIndex, currentFrames.Length - 1)];
+        sr.sprite = linkPlayer != null && state != State.Dead ? linkPlayer.Filter(pick, leadEndsAt >= Time.time ? leadEndsAt - Time.time : -1f, Time.deltaTime) : pick;
 
         if (flashOverlay != null) flashOverlay.sprite = sr.sprite;
         if (hitFlashOverlay != null) hitFlashOverlay.sprite = sr.sprite;
@@ -783,7 +791,7 @@ public partial class MajinController : MonoBehaviour
     float netHitCooldown;
 
     // 2026-10-28(同期の版 11): 技ごとの1枚絵は FramesSet = 10 + 番号で JOIN へ
-    static readonly string[] NetPoseNames = { "cast", "claw_windup", "claw", "claw_follow", "recover" };
+    static readonly string[] NetPoseNames = { "cast", "claw_windup", "claw", "claw_follow", "recover", "stun" }; // stun(2026-11-02)は末尾に足す
     byte CurrentFramesSet()
     {
         if (poseArt != null && currentFrames != null)

@@ -1,0 +1,4 @@
+# ボス戦のつなぎのコマ(2026-11-02、BossLink.cs)。種類 / A / B / コマ / 秒
+settle	idle_*	claw_windup	lk_mj1	0.14
+settle	recover	idle_*	lk_mj2	0.14
+settle	stun	idle_*	recover,lk_mj2	0.24

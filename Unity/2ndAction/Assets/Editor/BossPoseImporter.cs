@@ -14,6 +14,7 @@ public class BossPoseImporter : AssetPostprocessor
         string p = path.Replace('\\', '/');
         if (p.Contains("/BossPose/Dragon/")) return 175.65218f;
         if (p.Contains("/BossPose/Majin/")) return 208.69565f;
+        if (p.Contains("/BossPose/Mech/")) return 256f; // 2026-11-02: メカドラゴンのつなぎのコマ(Resources/Bosses/MechDragon/ と同じ)
         return 100f; // 天空のボス: キャンバスを今の絵と同じ大きさにしてあるので、今の絵の PPU(SkyBoss の .meta は 100)
     }
 

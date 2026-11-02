@@ -1,0 +1,3 @@
+# ボス戦のつなぎのコマ(2026-11-02、BossLink.cs)。種類 / A / B / コマ / 秒
+settle	leviathan_idle	leviathan_windup	lk_l1	0.14
+settle	leviathan_windup	leviathan_idle	lk_l1	0.12

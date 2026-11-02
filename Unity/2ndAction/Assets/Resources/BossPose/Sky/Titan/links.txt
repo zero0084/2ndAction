@@ -1,0 +1,3 @@
+# ボス戦のつなぎのコマ(2026-11-02、BossLink.cs)。種類 / A / B / コマ / 秒
+settle	titan_attack	titan_idle	lk_t1	0.14
+settle	titan_idle	titan_windup	lk_t2	0.12

@@ -122,6 +122,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     protected bool invulnerable;
     protected float attackProgress; // 攻撃直後1→0
     protected float windupProgress; // 予備動作中0→1
+    float windupSeconds; // 2026-11-02: 今の予備動作(Telegraph)の長さ(つなぎのコマの lead が残りの秒を知るため)
+    BossLinkPlayer linkPlayer; bool linkLoaded;
+    protected virtual string LinkKey => bossName;
     protected float scaleFactor = 1f;
     protected float halfWidth;      // 世界単位
     protected float lastGroundY;
@@ -668,7 +671,11 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     {
         if (visual == null || rig == null) return;
         moveClock += Time.deltaTime * UpdateMoveTempo(Time.deltaTime);
-        rig.SetSprite(PickSprite());
+        var pick = PickSprite();
+        // 2026-11-02 ボス戦のアニメーションの見直し: 絵が変わる瞬間のつなぎのコマ(見た目だけ。Resources/BossPose/<LinkKey>/links.txt、BossLink.cs)
+        if (!linkLoaded) { linkLoaded = true; var ls = BossLinkSet.Load(LinkKey); if (ls != null) linkPlayer = new BossLinkPlayer(ls); }
+        if (linkPlayer != null && !dead) pick = linkPlayer.Filter(pick, windingUp && windupSeconds > 0f ? (1f - windupProgress) * windupSeconds : -1f, Time.deltaTime);
+        rig.SetSprite(pick);
 
         float h = bodyHeight;
         float t = poseTime;
@@ -817,6 +824,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     }
 
     public Transform DebugVisual => visual; // 動きの測定用(QaSweep の撮影)
+    public Sprite DebugSprite => rig != null ? rig.Current : null; // 確認用(-qaBossMotion): 格子に切る前の絵
     // 2026-10-22: 移動のループのテンポ。重いボスはゆっくり、軽いボスは速く。走る速さでも少し変える(足が滑って見えない)。
     // 時計(moveClock)に掛けるので、テンポが変わってもコマの位置は飛ばない
     float moveClock, moveTempo = 1f;
@@ -1043,6 +1051,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(duration >= 0.8f ? SeId.BossTelegraphHeavy : SeId.BossTelegraph, CenterWorld);
 
         float t = 0f;
+        windupSeconds = duration;
         while (t < duration && !dead)
         {
             t += AiDt;
@@ -1053,6 +1062,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         }
         windingUp = false;
         windupProgress = 0f;
+        windupSeconds = 0f;
         foreach (var z in zones) if (z != null) z.Hide();
     }
 

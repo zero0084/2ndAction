@@ -46,6 +46,8 @@ public abstract partial class SkyBossBase : HazardBossBase
     }
     protected void Art(string windup, string attack, string recover = null, string fly = null, string move = null) { artWindup = windup; artAttack = attack; artRecover = recover; artFly = fly; artMove = move; }
     protected override bool HasRecoverArt => SkyPose("recover") != null;
+    protected override string LinkKey => "Sky/" + bossName; // つなぎのコマ(2026-11-02)は技ごとの絵と同じフォルダ
+    public string DebugArtNames => $"{artWindup ?? "-"}/{artAttack ?? "-"}/{artRecover ?? "-"}"; // 確認用(-qaBossMotion)
     protected override void OnMoveEnded() { artWindup = artAttack = artRecover = artFly = artMove = null; }
     // 2026-10-28(同期の版 11): HOST が今出している技ごとの絵の名前を番号で JOIN へ(番号の表は全ボス共通・HOST/JOIN で同じ)
     static readonly string[] NetPoseNames = { "recover", "roar", "stomp", "kneel", "sweep", "raise", "tentacle", "pulse", "leap", "run", "disassemble", "fist", "rebirth", "judgment" };
@@ -54,6 +56,10 @@ public abstract partial class SkyBossBase : HazardBossBase
     protected override void NetApplyPoseArt(byte idx) { netArt = idx > 0 && idx <= NetPoseNames.Length ? NetPoseNames[idx - 1] : null; }
     protected override Sprite PoseOverride()
     {
+        // 2026-11-02 ボス戦のアニメーションの見直し: BREAK の間は崩れた姿勢(break)、立ち直りは起き上がる途中(rise)。無ければ今まで(待機の絵 / 戻りの絵)。
+        //  JOIN も Broken は同期済みなので同じ絵(立ち直りは HOST だけが知る → JOIN は今までどおり戻りの絵)
+        Sprite bs = Broken && !IsDead ? SkyPose("break") : BreakRecovering ? SkyPose("rise") : null;
+        if (bs != null) { lastArtShown = null; BossPoseStats.Trace(bossName, bs.name + " pose=" + pose); BossPoseStats.Note(bossName + "/" + bs.name); return bs; }
         if (NetPuppet)
         {
             // JOIN: 姿勢(構え/攻撃/戻り)は同期済み。絵は HOST が出している名前のまま(技の種類は HOST だけが知っている)

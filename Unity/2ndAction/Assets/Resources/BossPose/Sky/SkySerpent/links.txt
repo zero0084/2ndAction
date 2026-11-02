@@ -1,0 +1,4 @@
+# ボス戦のつなぎのコマ(2026-11-02、BossLink.cs)。種類 / A / B / コマ / 秒
+settle	skyserpent_attack	recover	lk_s1	0.14
+settle	recover	skyserpent_idle	lk_s2	0.14
+settle	skyserpent_idle	skyserpent_windup	lk_s3	0.12

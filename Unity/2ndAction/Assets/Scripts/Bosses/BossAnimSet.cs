@@ -46,7 +46,9 @@ public class BossAnimSet
     }
     static void OnSceneLoaded(UnityEngine.SceneManagement.Scene s, UnityEngine.SceneManagement.LoadSceneMode mode)
     {
-        if (mode != UnityEngine.SceneManagement.LoadSceneMode.Single || cache.Count == 0) return;
+        if (mode != UnityEngine.SceneManagement.LoadSceneMode.Single) return;
+        BossLinkSet.ClearCache(); // 2026-11-02: ボス戦のつなぎのコマも同じ時に手放す
+        if (cache.Count == 0) return;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-noBossCacheClear") >= 0) return; // 比較の試験用
 #endif

@@ -1,0 +1,4 @@
+# ボス戦のつなぎのコマ(2026-11-02、BossLink.cs)。種類 / A / B / コマ / 秒
+lead	charge_*	*	lk_d1	0.14
+settle	dive	takeoff	lk_d2	0.12
+settle	stun	idle_*	takeoff	0.15

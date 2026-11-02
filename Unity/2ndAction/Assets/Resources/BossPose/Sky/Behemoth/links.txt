@@ -1,0 +1,3 @@
+# ボス戦のつなぎのコマ(2026-11-02、BossLink.cs)。種類 / A / B / コマ / 秒
+settle	behemoth_idle	stomp	lk_b1	0.14
+settle	recover	behemoth_idle	lk_b2	0.14

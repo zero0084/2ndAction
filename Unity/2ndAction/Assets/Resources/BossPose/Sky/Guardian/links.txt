@@ -1,0 +1,7 @@
+# ボス戦のつなぎのコマ(2026-11-02、BossLink.cs)。種類 / A / B / コマ / 秒
+settle	guardian_attack	recover	lk_g1	0.12
+settle	recover	guardian_idle	lk_g2	0.14
+settle	guardian_idle	judgment	lk_g3	0.12
+settle	guardian_idle	recover	lk_g2	0.12
+settle	sweep	guardian_idle	lk_g2	0.14
+settle	judgment	guardian_idle	lk_g3	0.12

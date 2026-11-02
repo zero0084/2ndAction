@@ -161,6 +161,7 @@ public partial class DragonController
         // 立ち直り: 地面の近くで短く(攻撃しない・崩しは溜まらない)
         state = State.Landing; // 戻りの間は通常の追従をしない(体当たり判定の無い状態)
         breakRecovering = true;
+        SetFrames(idleFrames); // 2026-11-02: 崩れた姿勢から羽ばたきへ(間は links.txt の stun → 待機のつなぎのコマ)
         BossVoice.Growl(this, "Dragon");
         float r = 0f;
         while (r < WildBossBase.BreakRecoverSeconds)

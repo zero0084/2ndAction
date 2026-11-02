@@ -1,0 +1,5 @@
+# ボス戦のつなぎのコマ(2026-11-02、BossLink.cs)。種類 / A / B / コマ / 秒
+settle	fenrir_attack	recover	lk_f1	0.12
+settle	recover	fenrir_idle	lk_f2	0.14
+settle	fenrir_idle	fenrir_windup	lk_f3	0.12
+settle	recover	run	lk_f2	0.14

@@ -1,0 +1,5 @@
+# ボス戦のつなぎのコマ(2026-11-02、BossLink.cs)。種類 / A / B / コマ / 秒
+settle	jellyfish_attack	recover	lk_j1	0.14
+settle	tentacle	recover	lk_j2	0.14
+settle	pulse	recover	lk_j1	0.14
+settle	tentacle	jellyfish_idle	lk_j2	0.14

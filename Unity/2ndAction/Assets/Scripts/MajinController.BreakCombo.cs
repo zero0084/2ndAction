@@ -123,7 +123,7 @@ public partial class MajinController
     {
         Broken = true;
         state = State.Exposed;
-        SetFrames(idleFrames);
+        SetFrames(Pose("stun", idleFrames)); // 2026-11-02: BREAK の間は崩れた姿勢(無ければ今までの待機)
         if (sr != null) sr.color = recoveryTint;
         EnsureJuggle().OpenBreak(false);
         breakWarned = false; breakExtra = 0f;
@@ -163,6 +163,7 @@ public partial class MajinController
         if (state == State.Dead) yield break;
         // 立ち直り(攻撃しない・崩しは溜まらない)
         breakRecovering = true;
+        SetFrames(idleFrames); // 2026-11-02: 崩れた姿勢から待機へ(間は links.txt の stun → 待機のつなぎのコマ)
         BossVoice.Growl(this, "Majin");
         float r = 0f;
         while (r < WildBossBase.BreakRecoverSeconds && state == State.Exposed && player != null)
