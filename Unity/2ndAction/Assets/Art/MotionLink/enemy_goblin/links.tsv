@@ -1,0 +1,5 @@
+# 名前	from	to	settle	fps	contact	resume	基準の絵
+# 待機: 背を丸めて短剣を低く構えた警戒の構え(エステル案)。走りの0コマ目で止めていた待機の代わり、呼吸の2枚を回す
+idle	-	idle	A	2	-1	-1	Assets/Art/GoblinRun/goblin_run_0.png
+# 被弾 → 待機: Return_00 のけぞりから踏み直す / Return_01 低く構え直す
+ret	hit	idle	1	12	-1	-1	Assets/Art/GoblinRun/goblin_run_0.png

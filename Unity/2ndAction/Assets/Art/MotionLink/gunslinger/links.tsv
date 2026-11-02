@@ -1,0 +1,7 @@
+# 名前	from	to	settle	fps	contact	resume	基準の絵
+# 空中の前撃ち(小/中/大 共通): 構え/撃つ/撃ち終わり
+air1	-	attack1|attack2|attack3	A	14	1	-1	Assets/Art/GunslingerAttackSmall_v1/attacksmall_00.png
+# 走り → 撃つ構え: 前足で踏ん張って上体を起こし、銃を持ち上げ始める(1枚、弾は入力の瞬間に出るので短く)
+lead1	run|stance	attack1	0	25	1	-1	Assets/Art/GunslingerAttackSmall_v1/attacksmall_00.png
+# 撃ち終わり → 走り: 銃を胸の前へ下ろしながら前傾して蹴り出す(1枚、コートの色は元の絵へ補正)
+settle1	attack1|attack2|attack3	run	1	10	-1	0	Assets/Art/GunslingerRun_v1/run_00.png

@@ -205,6 +205,9 @@ public class EnemyDefinition : ScriptableObject
     [Header("天空回廊Enemy(2026-09-28)")]
     [Tooltip("状態ごとの絵(予兆/攻撃/硬直/被弾/撃破/休眠/起動/溜め/急降下)")]
     public EnemyPoseSprites poses = new EnemyPoseSprites();
+    // 2026-11-02 動作のつなぎ(MotionLink.cs)。空なら今までどおり
+    public MotionLink[] motionLinks;
+    public Vector2[] runFrameOffsets; // 走りのコマごとの表示位置の補正(CharacterDefinition と同じ)
     [Tooltip("待機中に絵だけをゆっくり上下させる幅(当たり判定は動かない)。0=なし")]
     public float idleHoverAmplitude;
     [Tooltip("体の当たり判定を絵の外枠に対して何倍にするか(翼の先端まで判定にしない)。(1,1)=従来どおり")]

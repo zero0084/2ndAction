@@ -212,6 +212,39 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 479d80d23e0ae5d49bde1f3805c37ae0, type: 3}
   - {fileID: 21300000, guid: 3bdeff67c08f09147a3e1e71dbbd8343, type: 3}
   - {fileID: 21300000, guid: 79b7c2706a2c6b949b8d579be9d119ad, type: 3}
+  motionLinks:
+  - from: '-'
+    to: kit:jab|kit:straight|kit:heavy
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: e52f0caa03febc948bac759e11473a2a, type: 3}
+    - {fileID: 21300000, guid: b9ff09f08f06ccf419b518fc3957f8dd, type: 3}
+    - {fileID: 21300000, guid: 275d25fc02b8c0c40b86bed95bc2912c, type: 3}
+    fps: 14
+    contactFrame: 1
+    resumeFrame: -1
+  - from: '-'
+    to: kit:kick
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: 6892e21b5b3f4614f9fdd15c1bc8b0cf, type: 3}
+    - {fileID: 21300000, guid: 785ada1a4c205b842a4a766ea38bc79b, type: 3}
+    - {fileID: 21300000, guid: 64c14bd37960c0d479752cffe48663cf, type: 3}
+    fps: 14
+    contactFrame: 1
+    resumeFrame: -1
+  - from: kit:jab|kit:straight|kit:kick|kit:heavy
+    to: run
+    settle: 1
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: b0cd63002492ab84e88a308c164f0725, type: 3}
+    fps: 10
+    contactFrame: -1
+    resumeFrame: 0
+  runFrameOffsets: []
   kit: 3
   kitPoses:
   - name: jab

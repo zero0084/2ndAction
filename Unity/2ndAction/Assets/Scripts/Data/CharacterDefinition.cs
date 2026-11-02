@@ -318,6 +318,12 @@ public class CharacterDefinition : ScriptableObject
     // 死亡時の専用ポーズ(全キャラ共通の仕組み。空なら従来どおり消えて爆散)。
     public Sprite[] deathFrames;
 
+    // 2026-11-02 動作のつなぎ(MotionLink.cs)。Art/MotionLink/<キャラ>/ から MotionLinkImporter が入れる。空なら今までどおり
+    public MotionLink[] motionLinks;
+    // 2026-11-02 走りのグラグラ: 走りのコマごとの表示位置の補正(絵の単位=ワールド、Visual の大きさを掛ける)。
+    // 絵の中で胴/頭が前後・上下に跳ねている分を打ち消す(踏み込みの自然な上下動は残す)。run_offsets.txt から。空なら補正なし
+    public Vector2[] runFrameOffsets;
+
     // ===== 新4人(2026-09-27): 弓使い/魔法使い/格闘家/忍者 =====
     // kit=Standard(既定)の既存5人は、以下を一切参照しない。
     [Header("新4人 専用キット (2026-09-27)")]

@@ -45,6 +45,17 @@ MonoBehaviour:
     wake: {fileID: 0}
     charge: {fileID: 0}
     dive: {fileID: 21300000, guid: fd231cd889e228b41ae780ad1e78c4fe, type: 3}
+  motionLinks:
+  - from: telegraph
+    to: dive
+    settle: 0
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: 5acf62175f70aef448b6603295ebdce2, type: 3}
+    fps: 12
+    contactFrame: -1
+    resumeFrame: -1
+  runFrameOffsets: []
   idleHoverAmplitude: 0
   bodyColliderScale: {x: 0.45, y: 0.7}
   bodyColliderOffset: {x: 0, y: 0}

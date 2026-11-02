@@ -1,0 +1,8 @@
+# 名前	from	to	settle	fps	contact	resume	基準の絵
+# 空中の前撃ち: 引き絞り(2枚)/放つ(1枚)。地上の両足で立つ draw/release の代わり
+airdraw	-	kit:draw	A	14	-1	-1	Assets/Art/ArcherPoses_v1/draw/draw_p0_00.png
+airrel	-	kit:release	A	14	-1	-1	Assets/Art/ArcherPoses_v1/draw/draw_p0_00.png
+# 走り → 引き絞り: 踏ん張って上体を起こし、弓を持ち上げ矢を弦へ運ぶ(1枚)
+lead1	run|stance	kit:draw	0	20	-1	-1	Assets/Art/ArcherPoses_v1/draw/draw_p0_00.png
+# 放った後 → 走り: 弓を下ろしながら前傾して蹴り出す(1枚)
+settle1	kit:release	run	1	10	-1	0	Assets/Art/ArcherRun_v1/run_00.png

@@ -393,7 +393,8 @@ public static class CharacterDatabaseBuilder
         // ApplyCharacterAnimationSetのコメント参照) - このキャラは上攻撃
         // 自体を持たない(canUseUpAttack=false)ため意味の衝突は起きない。
         nobleLady.runFramesDir = "Assets/Art/NobleLadyRun_v1";
-        nobleLady.runFramesPpu = 272f;
+        // 2026-11-02 動作のつなぎ: 走りの絵だけ顔・体が他の絵(攻撃/空中/着地)の約0.69倍で描かれていて、攻撃のたびに急に大きくなっていた → 272/1.45
+        nobleLady.runFramesPpu = 187.6f;
         // お嬢様騎士Run読みやすさ改善(2026-09-13) - 「片足で走っているよう
         // に見える」報告への対応で、左右交互の接地/パッシングポーズが
         // はっきり読める4コマ(接地A/パッシング/接地B/パッシング)へ全面的

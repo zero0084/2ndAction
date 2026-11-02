@@ -1,0 +1,4 @@
+# 名前	from	to	settle	fps	contact	resume	基準の絵
+# 空中の駆け抜け斬り: 構え/水平に駆け抜けて斬る/体を起こす(地上の低い踏み込みの絵の代わり)
+air	-	kit:dashslash	A	14	-1	-1	Assets/Art/NinjaPoses_v1/dashslash/dashslash_00.png
+airend	-	kit:slashend	A	14	-1	-1	Assets/Art/NinjaPoses_v1/dashslash/dashslash_00.png

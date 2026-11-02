@@ -73,6 +73,27 @@ public class EnemyAnimator : MonoBehaviour
     // 天空回廊Enemy(2026-09-28): 状態ごとの絵と待機中の浮遊(EnemyDefinition.poses/idleHoverAmplitude)。
     // 未設定(既存Enemy)なら下の従来処理のまま。
     public EnemyPoseSprites poses;
+    // 2026-11-02 動作のつなぎ(MotionLink.cs)。キー: idle / move / telegraph / attack / recover / hit / charge / dive / dormant / wake。
+    // air = true のつなぎは「その状態の絵の差し替え」(idle なら待機の絵を fps で回す)。runOffsets = 走りのコマごとの表示位置の補正
+    [System.NonSerialized] public MotionLink[] motionLinks;
+    [System.NonSerialized] public Vector2[] runOffsets;
+    readonly MotionLinkPlayer motion = new MotionLinkPlayer();
+    MotionLink[] motionLinksApplied; MotionLink idleClip; float idleT;
+    public static bool QaLegacyMotion;
+    public string MotionKey => motion.CurrentKey;
+    Sprite Link(string key, Sprite s)
+    {
+        if (motionLinks != motionLinksApplied) { motionLinksApplied = motionLinks; motion.SetLinks(motionLinks); idleClip = motion.FindAir("idle"); }
+        if (QaLegacyMotion || motionLinks == null) return s;
+        if (key == "idle" && idleClip != null) { idleT += Time.deltaTime; s = idleClip.frames[(int)(idleT * idleClip.fps) % idleClip.frames.Length]; }
+        motion.Observe(key, 0, Time.deltaTime);
+        return motion.Apply(s, null, 0, -1, 0f, out _);
+    }
+    Vector3 RunOffset(int idx)
+    {
+        if (QaLegacyMotion || runOffsets == null || runFrames == null || runOffsets.Length != runFrames.Length || idx < 0 || idx >= runOffsets.Length) return Vector3.zero;
+        return new Vector3(runOffsets[idx].x * baseVisualScale.x, runOffsets[idx].y * baseVisualScale.y, 0f);
+    }
     public float idleHoverAmplitude;
     public float idleHoverSpeed = 1.6f;
     EnemyController controllerForPose;
@@ -198,7 +219,7 @@ public class EnemyAnimator : MonoBehaviour
         if (attackSprite != null && visualRenderer != null && specialForPose != null && specialForPose.IsInAttackPose)
         {
             if (!inAttackPose) { inAttackPose = true; poseRestoreSprite = visualRenderer.sprite; }
-            visualRenderer.sprite = attackSprite;
+            visualRenderer.sprite = Link("attack", attackSprite);
             ApplyVisualPose(1f, 0f, true); // 攻撃の絵はそのままの大きさ・傾きで(すぐに)
             lastRootPos = transform.position;
             return;
@@ -221,7 +242,8 @@ public class EnemyAnimator : MonoBehaviour
         {
             runFrameTimer += Time.deltaTime * rate;
             int idx = Mathf.FloorToInt(runFrameTimer) % runFrames.Length;
-            visualRenderer.sprite = runFrames[idx];
+            visualRenderer.sprite = Link("move", runFrames[idx]);
+            visual.localPosition = baseVisualLocalPos + RunOffset(idx);
             // The run frames themselves already carry the motion/liveliness
             // - layering the idle squash/sway on top of an already-
             // animated pose would read as a wobble fighting the art, so
@@ -234,7 +256,8 @@ public class EnemyAnimator : MonoBehaviour
         if (hasRunAnimation)
         {
             runFrameTimer = 0f;
-            visualRenderer.sprite = runFrames[0];
+            visualRenderer.sprite = Link("idle", runFrames[0]);
+            if (runOffsets != null) visual.localPosition = baseVisualLocalPos;
         }
 
         // Scaling happens around visual's own origin, which sits at the
@@ -252,7 +275,8 @@ public class EnemyAnimator : MonoBehaviour
     {
         Sprite want = null;
         EnemyPose pose = specialForPose != null ? specialForPose.CurrentPose : EnemyPose.None;
-        if (controllerForPose != null && Time.time < controllerForPose.HitPoseUntil && poses.hit != null) want = poses.hit;
+        string key = "idle";
+        if (controllerForPose != null && Time.time < controllerForPose.HitPoseUntil && poses.hit != null) { want = poses.hit; key = "hit"; }
         else
         {
             switch (pose)
@@ -266,6 +290,7 @@ public class EnemyAnimator : MonoBehaviour
                 case EnemyPose.Dive: want = poses.dive != null ? poses.dive : poses.attack; break;
             }
             if (want == null && specialForPose != null && specialForPose.IsInAttackPose) want = attackSprite;
+            if (want != null) key = pose == EnemyPose.None ? "attack" : pose.ToString().ToLowerInvariant();
         }
 
         // 休眠(石像)は完全に静止。それ以外は待機中の浮遊だけ絵に足す(当たり判定=Rootは動かさない)。
@@ -275,7 +300,7 @@ public class EnemyAnimator : MonoBehaviour
         if (want != null)
         {
             inPoseSprite = true;
-            visualRenderer.sprite = want;
+            visualRenderer.sprite = Link(key, want);
             ApplyVisualPose(1f, 0f, true);
             lastRootPos = transform.position;
             return;
@@ -288,17 +313,31 @@ public class EnemyAnimator : MonoBehaviour
         bool moving = hasRun && HeldMoving(flapping || movedX > 0.0008f);
         float rate2 = hasRun ? RunRate(flapping) : runFrameRate;
         lastRootPos = transform.position;
+        // 2026-11-02(エステル案): 自分では動かない雑魚(行動なし)が動くのは、攻撃で押された時だけ。以前は押されて滑る間に走りの脚が回り、
+        // 自分で走っているように見えた → 動きのつなぎがある敵は、滑る間は被弾の姿勢のまま(止まってから戻りのコマで待機へ)
+        if (moving && !flapping && !ownsRootMotion && poses.hit != null && motionLinks != null && !QaLegacyMotion)
+        {
+            visualRenderer.sprite = Link("hit", poses.hit);
+            ApplyVisualPose(1f, 0f);
+            inPoseSprite = true;
+            return;
+        }
         if (moving)
         {
             runFrameTimer += Time.deltaTime * rate2;
-            visualRenderer.sprite = runFrames[Mathf.FloorToInt(runFrameTimer) % runFrames.Length];
+            int ri = Mathf.FloorToInt(runFrameTimer) % runFrames.Length;
+            visualRenderer.sprite = Link("move", runFrames[ri]);
+            visual.localPosition += RunOffset(ri);
             ApplyVisualPose(1f, 0f);
             inPoseSprite = false;
             return;
         }
         runFrameTimer = 0f;
-        if (inPoseSprite || hasRun) visualRenderer.sprite = hasRun && (baseSprite == null || idleUsesRunFrame) ? runFrames[0] : baseSprite;
+        if (inPoseSprite || hasRun || idleClip != null || motion.Active != null)
+            visualRenderer.sprite = Link("idle", hasRun && (baseSprite == null || idleUsesRunFrame) ? runFrames[0] : baseSprite);
         inPoseSprite = false;
+        // 待機の絵(呼吸のコマ)がある敵は、手続きの伸び縮み・傾きを重ねない(絵の呼吸と二重になる)
+        if (idleClip != null && !QaLegacyMotion) { ApplyVisualPose(1f, 0f); return; }
         // 待機: 浮遊する種は伸縮を控えめに(浮遊と二重に揺れないよう)
         float squash = (idleHoverAmplitude > 0f ? squashAmount * 0.4f : squashAmount) * idleSquashScale;
         ApplyVisualPose(1f + s * squash, Mathf.Sin(swayPhase) * swayDegrees * (idleHoverAmplitude > 0f ? 0.5f : 1f) * (idleSquashScale < 1f ? 0.6f : 1f));

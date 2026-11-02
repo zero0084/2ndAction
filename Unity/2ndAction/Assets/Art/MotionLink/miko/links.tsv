@@ -1,0 +1,5 @@
+# 名前	from	to	settle	fps	contact	resume	基準の絵
+# 空中の御札投げ: 引く/放つ/戻す(放った御札はゲームの弾が出すので絵から消した)
+air	-	kit:throw	A	14	1	-1	Assets/Art/MikoPoses_v1/throw/throw_p0_00.png
+# 空中の結界(下): 錫杖を真下へ構える/突き出して結界(空中で膝をつく絵の代わり)
+airplace	-	kit:place	A	14	1	-1	Assets/Art/MikoPoses_v1/place/place_p1_00.png

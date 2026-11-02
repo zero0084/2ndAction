@@ -176,6 +176,15 @@ public class PlayerAnimator : MonoBehaviour
     // with double-jump taking priority over a still-running jump-start).
     float jumpStartTimer;
     float doubleJumpTimer;
+    // 2026-11-02 動作のつなぎ(MotionLink.cs): 走り/構えと動作の間、連撃の段の間に描き足したコマ
+    readonly MotionLinkPlayer motion = new MotionLinkPlayer();
+    int motionSerialSeen = -1;
+    State keyState = (State)(-1); int keyStage = -1; string keyPose; bool keyStance; string motionKey;
+    public string MotionKey => motionKey;
+    public static bool QaLegacyMotion; // 開発の確認用: つなぎ・連撃の最初のコマ・攻撃の速さの絵を、直す前の見た目に戻す(前後の比較動画)
+    public MotionLinkPlayer Motion => motion;
+    MotionLink airClip; bool airLatched;
+    Vector2[] runOffsets; bool runOffsetApplied; // 走りのコマごとの表示位置の補正(CharacterDefinition.runFrameOffsets) // 空中用のコマ(動作の始まりで決めて、その動作の間は固定)
     float landTimer;
     float downAttackLandTimer;
 
@@ -205,6 +214,7 @@ public class PlayerAnimator : MonoBehaviour
         if (controller == null) return;
         controller.JumpStarted += OnJumpStarted;
         controller.DoubleJumped += OnDoubleJumped;
+        controller.AirUpAttackShown += OnDoubleJumped;
         controller.Landed += OnLanded;
         controller.DiveAttackLanded += OnDiveAttackLanded;
     }
@@ -214,18 +224,22 @@ public class PlayerAnimator : MonoBehaviour
         if (controller == null) return;
         controller.JumpStarted -= OnJumpStarted;
         controller.DoubleJumped -= OnDoubleJumped;
+        controller.AirUpAttackShown -= OnDoubleJumped;
         controller.Landed -= OnLanded;
         controller.DiveAttackLanded -= OnDiveAttackLanded;
     }
 
+    // 2026-11-02: 上攻撃の絵が1枚だけのキャラ(双剣士/お嬢様の二段目)は 18fps の1コマ = 0.056秒で消え、残りの判定の間(0.28秒)は
+    // 普通のジャンプの絵になっていた(空中で棒立ちに見える)。1枚の絵は上攻撃の判定の間は出し続ける
+    const float UpAttackPoseHold = 0.28f;
     void OnJumpStarted()
     {
-        if (jumpStartFrames != null && jumpStartFrames.Length > 0) jumpStartTimer = jumpStartFrames.Length / jumpStartFps;
+        if (jumpStartFrames != null && jumpStartFrames.Length > 0) jumpStartTimer = jumpStartFrames.Length == 1 && !QaLegacyMotion ? UpAttackPoseHold : jumpStartFrames.Length / jumpStartFps;
     }
 
     void OnDoubleJumped()
     {
-        if (doubleJumpFrames != null && doubleJumpFrames.Length > 0) doubleJumpTimer = doubleJumpFrames.Length / doubleJumpFps;
+        if (doubleJumpFrames != null && doubleJumpFrames.Length > 0) doubleJumpTimer = doubleJumpFrames.Length == 1 && !QaLegacyMotion ? UpAttackPoseHold : doubleJumpFrames.Length / doubleJumpFps;
     }
 
     void OnLanded()
@@ -296,6 +310,9 @@ public class PlayerAnimator : MonoBehaviour
             defaultFinishExtremeFrames = finishExtremeFrames;
         }
         if (def == null) return;
+        motion.SetLinks(def.motionLinks);
+        runOffsets = def.runFrameOffsets != null && HasFrames(def.runFrames) && def.runFrameOffsets.Length == def.runFrames.Length ? def.runFrameOffsets
+                   : def.runFrameOffsets != null && !HasFrames(def.runFrames) && HasFrames(defaultRunFrames) && def.runFrameOffsets.Length == defaultRunFrames.Length ? def.runFrameOffsets : null;
 
         lanceBackFrames = def.isLancer && HasFrames(def.lanceBackFrames) ? def.lanceBackFrames : null;
         lanceDownFrames = def.isLancer && HasFrames(def.lanceDownFrames) ? def.lanceDownFrames : null;
@@ -613,6 +630,25 @@ public class PlayerAnimator : MonoBehaviour
         lanceBackFrames = null; lanceDownFrames = null; lanceDiveFrames = null; deathFrames = null;
     }
 
+    // 動作のつなぎのキー(MotionLink.cs の一覧)。変わった時だけ文字列を作る
+    string ComputeMotionKey(State s, int attackStage)
+    {
+        string pose = null;
+        if (s == State.Attack && controller != null)
+        {
+            if (controller.UltimatePoseFrames != null) pose = "ult";
+            else if (controller.KitPoseFrames != null) pose = "kit:" + controller.KitPoseName;
+            else if (controller.IsLancer && controller.LanceMove != PlayerController.LanceMoveKind.None) pose = "lance:" + controller.LanceMove.ToString().ToLowerInvariant();
+        }
+        int stage = s == State.Attack ? Mathf.Clamp(attackStage, 1, 3) : 0;
+        if (motionKey != null && s == keyState && stage == keyStage && pose == keyPose && battleStance == keyStance) return motionKey;
+        keyState = s; keyStage = stage; keyPose = pose; keyStance = battleStance;
+        if (s == State.Attack) motionKey = pose ?? ("attack" + stage);
+        else if (s == State.StartPrep) motionKey = battleStance ? "stance" : "startprep";
+        else motionKey = s.ToString().ToLowerInvariant();
+        return motionKey;
+    }
+
     // 竜騎士の攻撃中は技ごとの専用ポーズ(無ければ通常の攻撃絵)。
     Sprite[] ResolveAttackFrames(int attackStage)
     {
@@ -674,6 +710,25 @@ public class PlayerAnimator : MonoBehaviour
         {
             visualT.localPosition = visualBasePos;
             diveOffsetApplied = false;
+        }
+    }
+
+    // 走りのコマの表示位置の補正。走りのコマを出している時だけ(つなぎのコマ・他の姿勢の演出中は触らない)
+    void ApplyRunOffset(int runIndex)
+    {
+        if (visualT == null) return;
+        bool on = runIndex >= 0 && runOffsets != null && runIndex < runOffsets.Length && !QaLegacyMotion
+                  && !reactionPoseApplied && !startFinishPoseApplied && poseExitElapsed < 0f && !diveOffsetApplied;
+        if (on)
+        {
+            Vector2 o = runOffsets[runIndex];
+            visualT.localPosition = visualBasePos + new Vector3(o.x * visualBaseScale.x, o.y * visualBaseScale.y, 0f);
+            runOffsetApplied = true;
+        }
+        else if (runOffsetApplied)
+        {
+            if (!reactionPoseApplied && !startFinishPoseApplied && poseExitElapsed < 0f && !diveOffsetApplied) visualT.localPosition = visualBasePos;
+            runOffsetApplied = false;
         }
     }
 
@@ -761,6 +816,12 @@ public class PlayerAnimator : MonoBehaviour
         runPhase += dt * runFps * runTempo;
         if (runPhase > 100000f) runPhase -= 100000f;
 
+        int serialNow = controller != null ? controller.MotionSerial : 0;
+        // 2026-11-02: 連撃は前の段の終わりと同じフレームで次の段が始まり、状態が Attack のまま続く。
+        // 以前はコマ番号が前の段の最後のまま残り、2段目/3段目は最後のコマだけが出ていた → 新しい攻撃は最初のコマから
+        bool newAttack = newState == State.Attack && state == State.Attack && serialNow != motionSerialSeen;
+        motionSerialSeen = serialNow;
+        if (newAttack && !QaLegacyMotion) { frameIndex = 0; frameTimer = 0f; }
         if (newState != state)
         {
             State prevState = state;
@@ -774,6 +835,14 @@ public class PlayerAnimator : MonoBehaviour
         }
 
         Sprite[] frames = ResolveFrames(state, attackStage, controller != null ? controller.FinishTierIndex : 0);
+        if (motion.Observe(ComputeMotionKey(state, attackStage), state == State.Attack ? serialNow : 0, dt))
+        {
+            // 地上の上攻撃(JumpStart)も、跳び上がった後に出るので空中用があればそれ(黒剣士の地上の踏ん張りの絵を上昇中に出さない)
+            airLatched = controller != null && controller.Kit != CharacterKit.Mage && !QaLegacyMotion
+                         && ((state == State.Attack && !controller.IsGrounded) || state == State.JumpStart);
+            airClip = airLatched ? motion.FindAir(motionKey) : null;
+            if (airClip != null) motion.Cancel(); // 空中では地上用の「入る直前」は出さない
+        }
         ApplyReactionPose();
         ApplyStartFinishPose();
         VisualPoseGuard();
@@ -793,7 +862,7 @@ public class PlayerAnimator : MonoBehaviour
         {
             // ボス戦の停止戦の構え: 開始準備のコマのうち「構え」(3コマ以上は最後の1つ前 = 走り出しの前、2コマ以下は最後)で止める
             frameIndex = frames.Length > 2 ? frames.Length - 2 : frames.Length - 1;
-            SetSpriteSafe(frames[frameIndex]);
+            SetSpriteSafe(motion.Apply(frames[frameIndex], frames, frameIndex, -1, 0f, out _));
         }
         else if (state == State.StartPrep && HasFrames(startFrames))
         {
@@ -815,7 +884,8 @@ public class PlayerAnimator : MonoBehaviour
         {
             float fps = state switch
             {
-                State.Attack => GetAttackFps(attackStage),
+                // 2026-11-02: ATTACK SPEED UP で振りが短くなった分、絵も同じ割合で速く(以前は途中で切れて最後のコマまで出なかった)
+                State.Attack => GetAttackFps(attackStage) / (QaLegacyMotion ? 1f : Mathf.Clamp(controller != null ? controller.AttackSpeedMultiplier : 1f, 0.25f, 1f)),
                 State.Jump => jumpFps,
                 State.JumpStart => jumpStartFps,
                 State.DoubleJump => doubleJumpFps,
@@ -874,8 +944,27 @@ public class PlayerAnimator : MonoBehaviour
                 if (vy > JumpPoseSpeed && jumpRiseFrames != null) pick = jumpRiseFrames[0];
                 else if (vy < -JumpPoseSpeed && jumpFallFrames != null) pick = jumpFallFrames[0];
             }
+            if (airClip != null && (state == State.Attack || state == State.JumpStart))
+            {
+                // 当たるコマ(contactFrame)が決まっていれば、その手前 = 空中の構え(0)、当たるコマから = 振り(1〜)。無ければ割合で
+                int an = airClip.frames.Length, c = airClip.contactFrame;
+                // 元の絵が1枚だけの技(双剣士の上攻撃など)は、空中用のコマを時間で送る(fps)
+                int ai = frames.Length <= 1 ? Mathf.FloorToInt(motion.GroupTime * airClip.fps)
+                    : c > 0 && c < frames.Length && an >= 2
+                    ? (frameIndex < c ? 0 : 1 + (frameIndex - c) * (an - 1) / Mathf.Max(1, frames.Length - c))
+                    : frameIndex * an / Mathf.Max(1, frames.Length);
+                ai = Mathf.Clamp(ai, 0, an - 1);
+                pick = airClip.frames[ai];
+            }
+            bool driven = state == State.Attack && controller != null && (controller.KitPoseFrames != null || (controller.IsLancer && controller.LanceMove != PlayerController.LanceMoveKind.None));
+            int contact = state == State.Attack && controller != null && controller.KitPoseFrames != null && controller.KitContactIndex >= 0
+                ? controller.KitContactIndex : (motion.Active != null ? motion.Active.contactFrame : -1);
+            pick = motion.Apply(pick, frames, frameIndex, contact, driven ? 0f : fps, out _);
+            int resume = motion.TakeResume();
+            if (resume >= 0 && HasFrames(runFrames)) runPhase = resume % runFrames.Length;
             SetSpriteSafe(pick);
             ApplyLanceDiveOffset(frames);
+            ApplyRunOffset(state == State.Run && frames == runFrames && pick == frames[frameIndex] ? frameIndex : -1);
         }
 
         if (brightenOverlay != null)

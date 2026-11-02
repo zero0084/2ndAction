@@ -210,6 +210,14 @@ MonoBehaviour:
   - {fileID: 21300000, guid: b529b54c03a305e4894b99647633095d, type: 3}
   - {fileID: 21300000, guid: e5853e335b4a70e48a9001a229bdaade, type: 3}
   - {fileID: 21300000, guid: 95021176df40e7344abcec48f8e76d3a, type: 3}
+  motionLinks: []
+  runFrameOffsets:
+  - {x: -0.0702, y: 0}
+  - {x: 0.0737, y: 0}
+  - {x: -0.0394, y: 0}
+  - {x: 0.1353, y: 0}
+  - {x: 0.0222, y: 0}
+  - {x: -0.1215, y: 0}
   kit: 0
   kitPoses:
   - name: air

@@ -214,6 +214,29 @@ MonoBehaviour:
   - {fileID: 21300000, guid: a2d83fbde7ee365449d6e746619443c0, type: 3}
   - {fileID: 21300000, guid: 46282402f2e6f7f4fa39ec8556a2714b, type: 3}
   - {fileID: 21300000, guid: f3d0750c07e3496428e6228a0014d03a, type: 3}
+  motionLinks:
+  - from: '-'
+    to: kit:throw
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: 78e8c7a0543d4094b97462e82fc30cbf, type: 3}
+    - {fileID: 21300000, guid: d0e0e2acea97c96489eb2af73d5a8da5, type: 3}
+    - {fileID: 21300000, guid: 30bd9112f6f9d144bb28083f3fe4dea8, type: 3}
+    fps: 14
+    contactFrame: 1
+    resumeFrame: -1
+  - from: '-'
+    to: kit:place
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: e8f41f7ab5ffc1c42b9f8a4436c6eb7f, type: 3}
+    - {fileID: 21300000, guid: 6739270a09510f3488725ba3ad56d883, type: 3}
+    fps: 14
+    contactFrame: 1
+    resumeFrame: -1
+  runFrameOffsets: []
   kit: 5
   kitPoses:
   - name: throw

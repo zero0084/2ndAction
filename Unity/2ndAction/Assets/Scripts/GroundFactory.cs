@@ -596,6 +596,8 @@ public static class GroundFactory
             if (ec != null) { ec.poseHit = def.poses.hit; ec.poseDeath = def.poses.death; }
         }
         if (anim != null && def.idleHoverAmplitude > 0f) anim.idleHoverAmplitude = def.idleHoverAmplitude;
+        // 2026-11-02 動作のつなぎ/走りの表示位置の補正(無ければ今までどおり)
+        if (anim != null) { anim.motionLinks = def.motionLinks; anim.runOffsets = def.runFrameOffsets; }
         // BONUS ZONE(2026-09-29): 報酬Enemyの印(報酬の計算・逃走の指示はBonusEnemyが持つ)
         if (def.bonusKind != BonusEnemyKind.None && ec != null)
         {

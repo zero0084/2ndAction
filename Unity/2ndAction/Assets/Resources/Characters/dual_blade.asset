@@ -214,6 +214,37 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0d8de46aa2b2c4d4193f807bb575f010, type: 3}
   - {fileID: 21300000, guid: 78fa341c2b75dc94eaa5fb4914962a22, type: 3}
   - {fileID: 21300000, guid: 28e32be5c5a00444a9b302aaf081bc64, type: 3}
+  motionLinks:
+  - from: '-'
+    to: attack1|attack2|attack3
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: 035d8c7d9e7aba14ca2c1d30d68e0bd1, type: 3}
+    - {fileID: 21300000, guid: ae506bbe6c5b63a4499d185bd754ec20, type: 3}
+    - {fileID: 21300000, guid: 7238b9c0146d9484fb67c9848a8e060e, type: 3}
+    fps: 14
+    contactFrame: 1
+    resumeFrame: -1
+  - from: '-'
+    to: jumpstart
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: 388bad6810a443a498d7d7d2794163e8, type: 3}
+    - {fileID: 21300000, guid: 8a3c110584545934f85ce109043c5718, type: 3}
+    - {fileID: 21300000, guid: 7b302a37881390246b399e4819e27824, type: 3}
+    fps: 11
+    contactFrame: -1
+    resumeFrame: -1
+  runFrameOffsets:
+  - {x: 0.0921, y: 0}
+  - {x: -0.0425, y: 0}
+  - {x: -0.1204, y: 0}
+  - {x: -0.0992, y: 0}
+  - {x: 0.1062, y: 0}
+  - {x: 0.1487, y: 0}
+  - {x: -0.085, y: 0}
   kit: 0
   kitPoses: []
   archer:

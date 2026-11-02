@@ -1,0 +1,5 @@
+# 名前	from	to	settle	fps	contact	resume	基準の絵
+# 空中の攻撃(小/中/大 共通): 構え/交差の斬り/斬り抜け
+air1	-	attack1|attack2|attack3	A	14	1	-1	Assets/Art/DualBladeAttackSmall_v1/attacksmall_00.png
+# 地上からの↑(上攻撃): 跳ぶだけの1枚の代わりに 溜め/交差の斬り上げ/振り切り(0.28秒で3枚)
+airup	-	jumpstart	A	11	-1	-1	Assets/Art/DualBladeJumpStart_v1/jumpstart_00.png

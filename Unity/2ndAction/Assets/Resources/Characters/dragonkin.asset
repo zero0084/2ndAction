@@ -213,6 +213,19 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 71ac1ab56852f51438df06fb54fbc7cd, type: 3}
   - {fileID: 21300000, guid: a9898063451d24249952aabac3c50533, type: 3}
   - {fileID: 21300000, guid: ec1d166a7e90159489489dba44fbcdf5, type: 3}
+  motionLinks:
+  - from: '-'
+    to: kit:claw1|kit:claw2|kit:claw3
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: 2d5afb8fc813ed84d8869c628b17cc30, type: 3}
+    - {fileID: 21300000, guid: e71b9689d734ffd41a6c788e6c99a292, type: 3}
+    - {fileID: 21300000, guid: 94ae0ab666c59a24db8626403dc6603f, type: 3}
+    fps: 14
+    contactFrame: 1
+    resumeFrame: -1
+  runFrameOffsets: []
   kit: 7
   kitPoses:
   - name: claw1

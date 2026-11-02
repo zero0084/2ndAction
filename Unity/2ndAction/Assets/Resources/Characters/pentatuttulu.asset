@@ -214,6 +214,29 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 477b511e3d7b4d54581c9e9c72d89e02, type: 3}
   - {fileID: 21300000, guid: c9014396960d8b1498496f1b84c3ae3b, type: 3}
   - {fileID: 21300000, guid: 69e4b051de09fbb45b59a3629b6b07d6, type: 3}
+  motionLinks:
+  - from: '-'
+    to: kit:upreach
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: 3af9e4ff6a852024895c8fdcc30cd8ba, type: 3}
+    - {fileID: 21300000, guid: 1b2f7a5e6c44dbc40953882a8ffe0126, type: 3}
+    fps: 14
+    contactFrame: 1
+    resumeFrame: -1
+  - from: '-'
+    to: kit:stretch1|kit:stretch2
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: 8a194c34c078c794ba7a01764a2e9e6d, type: 3}
+    - {fileID: 21300000, guid: b3dd63266fe6c8440b30d97efe7ed2bc, type: 3}
+    - {fileID: 21300000, guid: 3d55fea27b73ae54cb422e6cdbd766bb, type: 3}
+    fps: 14
+    contactFrame: 1
+    resumeFrame: -1
+  runFrameOffsets: []
   kit: 9
   kitPoses:
   - name: stretch1

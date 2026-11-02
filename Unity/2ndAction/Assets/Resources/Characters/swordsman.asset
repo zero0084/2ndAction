@@ -192,6 +192,130 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 8f7a1e5400abb6c4da2ab9912043397b, type: 3}
   - {fileID: 21300000, guid: 47320948ac115a14fb05efa753e87713, type: 3}
   - {fileID: 21300000, guid: bb06e1710c0787d41aa6bad5917519d1, type: 3}
+  motionLinks:
+  - from: run|stance
+    to: attack1
+    settle: 0
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: 6a609d7e44c7b1145a90afcbd8c1da4a, type: 3}
+    - {fileID: 21300000, guid: bd44b51242ad6874d8ba5b467aefcfd9, type: 3}
+    fps: 28
+    contactFrame: 2
+    resumeFrame: -1
+  - from: attack1
+    to: run
+    settle: 1
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: d2da78587afae1c4cac88e3cab453d79, type: 3}
+    - {fileID: 21300000, guid: 1435ec9f0fb90eb428f9c777db90f30d, type: 3}
+    fps: 14
+    contactFrame: -1
+    resumeFrame: 0
+  - from: attack1
+    to: attack2
+    settle: 0
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: 0b6ac942cb29e774e86b94f8be25d200, type: 3}
+    - {fileID: 21300000, guid: 0388590270a0d4e4a9db032fd9487ac3, type: 3}
+    fps: 28
+    contactFrame: 2
+    resumeFrame: -1
+  - from: attack2
+    to: run
+    settle: 1
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: f3b0f77074b376a4ab09f5e6432efe6a, type: 3}
+    - {fileID: 21300000, guid: c6ff6ce2dd2bbb7459c068b0ba463840, type: 3}
+    fps: 14
+    contactFrame: -1
+    resumeFrame: 0
+  - from: attack2
+    to: attack3
+    settle: 0
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: 51fb86b2d3254704684314f11d87a8ec, type: 3}
+    - {fileID: 21300000, guid: a4232657ce824b842be1a07c9506b828, type: 3}
+    fps: 28
+    contactFrame: 1
+    resumeFrame: -1
+  - from: attack3
+    to: run
+    settle: 1
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: 76daef0b2b33650479cf9633a5919a40, type: 3}
+    - {fileID: 21300000, guid: 74417ebb74a60f04780f25488ecce27d, type: 3}
+    fps: 14
+    contactFrame: -1
+    resumeFrame: 0
+  - from: '-'
+    to: attack1
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: 8ef30c82e2c2e3f4e9bdc16193b21d8a, type: 3}
+    - {fileID: 21300000, guid: e211d0fc319d0714398fa55b7488d691, type: 3}
+    - {fileID: 21300000, guid: c1c09fe3f26675b45bc6d661b22685c3, type: 3}
+    fps: 14
+    contactFrame: 2
+    resumeFrame: -1
+  - from: '-'
+    to: attack2
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: 796d819a246de8f49a04be007c545843, type: 3}
+    - {fileID: 21300000, guid: 117490063456a6348bbf9252aaab3de1, type: 3}
+    - {fileID: 21300000, guid: 4afcee74eef423140836102ba3dbbda9, type: 3}
+    fps: 14
+    contactFrame: 2
+    resumeFrame: -1
+  - from: '-'
+    to: attack3
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: 8d2af2401f0d58b4186ddf068f0b789e, type: 3}
+    - {fileID: 21300000, guid: 76a39d1adad86354883903930876cbfd, type: 3}
+    - {fileID: 21300000, guid: b2b2298144abe6e4e984a62e09bc3fbc, type: 3}
+    fps: 14
+    contactFrame: 1
+    resumeFrame: -1
+  - from: '-'
+    to: jumpstart
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: 95cc8f14d23b3134f869f8002212fd44, type: 3}
+    - {fileID: 21300000, guid: 5f955eb5458bb944d8370fbb46b554b6, type: 3}
+    - {fileID: 21300000, guid: 74972aac858769743ac6ecb9917b72f0, type: 3}
+    fps: 18
+    contactFrame: 2
+    resumeFrame: -1
+  - from: hurt|recovery
+    to: run
+    settle: 1
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: 22510c859f58dc84fbfd626019449701, type: 3}
+    fps: 10
+    contactFrame: -1
+    resumeFrame: 0
+  - from: landing
+    to: run
+    settle: 1
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: 47fe509bc6206be41aaa116bfa11c652, type: 3}
+    fps: 10
+    contactFrame: -1
+    resumeFrame: 0
+  runFrameOffsets: []
   kit: 0
   kitPoses: []
   archer:

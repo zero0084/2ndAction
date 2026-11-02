@@ -1,0 +1,25 @@
+# 名前	from	to	settle	fps	contact	resume	基準の絵
+# 走り/構え → 1段目(斬り上げ): 入りA 走りながら踏み込み準備 / 入りB 斬り上げ直前の沈み込み(エステル案)
+lead1	run|stance	attack1	0	28	2	-1	Assets/Art/PlayerAttackSmall_v1/attacksmall_00.png
+# 1段目の最後 → 走り: 戻りA 剣を下ろし始める / 戻りB 走行姿勢への復帰(走りの0コマ目へ)
+settle1	attack1	run	1	14	-1	0	Assets/Art/PlayerRun_v1/run_00.png
+# 1段目の最後 → 2段目(横薙ぎ): 入りA 頭上の剣を肩の後ろへ下ろす / 入りB 横薙ぎの溜め
+chain12	attack1	attack2	0	28	2	-1	Assets/Art/PlayerAttack_v1/attack_00.png
+# 2段目の最後 → 走り: 戻りA 剣を斜め下へ戻し始める / 戻りB 剣を後方の低い位置へ、前傾
+settle2	attack2	run	1	14	-1	0	Assets/Art/PlayerRun_v1/run_00.png
+# 2段目の最後 → 3段目(突き): 入りA 剣を胸へ引く / 入りB 剣先が上を通って肩の後ろへ回り始める
+chain23	attack2	attack3	0	28	1	-1	Assets/Art/PlayerAttackLarge_v1/attacklarge_00.png
+# 3段目の最後 → 走り: 戻りA 腕を曲げ剣を腰へ / 戻りB 剣を後方の低い位置へ、前傾
+settle3	attack3	run	1	14	-1	0	Assets/Art/PlayerRun_v1/run_00.png
+# 空中の1段目(斬り上げ): 構え/振り/振り切り。元の5コマへ割合で写す
+air1	-	attack1	A	14	2	-1	Assets/Art/PlayerAttackSmall_v1/attacksmall_00.png
+# 空中の2段目(横薙ぎ)
+air2	-	attack2	A	14	2	-1	Assets/Art/PlayerAttack_v1/attack_00.png
+# 空中の3段目(突き)
+air3	-	attack3	A	14	1	-1	Assets/Art/PlayerAttackLarge_v1/attacklarge_00.png
+# 地上からの↑(上昇しながらの上攻撃): 地上の踏ん張りの絵の代わりに上昇中の空中用3枚
+airup	-	jumpstart	A	18	2	-1	Assets/Art/PlayerUpAttackGround_v1/upattackground_00.png
+# 被弾 → 走り: 崩れた上体を起こして走り出す(1枚)
+settlehurt	hurt|recovery	run	1	10	-1	0	Assets/Art/PlayerRun_v1/run_00.png
+# 着地 → 走り: 低い姿勢から前足で地面を押して走り出す(1枚)
+settleland	landing	run	1	10	-1	0	Assets/Art/PlayerRun_v1/run_00.png

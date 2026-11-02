@@ -1,0 +1,5 @@
+# 名前	from	to	settle	fps	contact	resume	基準の絵
+# 空中の upreach(毎回のジャンプ): 縮んで溜める/触角と両手を真上へ(地面に立つ絵の代わり)
+airup	-	kit:upreach	A	14	1	-1	Assets/Art/PentaPoses_v1/upreach/upreach_00.png
+# 空中の前攻撃(stretch1/stretch2): 腕を引き寄せる/前へ伸ばす/縮める
+air	-	kit:stretch1|kit:stretch2	A	14	1	-1	Assets/Art/PentaPoses_v1/stretch1/stretch1_00.png

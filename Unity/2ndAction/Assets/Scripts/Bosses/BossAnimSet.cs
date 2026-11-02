@@ -22,6 +22,8 @@ public class BossAnimSet
     public Sprite[] land;
     // 2026-10-22: 5つ目の技(animVariant 4 = E、黒騎士の空中斬り)/ 跳んでいる間(fly_、Pose.Fly。無ければ move_)
     public Sprite[] windupE, attackE, fly;
+    // 2026-11-02 動作のつなぎ: 3〜5つ目の技の戻り(recoverC_/D_/E_)。攻撃の最後から移動へ1コマで飛んでいた所
+    public Sprite[] recoverC, recoverD, recoverE;
     public float idleFps = 6f, moveFps = 12f;
     // 本物の走りのコマがある時は、格子の変形(偽の脚の動き)を足さない。
     // 2026-10-24: 以前は 0.2 残していたが、絵の脚とは別の周期で下半身が横へ(絵の幅の約3%)揺れて、絵の動きと競ってバタついて見えた
@@ -73,6 +75,7 @@ public class BossAnimSet
                 recover = Pick(all, "recover_"), recoverB = Pick(all, "recoverB_"), breakLoop = Pick(all, "breakloop_"), rise = Pick(all, "rise_"),
                 windupC = Pick(all, "windupC_"), attackC = Pick(all, "attackC_"), windupD = Pick(all, "windupD_"), attackD = Pick(all, "attackD_"), exhaust = Pick(all, "exhaust_"), dive = Pick(all, "dive_"), emerge = Pick(all, "emerge_"), land = Pick(all, "land_"),
                 windupE = Pick(all, "windupE_"), attackE = Pick(all, "attackE_"), fly = Pick(all, "fly_"),
+                recoverC = Pick(all, "recoverC_"), recoverD = Pick(all, "recoverD_"), recoverE = Pick(all, "recoverE_"),
             };
             // 2026-10-22 第3段階: 移動のループの再生順(move_seq.txt、move_ の番号を空白区切り)。同じ絵を何枠か続けて表示時間に差をつける
             // (羽ばたきの「下ろしは速く・上げはゆっくり」等)。同じ絵の PNG を複製しないので、テクスチャのメモリは増えない
@@ -93,7 +96,7 @@ public class BossAnimSet
     public Sprite[] WindupFor(int v) => (v == 1 ? windupB : v == 2 ? windupC : v == 3 ? windupD : v == 4 ? windupE : null) ?? windup;
     public Sprite[] AttackFor(int v) => (v == 1 ? attackB : v == 2 ? attackC : v == 3 ? attackD : v == 4 ? attackE : null) ?? attack;
     // 2026-10-28: 戻りのコマは、その技の分だけ(以前は B 以降の技の後にも A の戻りが一瞬出ていた)。無い時は呼ぶ側が最後の攻撃のコマを少し残す
-    public Sprite[] RecoverFor(int v) => v == 0 ? recover : v == 1 ? recoverB : null;
+    public Sprite[] RecoverFor(int v) => v == 0 ? recover : v == 1 ? recoverB : v == 2 ? recoverC : v == 3 ? recoverD : v == 4 ? recoverE : null;
 
     static Sprite[] Pick(Sprite[] all, string prefix)
     {

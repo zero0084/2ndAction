@@ -45,6 +45,28 @@ MonoBehaviour:
     wake: {fileID: 0}
     charge: {fileID: 0}
     dive: {fileID: 0}
+  motionLinks:
+  - from: '-'
+    to: idle
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: 9696cabf08a84f84a95b2a6df956fdf9, type: 3}
+    - {fileID: 21300000, guid: a06bd0be3bbd37041a253366c121c450, type: 3}
+    fps: 2
+    contactFrame: -1
+    resumeFrame: -1
+  - from: hit
+    to: idle
+    settle: 1
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: bc6cd17600b1ab24f998e9f24310ad2f, type: 3}
+    - {fileID: 21300000, guid: a7087beb4eb1a264fa6f0edd32e73cce, type: 3}
+    fps: 12
+    contactFrame: -1
+    resumeFrame: -1
+  runFrameOffsets: []
   idleHoverAmplitude: 0
   bodyColliderScale: {x: 1, y: 1}
   bodyColliderOffset: {x: 0, y: 0}

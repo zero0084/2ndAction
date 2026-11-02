@@ -718,6 +718,8 @@ public partial class PlayerController : MonoBehaviour
     // leave the ground), DoubleJumped = second jump (already airborne).
     public event System.Action JumpStarted;
     public event System.Action DoubleJumped;
+    // 2026-11-02: ジャンプせずに出す空中の上攻撃(急降下を↑で止めた時)。絵だけ二段ジャンプの上攻撃と同じにする(音・煙は出さない)
+    public event System.Action AirUpAttackShown;
     public event System.Action Landed;
     // 上下攻撃アニメーション差し替え(2026-09-08) - 下降攻撃(DoDiveAttack)
     // の着地専用Frame(Frame3、衝撃エフェクト込みの1枚絵)をLanded(通常の
@@ -1548,7 +1550,7 @@ public partial class PlayerController : MonoBehaviour
         {
             EndDiveAttack();
             velocityY = 0f;
-            if (canUseAirAttack) StartCoroutine(DoUpAttack(true));
+            if (canUseAirAttack) { StartCoroutine(DoUpAttack(true)); AirUpAttackShown?.Invoke(); }
             // 空中コンボ中は再上昇も(打ち上げ直した敵を追える高さへ)
             if (AerialComboActive) { velocityY = jumpForce * 0.85f; CapComboHeight(); AerialRelaunches++; }
         }
@@ -2922,8 +2924,11 @@ public partial class PlayerController : MonoBehaviour
         }
     }
 
+    // 2026-11-02 動作のつなぎ: 攻撃を出し直すたびに増える番号(連撃で同じ見た目の状態が続いても「新しい攻撃」と分かるように)
+    public int MotionSerial { get; private set; }
     IEnumerator DoAttack(AttackDirection dir)
     {
+        MotionSerial++;
         MarkMainAttack();
         if (!IsAlly) AttackStarted?.Invoke(dir); // 操作の練習など、プレイヤーの攻撃だけを数える
         // 二丁拳銃士(2026-09-23) - Forward/Backwardとも「面で斬る」既存の

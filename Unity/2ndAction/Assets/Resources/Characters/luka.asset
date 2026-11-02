@@ -214,6 +214,19 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 1ff5a519233ff4343ae5d774a0d7aad3, type: 3}
   - {fileID: 21300000, guid: e805b986280e9db46a24fe25e93c6c4b, type: 3}
   - {fileID: 21300000, guid: 3df48d6b4e7c56948a95d3245f5da212, type: 3}
+  motionLinks:
+  - from: '-'
+    to: kit:paw1|kit:paw2
+    settle: 0
+    air: 1
+    frames:
+    - {fileID: 21300000, guid: 74f88522c19ca2a4593fa38f7b43e532, type: 3}
+    - {fileID: 21300000, guid: 83cd0dbe67a8bb44a92ed9b36dcfa60d, type: 3}
+    - {fileID: 21300000, guid: 1e02a3cec17653045a983a72ddb70b24, type: 3}
+    fps: 14
+    contactFrame: 1
+    resumeFrame: -1
+  runFrameOffsets: []
   kit: 8
   kitPoses:
   - name: paw1

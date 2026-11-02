@@ -1,0 +1,7 @@
+# 名前	from	to	settle	fps	contact	resume	基準の絵
+# 走り → 突きの構え: 肩に担いだ槍を頭の上で立てて前へ回し始める(大きな穂先は1つ、前上)
+lead1	run|stance	lance:forward	0	20	1	-1	Assets/Art/LancerThrust_v1/thrust_00.png
+# 突き → 走り: 槍を引いて立て、大きな穂先が頭の上へ回り始める(1枚)
+settle1	lance:forward	run	1	10	-1	0	Assets/Art/LancerRun_v1/run_00.png
+# 空中の前突き: 構え/体ごと突く/突き切り(地上の踏ん張りの絵の代わり)
+air	-	lance:forward	A	14	1	-1	Assets/Art/LancerThrust_v1/thrust_00.png

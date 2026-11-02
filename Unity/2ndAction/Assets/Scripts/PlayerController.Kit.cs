@@ -74,6 +74,8 @@ public partial class PlayerController
         private set { kitPoseFrameRaw = value; kitSeqLen = 0f; }
     }
     public string KitPoseName { get; private set; }
+    // 2026-11-02 動作のつなぎ: 今の技のポーズで「判定が出た」段(_p1_)の最初のコマ。段が無ければ -1
+    public int KitContactIndex => KitPoseName != null && kitPhaseStarts.TryGetValue(KitPoseName, out var st) && st.Length > 1 ? st[1] : -1;
     // isAttackingを持たない一瞬のポーズ(上攻撃の射撃等)の残り時間。
     float kitPoseTimer;
     readonly Dictionary<string, Sprite[]> kitPoseCache = new Dictionary<string, Sprite[]>();
@@ -134,6 +136,7 @@ public partial class PlayerController
         ResetKitState();
         SetSeqTag(AttackSeqTag.None); // every kit move starts untagged; main attacks set their tag right after (AttackSeq)
         int token = ++kitGeneration;
+        MotionSerial++;
         kitOwnsAttack = ownsAttack;
         if (ownsAttack)
         {
