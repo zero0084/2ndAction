@@ -166,17 +166,39 @@ public static class BuildAndroid
 
     // Unity は書き出した Gradle の launcher/build.gradle に storePassword / keyPassword をそのまま書く(Library/Bee の中)。
     // ビルドが終わったら(成功でも失敗でも)空にする。次のビルドでは Unity が毎回書き直す
+    // 2026-11-02: 1段ずつたどり、Gradle の出力(build / .gradle / .cxx)には入らない。消えたフォルダ・読めないファイルがあっても残りを続ける
+    // (ここで例外を出すと finally の残りの復元が飛ぶ)
     static void ScrubGradleSigningPasswords()
     {
         const string root = "Library/Bee/Android/Prj";
         if (!Directory.Exists(root)) return;
         var rx = new System.Text.RegularExpressions.Regex(@"(?m)^(\s*(?:storePassword|keyPassword)\s+)(['""]).*?\2\s*$");
         int n = 0;
-        foreach (var f in Directory.GetFiles(root, "build.gradle", SearchOption.AllDirectories))
+        var dirs = new System.Collections.Generic.Stack<string>();
+        dirs.Push(root);
+        while (dirs.Count > 0)
         {
-            string s = File.ReadAllText(f);
-            string t = rx.Replace(s, "$1''");
-            if (t != s) { File.WriteAllText(f, t); n++; }
+            string d = dirs.Pop();
+            string[] files, subs;
+            try { files = Directory.GetFiles(d, "build.gradle"); subs = Directory.GetDirectories(d); }
+            catch (DirectoryNotFoundException) { continue; }
+            catch (System.Exception e) { Debug.LogWarning("BuildAndroid: could not read folder " + d + " (" + e.GetType().Name + ")"); continue; }
+            foreach (var s in subs)
+            {
+                string name = Path.GetFileName(s);
+                if (name != "build" && name != ".gradle" && name != ".cxx") dirs.Push(s);
+            }
+            foreach (var f in files)
+            {
+                try
+                {
+                    string s = File.ReadAllText(f);
+                    string t = rx.Replace(s, "$1''");
+                    if (t != s) { File.WriteAllText(f, t); n++; }
+                }
+                catch (System.Exception e) when (e is FileNotFoundException || e is DirectoryNotFoundException) { }
+                catch (System.Exception e) { Debug.LogWarning("BuildAndroid: could not clear signing passwords in " + f + " (" + e.GetType().Name + ")"); }
+            }
         }
         Debug.Log("BuildAndroid: cleared signing passwords from " + n + " gradle file(s)");
     }
