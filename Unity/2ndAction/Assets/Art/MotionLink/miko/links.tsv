@@ -3,3 +3,5 @@
 air	-	kit:throw	A	14	1	-1	Assets/Art/MikoPoses_v1/throw/throw_p0_00.png
 # 空中の結界(下): 錫杖を真下へ構える/突き出して結界(空中で膝をつく絵の代わり)
 airplace	-	kit:place	A	14	1	-1	Assets/Art/MikoPoses_v1/place/place_p1_00.png
+# 走り → 御札投げ: 踏ん張って上体を起こし、御札を胸の前へ(1枚)
+mk_lead	run|stance	kit:throw	0	20	-1	-1	Assets/Art/MikoPoses_v1/throw/throw_p0_00.png

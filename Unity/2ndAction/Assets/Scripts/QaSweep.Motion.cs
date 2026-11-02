@@ -47,6 +47,16 @@ public partial class QaSweep
         }
         float mobDist = float.Parse(Arg("-mtMobDist", "6"), CultureInfo.InvariantCulture);
         int mobHp = int.Parse(Arg("-mtMobHp", "100000"));
+        // -mtCards attack_speed_up:9,... = カードを持たせる(ATTACK SPEED UP 取得後の連撃の確認)
+        foreach (var part in Arg("-mtCards", "").Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries))
+        {
+            var kv = part.Split(':'); var c = CardDatabase.FindById(kv[0]);
+            if (c == null) { L($"[motion] unknown card {kv[0]}"); continue; }
+            gm.ApplyCardEffectsStacked(c, kv.Length > 1 ? int.Parse(kv[1]) : 1);
+            L($"[motion] card {kv[0]} lv{(kv.Length > 1 ? kv[1] : "1")} attackSpeed={pc.AttackSpeedMultiplier:F2}");
+        }
+        bool stand = Arg("-mtStand", "0") == "1"; // その場で立って(走らずに)敵の動きを見る
+        if (stand) PlayerController.DebugRunOnlyScale = 0f;
         bool rec = Arg("-mtRec", "1") == "1";
         string frames = System.IO.Path.Combine(outDir, "frames");
         if (rec) System.IO.Directory.CreateDirectory(frames);
@@ -82,7 +92,20 @@ public partial class QaSweep
                 }
             }
             yield return new WaitForEndOfFrame();
-            if (rec) ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(frames, $"f{f:00000}.png"));
+            if (rec)
+            {
+#if UNITY_ANDROID && !UNITY_EDITOR
+                // Android は CaptureScreenshot の絶対パスが書かれない → 画面を絵にして自分で書く(-mtRecEvery n で n フレームごと)
+                if (f % Mathf.Max(1, int.Parse(Arg("-mtRecEvery", "1"))) == 0)
+                {
+                    var tex = ScreenCapture.CaptureScreenshotAsTexture();
+                    System.IO.File.WriteAllBytes(System.IO.Path.Combine(frames, $"f{f:00000}.jpg"), tex.EncodeToJPG(80));
+                    Destroy(tex);
+                }
+#else
+                ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(frames, $"f{f:00000}.png"));
+#endif
+            }
             var cam = Camera.main;
             Vector3 sp = cam != null && sr != null ? cam.WorldToScreenPoint(sr.bounds.center) : Vector3.zero;
             float hpx = cam != null ? Mathf.Abs(cam.WorldToScreenPoint(pc.transform.position + Vector3.up * 1.2f).y - cam.WorldToScreenPoint(pc.transform.position).y) : 0f;
@@ -92,7 +115,7 @@ public partial class QaSweep
             foreach (var ea in FindObjectsByType<EnemyAnimator>(FindObjectsSortMode.None))
             {
                 float d = ea.transform.position.x - pc.transform.position.x;
-                if (d > -2f && d < best && ea.isActiveAndEnabled) { best = d; near = ea; }
+                if (Mathf.Abs(d) < best && ea.isActiveAndEnabled) { best = Mathf.Abs(d); near = ea; }
             }
             var esr = near != null ? near.GetComponentInChildren<SpriteRenderer>() : null;
             Vector3 ep = cam != null && esr != null ? cam.WorldToScreenPoint(esr.bounds.center) : Vector3.zero;
@@ -102,6 +125,7 @@ public partial class QaSweep
             yield return null;
         }
         Time.captureFramerate = 0;
+        PlayerController.DebugRunOnlyScale = 1f;
         PlayerAnimator.QaLegacyMotion = false; EnemyAnimator.QaLegacyMotion = false;
         if (flat && EncounterDirector.Instance != null) EncounterDirector.Instance.enabled = true;
         System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, "motion.tsv"), tsv.ToString());

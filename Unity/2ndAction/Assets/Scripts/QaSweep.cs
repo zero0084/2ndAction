@@ -184,6 +184,8 @@ public partial class QaSweep : MonoBehaviour
         DontDestroyOnLoad(go);
         var q = go.AddComponent<QaSweep>();
         q.mode = mode; q.outDir = QaArgs.Dir(dir);
+        // 2026-11-02: -legacyMotion = どの試験でも、動作のつなぎ等を直す前の見た目で動かす(前後の比較用)
+        if (System.Array.IndexOf(QaArgs.All, "-legacyMotion") >= 0) { PlayerAnimator.QaLegacyMotion = true; EnemyAnimator.QaLegacyMotion = true; }
     }
 
     static string Arg(string name, string def)

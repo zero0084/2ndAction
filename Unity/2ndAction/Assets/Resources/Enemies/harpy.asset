@@ -55,6 +55,15 @@ MonoBehaviour:
     fps: 12
     contactFrame: -1
     resumeFrame: -1
+  - from: recover
+    to: move|idle
+    settle: 1
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: 8169307693fda22458ce8f29d287e220, type: 3}
+    fps: 10
+    contactFrame: -1
+    resumeFrame: -1
   runFrameOffsets: []
   idleHoverAmplitude: 0
   bodyColliderScale: {x: 0.45, y: 0.7}

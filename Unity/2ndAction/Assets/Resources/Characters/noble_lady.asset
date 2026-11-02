@@ -210,14 +210,32 @@ MonoBehaviour:
   - {fileID: 21300000, guid: b529b54c03a305e4894b99647633095d, type: 3}
   - {fileID: 21300000, guid: e5853e335b4a70e48a9001a229bdaade, type: 3}
   - {fileID: 21300000, guid: 95021176df40e7344abcec48f8e76d3a, type: 3}
-  motionLinks: []
+  motionLinks:
+  - from: run|stance
+    to: attack1
+    settle: 0
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: 03dba2dff95824b45b204af906f52118, type: 3}
+    fps: 20
+    contactFrame: 1
+    resumeFrame: -1
+  - from: attack1|attack2|attack3
+    to: run
+    settle: 1
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: e1cc08984748c4648af1527e530843ab, type: 3}
+    fps: 10
+    contactFrame: -1
+    resumeFrame: 0
   runFrameOffsets:
-  - {x: -0.0702, y: 0}
-  - {x: 0.0737, y: 0}
-  - {x: -0.0394, y: 0}
-  - {x: 0.1353, y: 0}
-  - {x: 0.0222, y: 0}
-  - {x: -0.1215, y: 0}
+  - {x: -0.0654, y: 0}
+  - {x: 0.0686, y: 0}
+  - {x: -0.0367, y: 0}
+  - {x: 0.126, y: 0}
+  - {x: 0.0207, y: 0}
+  - {x: -0.1131, y: 0}
   kit: 0
   kitPoses:
   - name: air

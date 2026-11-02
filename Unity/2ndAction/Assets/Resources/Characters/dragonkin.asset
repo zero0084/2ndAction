@@ -225,6 +225,24 @@ MonoBehaviour:
     fps: 14
     contactFrame: 1
     resumeFrame: -1
+  - from: run|stance
+    to: kit:claw1
+    settle: 0
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: ec2fbd96c3b1e7c48b25ef34f8b30eda, type: 3}
+    fps: 20
+    contactFrame: -1
+    resumeFrame: -1
+  - from: kit:claw1|kit:claw2|kit:claw3
+    to: run
+    settle: 1
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: 1c708ab6c8dd905498628279b226c9af, type: 3}
+    fps: 10
+    contactFrame: -1
+    resumeFrame: 0
   runFrameOffsets: []
   kit: 7
   kitPoses:

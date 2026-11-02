@@ -862,7 +862,7 @@ public class PlayerAnimator : MonoBehaviour
         {
             // ボス戦の停止戦の構え: 開始準備のコマのうち「構え」(3コマ以上は最後の1つ前 = 走り出しの前、2コマ以下は最後)で止める
             frameIndex = frames.Length > 2 ? frames.Length - 2 : frames.Length - 1;
-            SetSpriteSafe(motion.Apply(frames[frameIndex], frames, frameIndex, -1, 0f, out _));
+            SetSpriteSafe(QaLegacyMotion ? frames[frameIndex] : motion.Apply(frames[frameIndex], frames, frameIndex, -1, 0f, out _));
         }
         else if (state == State.StartPrep && HasFrames(startFrames))
         {
@@ -959,7 +959,7 @@ public class PlayerAnimator : MonoBehaviour
             bool driven = state == State.Attack && controller != null && (controller.KitPoseFrames != null || (controller.IsLancer && controller.LanceMove != PlayerController.LanceMoveKind.None));
             int contact = state == State.Attack && controller != null && controller.KitPoseFrames != null && controller.KitContactIndex >= 0
                 ? controller.KitContactIndex : (motion.Active != null ? motion.Active.contactFrame : -1);
-            pick = motion.Apply(pick, frames, frameIndex, contact, driven ? 0f : fps, out _);
+            if (!QaLegacyMotion) pick = motion.Apply(pick, frames, frameIndex, contact, driven ? 0f : fps, out _);
             int resume = motion.TakeResume();
             if (resume >= 0 && HasFrames(runFrames)) runPhase = resume % runFrames.Length;
             SetSpriteSafe(pick);

@@ -1,0 +1,5 @@
+# 名前	from	to	settle	fps	contact	resume	基準の絵
+# 走り → 攻撃: 着地して踏ん張り、大剣を後ろへ引いて腰を落とし始める(1枚)
+noble_lead	run|stance	attack1	0	20	1	-1	Assets/Art/NobleLadyAttack_v1/attack_00.png
+# 攻撃 → 走り: 大剣を後ろへ下ろしながら前傾して蹴り出す(1枚)
+noble_settle	attack1|attack2|attack3	run	1	10	-1	0	Assets/Art/NobleLadyRun_v1/run_00.png

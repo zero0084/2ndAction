@@ -226,6 +226,15 @@ MonoBehaviour:
     fps: 14
     contactFrame: 1
     resumeFrame: -1
+  - from: kit:claw1|kit:claw2|kit:bloodslash
+    to: run
+    settle: 1
+    air: 0
+    frames:
+    - {fileID: 21300000, guid: 8f0f72a42ea4b594892776a65aefed56, type: 3}
+    fps: 10
+    contactFrame: -1
+    resumeFrame: 0
   runFrameOffsets: []
   kit: 6
   kitPoses:

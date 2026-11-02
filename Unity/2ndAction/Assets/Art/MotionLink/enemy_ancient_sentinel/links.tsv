@@ -1,0 +1,3 @@
+# 名前	from	to	settle	fps	contact	resume	基準の絵
+# 硬直 → 待機: 拳を持ち上げ、かがんだ上体を半分起こす(1枚)
+back	recover	idle|move	1	8	-1	-1	Assets/Art/SkyEnemy/ancient_sentinel/idle.png

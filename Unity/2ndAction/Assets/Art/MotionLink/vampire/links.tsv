@@ -1,3 +1,5 @@
 # 名前	from	to	settle	fps	contact	resume	基準の絵
 # 空中の爪(claw1/claw2/bloodslash 共通): 引く/振り抜く/マントが巻き戻る
 air	-	kit:claw1|kit:claw2|kit:bloodslash	A	14	1	-1	Assets/Art/VampirePoses_v1/claw1/claw1_p0_00.png
+# 連撃の終わり → 走り: マントを巻き戻しながら前傾して蹴り出す(1枚)
+vp_settle	kit:claw1|kit:claw2|kit:bloodslash	run	1	10	-1	0	Assets/Art/VampireRun_v1/run_00.png
