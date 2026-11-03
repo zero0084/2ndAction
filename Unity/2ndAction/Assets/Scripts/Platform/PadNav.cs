@@ -44,6 +44,9 @@ public class PadNav : MonoBehaviour
     // メニュー操作が有効か(パッド/キーを使っていて、HUD 以外の候補がある)
     public static bool MenuActive { get; private set; }
     public static bool Suspended; // 2026-10-25: キー設定の待ち受け中はメニュー操作を止める
+    // 2026-11-03: 左右を画面の側で使う(キャラ選択のカルーセル)。その画面が毎フレーム今のフレーム番号を書く → 左右でフォーカスを動かさない
+    public static int HorizontalOwnerFrame = -10;
+    static bool HorizontalOwned => Time.frameCount - HorizontalOwnerFrame <= 1;
     public static bool ShowFocus => MenuActive && hasFocus && GameInput.UsingNonTouch;
     public static int Candidates => prev.Count;
     public static Rect FocusRect => focusRect;
@@ -135,8 +138,8 @@ public class PadNav : MonoBehaviour
         Vector2 dir = Vector2.zero;
         if (GameInput.DownRepeat(GameAction.NavUp)) dir = Vector2.down;      // GUI 座標は下が +y
         else if (GameInput.DownRepeat(GameAction.NavDown)) dir = Vector2.up;
-        else if (!focusSlider && GameInput.DownRepeat(GameAction.NavLeft)) dir = Vector2.left;
-        else if (!focusSlider && GameInput.DownRepeat(GameAction.NavRight)) dir = Vector2.right;
+        else if (!focusSlider && !HorizontalOwned && GameInput.DownRepeat(GameAction.NavLeft)) dir = Vector2.left;
+        else if (!focusSlider && !HorizontalOwned && GameInput.DownRepeat(GameAction.NavRight)) dir = Vector2.right;
         if (dir != Vector2.zero && justActivated) dir = Vector2.zero;
         if (dir != Vector2.zero)
         {

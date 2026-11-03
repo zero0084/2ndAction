@@ -289,6 +289,8 @@ public partial class CharacterSelectUI : MonoBehaviour
         Canvas.ForceUpdateCanvases();
         ApplyOrientationLayout();
 
+        EnsureCardFaces(); // 2026-11-03: 全員同じ規格のカード(CharacterSelectUI.Carousel.cs)
+        RefreshCardFaces();
         var all = CharacterDatabase.AllCharacters;
         string current = !string.IsNullOrEmpty(openAtId) ? openAtId : GameManager.Instance != null ? GameManager.Instance.SelectedCharacterId : null;
         openAtId = null;
@@ -395,6 +397,7 @@ public partial class CharacterSelectUI : MonoBehaviour
 
     void RefreshDetail(bool instant)
     {
+        DetailRefreshes++;
         var all = CharacterDatabase.AllCharacters;
         if (selectedIndex < 0 || selectedIndex >= VisibleCount) return;
         CharacterDefinition def = DefAt(selectedIndex);
@@ -448,7 +451,7 @@ public partial class CharacterSelectUI : MonoBehaviour
         FitMainVisual(id);
         mainVisualGroup.alpha = 0f;
         // エステル: 重ねる時間が長いと二人が透けて混ざって見える → 0.1秒の短いクロスフェード(前の絵は新しい絵より早く消す)
-        float t = 0f, dur = Mathf.Max(0.001f, crossFadeDuration);
+        float t = 0f, dur = MainVisualFade;
         while (t < 1f)
         {
             t = Mathf.Min(1f, t + Time.unscaledDeltaTime / dur);
@@ -534,12 +537,12 @@ public partial class CharacterSelectUI : MonoBehaviour
         // 左右の矢印(カードより先に判定 - 矢印はカード列の端に重なって置いてある)
         if (carouselArrowLeft != null && carouselArrowLeft.gameObject.activeSelf && UiHit.Hit(carouselArrowLeft, screenPos))
         {
-            BeginSnap(Mathf.Max(0, selectedIndex - 1));
+            BeginSnap(Mathf.Max(0, TargetIndex - 1));
             return;
         }
         if (carouselArrowRight != null && carouselArrowRight.gameObject.activeSelf && UiHit.Hit(carouselArrowRight, screenPos))
         {
-            BeginSnap(Mathf.Min(VisibleCount - 1, selectedIndex + 1));
+            BeginSnap(Mathf.Min(VisibleCount - 1, TargetIndex + 1));
             return;
         }
         for (int i = 0; i < cardSlotRects.Length; i++)
@@ -583,12 +586,13 @@ public partial class CharacterSelectUI : MonoBehaviour
         }
 
         UiHit.Probe(HandleTap); // パッド操作中: 押せる枠を集める
+        if (!UiInputGate.ModalOpen) HandleCarouselKeys(); // 2026-11-03: キー/パッドの左右 = 隣のキャラ(カルーセルの動きで)
         // 2026-10-31(Windows の操作): キャラの列の上でホイール = 前/次のキャラ(1目盛りで1人。下へ回すと次)
         if (Mathf.Abs(UguiWheel.Delta) > 0.01f && !UiInputGate.ModalOpen && carouselScroll != null && VisibleCount > 0)
         {
             var vp = carouselScroll.viewport != null ? carouselScroll.viewport : (RectTransform)carouselScroll.transform;
             if (RectTransformUtility.RectangleContainsScreenPoint(vp, Input.mousePosition, null))
-                BeginSnap(Mathf.Clamp(selectedIndex + (UguiWheel.Delta < 0f ? 1 : -1), 0, VisibleCount - 1));
+                BeginSnap(Mathf.Clamp(TargetIndex + (UguiWheel.Delta < 0f ? 1 : -1), 0, VisibleCount - 1));
         }
         // タッチ/マウス + ゲームパッドの決定(フォーカスの中心を叩く)。2026-10-06
         PointerInput.Read(this, out bool down, out bool up, out bool held, out Vector2 screenPos);
@@ -612,7 +616,7 @@ public partial class CharacterSelectUI : MonoBehaviour
                 // 新規ドラッグ開始でスナップ中アニメーションは打ち切る
                 // (BACK/SELECTタップ自体はここでブロックしない - draggingCarousel
                 // はカルーセル領域内で押された場合のみtrueになる)。
-                snapping = false;
+                DragBegin();
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(carouselScroll.viewport, screenPos, null, out lastViewportLocalPos);
             }
         }
@@ -627,9 +631,7 @@ public partial class CharacterSelectUI : MonoBehaviour
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(carouselScroll.viewport, screenPos, null, out Vector2 currentLocalPos);
                 float deltaX = currentLocalPos.x - lastViewportLocalPos.x;
                 lastViewportLocalPos = currentLocalPos;
-                Vector2 pos = carouselContent.anchoredPosition;
-                pos.x = ClampContentX(pos.x + deltaX);
-                carouselContent.anchoredPosition = pos;
+                DragMove(deltaX);
             }
         }
         if (pointerActive && up)
@@ -641,7 +643,10 @@ public partial class CharacterSelectUI : MonoBehaviour
             }
             else if (draggingCarousel)
             {
-                BeginSnap(ComputeNearestCardIndex());
+                // 2026-11-03: 指を離したフレームの位置の分も動かしてから(Android の速い払いでは、最後の移動が離した時にだけ届く)
+                if (carouselScroll != null && carouselContent != null && RectTransformUtility.ScreenPointToLocalPointInRectangle(carouselScroll.viewport, screenPos, null, out Vector2 upLocal))
+                    DragMove(upLocal.x - lastViewportLocalPos.x);
+                DragEnd(); // 払いの速さ/動かした距離で行き先を決めて吸着(CharacterSelectUI.Carousel.cs)
             }
             draggingCarousel = false;
         }
@@ -656,8 +661,8 @@ public partial class CharacterSelectUI : MonoBehaviour
     {
         int count = VisibleCount;
         float pulse = 0.65f + 0.35f * Mathf.Sin(Time.unscaledTime * 4f);
-        SetArrow(carouselArrowLeft, selectedIndex > 0, pulse);
-        SetArrow(carouselArrowRight, selectedIndex < count - 1, pulse);
+        SetArrow(carouselArrowLeft, TargetIndex > 0, pulse);
+        SetArrow(carouselArrowRight, TargetIndex < count - 1, pulse);
         if (carouselPageText != null) carouselPageText.text = Loc.Auto(count > 0 ? $"{selectedIndex + 1} / {count}" : "");
     }
 
@@ -725,25 +730,39 @@ public partial class CharacterSelectUI : MonoBehaviour
         return nearest;
     }
 
+    // 2026-11-03: 吸着してから選択を確定する(以前は動き始めに確定 → ドラッグや連打の途中で立ち絵が何人も切り替わった)。
+    //  時間は動く距離で 0.16〜0.30 秒、終わりがゆっくりの補間
+    float snapDur;
     void BeginSnap(int index)
     {
-        SelectIndex(index);
+        index = Mathf.Clamp(index, 0, Mathf.Max(0, VisibleCount - 1));
+        snapIndex = index;
         snapTargetX = TargetContentXForIndex(index);
         snapStartX = carouselContent != null ? carouselContent.anchoredPosition.x : 0f;
+        float dist = cardStride > 0f ? Mathf.Abs(snapTargetX - snapStartX) / cardStride : 1f;
+        snapDur = Mathf.Lerp(SnapMin, SnapMax, Mathf.Clamp01(dist / 2f));
         snapElapsed = 0f;
         snapping = true;
+        if (dist < 0.01f) FinishSnap();
+    }
+
+    void FinishSnap()
+    {
+        snapping = false;
+        if (carouselContent != null) carouselContent.anchoredPosition = new Vector2(snapTargetX, carouselContent.anchoredPosition.y);
+        SelectIndex(snapIndex);
     }
 
     void UpdateSnapAnimation()
     {
         if (carouselContent == null) { snapping = false; return; }
         snapElapsed += Time.unscaledDeltaTime;
-        float t = Mathf.Clamp01(snapElapsed / Mathf.Max(0.01f, snapDuration));
-        float eased = snapCurve.Evaluate(t);
+        float t = Mathf.Clamp01(snapElapsed / Mathf.Max(0.01f, snapDur));
+        float eased = 1f - (1f - t) * (1f - t) * (1f - t);
         Vector2 pos = carouselContent.anchoredPosition;
         pos.x = Mathf.Lerp(snapStartX, snapTargetX, eased);
         carouselContent.anchoredPosition = pos;
-        if (t >= 1f) snapping = false;
+        if (t >= 1f) FinishSnap();
     }
 
     // 毎フレーム(ドラッグ中・スナップ中・静止中いずれも)、選択中カード
@@ -760,6 +779,7 @@ public partial class CharacterSelectUI : MonoBehaviour
     void UpdateCardVisuals()
     {
         if (carouselContent == null || cardStride <= 0f) return;
+        if (faces != null) { UpdateCarouselFaces(); return; } // 2026-11-03: 共通規格のカード(中央からの距離で連続して拡大)
         FitGlows();
         float selectedCardCenterX = carouselContent.anchoredPosition.x + selectedIndex * cardStride + cardWidth * 0.5f;
         for (int i = 0; i < cardSlotRects.Length; i++)
@@ -879,5 +899,5 @@ public partial class CharacterSelectUI : MonoBehaviour
     // 言語を切り替えた時(2026-10-07)
     void OnEnable() { Loc.Changed += OnLocChanged; }
     void OnDisable() { Loc.Changed -= OnLocChanged; }
-    void OnLocChanged() { if (gameObject.activeInHierarchy) RefreshDetail(instant: true); }
+    void OnLocChanged() { if (gameObject.activeInHierarchy) { RefreshDetail(instant: true); RefreshCardFaces(); } }
 }

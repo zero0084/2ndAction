@@ -97,6 +97,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaDuel") { mode = "duel"; dir = a[i + 1]; }
             if (a[i] == "-qaSprint") { mode = "sprint"; dir = a[i + 1]; }
             if (a[i] == "-qaCharSelect") { mode = "charselect"; dir = a[i + 1]; }
+            if (a[i] == "-qaCarousel") { mode = "carousel"; dir = a[i + 1]; }
             if (a[i] == "-qaPad") { mode = "pad"; dir = a[i + 1]; }
             if (a[i] == "-qaFinish") { mode = "finish"; dir = a[i + 1]; }
             if (a[i] == "-qaBossFinish") { mode = "bossfinish"; dir = a[i + 1]; }
@@ -312,6 +313,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "duel") yield return DuelModeQa();
         else if (mode == "sprint") yield return SprintMode();
         else if (mode == "charselect") yield return CharSelectMode();
+        else if (mode == "carousel") yield return CarouselMode();
         else if (mode == "pad") yield return PadMode();
         else if (mode == "input") yield return InputMode();
         else if (mode == "fps") yield return FpsMode();

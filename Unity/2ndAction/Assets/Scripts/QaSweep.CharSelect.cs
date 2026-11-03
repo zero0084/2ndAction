@@ -48,15 +48,11 @@ public partial class QaSweep
             // 2026-11-01: 立ち絵と選んだカードが画面のどこに描かれたか(画面の左下が原点)。Tools/charart/costume_check.py が
             //  この範囲を撮影から切り出し、元の衣装(Steam)/布を増やした衣装(Android)のどちらが出ているかを確かめる
             if (img != null && img.sprite != null) L($"[drawn] {all[i].characterId} main {DrawnRect(img)}");
-            var slot = i < ui.cardSlotRects.Length ? ui.cardSlotRects[i] : null;
-            var cardImg = slot != null ? slot.Find("Portrait")?.GetComponent<UnityEngine.UI.Image>() : null;
-            if (cardImg != null && cardImg.sprite != null)
-            {
-                var ct = cardImg.sprite.texture; var cr = cardImg.sprite.rect;
-                Check(ct == all[i].portrait && (int)cr.x == 0 && (int)cr.y == 0 && (int)cr.width == ct.width && (int)cr.height == ct.height,
-                    $"{all[i].characterId}: the selected card shows this character's whole card art (sprite {cr} of {ct.width}x{ct.height})");
-                L($"[drawn] {all[i].characterId} card {DrawnRect(cardImg)}");
-            }
+            // 2026-11-03: カードは共通の規格(枠 + 立ち絵の体の部分 + 名前の板)。焼き込みのカードの絵は使わない
+            var face = ui.DebugFace(i);
+            var art = face != null ? face.Find("Art")?.GetComponent<UnityEngine.UI.RawImage>() : null;
+            Check(art != null && art.texture == all[i].mainVisual, $"{all[i].characterId}: the card shows this character's portrait in the common card frame");
+            if (art != null) L($"[card] {all[i].characterId} face {face.rect.size} uv {art.uvRect}");
             Shot($"charsel_{Screen.width}x{Screen.height}_{i:00}_{all[i].characterId}");
             yield return new WaitForSecondsRealtime(0.3f);
         }
