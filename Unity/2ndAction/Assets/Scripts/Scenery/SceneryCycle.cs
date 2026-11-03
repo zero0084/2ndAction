@@ -146,7 +146,7 @@ public class SceneryCycle : MonoBehaviour
     {
         if (profile == null) return;
         if (baseBg == null) { Deactivate(); return; }
-        Apply(DistanceNow(), false);
+        Apply(LandmarkJourney.SceneryDistance(DistanceNow()), false); // 2026-11-03: 景色の変わり目は関門の突破後の内部に隠す
     }
 
     // カメラが追っているPlayerの距離。ホーム(Run開始前)は0=最初の景色の昼。

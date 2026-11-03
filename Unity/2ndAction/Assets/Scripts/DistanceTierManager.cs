@@ -192,7 +192,8 @@ public class DistanceTierManager : MonoBehaviour
         // own hpMultiplier, so they scale every grunt uniformly regardless
         // of species.
         float globalMultiplier = GameManager.Instance != null ? GameManager.Instance.EnemyHpMultiplier : 1f;
-        return Mathf.Max(1, Mathf.RoundToInt(CurrentEnemyHp * Mathf.Max(0.01f, hpMultiplier) * Mathf.Max(0.01f, globalMultiplier)));
+        float tune = DifficultyTuning.HpScale(hpMultiplier, CurrentDistance); // 2026-11-03: 中盤以降の雑魚は倒しやすく(大型は少し耐える)
+        return Mathf.Max(1, Mathf.RoundToInt(CurrentEnemyHp * Mathf.Max(0.01f, hpMultiplier) * Mathf.Max(0.01f, globalMultiplier) * tune));
     }
 
     // The main entry point TerrainManager's per-chunk enemy-spawn code

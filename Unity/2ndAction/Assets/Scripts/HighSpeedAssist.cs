@@ -36,6 +36,7 @@ public partial class HighSpeedAssist : MonoBehaviour
     // 設定を読まない(常に全部 ON・常に作動)/地形の先読みの指示や出現位置の補正をしない/ランキングの「オート」の印を付けない。
     // 判断の中身(地形の先読み・ボス戦の回避と攻撃)は同じものを、仲間の PlayerController に対して使う。
     public static bool CreatingPlanner;
+    public static float QaBlinkPerSec; public static int QaBlinks; static float qaBlinkUntil; static readonly System.Random qaBlinkRng = new System.Random(7); // 自動検証の「うっかり」(下の Decide)
     public bool IsPlanner { get; private set; }
     PlayerController planOwner; // 今判断している本人
 
@@ -380,6 +381,12 @@ public partial class HighSpeedAssist : MonoBehaviour
                 if (LastDecideMs > MaxDecideMs) MaxDecideMs = LastDecideMs;
                 if (LastDecideMs >= 2f) SlowDecides++;
             }
+        }
+        // 自動検証の「うっかり」(2026-11-03、難易度の比較): 1秒あたり QaBlinkPerSec の確率で 0.5 秒だけ操作を出さない。0 = 何もしない(製品では常に 0)
+        if (QaBlinkPerSec > 0f)
+        {
+            if (Time.time >= qaBlinkUntil && qaBlinkRng.NextDouble() < QaBlinkPerSec * Time.deltaTime) { qaBlinkUntil = Time.time + 0.5f; QaBlinks++; }
+            if (Time.time < qaBlinkUntil) result = null;
         }
         // 個別に OFF の操作は出さない(2026-10-08)
         if (result.HasValue && (IsAttack(result.Value) ? !autoAttack : !autoAvoid)) result = null;

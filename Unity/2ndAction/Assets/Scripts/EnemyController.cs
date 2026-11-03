@@ -55,6 +55,7 @@ public partial class EnemyController : MonoBehaviour
     // 上げるだけ(既存の仕組みのまま)で4〜6発相当にできる - 今回新しい
     // 敵種は追加していない。
     public int maxHp = 1;
+    [System.NonSerialized] public float HpClass = 1f; // 2026-11-03: EnemyDefinition.hpMultiplier(大型の判定、DifficultyTuning)
     int hp = -1; // -1 sentinel: not yet initialized from maxHp (see EnsureHp)
     void EnsureHp() { if (hp < 0) hp = Mathf.Max(1, maxHp); }
 
@@ -646,6 +647,7 @@ public partial class EnemyController : MonoBehaviour
         if (PlayerController.Instance == null) return;
         // マルチプレイPhase 2.5: JOINのパペットとの接触は「この敵(NetId)との接触」としてHOSTへ申告する。
         if (NetReplica) NetMatch.SetClaimContext(NetMatch.ClaimKind.EnemyContact, NetId);
+        DifficultyTuning.NextAttackerHpMul = HpClass; // 2026-11-03: 大型の雑魚は重い
         try { PlayerController.Instance.TakeDamage(source: "Enemy:" + name); }
         finally { NetMatch.ClearClaimContext(); }
     }

@@ -304,6 +304,9 @@ public partial class BossManager : MonoBehaviour
         return true;
     }
 
+    // 2026-11-03(中盤のテンポ): 通常マップの 20〜90km は 5km ごとの関門だけ(DifficultyTuning)。0〜20km と 90km 以降は今までどおり
+    bool TempoSkipsGate(int k) => !IsLastStage && DifficultyTuning.SkipsGate(k, gateIntervalMeters);
+
     void SkipEmptyGates()
     {
         int guard = 0;
@@ -313,15 +316,15 @@ public partial class BossManager : MonoBehaviour
         }
         else if (IsSkyStage)
         {
-            while (guard++ < 20 && (!ResolveSkyGate(gateK, out _, out _) || FinaleSkipsGate(gateK))) gateK++;
+            while (guard++ < 20 && (!ResolveSkyGate(gateK, out _, out _) || FinaleSkipsGate(gateK) || TempoSkipsGate(gateK))) gateK++;
         }
         else if (IsCaveStage)
         {
-            while (guard++ < 20 && (!ResolveCaveGate(gateK, out _, out _) || FinaleSkipsGate(gateK))) gateK++;
+            while (guard++ < 20 && (!ResolveCaveGate(gateK, out _, out _) || FinaleSkipsGate(gateK) || TempoSkipsGate(gateK))) gateK++;
         }
         else
         {
-            while (guard++ < 20 && (!ResolveGate(gateK, out _, out _) || FinaleSkipsGate(gateK))) gateK++; // 2026-10-24: 91〜94km は雑魚の大群(関門なし)
+            while (guard++ < 20 && (!ResolveGate(gateK, out _, out _) || FinaleSkipsGate(gateK) || TempoSkipsGate(gateK))) gateK++; // 2026-10-24: 91〜94km は雑魚の大群(関門なし)
         }
     }
 
@@ -486,7 +489,7 @@ public partial class BossManager : MonoBehaviour
     bool GateExists(int k)
     {
         if (IsLastStage) return ResolveLastGate(k, out _, out _, out _);
-        if (FinaleSkipsGate(k)) return false;
+        if (FinaleSkipsGate(k) || TempoSkipsGate(k)) return false;
         if (IsSkyStage) return ResolveSkyGate(k, out _, out _);
         if (IsCaveStage) return ResolveCaveGate(k, out _, out _);
         return ResolveGate(k, out _, out _);

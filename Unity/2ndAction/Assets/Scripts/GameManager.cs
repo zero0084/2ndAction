@@ -1964,7 +1964,11 @@ public partial class GameManager : MonoBehaviour
         UiBackdrop.Draw(r, 0.6f);
         var labelStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
         labelStyle.normal.textColor = HudLabelColor;
-        LocGUI.Label(new Rect(r.x + 12f, r.y, 70f, r.height), "SPEED", labelStyle);
+        // 2026-11-03(テスター「途中から勝手にジャンプしていた」): オートモードが働いている間は SPEED の代わりに AUTO(水色)。
+        //  設定の「操作 → オートモード」で切れる(初期設定は ON、開始 100km/h)
+        bool autoNow = HighSpeedAssist.Instance != null && HighSpeedAssist.Instance.Engaged;
+        if (autoNow) labelStyle.normal.textColor = new Color(0.45f, 0.9f, 1f);
+        LocGUI.Label(new Rect(r.x + 12f, r.y, 70f, r.height), autoNow ? "AUTO" : "SPEED", labelStyle);
         var valueStyle = new GUIStyle(GUI.skin.label) { fontSize = 17, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleRight };
         valueStyle.normal.textColor = ratio >= 1.01f ? HudGoldColor : HudValueColor;
         LocGUI.Label(new Rect(r.x + 60f, r.y, r.width - 72f, r.height), kmh.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " km/h", valueStyle);
@@ -3506,6 +3510,7 @@ public partial class GameManager : MonoBehaviour
 
         // ボス戦の強化(2026-10-01): 重い一撃は複数ハート。ただしハートが満タンの時に1発で倒れることはない。
         int dmg = Mathf.Max(1, amount);
+        dmg = DifficultyTuning.Adjust(dmg, reason, MaxDistance); // 2026-11-03: 通常マップは距離の帯と攻撃の種類で被ダメージを決める(旧仕様: -diffLegacy 1)
         // HEAVY ARMOR(v3): 強い一撃(ハート2つ以上)をハート1つ軽くする
         // 2026-10-28: 説明どおり「ハート2つ以上」から(以前はハート1つを少しでも超えれば = 再戦の倍率で 13 などでも 10 へ切り下げていた)
         if (dmg >= 2 * CombatScale.HpPerHeart && Card.Get(EffectType.HeavyArmorLevel) > 0f) { dmg = Mathf.Max(CombatScale.PlayerHit, dmg - CombatScale.HpPerHeart); HeavyArmorSaves++; }

@@ -80,7 +80,8 @@ public class EncounterDirector : MonoBehaviour
     public static System.Func<float, float> PaceAt;
     public static System.Func<float, float> SurgeAt;
     float planDistance; // 今決めているEncounterの走行距離(SurgeAt用)
-    float Pace(float d) => (PaceAt != null ? Mathf.Max(0.2f, PaceAt(d)) : 1f) * RushPace(d) * SpawnGapFactor;
+    // 2026-11-03: 通常マップの中盤以降は間隔を詰める(DifficultyTuning.gapScale。90〜95km の大群の区間はその仕組みのまま)
+    float Pace(float d) => (PaceAt != null ? Mathf.Max(0.2f, PaceAt(d)) : 1f) * RushPace(d) * SpawnGapFactor * (RushWaveAt(d) >= 0 ? 1f : DifficultyTuning.GapScale(d));
 
     // ===== 通常マップの終盤の雑魚の大群(2026-10-24、BossManager.MapFinale.cs) =====
     // 90km のボスの後〜95,000m: 1km ごとの段階(波)で、Encounter どうしの間隔を詰め(RushPaceByWave)、激しい方へ寄せる(RushSurgeByWave)。
@@ -715,7 +716,8 @@ public class EncounterDirector : MonoBehaviour
 
     EncounterIntensity PickIntensity(EncounterDistanceBand band, float restScale = 1f)
     {
-        float[] w = { Mathf.Max(0f, band.restWeight) * restScale, Mathf.Max(0f, band.easyWeight), Mathf.Max(0f, band.mediumWeight), Mathf.Max(0f, band.hardWeight) };
+        float tuneD = GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f; // 2026-11-03: 中盤以降は休憩を減らし、激しい方を増やす
+        float[] w = { Mathf.Max(0f, band.restWeight) * restScale * DifficultyTuning.RestWeightScale(tuneD), Mathf.Max(0f, band.easyWeight), Mathf.Max(0f, band.mediumWeight), Mathf.Max(0f, band.hardWeight) * DifficultyTuning.HardWeightScale(tuneD) };
         int n = intensityHistory.Count;
         EncounterIntensity last = n > 0 ? intensityHistory[n - 1] : EncounterIntensity.Rest;
         EncounterIntensity prev = n > 1 ? intensityHistory[n - 2] : EncounterIntensity.Easy;

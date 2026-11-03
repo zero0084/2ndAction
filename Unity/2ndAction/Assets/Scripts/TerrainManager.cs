@@ -2149,6 +2149,7 @@ public class TerrainManager : MonoBehaviour
         EnemyAiTier aiTier = enemyDef != null ? enemyDef.aiTier : EnemyAiTier.T0;
         GameObject enemyGO = GroundFactory.CreateEnemy(transform, eSprite, new Vector2(ex, ey + heightOffset), eColor, enemyHitSparkSprite, enemyDeathCloudSprite, movementType, enemyGroundShadowSprite, maxHp, behaviorKind, bigKnockback, shooterProjectileSprite, enableVisualFacing, defaultFacingRight, runFrames, mileReward, visualScaleMultiplier, aiTier, squareSprite);
         enemyGO.GetComponent<EnemyController>().movementType = movementType;
+        if (enemyDef != null) enemyGO.GetComponent<EnemyController>().HpClass = enemyDef.hpMultiplier; // 2026-11-03: 大型の判定
         GroundFactory.ApplyAttackSprite(enemyGO, enemyDef);
         if (GameManager.Instance != null && GameManager.Instance.DebugMode)
         {
@@ -2187,7 +2188,7 @@ public class TerrainManager : MonoBehaviour
             def.defaultFacingRight, def.runFrames, def.mileReward, def.visualScaleMultiplier, aiTier, squareSprite);
         if (enemyGO == null) return null;
         var ec = enemyGO.GetComponent<EnemyController>();
-        if (ec != null) ec.movementType = movementType;
+        if (ec != null) { ec.movementType = movementType; ec.HpClass = def.hpMultiplier; } // 2026-11-03: 大型の判定(DifficultyTuning)
         ChallengeSystem.OnEncounterEnemySpawned(ec); // カード v3: ELITE ENEMIES
         GroundFactory.ApplyAttackSprite(enemyGO, def);
         if (!airborne) enemyGO.transform.rotation = Quaternion.identity;

@@ -435,6 +435,7 @@ public partial class NetMatch : MonoBehaviour
     {
         float now = Time.realtimeSinceStartup;
         int before = rec.Hp;
+        if (!isFall) amount = DifficultyTuning.Adjust(amount, source, GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f); // 2026-11-03: 通常マップの距離の帯の被ダメージ(1人用と同じ)
         rec.Hp = Mathf.Max(0, rec.Hp - Mathf.Max(1, amount)); // 2026-10-11: 攻撃ごとの量(必殺技の強い一撃を含む)。以前は常にハート1つ分
         rec.HitsTaken++;
         rec.InvulnUntil = now + Mathf.Clamp(invuln, 0.2f, 4f);

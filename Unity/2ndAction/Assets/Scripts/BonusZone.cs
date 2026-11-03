@@ -56,6 +56,7 @@ public class BonusZone : MonoBehaviour
     float phaseTime;
     bool wasBossPhase;
     float pendingAtDistance = -1f;
+    int lastKmMark = -1; // 2026-11-03: 飛ばした関門の地点の抽選
     // #100 ULTIMATE: ボスの後の抽選の距離(無ければ -1)。前進はこの手前で止まる
     public float PendingStartDistance => pendingAtDistance;
     static System.Random rng = new System.Random();
@@ -82,7 +83,17 @@ public class BonusZone : MonoBehaviour
         bool boss = bm != null && bm.IsBossPhase;
         if (wasBossPhase && !boss && State == Phase.Idle) pendingAtDistance = gm.MaxDistance + Profile.delayAfterBoss;
         wasBossPhase = boss;
-        if (pendingAtDistance >= 0f && State == Phase.Idle && gm.MaxDistance >= pendingAtDistance)
+        // 2026-11-03: 20〜90km で飛ばした 1km の関門の地点でも抽選する(ボスが減った分、道中の変化を残す)
+        int km = Mathf.FloorToInt(gm.MaxDistance / 1000f);
+        if (km != lastKmMark)
+        {
+            if (lastKmMark >= 0 && km > lastKmMark && !boss && State == Phase.Idle && pendingAtDistance < 0f && DifficultyTuning.I.bonusRollAtSkippedGates
+                && DifficultyTuning.SkipsGate(km, 1000f))
+                pendingAtDistance = km * 1000f + Profile.delayAfterBoss;
+            lastKmMark = km;
+        }
+        // 2026-11-04(背景の旅): 関門の門が画面に出ている間は始めない(門をくぐる約4秒を主役に。抽選の確率・報酬は同じ。門が抜けたら始める)
+        if (pendingAtDistance >= 0f && State == Phase.Idle && gm.MaxDistance >= pendingAtDistance && !LandmarkJourney.GateVisible)
         {
             pendingAtDistance = -1f;
             if (CanStartNaturally(gm) && Rand() < Profile.chanceAfterBoss) Begin(null, false);

@@ -31,6 +31,8 @@ public class EnemyMeleeHitbox : MonoBehaviour
     {
         if (other.CompareTag("Player") && PlayerController.Instance != null)
         {
+            var owner = GetComponentInParent<EnemyController>();
+            DifficultyTuning.NextAttackerHpMul = owner != null ? owner.HpClass : -1f; // 2026-11-03: 大型の雑魚の攻撃は重い
             PlayerController.Instance.TakeDamage(source: "EnemyMelee:" + name);
         }
     }

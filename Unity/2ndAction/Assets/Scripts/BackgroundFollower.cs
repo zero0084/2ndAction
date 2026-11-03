@@ -18,6 +18,7 @@ public class BackgroundFollower : MonoBehaviour
     // ForegroundCloudLayer is this pass's actual "reduce the flat one-
     // image feel" fix, since its clouds wrap by construction instead.
     public float parallaxFactor = 1f;
+    public static float JourneyZoom = 1f; // 背景の旅(LandmarkJourney): 目的地へ近づくほど遠景を少しだけ大きく(最大 1.06 倍)
 
     SpriteRenderer sr;
 
@@ -39,7 +40,7 @@ public class BackgroundFollower : MonoBehaviour
         float worldWidth = worldHeight * cam.aspect * FoldView.CoverScaleX;
 
         Vector2 spriteSize = sr.sprite.bounds.size;
-        float scale = Mathf.Max(worldWidth / spriteSize.x, worldHeight / spriteSize.y);
+        float scale = Mathf.Max(worldWidth / spriteSize.x, worldHeight / spriteSize.y) * JourneyZoom;
         transform.localScale = new Vector3(scale, scale, 1f);
     }
 }

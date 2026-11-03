@@ -21,7 +21,7 @@ public static class ZakoAttackLimiter
         {
             if (activeFrame == Time.frameCount) return activeCache;
             activeFrame = Time.frameCount;
-            activeCache = ForceActive || BossManager.ZakoRushNow;
+            activeCache = ForceActive || BossManager.ZakoRushNow || (GameManager.Instance != null && !BossManager.ZakoRushNow && DifficultyTuning.LimiterOn(GameManager.Instance.MaxDistance)); // 2026-11-03: 中盤以降も(敵が多い)
             if (!activeCache && holders.Count > 0) holders.Clear();
             return activeCache;
         }

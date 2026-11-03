@@ -1,0 +1,2 @@
+legacy	build	blink	speed	band	start_km	secs	km_run	cards	lv	maxHp	spawned	killed	avg_onscreen	idle_pct	kill_s_avg	kill_s_p90	hits	damage	deaths	hp_min_pct	hp_end_pct	bosses	boss_s_avg	breaks	kinds
+0	recommended	0.6	100	70-90	73.6	120	1.90	8+22	8	90	38	2	0.70	22	-1.00	-1.00	17	290	1	9	100	1	48.1	5	BossCombatPart=2:12 DeathY=1:2 TerrainWall=1:2 Enemy=1:1

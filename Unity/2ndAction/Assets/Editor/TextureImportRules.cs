@@ -26,7 +26,7 @@ public class TextureImportRules : AssetPostprocessor
     static readonly string[] Background =
     {
         "Assets/Art/Background/", "Assets/Art/LastCorridor/", "Assets/Art/VisualStyleV1/Ground/", "Assets/Art/Ground/",
-        "Assets/Art/Cave/", "Assets/Art/Decoration/", "Assets/Art/Obstacles_v1/",
+        "Assets/Art/Cave/", "Assets/Art/Decoration/", "Assets/Art/Obstacles_v1/", "Assets/Resources/Journey/",
     };
     static readonly string[] Effect =
     {
