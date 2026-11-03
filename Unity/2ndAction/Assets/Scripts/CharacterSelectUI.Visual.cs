@@ -45,6 +45,37 @@ public partial class CharacterSelectUI
         }
     }
 
+    // 切り替えの時に、前の立ち絵を下に残しておく絵(2026-11-03: 消えてから出る間の空白をなくす)。見た目の設定(大きさ・紙の縁)は前のまま
+    UnityEngine.UI.Image prevVisual;
+    Material prevMat;
+    void HoldPreviousVisual(float alpha)
+    {
+        EnsureVisualClip();
+        if (visualClip == null || mainVisualImage == null) return;
+        if (prevVisual == null)
+        {
+            var go = new GameObject("MainVisualPrev", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            go.transform.SetParent(visualClip, false);
+            go.transform.SetAsFirstSibling();
+            prevVisual = go.GetComponent<Image>();
+            prevVisual.raycastTarget = false;
+            prevVisual.preserveAspect = true;
+        }
+        if (mainVisualImage.sprite == null || alpha <= 0.01f) { prevVisual.enabled = false; return; }
+        var a = mainVisualImage.rectTransform; var b = prevVisual.rectTransform;
+        b.anchorMin = a.anchorMin; b.anchorMax = a.anchorMax; b.pivot = a.pivot;
+        b.sizeDelta = a.sizeDelta; b.anchoredPosition = a.anchoredPosition; b.offsetMin = a.offsetMin; b.offsetMax = a.offsetMax;
+        prevVisual.sprite = mainVisualImage.sprite;
+        if (paperFadeMat != null)
+        {
+            if (prevMat == null) prevMat = new Material(paperFadeMat) { name = "PaperFade (previous)" };
+            prevMat.CopyPropertiesFromMaterial(paperFadeMat);
+            prevVisual.material = prevMat;
+        }
+        prevVisual.color = new Color(1f, 1f, 1f, alpha);
+        prevVisual.enabled = true;
+    }
+
     // 表示領域を置く(親 = この画面の root。中心と大きさ)
     void PlaceVisualClip(Vector2 center, Vector2 size)
     {
@@ -78,7 +109,47 @@ public partial class CharacterSelectUI
         }
         LastFitScale = 1f;
         LastFitId = id;
+        if (paperFadeMat != null) { paperFadeMat.SetFloat("_VisOn", 0f); paperFadeMat.SetVector("_Vis", new Vector4(0f, 0f, 1f, 1f)); }
+        if (tex == null || !PortraitFit.TryGetValue(id, out var fit)) return;
+
+        // 2026-11-03: 人物(頭の上〜足もと)の大きさをキャラの間でそろえる(槍先まで描いた竜騎士は、絵の全体は大きいのに人物が一回り小さく見えた)。
+        //  足もとの高さを変えずに拡大し、上が枠から出る時は足もとが枠の下に着くまで下げる。枠で切れる辺は UIPaperFade が内側で薄れさせる
+        Vector2 clip = visualClip.rect.size;
+        float aspect = (float)tex.width / Mathf.Max(1, tex.height);
+        float w0 = Mathf.Min(clip.x, clip.y * aspect), h0 = w0 / aspect;
+        float s = fit.x, feet = fit.y; // feet = 足もとの高さ(絵の下からの割合)
+        float w = w0 * s, h = h0 * s;
+        float feetY = -h0 * 0.5f + feet * h0;          // 拡大前の足もと(枠の中心が 0)
+        float cy = feetY - feet * h + h * 0.5f;          // 足もとを動かさない中心
+        float over = cy + h * 0.5f - clip.y * 0.5f;      // 上のはみ出し
+        float room = feetY - (-clip.y * 0.5f + h * 0.02f); // 足もとを下げられる余裕
+        if (over > 0f && room > 0f) cy -= Mathf.Min(over, room);
+        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.sizeDelta = new Vector2(w, h);
+        rect.anchoredPosition = new Vector2(0f, cy);
+        LastFitScale = s;
+        if (paperFadeMat != null)
+        {
+            float x0 = -w * 0.5f, y0 = cy - h * 0.5f;
+            var vis = new Vector4(Mathf.Clamp01((-clip.x * 0.5f - x0) / w), Mathf.Clamp01((-clip.y * 0.5f - y0) / h),
+                                  Mathf.Clamp01((clip.x * 0.5f - x0) / w), Mathf.Clamp01((clip.y * 0.5f - y0) / h));
+            paperFadeMat.SetVector("_Vis", vis);
+            paperFadeMat.SetFloat("_VisOn", 1f);
+        }
     }
+
+    // 立ち絵の人物の大きさ(2026-11-03、エステルと確認): x = 拡大の倍率(頭の上〜足もとの高さを黒剣士にそろえる。
+    //  ±5% 以内のキャラは表に入れない)、y = 足もとの高さ(絵の下端からの割合)。忍者の低い構え・ルカ/ペンタの体格はそのまま(表に入れない)
+    //  測定: 1024×1536 の絵で 頭の上〜足もと。黒剣士 1312px、竜騎士 1064(槍先は数えない)、弓兵 1055(脚を大きく開いた構え → 頭の大きさで ×1.12)、
+    //  双剣士 1200、竜人 1192(角は数えない)、魔法使い 1232
+    static readonly System.Collections.Generic.Dictionary<string, Vector2> PortraitFit = new System.Collections.Generic.Dictionary<string, Vector2>
+    {
+        { "dragon_lancer", new Vector2(1.12f, 0.071f) }, // エステル: ×1.15 は槍とマントの存在感が強すぎる → ×1.12
+        { "archer", new Vector2(1.12f, 0.069f) },
+        { "dual_blade", new Vector2(1.08f, 0.069f) },
+        { "dragonkin", new Vector2(1.08f, 0.069f) },
+        { "mage", new Vector2(1.05f, 0.089f) },
+    };
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public float DebugFitFor(string id) { FitMainVisual(id); return LastFitScale; }

@@ -35,9 +35,11 @@ public class BackgroundTone : MonoBehaviour
         switch (stageId)
         {
             case "wasteland_road":
-                desat = Mathf.Lerp(0.26f, 0.20f, night); flatten = Mathf.Lerp(0.20f, 0.14f, night); soft = 1.2f;
+                // 2026-11-03: 夕方/夜/夜明けで敵の浮き上がりが一番低かった(-qaBgTone: 夜 1.70・夕方 1.89・夜明けの高速 2.04)→ 少し強く
+                //  (以前 desat 0.26/0.20 flatten 0.20/0.14 帯 0.20,0.18,1.3 / 0.12,0.12,1.0)
+                desat = Mathf.Lerp(0.30f, 0.26f, night); flatten = Mathf.Lerp(0.24f, 0.20f, night); soft = 1.2f;
                 mid = Color.Lerp(new Color(0.53f, 0.57f, 0.58f), new Color(0.17f, 0.19f, 0.27f), night);
-                band = Vector3.Lerp(new Vector3(0.20f, 0.18f, 1.3f), new Vector3(0.12f, 0.12f, 1.0f), night); break;
+                band = Vector3.Lerp(new Vector3(0.24f, 0.22f, 1.4f), new Vector3(0.17f, 0.17f, 1.15f), night); break;
             case "natural_cave":
                 desat = 0.22f; flatten = 0.12f; soft = 1.0f; mid = new Color(0.15f, 0.14f, 0.14f); band = new Vector3(0.10f, 0.08f, 0.8f); break;
             case "sky_corridor":
@@ -45,7 +47,8 @@ public class BackgroundTone : MonoBehaviour
                 mid = Color.Lerp(new Color(0.62f, 0.70f, 0.80f), new Color(0.18f, 0.22f, 0.36f), night);
                 band = Vector3.Lerp(new Vector3(0.18f, 0.16f, 1.3f), new Vector3(0.12f, 0.12f, 1.0f), night); break;
             case "last_corridor":
-                desat = 0.20f; flatten = 0.22f; soft = 1.0f; mid = new Color(0.20f, 0.21f, 0.26f); band = new Vector3(0.10f, 0.10f, 0.8f); break;
+                // 2026-11-03: 浮き上がり 1.97〜2.06 → 少し強く(以前 desat 0.20 flatten 0.22 帯 0.10,0.10,0.8)
+                desat = 0.24f; flatten = 0.26f; soft = 1.0f; mid = new Color(0.20f, 0.21f, 0.26f); band = new Vector3(0.14f, 0.14f, 0.9f); break;
             default:
                 desat = 0f; flatten = 0f; soft = 0f; mid = new Color(0.5f, 0.5f, 0.5f); band = Vector3.zero; break;
         }

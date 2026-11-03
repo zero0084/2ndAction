@@ -60,7 +60,8 @@ public partial class QaSweep
         bool rec = Arg("-mtRec", "1") == "1";
         string frames = System.IO.Path.Combine(outDir, "frames");
         if (rec) System.IO.Directory.CreateDirectory(frames);
-        var tsv = new StringBuilder("frame\tt\tstate\tkey\tsprite\tlink\tinput\tsx\tsy\thpx\tenemy\tekey\tex\tey\n");
+        // 2026-11-03: 絵の大きさの確認用に tex(絵の元画像)/ppu/表示の拡大(lossyScale)/カメラの写す高さ(orthographicSize)も書く
+        var tsv = new StringBuilder("frame\tt\tstate\tkey\tsprite\tlink\tinput\tsx\tsy\thpx\tenemy\tekey\tex\tey\ttex\tppu\tlsx\tlsy\tortho\n");
         string[] mobs = Arg("-mtMobs", "").Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
         var seq = Arg("-mtSeq", "F,0.9,F,0.25,F,0.42,F,1.3,U,0.6,D,1.5,B,1.2,F,1.0").Split(',');
         Time.captureFramerate = 30;
@@ -74,7 +75,15 @@ public partial class QaSweep
             if (wait <= 0f && si < seq.Length)
             {
                 input = seq[si++];
-                if (input != "W") // W = 何もしない(走りだけを撮る)
+                if (input == "H") // 2026-11-03: 被弾(敵の攻撃と同じ入口)→ 復帰。HP は戻す
+                {
+                    // 無敵の設定を通さずに HP の処理 → 被弾のリアクション(PlayerController.TakeDamage の後半と同じ)
+                    var res = gm.TryDamagePlayer(true, "QaMotionHurt");
+                    if (res == GameManager.DamageResult.Hit) typeof(PlayerController).GetMethod("ApplyDamageReaction", NP).Invoke(pc, new object[] { false, CombatScale.PlayerHit, false });
+                    typeof(GameManager).GetProperty("Lives").GetSetMethod(true).Invoke(gm, new object[] { gm.maxLives });
+                    L($"[motion] hurt at frame {f}: {res}");
+                }
+                else if (input != "W") // W = 何もしない(走りだけを撮る)
                 pc.debugInjectOnce = input == "U" ? PlayerController.FlickDirection.Up : input == "D" ? PlayerController.FlickDirection.Down : input == "B" ? PlayerController.FlickDirection.Backward : PlayerController.FlickDirection.Forward;
                 wait = si < seq.Length ? float.Parse(seq[si++], CultureInfo.InvariantCulture) : 0.8f;
             }
@@ -120,7 +129,9 @@ public partial class QaSweep
             var esr = near != null ? near.GetComponentInChildren<SpriteRenderer>() : null;
             Vector3 ep = cam != null && esr != null ? cam.WorldToScreenPoint(esr.bounds.center) : Vector3.zero;
             tsv.Append($"{f}\t{t:F3}\t{anim.CurrentState}\t{anim.MotionKey}\t{(sr != null && sr.sprite != null ? sr.sprite.name : "-")}\t{(m.Active != null ? (m.Settling ? "settle" : "lead") : "")}\t{input}\t{sp.x:F0}\t{Screen.height - sp.y:F0}\t{hpx:F0}" +
-                       $"\t{(esr != null && esr.sprite != null ? esr.sprite.name : "-")}\t{(near != null ? near.MotionKey : "")}\t{ep.x:F0}\t{Screen.height - ep.y:F0}\n");
+                       $"\t{(esr != null && esr.sprite != null ? esr.sprite.name : "-")}\t{(near != null ? near.MotionKey : "")}\t{ep.x:F0}\t{Screen.height - ep.y:F0}" +
+                       $"\t{(sr != null && sr.sprite != null ? sr.sprite.texture.name + "|" + sr.sprite.texture.width + "x" + sr.sprite.texture.height : "-")}\t{(sr != null && sr.sprite != null ? sr.sprite.pixelsPerUnit : 0f):F2}" +
+                       $"\t{(sr != null ? sr.transform.lossyScale.x : 0f):F4}\t{(sr != null ? sr.transform.lossyScale.y : 0f):F4}\t{(cam != null ? cam.orthographicSize : 0f):F3}\n");
             f++; t += 1f / 30f;
             yield return null;
         }

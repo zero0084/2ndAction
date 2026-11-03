@@ -428,6 +428,7 @@ public partial class CharacterSelectUI : MonoBehaviour
                 mainVisualImage.sprite = sprite;
                 FitMainVisual(def.characterId); // 2026-10-31: キャラごとの倍率と位置
                 if (mainVisualGroup != null) mainVisualGroup.alpha = 1f;
+                if (prevVisual != null) prevVisual.enabled = false;
             }
             else
             {
@@ -437,12 +438,25 @@ public partial class CharacterSelectUI : MonoBehaviour
         }
     }
 
+    // 2026-11-03: 以前は「消える(0.1秒)→ 差し替え → 出る(0.1秒)」で、間に立ち絵の無い一瞬があった(続けて切り替えると空白が長く続いた)。
+    // 前の立ち絵を下に重ねたまま、新しい立ち絵を上で出す(空白を作らない)。0.1秒(以前は消える0.1秒+出る0.1秒)
     IEnumerator CrossFadeMainVisual(Sprite newSprite, string id)
     {
-        yield return FadeCanvasGroup(mainVisualGroup, 0f, crossFadeDuration);
+        float from = mainVisualGroup.alpha;
+        HoldPreviousVisual(from);
         mainVisualImage.sprite = newSprite;
-        FitMainVisual(id); // 見えていない間に大きさ/位置を替える(切り替えの途中で伸び縮みしない)
-        yield return FadeCanvasGroup(mainVisualGroup, 1f, crossFadeDuration);
+        FitMainVisual(id);
+        mainVisualGroup.alpha = 0f;
+        // エステル: 重ねる時間が長いと二人が透けて混ざって見える → 0.1秒の短いクロスフェード(前の絵は新しい絵より早く消す)
+        float t = 0f, dur = Mathf.Max(0.001f, crossFadeDuration);
+        while (t < 1f)
+        {
+            t = Mathf.Min(1f, t + Time.unscaledDeltaTime / dur);
+            mainVisualGroup.alpha = Mathf.Min(1f, t * 1.4f);
+            if (prevVisual != null && prevVisual.enabled) prevVisual.color = new Color(1f, 1f, 1f, from * (1f - t) * (1f - t));
+            yield return null;
+        }
+        if (prevVisual != null) prevVisual.enabled = false;
     }
 
     // 2026-10-22: 能力は ★☆ の文字ではなく 5 段のゲージ(★の文字は隠して残す: 値は同じ)。段は角の無い四角、満ちた段は選択中と同じ金
