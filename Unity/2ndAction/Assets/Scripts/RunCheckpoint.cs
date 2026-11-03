@@ -55,6 +55,8 @@ public static class RunCheckpoint
         // kill - item 11).
         public int lives;
         public int maxLives;
+        // 2026-11-03: 中断した時点の HP(-1 = この項目より前の保存)。runAtCheckpoint の中断の保存でも書き換える
+        public int interruptLives = -1;
         public int level;
         public float exp;
         public float expToNext;
@@ -84,6 +86,10 @@ public static class RunCheckpoint
         // without needing to separately serialize every individual derived
         // PlayerController field.
         public List<string> upgradeHistoryCardIds = new List<string>();
+        // 2026-11-03: このランの出発時のキャラカード(枠ごとに "id:Lv"、空き枠は "")。中断中にホームで付け替えても、再開はこの組で
+        // (以前は再開の時点の枠を読み直していて、最大HP等が変わった)。characterCardsSaved=false は以前の保存(今の枠を使う)
+        public bool characterCardsSaved;
+        public List<string> characterCards = new List<string>();
         // カードバランス v3(2026-10-03): 取得のやり直しだけでは戻せない状態(古いデータは既定値=未使用)
         public int phoenixConsumed;
         public int phoenixResetHistoryIndex = -1;

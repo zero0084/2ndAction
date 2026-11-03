@@ -164,6 +164,45 @@ public static class BuildAndroid
         Debug.Log("BuildAndroid: closed test build info: " + info.ToString().Replace(System.Environment.NewLine, " | "));
     }
 
+    // 製品版と同じ中身の確認用 APK(2026-11-03): クローズドテストの製品版と同じ設定(Development なし、テスト広告、同じ定義)に
+    // OMM_RELEASE_PROBE だけを足す(ReleaseSpawnProbe / ReleaseRunProbe が動く)。デバッグ鍵、配らない(エミュレーターの試験用)。
+    // versionCode / versionName は変えない。定義は PlayerSettings に書かず、このビルドにだけ渡す(配布用のビルドへ混ざらない)
+    [MenuItem("Tools/2ndAction/Build Android Release Probe (emulator only, debug key)")]
+    public static void BuildReleaseProbeApk()
+    {
+        string defines = PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Android);
+        if (defines.Contains("OMM_ADS_PROD")) { Debug.LogError("BuildAndroid: release probe refused - OMM_ADS_PROD (production ads) is defined"); return; }
+        const string apk = "Builds/ReleaseProbe/OneMoreMile_releaseprobe_debugsigned.apk";
+        Directory.CreateDirectory(Path.GetDirectoryName(apk));
+        bool wasCustom = PlayerSettings.Android.useCustomKeystore, wasAab = EditorUserBuildSettings.buildAppBundle, wasSplit = PlayerSettings.Android.splitApplicationBinary;
+        try
+        {
+            PlayerSettings.Android.useCustomKeystore = false;
+            EditorUserBuildSettings.buildAppBundle = false; PlayerSettings.Android.splitApplicationBinary = false;
+            PlayerSettings.Android.forceInternetPermission = true;
+            NetPrefabBuilder.Build();
+            using (new BrandSplashSetup.AndroidScope())
+            {
+                var opts = new BuildPlayerOptions
+                {
+                    scenes = System.Array.ConvertAll(System.Array.FindAll(EditorBuildSettings.scenes, s => s.enabled), s => s.path),
+                    locationPathName = apk,
+                    target = BuildTarget.Android,
+                    options = BuildOptions.None,
+                    extraScriptingDefines = new[] { "OMM_RELEASE_PROBE" },
+                };
+                var r = BuildPipeline.BuildPlayer(opts);
+                Debug.Log($"BuildAndroid: release probe apk result={r.summary.result} size={r.summary.totalSize} path={apk} defines={defines};OMM_RELEASE_PROBE versionCode={PlayerSettings.Android.bundleVersionCode} (unchanged)");
+            }
+        }
+        finally
+        {
+            PlayerSettings.Android.useCustomKeystore = wasCustom;
+            EditorUserBuildSettings.buildAppBundle = wasAab; PlayerSettings.Android.splitApplicationBinary = wasSplit;
+            AssetDatabase.SaveAssets();
+        }
+    }
+
     // Unity は書き出した Gradle の launcher/build.gradle に storePassword / keyPassword をそのまま書く(Library/Bee の中)。
     // ビルドが終わったら(成功でも失敗でも)空にする。次のビルドでは Unity が毎回書き直す
     // 2026-11-02: 1段ずつたどり、Gradle の出力(build / .gradle / .cxx)には入らない。消えたフォルダ・読めないファイルがあっても残りを続ける

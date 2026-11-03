@@ -4061,6 +4061,7 @@ public partial class GameManager : MonoBehaviour
         if (checkpointSnapshotThisRun && data.active && data.runAtCheckpoint)
         {
             data.ledger = RunLedger.Current;
+            data.interruptLives = Lives; // 2026-11-03: HP だけは中断の時点(保存/アプリの終了だけで回復しない。BeginContinuedRun)
             RunCheckpoint.Save(data);
             InterruptSavesLedgerOnly++;
             return;
@@ -4102,6 +4103,7 @@ public partial class GameManager : MonoBehaviour
         data.stageId = activeRunStageId;
         data.highestReachedDistance = HighestReachedDistance;
         data.lives = Lives;
+        data.interruptLives = Lives;
         data.maxLives = maxLives;
         data.level = Level;
         data.exp = Exp;
@@ -4117,6 +4119,10 @@ public partial class GameManager : MonoBehaviour
         if (BossManager.Instance != null) BossManager.Instance.ExportPool(data); // ボスの再戦プール(2026-10-02)
         data.upgradeHistoryCardIds = new List<string>();
         foreach (CardDefinition card in upgradeHistory) data.upgradeHistoryCardIds.Add(card.cardId);
+        // ラン中は枠を付け替えられないので、今の枠 = このランの出発時のキャラカード(2026-11-03)
+        data.characterCardsSaved = true;
+        data.characterCards = new List<string>();
+        for (int i = 0; i < CharacterCardSlotCount; i++) data.characterCards.Add(string.IsNullOrEmpty(characterCardIds[i]) ? "" : $"{characterCardIds[i]}:{characterCardLevels[i]}");
         ExportCardRunState(data); // カードバランス v3
         if (UltimateArt.Instance != null) data.ultimateGauge = UltimateArt.Instance.ExportGauge(); // #100 ULTIMATE
         data.finalEvolution = FinalEvolution.Export(); // FINAL EVOLUTION
@@ -4213,6 +4219,7 @@ public partial class GameManager : MonoBehaviour
         activeRunCharacterId = !string.IsNullOrEmpty(data.characterId) ? data.characterId : SelectedCharacterId;
         ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
         SetCharacterCardOwner(activeRunCharacterId); // そのキャラのキャラカード枠(2026-10-02)
+        RestoreRunCharacterCards(data); // 2026-11-03: 出発時の組で(中断中の付け替えを効かせない)
 
         // ステージ選択導線追加(2026-09-12) - 上と全く同じ理由。data.stageId
         // が空(旧いActive Run)の場合のみSelectedStageIdへフォールバック。
@@ -4251,7 +4258,11 @@ public partial class GameManager : MonoBehaviour
         SprintSkippedMeters = data.sprintSkippedMeters; // 疾走出発で飛ばした距離(MILE から除く。古いデータは0)
         // v3: 最大HPは取得のやり直しで決まる(成長 − 封印)。保存した最大HPは、カードが1枚も無い古い保存の互換のためにだけ使う
         if (data.maxLives > 0 && cardOrder.Count == 0) maxLives = data.maxLives;
-        Lives = Mathf.Clamp(data.lives, 1, maxLives);
+        // 2026-11-03(ct422 の確認、HP+20 の報告): 2026-10-15 から中断の保存はチェックポイントの状態を書き換えないので、
+        // チェックポイントより後に受けたダメージが CONTINUE で消えていた(例: 50/50 で始めて 2発 → 30/50 で中断 → 再開で 50/50)。
+        // HP は中断の時点の値にする(最大HPはチェックポイントの時点。それを超える分は切る)。古い保存(-1)は今までどおり
+        Lives = Mathf.Clamp(data.interruptLives > 0 && !ProbeLegacyContinue ? data.interruptLives : data.lives, 1, maxLives);
+        Debug.Log($"[Continue] HP {Lives}/{maxLives} (interrupted {data.interruptLives}, checkpoint {data.lives}/{data.maxLives} at {data.checkpointDistance:F0}m) cards {upgradeHistory.Count}");
 
         // Item 7 - resumes exactly where the Boss schedule was at.
         if (BossManager.Instance != null) BossManager.Instance.RestoreNextBossDistance(data.checkpointDistance);
@@ -4281,6 +4292,25 @@ public partial class GameManager : MonoBehaviour
         // 2026-10-03: すぐには走り出さず、停止した画面で「準備ができたら再開」を待つ(GameManager.ResumeGate.cs)
         BeginResumeGate(autoResume: true); // 2026-10-07: 再開ボタンなし、自動で走り出して5秒で保存時の速さへ
     }
+
+    // 再開: キャラカードの枠(メモリ上だけ。保存はしない)を、このランの出発時の組へ戻す。この後の ApplyCharacterCardEffects と
+    // ラン中の表示(RUN BUILD)がこの組を使う。ランが終わるとシーンの読み直しで保存の枠へ戻る
+    void RestoreRunCharacterCards(RunCheckpoint.Data data)
+    {
+        if (!data.characterCardsSaved || ProbeLegacyContinue) return;
+        for (int i = 0; i < CharacterCardSlotCount; i++)
+        {
+            string e = i < data.characterCards.Count ? data.characterCards[i] : "";
+            int c = string.IsNullOrEmpty(e) ? -1 : e.LastIndexOf(':');
+            characterCardIds[i] = c > 0 ? e.Substring(0, c) : null;
+            characterCardLevels[i] = c > 0 && int.TryParse(e.Substring(c + 1), out int lv) ? Mathf.Max(1, lv) : 1;
+        }
+    }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD || OMM_RELEASE_PROBE
+    public static bool ProbeLegacyContinue; // 確認用: 直す前の再開(チェックポイントの HP・再開時点のキャラカード)。ReleaseRunProbe の -probeLegacy
+#else
+    const bool ProbeLegacyContinue = false;
+#endif
 
     // Presentation pass - RESULT->TOP goes through the shared wipe's Close
     // half, THEN reloads the scene at full navy coverage (see

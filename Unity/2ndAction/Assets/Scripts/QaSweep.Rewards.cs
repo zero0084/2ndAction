@@ -284,7 +284,8 @@ public partial class QaSweep
 
     // ---- 中断/再開: ラン中の状態がチェックポイントの時点へそろう(2026-10-15 第2弾) ----
     struct RwSnap { public float d, exp, carry; public int lv, em, bm, kills, bkills, cards, lives, pend; public string party; }
-    RwSnap RwFromData(RunCheckpoint.Data x) => new RwSnap { d = x.checkpointDistance, exp = x.exp, carry = x.mileCarry, lv = x.level, em = x.runEnemyMile, bm = x.runBossMile, kills = x.enemyKillCount, bkills = x.bossKillCount, cards = x.upgradeHistoryCardIds.Count, lives = x.lives, pend = x.pendingLevelUps, party = RwParty(x.party) };
+    // 2026-11-03: 再開の HP はチェックポイントではなく中断の時点(チェックポイントの最大HPで切る)。BeginContinuedRun と同じ
+    RwSnap RwFromData(RunCheckpoint.Data x) => new RwSnap { d = x.checkpointDistance, exp = x.exp, carry = x.mileCarry, lv = x.level, em = x.runEnemyMile, bm = x.runBossMile, kills = x.enemyKillCount, bkills = x.bossKillCount, cards = x.upgradeHistoryCardIds.Count, lives = x.interruptLives > 0 ? Mathf.Min(x.interruptLives, x.maxLives) : x.lives, pend = x.pendingLevelUps, party = RwParty(x.party) };
     RwSnap RwNow() => new RwSnap { d = gm.MaxDistance, exp = gm.Exp, carry = gm.MileCarryDebug, lv = gm.Level, em = gm.RunEnemyMile, bm = gm.RunBossMile, kills = gm.EnemyKillCount, bkills = gm.BossKillCount, cards = RwHistoryCount, lives = gm.Lives, pend = gm.PendingLevelUpCount, party = RwParty(CpuParty.Export()) };
     int RwHistoryCount => ((System.Collections.IList)typeof(GameManager).GetField("upgradeHistory", RwNP).GetValue(gm)).Count;
     static string RwParty(List<CpuParty.MemberState> p) => p == null ? "" : string.Join(";", p.Select(m => JsonUtility.ToJson(m)));
@@ -344,7 +345,7 @@ public partial class QaSweep
             stopKeepAlive = false; StartCoroutine(KeepAlive());
             var back = RwNow();
             L($"[rw] {tag} continued: {RwS(back)}");
-            Check(RwSame(back, cp), $"{tag}: CONTINUE restores the checkpoint state (distance/EXP/Lv/MILE+carry/kills/cards/HP/CPU cards)");
+            Check(RwSame(back, cp), $"{tag}: CONTINUE restores the checkpoint state (distance/EXP/Lv/MILE+carry/kills/cards/CPU cards) and the HP of the interruption");
             float tl = 0f; while (gm.PendingLevelUpCount > 0 || gm.LevelUpPending) { if ((tl += Time.unscaledDeltaTime) > 20f) break; yield return null; }
             L($"[rw] {tag}: level-up choices offered after CONTINUE {rwShown - shownBefore} (queued at the checkpoint {cp.pend})");
             Check(rwShown - shownBefore == cp.pend, $"{tag}: the level-ups queued at the checkpoint ({cp.pend}) are offered once after CONTINUE ({rwShown - shownBefore})");
