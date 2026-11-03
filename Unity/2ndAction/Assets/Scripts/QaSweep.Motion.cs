@@ -65,7 +65,7 @@ public partial class QaSweep
         string[] mobs = Arg("-mtMobs", "").Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
         var seq = Arg("-mtSeq", "F,0.9,F,0.25,F,0.42,F,1.3,U,0.6,D,1.5,B,1.2,F,1.0").Split(',');
         Time.captureFramerate = 30;
-        int f = 0; float t = 0f; int si = 0; float wait = 0.6f; float mobT = 0.3f; int mi = 0;
+        int f = 0; float t = 0f; int si = 0; float wait = 0.6f; float mobT = 0.3f; int mi = 0; float reviveAt = -1f;
         int startShown = MotionLinkPlayer.Shown;
         var sr = anim.VisualRenderer;
         while (si < seq.Length || wait > 0f)
@@ -83,10 +83,22 @@ public partial class QaSweep
                     typeof(GameManager).GetProperty("Lives").GetSetMethod(true).Invoke(gm, new object[] { gm.maxLives });
                     L($"[motion] hurt at frame {f}: {res}");
                 }
+                else if (input == "K") // 2026-11-03: HP が尽きて倒れる(最後に置く。GAME OVER の倒れる絵を撮る)
+                {
+                    typeof(GameManager).GetProperty("Lives").GetSetMethod(true).Invoke(gm, new object[] { 1 });
+                    var res = gm.TryDamagePlayer(true, "QaMotionDeath");
+                    L($"[motion] death at frame {f}: {res} over={gm.IsGameOver}");
+                }
+                else if (input == "R") // 2026-11-03: 協力プレイの DOWN → 1.5秒後に復活(NetEnterDown/NetRevive = CPU の仲間・マルチと同じ処理)
+                {
+                    pc.NetEnterDown(false); reviveAt = t + 1.5f;
+                    L($"[motion] down at frame {f}");
+                }
                 else if (input != "W") // W = 何もしない(走りだけを撮る)
                 pc.debugInjectOnce = input == "U" ? PlayerController.FlickDirection.Up : input == "D" ? PlayerController.FlickDirection.Down : input == "B" ? PlayerController.FlickDirection.Backward : PlayerController.FlickDirection.Forward;
                 wait = si < seq.Length ? float.Parse(seq[si++], CultureInfo.InvariantCulture) : 0.8f;
             }
+            if (reviveAt > 0f && t >= reviveAt) { reviveAt = -1f; pc.NetRevive(); L($"[motion] revive at frame {f}"); }
             if (mobs.Length > 0 && (mobT -= 1f / 30f) <= 0f)
             {
                 mobT = float.Parse(Arg("-mtMobEvery", "1.4"), CultureInfo.InvariantCulture);

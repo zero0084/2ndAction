@@ -24,6 +24,18 @@ public class PlayerArtScaleFix : AssetPostprocessor
         ("Assets/Art/VampireLand_v1/", 530f),                           // 吸血鬼 着地: 583 → 530(×1.10)
         ("Assets/Art/NinjaHurt_v1/", 530f),                             // 忍者 被弾: 583 → 530(×1.10)
         ("Assets/Art/FighterPoses_v1/divekick/", 530f),                 // 格闘家 急降下の蹴り: 583 → 530(×1.10)
+        // 第2弾(2026-11-03、二段ジャンプ/技の切り替え/倒れる・起き上がるの確認で見つかった分)
+        ("Assets/Art/NobleLadyDoubleJump_v1/", 740f),                   // お嬢様 二段ジャンプ(剣を掲げる): 1220.5 → 740(×1.65、約0.6倍に小さかった)
+        ("Assets/Art/NobleLadyDeath_v1/", 236.5f),                      // お嬢様 倒れる: 272 → 236.5(×1.15、被弾と同じ)
+        ("Assets/Art/LancerRun_v1/", 463f),                             // 竜騎士 走り: 417 → 463(×0.90、走りだけ他の全部の絵より約1.1倍大きかった)
+        ("Assets/Art/ArcherJump_v1/", 486f),                            // 弓兵 ジャンプ: 583 → 486(×1.20)
+        ("Assets/Art/ArcherJumpRise_v1/", 486f),                        // 弓兵 ジャンプの始め/二段ジャンプ: 583 → 486(×1.20)
+        ("Assets/Art/ArcherLand_v1/", 507f),                            // 弓兵 着地: 583 → 507(×1.15)
+        ("Assets/Art/ArcherDeath_v1/", 530f),                           // 弓兵 倒れる: 583 → 530(×1.10)
+        ("Assets/Art/NinjaJumpRise_v1/", 507f),                         // 忍者 ジャンプの始め/二段ジャンプ: 583 → 507(×1.15)
+        ("Assets/Art/NinjaDeath_v1/", 507f),                            // 忍者 倒れる: 583 → 507(×1.15)
+        ("Assets/Art/MikoDeath_v1/", 486f),                             // 巫女 倒れる: 583 → 486(×1.20)
+        ("Assets/Art/DragonkinDeath_v1/", 443f),                        // 竜人 倒れる: 510 → 443(×1.15)
     };
 
     public static bool TryGet(string path, out float ppu)
