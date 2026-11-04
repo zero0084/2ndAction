@@ -337,10 +337,12 @@ public class SceneryCycle : MonoBehaviour
         return Sprite.Create(tex, new Rect(0, 0, W, H), new Vector2(0.5f, 0.5f), 100f);
     }
 
+    // 今の景色の設定(製品版でも使う: LandmarkJourney.SceneryDistance が移り変わりの長さを読む。2026-11-04 製品版のコンパイル失敗の修正)
+    public static SceneryProfile Profile => Active ? Instance.profile : null;
+
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     // ===== 開発用 =====
     public static int SegmentCount => Active ? Instance.profile.segments.Length : 0;
-    public static SceneryProfile Profile => Active ? Instance.profile : null;
 
     // 区間 i の「純粋な」見た目(移り変わりの前)になる距離
     public static float DistanceForSegment(int i, float blend01 = 0f)
