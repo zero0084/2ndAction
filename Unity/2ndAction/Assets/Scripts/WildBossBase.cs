@@ -492,6 +492,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // 2026-10-29: BREAK 中にプレイヤーが上ルート(荒野街道の分岐の上の道)にいると、ボスは下の道に立ったまま 3〜9m 下になり、
     //  弾は体の上を抜け、近接も届かず、BREAK の間ずっと攻撃が当たらなかった(二丁拳銃のオオカミ/グリフォンで記録)。
     //  BREAK の間だけ、ボスの立つ高さを上ルートの高さへなめらかに寄せる(横の寄せと同じご褒美の時間の扱い)。終われば下の道へ戻る
+    // 2026-11-04: 止まって戦うボス戦(BossHalt)では、BREAK 以外の間も同じように上ルートへ寄せる。
+    //  止まった後に踏み込み/ジャンプで分岐の上の道へ上がると、プレイヤーは前へ進まないので降りられず、ボスは下の道のまま 2〜5m 下にいて
+    //  近接が一度も届かなかった(65km/70km のゴブリンライダーで剣士のオートが 1,000秒以上ダメージ 0、関門が終わらない)。
+    //  走りながらのボス戦(ボスラッシュ等)は今までどおり(上の道はすぐ終わって合流する)
+    public static bool HaltRouteLiftEnabled = true; // 開発用の比較(-haltRouteLift 0 で前の作り)
+    public static int HaltRouteLiftFrames;          // 確認用: BREAK 以外で上ルートへ寄せていたフレーム数
     public static bool BreakRouteLiftEnabled = true; // 開発用の比較(-baNoRouteLift 1)
     public static int BreakRouteLiftFrames;         // 確認用: 上ルートへ寄せていたフレーム数
     float breakRouteLift; int breakRouteLiftFrame = -1; bool breakRouteUpper;
@@ -502,7 +508,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         breakRouteLiftFrame = Time.frameCount;
         float want = 0f;
         var tm = TerrainManager.Instance;
-        if (BreakRouteLiftEnabled && Broken && !dead && BossJuggle.Enabled && player != null && tm != null) // 2026-10-30: 分岐の設定ではなく、足元に上の道/足場があるかで見る(作った後に分岐を止めた区間も)
+        bool breakLift = BreakRouteLiftEnabled && Broken && BossJuggle.Enabled;
+        bool haltLift = HaltRouteLiftEnabled && BossHalt.Holding && !FlyingAway;
+        if ((breakLift || haltLift) && !dead && player != null && tm != null) // 2026-10-30: 分岐の設定ではなく、足元に上の道/足場があるかで見る(作った後に分岐を止めた区間も)
         {
             float py = player.position.y; // 足元(groundOffset 0)
             float? skyP = tm.GetSkyHeightAt(player.position.x), skyB = tm.GetSkyHeightAt(x);
@@ -513,7 +521,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         }
         else breakRouteUpper = false;
         breakRouteLift = Mathf.MoveTowards(breakRouteLift, want, (want > breakRouteLift ? 14f : 10f) * Time.deltaTime); // 瞬間移動しない
-        if (breakRouteLift > 0.01f) BreakRouteLiftFrames++;
+        if (breakRouteLift > 0.01f) { BreakRouteLiftFrames++; if (!Broken) HaltRouteLiftFrames++; }
         return breakRouteLift;
     }
 

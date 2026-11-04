@@ -108,6 +108,7 @@ public partial class QaSweep
             .Select(s => { var p = s.Split('@'); return (kind: (RoadEventKind)System.Enum.Parse(typeof(RoadEventKind), p[0]), at: float.Parse(p[1], inv)); }).ToList();
         GameSettings.SetMaxSpeedPercent(int.Parse(Arg("-rvSpeed", "100")));
         bool noShot = Arg("-rvNoShot", "0") == "1"; // 撮らずに数えるだけ(比較用)
+        WildBossBase.HaltRouteLiftEnabled = Arg("-haltRouteLift", "1") != "0"; // 2026-11-04: 0 = 前の作り(止まったボス戦でも上ルートへ寄せない)
         yield return BeginRun(ch, st);
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
         AssistOn();
@@ -135,6 +136,7 @@ public partial class QaSweep
                 bool boss = Bm != null && Bm.IsBossPhase;
                 onSum += on; if (on == 0 && !boss && RoadEvents.Active == RoadEventKind.None) idle++;
                 L($"[rv] t={t:F0}s d={gm.MaxDistance:F0} on={on} boss={boss}{(Bm != null && Bm.AirRaidActive ? " RAID " + BossManager.LastRaidKey : "")} event={RoadEvents.Describe()} journey={LandmarkJourney.Describe()}");
+                if (boss && Arg("-rvBossLog", "1") == "1") RvBossState(); // 2026-11-04: 関門が終わらない時の切り分け(ボスごとの状態 + 補助の判断)
             }
         }
         Time.captureDeltaTime = 0f;
@@ -142,6 +144,20 @@ public partial class QaSweep
         L($"[rv] {st} {km}km {secs:F0}s: events {RoadEvents.Started - ev0}, avg on-screen {onSum / Mathf.Max(1, samples):F2}, quiet {100f * idle / Mathf.Max(1, samples):F0}% | {string.Join(" / ", RoadEvents.History)}");
         Check(true, "road video: done");
         yield return EndRun();
+    }
+
+    void RvBossState()
+    {
+        var pc = PlayerController.Instance;
+        if (pc == null) return;
+        var has = HighSpeedAssist.Instance;
+        L($"[rvb] player x={pc.transform.position.x:F1} halt={pc.HaltFactor:F2} y={pc.transform.position.y:F1} attacking={pc.IsAttacking} canAtk={pc.AssistCanStartForwardAttack} react={pc.IsReacting} reach={pc.AssistForwardReach:F1} grounded={pc.IsGrounded} status={(has != null ? has.CurrentStatus.ToString() : "-")} bossAtk={(has != null ? has.BossAttacks : 0)} ultActive={BossBattle.UltimateActive} haltLift={WildBossBase.HaltRouteLiftFrames} plan='{(has != null ? has.BossPlan : "-")}' act='{(has != null ? has.LastAction : "-")}'");
+        foreach (var lb in BossBattle.Living)
+        {
+            if (!(lb is WildBossBase b) || b == null) continue;
+            var bb = b.AssistBounds;
+            L($"[rvb]   {b.bossName}#{b.slotIndex} hp={b.Hp}/{b.maxHp} ph={b.Phase} act={b.DebugAct} pose={b.DebugPose} gap={b.DebugGap:F1} front={b.DebugFrontDist:F1} relV={b.DebugRelVelocity:F1} freeGap={b.DebugFreeGap} inv={b.DebugInvulnerable} tgt={b.AssistTargetable} ult={b.UltimateRunning} brk={b.Broken} sp={b.SpecialsUsed}/{b.SpecialsDeferred} ults={b.UltimatesUsed} lift={b.DebugBreakRouteLift:F1} bx={bb.min.x - pc.transform.position.x:F1}..{bb.max.x - pc.transform.position.x:F1} by={bb.min.y - pc.transform.position.y:F1}..{bb.max.y - pc.transform.position.y:F1}");
+        }
     }
 }
 #endif
