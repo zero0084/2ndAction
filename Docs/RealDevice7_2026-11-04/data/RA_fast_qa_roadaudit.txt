@@ -1,0 +1,9 @@
+[ra] fast: 3590m in 220s at speed x1.8, bosses 3, distance excluded 56.7m
+[ra] fast obstacles: spawned 29, seen 29, POP-IN 0 (appeared inside the screen), spawn dx min 30.5m, lead seconds min 0.93 median 2.58
+[ra] fast flyers: spawned 20 (5.6/km), seen on screen 14, killed 0, passed 12, avg on-screen 2.1s, viewport y 0.49..0.93, entered from x 0.98
+   Enemy: 20 (seen 14)
+[ra] fast flyers: longest gap between flyer spawns 50.2s
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

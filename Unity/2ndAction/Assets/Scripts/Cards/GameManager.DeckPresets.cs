@@ -10,6 +10,10 @@ public partial class GameManager
     // 疾走の間(ソロ/マルチ)とマルチのランの間は切り替えない
     public bool CanChangeDeckNow => !HasStarted && !NetRunLauncher.IsMultiplayerRun;
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 前後比較(2026-11-04): -deckDepartLegacy 1 で、出発の瞬間に「このマップで前回使ったプリセット」へ切り替える直す前の動き
+    public static readonly bool QaDeckDepartLegacy = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-deckDepartLegacy") >= 0;
+#endif
     public int LastPresetDropped { get; private set; }  // 確認用: 最後の切り替えで外した枚数
     public int LastPresetSwapped { get; private set; }  // 確認用: 最後の切り替えで別の Lv に替えた枚数
 

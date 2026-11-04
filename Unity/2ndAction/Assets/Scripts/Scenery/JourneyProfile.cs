@@ -97,17 +97,19 @@ public class JourneyProfile : ScriptableObject
             milestone = "mile_tower", milestoneTint = Color.Lerp(tint, new Color(0.7f, 0.7f, 0.74f), 0.15f), // 章の 5km で見張り塔を通り過ぎる
         };
         // 城は始めと終わりだけ。間は砦(低く横に長いシルエット)を、大きさ・左右・色で別の場所に見せる(エステルの最終案 2026-11-03)
+        // 2026-11-04(マスター: 城下町以外の景色を増やす): 背景は 10km ごとに 城の川辺(A)→ 風車と水車の村(B)→ 石橋の峡谷と岩山の見張り塔(C)
+        //  の順に場所が変わる(wasteland_road_scenery の segments)。どの関門の後も、変わり目は内部の間に隠す(sceneryChange)。80〜100km は C のまま
         p.chapters = new[]
         {
-            C("dest_castle", day,   stone, 0.12f, 0.70f),              //  0〜10km  城(背景Aの城に重ねる)→ 城門・城下
-            C("dest_fort",   eve,   stone, 0.14f, 0.70f),              // 10〜20km  山間の砦(景色A の間は背景の城の位置に重ねて隠す)
-            C("dest_fort",   night, worn,  0.13f, 0.70f, true),        // 20〜30km  古い関所(反転)
-            C("dest_fort",   dawn,  stone, 0.13f, 0.70f, false, true), // 30〜40km  湖畔の村の門 → 抜けると景色B
-            C("dest_fort",   day,   stone, 0.11f, 0.70f, true),        // 40〜50km  湖畔の見張り塔
-            C("dest_fort",   eve,   worn,  0.12f, 0.76f),              // 50〜60km  山間の砦
-            C("dest_fort",   night, grim,  0.10f, 0.72f, true),        // 60〜70km  荒れた関所
-            C("dest_castle", dawn,  worn,  0.10f, 0.78f, true, true),  // 70〜80km  峡谷の城塞 → 抜けると景色C
-            C("dest_castle", day,   grim,  0.14f, 0.70f),              // 80〜90km  最後の城塞(90km の関門の先は終盤の演出)
+            C("dest_castle", day,   stone, 0.12f, 0.70f, false, true), //  0〜10km  城の川辺(背景Aの城に重ねる)→ 城門・城下 → 抜けると B
+            C("dest_fort",   eve,   stone, 0.14f, 0.70f, false, true), // 10〜20km  風車と水車の村(夕方)→ 抜けると C
+            C("dest_fort",   night, worn,  0.13f, 0.70f, true, true),  // 20〜30km  石橋の峡谷(夜)→ 抜けると A
+            C("dest_fort",   dawn,  stone, 0.13f, 0.70f, false, true), // 30〜40km  城の川辺(夜明け。砦は背景の城の位置に重ねる)→ B
+            C("dest_fort",   day,   stone, 0.11f, 0.70f, true, true),  // 40〜50km  風車と水車の村(昼)→ C
+            C("dest_fort",   eve,   worn,  0.12f, 0.76f, false, true), // 50〜60km  石橋の峡谷(夕方)→ A
+            C("dest_fort",   night, grim,  0.10f, 0.72f, true, true),  // 60〜70km  城の川辺(夜)→ B
+            C("dest_castle", dawn,  worn,  0.10f, 0.78f, true, true),  // 70〜80km  風車と水車の村(夜明け)→ C
+            C("dest_castle", day,   grim,  0.14f, 0.70f),              // 80〜90km  石橋の峡谷(昼。最後の城塞。90km の関門の先も C)
         };
         return p;
     }

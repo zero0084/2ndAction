@@ -458,6 +458,20 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         {
             x += Mathf.Sign(dx) * flyingApproachSpeed * EDt;
         }
+        // 2026-11-04(実機「空中敵を見かけない」/ 高速・縦画面でも見てから狙える): 画面が狭い(縦)/速い時は、プレイヤーの前にいる間だけ
+        //  前へ少し流れて、画面を横切る時間を flyerMinVisibleSeconds 以上にする(横画面の通常の速さでは 0 = 今までどおり)。
+        //  追い越した敵は後ろに残る(倒さなくても次の空の敵が前から来る)
+        if (!EncounterDirector.QaFlyerLegacy && dx < -1.5f)
+        {
+            Camera vc = Camera.main;
+            float pv = PlayerController.RunFrameSpeed, minSec = DifficultyTuning.I.flyerMinVisibleSeconds;
+            if (vc != null && vc.orthographic && pv > 0.5f && minSec > 0f)
+            {
+                float viewW = vc.orthographicSize * vc.aspect * 2f;
+                float ratio = Mathf.Clamp(1f - viewW / (minSec * pv), 0f, DifficultyTuning.I.flyerMaxCarry);
+                x += ratio * pv * EDt;
+            }
+        }
 
         float? groundY = Surface(x);
         float floor = (groundY ?? (flyingBaseY - flyingMinHeight)) + flyingMinHeight;
@@ -471,6 +485,15 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         {
             float? ceil = TerrainManager.Instance.GetEffectiveCeilingHeightAt(x);
             if (ceil.HasValue) targetY = Mathf.Min(targetY, ceil.Value - flyingCeilingMargin);
+        }
+        // 2026-11-04(実機「空中敵を見かけない」): 画面の上端(HUD の帯)に隠れる高さへ行かない。上の道の空の敵や、プレイヤーが低い所へ
+        //  降りてカメラが下がった時に画面の上端(縦の位置 0.9〜1.0)に出ていた。カメラの上端から決めた上限まで(ゆっくり寄せる。上の道の天井と同じ扱い)
+        Camera flyCam = Camera.main;
+        if (flyCam != null && flyCam.orthographic && flyingMinHeight > 0f && !EncounterDirector.QaFlyerLegacy)
+        {
+            float cap = flyCam.transform.position.y + flyCam.orthographicSize * (2f * DifficultyTuning.I.flyerMaxViewportY - 1f);
+            float capFloor = floor + 0.3f;
+            targetY = Mathf.Min(targetY, Mathf.Max(cap, capFloor));
         }
         // 2026-10-22: 高さはなめらかに寄せる(地形の段差で下限が変わると、高さがカクッと変わっていた)。出てきた最初のフレームはそのまま
         float y = flyingYInit ? Mathf.Lerp(transform.position.y, targetY, 1f - Mathf.Exp(-Time.deltaTime / 0.12f)) : targetY;

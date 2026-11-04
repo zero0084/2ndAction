@@ -1,0 +1,18 @@
+[ra] fastlegacy: 3697m in 220s at speed x1.8, bosses 3, distance excluded 57.2m
+[ra] fastlegacy obstacles: spawned 39, seen 30, POP-IN 21 (appeared inside the screen), spawn dx min -347.0m, lead seconds min 0.00 median 2.27
+   pop-in Obstacle_SmallTree t=21.4s spawned 26.6m ahead (viewport x 0.97) lead 2.38s
+   pop-in Obstacle_SmallTree t=24.9s spawned 26.4m ahead (viewport x 0.96) lead 3.65s
+   pop-in Obstacle_SmallTree t=32.1s spawned 26.5m ahead (viewport x 0.96) lead 2.27s
+   pop-in Obstacle_SmallTree t=35.5s spawned 26.6m ahead (viewport x 0.97) lead 4.98s
+   pop-in Obstacle_Rock t=43.1s spawned 26.7m ahead (viewport x 0.97) lead 2.18s
+   pop-in Obstacle_SmallTree t=47.2s spawned 26.5m ahead (viewport x 0.96) lead 2.12s
+   pop-in Obstacle_Rock t=57.2s spawned 26.8m ahead (viewport x 0.96) lead 3.03s
+   pop-in Obstacle_SmallTree t=57.8s spawned 26.3m ahead (viewport x 0.95) lead 2.50s
+[FAIL] fastlegacy: no obstacle appears inside the screen (21)
+[ra] fastlegacy flyers: spawned 10 (2.7/km), seen on screen 7, killed 0, passed 6, avg on-screen 2.8s, viewport y 0.50..0.77, entered from x 0.97
+   Enemy: 10 (seen 7)
+[ra] fastlegacy flyers: longest gap between flyer spawns 88.2s
+
+failures=1 warnings=0
+1 CHECK(S) FAILED
+NO EXCEPTIONS LOGGED

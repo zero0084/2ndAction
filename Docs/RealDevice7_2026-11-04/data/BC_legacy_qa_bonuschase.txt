@@ -1,0 +1,7 @@
+[bc] legacy_35: goblins 11, swings 19, hits 41, reach entries 9, hit->away->hit cycles 2, OVERTAKES 6, forward warps 0, avg reach->hit 0.11s, max relative accel 800.2 m/s2, speed 35 km/h
+[FAIL] legacy_35: the player does not overtake a running goblin (6)
+[bc] legacy_100: goblins 9, swings 4, hits 10, reach entries 1, hit->away->hit cycles 0, OVERTAKES 0, forward warps 0, avg reach->hit 0.03s, max relative accel 1848.6 m/s2, speed 100 km/h
+
+failures=1 warnings=0
+1 CHECK(S) FAILED
+NO EXCEPTIONS LOGGED

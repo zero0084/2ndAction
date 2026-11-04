@@ -599,7 +599,13 @@ public partial class GameManager : MonoBehaviour
         StageDefinition def = StageDatabase.FindById(stageId);
         if (def == null || !StageDatabase.IsAvailable(def)) return;
         SelectedStageId = stageId;
-        ApplyRememberedPreset(stageId); // 2026-10-31: このマップで前回使ったプリセットへ(中身は書き換えない)
+        // 2026-11-04(実機の不具合「出発前に選んだデッキがランに反映されない」): 以前はここで「このマップで前回使ったプリセット」へ
+        //  切り替えていたが、この関数は出発の瞬間(DepartFromStageSelect / 疾走出発)に呼ばれるため、直前にホームで選んだデッキを
+        //  前回の番号で上書きしていた(デッキ2を選んでもデッキ1で走る)。ソロは「今使っているデッキ = 最後に選んだデッキ」で出発する。
+        //  マルチの部屋は部屋に入った時に前回の番号を出し、その画面の◀▶で選び直せるので今までどおり(NetDebugUI)。
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (QaDeckDepartLegacy) ApplyRememberedPreset(stageId); // 前後比較の試験だけ(-deckDepartLegacy 1 = 直す前の動き)
+#endif
         if (DebugRun.BlocksSave("SelectedStageId")) return;
         SaveStore.SetString(SelectedStageKey, stageId);
         SaveStore.Save();

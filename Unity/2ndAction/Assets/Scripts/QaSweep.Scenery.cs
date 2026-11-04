@@ -18,9 +18,10 @@ public partial class QaSweep
         if (prof == null) yield break;
         (float d, string want)[] cases =
         {
-            (0f, "A 昼"), (8999f, "A 昼"), (9500f, "A 昼"), (10000f, "A 夕方"), (19999f, "A 夕方"), (25000f, "A 夜"), (35000f, "A 夜明け"),
-            (40000f, "B 昼"), (55000f, "B 夕方"), (65000f, "B 夜"), (75000f, "B 夜明け"), (85000f, "C 昼"), (95000f, "C 夕方"),
-            (105000f, "C 夜"), (115000f, "C 夜明け"), (120000f, "A 昼"), (130000f, "A 夕方"), (245000f, "A 昼"),
+            // 2026-11-04: 10km ごとに場所が変わる(A 城の川辺 → B 風車と水車の村 → C 石橋の峡谷)。時間帯は今までどおり 昼→夕方→夜→夜明け
+            (0f, "A 昼"), (8999f, "A 昼"), (9500f, "A 昼"), (10000f, "B 夕方"), (19999f, "B 夕方"), (25000f, "C 夜"), (35000f, "A 夜明け"),
+            (40000f, "B 昼"), (55000f, "C 夕方"), (65000f, "A 夜"), (75000f, "B 夜明け"), (85000f, "C 昼"), (95000f, "C 夕方"),
+            (105000f, "A 夕方"), (115000f, "B 夜"), (120000f, "A 昼"), (130000f, "B 夕方"), (245000f, "A 昼"),
         };
         foreach (var c in cases)
         {
@@ -118,8 +119,9 @@ public partial class QaSweep
             float lastBlend = -1f; int lastSeg = SceneryCycle.CurrentSegment;
             Color lastPix = BgColorProbe();
             float maxJump = 0f;
+            int coveredSwaps = 0;
             float w = 0f;
-            while (gm.MaxDistance < boundary + 150f && w < 60f)
+            while (gm.MaxDistance < boundary + (LandmarkJourney.Active ? 800f : 150f) && w < 60f) // 2026-11-04: どの関門でも景色が変わる = 内部が画面を覆うまで(内部の半分 600m)前の景色のまま
             {
                 yield return null;
                 float dt = Time.unscaledDeltaTime;
@@ -132,7 +134,12 @@ public partial class QaSweep
                 float bl = SceneryCycle.CurrentBlend;
                 if (seg == lastSeg && bl + 1e-4f < lastBlend) Check(false, $"blend went backwards near {boundary}: {lastBlend:F3} -> {bl:F3}");
                 Color pix = BgColorProbe();
-                if (seg != lastSeg) maxJump = Mathf.Max(maxJump, ColorDist(pix, lastPix));
+                if (seg != lastSeg)
+                {
+                    // 2026-11-04: 景色の変わり目を城下町(内部)で隠す関門では、内部が画面を覆っている間の入れ替え = 見えない
+                    if (LandmarkJourney.Active && LandmarkJourney.InteriorAlpha >= 0.98f) { coveredSwaps++; L($"[cross] {boundary}m swap under the town interior (alpha {LandmarkJourney.InteriorAlpha:F2})"); }
+                    else maxJump = Mathf.Max(maxJump, ColorDist(pix, lastPix));
+                }
                 lastPix = pix; lastBlend = bl; lastSeg = seg;
                 maxTex = System.Math.Max(maxTex, SceneryCycle.LoadedTextureBytes);
                 maxLoaded = Mathf.Max(maxLoaded, SceneryCycle.LoadedCount);
@@ -207,7 +214,7 @@ public partial class QaSweep
             yield return new WaitForSeconds(1f);
             var bg = TerrainManager.Instance.backgroundRenderer;
             string before = bg != null && bg.sprite != null ? bg.sprite.name : "null";
-            Check(SceneryCycle.Active && before == "scn_B_night", $"wasteland at 65k shows B night (got {before})");
+            Check(SceneryCycle.Active && before == "scn_A_night", $"wasteland at 65k shows A night (got {before})");
             yield return EndRun();
             yield return BeginRun("swordsman", st);
             PrepSceneryRun();

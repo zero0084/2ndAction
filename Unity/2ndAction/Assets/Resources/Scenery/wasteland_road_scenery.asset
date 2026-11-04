@@ -39,10 +39,10 @@ MonoBehaviour:
   - scenery: 0
     time: 0
     length: 10000
-  - scenery: 0
+  - scenery: 1
     time: 1
     length: 10000
-  - scenery: 0
+  - scenery: 2
     time: 2
     length: 10000
   - scenery: 0
@@ -51,10 +51,10 @@ MonoBehaviour:
   - scenery: 1
     time: 0
     length: 10000
-  - scenery: 1
+  - scenery: 2
     time: 1
     length: 10000
-  - scenery: 1
+  - scenery: 0
     time: 2
     length: 10000
   - scenery: 1
@@ -66,11 +66,11 @@ MonoBehaviour:
   - scenery: 2
     time: 1
     length: 10000
-  - scenery: 2
-    time: 2
+  - scenery: 0
+    time: 1
     length: 10000
-  - scenery: 2
-    time: 3
+  - scenery: 1
+    time: 2
     length: 10000
   loopFromSegment: 0
   blendMeters: 1000

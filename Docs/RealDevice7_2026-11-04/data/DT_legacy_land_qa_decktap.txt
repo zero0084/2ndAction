@@ -1,0 +1,118 @@
+[setup] land 1280x720, owned stacks 30, deck 3 (LEGACY tap)
+[top] ADDED by tapping below list at (115,16) hiddenCard=True: mob_killer
+[top] ADDED by tapping below list at (211,16) hiddenCard=True: ground_fighter
+[top] ADDED by tapping below list at (306,16) hiddenCard=True: tough_enemies
+[top] ADDED by tapping below list at (402,16) hiddenCard=True: fast_enemies
+[top] ADDED by tapping below list at (497,16) hiddenCard=True: thunder_strike
+[top] ADDED by tapping below list at (593,16) hiddenCard=True: flame_blade
+[top] ADDED by tapping below list at (688,16) hiddenCard=True: frost_edge
+[top] ADDED by tapping below list at (783,16) hiddenCard=True: wind_cutter
+[top] ADDED by tapping below list at (879,16) hiddenCard=True: scorch
+[top] tapped 221 points outside the visible list: hidden cards under 9, cards added 9
+[FAIL] land top: tapping empty slots / margins / list edges adds no card (9)
+[middle] ADDED by tapping empty slot 7 at (454,474) hiddenCard=True: jump_count_up
+[middle] ADDED by tapping empty slot 8 at (545,474) hiddenCard=True: jump_count_up
+[middle] ADDED by tapping empty slot 9 at (636,474) hiddenCard=True: heart_up
+[middle] ADDED by tapping empty slot 10 at (727,474) hiddenCard=True: attack_range_up
+[middle] ADDED by tapping empty slot 11 at (817,474) hiddenCard=True: attack_speed_up
+[middle] ADDED by tapping empty slot 12 at (908,474) hiddenCard=True: air_attack_up
+[middle] ADDED by tapping below list at (115,16) hiddenCard=True: permafrost
+[middle] ADDED by tapping below list at (211,16) hiddenCard=True: conductor
+[middle] ADDED by tapping below list at (306,16) hiddenCard=True: slipstream
+[middle] ADDED by tapping above list at (402,357) hiddenCard=True: jump_power_up
+[middle] ADDED by tapping above list +40 at (402,394) hiddenCard=True: jump_power_up
+[middle] ADDED by tapping above list at (497,357) hiddenCard=True: jump_count_up
+[middle] ADDED by tapping above list +40 at (497,394) hiddenCard=True: jump_count_up
+[middle] ADDED by tapping above list at (593,357) hiddenCard=True: heart_up
+[middle] ADDED by tapping above list +40 at (593,394) hiddenCard=True: heart_up
+[middle] ADDED by tapping above list at (688,357) hiddenCard=True: attack_range_up
+[middle] ADDED by tapping above list +40 at (688,394) hiddenCard=True: attack_range_up
+[middle] ADDED by tapping above list at (783,357) hiddenCard=True: attack_speed_up
+[middle] ADDED by tapping above list +40 at (783,394) hiddenCard=True: attack_speed_up
+[middle] ADDED by tapping above list at (879,357) hiddenCard=True: air_attack_up
+[middle] ADDED by tapping above list +40 at (879,394) hiddenCard=True: air_attack_up
+[middle] ADDED by tapping grid at (499,367) hiddenCard=True: jump_count_up
+[middle] ADDED by tapping grid at (499,410) hiddenCard=True: jump_count_up
+[middle] ADDED by tapping grid at (499,454) hiddenCard=True: jump_count_up
+[middle] ADDED by tapping grid at (576,367) hiddenCard=True: heart_up
+[middle] ADDED by tapping grid at (576,410) hiddenCard=True: heart_up
+[middle] ADDED by tapping grid at (576,454) hiddenCard=True: heart_up
+[middle] ADDED by tapping grid at (730,410) hiddenCard=True: combo_plus
+[middle] ADDED by tapping grid at (730,454) hiddenCard=True: combo_plus
+[middle] tapped 221 points outside the visible list: hidden cards under 55, cards added 29
+[FAIL] land middle: tapping empty slots / margins / list edges adds no card (29)
+[end] ADDED by tapping empty slot 4 at (727,605) hiddenCard=True: attack_range_up
+[end] ADDED by tapping empty slot 5 at (817,605) hiddenCard=True: attack_speed_up
+[end] ADDED by tapping empty slot 6 at (908,605) hiddenCard=True: air_attack_up
+[end] ADDED by tapping above list at (115,357) hiddenCard=True: shield
+[end] ADDED by tapping above list +40 at (115,394) hiddenCard=True: shield
+[end] ADDED by tapping above list at (211,357) hiddenCard=True: exp_up
+[end] ADDED by tapping above list +40 at (211,394) hiddenCard=True: exp_up
+[end] ADDED by tapping above list at (306,357) hiddenCard=True: vampire
+[end] ADDED by tapping above list +40 at (306,394) hiddenCard=True: vampire
+[end] ADDED by tapping above list at (402,357) hiddenCard=True: more_enemies
+[end] ADDED by tapping above list +40 at (402,394) hiddenCard=True: more_enemies
+[end] ADDED by tapping above list at (497,357) hiddenCard=True: brake_attack
+[end] ADDED by tapping above list +40 at (497,394) hiddenCard=True: brake_attack
+[end] ADDED by tapping above list at (593,357) hiddenCard=True: first_strike
+[end] ADDED by tapping above list +40 at (593,394) hiddenCard=True: first_strike
+[end] ADDED by tapping above list at (688,357) hiddenCard=True: executioner
+[end] ADDED by tapping above list +40 at (688,394) hiddenCard=True: executioner
+[end] ADDED by tapping above list at (783,357) hiddenCard=True: treasure_hunter
+[end] ADDED by tapping above list +40 at (783,394) hiddenCard=True: treasure_hunter
+[end] ADDED by tapping above list at (879,357) hiddenCard=True: combo_plus
+[end] ADDED by tapping above list +40 at (879,394) hiddenCard=True: combo_plus
+[end] ADDED by tapping grid at (38,367) hiddenCard=True: shield
+[end] ADDED by tapping grid at (38,410) hiddenCard=True: shield
+[end] ADDED by tapping grid at (38,454) hiddenCard=True: shield
+[end] ADDED by tapping grid at (115,367) hiddenCard=True: shield
+[end] ADDED by tapping grid at (115,410) hiddenCard=True: shield
+[end] ADDED by tapping grid at (115,454) hiddenCard=True: shield
+[end] ADDED by tapping grid at (192,367) hiddenCard=True: exp_up
+[end] ADDED by tapping grid at (192,410) hiddenCard=True: exp_up
+[end] ADDED by tapping grid at (192,454) hiddenCard=True: exp_up
+[end] ADDED by tapping grid at (346,367) hiddenCard=True: more_enemies
+[end] ADDED by tapping grid at (346,410) hiddenCard=True: more_enemies
+[end] ADDED by tapping grid at (346,454) hiddenCard=True: more_enemies
+[end] ADDED by tapping grid at (346,497) hiddenCard=True: jump_power_up
+[end] ADDED by tapping grid at (346,540) hiddenCard=True: jump_power_up
+[end] ADDED by tapping grid at (346,583) hiddenCard=True: jump_power_up
+[end] ADDED by tapping grid at (346,626) hiddenCard=True: jump_power_up
+[end] ADDED by tapping grid at (422,367) hiddenCard=True: more_enemies
+[end] ADDED by tapping grid at (422,410) hiddenCard=True: more_enemies
+[end] ADDED by tapping grid at (422,454) hiddenCard=True: more_enemies
+[end] ADDED by tapping grid at (422,497) hiddenCard=True: jump_power_up
+[end] ADDED by tapping grid at (422,540) hiddenCard=True: jump_power_up
+[end] ADDED by tapping grid at (422,583) hiddenCard=True: jump_power_up
+[end] ADDED by tapping grid at (422,626) hiddenCard=True: jump_power_up
+[end] ADDED by tapping grid at (499,367) hiddenCard=True: brake_attack
+[end] ADDED by tapping grid at (499,410) hiddenCard=True: brake_attack
+[end] ADDED by tapping grid at (499,454) hiddenCard=True: brake_attack
+[end] ADDED by tapping grid at (499,497) hiddenCard=True: jump_count_up
+[end] ADDED by tapping grid at (499,540) hiddenCard=True: jump_count_up
+[end] ADDED by tapping grid at (499,583) hiddenCard=True: jump_count_up
+[end] ADDED by tapping grid at (499,626) hiddenCard=True: jump_count_up
+[end] ADDED by tapping grid at (576,367) hiddenCard=True: first_strike
+[end] ADDED by tapping grid at (576,410) hiddenCard=True: first_strike
+[end] ADDED by tapping grid at (576,454) hiddenCard=True: first_strike
+[end] ADDED by tapping grid at (576,497) hiddenCard=True: heart_up
+[end] ADDED by tapping grid at (576,540) hiddenCard=True: heart_up
+[end] ADDED by tapping grid at (576,583) hiddenCard=True: heart_up
+[end] ADDED by tapping grid at (576,626) hiddenCard=True: heart_up
+[end] ADDED by tapping grid at (653,497) hiddenCard=True: heart_up
+[end] ADDED by tapping grid at (653,540) hiddenCard=True: heart_up
+[end] ADDED by tapping grid at (653,583) hiddenCard=True: heart_up
+[end] ADDED by tapping grid at (653,626) hiddenCard=True: heart_up
+[end] ADDED by tapping grid at (730,410) hiddenCard=True: conductor
+[end] ADDED by tapping grid at (730,454) hiddenCard=True: conductor
+[end] ADDED by tapping grid at (730,497) hiddenCard=True: combo_plus
+[end] ADDED by tapping grid at (730,540) hiddenCard=True: combo_plus
+[end] ADDED by tapping grid at (730,583) hiddenCard=True: combo_plus
+[end] ADDED by tapping grid at (730,626) hiddenCard=True: combo_plus
+[end] tapped 221 points outside the visible list: hidden cards under 86, cards added 68
+[FAIL] land end: tapping empty slots / margins / list edges adds no card (68)
+[total] taps 663, points with a hidden card under the finger 150, cards added 106
+
+failures=3 warnings=0
+3 CHECK(S) FAILED
+NO EXCEPTIONS LOGGED

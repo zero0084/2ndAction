@@ -1415,6 +1415,19 @@ public partial class DeckEditUI : MonoBehaviour
         return null;
     }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    static readonly bool QaTapLegacy = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-deckTapLegacy") >= 0; // 前後比較: 直す前の判定
+#else
+    const bool QaTapLegacy = false;
+#endif
+    // 一覧(ScrollRect)の見える範囲の中か。一覧が無い時は制限しない
+    static bool InScrollView(ScrollRect sr, Vector2 screenPos)
+    {
+        if (sr == null) return true;
+        var vp = sr.viewport != null ? sr.viewport : (RectTransform)sr.transform;
+        return RectTransformUtility.RectangleContainsScreenPoint(vp, screenPos, null);
+    }
+
     void HandleTap(Vector2 screenPos)
     {
         if (backButtonRect != null && UiHit.Hit(backButtonRect, screenPos))
@@ -1477,10 +1490,15 @@ public partial class DeckEditUI : MonoBehaviour
             }
         }
 
+        // 2026-11-04(実機の不具合「空白をタップするとカードが勝手に入る」): 一覧を動かして見える範囲の外へ出たカードも
+        //  activeInHierarchy のまま(マスクで見えないだけ)で、一覧の上にあるデッキの空き枠/余白に重なっていた。
+        //  一覧の後でデッキを調べる順番だったので、空き枠を押すと見えないカードが入っていた → 見える範囲の中を押した時だけ。
+        bool inOwnedView = InScrollView(ownedScrollRect, screenPos);
         for (int i = 0; i < ownedCards.Length; i++)
         {
             RewardCardUI card = ownedCards[i];
             if (card == null || !card.gameObject.activeInHierarchy) continue;
+            if (!UiHit.Probing && !inOwnedView && !QaTapLegacy) break;
             if (UiHit.Hit(card.rect, screenPos))
             {
                 OnOwnedCardTapped(i);
@@ -1488,10 +1506,12 @@ public partial class DeckEditUI : MonoBehaviour
             }
         }
 
+        bool inDeckView = InScrollView(deckScrollRect, screenPos);
         for (int i = 0; i < deckSlotCards.Length; i++)
         {
             RewardCardUI card = deckSlotCards[i];
             if (card == null || !card.gameObject.activeInHierarchy) continue;
+            if (!UiHit.Probing && !inDeckView && !QaTapLegacy) break;
             if (UiHit.Hit(card.rect, screenPos))
             {
                 OnDeckSlotTapped(i);

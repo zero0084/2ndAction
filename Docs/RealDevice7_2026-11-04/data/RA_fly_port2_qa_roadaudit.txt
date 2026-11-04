@@ -1,0 +1,11 @@
+[ra] flyport2: 3613m in 240s at speed x1.8, bosses 3, distance excluded 50.7m
+[ra] flyport2 obstacles: spawned 39, seen 39, POP-IN 1 (appeared inside the screen), spawn dx min 30.3m, lead seconds min 0.47 median 1.35
+   pop-in Obstacle_Rock t=221.9s spawned 57.2m ahead (viewport x 2.47) lead 0.47s
+[FAIL] flyport2: no obstacle appears inside the screen (1)
+[ra] flyport2 flyers: spawned 23 (6.4/km), seen on screen 18, killed 0, passed 13, avg on-screen 1.8s, viewport y 0.17..0.35, entered from x 0.98
+   Enemy: 23 (seen 18)
+[ra] flyport2 flyers: longest gap between flyer spawns 44.2s, encounters with a flyer 12, flyer-due boosts 11, flyers added 0
+
+failures=1 warnings=0
+1 CHECK(S) FAILED
+NO EXCEPTIONS LOGGED

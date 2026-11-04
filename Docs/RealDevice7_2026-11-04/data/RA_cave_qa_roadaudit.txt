@@ -1,0 +1,9 @@
+[ra] cave: 3667m in 240s at speed x1, bosses 4, distance excluded 52.7m
+[ra] cave obstacles: spawned 22, seen 22, POP-IN 0 (appeared inside the screen), spawn dx min 30.7m, lead seconds min 1.07 median 2.13
+[ra] cave flyers: spawned 15 (4.1/km), seen on screen 12, killed 0, passed 7, avg on-screen 2.1s, viewport y 0.37..0.83, entered from x 0.98
+   Enemy: 15 (seen 12)
+[ra] cave flyers: longest gap between flyer spawns 56.2s, encounters with a flyer 10, flyer-due boosts 3, flyers added 3
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

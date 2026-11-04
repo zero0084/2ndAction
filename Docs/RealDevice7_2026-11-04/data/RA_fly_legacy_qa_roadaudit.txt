@@ -1,0 +1,9 @@
+[ra] flylegacy: 2485m in 300s at speed x1, bosses 2, distance excluded 27.6m
+[ra] flylegacy obstacles: spawned 76, seen 76, POP-IN 0 (appeared inside the screen), spawn dx min 29.5m, lead seconds min 1.63 median 3.68
+[ra] flylegacy flyers: spawned 20 (8.0/km), seen on screen 17, killed 0, passed 14, avg on-screen 4.3s, viewport y 0.48..0.99, entered from x 0.98
+   Enemy: 20 (seen 17)
+[ra] flylegacy flyers: longest gap between flyer spawns 61.0s, encounters with a flyer 10, flyer-due boosts 0 (LEGACY)
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

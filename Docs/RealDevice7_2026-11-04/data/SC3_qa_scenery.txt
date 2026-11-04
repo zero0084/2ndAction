@@ -1,0 +1,28 @@
+[plan] loop=120000m blend=1000m segments=12
+[start] A 昼 loaded=1 tex=6336KB
+[cross] 10000m swap under the town interior (alpha 1.00)
+[cross] 10000m -> B 夕方  swapJump=0.0000 lastAsyncLoad=34ms loaded=2
+[cross] 20000m swap under the town interior (alpha 1.00)
+[cross] 20000m -> C 夜  swapJump=0.0000 lastAsyncLoad=33ms loaded=2
+[cross] 30000m swap under the town interior (alpha 1.00)
+[cross] 30000m -> A 夜明け  swapJump=0.0000 lastAsyncLoad=33ms loaded=2
+[cross] 40000m swap under the town interior (alpha 1.00)
+[cross] 40000m -> B 昼  swapJump=0.0000 lastAsyncLoad=33ms loaded=2
+[cross] 50000m swap under the town interior (alpha 1.00)
+[cross] 50000m -> C 夕方  swapJump=0.0000 lastAsyncLoad=206ms loaded=2
+[cross] 60000m swap under the town interior (alpha 1.00)
+[cross] 60000m -> A 夜  swapJump=0.0000 lastAsyncLoad=154ms loaded=2
+[cross] 70000m swap under the town interior (alpha 1.00)
+[cross] 70000m -> B 夜明け  swapJump=0.0000 lastAsyncLoad=33ms loaded=2
+[cross] 80000m swap under the town interior (alpha 1.00)
+[cross] 80000m -> C 昼  swapJump=0.0000 lastAsyncLoad=75ms loaded=2
+[cross] 90000m -> C 夕方  swapJump=0.0000 lastAsyncLoad=34ms loaded=2
+[cross] 100000m -> A 夕方  swapJump=0.0000 lastAsyncLoad=36ms loaded=2
+[cross] 110000m -> B 夜  swapJump=0.0000 lastAsyncLoad=36ms loaded=1
+[cross] 120000m -> A 昼  swapJump=0.0000 lastAsyncLoad=33ms loaded=1
+[perf] frames=25469 p99=16.7ms worst=50.0ms | during blends: frames=3264 p99=16.7ms worst=50.0ms
+[mem] scenery textures resident max=3 (18.56MB), syncLoadsTotal=7 (warps only), lastSyncLoad=18ms
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

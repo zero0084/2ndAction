@@ -1,0 +1,22 @@
+[setup] p1 attack_up p2 speed_up remembered(wasteland) 1
+[normal] chosen before departure: deck 2 = speed_up
+[normal] in the run: deck 2 = speed_up (distance 0m)
+[normal] level-up offered: speed_up
+[normal] RUN BUILD acquired: speed_up
+[sprint] chosen before departure: deck 2 = speed_up
+[sprint] in the run: deck 2 = speed_up (distance 9750m)
+[sprint] level-up offered: 
+[FAIL] sprint: the card choice offers only the chosen deck's marker speed_up ()
+[sprint] RUN BUILD acquired: speed_up
+[back-to-1] chosen before departure: deck 1 = attack_up
+[back-to-1] in the run: deck 1 = attack_up (distance 0m)
+[back-to-1] level-up offered: attack_up
+[back-to-1] RUN BUILD acquired: attack_up
+[again-2] chosen before departure: deck 2 = speed_up
+[again-2] in the run: deck 2 = speed_up (distance 0m)
+[again-2] level-up offered: speed_up
+[again-2] RUN BUILD acquired: speed_up
+
+failures=1 warnings=0
+1 CHECK(S) FAILED
+NO EXCEPTIONS LOGGED

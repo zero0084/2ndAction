@@ -103,11 +103,12 @@ public partial class QaSweep
         gm.ActivatePreset(4);
         DeckPresets.Remember("solo", "sky_corridor");
         gm.ActivatePreset(0);
+        // 2026-11-04: ソロの出発(SetSelectedStage)ではもう切り替えない(直前に選んだデッキを前回の番号で上書きしていた不具合)
         gm.SetSelectedStage("natural_cave");
-        Check(DeckPresets.Active == 2, $"J: choosing the cave switches to the preset used there last ({DeckPresets.Active + 1})");
+        Check(DeckPresets.Active == 0, $"J: departing to the cave keeps the deck chosen just before (no switch to the remembered one, {DeckPresets.Active + 1})");
         string content2 = string.Join(",", DeckPresets.Get(2).cards);
         gm.SetSelectedStage("sky_corridor");
-        Check(DeckPresets.Active == 4 && string.Join(",", DeckPresets.Get(2).cards) == content2, "J: choosing the sky corridor switches to its preset, contents unchanged");
+        Check(DeckPresets.Active == 0 && string.Join(",", DeckPresets.Get(2).cards) == content2 && DeckPresets.Remembered("solo", "sky_corridor") == 4, "J: the sky corridor memory is kept but not applied on departure, contents unchanged");
         gm.ActivatePreset(1);
         gm.SetSelectedStage("wasteland_road");
         Check(DeckPresets.Active == 1, "J: a map with no memory keeps the preset in use (no surprise switch)");
@@ -125,7 +126,7 @@ public partial class QaSweep
         gm = GameManager.Instance;
         gm.ActivatePreset(0);
         gm.SetSelectedStage("wasteland_road");
-        Check(DeckPresets.Active == 6, "K: after the run, choosing wasteland road again picks preset 7");
+        Check(DeckPresets.Active == 0, "K: after the run, choosing deck 1 and departing to wasteland road keeps deck 1 (2026-11-04)");
 
         // ---- L: 引き継ぎのファイルの確認 ----
         var cv = typeof(SaveTransfer).GetMethod("CheckValue", BindingFlags.NonPublic | BindingFlags.Static);

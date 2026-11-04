@@ -1,0 +1,9 @@
+[ra] port3: 4042m in 240s at speed x1.8, bosses 4, distance excluded 85.7m
+[ra] port3 obstacles: spawned 40, seen 40, POP-IN 0 (appeared inside the screen), spawn dx min 30.4m, lead seconds min 0.47 median 1.33
+[ra] port3 flyers: spawned 18 (4.5/km), seen on screen 15, killed 0, passed 10, avg on-screen 1.7s, viewport y 0.18..0.35, entered from x 0.98
+   Enemy: 18 (seen 15)
+[ra] port3 flyers: longest gap between flyer spawns 60.4s, encounters with a flyer 11, flyer-due boosts 9, flyers added 0
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

@@ -1,0 +1,7 @@
+[A] active 1, names: デッキ 1 / デッキ 2 / デッキ 3 / デッキ 4 / デッキ 5 / デッキ 6 / デッキ 7 / デッキ 8
+[H] deck v2|speed_up|3|1|speed_up*3,attack_speed_up dropped 1 swapped 1
+[I] P1:attack_up | P2:speed_up,heart_up | P3:heart_up,jump_power_up,attack_speed_up | P4:jump_power_up,attack_speed_up,attack_up,speed_up | P5:attack_speed_up,attack_up,speed_up,heart_up,jump_power_up | P6:attack_up | P7:speed_up,heart_up | P8:heart_up,jump_power_up,attack_speed_up
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

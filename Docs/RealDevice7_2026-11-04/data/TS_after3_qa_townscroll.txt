@@ -1,0 +1,32 @@
+[ts] ts_x1.0_10km: entry #1, interior seen True, 71s, distance 11047m
+   cloud: moved 408.7m on screen, while the distance was stopped 19.48m, worst frame error 0.000m, frames off by >50% 0
+   dest: moved 3.1m on screen, while the distance was stopped 2.21m, worst frame error 0.000m, frames off by >50% 0
+   far: moved 0.0m on screen, while the distance was stopped 0.00m, worst frame error 0.000m, frames off by >50% 0
+   gate: moved 84.4m on screen, while the distance was stopped 0.00m, worst frame error 0.044m, frames off by >50% 0
+   interior: moved 470.5m on screen, while the distance was stopped 0.00m, worst frame error 0.000m, frames off by >50% 0
+   milestone: moved 39.8m on screen, while the distance was stopped 0.00m, worst frame error 0.042m, frames off by >50% 0
+[ts] ts_x1.0_20km: entry #2, interior seen True, 71s, distance 21373m
+   cloud: moved 306.7m on screen, while the distance was stopped 9.41m, worst frame error 0.000m, frames off by >50% 0
+   dest: moved 7.6m on screen, while the distance was stopped 2.50m, worst frame error 0.000m, frames off by >50% 0
+   far: moved 0.0m on screen, while the distance was stopped 0.00m, worst frame error 0.000m, frames off by >50% 0
+   gate: moved 84.2m on screen, while the distance was stopped 0.00m, worst frame error 0.035m, frames off by >50% 0
+   interior: moved 568.6m on screen, while the distance was stopped 0.00m, worst frame error 0.000m, frames off by >50% 0
+   milestone: moved 41.7m on screen, while the distance was stopped 0.00m, worst frame error 0.018m, frames off by >50% 0
+[ts] ts_x1.8_10km: entry #1, interior seen True, 62s, distance 11726m
+   cloud: moved 378.7m on screen, while the distance was stopped 19.36m, worst frame error 0.000m, frames off by >50% 0
+   dest: moved 7.9m on screen, while the distance was stopped 2.34m, worst frame error 0.000m, frames off by >50% 0
+   far: moved 0.0m on screen, while the distance was stopped 0.00m, worst frame error 0.000m, frames off by >50% 0
+   gate: moved 83.1m on screen, while the distance was stopped 0.00m, worst frame error 0.051m, frames off by >50% 0
+   interior: moved 569.4m on screen, while the distance was stopped 0.00m, worst frame error 0.000m, frames off by >50% 0
+   milestone: moved 39.0m on screen, while the distance was stopped 0.00m, worst frame error 0.042m, frames off by >50% 0
+[ts] ts_x1.8_20km: entry #2, interior seen True, 63s, distance 22275m
+   cloud: moved 388.8m on screen, while the distance was stopped 11.22m, worst frame error 0.000m, frames off by >50% 0
+   dest: moved 1031.4m on screen, while the distance was stopped 1.98m, worst frame error 0.000m, frames off by >50% 0
+   far: moved 0.0m on screen, while the distance was stopped 0.00m, worst frame error 0.000m, frames off by >50% 0
+   gate: moved 83.1m on screen, while the distance was stopped 0.00m, worst frame error 0.051m, frames off by >50% 0
+   interior: moved 568.8m on screen, while the distance was stopped 0.00m, worst frame error 0.000m, frames off by >50% 0
+   milestone: moved 35.8m on screen, while the distance was stopped 0.00m, worst frame error 0.006m, frames off by >50% 0
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

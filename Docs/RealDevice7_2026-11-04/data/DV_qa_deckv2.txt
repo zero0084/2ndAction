@@ -1,0 +1,5 @@
+[setup] deck 10, free1 pathfinder, rare second_wind ★4, last brake_attack, lv9 v2|treasure_hunter|9|2|treasure_hunter*9
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

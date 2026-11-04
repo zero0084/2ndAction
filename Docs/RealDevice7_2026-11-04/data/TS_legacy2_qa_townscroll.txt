@@ -1,0 +1,13 @@
+[ts] ts_x1.0_10km: entry #1, interior seen True, 70s, distance 11045m
+   cloud: moved 454.3m on screen, while the distance was stopped 21.68m, worst frame error 0.000m, frames off by >50% 0
+   dest: moved 3.0m on screen, while the distance was stopped 2.07m, worst frame error 0.000m, frames off by >50% 0
+   far: moved 0.0m on screen, while the distance was stopped 0.00m, worst frame error 0.000m, frames off by >50% 0
+   gate: moved 84.3m on screen, while the distance was stopped 0.00m, worst frame error 0.035m, frames off by >50% 0
+   interior: moved 2516.6m on screen, while the distance was stopped 1692.52m, worst frame error 19.557m, frames off by >50% 613
+   milestone: moved 39.4m on screen, while the distance was stopped 0.00m, worst frame error 0.054m, frames off by >50% 0
+[FAIL] ts_x1.0_10km: the town street scrolls at its depth speed (613 bad frames)
+[FAIL] ts_x1.0_10km: the town street stops while the run distance is stopped (moved 1692.52m)
+
+failures=2 warnings=0
+2 CHECK(S) FAILED
+NO EXCEPTIONS LOGGED

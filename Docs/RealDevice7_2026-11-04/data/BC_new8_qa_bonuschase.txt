@@ -1,0 +1,13 @@
+   [still] new_35 t=15.18 dx=3.23 gv=0.0 pv=12.7 pace=Pull rel 3.20 jump=-1.00 s(x)=3.0 s(x+1)=3.0 y=3.0 speedNow=15.8 pY=2.9 behaviour=True lastHit=0.17s ago end= launched=False anchored=False slam=False kb=0.00 follow=0.00 vac=False active=True
+   [still] new_35 t=15.20 dx=3.18 gv=0.0 pv=12.7 pace=Pull rel 3.20 jump=-1.00 s(x)=3.0 s(x+1)=3.0 y=3.0 speedNow=15.8 pY=2.9 behaviour=True lastHit=0.18s ago end= launched=False anchored=False slam=False kb=0.00 follow=0.00 vac=False active=True
+   [still] new_35 t=15.23 dx=2.71 gv=1.7 pv=12.7 pace=Pull rel 2.92 jump=-1.00 s(x)=3.0 s(x+1)=3.0 y=3.0 speedNow=15.6 pY=2.8 behaviour=True lastHit=0.32s ago end= launched=False anchored=False slam=False kb=0.00 follow=0.00 vac=False active=True
+[bc] new_35: goblins 7, swings 8, hits 10, reach entries 13, hit->away->hit cycles 6, OVERTAKES 0, forward warps 0, avg reach->hit 0.09s, max goblin accel 29.1 m/s2 (0.1s windows, outside hits), speed 35 km/h
+   [overtake] new_100 t=11.01 dx=-0.34 pv=27.8 pace=Pull rel 2.56 behaviour=True lastHit=0.12s ago end= launched=False anchored=False slam=False kb=0.00 follow=0.00 vac=False active=True
+   [still] new_100 t=11.01 dx=-0.34 gv=0.3 pv=27.8 pace=Pull rel 2.56 jump=-1.00 s(x)=1.5 s(x+1)=1.5 y=1.5 speedNow=30.3 pY=1.4 behaviour=True lastHit=0.12s ago end= launched=False anchored=False slam=False kb=0.00 follow=0.00 vac=False active=True
+[bc] new_100: goblins 8, swings 4, hits 19, reach entries 3, hit->away->hit cycles 1, OVERTAKES 1, forward warps 0, avg reach->hit 0.06s, max goblin accel 103.5 m/s2 (0.1s windows, outside hits), speed 100 km/h
+[FAIL] new_100: the player does not overtake a running goblin (1)
+[FAIL] new_100: catch up -> hit -> pulls away -> catch up again repeats (1)
+
+failures=2 warnings=0
+2 CHECK(S) FAILED
+NO EXCEPTIONS LOGGED

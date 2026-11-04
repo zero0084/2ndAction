@@ -95,6 +95,20 @@ public class DifficultyTuning : ScriptableObject
     [Tooltip("2026-11-04: 飛ばした 1km の地点の抽選の確率(ボスの後の確率 0.5 と同じだと 20〜90km で約 2km ごとに BONUS になり、道中イベントが押し出されていた)")]
     [Range(0f, 1f)] public float bonusSkippedGateChance = 0.25f;
 
+    [Header("空の雑魚(2026-11-04、実機「道中の空中敵を見かけない」)")]
+    [Tooltip("空の敵が居ない戦いがこの回数続いたら、次は空の枠がある組を選びやすくする(0 = しない)")]
+    public int flyerDueAfterEncounters = 2;
+    [Tooltip("その時に空の枠がある組の重みに掛ける倍率")]
+    public float flyerDueAirMul = 6f;
+    [Tooltip("この距離(m)から")]
+    public float flyerDueFromMeters = 500f;
+    [Tooltip("空の敵の高さの上限(画面の下からの割合。1 = 画面の上端)。上の HUD に隠れる高さへ行かない")]
+    [Range(0.5f, 1f)] public float flyerMaxViewportY = 0.8f;
+    [Tooltip("空の敵が画面を横切るのに最低これだけの秒数がかかるよう、プレイヤーの前にいる間だけ前へ流す(画面が狭い縦画面/高速の時だけ効く。0 = しない)")]
+    public float flyerMinVisibleSeconds = 2.4f;
+    [Tooltip("前へ流す速さの上限(プレイヤーの速さに対する割合)")]
+    [Range(0f, 0.8f)] public float flyerMaxCarry = 0.5f;
+
     // ---- 読み込み ----
     static DifficultyTuning inst; static bool loaded;
     public static bool LegacyOverride; // 開発版 -diffLegacy 1

@@ -1,0 +1,36 @@
+[setup] p1 attack_up p2 speed_up remembered(wasteland) 1
+[normal] chosen before departure: deck 2 = speed_up
+[normal] in the run: deck 1 = attack_up (distance 0m)
+[FAIL] normal: the run uses the deck chosen before departure (chosen 2, used 1)
+[FAIL] normal: the run's cards are the chosen deck's cards (speed_up -> attack_up)
+[normal] level-up offered: attack_up
+[FAIL] normal: the card choice offers only the chosen deck's marker speed_up (attack_up)
+[normal] RUN BUILD acquired: attack_up
+[FAIL] normal: the HUD shows the chosen deck's card
+[FAIL] normal: back home the chosen deck is still in use and remembered (1)
+[sprint] chosen before departure: deck 2 = speed_up
+[sprint] in the run: deck 1 = attack_up (distance 9750m)
+[FAIL] sprint: the run uses the deck chosen before departure (chosen 2, used 1)
+[FAIL] sprint: the run's cards are the chosen deck's cards (speed_up -> attack_up)
+[sprint] level-up offered: 
+[FAIL] sprint: the card choice offers only the chosen deck's marker speed_up ()
+[sprint] RUN BUILD acquired: attack_up
+[FAIL] sprint: the HUD shows the chosen deck's card
+[FAIL] sprint: back home the chosen deck is still in use and remembered (1)
+[back-to-1] chosen before departure: deck 1 = attack_up
+[back-to-1] in the run: deck 1 = attack_up (distance 0m)
+[back-to-1] level-up offered: attack_up
+[back-to-1] RUN BUILD acquired: attack_up
+[again-2] chosen before departure: deck 2 = speed_up
+[again-2] in the run: deck 1 = attack_up (distance 0m)
+[FAIL] again-2: the run uses the deck chosen before departure (chosen 2, used 1)
+[FAIL] again-2: the run's cards are the chosen deck's cards (speed_up -> attack_up)
+[again-2] level-up offered: attack_up
+[FAIL] again-2: the card choice offers only the chosen deck's marker speed_up (attack_up)
+[again-2] RUN BUILD acquired: attack_up
+[FAIL] again-2: the HUD shows the chosen deck's card
+[FAIL] again-2: back home the chosen deck is still in use and remembered (1)
+
+failures=15 warnings=0
+15 CHECK(S) FAILED
+NO EXCEPTIONS LOGGED

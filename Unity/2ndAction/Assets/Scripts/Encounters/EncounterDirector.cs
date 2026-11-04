@@ -785,6 +785,7 @@ public class EncounterDirector : MonoBehaviour
             if (probe.FlatRun >= profile.straightLength) w *= f.straightAffinity;
             w *= RushFormationBias(f); // 2026-10-24: 雑魚の大群の段階(飛ぶ敵が多い/地上の大物+混成)
             w *= RoadEvents.FormationMul(f) * MixedBias(f); // 2026-11-04: 飛行編隊 / 40km から地上+空の混成を多く(DifficultyTuning.mixedBias)
+            w *= FlyerDueBias(f); // 2026-11-04: 空の敵がしばらく出ていない → 次は空の枠がある組を選びやすく
             // 同じFormationの連続防止(絶対禁止ではない)
             int idx = formationHistory.LastIndexOf(f.formationId);
             if (idx >= 0)
@@ -801,6 +802,50 @@ public class EncounterDirector : MonoBehaviour
         foreach (var c in cands) { if (r < c.w) return c.f; r -= c.w; }
         return cands[cands.Count - 1].f;
     }
+
+    // 2026-11-04(実機「道中の空中敵を見かけない」): 空の敵は 0.5km から戦いの 2〜4 割に入る設定だが、抽選の偏りで 1〜2 分出ない区間があった。
+    //  空の敵の居ない戦いが DifficultyTuning.flyerDueAfterEncounters 回続いたら、空の枠がある組の重みを flyerDueAirMul 倍にする
+    //  (前の空の敵を倒しても見逃しても、次の出現地点で別の空の敵が前から入ってくる)。
+    int encountersSinceFlyer;
+    public static int FlyerEncounters, FlyerDueBoosts; // 確認用
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public static readonly bool QaFlyerLegacy = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-flyerLegacy") >= 0; // 前後比較: 直す前(間隔の補正なし・高さの上限なし)
+#else
+    public const bool QaFlyerLegacy = false;
+#endif
+    float FlyerDueBias(EncounterFormation f)
+    {
+        var t = DifficultyTuning.I;
+        if (QaFlyerLegacy || t.flyerDueAfterEncounters <= 0 || encountersSinceFlyer < t.flyerDueAfterEncounters || planDistance < t.flyerDueFromMeters) return 1f;
+        if (RushWaveAt(planDistance) >= 0) return 1f;
+        foreach (var s in f.slots)
+            if (s != null && (s.kind == EncounterSlotKind.AirLow || s.kind == EncounterSlotKind.AirMiddle || s.kind == EncounterSlotKind.AirHigh)) { FlyerDueBoosts++; return t.flyerDueAirMul; }
+        return 1f;
+    }
+
+    // 空の敵の居ない戦いが続いた時(組の重みを上げても、分岐の組や地形の条件で空の枠が無い組になることが多かった):
+    //  この組に空の敵が 1 体も無ければ、組の先頭より少し前の空に 1 体足す(その帯の空の敵の候補から。休憩・下の道・終盤の大群では足さない)
+    static readonly EncounterSlot DueFlyerSlot = new EncounterSlot { kind = EncounterSlotKind.AirLow, jitter = 0f };
+    void AddDueFlyer(TerrainManager tm, EncounterDistanceBand band, EncounterIntensity intensity, TerrainProbe probe, float spacing, EncounterRoute route, List<Planned> list)
+    {
+        var t = DifficultyTuning.I;
+        if (QaFlyerLegacy || t.flyerDueAfterEncounters <= 0 || encountersSinceFlyer < t.flyerDueAfterEncounters + 1) return;
+        if (intensity == EncounterIntensity.Rest || route == EncounterRoute.Lower || planDistance < t.flyerDueFromMeters || RushWaveAt(planDistance) >= 0) return;
+        foreach (var m in list) if (EncounterSlots.IsAir(m.slot)) return;
+        EnemyDefinition def = PickEnemy(band, DueFlyerSlot, out EncounterEnemyEntry entry);
+        if (def == null) return; // この帯に空の敵が居ない
+        float front = probe.AnchorX;
+        foreach (var m in list) front = Mathf.Max(front, m.pos.x);
+        float x = Mathf.Min(front + spacing * 2.5f, probe.LimitX);
+        if (!PlaceAir(tm, EncounterSlotKind.AirLow, x, route, out Vector2 pos)) return;
+        var tiers = band.TiersFor(intensity);
+        EnemyAiTier tier = PickTier(tiers, entry);
+        EnemyBehaviorKind beh = def.behaviorKind;
+        if (entry.tierDrivesMelee) beh = tier == EnemyAiTier.T0 ? EnemyBehaviorKind.None : EnemyBehaviorKind.StationaryMelee;
+        list.Add(new Planned { def = def, pos = pos, tier = tier, beh = beh, slot = EncounterSlotKind.AirLow, route = route });
+        DueFlyersAdded++;
+    }
+    public static int DueFlyersAdded; // 確認用
 
     // 2026-11-04: 距離で地上+空の混成の組を多く(40〜60km「混成が増える」。終盤の大群の区間は RushFormationBias のまま)
     float MixedBias(EncounterFormation f)
@@ -1022,6 +1067,7 @@ public class EncounterDirector : MonoBehaviour
             if (slot.required) reqPlaced++;
         }
         if (reqPlaced < reqWanted) return null; // 主役を置けない(例: 守護兵の居ないGuardian Wall)なら、この場所では置かない
+        AddDueFlyer(tm, band, intensity, probe, spacing, route, list); // 2026-11-04: 空の敵がしばらく居ない → この組の前に 1 体
         if (profile.islandAware) KeepAirOrder(list);
         return list;
     }
@@ -1362,6 +1408,13 @@ public class EncounterDirector : MonoBehaviour
             while (formationHistory.Count > Mathf.Max(1, profile.historySize)) formationHistory.RemoveAt(0);
         }
         IntensityCounts[(int)rec.intensity]++;
+        if (rec.intensity != EncounterIntensity.Rest)
+        {
+            bool air = false;
+            foreach (var m in rec.members) if (m.slot == EncounterSlotKind.AirLow || m.slot == EncounterSlotKind.AirMiddle || m.slot == EncounterSlotKind.AirHigh) { air = true; break; }
+            encountersSinceFlyer = air ? 0 : encountersSinceFlyer + 1;
+            if (air) FlyerEncounters++;
+        }
         if (RushWaveAt(rec.distance) >= 0) RushMembers += rec.members.Count; // 確認用: 雑魚の大群で出した敵の数
         encounterHistory.Add(rec.formation);
         if (encounterHistory.Count > 8) encounterHistory.RemoveAt(0);

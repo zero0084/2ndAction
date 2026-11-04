@@ -247,12 +247,46 @@ public class LandmarkJourney : MonoBehaviour
         return Mathf.Clamp01(Mathf.Min(s / fi, (len - s) / fo)); // 入口は門の陰で速く、出口はゆっくり開ける
     }
 
+    float interiorPhase, interiorPhaseD = -1f;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    static readonly bool QaInteriorLegacy = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-townScrollLegacy") >= 0; // 前後比較: 直す前の流れ方
+#else
+    const bool QaInteriorLegacy = false;
+#endif
     void DrawInterior(Sprite s, Color tint, float a, float d, Vector3 cp, float screenW, float screenH)
     {
-        if (s == null || a <= 0.003f) { foreach (var r in interior) if (r != null) r.enabled = false; return; }
+        if (s == null || a <= 0.003f)
+        {
+            foreach (var r in interior) if (r != null) r.enabled = false;
+            interiorPhaseD = -1f;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            dbgInteriorLeft = float.NaN;
+#endif
+            return;
+        }
         float sc = screenH / s.bounds.size.y, w = s.bounds.size.x * sc;
-        float off = Mathf.Repeat(d * profile.interiorParallax, w);
+        // 2026-11-04(実機「城下町に入ると背景が高速で流れ続けることがある」): 以前は Repeat(距離 × 0.5, 絵の幅) で毎フレーム位置を決めていた。
+        //  絵の幅はカメラの大きさ(速度の引き/ボス戦の寄り)で毎フレーム少しずつ変わるため、距離 1 万 m の 0.5 倍 = 5000m を
+        //  変わった幅で割り直すと、距離が止まっていても繰り返しの位置が毎フレーム数十〜数百 m 跳び、街並みが猛烈に流れて見えた。
+        //  今: 前のフレームからの距離の進みだけを、絵の幅に対する割合で足していく(距離が止まれば止まる・幅が変わっても跳ばない)
+        float off;
+        if (QaInteriorLegacy) off = Mathf.Repeat(d * profile.interiorParallax, w);
+        else
+        {
+            float step = interiorPhaseD < 0f ? 0f : d - interiorPhaseD;
+            if (interiorPhaseD < 0f || Mathf.Abs(step) > 400f) interiorPhase = Mathf.Repeat(d * profile.interiorParallax / w, 1f); // 初回/ワープ
+            else interiorPhase = Mathf.Repeat(interiorPhase + step * profile.interiorParallax / w, 1f);
+            interiorPhaseD = d;
+            off = interiorPhase * w;
+        }
         float left = -screenW * 0.5f - off;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // 繰り返しの位置(絵の幅に対する割合)の進みを、今の幅の m に直して足す(カメラの寄り/引きによる絵の拡大縮小は流れに数えない)
+        float ph = off / w;
+        if (float.IsNaN(dbgInteriorLeft)) dbgInteriorUnwrapped = 0f;
+        else { float step = ph - dbgInteriorLeft; if (step > 0.5f) step -= 1f; else if (step < -0.5f) step += 1f; dbgInteriorUnwrapped -= step * w; }
+        dbgInteriorLeft = ph; dbgInteriorTileW = w;
+#endif
         for (int i = 0; i < interior.Length; i++)
         {
             var r = interior[i];
@@ -300,6 +334,47 @@ public class LandmarkJourney : MonoBehaviour
         bool covered = cl >= 0f && (d > cl + Instance.profile.interiorMeters * 0.5f || InteriorAlpha >= 0.98f);
         return covered ? Mathf.Max(d, gd + 1f) : gd - blend - 1f;
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // -qaTownScroll(2026-11-04): 層ごとの画面上の位置(カメラからの横のずれ)。内部は絵の繰り返しの継ぎ目を外した続きの値
+    float dbgInteriorLeft = float.NaN, dbgInteriorTileW, dbgInteriorUnwrapped;
+    public static Dictionary<string, float> DebugLayerScreenX(Camera cam)
+    {
+        var r = new Dictionary<string, float>();
+        float cx = cam != null ? cam.transform.position.x : 0f;
+        var tm = TerrainManager.Instance;
+        if (tm != null && tm.backgroundRenderer != null && tm.backgroundRenderer.enabled) r["far"] = tm.backgroundRenderer.transform.position.x - cx;
+        var j = Instance;
+        if (j != null)
+        {
+            if (j.dest != null && j.dest.enabled) r["dest"] = j.dest.transform.position.x - cx;
+            if (j.gate != null && j.gate.enabled) r["gate"] = j.gate.transform.position.x - cx;
+            if (j.milestone != null && j.milestone.enabled) r["milestone"] = j.milestone.transform.position.x - cx;
+            if (!float.IsNaN(j.dbgInteriorLeft) && j.interior[0] != null && j.interior[0].enabled) r["interior"] = j.dbgInteriorUnwrapped;
+        }
+        var cl = Object.FindFirstObjectByType<ForegroundCloudLayer>();
+        if (cl != null)
+            foreach (Transform c in cl.transform)
+            {
+                var sr = c.GetComponent<SpriteRenderer>();
+                if (sr != null && sr.enabled) { r["cloud"] = c.position.x - cx; break; }
+            }
+        return r;
+    }
+    // その層が画面の上で動くはずの量(カメラの移動 cDx × (1 - 層の流れ方))。比べない層は NaN
+    public static float DebugExpectedScreenMove(string key, float dDist, float playerDx, float camDx)
+    {
+        var j = Instance; if (j == null || j.profile == null) return float.NaN;
+        switch (key)
+        {
+            case "far": return 0f; // 遠景はカメラに付いている(BackgroundFollower)
+            case "interior": return -dDist * j.profile.interiorParallax; // 街並みはカメラに付いていて、走行距離の進みの 0.5 倍だけ流れる(距離が止まれば止まる)
+            case "gate": return -camDx * j.profile.gateParallax;
+            case "milestone": return -camDx * j.profile.milestoneParallax;
+            default: return float.NaN;
+        }
+    }
+#endif
 
     public static string Describe() => !Enabled ? "off" : Active ? State : "-";
 }

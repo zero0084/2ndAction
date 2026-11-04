@@ -239,7 +239,15 @@ public class ObstacleSpawner : MonoBehaviour
         if (NetObstacles.SuppressLocalSpawn) return; // マルチのJOIN: 障害物はHOSTが置いて共有する(NetObstacles)
         // マルチのHOST: 先頭のプレイヤー(JOINが前にいることもある)を基準に置く(地形の先行生成と同じ。JOINの目の前に突然出さない)
         float md = GameManager.Instance.MaxDistance;
-        if (NetObstacles.Authority) md += Mathf.Max(0f, NetCombat.ForemostPlayerX(player.position.x) - player.position.x);
+        float lead = NetObstacles.Authority ? Mathf.Max(0f, NetCombat.ForemostPlayerX(player.position.x) - player.position.x) : 0f;
+        md += lead;
+        refMd = md; refX = player.position.x + lead;
+        // 2026-11-04: 止まっていた間(ボス戦/BONUS ZONE/必殺技/中断)に過ぎたマイルストーンをまとめて置かない(画面の中や後ろに一度に出ていた)
+        if (!QaLegacy)
+        {
+            if (md - nextObstacleDistance > obstacleInterval * GapScale * 1.5f) nextObstacleDistance = md;
+            if (md - nextUpperObstacleDistance > upperObstacleInterval * GapScale * 1.5f) nextUpperObstacleDistance = md;
+        }
 
         while (md >= nextObstacleDistance)
         {
@@ -255,7 +263,7 @@ public class ObstacleSpawner : MonoBehaviour
             // (Danger)なら、次のマイルストーンまでの間隔を縮めてより頻繁に
             // 障害物を置く。分岐が無い区間では従来どおりobstacleIntervalの
             // まま。
-            float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance) + ExtraAhead(); // 高速時の自動操作補助: 先読み範囲に置く(+ステージ固有の延長)
+            float worldX = SpawnWorldX(milestoneDistance, HighSpeedAssist.SpawnAhead(spawnAheadDistance) + ExtraAhead()); // 高速時の自動操作補助: 先読み範囲に置く(+ステージ固有の延長)
             bool danger = TerrainManager.Instance != null && TerrainManager.Instance.IsInBranchRoute(worldX);
             float intervalScale = IntervalScaleAt != null ? Mathf.Max(0.25f, IntervalScaleAt(milestoneDistance)) : 1f;
             nextObstacleDistance += (danger ? obstacleInterval * dangerIntervalMultiplier : obstacleInterval) * GapScale * intervalScale;
@@ -277,7 +285,7 @@ public class ObstacleSpawner : MonoBehaviour
     {
         weightDistance = milestoneDistance;
         WorldRng.Obstacle.ReseedAt(Mathf.RoundToInt(milestoneDistance * 4f)); // 固定シード時: 同じ地点には同じ種類
-        float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance) + ExtraAhead(); // 高速時の自動操作補助: 先読み範囲に置く(+ステージ固有の延長)
+        float worldX = SpawnWorldX(milestoneDistance, HighSpeedAssist.SpawnAhead(spawnAheadDistance) + ExtraAhead()); // 高速時の自動操作補助: 先読み範囲に置く(+ステージ固有の延長)
 
         // Stage01次段階調整(2026-09-16) - TerrainManager側の生成がまだ
         // worldXまで届いていない場合、GetHeightAtは「実際に後で生成される
@@ -408,7 +416,7 @@ public class ObstacleSpawner : MonoBehaviour
     void SpawnUpperObstacle(float milestoneDistance)
     {
         WorldRng.Obstacle.ReseedAt(Mathf.RoundToInt(milestoneDistance * 4f) ^ 0x40000000);
-        float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance); // 高速時の自動操作補助: 先読み範囲に置く
+        float worldX = SpawnWorldX(milestoneDistance, HighSpeedAssist.SpawnAhead(spawnAheadDistance)); // 高速時の自動操作補助: 先読み範囲に置く
         if (TerrainManager.Instance == null || !TerrainManager.Instance.IsInBranchRoute(worldX)) return;
         if (!TerrainManager.Instance.IsGenerated(worldX)) return;
 
@@ -452,6 +460,33 @@ public class ObstacleSpawner : MonoBehaviour
     public static System.Func<float, string, float> WeightScaleAt;
     //  ExtraAheadAt(距離) … 置く位置をさらに先へ延ばす量(m)。ラストダンジョンの落ちてくる構造物を、落ちる所から見せるため
     public static System.Func<float, float> ExtraAheadAt;
+    // ===== 置く位置(2026-11-04、実機の不具合「障害物が画面内に突然現れる」)=====
+    //  以前: startX + マイルストーン + 28m。MaxDistance はボス戦の間に進んだ分(距離の除外)を引いた値なので、
+    //        ボスを倒すたびに置く位置がその分だけプレイヤーへ近づき(停止戦の減速で 1体 6〜10m)、数体で画面の中に出ていた。
+    //        また 28m は横画面のカメラの右端(プレイヤーの 26.8m 先、高速の引きで 31.8m 先)とほぼ同じで、大きい物は端から見えていた。
+    //  今: 今のプレイヤーの位置(マルチの HOST は先頭)から数え、必ず実際のカメラの右端 + offscreenMargin より外に置く(敵の EncounterDirector と同じ考え方)。
+    [Tooltip("障害物を置く位置の、画面の右端からの余白(m)。この外で生成して、走ると画面の端から入ってくる")]
+    public float offscreenMargin = 4f;
+    float refMd, refX;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public static readonly bool QaLegacy = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-obstacleLegacy") >= 0; // 前後比較: 直す前の置き方
+#else
+    const bool QaLegacy = false;
+#endif
+    float SpawnWorldX(float milestoneDistance, float aheadBase)
+    {
+        if (QaLegacy) return startX + milestoneDistance + aheadBase;
+        float x = refX + (milestoneDistance - refMd) + aheadBase;
+        return Mathf.Max(x, ScreenRightX() + offscreenMargin);
+    }
+    static float ScreenRightX()
+    {
+        Camera cam = Camera.main;
+        if (cam == null) return float.NegativeInfinity;
+        float real = cam.orthographic ? cam.transform.position.x + cam.orthographicSize * cam.aspect : cam.ViewportToWorldPoint(new Vector3(1f, 0.5f, Mathf.Abs(cam.transform.position.z))).x;
+        return Mathf.Max(real, GameView.Right(cam));
+    }
+
     float ExtraAhead() => ExtraAheadAt != null && GameManager.Instance != null ? Mathf.Max(0f, ExtraAheadAt(GameManager.Instance.MaxDistance)) : 0f;
     float weightDistance; // 今選んでいる障害物の距離(WeightScaleAt用)
 

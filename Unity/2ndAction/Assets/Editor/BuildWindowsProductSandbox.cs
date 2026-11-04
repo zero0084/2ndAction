@@ -19,6 +19,8 @@ public static class BuildWindowsProductSandbox
     const string DevOutputPath = "Builds/WindowsDevSandbox/OneMoreMile.exe";
     [MenuItem("Tools/2ndAction/Build Windows Dev (Sandbox save)")]
     public static void BuildDev() => BuildTo(DevOutputPath, BuildOptions.Development);
+    // 2026-11-04: 2つのセッションが同時に試験する時の2つ目(出力と製品名=保存の場所を分ける)。出力: Builds/WindowsDevSandboxB/OneMoreMile.exe
+    public static void BuildDevB() => BuildTo("Builds/WindowsDevSandboxB/OneMoreMile.exe", BuildOptions.Development, SandboxProductName + " B");
 
     // 2026-10-27 production の最終試験だけ: 配らない確認用の製品版(製品版と同じ・production 接続)。アプリの中の削除だけ有効
     //  (OMM_PROD_VERIFY → AccountDeletion.ProductionReady = true。リポジトリの既定は false のまま)。

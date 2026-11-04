@@ -121,6 +121,11 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaDeck") { mode = "deck"; dir = a[i + 1]; }
             if (a[i] == "-qaDeckDup") { mode = "deckdup"; dir = a[i + 1]; }
             if (a[i] == "-qaDeckPreset") { mode = "deckpreset"; dir = a[i + 1]; } // 2026-10-31 デッキのプリセット
+            if (a[i] == "-qaDeckDepart") { mode = "deckdepart"; dir = a[i + 1]; } // 2026-11-04 出発前に選んだデッキがランに使われるか
+            if (a[i] == "-qaDeckTap") { mode = "decktap"; dir = a[i + 1]; } // 2026-11-04 デッキ編集の空白のタップで隠れたカードが入らないか
+            if (a[i] == "-qaRoadAudit") { mode = "roadaudit"; dir = a[i + 1]; } // 2026-11-04 障害物/空中の雑魚の生成・見え始め・接触
+            if (a[i] == "-qaBonusChase") { mode = "bonuschase"; dir = a[i + 1]; } // 2026-11-04 BONUS のゴブリンの間合い
+            if (a[i] == "-qaTownScroll") { mode = "townscroll"; dir = a[i + 1]; } // 2026-11-04 城下町(内部)の背景の層ごとの流れ
             if (a[i] == "-qaHudCam") { mode = "hudcam"; dir = a[i + 1]; } // 2026-10-31 HUD の刷新/表示モード/ボス戦の構図
             if (a[i] == "-qaCardArt") { mode = "cardart"; dir = a[i + 1]; } // 2026-10-31 カードの絵とレイアウトの見直し
             if (a[i] == "-qaKeyNav") { mode = "keynav"; dir = a[i + 1]; } // 2026-10-31 Windows のキーボード/マウス操作
@@ -229,7 +234,7 @@ public partial class QaSweep : MonoBehaviour
             if (type == LogType.Exception) { anyException = true; excCount++; if (exceptions.Count < 30) exceptions.Add(c + " | " + tr.Split('\n')[0]); }
         };
         // ホームのお知らせ(解放/デッキ12枚 等)は、それを確かめるテスト以外では自動で閉じる(テスト機の古いデータで毎回出るため)
-        NoticeQueue.QaAutoAcknowledge = !(mode == "deck" || mode == "deckdup" || mode == "deckpreset" || mode == "unlock" || mode == "clearunlock" || mode == "tutorial" || mode == "gacha" || mode == "saverecover");
+        NoticeQueue.QaAutoAcknowledge = !(mode == "deck" || mode == "deckdup" || mode == "deckpreset" || mode == "deckdepart" || mode == "decktap" || mode == "unlock" || mode == "clearunlock" || mode == "tutorial" || mode == "gacha" || mode == "saverecover");
         // 2026-10-10: マップ/キャラの解放を確かめるテスト以外は、全部を選べるようにする(保存しない)。未解放で別のマップへ黙って替わっていた
         UnlockRules.QaOverride = !(mode == "unlock" || mode == "clearunlock" || mode == "tutorial" || mode == "records" || mode == "save" || mode == "saveshots");
         if (Arg("-comboLegacy", "0") == "1") { ComboRevision.Legacy = true; L("[qa] ComboRevision.Legacy = true (2026-10-21 のコンボの改修を切った比較)"); }
@@ -341,6 +346,11 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "deck") yield return DeckModeQa();
         else if (mode == "deckdup") yield return DeckDupMode();
         else if (mode == "deckpreset") yield return DeckPresetMode();
+        else if (mode == "deckdepart") yield return DeckDepartMode();
+        else if (mode == "decktap") yield return DeckTapMode();
+        else if (mode == "roadaudit") yield return RoadAuditMode();
+        else if (mode == "bonuschase") yield return BonusChaseMode();
+        else if (mode == "townscroll") yield return TownScrollMode();
         else if (mode == "hudcam") yield return HudCamMode();
         else if (mode == "cardart") yield return CardArtMode();
         else if (mode == "keynav") yield return KeyNavMode();

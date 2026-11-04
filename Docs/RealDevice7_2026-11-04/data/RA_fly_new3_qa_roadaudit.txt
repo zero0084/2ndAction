@@ -1,0 +1,9 @@
+[ra] flynew3: 2464m in 300s at speed x1, bosses 2, distance excluded 23.4m
+[ra] flynew3 obstacles: spawned 91, seen 91, POP-IN 0 (appeared inside the screen), spawn dx min 29.4m, lead seconds min 1.54 median 3.63
+[ra] flynew3 flyers: spawned 17 (6.9/km), seen on screen 17, killed 0, passed 17, avg on-screen 5.0s, viewport y 0.45..0.87, entered from x 0.99
+   Enemy: 17 (seen 17)
+[ra] flynew3 flyers: longest gap between flyer spawns 67.8s, encounters with a flyer 9, flyer-due boosts 40, flyers added 1
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

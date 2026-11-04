@@ -1,0 +1,9 @@
+[ra] sky: 2737m in 240s at speed x1, bosses 0, distance excluded 31.6m
+[ra] sky obstacles: spawned 0, seen 0, POP-IN 0 (appeared inside the screen), spawn dx min 0.0m, lead seconds min 0.00 median 0.00
+[ra] sky flyers: spawned 17 (6.2/km), seen on screen 16, killed 0, passed 16, avg on-screen 3.7s, viewport y 0.49..1.02, entered from x 0.98
+   Enemy: 17 (seen 16)
+[ra] sky flyers: longest gap between flyer spawns 41.6s, encounters with a flyer 11, flyer-due boosts 10, flyers added 0
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

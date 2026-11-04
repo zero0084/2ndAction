@@ -1,0 +1,9 @@
+[setup] port 486x1080, owned stacks 30, deck 3 
+[top] tapped 220 points outside the visible list: hidden cards under 5, cards added 0
+[middle] tapped 205 points outside the visible list: hidden cards under 0, cards added 0
+[end] tapped 220 points outside the visible list: hidden cards under 0, cards added 0
+[total] taps 645, points with a hidden card under the finger 5, cards added 0
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

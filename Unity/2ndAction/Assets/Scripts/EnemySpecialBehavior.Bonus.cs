@@ -17,6 +17,17 @@ public partial class EnemySpecialBehavior
     [Tooltip("殴られた後の逃げる速さ(Playerより速い分 m/s)と時間")] public float goblinHitBurst = 3.6f;
     public float goblinHitBurstTime = 0.6f;
     public float goblinMinSpeed = 1.5f;
+    // 2026-11-04(マスター: 「追いつく → 一撃が届く → 少し離れる → また狙える」。近づいた瞬間に逃げない・追い越さない・細かい加減速/前へのワープをしない)
+    //  間合いの段: 近づかれる(Chase)→ 攻撃が届く距離で並走(Window: 一撃を入れる余裕)→ 殴られた/時間切れで少し離れる(Pull)→ また近づかれる
+    //  速さは目標の相対速度へ加速度の上限つきで寄せる(段の切り替えで速さが跳ばない)。プレイヤーの速度と攻撃の射程は変えない
+    [Tooltip("並走する時の前方の距離(m、体の中心どうし)。黒剣士の前攻撃1段目が届く距離の内側")] public float goblinWindowLead = 2.0f;
+    [Tooltip("並走して待つ秒数(この間に一撃を入れる)")] public float goblinWindowSeconds = 1.3f;
+    [Tooltip("殴られた後/待ち切った後に離れる距離(m)。攻撃が届かず、画面に見えている距離")] public float goblinAwayLead = 5.5f;
+    [Tooltip("離れる時の速さ(プレイヤーより速い分 m/s)")] public float goblinPullSpeed = 3.2f;
+    [Tooltip("相対速度を変える加速度の上限(m/s²)。小さいほどなめらか")] public float goblinRelAccel = 7f;
+    [Tooltip("これより近い/後ろになったら前へ戻る(追い越されない)")] public float goblinMinLead = 0.8f;
+    [Tooltip("画面の外(前)にいる間に寄る速さ(プレイヤーの速さに対する割合)。見えてからは goblinFarCatchUp/goblinCatchUp")] public float goblinOffscreenCatchUp = 0.6f;
+    [Tooltip("高速(時速 108km 以上)で並走の距離/近すぎる距離に足す量(m)。速さに比例して 0 から")] public float goblinWindowLeadFast = 0.9f, goblinMinLeadFast = 0.6f;
     [Header("BONUS - Mimic")]
     public float mimicWakeDistance = 6.5f;
     public float mimicWakeTime = 0.45f;
@@ -38,6 +49,17 @@ public partial class EnemySpecialBehavior
     bool bonusInitialized;
     float bonusTimer, bonusStateTime, bonusBurstUntil, bonusLastHitSeen = -100f, bonusSpeedNow;
     float bonusJumpT = -1f, bonusJumpDur, bonusJumpStartY, bonusJumpLandX, bonusJumpStartX, bonusJumpHeight;
+    enum GoblinPace { Chase, Window, Pull }
+    GoblinPace goblinPace;
+    float goblinRel, goblinPaceT, goblinHitSeen = -100f, goblinPlayerV = -1f, goblinPrevPx;
+    int goblinPrevFrame = -10;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    static readonly bool QaGoblinLegacy = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-bonusChaseLegacy") >= 0; // 前後比較: 直す前の動き
+#else
+    const bool QaGoblinLegacy = false;
+#endif
+    public string DebugGoblinPace => goblinPace + $" rel {goblinRel:F2}";
+    public string DebugGoblinGround { get { float x = transform.position.x; var a = Surface(x); var b = Surface(x + 1f); return $"jump={bonusJumpT:F2} s(x)={(a.HasValue ? a.Value.ToString("F1") : "none")} s(x+1)={(b.HasValue ? b.Value.ToString("F1") : "none")} y={transform.position.y:F1} speedNow={bonusSpeedNow:F1}"; } }
     int fairyDodges;
     float fairyDodgeDir = 1f, fairyEscapeAt, fairyBaseGroundY;
     SpriteRenderer fairyGlow;
@@ -53,7 +75,7 @@ public partial class EnemySpecialBehavior
         bonusStateTime = 0f;
         switch (kind)
         {
-            case EnemyBehaviorKind.TreasureGoblin: bonusState = BonusState.Run; break;
+            case EnemyBehaviorKind.TreasureGoblin: bonusState = BonusState.Run; goblinPace = GoblinPace.Chase; goblinRel = 0f; goblinPaceT = 0f; goblinPlayerV = -1f; goblinHitSeen = bonusComp != null ? bonusComp.LastHitTime : -100f; break;
             case EnemyBehaviorKind.Mimic: bonusState = BonusState.Dormant; break;
             case EnemyBehaviorKind.GoldenSlime: bonusState = BonusState.Hop; bonusTimer = Random.Range(0f, slimeHopIntervalMax); break;
             case EnemyBehaviorKind.CardFairy:
@@ -112,6 +134,7 @@ public partial class EnemySpecialBehavior
     // ---- Treasure Goblin ----
     void UpdateGoblin(float v, float dx, float dt)
     {
+        if (!QaGoblinLegacy) { UpdateGoblinPaced(v, dx, dt); return; }
         float speed;
         if (bonusState == BonusState.Leave) speed = v + bonusLeaveSpeed;
         else if (Time.time < bonusBurstUntil) speed = v + goblinHitBurst;                // 殴られた: 一瞬加速して離れる
@@ -119,6 +142,63 @@ public partial class EnemySpecialBehavior
         else if (dx > goblinHoldLead) speed = v - goblinCatchUp;                         // 追いつかれていく
         else speed = v + Mathf.Min(1.5f, (goblinHoldLead - dx) * 1.5f);                 // 捕まった: すぐ前(攻撃が届く距離)を走り続ける
         speed = Mathf.Max(goblinMinSpeed, speed);
+        bonusSpeedNow = speed;
+        BonusGroundMove(speed, dt);
+    }
+
+    void UpdateGoblinPaced(float v, float dx, float dt)
+    {
+        // プレイヤーの実際の前進(攻撃の踏み込み・ダッシュで自動の走りより速くなる)に合わせる。合わせないと踏み込みの分だけ追い越されていた
+        float px = player.position.x;
+        if (goblinPlayerV < 0f) goblinPlayerV = v;
+        else if (dt > 0f && Time.frameCount == goblinPrevFrame + 1) // 被弾で止まっていた間の移動は速さに数えない
+        {
+            float pv = (px - goblinPrevPx) / dt;
+            if (pv >= 0f && pv < v + 15f) goblinPlayerV = Mathf.Lerp(goblinPlayerV, pv, 1f - Mathf.Exp(-dt / 0.08f));
+        }
+        goblinPrevPx = px; goblinPrevFrame = Time.frameCount;
+        v = Mathf.Max(v, goblinPlayerV);
+        float target, accel = goblinRelAccel;
+        // 速いほど 1 フレームの前進と攻撃の踏み込みが大きいので、並走の距離と「近すぎる」距離を少し広げる(時速 36km 以下は既定のまま、時速 108km で +0.9m / +0.6m)
+        float fastK = Mathf.Clamp01((v - 10f) / 20f);
+        float windowLead = goblinWindowLead + goblinWindowLeadFast * fastK, minLead = goblinMinLead + goblinMinLeadFast * fastK;
+        if (bonusState == BonusState.Leave) target = bonusLeaveSpeed;
+        else
+        {
+            bool hit = bonusComp != null && bonusComp.LastHitTime > goblinHitSeen;
+            // 殴られた: 離れ始める。被弾の間(ノックバック)に遅れた分は持ち越さない(後ろ向きの相対速度を捨てる = 被弾の後に追い越されない)
+            if (hit) { goblinHitSeen = bonusComp.LastHitTime; goblinPace = GoblinPace.Pull; goblinPaceT = 0f; goblinRel = Mathf.Max(goblinRel, 0f); }
+            goblinPaceT += dt;
+            switch (goblinPace)
+            {
+                case GoblinPace.Chase:
+                    target = dx > 9f ? -goblinFarCatchUp : -goblinCatchUp; // 遠い時は早めに、近くはゆっくり追いつかれる
+                    // 画面の外(前)にいる間は速く寄る: 高速では 80〜150m 先に出て 4.5m/s で寄るので、BONUS(320m)の間に届かなかった
+                    {
+                        Camera gc = Camera.main;
+                        float viewAhead = gc != null ? GameView.Right(gc) - player.position.x : 20f;
+                        if (dx > viewAhead + 8f) { target = -Mathf.Max(goblinFarCatchUp, v * goblinOffscreenCatchUp); accel = goblinRelAccel * 4f; }
+                        else if (goblinRel < -goblinFarCatchUp - 0.1f) accel = goblinRelAccel * 4f; // 画面に入る手前で速さを戻す(見えている間は速く寄らない)
+                    }
+                    // 並走の距離の手前で、相対速度 0 へ減速し始める(止まる距離 = rel² / 2a)
+                    float stopDist = goblinRel < 0f ? goblinRel * goblinRel / (2f * accel) : 0f;
+                    if (dx - windowLead <= stopDist + 0.05f) { goblinPace = GoblinPace.Window; goblinPaceT = 0f; }
+                    break;
+                case GoblinPace.Window:
+                    target = Mathf.Clamp((windowLead - dx) * 2.5f, -1.2f, 1.5f); // 並走(少しずれたらゆっくり戻す)
+                    if (goblinPaceT >= goblinWindowSeconds) { goblinPace = GoblinPace.Pull; goblinPaceT = 0f; }
+                    break;
+                default: // Pull
+                    target = goblinPullSpeed;
+                    float brake = goblinRel > 0f ? goblinRel * goblinRel / (2f * accel) : 0f;
+                    if (dx + brake >= goblinAwayLead) { goblinPace = GoblinPace.Chase; goblinPaceT = 0f; }
+                    break;
+            }
+            // 追い越されない(攻撃の踏み込み等でプレイヤーが前へ出た): 前へ戻る。強めに加速するが瞬間移動はしない
+            if (dx < minLead) { target = Mathf.Max(target, Mathf.Min(8f, 1.5f + (minLead - dx) * 4f)); accel = goblinRelAccel * 3f; }
+        }
+        goblinRel = Mathf.MoveTowards(goblinRel, target, accel * dt);
+        float speed = Mathf.Max(goblinMinSpeed, v + goblinRel);
         bonusSpeedNow = speed;
         BonusGroundMove(speed, dt);
     }
@@ -243,7 +323,9 @@ public partial class EnemySpecialBehavior
         if (speed > 0.1f && !Surface(nx + 0.7f).HasValue && Surface(x).HasValue)
         {
             float land = -1f;
-            for (float d = 1.2f; d < 10f; d += 0.4f) if (Surface(x + d).HasValue && Surface(x + d + 0.6f).HasValue) { land = x + d + 0.8f; break; }
+            // 2026-11-04: 高速の穴は 10m より広い(間隔は速さに比例)。向こう岸を探す範囲も速さに合わせる(以前は縁で待って追い越されていた)
+            float reach = QaGoblinLegacy ? 10f : Mathf.Max(10f, speed * 1.1f + 4f);
+            for (float d = 1.2f; d < reach; d += 0.4f) if (Surface(x + d).HasValue && Surface(x + d + 0.6f).HasValue) { land = x + d + 0.8f; break; }
             if (land > 0f) { StartBonusJump(land, Mathf.Max(speed, 3f)); StepBonusJump(dt); return; }
             return; // 向こう岸が見えない(生成前): 縁で待つ
         }

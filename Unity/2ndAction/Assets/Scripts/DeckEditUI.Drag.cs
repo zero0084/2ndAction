@@ -81,6 +81,7 @@ public partial class DeckEditUI
             var c = characterSlotCards[i];
             if (c != null && c.gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(c.rect, p, null)) { index = i; return PressKind.Char; }
         }
+        if (InScrollView(deckScrollRect, p)) // 2026-11-04: 見える範囲の外のカードは押せない(HandleTap と同じ)
         for (int i = 0; i < deckSlotCards.Length && i < gm.DeckCards.Count; i++)
         {
             var c = deckSlotCards[i];
@@ -191,6 +192,7 @@ public partial class DeckEditUI
         var gm = GameManager.Instance; if (gm == null) return;
         var deck = gm.DeckCards;
         string key = DragKey;
+        if (InScrollView(deckScrollRect, p))
         for (int i = 0; i < deckSlotCards.Length; i++)
         {
             var c = deckSlotCards[i];
@@ -403,6 +405,28 @@ public partial class DeckEditUI
         pressKind = PressKind.None;
     }
     public void DebugLongPress(bool fromDeck, bool fromChar, int index) => OpenBigDetailFor(fromChar ? PressKind.Char : fromDeck ? PressKind.Deck : PressKind.Owned, index);
+    // -qaDeckTap(2026-11-04): 指を離した時のタップと同じ処理(UpdatePointer の HandleTap)/一覧の位置/見えないカードが重なっているか
+    public void DebugTapAt(Vector2 p) => HandleTap(p);
+    public void DebugSetOwnedScroll(float normalized) { if (ownedScrollRect != null) { ownedScrollRect.verticalNormalizedPosition = Mathf.Clamp01(normalized); Canvas.ForceUpdateCanvases(); } }
+    public bool DebugHiddenOwnedAt(Vector2 p)
+    {
+        if (InScrollView(ownedScrollRect, p)) return false;
+        for (int i = 0; i < ownedCards.Length && i < displayedStacks.Count; i++)
+        {
+            var c = ownedCards[i];
+            if (c != null && c.gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(c.rect, p, null)) return true;
+        }
+        return false;
+    }
+    public int DebugOwnedShown => Mathf.Min(ownedCards.Length, displayedStacks.Count);
+    public CardInventory.Stack DebugOwnedStack(int i) => i >= 0 && i < displayedStacks.Count ? displayedStacks[i] : null;
+    public bool DebugOwnedFullyVisible(int i)
+    {
+        if (i < 0 || i >= ownedCards.Length || ownedCards[i] == null || ownedScrollRect == null || !ownedCards[i].gameObject.activeInHierarchy) return false;
+        var c = new Vector3[4]; ownedCards[i].rect.GetWorldCorners(c);
+        foreach (var w in c) if (!InScrollView(ownedScrollRect, RectTransformUtility.WorldToScreenPoint(null, w) + (Vector2)(ScreenCenter(ownedCards[i].rect) - RectTransformUtility.WorldToScreenPoint(null, w)) * 0.05f)) return false;
+        return true;
+    }
 #endif
 
     // ---- 1フレームごとの指の処理(Update から)。true = この画面の指の処理を終えた

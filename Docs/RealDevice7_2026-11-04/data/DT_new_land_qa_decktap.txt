@@ -1,0 +1,9 @@
+[setup] land 1280x720, owned stacks 30, deck 3 
+[top] tapped 221 points outside the visible list: hidden cards under 9, cards added 0
+[middle] tapped 221 points outside the visible list: hidden cards under 54, cards added 0
+[end] tapped 221 points outside the visible list: hidden cards under 76, cards added 0
+[total] taps 663, points with a hidden card under the finger 139, cards added 0
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

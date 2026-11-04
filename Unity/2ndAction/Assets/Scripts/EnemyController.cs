@@ -333,6 +333,7 @@ public partial class EnemyController : MonoBehaviour
         // マルチプレイPhase 2 - JOIN側のパペットは物理/AIを持たない(位置はHOSTから補間表示)。
         if (NetReplica) return;
         if (dying) return;
+        if (bonus != null) BonusRunnerExtra(); // BONUS のゴブリン: プレイヤーの実際の前進を毎フレーム測っておく(被弾の間の運びに使う)
 
         // 実機フィードバック(2026-09-12第5弾) - Pickup/Vacuum中は
         // VacuumPickupRoutineがこの敵の位置を専有する(通常のLaunch物理と
@@ -427,7 +428,7 @@ public partial class EnemyController : MonoBehaviour
             groundKnockbackTimer -= Time.deltaTime;
             // エリアルコンボ改修(2026-10-18): 速すぎるノックバック(強い技の倍率×高速)は、主人公の速さ+12m/s まで(1フレームで数m跳んで見えた)
             groundKnockbackVelocityX = Mathf.Min(groundKnockbackVelocityX, PlayerForwardSpeed() + 12f);
-            float kbX = transform.position.x + groundKnockbackVelocityX * Time.deltaTime;
+            float kbX = transform.position.x + (groundKnockbackVelocityX + BonusRunnerExtra()) * Time.deltaTime;
             float? kbG = SurfaceAt(kbX);
             // エリアルコンボ改修(2026-10-18): 0.6m より高い段差は壁と同じ(叩きつけの後の大きな飛ばしで、段の上へ一瞬で乗り上げていた)
             if (!kbG.HasValue || kbG.Value <= transform.position.y + 0.6f) transform.position = new Vector3(kbX, transform.position.y, transform.position.z);
@@ -440,7 +441,7 @@ public partial class EnemyController : MonoBehaviour
         else if (groundFollowAssistTimer > 0f)
         {
             groundFollowAssistTimer -= Time.deltaTime;
-            float followSpeed = PlayerForwardSpeed() * groundFollowAssistFactor;
+            float followSpeed = PlayerForwardSpeed() * groundFollowAssistFactor + BonusRunnerExtra();
             float fX = transform.position.x + followSpeed * Time.deltaTime;
             float? fG = SurfaceAt(fX);
             if (!fG.HasValue || fG.Value <= transform.position.y + 0.6f) transform.position = new Vector3(fX, transform.position.y, transform.position.z); // 高い段差は壁(2026-10-18)
@@ -795,6 +796,9 @@ public partial class EnemyController : MonoBehaviour
     // (Update()側のタイマー終了時にRestoreMotionComponentsで戻す)。
     void ApplyGroundKnockback()
     {
+        // 2026-11-04: BONUS の逃げるゴブリンは地上のノックバックで動きを止めない(自分の「離れる」で間合いを取り、穴も自分で跳ぶ)。
+        //  ノックバック中は動き(EnemySpecialBehavior)が止まるため、穴の縁へ押されると真下へ落ちて追い越されていた
+        if (this.bonus != null && this.bonus.kind == BonusEnemyKind.TreasureGoblin && !BonusRunnerLegacy) return;
         // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - KnockbackPower
         // Multiplier(既定1、弱いキャラほど<1)はEnemy側のこのボーナス分にの
         // み掛かる - PlayerForwardSpeed()自体(=主人公の現在の自動前進速度)
@@ -976,6 +980,35 @@ public partial class EnemyController : MonoBehaviour
     // (パリティ、上のlaunchVelocityXの説明コメント参照)。
     // マルチプレイPhase 2 - ノックバック/打ち上げの基準は「この敵を最後に攻撃したプレイヤー」
     // (シングル/HOST自身の攻撃では従来どおりこの端末のプレイヤー)。
+    // 2026-11-04(実機「ボーナスで敵を追い越してしまう」): BONUS の逃げるゴブリンだけ、被弾のノックバック/追従の間も
+    //  プレイヤーの実際の前進(攻撃の踏み込みで自動の走りより 3m/s ほど速い)に合わせる。自動の走りの速さで運ぶと、
+    //  被弾から戻るまでの 0.4 秒で踏み込みの分(1m 以上)だけ近づき、そのまま追い越していた。他の敵は今までどおり
+    float bonusPlayerPrevX, bonusPlayerV = -1f; int bonusPlayerFrame = -10;
+    float BonusRunnerExtra()
+    {
+        if (bonus == null || bonus.kind != BonusEnemyKind.TreasureGoblin || PlayerController.Instance == null || BonusRunnerLegacy) return 0f;
+        float px = PlayerController.Instance.transform.position.x, dt = Time.deltaTime;
+        if (Time.frameCount != bonusPlayerFrame)
+        {
+            if (bonusPlayerFrame == Time.frameCount - 1 && dt > 0f)
+            {
+                float pv = (px - bonusPlayerPrevX) / dt;
+                if (pv >= 0f && pv < PlayerForwardSpeed() + 15f) bonusPlayerV = bonusPlayerV < 0f ? pv : Mathf.Lerp(bonusPlayerV, pv, 1f - Mathf.Exp(-dt / 0.08f));
+            }
+            bonusPlayerPrevX = px; bonusPlayerFrame = Time.frameCount;
+        }
+        float extra = bonusPlayerV < 0f ? 0f : Mathf.Max(0f, bonusPlayerV - PlayerForwardSpeed());
+        // 踏み込みで体が重なりそうな時(プレイヤーの 1m 先より近い): 速さで前へ戻す(瞬間移動はしない)
+        float lead = transform.position.x - px, near = 1.0f + 0.6f * Mathf.Clamp01((PlayerForwardSpeed() - 10f) / 20f); // 速いほど少し早めに
+        if (lead < near) extra += Mathf.Clamp((near - lead) * 6f, 0f, 10f);
+        return extra;
+    }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    static readonly bool BonusRunnerLegacy = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-bonusChaseLegacy") >= 0;
+#else
+    const bool BonusRunnerLegacy = false;
+#endif
+
     float PlayerForwardSpeed()
     {
         if (netReactionAttacker > 0 && NetCombat.TryGetAttacker(netReactionAttacker, out _, out float sp)) return sp;

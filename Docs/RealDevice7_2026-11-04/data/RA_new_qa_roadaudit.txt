@@ -1,0 +1,9 @@
+[ra] new: 2311m in 300s at speed x1, bosses 2, distance excluded 23.2m
+[ra] new obstacles: spawned 76, seen 75, POP-IN 0 (appeared inside the screen), spawn dx min 29.4m, lead seconds min 1.93 median 3.82
+[ra] new flyers: spawned 21 (9.1/km), seen on screen 19, killed 0, passed 15, avg on-screen 4.5s, viewport y 0.57..1.00, entered from x 0.99
+   Enemy: 21 (seen 19)
+[ra] new flyers: longest gap between flyer spawns 61.7s
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

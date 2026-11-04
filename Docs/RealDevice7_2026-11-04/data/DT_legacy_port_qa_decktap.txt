@@ -1,0 +1,16 @@
+[setup] port 486x1080, owned stacks 30, deck 3 (LEGACY tap)
+[top] ADDED by tapping below list at (61,12) hiddenCard=True: executioner
+[top] ADDED by tapping below list at (152,12) hiddenCard=True: treasure_hunter
+[top] ADDED by tapping below list at (243,12) hiddenCard=True: combo_plus
+[top] ADDED by tapping below list at (334,12) hiddenCard=True: mob_killer
+[top] ADDED by tapping below list at (380,12) hiddenCard=True: mob_killer
+[top] ADDED by tapping below list at (425,12) hiddenCard=True: ground_fighter
+[top] tapped 220 points outside the visible list: hidden cards under 6, cards added 6
+[FAIL] port top: tapping empty slots / margins / list edges adds no card (6)
+[middle] tapped 205 points outside the visible list: hidden cards under 0, cards added 0
+[end] tapped 220 points outside the visible list: hidden cards under 0, cards added 0
+[total] taps 645, points with a hidden card under the finger 6, cards added 6
+
+failures=1 warnings=0
+1 CHECK(S) FAILED
+NO EXCEPTIONS LOGGED
