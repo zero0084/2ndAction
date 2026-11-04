@@ -36,7 +36,7 @@ public partial class QaSweep
         HighSpeedAssist.QaBlinkPerSec = float.Parse(Arg("-dfBlink", "0.6"), inv);
         int speedPct = int.Parse(Arg("-dfSpeed", "100")); // 設定「最高速度」(テスト用データに保存される)
         GameSettings.SetMaxSpeedPercent(speedPct);
-        var tsv = new System.Text.StringBuilder("legacy\tbuild\tblink\tspeed\tband\tstart_km\tsecs\tkm_run\tcards\tlv\tmaxHp\tspawned\tkilled\tavg_onscreen\tidle_pct\tkill_s_avg\tkill_s_p90\thits\tdamage\tdeaths\thp_min_pct\thp_end_pct\tbosses\tboss_s_avg\tbreaks\tkinds\n");
+        var tsv = new System.Text.StringBuilder("legacy\tbuild\tblink\tspeed\tband\tstart_km\tsecs\tkm_run\tcards\tlv\tmaxHp\tspawned\tkilled\tavg_onscreen\tidle_pct\tkill_s_avg\tkill_s_p90\thits\tdamage\tdeaths\thp_min_pct\thp_end_pct\tbosses\tboss_s_avg\tbreaks\tkinds\tevents\tevkinds\traids\n");
         GameManager.QaDamageEvent = OnDfDamage;
         bool legacy = DifficultyTuning.I != null && DifficultyTuning.LegacyOverride; // I を読むと -diffLegacy が読まれる
         foreach (var band in bands)
@@ -58,6 +58,7 @@ public partial class QaSweep
             typeof(GameManager).GetProperty("Lives").GetSetMethod(true).Invoke(gm, new object[] { gm.MaxLives });
             float d0 = gm.MaxDistance; int kill0 = gm.EnemyKillCount, spawn0 = EncounterDirector.Instance != null ? EncounterDirector.Instance.SpawnedEnemies : 0, up0 = gm.UpgradeCount;
             dfHits = dfDeaths = dfDamage = 0; dfByKind.Clear();
+            int ev0 = RoadEvents.Started, hist0 = RoadEvents.History.Count, raid0 = BossManager.RaidLog.Count; // 2026-11-04: 道中イベント/乱入
             float t = 0f, sampleT = 0f; int samples = 0, idle = 0; float onscreenSum = 0f, hpMin = 1f;
             var firstSeen = new Dictionary<EnemyController, float>(); var killTimes = new List<float>();
             System.Action<EnemyController, PlayerAttackKind, bool, bool> onHit = (e, k, air, killed) => { if (killed && e != null && firstSeen.TryGetValue(e, out float f0)) killTimes.Add(Time.time - f0); };
@@ -84,7 +85,7 @@ public partial class QaSweep
                         if (vp.x < 0f || vp.x > 1f || vp.y < 0f || vp.y > 1f) continue;
                         on++; if (!firstSeen.ContainsKey(e)) firstSeen[e] = Time.time;
                     }
-                    onscreenSum += on; if (on == 0 && !boss) idle++;
+                    onscreenSum += on; if (on == 0 && !boss && RoadEvents.Active == RoadEventKind.None) idle++;
                     hpMin = Mathf.Min(hpMin, gm.Lives / (float)Mathf.Max(1, gm.MaxLives));
                     foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
                         if (mb is IBossBattleDebug bd) bossBreak[mb] = Mathf.Max(bossBreak.TryGetValue(mb, out int bb) ? bb : 0, bd.BreakCount);
@@ -97,7 +98,7 @@ public partial class QaSweep
             float ks = killTimes.Count > 0 ? killTimes.Average() : -1f, k90 = killTimes.Count > 0 ? killTimes[Mathf.Min(killTimes.Count - 1, (int)(killTimes.Count * 0.9f))] : -1f;
             string kinds = string.Join(" ", dfByKind.OrderByDescending(x => x.Value).Select(x => $"{x.Key}:{x.Value}"));
             string row = $"{(legacy ? 1 : 0)}\t{build}\t{HighSpeedAssist.QaBlinkPerSec:F1}\t{GameSettings.MaxSpeedPercent}\t{band.label}\t{km:F1}\t{t:F0}\t{(gm.MaxDistance - d0) / 1000f:F2}\t{gm.UpgradeCount - up0}+{picks}\t{gm.Level}\t{gm.MaxLives}\t{(EncounterDirector.Instance != null ? EncounterDirector.Instance.SpawnedEnemies - spawn0 : -1)}\t{gm.EnemyKillCount - kill0}" +
-                $"\t{onscreenSum / Mathf.Max(1, samples):F2}\t{100f * idle / Mathf.Max(1, samples):F0}\t{ks:F2}\t{k90:F2}\t{dfHits}\t{dfDamage}\t{dfDeaths}\t{hpMin * 100f:F0}\t{100f * gm.Lives / Mathf.Max(1, gm.MaxLives):F0}\t{bosses}\t{(bosses > 0 ? bossSum / bosses : 0f):F1}\t{breaks}\t{kinds}";
+                $"\t{onscreenSum / Mathf.Max(1, samples):F2}\t{100f * idle / Mathf.Max(1, samples):F0}\t{ks:F2}\t{k90:F2}\t{dfHits}\t{dfDamage}\t{dfDeaths}\t{hpMin * 100f:F0}\t{100f * gm.Lives / Mathf.Max(1, gm.MaxLives):F0}\t{bosses}\t{(bosses > 0 ? bossSum / bosses : 0f):F1}\t{breaks}\t{kinds}\t{RoadEvents.Started - ev0}\t{string.Join(" ", RoadEvents.History.Skip(hist0).Select(h => h.Replace('\t', ':')))}\t{string.Join(" ", BossManager.RaidLog.Skip(raid0).Select(h => h.Replace('\t', ':')))}";
             tsv.Append(row).Append('\n');
             L($"[diff] {row}");
             System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, "diff.tsv"), tsv.ToString());

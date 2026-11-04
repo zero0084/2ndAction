@@ -100,6 +100,9 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaCarousel") { mode = "carousel"; dir = a[i + 1]; }
             if (a[i] == "-qaJourney") { mode = "journey"; dir = a[i + 1]; }
             if (a[i] == "-qaDiff") { mode = "diff"; dir = a[i + 1]; }
+            if (a[i] == "-qaRaid") { mode = "raid"; dir = a[i + 1]; }
+            if (a[i] == "-qaRoadVid") { mode = "roadvid"; dir = a[i + 1]; }
+            if (a[i] == "-qaOneShot") { mode = "oneshot"; dir = a[i + 1]; }
             if (a[i] == "-qaPad") { mode = "pad"; dir = a[i + 1]; }
             if (a[i] == "-qaFinish") { mode = "finish"; dir = a[i + 1]; }
             if (a[i] == "-qaBossFinish") { mode = "bossfinish"; dir = a[i + 1]; }
@@ -318,6 +321,9 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "carousel") yield return CarouselMode();
         else if (mode == "journey") yield return JourneyMode();
         else if (mode == "diff") yield return DiffMode();
+        else if (mode == "raid") yield return RaidMode();
+        else if (mode == "roadvid") yield return RoadVidMode();
+        else if (mode == "oneshot") yield return OneShotMode();
         else if (mode == "pad") yield return PadMode();
         else if (mode == "input") yield return InputMode();
         else if (mode == "fps") yield return FpsMode();

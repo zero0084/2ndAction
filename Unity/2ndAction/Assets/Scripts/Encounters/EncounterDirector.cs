@@ -81,7 +81,8 @@ public class EncounterDirector : MonoBehaviour
     public static System.Func<float, float> SurgeAt;
     float planDistance; // 今決めているEncounterの走行距離(SurgeAt用)
     // 2026-11-03: 通常マップの中盤以降は間隔を詰める(DifficultyTuning.gapScale。90〜95km の大群の区間はその仕組みのまま)
-    float Pace(float d) => (PaceAt != null ? Mathf.Max(0.2f, PaceAt(d)) : 1f) * RushPace(d) * SpawnGapFactor * (RushWaveAt(d) >= 0 ? 1f : DifficultyTuning.GapScale(d));
+    // 2026-11-04: 道中イベント(RoadEvents: 敵ラッシュ/飛行編隊/追跡)の間はさらに詰める
+    float Pace(float d) => (PaceAt != null ? Mathf.Max(0.2f, PaceAt(d)) : 1f) * RushPace(d) * SpawnGapFactor * (RushWaveAt(d) >= 0 ? 1f : DifficultyTuning.GapScale(d) * RoadEvents.PaceMul);
 
     // ===== 通常マップの終盤の雑魚の大群(2026-10-24、BossManager.MapFinale.cs) =====
     // 90km のボスの後〜95,000m: 1km ごとの段階(波)で、Encounter どうしの間隔を詰め(RushPaceByWave)、激しい方へ寄せる(RushSurgeByWave)。
@@ -717,14 +718,16 @@ public class EncounterDirector : MonoBehaviour
     EncounterIntensity PickIntensity(EncounterDistanceBand band, float restScale = 1f)
     {
         float tuneD = GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f; // 2026-11-03: 中盤以降は休憩を減らし、激しい方を増やす
-        float[] w = { Mathf.Max(0f, band.restWeight) * restScale * DifficultyTuning.RestWeightScale(tuneD), Mathf.Max(0f, band.easyWeight), Mathf.Max(0f, band.mediumWeight), Mathf.Max(0f, band.hardWeight) * DifficultyTuning.HardWeightScale(tuneD) };
+        float[] w = { Mathf.Max(0f, band.restWeight) * restScale * DifficultyTuning.RestWeightScale(tuneD), Mathf.Max(0f, band.easyWeight), Mathf.Max(0f, band.mediumWeight), Mathf.Max(0f, band.hardWeight) * DifficultyTuning.HardWeightScale(tuneD) * RoadEvents.HardMul };
+        bool roadEvent = RoadEvents.NoRest && RushWaveAt(planDistance) < 0; // 2026-11-04: 道中イベントの間は休憩を入れない
+        if (roadEvent) w[0] = 0f;
         int n = intensityHistory.Count;
         EncounterIntensity last = n > 0 ? intensityHistory[n - 1] : EncounterIntensity.Rest;
         EncounterIntensity prev = n > 1 ? intensityHistory[n - 2] : EncounterIntensity.Easy;
         if (n == 0) { w[0] = 0f; w[3] = 0f; } // 最初はEasy/Mediumから
         // ラストダンジョン: 難易度の波(激しい区間ほどHard寄り・休憩が減る、落ち着く区間は休憩/Easy寄り)
         int rushWave = RushWaveAt(planDistance); // 2026-10-24: 通常マップの終盤の雑魚の大群
-        float surge = SurgeAt != null ? Mathf.Clamp01(SurgeAt(planDistance)) : rushWave >= 0 ? RushSurgeByWave[rushWave] : -1f;
+        float surge = SurgeAt != null ? Mathf.Clamp01(SurgeAt(planDistance)) : rushWave >= 0 ? RushSurgeByWave[rushWave] : RoadEvents.Surge;
         if (rushWave >= 0) { RushPlans++; w[0] *= RushRestScaleByWave[rushWave]; }
         if (surge >= 0f)
         {
@@ -737,7 +740,7 @@ public class EncounterDirector : MonoBehaviour
         int sinceRest = 0;
         for (int i = n - 1; i >= 0 && intensityHistory[i] != EncounterIntensity.Rest; i--) sinceRest++;
         int maxNoRest = Mathf.Max(1, profile.maxEncountersWithoutRest) + (surge >= 0.75f ? 2 : 0) + (rushWave >= 0 ? 3 : 0);
-        if (n > 0 && sinceRest >= maxNoRest && (rushWave < 0 || RushRestScaleByWave[rushWave] > 0f)) return EncounterIntensity.Rest;
+        if (n > 0 && sinceRest >= maxNoRest && !roadEvent && (rushWave < 0 || RushRestScaleByWave[rushWave] > 0f)) return EncounterIntensity.Rest;
         switch (last)
         {
             case EncounterIntensity.Rest: w[0] *= profile.afterRestRestMultiplier; break;
@@ -747,6 +750,7 @@ public class EncounterDirector : MonoBehaviour
         }
         if (last == EncounterIntensity.Hard && prev == EncounterIntensity.Hard && rushWave < 3) w[3] = 0f; // 大群の 93km 以降は Hard の連続も許す
         if (last == EncounterIntensity.Rest && prev == EncounterIntensity.Rest) w[0] = 0f;
+        if (roadEvent) w[0] = 0f;
         float sum = w[0] + w[1] + w[2] + w[3];
         if (sum <= 0f) return EncounterIntensity.Easy;
         float r = R01() * sum;
@@ -780,6 +784,7 @@ public class EncounterDirector : MonoBehaviour
             else if (probe.Clearance >= profile.wideClearance) w *= f.wideAffinity;
             if (probe.FlatRun >= profile.straightLength) w *= f.straightAffinity;
             w *= RushFormationBias(f); // 2026-10-24: 雑魚の大群の段階(飛ぶ敵が多い/地上の大物+混成)
+            w *= RoadEvents.FormationMul(f) * MixedBias(f); // 2026-11-04: 飛行編隊 / 40km から地上+空の混成を多く(DifficultyTuning.mixedBias)
             // 同じFormationの連続防止(絶対禁止ではない)
             int idx = formationHistory.LastIndexOf(f.formationId);
             if (idx >= 0)
@@ -795,6 +800,22 @@ public class EncounterDirector : MonoBehaviour
         float r = R01() * total;
         foreach (var c in cands) { if (r < c.w) return c.f; r -= c.w; }
         return cands[cands.Count - 1].f;
+    }
+
+    // 2026-11-04: 距離で地上+空の混成の組を多く(40〜60km「混成が増える」。終盤の大群の区間は RushFormationBias のまま)
+    float MixedBias(EncounterFormation f)
+    {
+        if (RushWaveAt(planDistance) >= 0) return 1f;
+        float m = DifficultyTuning.MixedBias(planDistance);
+        if (m <= 1.001f) return 1f;
+        int air = 0, ground = 0;
+        foreach (var s in f.slots)
+        {
+            if (s == null) continue;
+            if (s.kind == EncounterSlotKind.AirLow || s.kind == EncounterSlotKind.AirMiddle || s.kind == EncounterSlotKind.AirHigh) air++;
+            else if (s.kind == EncounterSlotKind.GroundFront || s.kind == EncounterSlotKind.GroundMiddle || s.kind == EncounterSlotKind.GroundRear) ground++;
+        }
+        return air > 0 && ground > 0 ? m : 1f;
     }
 
     // 雑魚の大群の段階ごとの Formation の寄せ方: 段階1 は飛ぶ敵の枠がある組を、段階2 は地上と空の混成と地上の多い組を多めに
@@ -903,9 +924,9 @@ public class EncounterDirector : MonoBehaviour
         var pool = pref.Count > 0 ? pref : (slot.preferOnly && slot.preferEnemyIds != null && slot.preferEnemyIds.Length > 0 ? null : all);
         if (pool == null || pool.Count == 0) return null;
         float total = 0f;
-        foreach (var c in pool) total += c.e.weight;
+        foreach (var c in pool) total += c.e.weight * RoadEvents.EnemyMul(c.d); // 2026-11-04: 道中イベント(飛行編隊/強敵/追跡)の敵を多めに
         float r = R01() * total;
-        foreach (var c in pool) { if (r < c.e.weight) { entry = c.e; return c.d; } r -= c.e.weight; }
+        foreach (var c in pool) { float cw = c.e.weight * RoadEvents.EnemyMul(c.d); if (r < cw) { entry = c.e; return c.d; } r -= cw; }
         entry = pool[pool.Count - 1].e;
         return pool[pool.Count - 1].d;
     }

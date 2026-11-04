@@ -57,6 +57,7 @@ public class BonusZone : MonoBehaviour
     bool wasBossPhase;
     float pendingAtDistance = -1f;
     int lastKmMark = -1; // 2026-11-03: 飛ばした関門の地点の抽選
+    float pendingChance = 0.5f; bool raidPhase; // 2026-11-04: 抽選の確率(ボスの後 = chanceAfterBoss / 飛ばした関門 = DifficultyTuning.bonusSkippedGateChance)
     // #100 ULTIMATE: ボスの後の抽選の距離(無ければ -1)。前進はこの手前で止まる
     public float PendingStartDistance => pendingAtDistance;
     static System.Random rng = new System.Random();
@@ -81,7 +82,9 @@ public class BonusZone : MonoBehaviour
         // ボス区間の終わり(ボス報酬の選択まで済んだ)を見て、安全区間の後に抽選する
         var bm = BossManager.Instance;
         bool boss = bm != null && bm.IsBossPhase;
-        if (wasBossPhase && !boss && State == Phase.Idle) pendingAtDistance = gm.MaxDistance + Profile.delayAfterBoss;
+        if (boss && bm.AirRaidActive) raidPhase = true; // 2026-11-04: 空中ボスの乱入(小さな事件)の後は抽選しない
+        if (wasBossPhase && !boss && State == Phase.Idle && !raidPhase) { pendingAtDistance = gm.MaxDistance + Profile.delayAfterBoss; pendingChance = Profile.chanceAfterBoss; }
+        if (!boss) raidPhase = false;
         wasBossPhase = boss;
         // 2026-11-03: 20〜90km で飛ばした 1km の関門の地点でも抽選する(ボスが減った分、道中の変化を残す)
         int km = Mathf.FloorToInt(gm.MaxDistance / 1000f);
@@ -89,14 +92,14 @@ public class BonusZone : MonoBehaviour
         {
             if (lastKmMark >= 0 && km > lastKmMark && !boss && State == Phase.Idle && pendingAtDistance < 0f && DifficultyTuning.I.bonusRollAtSkippedGates
                 && DifficultyTuning.SkipsGate(km, 1000f))
-                pendingAtDistance = km * 1000f + Profile.delayAfterBoss;
+            { pendingAtDistance = km * 1000f + Profile.delayAfterBoss; pendingChance = DifficultyTuning.I.bonusSkippedGateChance; }
             lastKmMark = km;
         }
         // 2026-11-04(背景の旅): 関門の門が画面に出ている間は始めない(門をくぐる約4秒を主役に。抽選の確率・報酬は同じ。門が抜けたら始める)
         if (pendingAtDistance >= 0f && State == Phase.Idle && gm.MaxDistance >= pendingAtDistance && !LandmarkJourney.GateVisible)
         {
             pendingAtDistance = -1f;
-            if (CanStartNaturally(gm) && Rand() < Profile.chanceAfterBoss) Begin(null, false);
+            if (CanStartNaturally(gm) && Rand() < pendingChance) Begin(null, false);
         }
 
         FlushGone();

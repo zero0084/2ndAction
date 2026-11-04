@@ -193,7 +193,9 @@ public class DistanceTierManager : MonoBehaviour
         // of species.
         float globalMultiplier = GameManager.Instance != null ? GameManager.Instance.EnemyHpMultiplier : 1f;
         float tune = DifficultyTuning.HpScale(hpMultiplier, CurrentDistance); // 2026-11-03: 中盤以降の雑魚は倒しやすく(大型は少し耐える)
-        return Mathf.Max(1, Mathf.RoundToInt(CurrentEnemyHp * Mathf.Max(0.01f, hpMultiplier) * Mathf.Max(0.01f, globalMultiplier) * tune));
+        // 2026-11-04: 序盤の普通の小型雑魚は上限まで(初期の黒剣士の前攻撃1段目で1発。DifficultyTuning.CapSmallHp)。「敵が硬くなる」カードはその後に掛ける
+        int hp = DifficultyTuning.CapSmallHp(Mathf.Max(1, Mathf.RoundToInt(CurrentEnemyHp * Mathf.Max(0.01f, hpMultiplier) * tune)), hpMultiplier, CurrentDistance);
+        return Mathf.Max(1, Mathf.RoundToInt(hp * Mathf.Max(0.01f, globalMultiplier)));
     }
 
     // The main entry point TerrainManager's per-chunk enemy-spawn code

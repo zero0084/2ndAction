@@ -1,0 +1,6 @@
+stage	key	rep	km	speed	blink	secs	result	hp	hits	damage	deaths	hp_min_pct	km_run	assist_jumps	breaks
+wasteland_road	Wild/Griffin	0	72.0	100	0.6	19.8	defeated	967	2	40	0	57	0.62	33	1
+wasteland_road	Wild/Demon	0	72.0	100	0.6	17.0	defeated	1001	1	20	0	78	0.55	11	1
+sky_corridor	Sky/Phoenix	0	72.0	100	0.6	37.3	defeated	1101	3	60	0	52	1.10	80	1
+sky_corridor	Sky/SkySerpent	0	72.0	100	0.6	60.0	fled: time limit 60s	1200	11	180	1	2	1.58	90	0
+sky_corridor	Sky/Jellyfish	0	72.0	100	0.6	21.3	defeated	1209	0	0	0	100	0.67	8	1

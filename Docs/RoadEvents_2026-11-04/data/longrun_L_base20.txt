@@ -1,0 +1,1477 @@
+[rv] t=1s d=20572 on=0 boss=False event=- journey=ch2 interior 1.00
+[rv] t=2s d=20600 on=5 boss=False event=- journey=ch2 interior 1.00
+[rv] t=3s d=20629 on=4 boss=False event=- journey=ch2 interior 1.00
+[rv] t=4s d=20657 on=0 boss=False event=- journey=ch2 interior 1.00
+[rv] t=5s d=20686 on=0 boss=False event=- journey=ch2 interior 1.00
+[rv] t=6s d=20714 on=0 boss=False event=- journey=ch2 interior 1.00
+[rv] t=7s d=20742 on=3 boss=False event=- journey=ch2 interior 1.00
+[rv] t=8s d=20770 on=3 boss=False event=- journey=ch2 interior 1.00
+[rv] t=9s d=20800 on=0 boss=False event=- journey=ch2 interior 1.00
+[rv] t=10s d=20828 on=4 boss=False event=- journey=ch2 interior 1.00
+[rv] t=11s d=20858 on=6 boss=False event=- journey=ch2 interior 1.00
+[rv] t=12s d=20887 on=2 boss=False event=- journey=ch2 interior 1.00
+[rv] t=13s d=20916 on=0 boss=False event=- journey=ch2 interior 1.00
+[rv] t=14s d=20944 on=0 boss=False event=- journey=ch2 interior 1.00
+[rv] t=15s d=20973 on=5 boss=False event=- journey=ch2 interior 1.00
+[rv] t=16s d=21002 on=5 boss=False event=- journey=ch2 interior 1.00
+[rv] t=17s d=21031 on=7 boss=False event=- journey=ch2 interior 1.00
+[rv] t=18s d=21060 on=5 boss=False event=- journey=ch2 interior 1.00
+[rv] t=19s d=21088 on=4 boss=False event=- journey=ch2 interior 0.93
+[rv] t=20s d=21116 on=3 boss=False event=- journey=ch2 interior 0.70
+[rv] t=21s d=21145 on=3 boss=False event=- journey=ch2 interior 0.47
+[rv] t=22s d=21173 on=0 boss=False event=- journey=ch2 interior 0.23
+[rv] t=23s d=21202 on=0 boss=False event=- journey=ch2
+[rv] t=24s d=21229 on=0 boss=False event=- journey=ch2 dest2 r=1.2km x1.12 a=0.07
+[rv] t=25s d=21258 on=2 boss=False event=- journey=ch2 dest2 r=1.3km x1.13 a=0.14
+[rv] t=26s d=21286 on=3 boss=False event=- journey=ch2 dest2 r=1.3km x1.13 a=0.21
+[rv] t=27s d=21314 on=3 boss=False event=- journey=ch2 dest2 r=1.3km x1.13 a=0.28
+[rv] t=28s d=21342 on=3 boss=False event=- journey=ch2 dest2 r=1.3km x1.13 a=0.35
+[rv] t=29s d=21371 on=1 boss=False event=- journey=ch2 dest2 r=1.4km x1.14 a=0.43
+[rv] t=30s d=21399 on=0 boss=False event=- journey=ch2 dest2 r=1.4km x1.14 a=0.50
+[rv] t=31s d=21428 on=0 boss=False event=- journey=ch2 dest2 r=1.4km x1.14 a=0.57
+[rv] t=32s d=21456 on=0 boss=False event=- journey=ch2 dest2 r=1.5km x1.15 a=0.64
+[rv] t=33s d=21484 on=0 boss=False event=- journey=ch2 dest2 r=1.5km x1.15 a=0.71
+[rv] t=34s d=21512 on=0 boss=False event=- journey=ch2 dest2 r=1.5km x1.15 a=0.78
+[rv] t=35s d=21540 on=0 boss=False event=- journey=ch2 dest2 r=1.5km x1.15 a=0.85
+[rv] t=36s d=21568 on=1 boss=False event=- journey=ch2 dest2 r=1.6km x1.16 a=0.92
+[rv] t=38s d=21596 on=4 boss=False event=- journey=ch2 dest2 r=1.6km x1.16 a=0.99
+[rv] t=39s d=21625 on=1 boss=False event=- journey=ch2 dest2 r=1.6km x1.16 a=1.00
+[rv] t=40s d=21654 on=0 boss=False event=- journey=ch2 dest2 r=1.7km x1.17 a=1.00
+[rv] t=41s d=21682 on=0 boss=False event=- journey=ch2 dest2 r=1.7km x1.17 a=1.00
+[rv] t=42s d=21710 on=0 boss=False event=- journey=ch2 dest2 r=1.7km x1.17 a=1.00
+[rv] t=43s d=21738 on=2 boss=False event=- journey=ch2 dest2 r=1.7km x1.17 a=1.00
+[rv] t=44s d=21766 on=3 boss=False event=- journey=ch2 dest2 r=1.8km x1.18 a=1.00
+[rv] t=45s d=21796 on=3 boss=False event=- journey=ch2 dest2 r=1.8km x1.18 a=1.00
+[rv] t=46s d=21824 on=0 boss=False event=- journey=ch2 dest2 r=1.8km x1.18 a=1.00
+[rv] t=47s d=21852 on=0 boss=False event=- journey=ch2 dest2 r=1.9km x1.19 a=1.00
+[rv] t=48s d=21880 on=0 boss=False event=- journey=ch2 dest2 r=1.9km x1.19 a=1.00
+[rv] t=49s d=21908 on=0 boss=False event=- journey=ch2 dest2 r=1.9km x1.19 a=1.00
+[rv] t=50s d=21937 on=0 boss=False event=- journey=ch2 dest2 r=1.9km x1.19 a=1.00
+[rv] t=51s d=21965 on=2 boss=False event=- journey=ch2 dest2 r=2.0km x1.20 a=1.00
+[rv] t=52s d=21994 on=2 boss=False event=- journey=ch2 dest2 r=2.0km x1.20 a=1.00
+[rv] t=53s d=22022 on=0 boss=False event=- journey=ch2 dest2 r=2.0km x1.20 a=1.00
+[rv] t=54s d=22050 on=0 boss=False event=- journey=ch2 dest2 r=2.0km x1.21 a=1.00
+[rv] t=55s d=22078 on=3 boss=False event=- journey=ch2 dest2 r=2.1km x1.21 a=1.00
+[rv] t=56s d=22106 on=3 boss=False event=- journey=ch2 dest2 r=2.1km x1.22 a=1.00
+[rv] t=57s d=22134 on=0 boss=False event=- journey=ch2 dest2 r=2.1km x1.22 a=1.00
+[rv] t=58s d=22163 on=0 boss=False event=- journey=ch2 dest2 r=2.2km x1.22 a=1.00
+[rv] t=59s d=22191 on=3 boss=False event=- journey=ch2 dest2 r=2.2km x1.23 a=1.00
+[rv] t=60s d=22219 on=5 boss=False event=- journey=ch2 dest2 r=2.2km x1.23 a=1.00
+[rv] t=61s d=22247 on=3 boss=False event=- journey=ch2 dest2 r=2.2km x1.24 a=1.00
+[rv] t=62s d=22276 on=2 boss=False event=- journey=ch2 dest2 r=2.3km x1.24 a=1.00
+[rv] t=63s d=22306 on=2 boss=False event=- journey=ch2 dest2 r=2.3km x1.25 a=1.00
+[rv] t=64s d=22334 on=0 boss=False event=- journey=ch2 dest2 r=2.3km x1.25 a=1.00
+[rv] t=65s d=22363 on=0 boss=False event=- journey=ch2 dest2 r=2.4km x1.25 a=1.00
+[rv] t=66s d=22391 on=0 boss=False event=- journey=ch2 dest2 r=2.4km x1.26 a=1.00
+[rv] t=67s d=22419 on=0 boss=False event=- journey=ch2 dest2 r=2.4km x1.26 a=1.00
+[rv] t=68s d=22447 on=0 boss=False event=- journey=ch2 dest2 r=2.4km x1.27 a=1.00
+[rv] t=69s d=22476 on=0 boss=False event=- journey=ch2 dest2 r=2.5km x1.27 a=1.00
+[rv] t=70s d=22504 on=6 boss=False event=- journey=ch2 dest2 r=2.5km x1.28 a=1.00
+[rv] t=71s d=22533 on=3 boss=False event=- journey=ch2 dest2 r=2.5km x1.28 a=1.00
+[rv] t=72s d=22562 on=0 boss=False event=- journey=ch2 dest2 r=2.6km x1.28 a=1.00
+[rv] t=73s d=22590 on=0 boss=False event=- journey=ch2 dest2 r=2.6km x1.29 a=1.00
+[rv] t=74s d=22618 on=0 boss=False event=- journey=ch2 dest2 r=2.6km x1.29 a=1.00
+[rv] t=75s d=22646 on=0 boss=False event=- journey=ch2 dest2 r=2.6km x1.30 a=1.00
+[rv] t=76s d=22675 on=0 boss=False event=- journey=ch2 dest2 r=2.7km x1.30 a=1.00
+[rv] t=77s d=22703 on=5 boss=False event=- journey=ch2 dest2 r=2.7km x1.31 a=1.00
+[rv] t=78s d=22732 on=5 boss=False event=- journey=ch2 dest2 r=2.7km x1.31 a=1.00
+[rv] t=79s d=22762 on=3 boss=False event=- journey=ch2 dest2 r=2.8km x1.31 a=1.00
+[rv] t=80s d=22791 on=0 boss=False event=- journey=ch2 dest2 r=2.8km x1.32 a=1.00
+[rv] t=81s d=22820 on=0 boss=False event=- journey=ch2 dest2 r=2.8km x1.32 a=1.00
+[rv] t=82s d=22848 on=0 boss=False event=- journey=ch2 dest2 r=2.8km x1.33 a=1.00
+[rv] t=83s d=22876 on=0 boss=False event=- journey=ch2 dest2 r=2.9km x1.33 a=1.00
+[rv] t=84s d=22904 on=2 boss=False event=- journey=ch2 dest2 r=2.9km x1.34 a=1.00
+[rv] t=85s d=22933 on=7 boss=False event=- journey=ch2 dest2 r=2.9km x1.34 a=1.00
+[rv] t=86s d=22962 on=5 boss=False event=- journey=ch2 dest2 r=3.0km x1.34 a=1.00
+[rv] t=87s d=22992 on=2 boss=False event=- journey=ch2 dest2 r=3.0km x1.35 a=1.00
+[rv] t=88s d=23021 on=1 boss=False event=- journey=ch2 dest2 r=3.0km x1.35 a=1.00
+[rv] t=89s d=23049 on=3 boss=False event=- journey=ch2 dest2 r=3.0km x1.36 a=1.00
+[rv] t=90s d=23078 on=1 boss=False event=- journey=ch2 dest2 r=3.1km x1.36 a=1.00
+[rv] t=91s d=23107 on=4 boss=False event=- journey=ch2 dest2 r=3.1km x1.37 a=1.00
+[rv] t=92s d=23136 on=1 boss=False event=- journey=ch2 dest2 r=3.1km x1.37 a=1.00
+[rv] t=93s d=23163 on=2 boss=False event=- journey=ch2 dest2 r=3.2km x1.37 a=1.00
+[rv] t=94s d=23193 on=2 boss=False event=- journey=ch2 dest2 r=3.2km x1.38 a=1.00
+[rv] t=95s d=23221 on=1 boss=False event=- journey=ch2 dest2 r=3.2km x1.38 a=1.00
+[rv] t=96s d=23251 on=1 boss=False event=- journey=ch2 dest2 r=3.3km x1.39 a=1.00
+[rv] t=97s d=23280 on=3 boss=False event=- journey=ch2 dest2 r=3.3km x1.39 a=1.00
+[rv] t=98s d=23309 on=2 boss=False event=- journey=ch2 dest2 r=3.3km x1.40 a=1.00
+[rv] t=99s d=23338 on=3 boss=False event=- journey=ch2 dest2 r=3.3km x1.40 a=1.00
+[rv] t=100s d=23368 on=1 boss=False event=- journey=ch2 dest2 r=3.4km x1.41 a=1.00
+[rv] t=101s d=23396 on=1 boss=False event=- journey=ch2 dest2 r=3.4km x1.41 a=1.00
+[rv] t=102s d=23424 on=1 boss=False event=- journey=ch2 dest2 r=3.4km x1.41 a=1.00
+[rv] t=103s d=23453 on=1 boss=False event=- journey=ch2 dest2 r=3.5km x1.42 a=1.00
+[rv] t=104s d=23481 on=1 boss=False event=- journey=ch2 dest2 r=3.5km x1.42 a=1.00
+[rv] t=106s d=23509 on=0 boss=False event=- journey=ch2 dest2 r=3.5km x1.43 a=1.00
+[rv] t=107s d=23537 on=0 boss=False event=- journey=ch2 dest2 r=3.5km x1.43 a=1.00
+[rv] t=108s d=23566 on=0 boss=False event=- journey=ch2 dest2 r=3.6km x1.43 a=1.00
+[rv] t=109s d=23594 on=0 boss=False event=- journey=ch2 dest2 r=3.6km x1.44 a=1.00
+[rv] t=110s d=23622 on=1 boss=False event=- journey=ch2 dest2 r=3.6km x1.44 a=1.00
+[rv] t=111s d=23650 on=2 boss=False event=- journey=ch2 dest2 r=3.6km x1.45 a=1.00
+[rv] t=112s d=23678 on=0 boss=False event=- journey=ch2 dest2 r=3.7km x1.45 a=1.00
+[rv] t=113s d=23707 on=0 boss=False event=- journey=ch2 dest2 r=3.7km x1.46 a=1.00
+[rv] t=114s d=23735 on=7 boss=False event=- journey=ch2 dest2 r=3.7km x1.46 a=1.00
+[rv] t=115s d=23764 on=6 boss=False event=- journey=ch2 dest2 r=3.8km x1.46 a=1.00
+[rv] t=116s d=23794 on=1 boss=False event=- journey=ch2 dest2 r=3.8km x1.47 a=1.00
+[rv] t=117s d=23823 on=0 boss=False event=- journey=ch2 dest2 r=3.8km x1.47 a=1.00
+[rv] t=118s d=23852 on=1 boss=False event=- journey=ch2 dest2 r=3.9km x1.48 a=1.00
+[rv] t=119s d=23880 on=2 boss=False event=- journey=ch2 dest2 r=3.9km x1.48 a=1.00
+[rv] t=120s d=23908 on=1 boss=False event=- journey=ch2 dest2 r=3.9km x1.49 a=1.00
+[rv] t=121s d=23938 on=5 boss=False event=- journey=ch2 dest2 r=3.9km x1.49 a=1.00
+[rv] t=122s d=23966 on=10 boss=False event=- journey=ch2 dest2 r=4.0km x1.49 a=1.00
+[rv] t=123s d=23996 on=9 boss=False event=- journey=ch2 dest2 r=4.0km x1.50 a=1.00
+[rv] t=124s d=24024 on=0 boss=False event=- journey=ch2 dest2 r=4.0km x1.50 a=1.00
+[rv] t=125s d=24051 on=3 boss=False event=- journey=ch2 dest2 r=4.1km x1.51 a=1.00
+[rv] t=126s d=24080 on=1 boss=False event=- journey=ch2 dest2 r=4.1km x1.52 a=1.00
+[rv] t=127s d=24108 on=2 boss=False event=- journey=ch2 dest2 r=4.1km x1.52 a=1.00
+[rv] t=128s d=24137 on=2 boss=False event=- journey=ch2 dest2 r=4.1km x1.53 a=1.00
+[rv] t=129s d=24164 on=5 boss=False event=- journey=ch2 dest2 r=4.2km x1.53 a=1.00
+[rv] t=130s d=24194 on=5 boss=False event=- journey=ch2 dest2 r=4.2km x1.54 a=1.00
+[rv] t=131s d=24223 on=4 boss=False event=- journey=ch2 dest2 r=4.2km x1.54 a=1.00
+[rv] t=132s d=24251 on=3 boss=False event=- journey=ch2 dest2 r=4.3km x1.55 a=1.00
+[rv] t=133s d=24280 on=1 boss=False event=- journey=ch2 dest2 r=4.3km x1.56 a=1.00
+[rv] t=134s d=24309 on=1 boss=False event=- journey=ch2 dest2 r=4.3km x1.56 a=1.00
+[rv] t=135s d=24337 on=1 boss=False event=- journey=ch2 dest2 r=4.3km x1.57 a=1.00
+[rv] t=136s d=24366 on=1 boss=False event=- journey=ch2 dest2 r=4.4km x1.57 a=1.00
+[rv] t=137s d=24395 on=1 boss=False event=- journey=ch2 dest2 r=4.4km x1.58 a=1.00
+[rv] t=138s d=24425 on=1 boss=False event=- journey=ch2 dest2 r=4.4km x1.58 a=1.00
+[rv] t=139s d=24454 on=1 boss=False event=- journey=ch2 dest2 r=4.5km x1.59 a=1.00
+[rv] t=140s d=24482 on=1 boss=False event=- journey=ch2 dest2 r=4.5km x1.60 a=1.00
+[rv] t=141s d=24510 on=1 boss=False event=- journey=ch2 dest2 r=4.5km x1.60 a=1.00
+[rv] t=142s d=24538 on=0 boss=False event=- journey=ch2 dest2 r=4.5km x1.61 a=1.00
+[rv] t=143s d=24566 on=0 boss=False event=- journey=ch2 dest2 r=4.6km x1.61 a=1.00
+[rv] t=144s d=24595 on=0 boss=False event=- journey=ch2 dest2 r=4.6km x1.62 a=1.00
+[rv] t=145s d=24623 on=0 boss=False event=- journey=ch2 dest2 r=4.6km x1.62 a=1.00
+[rv] t=146s d=24651 on=0 boss=False event=- journey=ch2 dest2 r=4.7km x1.63 a=1.00
+[rv] t=147s d=24679 on=0 boss=False event=- journey=ch2 dest2 r=4.7km x1.64 a=1.00
+[rv] t=148s d=24707 on=0 boss=False event=- journey=ch2 dest2 r=4.7km x1.64 a=1.00
+[rv] t=149s d=24735 on=3 boss=False event=- journey=ch2 dest2 r=4.7km x1.65 a=1.00
+[rv] t=150s d=24764 on=3 boss=False event=- journey=ch2 dest2 r=4.8km x1.65 a=1.00
+[rv] t=151s d=24793 on=4 boss=False event=- journey=ch2 dest2 r=4.8km x1.66 a=1.00
+[rv] t=152s d=24820 on=3 boss=False event=- journey=ch2 dest2 r=4.8km x1.66 a=1.00
+[rv] t=153s d=24847 on=1 boss=False event=- journey=ch2 dest2 r=4.8km x1.67 a=1.00
+[rv] t=154s d=24875 on=0 boss=False event=- journey=ch2 dest2 r=4.9km x1.67 a=1.00
+[rv] t=155s d=24904 on=0 boss=False event=- journey=ch2 dest2 r=4.9km x1.68 a=1.00
+[rv] t=156s d=24932 on=0 boss=False event=- journey=ch2 dest2 r=4.9km x1.69 a=1.00
+[rv] t=157s d=24960 on=0 boss=False event=- journey=ch2 dest2 r=5.0km x1.69 a=1.00
+[rv] t=158s d=24988 on=1 boss=False event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=159s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=160s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=161s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=162s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=163s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=164s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=165s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=166s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=167s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=168s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=169s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=170s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=171s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=172s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=173s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=175s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=176s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=177s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=178s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=179s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=180s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=181s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=182s d=25000 on=0 boss=True event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00
+[rv] t=183s d=25007 on=0 boss=False event=- journey=ch2 dest2 r=5.0km x1.70 a=1.00 milestone
+[rv] t=184s d=25035 on=0 boss=False event=- journey=ch2 dest2 r=5.0km x1.71 a=1.00 milestone
+[rv] t=185s d=25063 on=0 boss=False event=- journey=ch2 dest2 r=5.1km x1.71 a=1.00 milestone
+[rv] t=186s d=25091 on=0 boss=False event=- journey=ch2 dest2 r=5.1km x1.72 a=1.00
+[rv] t=187s d=25119 on=0 boss=False event=- journey=ch2 dest2 r=5.1km x1.72 a=1.00
+[rv] t=188s d=25147 on=0 boss=False event=- journey=ch2 dest2 r=5.1km x1.73 a=1.00
+[rv] t=189s d=25175 on=0 boss=False event=- journey=ch2 dest2 r=5.2km x1.73 a=1.00
+[rv] t=190s d=25204 on=5 boss=False event=- journey=ch2 dest2 r=5.2km x1.74 a=1.00
+[rv] t=191s d=25231 on=7 boss=False event=- journey=ch2 dest2 r=5.2km x1.75 a=1.00
+[rv] t=192s d=25260 on=0 boss=False event=- journey=ch2 dest2 r=5.3km x1.75 a=1.00
+[rv] t=193s d=25288 on=1 boss=False event=- journey=ch2 dest2 r=5.3km x1.76 a=1.00
+[rv] t=194s d=25316 on=4 boss=False event=- journey=ch2 dest2 r=5.3km x1.76 a=1.00
+[rv] t=195s d=25346 on=6 boss=False event=- journey=ch2 dest2 r=5.3km x1.77 a=1.00
+[rv] t=196s d=25374 on=3 boss=False event=- journey=ch2 dest2 r=5.4km x1.77 a=1.00
+[rv] t=197s d=25403 on=2 boss=False event=- journey=ch2 dest2 r=5.4km x1.78 a=1.00
+[rv] t=198s d=25432 on=2 boss=False event=- journey=ch2 dest2 r=5.4km x1.79 a=1.00
+[rv] t=199s d=25462 on=2 boss=False event=- journey=ch2 dest2 r=5.5km x1.79 a=1.00
+[rv] t=200s d=25492 on=0 boss=False event=- journey=ch2 dest2 r=5.5km x1.80 a=1.00
+[rv] t=201s d=25520 on=3 boss=False event=- journey=ch2 dest2 r=5.5km x1.80 a=1.00
+[rv] t=202s d=25549 on=5 boss=False event=- journey=ch2 dest2 r=5.5km x1.81 a=1.00
+[rv] t=203s d=25578 on=4 boss=False event=- journey=ch2 dest2 r=5.6km x1.82 a=1.00
+[rv] t=204s d=25606 on=3 boss=False event=- journey=ch2 dest2 r=5.6km x1.82 a=1.00
+[rv] t=205s d=25635 on=0 boss=False event=- journey=ch2 dest2 r=5.6km x1.83 a=1.00
+[rv] t=206s d=25663 on=1 boss=False event=- journey=ch2 dest2 r=5.7km x1.83 a=1.00
+[rv] t=207s d=25691 on=2 boss=False event=- journey=ch2 dest2 r=5.7km x1.84 a=1.00
+[rv] t=208s d=25719 on=0 boss=False event=- journey=ch2 dest2 r=5.7km x1.84 a=1.00
+[rv] t=209s d=25747 on=0 boss=False event=- journey=ch2 dest2 r=5.7km x1.85 a=1.00
+[rv] t=210s d=25775 on=0 boss=False event=- journey=ch2 dest2 r=5.8km x1.85 a=1.00
+[rv] t=211s d=25803 on=2 boss=False event=- journey=ch2 dest2 r=5.8km x1.86 a=1.00
+[rv] t=212s d=25831 on=0 boss=False event=- journey=ch2 dest2 r=5.8km x1.87 a=1.00
+[rv] t=213s d=25860 on=0 boss=False event=- journey=ch2 dest2 r=5.9km x1.87 a=1.00
+[rv] t=214s d=25888 on=0 boss=False event=- journey=ch2 dest2 r=5.9km x1.88 a=1.00
+[rv] t=215s d=25916 on=0 boss=False event=- journey=ch2 dest2 r=5.9km x1.88 a=1.00
+[rv] t=216s d=25944 on=3 boss=False event=- journey=ch2 dest2 r=5.9km x1.89 a=1.00
+[rv] t=217s d=25974 on=8 boss=False event=- journey=ch2 dest2 r=6.0km x1.89 a=1.00
+[rv] t=218s d=26004 on=8 boss=False event=- journey=ch2 dest2 r=6.0km x1.90 a=1.00
+[rv] t=219s d=26033 on=4 boss=False event=- journey=ch2 dest2 r=6.0km x1.91 a=1.00
+[rv] t=220s d=26063 on=2 boss=False event=- journey=ch2 dest2 r=6.1km x1.92 a=1.00
+[rv] t=221s d=26092 on=1 boss=False event=- journey=ch2 dest2 r=6.1km x1.92 a=1.00
+[rv] t=222s d=26120 on=1 boss=False event=- journey=ch2 dest2 r=6.1km x1.93 a=1.00
+[rv] t=223s d=26148 on=0 boss=False event=- journey=ch2 dest2 r=6.1km x1.94 a=1.00
+[rv] t=224s d=26176 on=0 boss=False event=- journey=ch2 dest2 r=6.2km x1.94 a=1.00
+[rv] t=225s d=26204 on=1 boss=False event=- journey=ch2 dest2 r=6.2km x1.95 a=1.00
+[rv] t=226s d=26233 on=5 boss=False event=- journey=ch2 dest2 r=6.2km x1.96 a=1.00
+[rv] t=227s d=26262 on=2 boss=False event=- journey=ch2 dest2 r=6.3km x1.97 a=1.00
+[rv] t=228s d=26293 on=2 boss=False event=- journey=ch2 dest2 r=6.3km x1.97 a=1.00
+[rv] t=229s d=26320 on=1 boss=False event=- journey=ch2 dest2 r=6.3km x1.98 a=1.00
+[rv] t=230s d=26346 on=2 boss=False event=- journey=ch2 dest2 r=6.3km x1.99 a=1.00
+[rv] t=231s d=26373 on=5 boss=False event=- journey=ch2 dest2 r=6.4km x1.99 a=1.00
+[rv] t=232s d=26400 on=5 boss=False event=- journey=ch2 dest2 r=6.4km x2.00 a=1.00
+[rv] t=233s d=26429 on=3 boss=False event=- journey=ch2 dest2 r=6.4km x2.01 a=1.00
+[rv] t=234s d=26458 on=2 boss=False event=- journey=ch2 dest2 r=6.5km x2.01 a=1.00
+[rv] t=235s d=26489 on=2 boss=False event=- journey=ch2 dest2 r=6.5km x2.02 a=1.00
+[rv] t=236s d=26517 on=2 boss=False event=- journey=ch2 dest2 r=6.5km x2.03 a=1.00
+[rv] t=237s d=26546 on=0 boss=False event=- journey=ch2 dest2 r=6.5km x2.04 a=1.00
+[rv] t=238s d=26574 on=0 boss=False event=- journey=ch2 dest2 r=6.6km x2.04 a=1.00
+[rv] t=239s d=26603 on=0 boss=False event=- journey=ch2 dest2 r=6.6km x2.05 a=1.00
+[rv] t=240s d=26631 on=1 boss=False event=- journey=ch2 dest2 r=6.6km x2.06 a=1.00
+[rv] t=241s d=26660 on=6 boss=False event=- journey=ch2 dest2 r=6.7km x2.06 a=1.00
+[rv] t=242s d=26689 on=3 boss=False event=- journey=ch2 dest2 r=6.7km x2.07 a=1.00
+[rv] t=243s d=26719 on=3 boss=False event=- journey=ch2 dest2 r=6.7km x2.08 a=1.00
+[rv] t=244s d=26747 on=1 boss=False event=- journey=ch2 dest2 r=6.7km x2.09 a=1.00
+[rv] t=245s d=26774 on=4 boss=False event=- journey=ch2 dest2 r=6.8km x2.09 a=1.00
+[rv] t=246s d=26801 on=4 boss=False event=- journey=ch2 dest2 r=6.8km x2.10 a=1.00
+[rv] t=247s d=26828 on=1 boss=False event=- journey=ch2 dest2 r=6.8km x2.11 a=1.00
+[rv] t=248s d=26854 on=7 boss=False event=- journey=ch2 dest2 r=6.9km x2.11 a=1.00
+[rv] t=250s d=26884 on=6 boss=False event=- journey=ch2 dest2 r=6.9km x2.12 a=1.00
+[rv] t=251s d=26912 on=0 boss=False event=- journey=ch2 dest2 r=6.9km x2.13 a=1.00
+[rv] t=252s d=26940 on=0 boss=False event=- journey=ch2 dest2 r=6.9km x2.13 a=1.00
+[rv] t=253s d=26969 on=0 boss=False event=- journey=ch2 dest2 r=7.0km x2.14 a=1.00
+[rv] t=254s d=26997 on=0 boss=False event=- journey=ch2 dest2 r=7.0km x2.15 a=1.00
+[rv] t=255s d=27026 on=0 boss=False event=- journey=ch2 dest2 r=7.0km x2.16 a=1.00
+[rv] t=256s d=27054 on=1 boss=False event=- journey=ch2 dest2 r=7.1km x2.16 a=1.00
+[rv] t=257s d=27082 on=1 boss=False event=- journey=ch2 dest2 r=7.1km x2.17 a=1.00
+[rv] t=258s d=27110 on=1 boss=False event=- journey=ch2 dest2 r=7.1km x2.18 a=1.00
+[rv] t=259s d=27138 on=1 boss=False event=- journey=ch2 dest2 r=7.1km x2.18 a=1.00
+[rv] t=260s d=27167 on=1 boss=False event=- journey=ch2 dest2 r=7.2km x2.19 a=1.00
+[rv] t=261s d=27195 on=1 boss=False event=- journey=ch2 dest2 r=7.2km x2.20 a=1.00
+[rv] t=262s d=27224 on=1 boss=False event=- journey=ch2 dest2 r=7.2km x2.21 a=1.00
+[rv] t=263s d=27252 on=1 boss=False event=- journey=ch2 dest2 r=7.3km x2.21 a=1.00
+[rv] t=264s d=27280 on=1 boss=False event=- journey=ch2 dest2 r=7.3km x2.22 a=1.00
+[rv] t=265s d=27308 on=1 boss=False event=- journey=ch2 dest2 r=7.3km x2.23 a=1.00
+[rv] t=266s d=27336 on=1 boss=False event=- journey=ch2 dest2 r=7.3km x2.23 a=1.00
+[rv] t=267s d=27365 on=1 boss=False event=- journey=ch2 dest2 r=7.4km x2.24 a=1.00
+[rv] t=268s d=27392 on=1 boss=False event=- journey=ch2 dest2 r=7.4km x2.25 a=1.00
+[rv] t=269s d=27420 on=1 boss=False event=- journey=ch2 dest2 r=7.4km x2.25 a=1.00
+[rv] t=270s d=27450 on=1 boss=False event=- journey=ch2 dest2 r=7.4km x2.26 a=1.00
+[rv] t=271s d=27479 on=1 boss=False event=- journey=ch2 dest2 r=7.5km x2.27 a=1.00
+[rv] t=272s d=27510 on=1 boss=False event=- journey=ch2 dest2 r=7.5km x2.28 a=1.00
+[rv] t=273s d=27539 on=1 boss=False event=- journey=ch2 dest2 r=7.5km x2.28 a=1.00
+[rv] t=274s d=27567 on=0 boss=False event=- journey=ch2 dest2 r=7.6km x2.29 a=1.00
+[rv] t=275s d=27596 on=0 boss=False event=- journey=ch2 dest2 r=7.6km x2.30 a=1.00
+[rv] t=276s d=27623 on=0 boss=False event=- journey=ch2 dest2 r=7.6km x2.31 a=1.00
+[rv] t=277s d=27652 on=0 boss=False event=- journey=ch2 dest2 r=7.7km x2.31 a=1.00
+[rv] t=278s d=27680 on=5 boss=False event=- journey=ch2 dest2 r=7.7km x2.32 a=1.00
+[rv] t=279s d=27708 on=6 boss=False event=- journey=ch2 dest2 r=7.7km x2.33 a=1.00
+[rv] t=280s d=27738 on=4 boss=False event=- journey=ch2 dest2 r=7.7km x2.33 a=1.00
+[rv] t=281s d=27766 on=0 boss=False event=- journey=ch2 dest2 r=7.8km x2.34 a=1.00
+[rv] t=282s d=27794 on=0 boss=False event=- journey=ch2 dest2 r=7.8km x2.35 a=1.00
+[rv] t=283s d=27822 on=0 boss=False event=- journey=ch2 dest2 r=7.8km x2.36 a=1.00
+[rv] t=284s d=27850 on=0 boss=False event=- journey=ch2 dest2 r=7.8km x2.36 a=1.00
+[rv] t=285s d=27879 on=3 boss=False event=- journey=ch2 dest2 r=7.9km x2.37 a=1.00
+[rv] t=286s d=27906 on=9 boss=False event=- journey=ch2 dest2 r=7.9km x2.38 a=1.00
+[rv] t=287s d=27937 on=5 boss=False event=- journey=ch2 dest2 r=7.9km x2.38 a=1.00
+[rv] t=288s d=27966 on=2 boss=False event=- journey=ch2 dest2 r=8.0km x2.39 a=1.00
+[rv] t=289s d=27996 on=3 boss=False event=- journey=ch2 dest2 r=8.0km x2.40 a=1.00
+[rv] t=290s d=28024 on=3 boss=False event=- journey=ch2 dest2 r=8.0km x2.41 a=1.00
+[rv] t=291s d=28052 on=1 boss=False event=- journey=ch2 dest2 r=8.1km x2.42 a=1.00
+[rv] t=292s d=28081 on=1 boss=False event=- journey=ch2 dest2 r=8.1km x2.43 a=1.00
+[rv] t=293s d=28109 on=1 boss=False event=- journey=ch2 dest2 r=8.1km x2.44 a=1.00
+[rv] t=294s d=28138 on=1 boss=False event=- journey=ch2 dest2 r=8.1km x2.46 a=1.00
+[rv] t=295s d=28166 on=1 boss=False event=- journey=ch2 dest2 r=8.2km x2.47 a=1.00
+[rv] t=296s d=28196 on=1 boss=False event=- journey=ch2 dest2 r=8.2km x2.48 a=1.00
+[rv] t=297s d=28226 on=2 boss=False event=- journey=ch2 dest2 r=8.2km x2.49 a=1.00
+[rv] t=298s d=28256 on=3 boss=False event=- journey=ch2 dest2 r=8.3km x2.50 a=1.00
+[rv] t=299s d=28286 on=3 boss=False event=- journey=ch2 dest2 r=8.3km x2.51 a=1.00
+[rv] t=300s d=28317 on=3 boss=False event=- journey=ch2 dest2 r=8.3km x2.53 a=1.00
+[rv] t=301s d=28346 on=3 boss=False event=- journey=ch2 dest2 r=8.3km x2.54 a=1.00
+[rv] t=302s d=28375 on=3 boss=False event=- journey=ch2 dest2 r=8.4km x2.55 a=1.00
+[rv] t=303s d=28405 on=2 boss=False event=- journey=ch2 dest2 r=8.4km x2.56 a=1.00
+[rv] t=304s d=28434 on=1 boss=False event=- journey=ch2 dest2 r=8.4km x2.57 a=1.00
+[rv] t=305s d=28462 on=0 boss=False event=- journey=ch2 dest2 r=8.5km x2.58 a=1.00
+[rv] t=306s d=28490 on=0 boss=False event=- journey=ch2 dest2 r=8.5km x2.60 a=1.00
+[rv] t=307s d=28518 on=0 boss=False event=- journey=ch2 dest2 r=8.5km x2.61 a=1.00
+[rv] t=308s d=28547 on=0 boss=False event=- journey=ch2 dest2 r=8.5km x2.62 a=1.00
+[rv] t=309s d=28574 on=1 boss=False event=- journey=ch2 dest2 r=8.6km x2.63 a=1.00
+[rv] t=310s d=28603 on=1 boss=False event=- journey=ch2 dest2 r=8.6km x2.64 a=1.00
+[rv] t=311s d=28630 on=1 boss=False event=- journey=ch2 dest2 r=8.6km x2.65 a=1.00
+[rv] t=312s d=28659 on=3 boss=False event=- journey=ch2 dest2 r=8.7km x2.66 a=1.00
+[rv] t=313s d=28687 on=7 boss=False event=- journey=ch2 dest2 r=8.7km x2.67 a=1.00
+[rv] t=314s d=28717 on=5 boss=False event=- journey=ch2 dest2 r=8.7km x2.69 a=1.00
+[rv] t=316s d=28746 on=0 boss=False event=- journey=ch2 dest2 r=8.7km x2.70 a=1.00
+[rv] t=317s d=28774 on=0 boss=False event=- journey=ch2 dest2 r=8.8km x2.71 a=1.00
+[rv] t=318s d=28802 on=0 boss=False event=- journey=ch2 dest2 r=8.8km x2.72 a=1.00
+[rv] t=319s d=28831 on=0 boss=False event=- journey=ch2 dest2 r=8.8km x2.73 a=1.00
+[rv] t=320s d=28859 on=0 boss=False event=- journey=ch2 dest2 r=8.9km x2.74 a=1.00
+[rv] t=321s d=28887 on=0 boss=False event=- journey=ch2 dest2 r=8.9km x2.75 a=1.00
+[rv] t=322s d=28915 on=2 boss=False event=- journey=ch2 dest2 r=8.9km x2.77 a=1.00
+[rv] t=323s d=28943 on=0 boss=False event=- journey=ch2 dest2 r=8.9km x2.78 a=1.00
+[rv] t=324s d=28972 on=0 boss=False event=- journey=ch2 dest2 r=9.0km x2.79 a=1.00
+[rv] t=325s d=29000 on=0 boss=False event=- journey=ch2 dest2 r=9.0km x2.80 a=1.00
+[rv] t=326s d=29028 on=0 boss=False event=- journey=ch2 dest2 r=9.0km x2.81 a=1.00
+[rv] t=327s d=29056 on=4 boss=False event=- journey=ch2 dest2 r=9.1km x2.82 a=1.00
+[rv] t=328s d=29086 on=3 boss=False event=- journey=ch2 dest2 r=9.1km x2.83 a=1.00
+[rv] t=329s d=29116 on=3 boss=False event=- journey=ch2 dest2 r=9.1km x2.85 a=1.00
+[rv] t=330s d=29144 on=7 boss=False event=- journey=ch2 dest2 r=9.1km x2.86 a=1.00
+[rv] t=331s d=29174 on=7 boss=False event=- journey=ch2 dest2 r=9.2km x2.87 a=1.00
+[rv] t=332s d=29203 on=2 boss=False event=- journey=ch2 dest2 r=9.2km x2.88 a=1.00
+[rv] t=333s d=29232 on=0 boss=False event=- journey=ch2 dest2 r=9.2km x2.89 a=1.00
+[rv] t=334s d=29260 on=0 boss=False event=- journey=ch2 dest2 r=9.3km x2.90 a=1.00
+[rv] t=335s d=29288 on=0 boss=False event=- journey=ch2 dest2 r=9.3km x2.92 a=1.00
+[rv] t=336s d=29316 on=5 boss=False event=- journey=ch2 dest2 r=9.3km x2.93 a=1.00
+[rv] t=337s d=29347 on=5 boss=False event=- journey=ch2 dest2 r=9.3km x2.94 a=1.00
+[rv] t=338s d=29376 on=0 boss=False event=- journey=ch2 dest2 r=9.4km x2.95 a=1.00
+[rv] t=339s d=29404 on=0 boss=False event=- journey=ch2 dest2 r=9.4km x2.96 a=1.00
+[rv] t=340s d=29432 on=0 boss=False event=- journey=ch2 dest2 r=9.4km x2.97 a=1.00
+[rv] t=341s d=29461 on=0 boss=False event=- journey=ch2 dest2 r=9.5km x2.98 a=1.00
+[rv] t=342s d=29489 on=0 boss=False event=- journey=ch2 dest2 r=9.5km x3.00 a=1.00
+[rv] t=343s d=29517 on=2 boss=False event=- journey=ch2 dest2 r=9.5km x3.01 a=1.00
+[rv] t=344s d=29545 on=0 boss=False event=- journey=ch2 dest2 r=9.5km x3.02 a=1.00
+[rv] t=345s d=29573 on=0 boss=False event=- journey=ch2 dest2 r=9.6km x3.03 a=1.00
+[rv] t=346s d=29601 on=0 boss=False event=- journey=ch2 dest2 r=9.6km x3.04 a=1.00
+[rv] t=347s d=29629 on=0 boss=False event=- journey=ch2 dest2 r=9.6km x3.05 a=1.00
+[rv] t=348s d=29657 on=0 boss=False event=- journey=ch2 dest2 r=9.7km x3.06 a=1.00
+[rv] t=349s d=29685 on=0 boss=False event=- journey=ch2 dest2 r=9.7km x3.07 a=1.00
+[rv] t=350s d=29713 on=6 boss=False event=- journey=ch2 dest2 r=9.7km x3.09 a=1.00
+[rv] t=351s d=29743 on=4 boss=False event=- journey=ch2 dest2 r=9.7km x3.10 a=1.00
+[rv] t=352s d=29772 on=2 boss=False event=- journey=ch2 dest2 r=9.8km x3.11 a=1.00
+[rv] t=353s d=29800 on=1 boss=False event=- journey=ch2 dest2 r=9.8km x3.12 a=1.00
+[rv] t=354s d=29827 on=1 boss=False event=- journey=ch2 dest2 r=9.8km x3.13 a=1.00
+[rv] t=355s d=29854 on=1 boss=False event=- journey=ch2 dest2 r=9.9km x3.14 a=1.00
+[rv] t=356s d=29881 on=1 boss=False event=- journey=ch2 dest2 r=9.9km x3.15 a=1.00
+[rv] t=357s d=29908 on=1 boss=False event=- journey=ch2 dest2 r=9.9km x3.16 a=1.00
+[rv] t=358s d=29937 on=0 boss=False event=- journey=ch2 dest2 r=9.9km x3.17 a=1.00
+[rv] t=359s d=29966 on=0 boss=False event=- journey=ch2 dest2 r=10.0km x3.19 a=1.00
+[rv] t=360s d=29994 on=0 boss=False event=- journey=ch2 dest2 r=10.0km x3.20 a=1.00
+[rv] t=361s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=362s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=363s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=364s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=365s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=366s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=367s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=368s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=369s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=370s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=371s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=372s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=373s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=374s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=375s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=376s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=377s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=378s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=379s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=381s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=382s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=383s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=384s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=385s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=386s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=387s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=388s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=389s d=30000 on=0 boss=True event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=390s d=30005 on=0 boss=False event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=391s d=30033 on=0 boss=False event=- journey=ch3 holding dest2 r=10.0km x3.20 a=1.00
+[rv] t=392s d=30061 on=0 boss=False event=- journey=ch3 gate 16/121m dest2 r=10.0km x3.20 a=0.60
+[rv] t=393s d=30089 on=0 boss=False event=- journey=ch3 gate 44/122m
+[rv] t=394s d=30117 on=0 boss=False event=- journey=ch3 gate 72/123m interior 0.23
+[rv] t=395s d=30145 on=0 boss=False event=- journey=ch3 gate 100/123m interior 0.81
+[rv] t=396s d=30174 on=2 boss=False event=- journey=ch3 interior 1.00
+[rv] t=397s d=30202 on=7 boss=False event=- journey=ch3 interior 1.00
+[rv] t=398s d=30230 on=3 boss=False event=- journey=ch3 interior 1.00
+[rv] t=399s d=30258 on=0 boss=False event=- journey=ch3 interior 1.00
+[rv] t=400s d=30287 on=0 boss=False event=- journey=ch3 interior 1.00
+[rv] t=401s d=30315 on=2 boss=False event=- journey=ch3 interior 1.00
+[rv] t=402s d=30344 on=3 boss=False event=- journey=ch3 interior 1.00
+[rv] t=403s d=30373 on=4 boss=False event=- journey=ch3 interior 1.00
+[rv] t=404s d=30403 on=7 boss=False event=- journey=ch3 interior 1.00
+[rv] t=405s d=30432 on=3 boss=False event=- journey=ch3 interior 1.00
+[rv] t=406s d=30461 on=1 boss=False event=- journey=ch3 interior 1.00
+[rv] t=407s d=30490 on=1 boss=False event=- journey=ch3 interior 1.00
+[rv] t=408s d=30518 on=4 boss=False event=- journey=ch3 interior 1.00
+[rv] t=409s d=30547 on=5 boss=False event=- journey=ch3 interior 1.00
+[rv] t=410s d=30576 on=5 boss=False event=- journey=ch3 interior 1.00
+[rv] t=411s d=30604 on=2 boss=False event=- journey=ch3 interior 1.00
+[rv] t=412s d=30633 on=0 boss=False event=- journey=ch3 interior 1.00
+[rv] t=413s d=30662 on=4 boss=False event=- journey=ch3 interior 1.00
+[rv] t=414s d=30690 on=5 boss=False event=- journey=ch3 interior 1.00
+[rv] t=415s d=30718 on=2 boss=False event=- journey=ch3 interior 1.00
+[rv] t=416s d=30746 on=4 boss=False event=- journey=ch3 interior 1.00
+[rv] t=417s d=30775 on=6 boss=False event=- journey=ch3 interior 1.00
+[rv] t=418s d=30805 on=3 boss=False event=- journey=ch3 interior 1.00
+[rv] t=419s d=30834 on=0 boss=False event=- journey=ch3 interior 1.00
+[rv] t=420s d=30862 on=1 boss=False event=- journey=ch3 interior 1.00
+[rv] t=421s d=30891 on=1 boss=False event=- journey=ch3 interior 1.00
+[rv] t=422s d=30918 on=0 boss=False event=- journey=ch3 interior 1.00
+[rv] t=423s d=30947 on=0 boss=False event=- journey=ch3 interior 1.00
+[rv] t=424s d=30975 on=5 boss=False event=- journey=ch3 interior 1.00
+[rv] t=425s d=31004 on=6 boss=False event=- journey=ch3 interior 1.00
+[rv] t=426s d=31033 on=3 boss=False event=- journey=ch3 interior 1.00
+[rv] t=427s d=31061 on=0 boss=False event=- journey=ch3 interior 1.00
+[rv] t=428s d=31090 on=0 boss=False event=- journey=ch3 interior 1.00
+[rv] t=429s d=31118 on=0 boss=False event=- journey=ch3 interior 1.00
+[rv] t=430s d=31146 on=0 boss=False event=- journey=ch3 interior 0.82
+[rv] t=431s d=31174 on=0 boss=False event=- journey=ch3 interior 0.59
+[rv] t=432s d=31203 on=3 boss=False event=- journey=ch3 interior 0.35
+[rv] t=433s d=31232 on=4 boss=False event=- journey=ch3 interior 0.11
+[rv] t=434s d=31262 on=1 boss=False event=- journey=ch3 dest3 r=1.3km x1.13 a=0.04
+[rv] t=435s d=31290 on=1 boss=False event=- journey=ch3 dest3 r=1.3km x1.13 a=0.11
+[rv] t=436s d=31318 on=2 boss=False event=- journey=ch3 dest3 r=1.3km x1.13 a=0.18
+[rv] t=437s d=31347 on=2 boss=False event=- journey=ch3 dest3 r=1.3km x1.13 a=0.25
+[rv] t=438s d=31375 on=1 boss=False event=- journey=ch3 dest3 r=1.4km x1.14 a=0.32
+[rv] t=439s d=31404 on=1 boss=False event=- journey=ch3 dest3 r=1.4km x1.14 a=0.40
+[rv] t=440s d=31432 on=2 boss=False event=- journey=ch3 dest3 r=1.4km x1.14 a=0.47
+[rv] t=441s d=31462 on=1 boss=False event=- journey=ch3 dest3 r=1.5km x1.15 a=0.54
+[rv] t=442s d=31492 on=1 boss=False event=- journey=ch3 dest3 r=1.5km x1.15 a=0.62
+[rv] t=443s d=31522 on=0 boss=False event=- journey=ch3 dest3 r=1.5km x1.15 a=0.69
+[rv] t=444s d=31550 on=0 boss=False event=- journey=ch3 dest3 r=1.5km x1.15 a=0.76
+[rv] t=445s d=31578 on=0 boss=False event=- journey=ch3 dest3 r=1.6km x1.16 a=0.83
+[rv] t=446s d=31606 on=0 boss=False event=- journey=ch3 dest3 r=1.6km x1.16 a=0.90
+[rv] t=448s d=31634 on=6 boss=False event=- journey=ch3 dest3 r=1.6km x1.16 a=0.97
+[rv] t=449s d=31663 on=7 boss=False event=- journey=ch3 dest3 r=1.7km x1.17 a=1.00
+[rv] t=450s d=31693 on=4 boss=False event=- journey=ch3 dest3 r=1.7km x1.17 a=1.00
+[rv] t=451s d=31722 on=0 boss=False event=- journey=ch3 dest3 r=1.7km x1.17 a=1.00
+[rv] t=452s d=31750 on=0 boss=False event=- journey=ch3 dest3 r=1.8km x1.18 a=1.00
+[rv] t=453s d=31779 on=0 boss=False event=- journey=ch3 dest3 r=1.8km x1.18 a=1.00
+[rv] t=454s d=31807 on=0 boss=False event=- journey=ch3 dest3 r=1.8km x1.18 a=1.00
+[rv] t=455s d=31835 on=0 boss=False event=- journey=ch3 dest3 r=1.8km x1.18 a=1.00
+[rv] t=456s d=31863 on=5 boss=False event=- journey=ch3 dest3 r=1.9km x1.19 a=1.00
+[rv] t=457s d=31892 on=4 boss=False event=- journey=ch3 dest3 r=1.9km x1.19 a=1.00
+[rv] t=458s d=31920 on=4 boss=False event=- journey=ch3 dest3 r=1.9km x1.19 a=1.00
+[rv] t=459s d=31948 on=1 boss=False event=- journey=ch3 dest3 r=1.9km x1.19 a=1.00
+[rv] t=460s d=31977 on=1 boss=False event=- journey=ch3 dest3 r=2.0km x1.20 a=1.00
+[rv] t=461s d=32005 on=3 boss=False event=- journey=ch3 dest3 r=2.0km x1.20 a=1.00
+[rv] t=462s d=32032 on=2 boss=False event=- journey=ch3 dest3 r=2.0km x1.20 a=1.00
+[rv] t=463s d=32059 on=4 boss=False event=- journey=ch3 dest3 r=2.1km x1.21 a=1.00
+[rv] t=464s d=32086 on=2 boss=False event=- journey=ch3 dest3 r=2.1km x1.21 a=1.00
+[rv] t=465s d=32115 on=3 boss=False event=- journey=ch3 dest3 r=2.1km x1.22 a=1.00
+[rv] t=466s d=32143 on=1 boss=False event=- journey=ch3 dest3 r=2.1km x1.22 a=1.00
+[rv] t=467s d=32171 on=3 boss=False event=- journey=ch3 dest3 r=2.2km x1.23 a=1.00
+[rv] t=468s d=32200 on=3 boss=False event=- journey=ch3 dest3 r=2.2km x1.23 a=1.00
+[rv] t=469s d=32230 on=1 boss=False event=- journey=ch3 dest3 r=2.2km x1.23 a=1.00
+[rv] t=470s d=32260 on=1 boss=False event=- journey=ch3 dest3 r=2.3km x1.24 a=1.00
+[rv] t=471s d=32288 on=2 boss=False event=- journey=ch3 dest3 r=2.3km x1.24 a=1.00
+[rv] t=472s d=32317 on=1 boss=False event=- journey=ch3 dest3 r=2.3km x1.25 a=1.00
+[rv] t=473s d=32347 on=3 boss=False event=- journey=ch3 dest3 r=2.3km x1.25 a=1.00
+[rv] t=474s d=32374 on=1 boss=False event=- journey=ch3 dest3 r=2.4km x1.26 a=1.00
+[rv] t=475s d=32404 on=1 boss=False event=- journey=ch3 dest3 r=2.4km x1.26 a=1.00
+[rv] t=476s d=32433 on=1 boss=False event=- journey=ch3 dest3 r=2.4km x1.26 a=1.00
+[rv] t=477s d=32463 on=1 boss=False event=- journey=ch3 dest3 r=2.5km x1.27 a=1.00
+[rv] t=478s d=32491 on=0 boss=False event=- journey=ch3 dest3 r=2.5km x1.27 a=1.00
+[rv] t=479s d=32520 on=0 boss=False event=- journey=ch3 dest3 r=2.5km x1.28 a=1.00
+[rv] t=480s d=32548 on=0 boss=False event=- journey=ch3 dest3 r=2.5km x1.28 a=1.00
+[rv] t=481s d=32576 on=0 boss=False event=- journey=ch3 dest3 r=2.6km x1.29 a=1.00
+[rv] t=482s d=32604 on=3 boss=False event=- journey=ch3 dest3 r=2.6km x1.29 a=1.00
+[rv] t=483s d=32634 on=4 boss=False event=- journey=ch3 dest3 r=2.6km x1.30 a=1.00
+[rv] t=484s d=32662 on=1 boss=False event=- journey=ch3 dest3 r=2.7km x1.30 a=1.00
+[rv] t=485s d=32691 on=7 boss=False event=- journey=ch3 dest3 r=2.7km x1.30 a=1.00
+[rv] t=486s d=32720 on=6 boss=False event=- journey=ch3 dest3 r=2.7km x1.31 a=1.00
+[rv] t=487s d=32750 on=4 boss=False event=- journey=ch3 dest3 r=2.7km x1.31 a=1.00
+[rv] t=488s d=32779 on=0 boss=False event=- journey=ch3 dest3 r=2.8km x1.32 a=1.00
+[rv] t=489s d=32807 on=0 boss=False event=- journey=ch3 dest3 r=2.8km x1.32 a=1.00
+[rv] t=490s d=32835 on=0 boss=False event=- journey=ch3 dest3 r=2.8km x1.33 a=1.00
+[rv] t=491s d=32863 on=0 boss=False event=- journey=ch3 dest3 r=2.9km x1.33 a=1.00
+[rv] t=492s d=32891 on=4 boss=False event=- journey=ch3 dest3 r=2.9km x1.33 a=1.00
+[rv] t=493s d=32920 on=5 boss=False event=- journey=ch3 dest3 r=2.9km x1.34 a=1.00
+[rv] t=494s d=32950 on=2 boss=False event=- journey=ch3 dest3 r=2.9km x1.34 a=1.00
+[rv] t=495s d=32980 on=2 boss=False event=- journey=ch3 dest3 r=3.0km x1.35 a=1.00
+[rv] t=496s d=33008 on=1 boss=False event=- journey=ch3 dest3 r=3.0km x1.35 a=1.00
+[rv] t=497s d=33037 on=3 boss=False event=- journey=ch3 dest3 r=3.0km x1.36 a=1.00
+[rv] t=498s d=33066 on=1 boss=False event=- journey=ch3 dest3 r=3.1km x1.36 a=1.00
+[rv] t=499s d=33095 on=0 boss=False event=- journey=ch3 dest3 r=3.1km x1.36 a=1.00
+[rv] t=500s d=33123 on=5 boss=False event=- journey=ch3 dest3 r=3.1km x1.37 a=1.00
+[rv] t=501s d=33152 on=5 boss=False event=- journey=ch3 dest3 r=3.2km x1.37 a=1.00
+[rv] t=502s d=33181 on=2 boss=False event=- journey=ch3 dest3 r=3.2km x1.38 a=1.00
+[rv] t=503s d=33209 on=0 boss=False event=- journey=ch3 dest3 r=3.2km x1.38 a=1.00
+[rv] t=504s d=33238 on=3 boss=False event=- journey=ch3 dest3 r=3.2km x1.39 a=1.00
+[rv] t=505s d=33266 on=2 boss=False event=- journey=ch3 dest3 r=3.3km x1.39 a=1.00
+[rv] t=506s d=33294 on=2 boss=False event=- journey=ch3 dest3 r=3.3km x1.39 a=1.00
+[rv] t=507s d=33323 on=0 boss=False event=- journey=ch3 dest3 r=3.3km x1.40 a=1.00
+[rv] t=508s d=33351 on=0 boss=False event=- journey=ch3 dest3 r=3.4km x1.40 a=1.00
+[rv] t=509s d=33379 on=0 boss=False event=- journey=ch3 dest3 r=3.4km x1.41 a=1.00
+[rv] t=510s d=33408 on=0 boss=False event=- journey=ch3 dest3 r=3.4km x1.41 a=1.00
+[rv] t=511s d=33435 on=0 boss=False event=- journey=ch3 dest3 r=3.4km x1.42 a=1.00
+[rv] t=513s d=33464 on=3 boss=False event=- journey=ch3 dest3 r=3.5km x1.42 a=1.00
+[rv] t=514s d=33492 on=3 boss=False event=- journey=ch3 dest3 r=3.5km x1.42 a=1.00
+[rv] t=515s d=33521 on=3 boss=False event=- journey=ch3 dest3 r=3.5km x1.43 a=1.00
+[rv] t=516s d=33550 on=4 boss=False event=- journey=ch3 dest3 r=3.5km x1.43 a=1.00
+[rv] t=517s d=33579 on=3 boss=False event=- journey=ch3 dest3 r=3.6km x1.44 a=1.00
+[rv] t=518s d=33609 on=3 boss=False event=- journey=ch3 dest3 r=3.6km x1.44 a=1.00
+[rv] t=519s d=33638 on=4 boss=False event=- journey=ch3 dest3 r=3.6km x1.45 a=1.00
+[rv] t=520s d=33666 on=3 boss=False event=- journey=ch3 dest3 r=3.7km x1.45 a=1.00
+[rv] t=521s d=33696 on=2 boss=False event=- journey=ch3 dest3 r=3.7km x1.45 a=1.00
+[rv] t=522s d=33726 on=0 boss=False event=- journey=ch3 dest3 r=3.7km x1.46 a=1.00
+[rv] t=523s d=33754 on=4 boss=False event=- journey=ch3 dest3 r=3.8km x1.46 a=1.00
+[rv] t=524s d=33783 on=6 boss=False event=- journey=ch3 dest3 r=3.8km x1.47 a=1.00
+[rv] t=525s d=33813 on=1 boss=False event=- journey=ch3 dest3 r=3.8km x1.47 a=1.00
+[rv] t=526s d=33842 on=0 boss=False event=- journey=ch3 dest3 r=3.8km x1.48 a=1.00
+[rv] t=527s d=33870 on=0 boss=False event=- journey=ch3 dest3 r=3.9km x1.48 a=1.00
+[rv] t=528s d=33898 on=0 boss=False event=- journey=ch3 dest3 r=3.9km x1.48 a=1.00
+[rv] t=529s d=33926 on=0 boss=False event=- journey=ch3 dest3 r=3.9km x1.49 a=1.00
+[rv] t=530s d=33955 on=7 boss=False event=- journey=ch3 dest3 r=4.0km x1.49 a=1.00
+[rv] t=531s d=33984 on=6 boss=False event=- journey=ch3 dest3 r=4.0km x1.50 a=1.00
+[rv] t=532s d=34011 on=4 boss=False event=- journey=ch3 dest3 r=4.0km x1.50 a=1.00
+[rv] t=533s d=34040 on=2 boss=False event=- journey=ch3 dest3 r=4.0km x1.51 a=1.00
+[rv] t=534s d=34068 on=2 boss=False event=- journey=ch3 dest3 r=4.1km x1.51 a=1.00
+[rv] t=535s d=34096 on=1 boss=False event=- journey=ch3 dest3 r=4.1km x1.52 a=1.00
+[rv] t=536s d=34125 on=3 boss=False event=- journey=ch3 dest3 r=4.1km x1.52 a=1.00
+[rv] t=537s d=34155 on=1 boss=False event=- journey=ch3 dest3 r=4.2km x1.53 a=1.00
+[rv] t=538s d=34185 on=3 boss=False event=- journey=ch3 dest3 r=4.2km x1.54 a=1.00
+[rv] t=539s d=34214 on=1 boss=False event=- journey=ch3 dest3 r=4.2km x1.54 a=1.00
+[rv] t=540s d=34243 on=1 boss=False event=- journey=ch3 dest3 r=4.2km x1.55 a=1.00
+[rv] t=541s d=34273 on=3 boss=False event=- journey=ch3 dest3 r=4.3km x1.55 a=1.00
+[rv] t=542s d=34302 on=1 boss=False event=- journey=ch3 dest3 r=4.3km x1.56 a=1.00
+[rv] t=543s d=34330 on=3 boss=False event=- journey=ch3 dest3 r=4.3km x1.57 a=1.00
+[rv] t=544s d=34360 on=1 boss=False event=- journey=ch3 dest3 r=4.4km x1.57 a=1.00
+[rv] t=545s d=34389 on=1 boss=False event=- journey=ch3 dest3 r=4.4km x1.58 a=1.00
+[rv] t=546s d=34420 on=0 boss=False event=- journey=ch3 dest3 r=4.4km x1.58 a=1.00
+[rv] t=547s d=34448 on=0 boss=False event=- journey=ch3 dest3 r=4.4km x1.59 a=1.00
+[rv] t=548s d=34477 on=0 boss=False event=- journey=ch3 dest3 r=4.5km x1.60 a=1.00
+[rv] t=549s d=34505 on=0 boss=False event=- journey=ch3 dest3 r=4.5km x1.60 a=1.00
+[rv] t=550s d=34533 on=0 boss=False event=- journey=ch3 dest3 r=4.5km x1.61 a=1.00
+[rv] t=551s d=34561 on=1 boss=False event=- journey=ch3 dest3 r=4.6km x1.61 a=1.00
+[rv] t=552s d=34590 on=3 boss=False event=- journey=ch3 dest3 r=4.6km x1.62 a=1.00
+[rv] t=553s d=34618 on=1 boss=False event=- journey=ch3 dest3 r=4.6km x1.62 a=1.00
+[rv] t=554s d=34646 on=0 boss=False event=- journey=ch3 dest3 r=4.6km x1.63 a=1.00
+[rv] t=555s d=34674 on=0 boss=False event=- journey=ch3 dest3 r=4.7km x1.63 a=1.00
+[rv] t=556s d=34702 on=3 boss=False event=- journey=ch3 dest3 r=4.7km x1.64 a=1.00
+[rv] t=557s d=34731 on=3 boss=False event=- journey=ch3 dest3 r=4.7km x1.65 a=1.00
+[rv] t=558s d=34760 on=4 boss=False event=- journey=ch3 dest3 r=4.8km x1.65 a=1.00
+[rv] t=559s d=34789 on=5 boss=False event=- journey=ch3 dest3 r=4.8km x1.66 a=1.00
+[rv] t=560s d=34819 on=2 boss=False event=- journey=ch3 dest3 r=4.8km x1.66 a=1.00
+[rv] t=561s d=34849 on=2 boss=False event=- journey=ch3 dest3 r=4.8km x1.67 a=1.00
+[rv] t=562s d=34878 on=0 boss=False event=- journey=ch3 dest3 r=4.9km x1.68 a=1.00
+[rv] t=563s d=34906 on=0 boss=False event=- journey=ch3 dest3 r=4.9km x1.68 a=1.00
+[rv] t=564s d=34934 on=0 boss=False event=- journey=ch3 dest3 r=4.9km x1.69 a=1.00
+[rv] t=565s d=34962 on=0 boss=False event=- journey=ch3 dest3 r=5.0km x1.69 a=1.00
+[rv] t=566s d=34990 on=3 boss=False event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=567s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=568s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=569s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=570s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=571s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=572s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=573s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=574s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=575s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=576s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=578s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=579s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=580s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=581s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=582s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=583s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=584s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=585s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=586s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=587s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=588s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=589s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=590s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=591s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=592s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=593s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=594s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=595s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=596s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=597s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=598s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=599s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=600s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=601s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=602s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=603s d=35000 on=0 boss=True event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00
+[rv] t=604s d=35009 on=0 boss=False event=- journey=ch3 dest3 r=5.0km x1.70 a=1.00 milestone
+[rv] t=605s d=35036 on=0 boss=False event=- journey=ch3 dest3 r=5.0km x1.71 a=1.00 milestone
+[rv] t=606s d=35063 on=1 boss=False event=- journey=ch3 dest3 r=5.1km x1.71 a=1.00 milestone
+[rv] t=607s d=35090 on=1 boss=False event=- journey=ch3 dest3 r=5.1km x1.72 a=1.00
+[rv] t=608s d=35108 on=1 boss=False event=- journey=ch3 dest3 r=5.1km x1.72 a=1.00
+[rv] t=609s d=35131 on=1 boss=False event=- journey=ch3 dest3 r=5.1km x1.73 a=1.00
+[rv] t=610s d=35158 on=1 boss=False event=- journey=ch3 dest3 r=5.2km x1.73 a=1.00
+[rv] t=611s d=35186 on=1 boss=False event=- journey=ch3 dest3 r=5.2km x1.74 a=1.00
+[rv] t=612s d=35213 on=2 boss=False event=- journey=ch3 dest3 r=5.2km x1.74 a=1.00
+[rv] t=613s d=35242 on=2 boss=False event=- journey=ch3 dest3 r=5.2km x1.75 a=1.00
+[rv] t=614s d=35269 on=2 boss=False event=- journey=ch3 dest3 r=5.3km x1.75 a=1.00
+[rv] t=615s d=35296 on=2 boss=False event=- journey=ch3 dest3 r=5.3km x1.76 a=1.00
+[rv] t=616s d=35324 on=2 boss=False event=- journey=ch3 dest3 r=5.3km x1.76 a=1.00
+[rv] t=617s d=35352 on=2 boss=False event=- journey=ch3 dest3 r=5.4km x1.77 a=1.00
+[rv] t=618s d=35379 on=0 boss=False event=- journey=ch3 dest3 r=5.4km x1.78 a=1.00
+[rv] t=619s d=35406 on=0 boss=False event=- journey=ch3 dest3 r=5.4km x1.78 a=1.00
+[rv] t=620s d=35433 on=0 boss=False event=- journey=ch3 dest3 r=5.4km x1.79 a=1.00
+[rv] t=621s d=35460 on=0 boss=False event=- journey=ch3 dest3 r=5.5km x1.79 a=1.00
+[rv] t=622s d=35487 on=0 boss=False event=- journey=ch3 dest3 r=5.5km x1.80 a=1.00
+[rv] t=623s d=35513 on=0 boss=False event=- journey=ch3 dest3 r=5.5km x1.80 a=1.00
+[rv] t=624s d=35541 on=0 boss=False event=- journey=ch3 dest3 r=5.5km x1.81 a=1.00
+[rv] t=625s d=35568 on=2 boss=False event=- journey=ch3 dest3 r=5.6km x1.81 a=1.00
+[rv] t=626s d=35595 on=3 boss=False event=- journey=ch3 dest3 r=5.6km x1.82 a=1.00
+[rv] t=627s d=35622 on=6 boss=False event=- journey=ch3 dest3 r=5.6km x1.82 a=1.00
+[rv] t=628s d=35651 on=6 boss=False event=- journey=ch3 dest3 r=5.7km x1.83 a=1.00
+[rv] t=629s d=35679 on=2 boss=False event=- journey=ch3 dest3 r=5.7km x1.84 a=1.00
+[rv] t=630s d=35709 on=1 boss=False event=- journey=ch3 dest3 r=5.7km x1.84 a=1.00
+[rv] t=631s d=35735 on=1 boss=False event=- journey=ch3 dest3 r=5.7km x1.85 a=1.00
+[rv] t=632s d=35761 on=1 boss=False event=- journey=ch3 dest3 r=5.8km x1.85 a=1.00
+[rv] t=633s d=35787 on=1 boss=False event=- journey=ch3 dest3 r=5.8km x1.86 a=1.00
+[rv] t=634s d=35812 on=5 boss=False event=- journey=ch3 dest3 r=5.8km x1.86 a=1.00
+[rv] t=635s d=35839 on=7 boss=False event=- journey=ch3 dest3 r=5.8km x1.87 a=1.00
+[rv] t=636s d=35866 on=1 boss=False event=- journey=ch3 dest3 r=5.9km x1.87 a=1.00
+[rv] t=637s d=35894 on=0 boss=False event=- journey=ch3 dest3 r=5.9km x1.88 a=1.00
+[rv] t=638s d=35920 on=0 boss=False event=- journey=ch3 dest3 r=5.9km x1.88 a=1.00
+[rv] t=639s d=35947 on=0 boss=False event=- journey=ch3 dest3 r=5.9km x1.89 a=1.00
+[rv] t=640s d=35975 on=0 boss=False event=- journey=ch3 dest3 r=6.0km x1.89 a=1.00
+[rv] t=641s d=36002 on=3 boss=False event=- journey=ch3 dest3 r=6.0km x1.90 a=1.00
+[rv] t=642s d=36028 on=6 boss=False event=- journey=ch3 dest3 r=6.0km x1.91 a=1.00
+[rv] t=643s d=36057 on=3 boss=False event=- journey=ch3 dest3 r=6.1km x1.91 a=1.00
+[rv] t=644s d=36084 on=1 boss=False event=- journey=ch3 dest3 r=6.1km x1.92 a=1.00
+[rv] t=645s d=36111 on=0 boss=False event=- journey=ch3 dest3 r=6.1km x1.93 a=1.00
+[rv] t=647s d=36138 on=1 boss=False event=- journey=ch3 dest3 r=6.1km x1.93 a=1.00
+[rv] t=648s d=36165 on=2 boss=False event=- journey=ch3 dest3 r=6.2km x1.94 a=1.00
+[rv] t=649s d=36194 on=2 boss=False event=- journey=ch3 dest3 r=6.2km x1.95 a=1.00
+[rv] t=650s d=36222 on=3 boss=False event=- journey=ch3 dest3 r=6.2km x1.96 a=1.00
+[rv] t=651s d=36235 on=2 boss=False event=- journey=ch3 dest3 r=6.2km x1.96 a=1.00
+[rv] t=652s d=36263 on=2 boss=False event=- journey=ch3 dest3 r=6.3km x1.97 a=1.00
+[rv] t=653s d=36291 on=0 boss=False event=- journey=ch3 dest3 r=6.3km x1.97 a=1.00
+[rv] t=654s d=36318 on=0 boss=False event=- journey=ch3 dest3 r=6.3km x1.98 a=1.00
+[rv] t=655s d=36345 on=0 boss=False event=- journey=ch3 dest3 r=6.3km x1.99 a=1.00
+[rv] t=656s d=36372 on=0 boss=False event=- journey=ch3 dest3 r=6.4km x1.99 a=1.00
+[rv] t=657s d=36399 on=1 boss=False event=- journey=ch3 dest3 r=6.4km x2.00 a=1.00
+[rv] t=658s d=36426 on=7 boss=False event=- journey=ch3 dest3 r=6.4km x2.01 a=1.00
+[rv] t=659s d=36454 on=5 boss=False event=- journey=ch3 dest3 r=6.5km x2.01 a=1.00
+[rv] t=660s d=36482 on=0 boss=False event=- journey=ch3 dest3 r=6.5km x2.02 a=1.00
+[rv] t=661s d=36509 on=2 boss=False event=- journey=ch3 dest3 r=6.5km x2.03 a=1.00
+[rv] t=662s d=36537 on=4 boss=False event=- journey=ch3 dest3 r=6.5km x2.03 a=1.00
+[rv] t=663s d=36564 on=2 boss=False event=- journey=ch3 dest3 r=6.6km x2.04 a=1.00
+[rv] t=664s d=36592 on=1 boss=False event=- journey=ch3 dest3 r=6.6km x2.05 a=1.00
+[rv] t=665s d=36620 on=7 boss=False event=- journey=ch3 dest3 r=6.6km x2.05 a=1.00
+[rv] t=666s d=36648 on=6 boss=False event=- journey=ch3 dest3 r=6.6km x2.06 a=1.00
+[rv] t=667s d=36677 on=5 boss=False event=- journey=ch3 dest3 r=6.7km x2.07 a=1.00
+[rv] t=668s d=36703 on=1 boss=False event=- journey=ch3 dest3 r=6.7km x2.08 a=1.00
+[rv] t=669s d=36729 on=1 boss=False event=- journey=ch3 dest3 r=6.7km x2.08 a=1.00
+[rv] t=670s d=36755 on=4 boss=False event=- journey=ch3 dest3 r=6.8km x2.09 a=1.00
+[rv] t=671s d=36781 on=3 boss=False event=- journey=ch3 dest3 r=6.8km x2.10 a=1.00
+[rv] t=672s d=36807 on=1 boss=False event=- journey=ch3 dest3 r=6.8km x2.10 a=1.00
+[rv] t=673s d=36834 on=1 boss=False event=- journey=ch3 dest3 r=6.8km x2.11 a=1.00
+[rv] t=674s d=36862 on=0 boss=False event=- journey=ch3 dest3 r=6.9km x2.12 a=1.00
+[rv] t=675s d=36889 on=0 boss=False event=- journey=ch3 dest3 r=6.9km x2.12 a=1.00
+[rv] t=676s d=36915 on=1 boss=False event=- journey=ch3 dest3 r=6.9km x2.13 a=1.00
+[rv] t=677s d=36944 on=2 boss=False event=- journey=ch3 dest3 r=6.9km x2.14 a=1.00
+[rv] t=678s d=36971 on=1 boss=False event=- journey=ch3 dest3 r=7.0km x2.14 a=1.00
+[rv] t=679s d=36998 on=0 boss=False event=- journey=ch3 dest3 r=7.0km x2.15 a=1.00
+[rv] t=680s d=37025 on=0 boss=False event=- journey=ch3 dest3 r=7.0km x2.16 a=1.00
+[rv] t=681s d=37052 on=0 boss=False event=- journey=ch3 dest3 r=7.1km x2.16 a=1.00
+[rv] t=682s d=37079 on=0 boss=False event=- journey=ch3 dest3 r=7.1km x2.17 a=1.00
+[rv] t=683s d=37106 on=1 boss=False event=- journey=ch3 dest3 r=7.1km x2.18 a=1.00
+[rv] t=684s d=37133 on=3 boss=False event=- journey=ch3 dest3 r=7.1km x2.18 a=1.00
+[rv] t=685s d=37162 on=3 boss=False event=- journey=ch3 dest3 r=7.2km x2.19 a=1.00
+[rv] t=686s d=37190 on=6 boss=False event=- journey=ch3 dest3 r=7.2km x2.20 a=1.00
+[rv] t=687s d=37217 on=10 boss=False event=- journey=ch3 dest3 r=7.2km x2.20 a=1.00
+[rv] t=688s d=37246 on=4 boss=False event=- journey=ch3 dest3 r=7.2km x2.21 a=1.00
+[rv] t=689s d=37274 on=4 boss=False event=- journey=ch3 dest3 r=7.3km x2.22 a=1.00
+[rv] t=690s d=37303 on=3 boss=False event=- journey=ch3 dest3 r=7.3km x2.23 a=1.00
+[rv] t=691s d=37330 on=5 boss=False event=- journey=ch3 dest3 r=7.3km x2.23 a=1.00
+[rv] t=692s d=37358 on=4 boss=False event=- journey=ch3 dest3 r=7.4km x2.24 a=1.00
+[rv] t=693s d=37385 on=2 boss=False event=- journey=ch3 dest3 r=7.4km x2.25 a=1.00
+[rv] t=694s d=37412 on=2 boss=False event=- journey=ch3 dest3 r=7.4km x2.25 a=1.00
+[rv] t=695s d=37439 on=3 boss=False event=- journey=ch3 dest3 r=7.4km x2.26 a=1.00
+[rv] t=696s d=37467 on=2 boss=False event=- journey=ch3 dest3 r=7.5km x2.27 a=1.00
+[rv] t=697s d=37494 on=0 boss=False event=- journey=ch3 dest3 r=7.5km x2.27 a=1.00
+[rv] t=698s d=37521 on=0 boss=False event=- journey=ch3 dest3 r=7.5km x2.28 a=1.00
+[rv] t=699s d=37548 on=0 boss=False event=- journey=ch3 dest3 r=7.5km x2.29 a=1.00
+[rv] t=700s d=37575 on=0 boss=False event=- journey=ch3 dest3 r=7.6km x2.29 a=1.00
+[rv] t=701s d=37602 on=2 boss=False event=- journey=ch3 dest3 r=7.6km x2.30 a=1.00
+[rv] t=702s d=37630 on=5 boss=False event=- journey=ch3 dest3 r=7.6km x2.31 a=1.00
+[rv] t=703s d=37659 on=3 boss=False event=- journey=ch3 dest3 r=7.7km x2.31 a=1.00
+[rv] t=704s d=37687 on=0 boss=False event=- journey=ch3 dest3 r=7.7km x2.32 a=1.00
+[rv] t=705s d=37714 on=0 boss=False event=- journey=ch3 dest3 r=7.7km x2.33 a=1.00
+[rv] t=706s d=37741 on=0 boss=False event=- journey=ch3 dest3 r=7.7km x2.34 a=1.00
+[rv] t=707s d=37768 on=2 boss=False event=- journey=ch3 dest3 r=7.8km x2.34 a=1.00
+[rv] t=708s d=37795 on=5 boss=False event=- journey=ch3 dest3 r=7.8km x2.35 a=1.00
+[rv] t=709s d=37823 on=3 boss=False event=- journey=ch3 dest3 r=7.8km x2.36 a=1.00
+[rv] t=710s d=37851 on=2 boss=False event=- journey=ch3 dest3 r=7.9km x2.36 a=1.00
+[rv] t=712s d=37878 on=3 boss=False event=- journey=ch3 dest3 r=7.9km x2.37 a=1.00
+[rv] t=713s d=37907 on=3 boss=False event=- journey=ch3 dest3 r=7.9km x2.38 a=1.00
+[rv] t=714s d=37935 on=0 boss=False event=- journey=ch3 dest3 r=7.9km x2.38 a=1.00
+[rv] t=715s d=37962 on=0 boss=False event=- journey=ch3 dest3 r=8.0km x2.39 a=1.00
+[rv] t=716s d=37989 on=0 boss=False event=- journey=ch3 dest3 r=8.0km x2.40 a=1.00
+[rv] t=717s d=38016 on=0 boss=False event=- journey=ch3 dest3 r=8.0km x2.41 a=1.00
+[rv] t=718s d=38043 on=0 boss=False event=- journey=ch3 dest3 r=8.0km x2.42 a=1.00
+[rv] t=719s d=38070 on=3 boss=False event=- journey=ch3 dest3 r=8.1km x2.43 a=1.00
+[rv] t=720s d=38097 on=7 boss=False event=- journey=ch3 dest3 r=8.1km x2.44 a=1.00
+[rv] t=721s d=38125 on=4 boss=False event=- journey=ch3 dest3 r=8.1km x2.45 a=1.00
+[rv] t=722s d=38154 on=1 boss=False event=- journey=ch3 dest3 r=8.2km x2.46 a=1.00
+[rv] t=723s d=38181 on=1 boss=False event=- journey=ch3 dest3 r=8.2km x2.47 a=1.00
+[rv] t=724s d=38206 on=1 boss=False event=- journey=ch3 dest3 r=8.2km x2.48 a=1.00
+[rv] t=725s d=38233 on=1 boss=False event=- journey=ch3 dest3 r=8.2km x2.49 a=1.00
+[rv] t=726s d=38259 on=1 boss=False event=- journey=ch3 dest3 r=8.3km x2.50 a=1.00
+[rv] t=727s d=38285 on=2 boss=False event=- journey=ch3 dest3 r=8.3km x2.51 a=1.00
+[rv] t=728s d=38311 on=3 boss=False event=- journey=ch3 dest3 r=8.3km x2.52 a=1.00
+[rv] t=729s d=38339 on=0 boss=False event=- journey=ch3 dest3 r=8.3km x2.54 a=1.00
+[rv] t=730s d=38366 on=0 boss=False event=- journey=ch3 dest3 r=8.4km x2.55 a=1.00
+[rv] t=731s d=38393 on=1 boss=False event=- journey=ch3 dest3 r=8.4km x2.56 a=1.00
+[rv] t=732s d=38420 on=3 boss=False event=- journey=ch3 dest3 r=8.4km x2.57 a=1.00
+[rv] t=733s d=38448 on=3 boss=False event=- journey=ch3 dest3 r=8.4km x2.58 a=1.00
+[rv] t=734s d=38475 on=2 boss=False event=- journey=ch3 dest3 r=8.5km x2.59 a=1.00
+[rv] t=735s d=38503 on=0 boss=False event=- journey=ch3 dest3 r=8.5km x2.60 a=1.00
+[rv] t=736s d=38530 on=0 boss=False event=- journey=ch3 dest3 r=8.5km x2.61 a=1.00
+[rv] t=737s d=38557 on=0 boss=False event=- journey=ch3 dest3 r=8.6km x2.62 a=1.00
+[rv] t=738s d=38584 on=0 boss=False event=- journey=ch3 dest3 r=8.6km x2.63 a=1.00
+[rv] t=739s d=38611 on=0 boss=False event=- journey=ch3 dest3 r=8.6km x2.64 a=1.00
+[rv] t=740s d=38638 on=2 boss=False event=- journey=ch3 dest3 r=8.6km x2.66 a=1.00
+[rv] t=741s d=38665 on=0 boss=False event=- journey=ch3 dest3 r=8.7km x2.67 a=1.00
+[rv] t=742s d=38692 on=6 boss=False event=- journey=ch3 dest3 r=8.7km x2.68 a=1.00
+[rv] t=743s d=38719 on=7 boss=False event=- journey=ch3 dest3 r=8.7km x2.69 a=1.00
+[rv] t=744s d=38746 on=0 boss=False event=- journey=ch3 dest3 r=8.7km x2.70 a=1.00
+[rv] t=745s d=38773 on=0 boss=False event=- journey=ch3 dest3 r=8.8km x2.71 a=1.00
+[rv] t=746s d=38801 on=0 boss=False event=- journey=ch3 dest3 r=8.8km x2.72 a=1.00
+[rv] t=747s d=38827 on=2 boss=False event=- journey=ch3 dest3 r=8.8km x2.73 a=1.00
+[rv] t=748s d=38855 on=4 boss=False event=- journey=ch3 dest3 r=8.9km x2.74 a=1.00
+[rv] t=749s d=38881 on=2 boss=False event=- journey=ch3 dest3 r=8.9km x2.75 a=1.00
+[rv] t=750s d=38896 on=0 boss=False event=- journey=ch3 dest3 r=8.9km x2.76 a=1.00
+[rv] t=751s d=38923 on=3 boss=False event=- journey=ch3 dest3 r=8.9km x2.77 a=1.00
+[rv] t=752s d=38950 on=6 boss=False event=- journey=ch3 dest3 r=8.9km x2.78 a=1.00
+[rv] t=753s d=38978 on=3 boss=False event=- journey=ch3 dest3 r=9.0km x2.79 a=1.00
+[rv] t=754s d=39005 on=0 boss=False event=- journey=ch3 dest3 r=9.0km x2.80 a=1.00
+[rv] t=755s d=39032 on=0 boss=False event=- journey=ch3 dest3 r=9.0km x2.81 a=1.00
+[rv] t=756s d=39059 on=2 boss=False event=- journey=ch3 dest3 r=9.1km x2.82 a=1.00
+[rv] t=757s d=39087 on=1 boss=False event=- journey=ch3 dest3 r=9.1km x2.83 a=1.00
+[rv] t=758s d=39115 on=4 boss=False event=- journey=ch3 dest3 r=9.1km x2.85 a=1.00
+[rv] t=759s d=39142 on=4 boss=False event=- journey=ch3 dest3 r=9.1km x2.86 a=1.00
+[rv] t=760s d=39170 on=2 boss=False event=- journey=ch3 dest3 r=9.2km x2.87 a=1.00
+[rv] t=761s d=39198 on=1 boss=False event=- journey=ch3 dest3 r=9.2km x2.88 a=1.00
+[rv] t=762s d=39224 on=0 boss=False event=- journey=ch3 dest3 r=9.2km x2.89 a=1.00
+[rv] t=763s d=39251 on=0 boss=False event=- journey=ch3 dest3 r=9.3km x2.90 a=1.00
+[rv] t=764s d=39278 on=2 boss=False event=- journey=ch3 dest3 r=9.3km x2.91 a=1.00
+[rv] t=765s d=39306 on=2 boss=False event=- journey=ch3 dest3 r=9.3km x2.92 a=1.00
+[rv] t=766s d=39333 on=3 boss=False event=- journey=ch3 dest3 r=9.3km x2.93 a=1.00
+[rv] t=767s d=39361 on=0 boss=False event=- journey=ch3 dest3 r=9.4km x2.94 a=1.00
+[rv] t=768s d=39388 on=0 boss=False event=- journey=ch3 dest3 r=9.4km x2.96 a=1.00
+[rv] t=769s d=39415 on=0 boss=False event=- journey=ch3 dest3 r=9.4km x2.97 a=1.00
+[rv] t=770s d=39442 on=0 boss=False event=- journey=ch3 dest3 r=9.4km x2.98 a=1.00
+[rv] t=771s d=39462 on=0 boss=False event=- journey=ch3 dest3 r=9.5km x2.98 a=1.00
+[rv] t=772s d=39483 on=0 boss=False event=- journey=ch3 dest3 r=9.5km x2.99 a=1.00
+[rv] t=773s d=39510 on=0 boss=False event=- journey=ch3 dest3 r=9.5km x3.00 a=1.00
+[rv] t=774s d=39537 on=2 boss=False event=- journey=ch3 dest3 r=9.5km x3.01 a=1.00
+[rv] t=775s d=39564 on=2 boss=False event=- journey=ch3 dest3 r=9.6km x3.03 a=1.00
+[rv] t=776s d=39590 on=1 boss=False event=- journey=ch3 dest3 r=9.6km x3.04 a=1.00
+[rv] t=777s d=39618 on=0 boss=False event=- journey=ch3 dest3 r=9.6km x3.05 a=1.00
+[rv] t=778s d=39645 on=0 boss=False event=- journey=ch3 dest3 r=9.6km x3.06 a=1.00
+[rv] t=779s d=39672 on=0 boss=False event=- journey=ch3 dest3 r=9.7km x3.07 a=1.00
+[rv] t=780s d=39699 on=0 boss=False event=- journey=ch3 dest3 r=9.7km x3.08 a=1.00
+[rv] t=781s d=39726 on=0 boss=False event=- journey=ch3 dest3 r=9.7km x3.09 a=1.00
+[rv] t=783s d=39753 on=0 boss=False event=- journey=ch3 dest3 r=9.8km x3.10 a=1.00
+[rv] t=784s d=39780 on=0 boss=False event=- journey=ch3 dest3 r=9.8km x3.11 a=1.00
+[rv] t=785s d=39807 on=0 boss=False event=- journey=ch3 dest3 r=9.8km x3.12 a=1.00
+[rv] t=786s d=39834 on=0 boss=False event=- journey=ch3 dest3 r=9.8km x3.13 a=1.00
+[rv] t=787s d=39861 on=0 boss=False event=- journey=ch3 dest3 r=9.9km x3.14 a=1.00
+[rv] t=788s d=39888 on=0 boss=False event=- journey=ch3 dest3 r=9.9km x3.15 a=1.00
+[rv] t=789s d=39915 on=0 boss=False event=- journey=ch3 dest3 r=9.9km x3.17 a=1.00
+[rv] t=790s d=39942 on=0 boss=False event=- journey=ch3 dest3 r=9.9km x3.18 a=1.00
+[rv] t=791s d=39969 on=0 boss=False event=- journey=ch3 dest3 r=10.0km x3.19 a=1.00
+[rv] t=792s d=39996 on=3 boss=False event=- journey=ch3 dest3 r=10.0km x3.20 a=1.00
+[rv] t=793s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=794s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=795s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=796s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=797s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=798s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=799s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=800s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=801s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=802s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=803s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=804s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=805s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=806s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=807s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=808s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=809s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=810s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=811s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=812s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=813s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=814s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=815s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=816s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=817s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=818s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=819s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=820s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=821s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=822s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=823s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=824s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=825s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=826s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=827s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=828s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=829s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=830s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=831s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=832s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=833s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=834s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=835s d=40000 on=0 boss=True event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=836s d=40015 on=0 boss=False event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=837s d=40042 on=0 boss=False event=- journey=ch4 holding dest3 r=10.0km x3.20 a=1.00
+[rv] t=838s d=40055 on=0 boss=False event=- journey=ch4 gate 11/121m dest3 r=10.0km x3.20 a=0.73
+[rv] t=839s d=40082 on=0 boss=False event=- journey=ch4 gate 38/123m dest3 r=10.0km x3.20 a=0.05
+[rv] t=840s d=40109 on=0 boss=False event=- journey=ch4 gate 65/123m interior 0.07
+[rv] t=841s d=40136 on=0 boss=False event=- journey=ch4 gate 92/123m interior 0.63
+[rv] t=842s d=40163 on=0 boss=False event=- journey=ch4 gate 119/123m interior 1.00
+[rv] t=843s d=40190 on=3 boss=False event=- journey=ch4 interior 1.00
+[rv] t=844s d=40218 on=1 boss=False event=- journey=ch4 interior 1.00
+[rv] t=845s d=40246 on=2 boss=False event=- journey=ch4 interior 1.00
+[rv] t=846s d=40273 on=2 boss=False event=- journey=ch4 interior 1.00
+[rv] t=847s d=40301 on=2 boss=False event=- journey=ch4 interior 1.00
+[rv] t=848s d=40329 on=4 boss=False event=- journey=ch4 interior 1.00
+[rv] t=850s d=40357 on=4 boss=False event=- journey=ch4 interior 1.00
+[rv] t=851s d=40370 on=3 boss=False event=- journey=ch4 interior 1.00
+[rv] t=852s d=40397 on=3 boss=False event=- journey=ch4 interior 1.00
+[rv] t=853s d=40426 on=1 boss=False event=- journey=ch4 interior 1.00
+[rv] t=854s d=40453 on=1 boss=False event=- journey=ch4 interior 1.00
+[rv] t=855s d=40480 on=1 boss=False event=- journey=ch4 interior 1.00
+[rv] t=856s d=40506 on=1 boss=False event=- journey=ch4 interior 1.00
+[rv] t=857s d=40534 on=1 boss=False event=- journey=ch4 interior 1.00
+[rv] t=858s d=40562 on=1 boss=False event=- journey=ch4 interior 1.00
+[rv] t=859s d=40590 on=1 boss=False event=- journey=ch4 interior 1.00
+[rv] t=860s d=40617 on=0 boss=False event=- journey=ch4 interior 1.00
+[rv] t=861s d=40644 on=0 boss=False event=- journey=ch4 interior 1.00
+[rv] t=862s d=40671 on=0 boss=False event=- journey=ch4 interior 1.00
+[rv] t=863s d=40698 on=0 boss=False event=- journey=ch4 interior 1.00
+[rv] t=864s d=40726 on=0 boss=False event=- journey=ch4 interior 1.00
+[rv] t=865s d=40753 on=1 boss=False event=- journey=ch4 interior 1.00
+[rv] t=866s d=40780 on=6 boss=False event=- journey=ch4 interior 1.00
+[rv] t=867s d=40808 on=4 boss=False event=- journey=ch4 interior 1.00
+[rv] t=868s d=40836 on=0 boss=False event=- journey=ch4 interior 1.00
+[rv] t=869s d=40863 on=0 boss=False event=- journey=ch4 interior 1.00
+[rv] t=870s d=40890 on=1 boss=False event=- journey=ch4 interior 1.00
+[rv] t=871s d=40917 on=3 boss=False event=- journey=ch4 interior 1.00
+[rv] t=872s d=40946 on=8 boss=False event=- journey=ch4 interior 1.00
+[rv] t=873s d=40973 on=7 boss=False event=- journey=ch4 interior 1.00
+[rv] t=874s d=41001 on=0 boss=False event=- journey=ch4 interior 1.00
+[rv] t=875s d=41028 on=1 boss=False event=- journey=ch4 interior 1.00
+[rv] t=876s d=41055 on=3 boss=False event=- journey=ch4 interior 1.00
+[rv] t=877s d=41082 on=3 boss=False event=- journey=ch4 interior 1.00
+[rv] t=878s d=41109 on=4 boss=False event=- journey=ch4 interior 1.00
+[rv] t=879s d=41138 on=3 boss=False event=- journey=ch4 interior 0.89
+[rv] t=880s d=41165 on=3 boss=False event=- journey=ch4 interior 0.66
+[rv] t=881s d=41178 on=1 boss=False event=- journey=ch4 interior 0.55
+[rv] t=882s d=41205 on=0 boss=False event=- journey=ch4 interior 0.33
+[rv] t=883s d=41232 on=0 boss=False event=- journey=ch4 interior 0.10
+[rv] t=884s d=41259 on=4 boss=False event=- journey=ch4 dest4 r=1.3km x1.13 a=0.04
+[rv] t=885s d=41287 on=0 boss=False event=- journey=ch4 dest4 r=1.3km x1.13 a=0.11
+[rv] t=886s d=41314 on=3 boss=False event=- journey=ch4 dest4 r=1.3km x1.13 a=0.17
+[rv] t=887s d=41342 on=0 boss=False event=- journey=ch4 dest4 r=1.3km x1.13 a=0.24
+[rv] t=888s d=41369 on=0 boss=False event=- journey=ch4 dest4 r=1.4km x1.14 a=0.31
+[rv] t=889s d=41396 on=0 boss=False event=- journey=ch4 dest4 r=1.4km x1.14 a=0.38
+[rv] t=890s d=41423 on=0 boss=False event=- journey=ch4 dest4 r=1.4km x1.14 a=0.45
+[rv] t=891s d=41450 on=0 boss=False event=- journey=ch4 dest4 r=1.4km x1.14 a=0.51
+[rv] t=892s d=41477 on=0 boss=False event=- journey=ch4 dest4 r=1.5km x1.15 a=0.58
+[rv] t=893s d=41504 on=0 boss=False event=- journey=ch4 dest4 r=1.5km x1.15 a=0.65
+[rv] t=894s d=41532 on=0 boss=False event=- journey=ch4 dest4 r=1.5km x1.15 a=0.72
+[rv] t=895s d=41559 on=0 boss=False event=- journey=ch4 dest4 r=1.6km x1.16 a=0.79
+[rv] t=896s d=41586 on=1 boss=False event=- journey=ch4 dest4 r=1.6km x1.16 a=0.85
+[rv] t=897s d=41612 on=5 boss=False event=- journey=ch4 dest4 r=1.6km x1.16 a=0.92
+[rv] t=898s d=41640 on=4 boss=False event=- journey=ch4 dest4 r=1.6km x1.16 a=0.99
+[rv] t=899s d=41668 on=0 boss=False event=- journey=ch4 dest4 r=1.7km x1.17 a=1.00
+[rv] t=900s d=41695 on=0 boss=False event=- journey=ch4 dest4 r=1.7km x1.17 a=1.00
+[rv] t=901s d=41722 on=2 boss=False event=- journey=ch4 dest4 r=1.7km x1.17 a=1.00
+[rv] t=902s d=41750 on=4 boss=False event=- journey=ch4 dest4 r=1.7km x1.17 a=1.00
+[rv] t=903s d=41777 on=3 boss=False event=- journey=ch4 dest4 r=1.8km x1.18 a=1.00
+[rv] t=904s d=41790 on=1 boss=False event=- journey=ch4 dest4 r=1.8km x1.18 a=1.00
+[rv] t=905s d=41813 on=0 boss=False event=- journey=ch4 dest4 r=1.8km x1.18 a=1.00
+[rv] t=906s d=41840 on=2 boss=False event=- journey=ch4 dest4 r=1.8km x1.18 a=1.00
+[rv] t=907s d=41869 on=1 boss=False event=- journey=ch4 dest4 r=1.9km x1.19 a=1.00
+[rv] t=908s d=41896 on=0 boss=False event=- journey=ch4 dest4 r=1.9km x1.19 a=1.00
+[rv] t=909s d=41923 on=0 boss=False event=- journey=ch4 dest4 r=1.9km x1.19 a=1.00
+[rv] t=910s d=41951 on=0 boss=False event=- journey=ch4 dest4 r=2.0km x1.20 a=1.00
+[rv] t=911s d=41978 on=0 boss=False event=- journey=ch4 dest4 r=2.0km x1.20 a=1.00
+[rv] t=912s d=42005 on=0 boss=False event=- journey=ch4 dest4 r=2.0km x1.20 a=1.00
+[rv] t=913s d=42032 on=4 boss=False event=- journey=ch4 dest4 r=2.0km x1.20 a=1.00
+[rv] t=914s d=42060 on=5 boss=False event=- journey=ch4 dest4 r=2.1km x1.21 a=1.00
+[rv] t=915s d=42089 on=2 boss=False event=- journey=ch4 dest4 r=2.1km x1.21 a=1.00
+[rv] t=917s d=42117 on=1 boss=False event=- journey=ch4 dest4 r=2.1km x1.22 a=1.00
+[rv] t=918s d=42144 on=0 boss=False event=- journey=ch4 dest4 r=2.1km x1.22 a=1.00
+[rv] t=919s d=42171 on=2 boss=False event=- journey=ch4 dest4 r=2.2km x1.23 a=1.00
+[rv] t=920s d=42199 on=2 boss=False event=- journey=ch4 dest4 r=2.2km x1.23 a=1.00
+[rv] t=921s d=42226 on=1 boss=False event=- journey=ch4 dest4 r=2.2km x1.23 a=1.00
+[rv] t=922s d=42254 on=6 boss=False event=- journey=ch4 dest4 r=2.3km x1.24 a=1.00
+[rv] t=923s d=42284 on=4 boss=False event=- journey=ch4 dest4 r=2.3km x1.24 a=1.00
+[rv] t=924s d=42311 on=0 boss=False event=- journey=ch4 dest4 r=2.3km x1.25 a=1.00
+[rv] t=925s d=42338 on=0 boss=False event=- journey=ch4 dest4 r=2.3km x1.25 a=1.00
+[rv] t=926s d=42365 on=1 boss=False event=- journey=ch4 dest4 r=2.4km x1.25 a=1.00
+[rv] t=927s d=42392 on=3 boss=False event=- journey=ch4 dest4 r=2.4km x1.26 a=1.00
+[rv] t=928s d=42419 on=5 boss=False event=- journey=ch4 dest4 r=2.4km x1.26 a=1.00
+[rv] t=929s d=42445 on=1 boss=False event=- journey=ch4 dest4 r=2.4km x1.27 a=1.00
+[rv] t=930s d=42473 on=0 boss=False event=- journey=ch4 dest4 r=2.5km x1.27 a=1.00
+[rv] t=931s d=42501 on=0 boss=False event=- journey=ch4 dest4 r=2.5km x1.28 a=1.00
+[rv] t=932s d=42528 on=0 boss=False event=- journey=ch4 dest4 r=2.5km x1.28 a=1.00
+[rv] t=933s d=42555 on=0 boss=False event=- journey=ch4 dest4 r=2.6km x1.28 a=1.00
+[rv] t=934s d=42582 on=0 boss=False event=- journey=ch4 dest4 r=2.6km x1.29 a=1.00
+[rv] t=935s d=42609 on=2 boss=False event=- journey=ch4 dest4 r=2.6km x1.29 a=1.00
+[rv] t=936s d=42637 on=0 boss=False event=- journey=ch4 dest4 r=2.6km x1.30 a=1.00
+[rv] t=937s d=42664 on=0 boss=False event=- journey=ch4 dest4 r=2.7km x1.30 a=1.00
+[rv] t=938s d=42691 on=7 boss=False event=- journey=ch4 dest4 r=2.7km x1.30 a=1.00
+[rv] t=939s d=42718 on=6 boss=False event=- journey=ch4 dest4 r=2.7km x1.31 a=1.00
+[rv] t=940s d=42745 on=0 boss=False event=- journey=ch4 dest4 r=2.7km x1.31 a=1.00
+[rv] t=941s d=42772 on=0 boss=False event=- journey=ch4 dest4 r=2.8km x1.32 a=1.00
+[rv] t=942s d=42799 on=0 boss=False event=- journey=ch4 dest4 r=2.8km x1.32 a=1.00
+[rv] t=943s d=42826 on=2 boss=False event=- journey=ch4 dest4 r=2.8km x1.32 a=1.00
+[rv] t=944s d=42854 on=2 boss=False event=- journey=ch4 dest4 r=2.9km x1.33 a=1.00
+[rv] t=945s d=42881 on=2 boss=False event=- journey=ch4 dest4 r=2.9km x1.33 a=1.00
+[rv] t=946s d=42910 on=2 boss=False event=- journey=ch4 dest4 r=2.9km x1.34 a=1.00
+[rv] t=947s d=42923 on=2 boss=False event=- journey=ch4 dest4 r=2.9km x1.34 a=1.00
+[rv] t=948s d=42952 on=2 boss=False event=- journey=ch4 dest4 r=3.0km x1.34 a=1.00
+[rv] t=949s d=42979 on=1 boss=False event=- journey=ch4 dest4 r=3.0km x1.35 a=1.00
+[rv] t=950s d=43006 on=0 boss=False event=- journey=ch4 dest4 r=3.0km x1.35 a=1.00
+[rv] t=951s d=43033 on=0 boss=False event=- journey=ch4 dest4 r=3.0km x1.35 a=1.00
+[rv] t=952s d=43060 on=0 boss=False event=- journey=ch4 dest4 r=3.1km x1.36 a=1.00
+[rv] t=953s d=43087 on=0 boss=False event=- journey=ch4 dest4 r=3.1km x1.36 a=1.00
+[rv] t=954s d=43114 on=2 boss=False event=- journey=ch4 dest4 r=3.1km x1.37 a=1.00
+[rv] t=955s d=43143 on=3 boss=False event=- journey=ch4 dest4 r=3.1km x1.37 a=1.00
+[rv] t=956s d=43171 on=1 boss=False event=- journey=ch4 dest4 r=3.2km x1.38 a=1.00
+[rv] t=957s d=43199 on=2 boss=False event=- journey=ch4 dest4 r=3.2km x1.38 a=1.00
+[rv] t=958s d=43227 on=3 boss=False event=- journey=ch4 dest4 r=3.2km x1.38 a=1.00
+[rv] t=959s d=43255 on=2 boss=False event=- journey=ch4 dest4 r=3.3km x1.39 a=1.00
+[rv] t=960s d=43282 on=1 boss=False event=- journey=ch4 dest4 r=3.3km x1.39 a=1.00
+[rv] t=961s d=43310 on=1 boss=False event=- journey=ch4 dest4 r=3.3km x1.40 a=1.00
+[rv] t=962s d=43337 on=2 boss=False event=- journey=ch4 dest4 r=3.3km x1.40 a=1.00
+[rv] t=963s d=43367 on=2 boss=False event=- journey=ch4 dest4 r=3.4km x1.40 a=1.00
+[rv] t=964s d=43395 on=2 boss=False event=- journey=ch4 dest4 r=3.4km x1.41 a=1.00
+[rv] t=965s d=43422 on=0 boss=False event=- journey=ch4 dest4 r=3.4km x1.41 a=1.00
+[rv] t=966s d=43450 on=3 boss=False event=- journey=ch4 dest4 r=3.4km x1.42 a=1.00
+[rv] t=967s d=43478 on=3 boss=False event=- journey=ch4 dest4 r=3.5km x1.42 a=1.00
+[rv] t=968s d=43505 on=3 boss=False event=- journey=ch4 dest4 r=3.5km x1.43 a=1.00
+[rv] t=969s d=43533 on=0 boss=False event=- journey=ch4 dest4 r=3.5km x1.43 a=1.00
+[rv] t=970s d=43560 on=0 boss=False event=- journey=ch4 dest4 r=3.6km x1.43 a=1.00
+[rv] t=971s d=43588 on=0 boss=False event=- journey=ch4 dest4 r=3.6km x1.44 a=1.00
+[rv] t=972s d=43615 on=0 boss=False event=- journey=ch4 dest4 r=3.6km x1.44 a=1.00
+[rv] t=973s d=43642 on=0 boss=False event=- journey=ch4 dest4 r=3.6km x1.45 a=1.00
+[rv] t=974s d=43669 on=4 boss=False event=- journey=ch4 dest4 r=3.7km x1.45 a=1.00
+[rv] t=975s d=43696 on=4 boss=False event=- journey=ch4 dest4 r=3.7km x1.45 a=1.00
+[rv] t=976s d=43724 on=4 boss=False event=- journey=ch4 dest4 r=3.7km x1.46 a=1.00
+[rv] t=977s d=43753 on=7 boss=False event=- journey=ch4 dest4 r=3.8km x1.46 a=1.00
+[rv] t=978s d=43780 on=6 boss=False event=- journey=ch4 dest4 r=3.8km x1.47 a=1.00
+[rv] t=979s d=43807 on=1 boss=False event=- journey=ch4 dest4 r=3.8km x1.47 a=1.00
+[rv] t=980s d=43834 on=0 boss=False event=- journey=ch4 dest4 r=3.8km x1.48 a=1.00
+[rv] t=981s d=43861 on=2 boss=False event=- journey=ch4 dest4 r=3.9km x1.48 a=1.00
+[rv] t=982s d=43888 on=3 boss=False event=- journey=ch4 dest4 r=3.9km x1.48 a=1.00
+[rv] t=984s d=43917 on=3 boss=False event=- journey=ch4 dest4 r=3.9km x1.49 a=1.00
+[rv] t=985s d=43945 on=6 boss=False event=- journey=ch4 dest4 r=3.9km x1.49 a=1.00
+[rv] t=986s d=43972 on=6 boss=False event=- journey=ch4 dest4 r=4.0km x1.50 a=1.00
+[rv] t=987s d=44000 on=2 boss=False event=- journey=ch4 dest4 r=4.0km x1.50 a=1.00
+[rv] t=988s d=44029 on=3 boss=False event=- journey=ch4 dest4 r=4.0km x1.51 a=1.00
+[rv] t=989s d=44056 on=3 boss=False event=- journey=ch4 dest4 r=4.1km x1.51 a=1.00
+[rv] t=990s d=44085 on=4 boss=False event=- journey=ch4 dest4 r=4.1km x1.52 a=1.00
+[rv] t=991s d=44113 on=2 boss=False event=- journey=ch4 dest4 r=4.1km x1.52 a=1.00
+[rv] t=992s d=44140 on=1 boss=False event=- journey=ch4 dest4 r=4.1km x1.53 a=1.00
+[rv] t=993s d=44167 on=1 boss=False event=- journey=ch4 dest4 r=4.2km x1.53 a=1.00
+[rv] t=994s d=44194 on=2 boss=False event=- journey=ch4 dest4 r=4.2km x1.54 a=1.00
+[rv] t=995s d=44221 on=4 boss=False event=- journey=ch4 dest4 r=4.2km x1.54 a=1.00
+[rv] t=996s d=44248 on=1 boss=False event=- journey=ch4 dest4 r=4.2km x1.55 a=1.00
+[rv] t=997s d=44275 on=3 boss=False event=- journey=ch4 dest4 r=4.3km x1.55 a=1.00
+[rv] t=998s d=44302 on=0 boss=False event=- journey=ch4 dest4 r=4.3km x1.56 a=1.00
+[rv] t=999s d=44329 on=0 boss=False event=- journey=ch4 dest4 r=4.3km x1.57 a=1.00
+[rv] t=1000s d=44357 on=0 boss=False event=- journey=ch4 dest4 r=4.4km x1.57 a=1.00
+[rv] t=1001s d=44384 on=0 boss=False event=- journey=ch4 dest4 r=4.4km x1.58 a=1.00
+[rv] t=1002s d=44411 on=0 boss=False event=- journey=ch4 dest4 r=4.4km x1.58 a=1.00
+[rv] t=1003s d=44438 on=0 boss=False event=- journey=ch4 dest4 r=4.4km x1.59 a=1.00
+[rv] t=1004s d=44465 on=0 boss=False event=- journey=ch4 dest4 r=4.5km x1.59 a=1.00
+[rv] t=1005s d=44492 on=0 boss=False event=- journey=ch4 dest4 r=4.5km x1.60 a=1.00
+[rv] t=1006s d=44519 on=0 boss=False event=- journey=ch4 dest4 r=4.5km x1.60 a=1.00
+[rv] t=1007s d=44546 on=0 boss=False event=- journey=ch4 dest4 r=4.5km x1.61 a=1.00
+[rv] t=1008s d=44573 on=5 boss=False event=- journey=ch4 dest4 r=4.6km x1.61 a=1.00
+[rv] t=1009s d=44601 on=5 boss=False event=- journey=ch4 dest4 r=4.6km x1.62 a=1.00
+[rv] t=1010s d=44626 on=1 boss=False event=- journey=ch4 dest4 r=4.6km x1.63 a=1.00
+[rv] t=1011s d=44653 on=1 boss=False event=- journey=ch4 dest4 r=4.7km x1.63 a=1.00
+[rv] t=1012s d=44679 on=1 boss=False event=- journey=ch4 dest4 r=4.7km x1.64 a=1.00
+[rv] t=1013s d=44706 on=0 boss=False event=- journey=ch4 dest4 r=4.7km x1.64 a=1.00
+[rv] t=1014s d=44733 on=0 boss=False event=- journey=ch4 dest4 r=4.7km x1.65 a=1.00
+[rv] t=1015s d=44761 on=0 boss=False event=- journey=ch4 dest4 r=4.8km x1.65 a=1.00
+[rv] t=1016s d=44788 on=2 boss=False event=- journey=ch4 dest4 r=4.8km x1.66 a=1.00
+[rv] t=1017s d=44816 on=2 boss=False event=- journey=ch4 dest4 r=4.8km x1.66 a=1.00
+[rv] t=1018s d=44842 on=3 boss=False event=- journey=ch4 dest4 r=4.8km x1.67 a=1.00
+[rv] t=1019s d=44871 on=6 boss=False event=- journey=ch4 dest4 r=4.9km x1.67 a=1.00
+[rv] t=1020s d=44898 on=3 boss=False event=- journey=ch4 dest4 r=4.9km x1.68 a=1.00
+[rv] t=1021s d=44925 on=0 boss=False event=- journey=ch4 dest4 r=4.9km x1.68 a=1.00
+[rv] t=1022s d=44952 on=0 boss=False event=- journey=ch4 dest4 r=5.0km x1.69 a=1.00
+[rv] t=1023s d=44979 on=1 boss=False event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1024s d=45000 on=3 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1025s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1026s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1027s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1028s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1029s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1030s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1031s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1032s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1033s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1034s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1035s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1036s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1037s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1038s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1039s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1040s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1041s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1042s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1043s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1044s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1045s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1046s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1047s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1048s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1049s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1050s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1051s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1053s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1054s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1055s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1056s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1057s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1058s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1059s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1060s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1061s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1062s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1063s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1064s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1065s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1066s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1067s d=45000 on=0 boss=True event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00
+[rv] t=1068s d=45000 on=0 boss=False event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00 milestone
+[rv] t=1069s d=45019 on=0 boss=False event=- journey=ch4 dest4 r=5.0km x1.70 a=1.00 milestone
+[rv] t=1070s d=45046 on=1 boss=False event=- journey=ch4 dest4 r=5.0km x1.71 a=1.00 milestone
+[rv] t=1071s d=45073 on=1 boss=False event=- journey=ch4 dest4 r=5.1km x1.71 a=1.00
+[rv] t=1072s d=45101 on=1 boss=False event=- journey=ch4 dest4 r=5.1km x1.72 a=1.00
+[rv] t=1073s d=45128 on=1 boss=False event=- journey=ch4 dest4 r=5.1km x1.73 a=1.00
+[rv] t=1074s d=45156 on=1 boss=False event=- journey=ch4 dest4 r=5.2km x1.73 a=1.00
+[rv] t=1075s d=45184 on=2 boss=False event=- journey=ch4 dest4 r=5.2km x1.74 a=1.00
+[rv] t=1076s d=45211 on=3 boss=False event=- journey=ch4 dest4 r=5.2km x1.74 a=1.00
+[rv] t=1077s d=45238 on=2 boss=False event=- journey=ch4 dest4 r=5.2km x1.75 a=1.00
+[rv] t=1078s d=45265 on=2 boss=False event=- journey=ch4 dest4 r=5.3km x1.75 a=1.00
+[rv] t=1079s d=45292 on=2 boss=False event=- journey=ch4 dest4 r=5.3km x1.76 a=1.00
+[rv] t=1080s d=45320 on=2 boss=False event=- journey=ch4 dest4 r=5.3km x1.76 a=1.00
+[rv] t=1081s d=45349 on=2 boss=False event=- journey=ch4 dest4 r=5.3km x1.77 a=1.00
+[rv] t=1082s d=45377 on=2 boss=False event=- journey=ch4 dest4 r=5.4km x1.78 a=1.00
+[rv] t=1083s d=45405 on=1 boss=False event=- journey=ch4 dest4 r=5.4km x1.78 a=1.00
+[rv] t=1084s d=45434 on=1 boss=False event=- journey=ch4 dest4 r=5.4km x1.79 a=1.00
+[rv] t=1085s d=45463 on=1 boss=False event=- journey=ch4 dest4 r=5.5km x1.79 a=1.00
+[rv] t=1086s d=45491 on=1 boss=False event=- journey=ch4 dest4 r=5.5km x1.80 a=1.00
+[rv] t=1087s d=45520 on=1 boss=False event=- journey=ch4 dest4 r=5.5km x1.80 a=1.00
+[rv] t=1088s d=45550 on=1 boss=False event=- journey=ch4 dest4 r=5.5km x1.81 a=1.00
+[rv] t=1089s d=45578 on=1 boss=False event=- journey=ch4 dest4 r=5.6km x1.82 a=1.00
+[rv] t=1090s d=45608 on=0 boss=False event=- journey=ch4 dest4 r=5.6km x1.82 a=1.00
+[rv] t=1091s d=45634 on=0 boss=False event=- journey=ch4 dest4 r=5.6km x1.83 a=1.00
+[rv] t=1092s d=45662 on=0 boss=False event=- journey=ch4 dest4 r=5.7km x1.83 a=1.00
+[rv] t=1093s d=45689 on=0 boss=False event=- journey=ch4 dest4 r=5.7km x1.84 a=1.00
+[rv] t=1094s d=45716 on=6 boss=False event=- journey=ch4 dest4 r=5.7km x1.84 a=1.00
+[rv] t=1095s d=45745 on=7 boss=False event=- journey=ch4 dest4 r=5.7km x1.85 a=1.00
+[rv] t=1096s d=45773 on=4 boss=False event=- journey=ch4 dest4 r=5.8km x1.85 a=1.00
+[rv] t=1097s d=45800 on=0 boss=False event=- journey=ch4 dest4 r=5.8km x1.86 a=1.00
+[rv] t=1098s d=45828 on=1 boss=False event=- journey=ch4 dest4 r=5.8km x1.87 a=1.00
+[rv] t=1099s d=45855 on=1 boss=False event=- journey=ch4 dest4 r=5.9km x1.87 a=1.00
+[rv] t=1100s d=45883 on=2 boss=False event=- journey=ch4 dest4 r=5.9km x1.88 a=1.00
+[rv] t=1101s d=45911 on=4 boss=False event=- journey=ch4 dest4 r=5.9km x1.88 a=1.00
+[rv] t=1102s d=45939 on=2 boss=False event=- journey=ch4 dest4 r=5.9km x1.89 a=1.00
+[rv] t=1103s d=45968 on=1 boss=False event=- journey=ch4 dest4 r=6.0km x1.89 a=1.00
+[rv] t=1104s d=45995 on=0 boss=False event=- journey=ch4 dest4 r=6.0km x1.90 a=1.00
+[rv] t=1105s d=46022 on=3 boss=False event=- journey=ch4 dest4 r=6.0km x1.91 a=1.00
+[rv] t=1106s d=46049 on=1 boss=False event=- journey=ch4 dest4 r=6.0km x1.91 a=1.00
+[rv] t=1107s d=46076 on=1 boss=False event=- journey=ch4 dest4 r=6.1km x1.92 a=1.00
+[rv] t=1108s d=46103 on=1 boss=False event=- journey=ch4 dest4 r=6.1km x1.93 a=1.00
+[rv] t=1109s d=46130 on=1 boss=False event=- journey=ch4 dest4 r=6.1km x1.93 a=1.00
+[rv] t=1110s d=46157 on=1 boss=False event=- journey=ch4 dest4 r=6.2km x1.94 a=1.00
+[rv] t=1111s d=46184 on=1 boss=False event=- journey=ch4 dest4 r=6.2km x1.95 a=1.00
+[rv] t=1112s d=46211 on=1 boss=False event=- journey=ch4 dest4 r=6.2km x1.95 a=1.00
+[rv] t=1113s d=46240 on=1 boss=False event=- journey=ch4 dest4 r=6.2km x1.96 a=1.00
+[rv] t=1114s d=46267 on=2 boss=False event=- journey=ch4 dest4 r=6.3km x1.97 a=1.00
+[rv] t=1115s d=46294 on=3 boss=False event=- journey=ch4 dest4 r=6.3km x1.97 a=1.00
+[rv] t=1116s d=46322 on=3 boss=False event=- journey=ch4 dest4 r=6.3km x1.98 a=1.00
+[rv] t=1117s d=46350 on=3 boss=False event=- journey=ch4 dest4 r=6.3km x1.99 a=1.00
+[rv] t=1118s d=46378 on=3 boss=False event=- journey=ch4 dest4 r=6.4km x1.99 a=1.00
+[rv] t=1120s d=46406 on=3 boss=False event=- journey=ch4 dest4 r=6.4km x2.00 a=1.00
+[rv] t=1121s d=46434 on=3 boss=False event=- journey=ch4 dest4 r=6.4km x2.01 a=1.00
+[rv] t=1122s d=46462 on=3 boss=False event=- journey=ch4 dest4 r=6.5km x2.02 a=1.00
+[rv] t=1123s d=46492 on=3 boss=False event=- journey=ch4 dest4 r=6.5km x2.02 a=1.00
+[rv] t=1124s d=46521 on=1 boss=False event=- journey=ch4 dest4 r=6.5km x2.03 a=1.00
+[rv] t=1125s d=46549 on=1 boss=False event=- journey=ch4 dest4 r=6.5km x2.04 a=1.00
+[rv] t=1126s d=46576 on=0 boss=False event=- journey=ch4 dest4 r=6.6km x2.04 a=1.00
+[rv] t=1127s d=46603 on=0 boss=False event=- journey=ch4 dest4 r=6.6km x2.05 a=1.00
+[rv] t=1128s d=46630 on=0 boss=False event=- journey=ch4 dest4 r=6.6km x2.06 a=1.00
+[rv] t=1129s d=46657 on=0 boss=False event=- journey=ch4 dest4 r=6.7km x2.06 a=1.00
+[rv] t=1130s d=46684 on=5 boss=False event=- journey=ch4 dest4 r=6.7km x2.07 a=1.00
+[rv] t=1131s d=46712 on=6 boss=False event=- journey=ch4 dest4 r=6.7km x2.08 a=1.00
+[rv] t=1132s d=46740 on=1 boss=False event=- journey=ch4 dest4 r=6.7km x2.09 a=1.00
+[rv] t=1133s d=46769 on=1 boss=False event=- journey=ch4 dest4 r=6.8km x2.09 a=1.00
+[rv] t=1134s d=46798 on=0 boss=False event=- journey=ch4 dest4 r=6.8km x2.10 a=1.00
+[rv] t=1135s d=46824 on=3 boss=False event=- journey=ch4 dest4 r=6.8km x2.11 a=1.00
+[rv] t=1136s d=46852 on=2 boss=False event=- journey=ch4 dest4 r=6.9km x2.11 a=1.00
+[rv] t=1137s d=46881 on=4 boss=False event=- journey=ch4 dest4 r=6.9km x2.12 a=1.00
+[rv] t=1138s d=46908 on=7 boss=False event=- journey=ch4 dest4 r=6.9km x2.13 a=1.00
+[rv] t=1139s d=46937 on=7 boss=False event=- journey=ch4 dest4 r=6.9km x2.13 a=1.00
+[rv] t=1140s d=46966 on=3 boss=False event=- journey=ch4 dest4 r=7.0km x2.14 a=1.00
+[rv] t=1141s d=46992 on=1 boss=False event=- journey=ch4 dest4 r=7.0km x2.15 a=1.00
+[rv] t=1142s d=47018 on=1 boss=False event=- journey=ch4 dest4 r=7.0km x2.15 a=1.00
+[rv] t=1143s d=47044 on=2 boss=False event=- journey=ch4 dest4 r=7.0km x2.16 a=1.00
+[rv] t=1144s d=47070 on=2 boss=False event=- journey=ch4 dest4 r=7.1km x2.17 a=1.00
+[rv] t=1145s d=47096 on=2 boss=False event=- journey=ch4 dest4 r=7.1km x2.17 a=1.00
+[rv] t=1146s d=47122 on=2 boss=False event=- journey=ch4 dest4 r=7.1km x2.18 a=1.00
+[rv] t=1147s d=47150 on=1 boss=False event=- journey=ch4 dest4 r=7.1km x2.19 a=1.00
+[rv] t=1148s d=47177 on=1 boss=False event=- journey=ch4 dest4 r=7.2km x2.19 a=1.00
+[rv] t=1149s d=47204 on=2 boss=False event=- journey=ch4 dest4 r=7.2km x2.20 a=1.00
+[rv] t=1150s d=47231 on=1 boss=False event=- journey=ch4 dest4 r=7.2km x2.21 a=1.00
+[rv] t=1151s d=47258 on=1 boss=False event=- journey=ch4 dest4 r=7.3km x2.21 a=1.00
+[rv] t=1152s d=47286 on=1 boss=False event=- journey=ch4 dest4 r=7.3km x2.22 a=1.00
+[rv] t=1153s d=47314 on=1 boss=False event=- journey=ch4 dest4 r=7.3km x2.23 a=1.00
+[rv] t=1154s d=47344 on=2 boss=False event=- journey=ch4 dest4 r=7.3km x2.24 a=1.00
+[rv] t=1155s d=47373 on=2 boss=False event=- journey=ch4 dest4 r=7.4km x2.24 a=1.00
+[rv] t=1156s d=47401 on=2 boss=False event=- journey=ch4 dest4 r=7.4km x2.25 a=1.00
+[rv] t=1157s d=47430 on=2 boss=False event=- journey=ch4 dest4 r=7.4km x2.26 a=1.00
+[rv] t=1158s d=47457 on=2 boss=False event=- journey=ch4 dest4 r=7.5km x2.26 a=1.00
+[rv] t=1159s d=47485 on=2 boss=False event=- journey=ch4 dest4 r=7.5km x2.27 a=1.00
+[rv] t=1160s d=47513 on=2 boss=False event=- journey=ch4 dest4 r=7.5km x2.28 a=1.00
+[rv] t=1161s d=47542 on=2 boss=False event=- journey=ch4 dest4 r=7.5km x2.29 a=1.00
+[rv] t=1162s d=47569 on=2 boss=False event=- journey=ch4 dest4 r=7.6km x2.29 a=1.00
+[rv] t=1163s d=47596 on=2 boss=False event=- journey=ch4 dest4 r=7.6km x2.30 a=1.00
+[rv] t=1164s d=47624 on=0 boss=False event=- journey=ch4 dest4 r=7.6km x2.31 a=1.00
+[rv] t=1165s d=47651 on=0 boss=False event=- journey=ch4 dest4 r=7.7km x2.31 a=1.00
+[rv] t=1166s d=47678 on=0 boss=False event=- journey=ch4 dest4 r=7.7km x2.32 a=1.00
+[rv] t=1167s d=47705 on=3 boss=False event=- journey=ch4 dest4 r=7.7km x2.33 a=1.00
+[rv] t=1168s d=47732 on=6 boss=False event=- journey=ch4 dest4 r=7.7km x2.33 a=1.00
+[rv] t=1169s d=47761 on=4 boss=False event=- journey=ch4 dest4 r=7.8km x2.34 a=1.00
+[rv] t=1170s d=47790 on=1 boss=False event=- journey=ch4 dest4 r=7.8km x2.35 a=1.00
+[rv] t=1171s d=47817 on=0 boss=False event=- journey=ch4 dest4 r=7.8km x2.35 a=1.00
+[rv] t=1172s d=47844 on=2 boss=False event=- journey=ch4 dest4 r=7.8km x2.36 a=1.00
+[rv] t=1173s d=47872 on=2 boss=False event=- journey=ch4 dest4 r=7.9km x2.37 a=1.00
+[rv] t=1174s d=47901 on=7 boss=False event=- journey=ch4 dest4 r=7.9km x2.38 a=1.00
+[rv] t=1175s d=47928 on=4 boss=False event=- journey=ch4 dest4 r=7.9km x2.38 a=1.00
+[rv] t=1176s d=47956 on=3 boss=False event=- journey=ch4 dest4 r=8.0km x2.39 a=1.00
+[rv] t=1177s d=47984 on=1 boss=False event=- journey=ch4 dest4 r=8.0km x2.40 a=1.00
+[rv] t=1178s d=48011 on=0 boss=False event=- journey=ch4 dest4 r=8.0km x2.40 a=1.00
+[rv] t=1179s d=48038 on=2 boss=False event=- journey=ch4 dest4 r=8.0km x2.42 a=1.00
+[rv] t=1180s d=48065 on=2 boss=False event=- journey=ch4 dest4 r=8.1km x2.43 a=1.00
+[rv] t=1181s d=48092 on=3 boss=False event=- journey=ch4 dest4 r=8.1km x2.44 a=1.00
+[rv] t=1182s d=48119 on=3 boss=False event=- journey=ch4 dest4 r=8.1km x2.45 a=1.00
+[rv] t=1183s d=48146 on=2 boss=False event=- journey=ch4 dest4 r=8.1km x2.46 a=1.00
+[rv] t=1184s d=48173 on=2 boss=False event=- journey=ch4 dest4 r=8.2km x2.47 a=1.00
+[rv] t=1185s d=48200 on=0 boss=False event=- journey=ch4 dest4 r=8.2km x2.48 a=1.00
+[rv] t=1186s d=48228 on=4 boss=False event=- journey=ch4 dest4 r=8.2km x2.49 a=1.00
+[rv] t=1187s d=48255 on=0 boss=False event=- journey=ch4 dest4 r=8.3km x2.50 a=1.00
+[rv] t=1189s d=48282 on=3 boss=False event=- journey=ch4 dest4 r=8.3km x2.51 a=1.00
+[rv] t=1190s d=48310 on=2 boss=False event=- journey=ch4 dest4 r=8.3km x2.52 a=1.00
+[rv] t=1191s d=48337 on=0 boss=False event=- journey=ch4 dest4 r=8.3km x2.53 a=1.00
+[rv] t=1192s d=48364 on=0 boss=False event=- journey=ch4 dest4 r=8.4km x2.55 a=1.00
+[rv] t=1193s d=48391 on=0 boss=False event=- journey=ch4 dest4 r=8.4km x2.56 a=1.00
+[rv] t=1194s d=48418 on=0 boss=False event=- journey=ch4 dest4 r=8.4km x2.57 a=1.00
+[rv] t=1195s d=48445 on=0 boss=False event=- journey=ch4 dest4 r=8.4km x2.58 a=1.00
+[rv] t=1196s d=48472 on=0 boss=False event=- journey=ch4 dest4 r=8.5km x2.59 a=1.00
+[rv] t=1197s d=48499 on=0 boss=False event=- journey=ch4 dest4 r=8.5km x2.60 a=1.00
+[rv] t=1198s d=48526 on=0 boss=False event=- journey=ch4 dest4 r=8.5km x2.61 a=1.00
+[rv] t=1199s d=48553 on=0 boss=False event=- journey=ch4 dest4 r=8.6km x2.62 a=1.00
+[rv] t=1200s d=48580 on=0 boss=False event=- journey=ch4 dest4 r=8.6km x2.63 a=1.00
+[rv] t=1201s d=48607 on=0 boss=False event=- journey=ch4 dest4 r=8.6km x2.64 a=1.00
+[rv] t=1202s d=48634 on=1 boss=False event=- journey=ch4 dest4 r=8.6km x2.65 a=1.00
+[rv] t=1203s d=48661 on=3 boss=False event=- journey=ch4 dest4 r=8.7km x2.66 a=1.00
+[rv] t=1204s d=48689 on=2 boss=False event=- journey=ch4 dest4 r=8.7km x2.68 a=1.00
+[rv] t=1205s d=48717 on=0 boss=False event=- journey=ch4 dest4 r=8.7km x2.69 a=1.00
+[rv] t=1206s d=48744 on=5 boss=False event=- journey=ch4 dest4 r=8.7km x2.70 a=1.00
+[rv] t=1207s d=48772 on=5 boss=False event=- journey=ch4 dest4 r=8.8km x2.71 a=1.00
+[rv] t=1208s d=48801 on=2 boss=False event=- journey=ch4 dest4 r=8.8km x2.72 a=1.00
+[rv] t=1209s d=48830 on=0 boss=False event=- journey=ch4 dest4 r=8.8km x2.73 a=1.00
+[rv] t=1210s d=48858 on=0 boss=False event=- journey=ch4 dest4 r=8.9km x2.74 a=1.00
+[rv] t=1211s d=48885 on=5 boss=False event=- journey=ch4 dest4 r=8.9km x2.75 a=1.00
+[rv] t=1212s d=48913 on=3 boss=False event=- journey=ch4 dest4 r=8.9km x2.77 a=1.00
+[rv] t=1213s d=48940 on=1 boss=False event=- journey=ch4 dest4 r=8.9km x2.78 a=1.00
+[rv] t=1214s d=48968 on=0 boss=False event=- journey=ch4 dest4 r=9.0km x2.79 a=1.00
+[rv] t=1215s d=48995 on=0 boss=False event=- journey=ch4 dest4 r=9.0km x2.80 a=1.00
+[rv] t=1216s d=49022 on=0 boss=False event=- journey=ch4 dest4 r=9.0km x2.81 a=1.00
+[rv] t=1217s d=49049 on=0 boss=False event=- journey=ch4 dest4 r=9.0km x2.82 a=1.00
+[rv] t=1218s d=49076 on=3 boss=False event=- journey=ch4 dest4 r=9.1km x2.83 a=1.00
+[rv] t=1219s d=49104 on=3 boss=False event=- journey=ch4 dest4 r=9.1km x2.84 a=1.00
+[rv] t=1220s d=49131 on=1 boss=False event=- journey=ch4 dest4 r=9.1km x2.85 a=1.00
+[rv] t=1221s d=49159 on=5 boss=False event=- journey=ch4 dest4 r=9.2km x2.86 a=1.00
+[rv] t=1222s d=49187 on=6 boss=False event=- journey=ch4 dest4 r=9.2km x2.87 a=1.00
+[rv] t=1223s d=49216 on=2 boss=False event=- journey=ch4 dest4 r=9.2km x2.89 a=1.00
+[rv] t=1224s d=49243 on=0 boss=False event=- journey=ch4 dest4 r=9.2km x2.90 a=1.00
+[rv] t=1225s d=49271 on=0 boss=False event=- journey=ch4 dest4 r=9.3km x2.91 a=1.00
+[rv] t=1226s d=49298 on=1 boss=False event=- journey=ch4 dest4 r=9.3km x2.92 a=1.00
+[rv] t=1227s d=49325 on=4 boss=False event=- journey=ch4 dest4 r=9.3km x2.93 a=1.00
+[rv] t=1228s d=49353 on=3 boss=False event=- journey=ch4 dest4 r=9.4km x2.94 a=1.00
+[rv] t=1229s d=49382 on=1 boss=False event=- journey=ch4 dest4 r=9.4km x2.95 a=1.00
+[rv] t=1230s d=49409 on=0 boss=False event=- journey=ch4 dest4 r=9.4km x2.96 a=1.00
+[rv] t=1231s d=49436 on=1 boss=False event=- journey=ch4 dest4 r=9.4km x2.97 a=1.00
+[rv] t=1232s d=49463 on=4 boss=False event=- journey=ch4 dest4 r=9.5km x2.99 a=1.00
+[rv] t=1233s d=49492 on=4 boss=False event=- journey=ch4 dest4 r=9.5km x3.00 a=1.00
+[rv] t=1234s d=49520 on=3 boss=False event=- journey=ch4 dest4 r=9.5km x3.01 a=1.00
+[rv] t=1235s d=49547 on=0 boss=False event=- journey=ch4 dest4 r=9.5km x3.02 a=1.00
+[rv] t=1236s d=49574 on=1 boss=False event=- journey=ch4 dest4 r=9.6km x3.03 a=1.00
+[rv] t=1237s d=49601 on=2 boss=False event=- journey=ch4 dest4 r=9.6km x3.04 a=1.00
+[rv] t=1238s d=49629 on=2 boss=False event=- journey=ch4 dest4 r=9.6km x3.05 a=1.00
+[rv] t=1239s d=49658 on=2 boss=False event=- journey=ch4 dest4 r=9.7km x3.06 a=1.00
+[rv] t=1240s d=49687 on=1 boss=False event=- journey=ch4 dest4 r=9.7km x3.07 a=1.00
+[rv] t=1241s d=49715 on=1 boss=False event=- journey=ch4 dest4 r=9.7km x3.09 a=1.00
+[rv] t=1242s d=49744 on=3 boss=False event=- journey=ch4 dest4 r=9.7km x3.10 a=1.00
+[rv] t=1243s d=49772 on=3 boss=False event=- journey=ch4 dest4 r=9.8km x3.11 a=1.00
+[rv] t=1244s d=49799 on=8 boss=False event=- journey=ch4 dest4 r=9.8km x3.12 a=1.00
+[rv] t=1245s d=49828 on=6 boss=False event=- journey=ch4 dest4 r=9.8km x3.13 a=1.00
+[rv] t=1246s d=49856 on=4 boss=False event=- journey=ch4 dest4 r=9.9km x3.14 a=1.00
+[rv] t=1247s d=49883 on=1 boss=False event=- journey=ch4 dest4 r=9.9km x3.15 a=1.00
+[rv] t=1248s d=49911 on=1 boss=False event=- journey=ch4 dest4 r=9.9km x3.16 a=1.00
+[rv] t=1249s d=49937 on=1 boss=False event=- journey=ch4 dest4 r=9.9km x3.17 a=1.00
+[rv] t=1250s d=49963 on=1 boss=False event=- journey=ch4 dest4 r=10.0km x3.19 a=1.00
+[rv] t=1251s d=49989 on=1 boss=False event=- journey=ch4 dest4 r=10.0km x3.20 a=1.00
+[rv] t=1252s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1253s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1254s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1255s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1257s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1258s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1259s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1260s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1261s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1262s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1263s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1264s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1265s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1266s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1267s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1268s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1269s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1270s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1271s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1272s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1273s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1274s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1275s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1276s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1277s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1278s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1279s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1280s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1281s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1282s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1283s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1284s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1285s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1286s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1287s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1288s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1289s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1290s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1291s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1292s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1293s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1294s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1295s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1296s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1297s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1298s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1299s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1300s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1301s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1302s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1303s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1304s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1305s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1306s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1307s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1308s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1309s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1310s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1311s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1312s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1313s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1314s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1315s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1316s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1317s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1319s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1320s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1321s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1322s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1323s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1324s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1325s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1326s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1327s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1328s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1329s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1330s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1331s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1332s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1333s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1334s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1335s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1336s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1337s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1338s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1339s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1340s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1341s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1342s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1343s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1344s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1345s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1346s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1347s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1348s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1349s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1350s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1351s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1352s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1353s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1354s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1355s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1356s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1357s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1358s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1359s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1360s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1361s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1362s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1363s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1364s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1365s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1366s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1367s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1368s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1369s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1370s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1371s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1372s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1373s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1374s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1375s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1376s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1377s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1378s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1379s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1380s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1381s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1382s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1383s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1385s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1386s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1387s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1388s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1389s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1390s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1391s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1392s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1393s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1394s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1395s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1396s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1397s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1398s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1399s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1400s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1401s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1402s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1403s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1404s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1405s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1406s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1407s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1408s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1409s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1410s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1411s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1412s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1413s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1414s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1415s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1416s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1417s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1418s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1419s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1420s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1421s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1422s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1423s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1424s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1425s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1426s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1427s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1428s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1429s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1430s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1431s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1432s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1433s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1434s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1435s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1436s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1437s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1438s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1439s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1440s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1441s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1442s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1443s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1444s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1445s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1447s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1448s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1449s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1450s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1451s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1452s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1453s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1454s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1455s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1456s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1457s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1458s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1459s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1460s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1461s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1462s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1463s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1464s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1465s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1466s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1467s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1468s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1469s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1470s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1471s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1472s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1473s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1474s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1475s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1476s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1477s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1478s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1479s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1480s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1481s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1482s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1483s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1484s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1485s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1486s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1487s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1488s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1489s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1490s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1491s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1492s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1493s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1494s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1495s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1496s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1497s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1498s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00
+[rv] t=1499s d=50000 on=0 boss=True event=- journey=ch5 holding dest4 r=10.0km x3.20 a=1.00

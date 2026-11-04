@@ -1,0 +1,6 @@
+legacy	build	blink	speed	band	start_km	secs	km_run	cards	lv	maxHp	spawned	killed	avg_onscreen	idle_pct	kill_s_avg	kill_s_p90	hits	damage	deaths	hp_min_pct	hp_end_pct	bosses	boss_s_avg	breaks	kinds	events	evkinds	raids
+0	recommended	0.0	100	0-20	10.4	200	3.57	16+7	14	70	116	49	0.74	38	1.31	1.07	16	160	0	50	57	4	15.9	1	BossCombatPart=1:9 DeathY=1:4 TerrainWall=1:2 Obstacle=1:1	0		
+0	recommended	0.0	100	20-40	23.6	200	4.69	13+10	13	80	151	49	1.31	34	1.69	1.90	11	110	0	57	90	1	24.6	2	TerrainWall=1:4 BossCombatPart=1:3 DeathY=1:2 Obstacle=1:1 Enemy=1:1	2	23.8:Flying:BIRD 27.7:Chase:CHASER	
+0	recommended	0.0	100	40-60	43.6	200	4.59	12+15	12	90	135	17	1.36	24	2.31	2.62	13	130	0	6	88	1	42.1	3	BossCombatPart=1:8 TerrainWall=1:2 Fireball=1:1 DeathY=1:1 Enemy=1:1	2	43.7:Flying:BIRD 46.6:Flying:BIRD	
+0	recommended	0.0	100	60-80	63.6	200	3.74	14+20	14	90	151	43	1.11	24	1.71	2.97	7	70	0	68	100	1	66.2	4	Fireball=1:3 DeathY=1:2 BossCombatPart=1:1 TerrainWall=1:1	1	66.8:Flying:BIRD	
+0	recommended	0.0	100	80-90	83.6	200	4.15	15+25	15	100	159	22	1.28	32	2.25	3.02	15	220	0	6	100	1	47.2	4	BossCombatPart=2:6 DeathY=1:5 TerrainWall=1:3 Enemy=2:1	1	83.8:Flying:BIRD	

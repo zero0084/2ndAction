@@ -391,7 +391,7 @@ public partial class BossManager : MonoBehaviour
     // SpawnsHeld  … 雑魚の出現を止めている(ラン再開から zakoResumeDelay 秒は止めたまま)。
     public bool RunResumed { get; private set; }
     public bool HoldsRun => IsBossPhase && !RunResumed;
-    public bool SpawnsHeld => IsBossPhase && (!RunResumed || Time.time - resumedAt < BossBattleTuning.I.zakoResumeDelay || MapRushActive); // 2026-10-15: 各マップのラッシュの間は雑魚を出さない(出して消すの繰り返しにしない)
+    public bool SpawnsHeld => IsBossPhase && (!RunResumed || Time.time - resumedAt < BossBattleTuning.I.zakoResumeDelay || MapRushActive || AirRaidActive); // 2026-11-04: 空中ボスの乱入の間も雑魚を足さない(画面を散らかさない) / 2026-10-15: 各マップのラッシュの間は雑魚を出さない(出して消すの繰り返しにしない)
     public float EncounterSeconds => encounterTimer;
     public float ResumeSecondsTotal => resumeSeconds;
     public float ResumeSecondsLeft => Mathf.Max(0f, resumeSeconds - encounterTimer);
@@ -603,6 +603,7 @@ public partial class BossManager : MonoBehaviour
         LastDungeonTick(); // ラスダンのボス構成(2026-10-05): ボスラッシュの増援/消えたボスの見張り/入口の足止め
         TrioTick();        // 通常マップの終盤(2026-10-24): 95〜99km のボス3体の関門の次のボス
         ZakoRushTick();    // 90〜95km の雑魚の大群の段階の知らせ
+        AirRaidTick();     // 2026-11-04: 空中ボスの乱入(予告 → 出現 → 制限時間/関門の手前で飛び去る)
         if (IsBossPhase) return;
         if (Time.time < nextGateNotBefore) return; // 保留していたボスは、前のボスの報酬の後に少し空けてから
         if (SuppressGates) return; // ラストダンジョンの静寂区間〜エンディング: 通常のボスの関門を作らない
@@ -1007,7 +1008,7 @@ public partial class BossManager : MonoBehaviour
     {
         IsBossPhase = false;
         RunResumed = false; encounterResumable = false; pendingChosen = false; catchUpFloorK = 0; nextGateNotBefore = 0f; // ボス戦の強化: 再開/ワープで保留を持ち越さない
-        CurrentBossEncounter = null; RushGateK = 0; encounterHasCave = false; bossKeys.Clear(); CurrentTrio = null;
+        CurrentBossEncounter = null; RushGateK = 0; encounterHasCave = false; bossKeys.Clear(); CurrentTrio = null; ResetAirRaid();
         nextBossDistance = checkpointDistance + EffectiveRepeatInterval();
 
         // 荒野街道スケジュール: チェックポイント距離より先の最初のエントリへ。

@@ -1,0 +1,4 @@
+char	stage	km	class	killed	hits_avg	hits_max	one_hit_pct	first_dmg	hp_avg	kill_s_avg	atk
+swordsman	sky_corridor	1	small	8	1.00	1	100	19	19	0.00	20
+swordsman	sky_corridor	10	small	4	1.00	1	100	19	19	0.00	20
+swordsman	sky_corridor	19	small	9	1.00	1	100	19	19	0.00	20

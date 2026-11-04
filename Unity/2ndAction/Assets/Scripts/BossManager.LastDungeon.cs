@@ -29,6 +29,7 @@ public partial class BossManager
         // 走りながらのボスラッシュ(2026-10-06)
         public bool continuous;
         public bool mapRush;                            // 各マップの終盤のラッシュ(2026-10-15、BossManager.MapRush.cs): 同時に1体だけ
+        public bool raid;                               // 空中ボスの乱入(2026-11-04、BossManager.AirRaid.cs): 1体・走ったまま・関門の流れを通らない
         public int firstK, nextK;                       // 予定の最初の節目 / 次に予約する節目(km)
         public readonly List<string> plan = new List<string>(); // 節目ごとのボス(firstK から)
         public bool lastReinforcementDone;              // 98kmの増援を予約した
@@ -401,7 +402,7 @@ public partial class BossManager
     void LastDungeonTick()
     {
         var enc = CurrentBossEncounter;
-        if (enc != null && IsBossPhase && !NetCombat.Replica)
+        if (enc != null && IsBossPhase && !NetCombat.Replica && !enc.raid) // 乱入は AirRaidTick が見張る(消えたボスを撃破として関門の報酬へ流さない)
         {
             // 見張り: 撃破の処理を通らずに消えたボス(破棄)を残り数から外す(「ボスが残っている扱いで次が出ない」を防ぐ)
             for (int i = enc.activeBosses.Count - 1; i >= 0; i--)

@@ -28,6 +28,7 @@ public class LandmarkJourney : MonoBehaviour
     // 関門のボスを倒してから門が画面を抜けるまで(BONUS ZONE はこの間は始めない: 門をくぐる演出を主役に。2026-11-04 エステル)
     //  門が出るのは突破の確定(関門 + clearMargin)の後なので、その手前の「突破待ち」も含める。90km の関門(終盤の演出)は含めない
     public static bool GateVisible { get; private set; }
+    bool gateWasOn;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot()
@@ -177,6 +178,10 @@ public class LandmarkJourney : MonoBehaviour
         else { if (gate != null) gate.enabled = false; DrawInterior(null, Color.white, 0f, d, cp, screenW, screenH); }
         InteriorAlpha = interiorA;
         GateVisible = !endGate && (holding || (gate != null && gate.enabled));
+        // 2026-11-04: 門をくぐる時の風の音(門が画面に入った時に1回。小さく)
+        bool gateOn = gate != null && gate.enabled;
+        if (gateOn && !gateWasOn) SkyBossSfx.Play(SkyBossSfx.Whoosh(), 0.4f);
+        gateWasOn = gateOn;
 
         // ---- 目的地: 突破までは前の章の目的地を門の前の大きさで。突破の直後 40m で消え、内部を抜けたら次の目的地が見えてくる
         int dc; float rKm, destA;

@@ -611,15 +611,16 @@ public class SkyFlyby : MonoBehaviour
     float duration, t, fromScale, toScale, bob;
     Color tint;
     SpriteRenderer sr;
-    bool flip;
+    bool flip, solid;
 
-    public static SkyFlyby Create(Sprite[] frames, Vector2 fromViewport, Vector2 toViewport, float fromScale, float toScale, float duration, Color tint, bool flipX)
+    // solid(2026-11-04、道中イベントの影): 近づいても絵の色へ寄せず、暗い単色の影のまま(エステル「影は黒に近い単色」)
+    public static SkyFlyby Create(Sprite[] frames, Vector2 fromViewport, Vector2 toViewport, float fromScale, float toScale, float duration, Color tint, bool flipX, bool solid = false)
     {
         if (frames == null || frames.Length == 0) return null;
         var go = new GameObject("SkyFlyby");
         var f = go.AddComponent<SkyFlyby>();
         f.frames = frames; f.fromVp = fromViewport; f.toVp = toViewport; f.fromScale = fromScale; f.toScale = toScale;
-        f.duration = duration; f.tint = tint; f.flip = flipX;
+        f.duration = duration; f.tint = tint; f.flip = flipX; f.solid = solid;
         f.bob = Random.Range(0f, 10f);
         f.sr = go.AddComponent<SpriteRenderer>();
         f.sr.sortingOrder = -40;
@@ -650,8 +651,8 @@ public class SkyFlyby : MonoBehaviour
         transform.localScale = new Vector3(flip ? -s : s, s, 1f);
         transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(Time.time * 4f + bob) * 3f);
         sr.sprite = frames[(int)(Time.time * 8f) % frames.Length];
-        Color c = Color.Lerp(tint, new Color(1f, 1f, 1f, 0.85f), e * 0.6f);
-        c.a = tint.a * Mathf.Clamp01(f * 5f) * Mathf.Clamp01((1f - f) * 6f);
+        Color c = solid ? tint : Color.Lerp(tint, new Color(1f, 1f, 1f, 0.85f), e * 0.6f);
+        c.a = tint.a * Mathf.Clamp01(f * (solid ? 8f : 5f)) * Mathf.Clamp01((1f - f) * (solid ? 8f : 6f));
         sr.color = c;
     }
 }

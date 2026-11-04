@@ -953,6 +953,66 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         }
     }
 
+    // ---- 空中ボスの乱入(2026-11-04、BossManager.AirRaid.cs) ----
+    // 短い戦い(30〜60秒)にする: 崩し(BREAK)を溜まりやすく / 必殺技を使わない。HP は生成側(再戦の強さ × raidHpMul)
+    public void ApplyRaidLite(float staggerMul, bool noUltimate)
+    {
+        if (tune == null) return;
+        var c = tune.Clone();
+        if (c.staggerMax > 0f) c.staggerMax *= Mathf.Clamp(staggerMul, 0.2f, 2f);
+        if (noUltimate) { c.ultimateCooldown = 9999f; c.firstUltimateDelay = 9999f; }
+        tune = c;
+    }
+
+    // 倒しきれなかった/次の関門が近い: 報酬なしで空へ飛び去る(撃破として数えない。判定は全部消す)
+    public bool FlyingAway { get; private set; }
+    public void FlyAway(float seconds = 2.2f)
+    {
+        if (dead || FlyingAway || !isActiveAndEnabled) { if (!dead && !FlyingAway) Destroy(gameObject); return; }
+        FlyingAway = true;
+        StopAllCoroutines();
+        try { OnInterrupted(); } catch (System.Exception e) { Debug.LogException(e); }
+        DisableAllHitboxes();
+        invulnerable = true;
+        foreach (var c in GetComponentsInChildren<Collider2D>(true)) if (c != null) c.enabled = false;
+        // 撃破(倒れる/消える/報酬)と分かれるように: 羽音 + 唸り声を1回。成功の音や WARNING は出さない(エステルの案)
+        SkyBossSfx.Play(SkyBossSfx.Whoosh(), 0.6f);
+        BossVoice.Growl(this, DeathKey);
+        StartCoroutine(FlyAwayRoutine(Mathf.Max(1.5f, seconds))); // 画面の外へ出きらない時の上限
+    }
+
+    // 0〜0.3秒: 攻撃をやめて少し上昇しながら向きを変える → 加速して画面の右上の外へ(約1.2秒で出きる)→ 外へ出たら HP バーを消して終わり。
+    // 薄れて消さない(時間切れで消されたように見えないように)。HP バーは画面の外へ出るまで残す(HP が残ったまま逃げたと分かる)。2026-11-04 エステル
+    IEnumerator FlyAwayRoutine(float seconds)
+    {
+        freeGap = true; facingLocked = true; facing = 1f;
+        SetPose(Pose.Fly);
+        float t = 0f, turn = 0.3f;
+        var cam = Camera.main;
+        while (t < seconds)
+        {
+            t += Time.deltaTime;
+            if (t < turn) { relVelocity = 1.5f; yOffset += 3f * Time.deltaTime; }
+            else
+            {
+                float k = Mathf.Clamp01((t - turn) / 0.9f);
+                relVelocity = Mathf.Lerp(16f, 46f, k);
+                yOffset += Mathf.Lerp(7f, 18f, k) * Time.deltaTime;
+            }
+            if (t > turn && cam != null)
+            {
+                // 体の全部が画面の外(右か上)へ出たら終わり
+                var vpLow = cam.WorldToViewportPoint(new Vector3(worldX - halfWidth, transform.position.y, 0f));
+                if (vpLow.x > 1.02f || vpLow.y > 1.02f) break;
+            }
+            yield return null;
+        }
+        if (hpBar != null) hpBar.SetHidden();
+        FlyAwayDone = true;
+        Destroy(gameObject);
+    }
+    public bool FlyAwayDone { get; private set; }
+
     // 顔からプレイヤーまでの距離がstopDist以下になるまで接近(relVelocityで間合いを詰める)
     protected IEnumerator Approach(float stopDist, float speed, float timeout = 6f)
     {

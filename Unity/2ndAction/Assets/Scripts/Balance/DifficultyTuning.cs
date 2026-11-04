@@ -31,15 +31,57 @@ public class DifficultyTuning : ScriptableObject
     public Vector2[] smallHpScale = { new Vector2(0, 1f), new Vector2(20, 1f), new Vector2(40, 0.8f), new Vector2(65, 0.65f), new Vector2(90, 0.6f) };
     public Vector2[] largeHpScale = { new Vector2(0, 1f), new Vector2(20, 1f), new Vector2(60, 0.85f), new Vector2(90, 0.8f) };
 
+    // 2026-11-04(マスター「序盤から走りながら一撃で斬り抜ける爽快感」): 普通の小型雑魚の HP に上限を置く。
+    //  基準 = カードなし・初期状態の黒剣士の前攻撃1段目の威力(oneShotRefDamage)。上限 = 基準 × smallHpCapHits(x = km)。
+    //  0〜20km は 0.95(黒剣士なら基本1発)/ 20〜40km は 1〜2発 / 40km からは上の smallHpScale(APK 429 の値)へつながる(約 50km で上限が効かなくなる)。
+    //  キャラの個性は残す(攻撃の弱い/手数の多いキャラは 1〜2発・連撃の序盤)。大型・強敵(HP 倍率 > smallCapMaxHpMul)/ボスは対象外。
+    //  上限はカードの成長に関係なく決まった値 → カードで攻撃が上がると、より遠く/より多くの敵が一撃圏内に入る
+    [Header("序盤の小型雑魚の HP の上限(2026-11-04)")]
+    public bool smallHpCap = true;
+    [Tooltip("基準: カードなしの黒剣士の前攻撃1段目の威力(HP)")]
+    public int oneShotRefDamage = 20;
+    [Tooltip("この HP 倍率以下の雑魚だけ(普通の小型。大型・強敵は今までどおり)")]
+    public float smallCapMaxHpMul = 1.25f;
+    [Tooltip("中型(HP 倍率が smallCapMaxHpMul より大きく大型未満)の上限は小型の何倍か(3 = 黒剣士で約3発)。大型(largeHpMultiplier 以上)は上限なし")]
+    public float mediumCapMul = 3f;
+    [Tooltip("上限 = 基準 × この値(x = km)。0.95 = 基準の1発で倒れる")]
+    public Vector2[] smallHpCapHits = { new Vector2(0, 0.95f), new Vector2(20, 0.95f), new Vector2(30, 1.9f), new Vector2(40, 4.5f), new Vector2(50, 12f) };
+    public static bool SmallCapOff; // 開発版 -hpCapOff 1(比較用)
+
+    // 小型雑魚の HP の上限(DistanceTierManager.EnemyHpFor: 種族の倍率と距離の倍率を掛けた後、「敵が硬くなる」カードの倍率の前)
+    public static int CapSmallHp(int hp, float hpMultiplier, float distance)
+    {
+        var t = I;
+        if (SmallCapOff || !t.smallHpCap || LegacyOverride || t.legacy) return hp;
+        var gm = GameManager.Instance;
+        string st = gm != null ? gm.ActiveRunStageId : "";
+        if (!(st == "wasteland_road" || st == "natural_cave" || st == "sky_corridor") || ArenaMode.Active) return hp;
+        if (hpMultiplier < 0.7f || hpMultiplier >= t.largeHpMultiplier) return hp; // BONUS の宝の敵/大型はそのまま
+        float hits = Eval(t.smallHpCapHits, distance / 1000f);
+        if (hpMultiplier > t.smallCapMaxHpMul) hits *= Mathf.Max(1f, t.mediumCapMul); // 中型(兵隊アリ/ガーゴイル等): 小型の数倍は耐える(差を残す)
+        int cap = Mathf.Max(1, Mathf.FloorToInt(t.oneShotRefDamage * hits));
+        return Mathf.Min(hp, cap);
+    }
+
+    // 2026-11-04(道中の変化): 距離とともに増える感じを強めた(20〜40km 少し / 40〜60km 混成 / 60〜80km 明確に / 80〜90km 終盤の前触れ)。
+    //  APK 429 の値は下の V1(開発版 -densityV1 1 で比較)。HP は上げない(敵は倒しやすく、数が多く、被弾は痛い)
+    //  序盤の小型雑魚が一撃で倒れる(下の HP の上限)ので画面から早く消える分、20km からの間隔を少し多めに詰めた(比較: 0〜20km の画面の平均が 0.88→0.69 体、20〜40km が 1.03→0.82 体に減っていた → 0km から少し詰めて「0〜20km は今くらい / 20〜40km は少し多い」に戻す)
     [Header("敵の密度(Encounter の間隔と休憩の長さに掛ける。小さいほど多い)")]
-    public Vector2[] gapScale = { new Vector2(0, 1f), new Vector2(30, 1f), new Vector2(45, 0.85f), new Vector2(60, 0.75f), new Vector2(80, 0.66f), new Vector2(90, 0.58f) };
+    public Vector2[] gapScale = { new Vector2(0, 0.82f), new Vector2(20, 0.82f), new Vector2(25, 0.68f), new Vector2(30, 0.64f), new Vector2(40, 0.6f), new Vector2(50, 0.57f), new Vector2(60, 0.55f), new Vector2(70, 0.51f), new Vector2(80, 0.46f), new Vector2(90, 0.43f) };
     [Tooltip("休憩(Rest)を選ぶ重みに掛ける")]
-    public Vector2[] restWeightScale = { new Vector2(0, 1f), new Vector2(30, 1f), new Vector2(60, 0.7f), new Vector2(80, 0.5f), new Vector2(90, 0.4f) };
+    public Vector2[] restWeightScale = { new Vector2(0, 0.85f), new Vector2(20, 0.85f), new Vector2(25, 0.75f), new Vector2(40, 0.6f), new Vector2(60, 0.45f), new Vector2(70, 0.35f), new Vector2(80, 0.25f), new Vector2(90, 0.2f) };
     [Tooltip("激しい(Hard)Encounter の重みに掛ける")]
-    public Vector2[] hardWeightScale = { new Vector2(0, 1f), new Vector2(30, 1f), new Vector2(60, 1.4f), new Vector2(90, 1.8f) };
+    public Vector2[] hardWeightScale = { new Vector2(0, 1f), new Vector2(20, 1f), new Vector2(40, 1.25f), new Vector2(60, 1.6f), new Vector2(80, 2f), new Vector2(90, 2.3f) };
+    [Tooltip("地上 + 空の混成の Formation の重みに掛ける(40〜60km「混成が増える」)")]
+    public Vector2[] mixedBias = { new Vector2(0, 1f), new Vector2(35, 1f), new Vector2(45, 1.6f), new Vector2(60, 2f), new Vector2(90, 2.2f) };
+    static readonly Vector2[] GapV1 = { new Vector2(0, 1f), new Vector2(30, 1f), new Vector2(45, 0.85f), new Vector2(60, 0.75f), new Vector2(80, 0.66f), new Vector2(90, 0.58f) };
+    static readonly Vector2[] RestV1 = { new Vector2(0, 1f), new Vector2(30, 1f), new Vector2(60, 0.7f), new Vector2(80, 0.5f), new Vector2(90, 0.4f) };
+    static readonly Vector2[] HardV1 = { new Vector2(0, 1f), new Vector2(30, 1f), new Vector2(60, 1.4f), new Vector2(90, 1.8f) };
+    public static bool DensityV1; // 開発版 -densityV1 1: APK 429 の密度(比較用)
 
     [Header("同時に攻撃できる雑魚の数(ZakoAttackLimiter)をこの距離から効かせる")]
-    public float attackLimiterFromKm = 50f;
+    [Tooltip("2026-11-04: 敵が増えるので 50 → 30km から(見た目の数と実際の攻撃の圧を分ける)")]
+    public float attackLimiterFromKm = 30f;
     [Tooltip("密度(間隔/休憩/激しさ)と同時攻撃の上限を変えるのはここまで。この先(90km ボス/大群/3連戦/死神)は今までどおり")]
     public float densityUntilKm = 90f;
 
@@ -50,6 +92,8 @@ public class DifficultyTuning : ScriptableObject
     public float everyFiveKmUntil = 90f;
     [Tooltip("飛ばした 1km の地点で BONUS ZONE の抽選をする(ボスの後の抽選と同じ確率)")]
     public bool bonusRollAtSkippedGates = true;
+    [Tooltip("2026-11-04: 飛ばした 1km の地点の抽選の確率(ボスの後の確率 0.5 と同じだと 20〜90km で約 2km ごとに BONUS になり、道中イベントが押し出されていた)")]
+    [Range(0f, 1f)] public float bonusSkippedGateChance = 0.25f;
 
     // ---- 読み込み ----
     static DifficultyTuning inst; static bool loaded;
@@ -67,6 +111,10 @@ public class DifficultyTuning : ScriptableObject
                 var a = System.Environment.GetCommandLineArgs();
                 int i = System.Array.IndexOf(a, "-diffLegacy");
                 if (i >= 0 && i + 1 < a.Length) LegacyOverride = a[i + 1] == "1";
+                i = System.Array.IndexOf(a, "-hpCapOff");
+                if (i >= 0 && i + 1 < a.Length) SmallCapOff = a[i + 1] == "1";
+                i = System.Array.IndexOf(a, "-densityV1");
+                if (i >= 0 && i + 1 < a.Length) DensityV1 = a[i + 1] == "1";
 #endif
             }
             return inst;
@@ -169,8 +217,9 @@ public class DifficultyTuning : ScriptableObject
     }
 
     static bool DensityOn(float distance) => Active && distance < I.densityUntilKm * 1000f;
-    public static float GapScale(float distance) => DensityOn(distance) ? Mathf.Max(0.2f, Eval(I.gapScale, distance / 1000f)) : 1f;
-    public static float RestWeightScale(float distance) => DensityOn(distance) ? Mathf.Max(0f, Eval(I.restWeightScale, distance / 1000f)) : 1f;
-    public static float HardWeightScale(float distance) => DensityOn(distance) ? Mathf.Max(0f, Eval(I.hardWeightScale, distance / 1000f)) : 1f;
-    public static bool LimiterOn(float distance) => DensityOn(distance) && distance >= I.attackLimiterFromKm * 1000f;
+    public static float GapScale(float distance) => DensityOn(distance) ? Mathf.Max(0.2f, Eval(DensityV1 ? GapV1 : I.gapScale, distance / 1000f)) : 1f;
+    public static float RestWeightScale(float distance) => DensityOn(distance) ? Mathf.Max(0f, Eval(DensityV1 ? RestV1 : I.restWeightScale, distance / 1000f)) : 1f;
+    public static float HardWeightScale(float distance) => DensityOn(distance) ? Mathf.Max(0f, Eval(DensityV1 ? HardV1 : I.hardWeightScale, distance / 1000f)) : 1f;
+    public static float MixedBias(float distance) => DensityOn(distance) && !DensityV1 ? Mathf.Max(0f, Eval(I.mixedBias, distance / 1000f)) : 1f;
+    public static bool LimiterOn(float distance) => DensityOn(distance) && distance >= (DensityV1 ? 50f : I.attackLimiterFromKm) * 1000f;
 }
