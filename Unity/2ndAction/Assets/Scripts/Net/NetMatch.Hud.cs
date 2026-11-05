@@ -254,9 +254,12 @@ public partial class NetMatch
         Rect safe = StableSafeArea.Rect;
         float top = Screen.height - (safe.y + safe.height);
         // 左の参加者の欄と重ならない幅(左右対称に避ける)・ボスの名前の帯(BossBattle)とカードの下
-        float avoid = LastPartyHudRect.width > 0f ? LastPartyHudRect.xMax - safe.x + 8f * k : 16f * k;
+        //  縦画面(左の列が画面の半分近い)は横に避けず、参加者の欄の下に全幅で出す
+        bool stacked = GameManager.HudStacked;
+        float avoid = !stacked && LastPartyHudRect.width > 0f ? LastPartyHudRect.xMax - safe.x + 8f * k : 16f * k;
         float w = Mathf.Min(460f * k, safe.width - 2f * avoid), h = 70f * k;
         float y = Mathf.Max(top + safe.height * 0.24f, GameManager.RunCardsTopPx);
+        if (stacked && LastPartyHudRect.height > 0f) y = Mathf.Max(y, LastPartyHudRect.yMax + 8f * k);
         if (BossBattleHud.BannerVisible) y = Mathf.Max(y, BossBattleHud.BannerBottomPx + 6f * k);
         Rect r = new Rect(safe.x + (safe.width - w) * 0.5f, y, w, h);
         float pulse = 0.75f + 0.25f * Mathf.Sin(now * 8f);
