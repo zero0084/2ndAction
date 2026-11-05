@@ -114,7 +114,7 @@ public class NetDebugUI : MonoBehaviour
         }
         else if (NetSession.IsActive || NetRunLauncher.IsMultiplayerRun)
         {
-            if (HudPrefs.Show(HudPrefs.Item.Party) || !NetSession.IsActive) DrawRunHud(w, safeTop); // 2026-10-31: 画面情報の表示(マルチの参加者)。切断の表示はいつも出す
+            if (!NetSession.IsActive) DrawRunHud(w, safeTop); // 2026-11-05: 参加者の欄は NetMatch.Hud(HP/状態/FRONT)へ。ここは切断の表示だけ(いつも出す)
             GUI.matrix = prevMatrix;
             DrawRemoteNameTags();
             GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(s, s, 1f));
@@ -309,11 +309,12 @@ public class NetDebugUI : MonoBehaviour
         GUILayout.Label(L("モードを選んでください"), labelStyle);
         GUILayout.Space(8f);
         if (PadNav.LayoutButton(GUILayout.Button("CO-OP", buttonStyle, GUILayout.Height(64f)))) { NetRunLauncher.SelectedMode = MultiplayerGameMode.Coop; Go(MultiScreen.Choose); }
-        GUILayout.Label(L("倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。"), smallStyle);
+        GUILayout.Label(L(Loc.Reviewed(LocPendingReview.CoopRuleDesc, LocPendingReview.CoopRuleDescOld)), smallStyle); // 2026-11-05: 長押しで FRONT から HP
         if (Loc.Ready(SupportDeparturePanel.MileShareNote)) GUILayout.Label(L(SupportDeparturePanel.MileShareNote), smallStyle); // 2026-10-15: 協力は獲得 MILE を参加人数で分配(レビュー後に各言語)
         GUILayout.Space(8f);
         if (PadNav.LayoutButton(GUILayout.Button("VERSUS", buttonStyle, GUILayout.Height(64f)))) { NetRunLauncher.SelectedMode = MultiplayerGameMode.Versus; Go(MultiScreen.Choose); }
-        GUILayout.Label(L("倒れたら脱落(復活なし)。最後の1人まで続き、到達距離で順位が決まる。"), smallStyle);
+        GUILayout.Label(L(Loc.Reviewed(LocPendingReview.VersusRuleDesc, LocPendingReview.VersusRuleDescOld)), smallStyle); // 2026-11-05: 死神の乱入時間と MILE ボーナス
+        if (LocPendingReview.Pend(LocPendingReview.VersusTakeHomeNote) != null) GUILayout.Label(L(LocPendingReview.VersusTakeHomeNote), smallStyle);
         GUILayout.FlexibleSpace();
         if (PadNav.LayoutButton(GUILayout.Button(L("戻る"), buttonStyle, GUILayout.Height(48f)))) Go(MultiScreen.Top);
     }
@@ -327,6 +328,7 @@ public class NetDebugUI : MonoBehaviour
         GUILayout.Label((online ? "ONLINE PLAY · " : "LOCAL PLAY · ") + m, titleStyle);
         GUILayout.Space(10f);
         bool busy = online && OnlineServices.Busy;
+        if (NetRunLauncher.SelectedMode == MultiplayerGameMode.Versus) DrawReaperTimeButton(busy); // 2026-11-05: 部屋を作る前に選ぶ(作った後も出発まで変えられる)
         GUI.enabled = !busy;
         if (PadNav.LayoutButton(GUILayout.Button("CREATE GAME", buttonStyle, GUILayout.Height(70f)))) { if (online) CreateOnlineGame(); else CreateGame(); }
         GUILayout.Label(L(online ? "部屋を作成し、オンラインの「FIND GAME」に公開します。" : "この端末で部屋を作ります。同じWi-Fiの端末から「FIND GAME」で参加できます。"), smallStyle);
@@ -341,6 +343,22 @@ public class NetDebugUI : MonoBehaviour
         GUI.enabled = !busy;
         if (PadNav.LayoutButton(GUILayout.Button(L("戻る"), buttonStyle, GUILayout.Height(48f)))) Go(MultiScreen.Mode);
         GUI.enabled = true;
+    }
+
+    // VERSUS の死神の乱入時間(2026-11-05)。押すたびに 5 → 10 → 20 → 30 → なし → 5 …(値は MultiplayerRules)
+    public static string ReaperTimeLabel(int minutes) => minutes > 0 ? $"REAPER TIME: {minutes} MIN" : "REAPER TIME: " + Loc.T("なし");
+    void DrawReaperTimeButton(bool disabled)
+    {
+        bool was = GUI.enabled;
+        GUI.enabled = was && !disabled;
+        if (PadNav.LayoutButton(GUILayout.Button(ReaperTimeLabel(NetRunLauncher.SelectedReaperMinutes) + "  ▶", buttonStyle, GUILayout.Height(52f))))
+        {
+            NetRunLauncher.CycleReaperMinutes();
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
+        }
+        GUI.enabled = was;
+        string help = LocPendingReview.Pend(LocPendingReview.ReaperTimeHelp);
+        if (help != null) GUILayout.Label(L(help), smallStyle);
     }
 
     void CreateGame()
@@ -513,6 +531,13 @@ public class NetDebugUI : MonoBehaviour
         string roomName = onl && OnlineServices.Current != null ? OnlineServices.Current.Name : host ? LanDiscovery.RoomName : L("参加中の部屋");
         GUILayout.Label(roomName, titleStyle);
         GUILayout.Label((onl ? "ONLINE  " : "LOCAL  ") + (host ? $"MODE: {m}" + L("(HOSTが決めます)") : L("MODE: HOSTが決めます(Run開始時に自動で揃います)")), smallStyle);
+        // 2026-11-05: VERSUS の死神の乱入時間。HOST は出発前まで変えられる / JOIN は見るだけ(HOST の NetPlayer の部屋の設定)
+        if (host) { if (NetRunLauncher.SelectedMode == MultiplayerGameMode.Versus) DrawReaperTimeButton(false); }
+        else if (NetPlayer.TryGetRoomRules(out bool rv, out int rmin))
+        {
+            GUILayout.Label($"MODE: {(rv ? "VERSUS" : "CO-OP")}", smallStyle);
+            if (rv) GUILayout.Label(ReaperTimeLabel(rmin), labelStyle);
+        }
         GUILayout.Space(8f);
         GUILayout.Label($"WAITING FOR PLAYERS {NetSession.ConnectedPlayerCount}/{NetSession.MaxPlayers}", titleStyle);
         var sb = new StringBuilder();

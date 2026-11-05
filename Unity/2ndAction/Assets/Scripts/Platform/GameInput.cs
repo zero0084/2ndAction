@@ -149,6 +149,8 @@ public class GameInput : MonoBehaviour
     }
 
     public static bool Held(GameAction a) { Refresh(); return held[(int)a]; }
+    // マルチの CO-OP の復活(2026-11-05): DOWN の間の長押し(キー/パッドの「長押しの操作」か「決定」。タッチ/マウスは復活の欄の上を押し続ける)
+    public static bool ReviveHeld => Held(GameAction.Hold) || Held(GameAction.Confirm);
     // 押した瞬間(このフレームだけ)
     public static bool Down(GameAction a) { Refresh(); return held[(int)a] && !prevHeld[(int)a]; }
     // 押した瞬間 + 押し続けた時の繰り返し(メニューの移動用)

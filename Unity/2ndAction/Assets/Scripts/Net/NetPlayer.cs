@@ -47,6 +47,17 @@ public class NetPlayer : NetworkBehaviour
     public readonly NetworkVariable<byte> WantedLevelVar = new NetworkVariable<byte>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     public static int MaxRemoteWantedLevel() { int m = 0; foreach (var p in All) if (p != null && p.IsSpawned) m = Mathf.Max(m, p.WantedLevelVar.Value); return m; }
     public readonly NetworkVariable<FixedString64Bytes> ParticipantKey = new NetworkVariable<FixedString64Bytes>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    // 2026-11-05(版12): 部屋の設定。HOST の NetPlayer だけが書く(bit7 = VERSUS、下位7bit = 死神の乱入時間の分、0 = なし)。
+    //  JOIN の待合室で「REAPER TIME: 10 MIN」を見せるためだけ(Run の正解は Run 開始の通知に載る値)
+    public readonly NetworkVariable<byte> RoomRulesVar = new NetworkVariable<byte>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    public static bool TryGetRoomRules(out bool versus, out int reaperMinutes)
+    {
+        versus = false; reaperMinutes = 0;
+        foreach (var p in All)
+            if (p != null && p.IsSpawned && p.OwnerClientId == 0)
+            { byte v = p.RoomRulesVar.Value; versus = (v & 0x80) != 0; reaperMinutes = v & 0x7F; return true; }
+        return false;
+    }
     public const string LocalKeyPref = "Net.ParticipantKeyV1";
     static readonly Dictionary<string, int> sessionSlots = new Dictionary<string, int>(); // HOST: この部屋で使った「鍵 → 番号」
     public static string LocalParticipantKey()
@@ -200,6 +211,12 @@ public class NetPlayer : NetworkBehaviour
         if (!CodenameVar.Value.Equals(cn)) CodenameVar.Value = cn;
         byte wl = (byte)(gm != null && gm.HasStarted && NetRunLauncher.IsMultiplayerRun ? Mathf.Clamp(Mathf.RoundToInt(gm.Card.Get(EffectType.WantedLevel)), 0, 255) : 0);
         if (WantedLevelVar.Value != wl) WantedLevelVar.Value = wl;
+        if (IsServer)
+        {
+            bool vs = NetRunLauncher.SelectedMode == MultiplayerGameMode.Versus;
+            byte rr = (byte)((vs ? 0x80 : 0) | Mathf.Clamp(vs ? NetRunLauncher.SelectedReaperMinutes : 0, 0, 0x7F));
+            if (RoomRulesVar.Value != rr) RoomRulesVar.Value = rr;
+        }
     }
 
     // 送れる長さ(UTF-8 のバイト数)に、文字の途中で切らずに収める

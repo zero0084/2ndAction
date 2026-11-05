@@ -81,6 +81,32 @@ public partial class GameManager
     bool HpVisibleNow => HudPrefs.Show(HudPrefs.Item.Hp) || (HudPrefs.HiddenMode && (Time.unscaledTime < hpPeekUntil || HpLow));
     float HpPeekAlpha => HudPrefs.Show(HudPrefs.Item.Hp) ? 1f : HpLow ? 0.85f : Mathf.Clamp01((hpPeekUntil - Time.unscaledTime) / 0.5f);
 
+    // マルチの参加者の欄(NetMatch.PartyHud、2026-11-05)を置く左上の点(実際の画素): 左の距離の板の下。板が無い時(非表示)は左上
+    public static Vector2 PartyHudAnchorPx
+    {
+        get
+        {
+            var gm = Instance;
+            if (gm == null) return new Vector2(StableSafeArea.Rect.x + HudStyle.Margin, 8f);
+            float k = HudK;
+            Rect run = gm.GetRunPanelRect();
+            float y = gm.RunPanelHeightV > 0f ? run.yMax + HudStyle.Gap * k : gm.SafeTop() + HudStyle.Margin * k;
+            return new Vector2(gm.SafeLeft() + HudStyle.Margin * k, y);
+        }
+    }
+
+    // 参加者の欄の幅(実際の画素): 距離の板と同じ幅(板が無い時は既定の幅)
+    public static float PartyHudWidthPx
+    {
+        get
+        {
+            var gm = Instance;
+            float k = HudK;
+            float w = gm != null && gm.RunPanelHeightV > 0f ? gm.RunPanelWidthV * k : 0f;
+            return Mathf.Clamp(w, 190f * k, Mathf.Max(190f * k, StableSafeArea.Rect.width * 0.45f));
+        }
+    }
+
     // カード(RunBuildHud)の上端と、縦画面で左の列を避ける境(実際の画素)
     public static float RunCardsTopPx
     {

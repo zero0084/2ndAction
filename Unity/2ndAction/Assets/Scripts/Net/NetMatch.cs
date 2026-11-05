@@ -34,7 +34,7 @@ public partial class NetMatch : MonoBehaviour
     const byte SyncTable = 1, SyncHitResult = 2, SyncBossReward = 3, SyncRunOver = 4, SyncRevived = 5, SyncPlayerFx = 6, SyncRushReward = 7;
 
     public enum ClaimKind : byte { Environment = 0, EnemyContact = 1, Attack = 2 }
-    public enum PState : byte { Alive = 0, Down = 1, Eliminated = 2, Out = 3 }
+    public enum PState : byte { Alive = 0, Down = 1, Eliminated = 2, Out = 3, Escaped = 4 } // Escaped(2026-11-05): 脱出した(生存者/FRONT から外れる)
 
     public class Rec
     {
@@ -53,6 +53,7 @@ public partial class NetMatch : MonoBehaviour
         public readonly HashSet<long> HitKeys = new HashSet<long>();
         public int HitsTaken, ClaimsRejected;
         public bool Known;                    // HOSTがこの人の初期HPを受け取った
+        public bool ReaperReached;            // 2026-11-05 VERSUS: 死神の乱入の時に生き残っていた(REAPER BONUS)
     }
 
     readonly Dictionary<int, Rec> recs = new Dictionary<int, Rec>();
@@ -128,6 +129,7 @@ public partial class NetMatch : MonoBehaviour
         EventLog.Clear();
         StatClaimsSent = StatClaimsAccepted = StatClaimsRejected = StatHitsConfirmed = StatHostRemoteHits = 0;
         OnSceneResetPhase3();
+        OnSceneResetRules2();
     }
 
     void Log(string msg)
@@ -150,6 +152,7 @@ public partial class NetMatch : MonoBehaviour
         if (gm == null || pc == null || !gm.HasStarted) return;
 
         int local = NetCombat.LocalPlayerNumber;
+        UpdateRules2(gm); // 2026-11-05: 脱出の通知・死神の乱入時間・予告
         if (NetCombat.Authority)
         {
             // HOST自身の記録はHOSTのGameManagerが持つ値そのもの(HOSTが権威)。
@@ -392,6 +395,12 @@ public partial class NetMatch : MonoBehaviour
                 HostHandleReviveRequest(pn, downPn);
                 break;
             }
+            case ReqEscaped:
+            {
+                r.ReadValueSafe(out double ed);
+                HostMarkEscaped(rec, ed);
+                break;
+            }
         }
     }
 
@@ -557,6 +566,9 @@ public partial class NetMatch : MonoBehaviour
                 OnRevivedClient(downPn, donorPn);
                 break;
             }
+            case SyncReviveRejected:
+                OnReviveRejectedClient(r);
+                break;
             case SyncPlayerFx:
             {
                 r.ReadValueSafe(out byte pn); r.ReadValueSafe(out byte kind); r.ReadValueSafe(out float a); r.ReadValueSafe(out float b);

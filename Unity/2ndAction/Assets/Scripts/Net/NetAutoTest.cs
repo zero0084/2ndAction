@@ -63,6 +63,9 @@ public partial class NetAutoTest : MonoBehaviour
     float killAt = -1f;
     bool killFall;
     bool autoRevive;
+    // 2026-11-05 長押しの復活の試験: 押し始めるまでの秒 / 途中で離す進み / 画面の判定を無視して HOST に送る / 長押しの秒の上書き / FRONT なら自分を倒す時刻
+    float reviveAfter = 0.5f, reviveReleaseAt = -1f, reviveHoldSecs = -1f, killIfFrontAt = -1f; bool reviveIgnoreBlock, killIfFrontDone;
+    float downSince = -1f;
     float hpAtTime = -1f; int hpAtValue;
     bool hpAtDone;
     int startHp = 0;
@@ -72,7 +75,6 @@ public partial class NetAutoTest : MonoBehaviour
     readonly System.Collections.Generic.List<float> killTimes = new System.Collections.Generic.List<float>();
     int killIndex;
     float killTimer;
-    float reviveTimer = -1f;
     float runOverSeen = -1f;
     float p3LogTimer;
     bool p3Hp => killAt >= 0f || hpAtTime >= 0f || startHp > 0;
@@ -349,7 +351,7 @@ public partial class NetAutoTest : MonoBehaviour
         {
             string a = args[i];
             string next = i + 1 < args.Length ? args[i + 1] : "";
-            if (ParseWorldArg(a, next) || ParseAuraArg(a, next)) { }
+            if (ParseWorldArg(a, next) || ParseAuraArg(a, next) || ParseRulesArg(a, next)) { }
             else if (a == "-netAutoHost") role = "HOST";
             else if (a == "-netAutoJoin") { role = "JOIN"; joinIp = next; }
             else if (a == "-netAutoRoom") onlineRoom = next; // ONLINE: HOST が作る部屋の名前 / JOIN が一覧から探す名前
@@ -387,6 +389,11 @@ public partial class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoKillAt") { foreach (string k in next.Split(',')) if (float.TryParse(k, out float kt)) killTimes.Add(kt); if (killTimes.Count > 0) killAt = killTimes[0]; damageTest = true; }
             else if (a == "-netAutoKillFall") killFall = true;
             else if (a == "-netAutoRevive") autoRevive = true;
+            else if (a == "-netAutoReviveAfter") float.TryParse(next, out reviveAfter);
+            else if (a == "-netAutoReviveRelease") float.TryParse(next, out reviveReleaseAt);
+            else if (a == "-netAutoReviveIgnoreBlock") reviveIgnoreBlock = true;
+            else if (a == "-netAutoReviveHold") float.TryParse(next, out reviveHoldSecs);
+            else if (a == "-netAutoKillIfFrontAt") { float.TryParse(next, out killIfFrontAt); damageTest = true; }
             else if (a == "-netAutoHpAt") { var parts = next.Split(':'); if (parts.Length == 2) { float.TryParse(parts[0], out hpAtTime); int.TryParse(parts[1], out hpAtValue); } damageTest = true; }
             else if (a == "-netAutoStartHp") { int.TryParse(next, out startHp); damageTest = true; }
             else if (a == "-netAutoCards") cardsArg = next;
@@ -522,6 +529,13 @@ public partial class NetAutoTest : MonoBehaviour
                 break;
             case Step.WaitPlayers:
                 LobbyRejoinTick(stepTime);
+                // 2026-11-05: 同じ PC で 8 プロセスを起動すると、部屋の案内(証明書)の受け取りが落ちることがある → JOIN をやり直す(試験だけ)
+                if (role == "JOIN" && !OnlineMode && joinIp != "lan" && !NetSession.IsActive && !NetSession.JoinPending && stepTime > joinRetryAt)
+                {
+                    joinRetryAt = stepTime + 4f; joinRetries++;
+                    L($"JOIN retry #{joinRetries} ({NetSession.LastJoinFailure})");
+                    NetSession.Instance.StartClient(joinIp, autoPort);
+                }
                 if (NetSession.ConnectedPlayerCount >= expectPlayers && stepTime > 2f && HostMayDepart(stepTime) && (lobbyLeaveAt < 0f || lobbyRejoined))
                 {
                     L($"all {expectPlayers} players connected (players={NetSession.ConnectedPlayerCount})");
@@ -534,7 +548,7 @@ public partial class NetAutoTest : MonoBehaviour
                     if (role == "HOST" && gm != null) gm.DepartFromStageSelect(stage);
                     Next(Step.WaitRun);
                 }
-                else if (stepTime > (OnlineMode ? 120f : 30f)) Finish("TIMEOUT waiting for players");
+                else if (stepTime > (OnlineMode ? 120f : waitPlayersSec)) Finish("TIMEOUT waiting for players");
                 break;
             case Step.WaitRun:
                 PreGoCheck(gm);
@@ -546,7 +560,7 @@ public partial class NetAutoTest : MonoBehaviour
                     L($"STARTSYNC role={role} me=P{NetCombat.LocalPlayerNumber} runningUtc={NetRunLauncher.LocalRunningUtc:HH:mm:ss.fff} serverAtRunning={NetRunLauncher.LocalRunningServerTime:F4} runStartNetworkTime={NetRunLauncher.RunStartNetworkTime:F4} states=[{runStateTrail.Trim()}] preGoMaxMove={preGoMaxMove:F3} preGoMaxDist={preGoMaxDist:F3} preGoMaxEnemies={preGoMaxEnemies} preGoInputsInjected={preGoInputs} posAtGo=({p0.x:F2},{p0.y:F2}) startPos=({preGoPos.x:F2},{preGoPos.y:F2})");
                     Next(Step.Running);
                 }
-                else if (stepTime > 40f) Finish("TIMEOUT waiting for run start");
+                else if (stepTime > Mathf.Max(40f, waitPlayersSec + 10f)) Finish("TIMEOUT waiting for run start");
                 break;
             case Step.Running:
                 runTime += Time.unscaledDeltaTime;
@@ -582,6 +596,7 @@ public partial class NetAutoTest : MonoBehaviour
                 }
                 PeriodicLog(gm);
                 AuraLogTick(runTime);
+                RulesTick(runTime);
                 SpreadTick();
                 SceneryTest(gm);
                 BossRunLog(gm);
@@ -968,19 +983,32 @@ public partial class NetAutoTest : MonoBehaviour
                 if (++killIndex < killTimes.Count) { killAt = killTimes[killIndex]; killDone = false; killStarted = false; }
             }
         }
-        // 自動で復活させる(条件が揃ったら0.4秒後にREVIVE)
-        if (autoRevive && me != null && me.State == NetMatch.PState.Alive)
+        // 2026-11-05 自動で復活(DOWN した本人が長押し。FRONT は HOST が長押しの終わった瞬間に決める)
+        if (reviveHoldSecs > 0f) MultiplayerRules.I.reviveHoldSeconds = reviveHoldSecs;
+        NetMatch.QaHoldReleaseAt = reviveReleaseAt;
+        NetMatch.QaHoldIgnoreBlock = reviveIgnoreBlock;
+        bool iAmDown = me != null && me.State == NetMatch.PState.Down && NetRunLauncher.ActiveMode == MultiplayerGameMode.Coop;
+        if (iAmDown) { if (downSince < 0f) downSince = runTime; } else downSince = -1f;
+        bool hold = autoRevive && iAmDown && runTime - downSince >= reviveAfter;
+        if (hold && !NetMatch.QaHoldRevive)
         {
-            int target = 0;
-            foreach (var r in nmi.Records.Values)
-                if (r.Pn != local && NetMatch.CanRevive(r, me, out _)) { target = r.Pn; break; }
-            if (target > 0)
+            var f = NetMatch.FrontAlive();
+            bool can = NetMatch.CanRevive(me, out var donor, out var block, out string why);
+            L($"p3 REVIVE hold start me=P{local} front={(f != null ? "P" + f.Pn + " hp=" + f.Hp + " dist=" + f.Distance.ToString("F1") : "none")} can={can} block={block} ({why}) hold={MultiplayerRules.I.reviveHoldSeconds:F1}s releaseAt={reviveReleaseAt:F2} ignoreBlock={reviveIgnoreBlock}");
+        }
+        if (!hold && NetMatch.QaHoldRevive) L($"p3 REVIVE hold end me=P{local} state={(me != null ? me.State.ToString() : "?")} hp={(me != null ? me.Hp : -1)} started={nmi.ReviveHoldsStarted} cancelled={nmi.ReviveHoldsCancelled} completed={nmi.ReviveHoldsCompleted}");
+        NetMatch.QaHoldRevive = hold;
+        // FRONT の入れ替わりの確認: 指定時刻に自分が FRONT なら自分を倒す(長押しの途中で FRONT が変わる)
+        if (killIfFrontAt >= 0f && !killIfFrontDone && runTime >= killIfFrontAt)
+        {
+            killIfFrontDone = true;
+            var f = NetMatch.FrontAlive();
+            if (f != null && f.Pn == local && me != null && me.State == NetMatch.PState.Alive)
             {
-                if (reviveTimer < 0f) reviveTimer = 0f;
-                reviveTimer += Time.unscaledDeltaTime;
-                if (reviveTimer >= 0.4f) { reviveTimer = -1f; L($"p3 REVIVE press (donor=P{local} hp={me.Hp} dist={me.Distance:F1}) -> P{target}"); NetMatch.RequestRevive(target); }
+                L($"p3 KILL-IF-FRONT: I am FRONT (P{local} dist={me.Distance:F1}) -> going down during someone's hold");
+                killAt = runTime; killDone = false; killStarted = false; killIndex = killTimes.Count; // この後の続きの倒し方は無し
             }
-            else reviveTimer = -1f;
+            else L($"p3 KILL-IF-FRONT: not front (front=P{(f != null ? f.Pn : 0)})");
         }
         // 1秒ごとの状態(モード/表/自分の距離・EXP・撃破)
         p3LogTimer += Time.unscaledDeltaTime;
@@ -994,7 +1022,7 @@ public partial class NetAutoTest : MonoBehaviour
             L($"p3 t={runTime:F1} mode={NetRunLauncher.ActiveMode} me=P{local} lives={gm.Lives} downed={pc.NetIsDowned} dist={pc.DistanceExact:F1} exp={gm.TotalExpEarned:F1} lv={gm.Level} kills={gm.EnemyKillCount} bossKills={gm.BossKillCount} gameOver={gm.IsGameOver} table=[{nmi.DebugDescribe().Trim()}] targets=[{targets.Trim()}] runOver={nmi.RunOver}");
         }
         if (nmi.RunOver && runOverSeen < 0f) { runOverSeen = runTime; L($"p3 RUN OVER seen at t={runTime:F1} gameOver={gm.IsGameOver}"); }
-        if (runOverSeen >= 0f && runTime - runOverSeen > 4f)
+        if (runOverSeen >= 0f && runTime - runOverSeen > runOverHold)
         {
             L($"p3 final gameOver={gm.IsGameOver} lives={gm.Lives} exp={gm.TotalExpEarned:F1} dist={pc.DistanceExact:F1} kills={gm.EnemyKillCount} bossKills={gm.BossKillCount}");
             L($"RESULTCHK role={role} me=P{local} violationTime={violationTime:F3}s choicesClosed={gm.NetChoicesClosedCount} uiOpenNow={gm.IsLocalChoiceOpen || gm.IsRewardSequenceRunning} pendingLevelUps={gm.PendingLevelUpCount} bossRewardQueued={GetPrivateField(gm, "bossRewardDeferredPending")} runState={NetRunLauncher.RunState} state={(me != null ? me.State.ToString() : "?")} gameOver={gm.IsGameOver}");

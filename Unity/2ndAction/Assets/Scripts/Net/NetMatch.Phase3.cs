@@ -12,10 +12,8 @@ using UnityEngine;
 // CO-OP:
 //  - HP0 → DOWN(その瞬間の距離をDownDistanceとして固定)。DOWN中は操作不可・狙われない・被弾しない・
 //    攻撃しない・走行停止。ネットワーク上のプレイヤー(NetPlayer)は消さない。
-//  - 復活 = 「DOWNした人の地点(DownDistance)以上にいる、HP2以上の生存プレイヤー」がHPを1つ渡す。
-//    先行プレイヤーが倒れたら、後続はその地点まで走って行かないと助けられない。
-//    判定(CanRevive)と実行(ExecuteRevive)は分離し、実行は助ける側が選ぶ(REVIVEボタン)。
-//    Donor HP-1 / Down HP=1。復活はDOWNした地点(その場)で、既存の復帰(Recovery)の無敵だけを使う。
+//  - 復活(2026-11-05 変更): DOWNした本人が長押し → 長押しが終わった瞬間にHOSTが「一番前の生存プレイヤー(FRONT)」を選び、
+//    FRONTのHPが2以上ならHPを1もらってHP1で復活(NetMatch.Rules2)。復活はDOWNした地点(その場)。
 //  - 全員がDOWNしたらRun終了。
 // VERSUS:
 //  - HP0 → ELIMINATED(復活なし)。その瞬間の距離をFinalDistanceとして固定。
@@ -33,6 +31,9 @@ public partial class NetMatch
         public int Kills, BossLastHits;
         public PState State;
         public int Rank;
+        // 2026-11-05 VERSUS の MILE ボーナス(HOST が決める)
+        public bool Eligible, ReaperReached;
+        public float RankBonus, ReaperBonus;
     }
 
     bool runOver;
@@ -88,7 +89,7 @@ public partial class NetMatch
         NetworkManager nm = NetSession.Manager;
         foreach (var r in recs.Values)
         {
-            if (r.Pn == NetCombat.LocalPlayerNumber || r.State == PState.Out || r.State == PState.Eliminated) continue;
+            if (r.Pn == NetCombat.LocalPlayerNumber || r.State == PState.Out || r.State == PState.Eliminated || r.State == PState.Escaped) continue;
             bool connected = false;
             if (nm != null) foreach (ulong id in nm.ConnectedClientsIds) if (id == r.ClientId) { connected = true; break; }
             if (!connected && r.Known)
@@ -116,7 +117,7 @@ public partial class NetMatch
         ApplyLocalStatePhase3(gm, pc);
     }
 
-    // 1秒ごとに、DOWN中の人ごとの復活判定を記録する(テスト/デバッグ用。成立の瞬間は必ず記録)。
+    // 1秒ごとに、DOWN中の人ごとの復活判定(FRONT から HP をもらえるか)を記録する(テスト/デバッグ用。変化した時は必ず記録)。
     void LogReviveChecks()
     {
         if (Mode != MultiplayerGameMode.Coop) return;
@@ -126,81 +127,15 @@ public partial class NetMatch
         foreach (var down in recs.Values)
         {
             if (down.State != PState.Down) continue;
-            foreach (var donor in recs.Values)
-            {
-                if (donor == down) continue;
-                bool ok = CanRevive(down, donor, out string why);
-                long key = ((long)down.Pn << 16) | (uint)donor.Pn;
-                bool was = reviveAvailLogged.TryGetValue(key, out bool w) && w;
-                if (ok != was) { reviveAvailLogged[key] = ok; Log($"REVIVE {(ok ? "AVAILABLE" : "unavailable")} down=P{down.Pn} donor=P{donor.Pn} {why}"); }
-                else if (periodic && recs.Count <= 2) Log($"revive check down=P{down.Pn} donor=P{donor.Pn} -> {(ok ? "YES" : "NO")} {why}"); // 3人以上は変化した時だけ
-            }
+            bool ok = CanRevive(down, out Rec donor, out _, out string why);
+            long key = ((long)down.Pn << 16) | (uint)(donor != null ? donor.Pn : 0);
+            bool was = reviveAvailLogged.TryGetValue(key, out bool w) && w;
+            if (ok != was || !reviveAvailLogged.ContainsKey(key)) { reviveAvailLogged[key] = ok; Log($"REVIVE {(ok ? "AVAILABLE" : "unavailable")} down=P{down.Pn} {why}"); }
+            else if (periodic && recs.Count <= 2) Log($"revive check down=P{down.Pn} -> {(ok ? "YES" : "NO")} {why}");
         }
     }
 
-    // ===================================================================== //
-    // 復活(CO-OP)
-    // ===================================================================== //
-
-    // 判定のみ(状態は変えない)。why = 理由/数値(ログ/表示用)。
-    public static bool CanRevive(Rec down, Rec donor, out string why)
-    {
-        why = "";
-        if (Mode != MultiplayerGameMode.Coop) { why = "not CO-OP"; return false; }
-        if (down == null || donor == null) { why = "no player"; return false; }
-        if (down.State != PState.Down) { why = $"P{down.Pn} is {down.State}"; return false; }
-        if (donor.State != PState.Alive) { why = $"donor P{donor.Pn} is {donor.State}"; return false; }
-        double gap = down.DownDistance - donor.Distance;
-        string nums = $"DownDistance={down.DownDistance:F1}m donorDistance={donor.Distance:F1}m donorHp={donor.Hp}";
-        if (donor.Hp <= CombatScale.PlayerHit) { why = $"donor HP {donor.Hp} <= {CombatScale.PlayerHit} (cannot give the last heart) {nums}"; return false; }
-        if (gap > 0) { why = $"donor is {gap:F1}m behind the down point {nums}"; return false; }
-        why = nums;
-        return true;
-    }
-
-    // 助ける側の端末から呼ぶ(REVIVEボタン/自動テスト)。
-    public static void RequestRevive(int downPn)
-    {
-        if (Instance == null || !Active) return;
-        if (NetCombat.Authority) Instance.HostHandleReviveRequest(NetCombat.LocalPlayerNumber, downPn);
-        else SendToHost(w => { w.WriteValueSafe(ReqRevive); w.WriteValueSafe((byte)downPn); });
-        Instance.Log($"REVIVE requested by P{NetCombat.LocalPlayerNumber} for P{downPn}");
-    }
-
-    void HostHandleReviveRequest(int requesterPn, int downPn)
-    {
-        Rec down = Get(downPn), donor = Get(requesterPn);
-        if (!CanRevive(down, donor, out string why))
-        {
-            ReviveRejected++;
-            Log($"REVIVE REJECTED down=P{downPn} donor=P{requesterPn}: {why}");
-            return;
-        }
-        ExecuteRevive(down, donor);
-    }
-
-    // 実行(HOSTのみ)。Donor HP-1、Down HP=1、DownはDOWNした地点で復帰する。
-    void ExecuteRevive(Rec down, Rec donor)
-    {
-        GameManager gm = GameManager.Instance;
-        int local = NetCombat.LocalPlayerNumber;
-        int donorBefore = donor.Hp;
-        donor.Hp -= CombatScale.PlayerHit; // ハート1つ分を渡す(10倍スケール)
-        down.Hp = CombatScale.PlayerHit;
-        down.State = PState.Alive;
-        down.InvulnUntil = Time.realtimeSinceStartup + 1.5f;
-        if (gm != null)
-        {
-            if (donor.Pn == local) gm.NetSetLocalLives(donor.Hp);
-            if (down.Pn == local) gm.NetSetLocalLives(CombatScale.PlayerHit);
-        }
-        ReviveCount++;
-        Log($"REVIVE EXECUTED down=P{down.Pn} donor=P{donor.Pn}: donor hp {donorBefore} -> {donor.Hp}, down hp 0 -> {down.Hp}, at DownDistance={down.DownDistance:F1}m (donorDistance={donor.Distance:F1}m)");
-        SendToClients(w => { w.WriteValueSafe(SyncRevived); w.WriteValueSafe((byte)down.Pn); w.WriteValueSafe((byte)donor.Pn); });
-        dirty = true;
-        SendTable();
-        if (down.Pn == local) ApplyLocalStatePhase3(gm, PlayerController.Instance);
-    }
+    // 復活(CO-OP)は NetMatch.Rules2(2026-11-05: DOWN した本人の長押し + 完了した瞬間の FRONT から HP をもらう)
 
     void OnRevivedClient(byte downPn, byte donorPn)
     {
@@ -235,7 +170,10 @@ public partial class NetMatch
             else if (me.State == PState.Out && NetCombat.Replica && !gm.IsGameOver) gm.NetForceGameOver("HP0(HOST)");
         }
         if (runOver && !gm.IsGameOver && runOverAt > 0f && Time.realtimeSinceStartup >= runOverAt)
+        {
+            if (LocalPay != null && LocalPay.Eligible) gm.NetSetVersusPay(LocalPay.Rank, LocalPay.Players, LocalPay.RankBonus, LocalPay.ReaperBonus); // 試合の完了: 脱落までの MILE を持ち帰る + ボーナス
             gm.NetForceGameOver(Mode == MultiplayerGameMode.Versus ? "VERSUS RUN OVER (last player out)" : "CO-OP RUN OVER (all players down)");
+        }
         return true;
     }
 
@@ -249,6 +187,8 @@ public partial class NetMatch
         runOverAt = Time.realtimeSinceStartup + 1.5f; // 最後の被弾の演出を少し見せてから結果へ
         OnRunFinished("HOST: all players out");
         BuildResults();
+        ComputeVersusPay();
+        TakeLocalPay();
         foreach (var r in results) Log($"RESULT #{r.Rank} P{r.Pn} {r.Distance:F1}m kills={r.Kills} bossLastHits={r.BossLastHits} state={r.State}");
         Log($"RUN OVER mode={Mode} players={results.Count}");
         SendToClients(w =>
@@ -259,6 +199,7 @@ public partial class NetMatch
             {
                 w.WriteValueSafe((byte)r.Pn); w.WriteValueSafe(r.Distance); w.WriteValueSafe(r.Kills); w.WriteValueSafe(r.BossLastHits);
                 w.WriteValueSafe((byte)r.State); w.WriteValueSafe((byte)r.Rank);
+                w.WriteValueSafe(r.Eligible); w.WriteValueSafe(r.ReaperReached); w.WriteValueSafe(r.RankBonus); w.WriteValueSafe(r.ReaperBonus);
             }
         });
         dirty = true;
@@ -279,7 +220,7 @@ public partial class NetMatch
         results.Clear();
         foreach (var rec in recs.Values)
         {
-            double d = rec.State == PState.Eliminated || rec.State == PState.Out ? rec.FinalDistance
+            double d = rec.State == PState.Eliminated || rec.State == PState.Out || rec.State == PState.Escaped ? rec.FinalDistance
                 : rec.State == PState.Down ? rec.DownDistance : rec.Distance;
             results.Add(new ResultRow { Pn = rec.Pn, Distance = d, Kills = rec.Kills, BossLastHits = rec.BossLastHits, State = rec.State });
         }
@@ -299,10 +240,12 @@ public partial class NetMatch
             r.ReadValueSafe(out row.Distance); r.ReadValueSafe(out row.Kills); r.ReadValueSafe(out row.BossLastHits);
             r.ReadValueSafe(out byte st); row.State = (PState)st;
             r.ReadValueSafe(out byte rank); row.Rank = rank;
+            r.ReadValueSafe(out row.Eligible); r.ReadValueSafe(out row.ReaperReached); r.ReadValueSafe(out row.RankBonus); r.ReadValueSafe(out row.ReaperBonus);
             results.Add(row);
         }
         runOver = true;
         runOverAt = Time.realtimeSinceStartup + 1.5f;
+        TakeLocalPay();
         OnRunFinished("RunOver from HOST");
         foreach (var row in results) Log($"RESULT #{row.Rank} P{row.Pn} {row.Distance:F1}m kills={row.Kills} bossLastHits={row.BossLastHits} state={row.State} (from HOST)");
         Log($"RUN OVER mode={Mode} (from HOST)");
@@ -314,6 +257,8 @@ public partial class NetMatch
         w.WriteValueSafe(runOver);
         // 2026-10-11: 共有世界の進行距離と、起きた世界のイベント(全員で同じ状態にする)
         w.WriteValueSafe(WorldProgress.FrontHigh);
+        w.WriteValueSafe(reaperLeft);        // 2026-11-05 VERSUS: 死神の乱入までの残り秒(-1 = なし/乱入済み)
+        w.WriteValueSafe((short)reaperSecondsCached);
         var ev = WorldProgress.Triggered;
         w.WriteValueSafe((byte)Mathf.Min(255, ev.Count));
         int n = 0;
@@ -326,93 +271,13 @@ public partial class NetMatch
         r.ReadValueSafe(out bool over);
         r.ReadValueSafe(out double frontHigh);
         WorldProgress.SetFromHost(frontHigh);
+        r.ReadValueSafe(out reaperLeft);
+        r.ReadValueSafe(out short rsec); reaperSecondsCached = rsec;
         r.ReadValueSafe(out byte evn);
         for (int i = 0; i < evn; i++) { r.ReadValueSafe(out FixedString32Bytes id); WorldProgress.NoteFromHost(id.ToString()); }
         if ((MultiplayerGameMode)mode != Mode) Log($"WARNING mode mismatch: HOST={(MultiplayerGameMode)mode} local={Mode} (HOST wins)");
         NetRunLauncher.ForceActiveMode((MultiplayerGameMode)mode);
     }
 
-    // ===================================================================== //
-    // 簡易HUD(CO-OP: ALLY DOWN / DISTANCE TO ALLY / REVIVE、VERSUS: 脱落/結果)
-    // ===================================================================== //
-
-    GUIStyle hudStyle, hudBig, hudButton;
-
-    void OnGUI()
-    {
-        if (!Active) return;
-        GameManager gm = GameManager.Instance;
-        if (gm == null || !gm.HasStarted) return;
-        if (hudStyle == null)
-        {
-            hudStyle = new GUIStyle(GUI.skin.label) { fontSize = 18, fontStyle = FontStyle.Bold, richText = true, wordWrap = true };
-            hudStyle.normal.textColor = Color.white;
-            hudBig = new GUIStyle(hudStyle) { fontSize = 26, alignment = TextAnchor.MiddleCenter };
-            hudButton = UiKit.MakeButtonStyle(22); // 2026-10-09(依頼G-2): 濃紺+金の縁
-        }
-        float s = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height) / 720f);
-        Matrix4x4 prev = GUI.matrix;
-        GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(s, s, 1f));
-        float w = Screen.width / s, h = Screen.height / s;
-        GUI.depth = -900;
-
-        int local = NetCombat.LocalPlayerNumber;
-        Rec me = Get(local);
-        var sb = new StringBuilder();
-        sb.Append(Mode == MultiplayerGameMode.Coop ? "<color=#8fe3ff>CO-OP</color>" : "<color=#ffb070>VERSUS</color>");
-        if (me != null) sb.Append($"  {NetPlayer.TagOf(local)} HP {me.Hp}/{me.MaxHp}  {me.State}");
-        var reviveTargets = new System.Collections.Generic.List<int>(); string reviveText = null; int lines = 1;
-        foreach (var r in recs.Values)
-        {
-            if (r.Pn == local) continue;
-            sb.Append($"\n{NetPlayer.TagOf(r.Pn)}: {r.State} HP {r.Hp}  {(r.State == PState.Down ? r.DownDistance : r.State == PState.Eliminated ? r.FinalDistance : r.Distance):F0}m"); lines++;
-            if (Mode == MultiplayerGameMode.Coop && r.State == PState.Down)
-            {
-                sb.Append("\n<color=#ff8080>ALLY DOWN</color>");
-                if (me != null && me.State == PState.Alive)
-                {
-                    double gap = r.DownDistance - me.Distance;
-                    sb.Append(gap > 0 ? $"\nDISTANCE TO ALLY: {gap:F0}m" : $"\nALLY IS {-gap:F0}m BEHIND YOU");
-                    lines += 2;
-                    if (CanRevive(r, me, out string why)) { reviveTargets.Add(r.Pn); reviveText = $"REVIVE AVAILABLE  Donor HP = {me.Hp}"; }
-                    else if (me.Hp <= CombatScale.PlayerHit) sb.Append($"\nREVIVE: NOT POSSIBLE (Donor HP = {me.Hp}, need {CombatScale.PlayerHit + 1}+)");
-                }
-            }
-        }
-        if (me != null && me.State == PState.Down)
-            sb.Append($"\n<color=#ff8080>YOU ARE DOWN at {me.DownDistance:F0}m</color> - waiting for an ally with HP {CombatScale.PlayerHit + 1}+ to reach this point");
-        if (me != null && me.State == PState.Eliminated)
-            sb.Append($"\n<color=#ff8080>ELIMINATED</color>  FinalDistance = {me.FinalDistance:F0}m");
-        if (reviveText != null) sb.Append($"\n<color=#80ff80>{reviveText}</color>");
-        GUI.color = new Color(0f, 0f, 0f, 0.5f);
-        float py = h * 0.30f;
-        lines += 3;
-        float boxH = Mathf.Max(170f, 8f + lines * 24f);
-        float bw = Mathf.Min(440f, w - 20f); // 縦画面の狭い幅に収める(2026-10-13)
-        GUI.DrawTexture(new Rect(10f, py, bw, boxH), Texture2D.whiteTexture);
-        GUI.color = Color.white;
-        LocGUI.Label(new Rect(18f, py + 4f, bw - 10f, boxH), sb.ToString(), hudStyle);
-
-        // 復活: 倒れていて自分が助けられる人ごとにボタン(最大8人の予定。誰を助けるかを選べる)
-        if (!runOver)
-            for (int i = 0; i < reviveTargets.Count; i++)
-                if (GUI.Button(new Rect(18f + (i % 3) * 250f, py + boxH + 8f + (i / 3) * 66f, 240f, 60f), "REVIVE " + NetPlayer.TagOf(reviveTargets[i]), hudButton)) RequestRevive(reviveTargets[i]);
-
-        if (runOver && results.Count > 0)
-        {
-            float pw = Mathf.Min(460f, w - 20f), ph = 90f + results.Count * 40f;
-            Rect panel = new Rect((w - pw) * 0.5f, h * 0.18f, pw, ph);
-            GUI.color = new Color(0f, 0f, 0f, 0.8f);
-            GUI.DrawTexture(panel, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            LocGUI.Label(new Rect(panel.x, panel.y + 8f, pw, 40f), Mode == MultiplayerGameMode.Versus ? "VERSUS RESULT" : "CO-OP RESULT", hudBig);
-            for (int i = 0; i < results.Count; i++)
-            {
-                var r = results[i];
-                LocGUI.Label(new Rect(panel.x + 30f, panel.y + 56f + i * 40f, pw - 60f, 40f),
-                    $"{r.Rank}.  {NetPlayer.TagOf(r.Pn)}   {r.Distance:N0}m   KILL {r.Kills}   BOSS {r.BossLastHits}", hudStyle);
-            }
-        }
-        GUI.matrix = prev;
-    }
+    // 画面(参加者の欄・復活・予告・結果)は NetMatch.Hud(2026-11-05)
 }

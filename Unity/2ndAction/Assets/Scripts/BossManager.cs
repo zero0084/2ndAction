@@ -830,6 +830,20 @@ public partial class BossManager : MonoBehaviour
     // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
     // デバッグ/自動テスト用: 100,000m到達と同じ死神の開始(BGMの切り替えも同じフラグ)をその場で起こす。
     public void DebugSpawnReaper() { if (deathSpawned) return; deathSpawned = true; SpawnDeath(); }
+
+    // 2026-11-05 VERSUS の死神の乱入時間(NetMatch.Rules2、HOST のみ): 100,000m 前でも死神(追跡)を出す。
+    //  100,000m と同じ世界のイベント "death_100k" を使う = どちらが先でも 1 体だけ(二重に出ない)。
+    //  ラッシュ/三姉妹/選択待ちの間は待つ(false を返し、次のフレームでまた試す)
+    public bool TryForceReaperByTime()
+    {
+        if (deathSpawned) return false;
+        if (ArenaMode.Active || (IsBossPhase && (MapRushActive || TrioActive)) || FinaleWaitsForChoices()) return false;
+        if (!WorldProgress.TryTrigger("death_100k")) return false;
+        deathSpawned = true;
+        Debug.Log($"[Reaper] forced by the VERSUS reaper time at {WorldProgress.FrontHigh:F0}m");
+        SpawnDeath();
+        return true;
+    }
     public void DebugMarkDeathSpawned() { deathSpawned = true; }
     // ONE MORE MILE? の YES の後(2026-10-13 第3弾): 三姉妹は済み。from(m)の次の 1km から関門を再び作る
     public void BeginBeyondGates(float from)

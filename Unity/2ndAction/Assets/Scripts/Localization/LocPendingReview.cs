@@ -114,10 +114,30 @@ public static class LocPendingReview
     public const string PresetEmpty = "空";                                                                     // ID 10237(中身の無いプリセット)
     public const string PresetMigratedNotice = "デッキを8つまで保存して切り替えられるようになりました。今のデッキは「デッキ 1」に入っています。"; // ID 10238(更新後に1回だけ)
 
+    // ID 10374〜10384(2026-11-05 マルチのルール: CO-OP の長押し復活 / 参加者の欄 / VERSUS の死神の乱入時間と MILE ボーナス)。エステルのレビュー待ち。
+    //  英語の見出し(REVIVE / FRONT / DOWN / REAPER APPROACHING / REAPER BONUS など)は訳さない(CO-OP/VERSUS と同じ扱い)
+    public const string CoopRuleDesc = "倒れたらDOWN。DOWNした本人が長押しすると、一番前を走っている仲間(HP2以上)からHPを1もらって復活。全員DOWNで終了。"; // ID 10374(前: CoopRuleDescOld)
+    public const string CoopRuleDescOld = "倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。";
+    public const string VersusRuleDesc = "倒れたら脱落(復活なし)。HOSTが決めた時間か100,000mで死神が乱入。到達距離で順位が決まり、順位に応じてMILEにボーナス。"; // ID 10375(前: VersusRuleDescOld)
+    public const string VersusRuleDescOld = "倒れたら脱落(復活なし)。最後の1人まで続き、到達距離で順位が決まる。";
+    public const string ReaperTimeHelp = "この時間になると、100,000m前でも死神が乱入します(100,000mに先に着いたらその時点)。"; // ID 10376(訳が無い言語では出さない)
+    public const string ReviveHoldHint = "長押しで復活";                                               // ID 10377(訳が無い言語では出さない = REVIVE の見出しだけ)
+    public const string ReviveFrontHpLow = "一番前のプレイヤーのHPが足りません";                     // ID 10378(前: FRONT PLAYER HP IS TOO LOW)
+    public const string ReviveNoRunner = "走っている仲間がいません";                                  // ID 10379(前: NO PLAYER IS RUNNING)
+    public const string ReaperInSeconds = "死神の乱入まで {0}秒";                                     // ID 10380 {0}=秒(前: {0}s)
+    public const string ReaperSuddenDeath = "死神が乱入! ここからは最後まで距離を競います";          // ID 10381(前: SUDDEN DEATH)
+    public const string ResultRankBonus = "順位ボーナス";                                             // ID 10382(前: RANK BONUS)
+    public const string ResultBaseMile = "脱落までのMILE";                                            // ID 10383(前: MILE)
+    public const string VersusTakeHomeNote = "VERSUSは試合が終わった時に、脱落までに稼いだMILEとボーナスを持ち帰ります(途中で抜けると失います)。"; // ID 10384(訳が無い言語では出さない)
+
     // 訳が無い言語では null(その行を出さない)
     public static string Pend(string key) => Loc.Ready(key) ? key : null;
 
     // 2026-10-30: 10196〜10203 はエステルのレビュー後に30言語へ反映済み(Tools/loc/keys_extra33)→ 外した
     // 2026-10-31: 10223〜10298(デッキのプリセット 15件・カード拡張 60件。10232 は欠番)はエステルのレビュー後に30言語へ反映済み(Tools/loc/keys_extra34)→ 外した
-    public static readonly (string id, string key)[] Pending = { };
+    public static readonly (string id, string key)[] Pending = {
+        ("10374", CoopRuleDesc), ("10375", VersusRuleDesc), ("10376", ReaperTimeHelp), ("10377", ReviveHoldHint), ("10378", ReviveFrontHpLow),
+        ("10379", ReviveNoRunner), ("10380", ReaperInSeconds), ("10381", ReaperSuddenDeath), ("10382", ResultRankBonus), ("10383", ResultBaseMile),
+        ("10384", VersusTakeHomeNote),
+    };
 }

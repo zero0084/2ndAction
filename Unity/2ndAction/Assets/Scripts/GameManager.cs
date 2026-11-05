@@ -3961,6 +3961,7 @@ public partial class GameManager : MonoBehaviour
             CommitJournal.CrashPoint("mile");
             if (!DebugRun.WritesBlocked && !NetRunLauncher.IsMultiplayerRun) TutorialProgress.MarkMileGuidePending(); // 初めての脱出の後: ホームでMILEの使い道を案内(2026-10-07)
         }
+        else GrantVersusPayIfAny(); // 2026-11-05: VERSUS の試合の完了だけ、脱落までの MILE + 順位/REAPER ボーナスを持ち帰る(途中の切断/退出は今までどおり失う)
 
         // Item 15/16 - Active Run/Checkpoint is invalidated on EITHER end
         // condition (idempotent with the earlier RunCheckpoint.Clear() call
@@ -4960,7 +4961,9 @@ public partial class GameManager : MonoBehaviour
         float cardsH = upgradeHistory.Count > 0 ? 150f * s : 0f;
         float updH = items.Count > 0 ? 34f * s + items.Count * 26f * s : 0f;
         float detH = 30f * s;
-        float contentH = (cardsH > 0 ? cardsH + 10f * s : 0f) + (updH > 0 ? updH + 10f * s : 0f) + detH;
+        var mrows = NetMatch.ResultLinesForScreen(); // 2026-11-05: マルチの順位(CO-OP/VERSUS RESULT)。シングルは空
+        float rankH = mrows.Count > 0 ? 34f * s + mrows.Count * 24f * s + 6f * s : 0f;
+        float contentH = (rankH > 0 ? rankH + 10f * s : 0f) + (cardsH > 0 ? cardsH + 10f * s : 0f) + (updH > 0 ? updH + 10f * s : 0f) + detH;
         float monetH = DoubleOffered ? 92f * Mathf.Min(s, 1.4f) : 0f;
         float btnH = 60f * s;
         // 2026-10-28: 距離の下の一言(失敗の時は長い注意)は、折り返した高さの分だけ距離の枠を高くする(縦画面で2行が重なって切れていた)
@@ -4971,7 +4974,7 @@ public partial class GameManager : MonoBehaviour
         var subSt = new GUIStyle(UiKit.Label(15f * s, TextAnchor.MiddleCenter, false, subC)) { wordWrap = true };
         float subH = Mathf.Max(32f * s, subSt.CalcHeight(new GUIContent(sub), pw - 68f * s - 20f * s));
         float distH = Mathf.Max(112f * s, 76f * s + subH + 6f * s);
-        float needed = 24f * s + 44f * s + distH + 10f * s + 96f * s + 10f * s + contentH + 12f * s + (monetH > 0f ? monetH + 6f * s : 0f) + btnH + 22f * s;
+        float needed = 24f * s + 44f * s + distH + 10f * s + (!win && versusPaid ? 124f : 96f) * s + 10f * s + contentH + 12f * s + (monetH > 0f ? monetH + 6f * s : 0f) + btnH + 22f * s;
         float ph = Mathf.Min(safeB - safeT, needed);
         Rect panel = new Rect((safeL + safeR - pw) * 0.5f, (safeT + safeB - ph) * 0.5f, pw, ph);
         OrnateUi.DrawPanel(panel, 0.95f);
@@ -4980,7 +4983,9 @@ public partial class GameManager : MonoBehaviour
 
         // 見出し(GAME CLEAR / FAILED)
         // 2026-10-23: 成功の見出しは「脱出成功！」(ESCAPED!)。訳が入るまでは前の GAME CLEAR(LocPendingReview 10059)
-        LocGUI.Label(new Rect(panel.x, y, pw, 40f * s), win ? Loc.Reviewed(LocPendingReview.ResultEscaped, LocPendingReview.ResultEscapedOld) : "FAILED", UiKit.Label(30f * s, TextAnchor.MiddleCenter, true, win ? UiTheme.GoldText : UiTheme.Danger));
+        // 2026-11-05: VERSUS の試合の完了は順位(#1 / 4)。脱落は負けではない(MILE を持ち帰る)
+        bool vsDone = !win && versusPaid;
+        LocGUI.Label(new Rect(panel.x, y, pw, 40f * s), win ? Loc.Reviewed(LocPendingReview.ResultEscaped, LocPendingReview.ResultEscapedOld) : vsDone ? $"VERSUS  #{VersusRank} / {VersusPlayers}" : "FAILED", UiKit.Label(30f * s, TextAnchor.MiddleCenter, true, win || vsDone ? UiTheme.GoldText : UiTheme.Danger));
         y += 44f * s;
 
         // ① 距離(いちばん大きく)
@@ -5004,10 +5009,28 @@ public partial class GameManager : MonoBehaviour
         y = dist.yMax + 10f * s;
 
         // ② MILE
-        Rect mile = new Rect(x, y, w, 96f * s);
+        bool vsPay = !win && versusPaid; // 2026-11-05: VERSUS の試合の完了(脱落までの MILE + ボーナスを持ち帰った)
+        Rect mile = new Rect(x, y, w, (vsPay ? 124f : 96f) * s);
         ResultBlock(mile, false);
         float coin = 40f * s;
-        if (win)
+        if (vsPay)
+        {
+            LocGUI.Label(new Rect(mile.x + 14f * s, mile.y + 6f * s, mile.width - 28f * s, 22f * s), Loc.Reviewed(LocPendingReview.ResultTakeHome, "TOTAL MILE"), UiKit.Label(15f * s, TextAnchor.MiddleLeft, false, UiTheme.TextSub));
+            string amt = "+" + VersusTotalMile.ToString("N0");
+            var ast = UiKit.Label(38f * s, TextAnchor.MiddleLeft, true, UiTheme.Mile);
+            float aw = ast.CalcSize(new GUIContent(amt)).x;
+            float bx = mile.center.x - (coin + 10f * s + aw) * 0.5f;
+            DrawMileMedal(new Rect(bx, mile.y + 26f * s, coin, coin));
+            GUI.Label(new Rect(bx + coin + 10f * s, mile.y + 22f * s, aw + 8f, 48f * s), amt, ast);
+            var vst = UiKit.Label(14f * s, TextAnchor.MiddleCenter, false, UiTheme.TextSub);
+            string l1 = $"#{VersusRank}/{VersusPlayers}   {Mathf.FloorToInt(MaxDistance):N0} m   " + Loc.T(LocPendingReview.Pend(LocPendingReview.ResultBaseMile) ?? "MILE") + " " + VersusBaseMile.ToString("N0");
+            string l2 = Loc.T(LocPendingReview.Pend(LocPendingReview.ResultRankBonus) ?? "RANK BONUS") + $" +{VersusRankBonusRate * 100f:0.#}% (+{VersusRankMile:N0})"
+                + (VersusReaperMile > 0 || VersusReaperBonusRate > 0f ? $"   REAPER BONUS +{VersusReaperBonusRate * 100f:0.#}% (+{VersusReaperMile:N0})" : "")
+                + "    " + Loc.F("所持MILE  {0}", TotalOwnedMile.ToString("N0"));
+            LocGUI.Label(new Rect(mile.x + 10f * s, mile.y + 72f * s, mile.width - 20f * s, 22f * s), l1, vst);
+            LocGUI.Label(new Rect(mile.x + 10f * s, mile.y + 96f * s, mile.width - 20f * s, 22f * s), l2, new GUIStyle(vst) { normal = { textColor = UiTheme.Mile } });
+        }
+        else if (win)
         {
             LocGUI.Label(new Rect(mile.x + 14f * s, mile.y + 6f * s, mile.width - 28f * s, 22f * s), Loc.Reviewed(LocPendingReview.ResultTakeHome, "TOTAL MILE"), UiKit.Label(15f * s, TextAnchor.MiddleLeft, false, UiTheme.TextSub));
             string amt = "+" + RunMile.ToString("N0");
@@ -5047,6 +5070,15 @@ public partial class GameManager : MonoBehaviour
         Rect view = new Rect(x, y, w, Mathf.Max(30f * s, bottom - y));
         resultScroll.Begin(view, contentH, "result" + win);
         float cy = 0f;
+        if (rankH > 0f)
+        {
+            Rect rb = new Rect(0f, cy, w, rankH);
+            ResultBlock(rb, false);
+            LocGUI.Label(new Rect(rb.x + 14f * s, rb.y + 6f * s, rb.width - 28f * s, 22f * s), NetMatch.Mode == MultiplayerGameMode.Versus ? "VERSUS RESULT" : "CO-OP RESULT", UiKit.Label(15f * s, TextAnchor.MiddleLeft, true, UiTheme.GoldText));
+            for (int i = 0; i < mrows.Count; i++)
+                LocGUI.Label(new Rect(rb.x + 18f * s, rb.y + 30f * s + i * 24f * s, rb.width - 36f * s, 24f * s), mrows[i].text, UiKit.Label(15f * s, TextAnchor.MiddleLeft, mrows[i].self, mrows[i].self ? UiTheme.GoldHover : UiTheme.Text));
+            cy += rankH + 10f * s;
+        }
         if (cardsH > 0f) { DrawResultCards(new Rect(0f, cy, w, cardsH), s); cy += cardsH + 10f * s; }
         if (updH > 0f)
         {

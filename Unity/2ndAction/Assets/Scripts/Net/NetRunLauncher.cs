@@ -92,6 +92,24 @@ public class NetRunLauncher : MonoBehaviour
     public static MultiplayerGameMode ActiveMode { get; private set; } = MultiplayerGameMode.Coop;
     static MultiplayerGameMode pendingMode;
 
+    // 2026-11-05 VERSUS の死神の乱入時間(分、0 = なし)。HOST が部屋を作る時に選ぶ(保存される)。Run 開始の通知に載せて全員へ = この Run の正解
+    const string ReaperPrefKey = "net.reaperMin";
+    public static int SelectedReaperMinutes
+    {
+        get => SaveStore.GetInt(ReaperPrefKey, MultiplayerRules.I.reaperDefaultMinutes);
+        set { SaveStore.SetInt(ReaperPrefKey, Mathf.Max(0, value)); SaveStore.Save(); }
+    }
+    public static int ActiveReaperMinutes { get; private set; }
+    static int pendingReaperMinutes;
+    // 選べる時間を順に回す(部屋の画面のボタン)
+    public static void CycleReaperMinutes()
+    {
+        var opts = MultiplayerRules.I.reaperMinuteOptions;
+        if (opts == null || opts.Length == 0) return;
+        int cur = SelectedReaperMinutes, idx = System.Array.IndexOf(opts, cur);
+        SelectedReaperMinutes = opts[(idx + 1 + opts.Length) % opts.Length];
+    }
+
     // HOSTの状態表が別のモードを示していたら、HOSTに合わせる(通常は起きない安全策)。
     public static void ForceActiveMode(MultiplayerGameMode mode)
     {
@@ -375,14 +393,15 @@ public class NetRunLauncher : MonoBehaviour
             writer.WriteValueSafe(seed);
             writer.WriteValueSafe(go);
             writer.WriteValueSafe((byte)mode);
+            writer.WriteValueSafe((byte)Mathf.Clamp(mode == MultiplayerGameMode.Versus ? SelectedReaperMinutes : 0, 0, 255)); // 2026-11-05(版12)
             foreach (ulong clientId in nm.ConnectedClientsIds)
             {
                 if (clientId == NetworkManager.ServerClientId) continue;
                 NetStats.SendNamed(nm.CustomMessagingManager, RunStartMessage, clientId, writer, NetworkDelivery.ReliableSequenced);
             }
         }
-        NetSession.Log($"Run start broadcast stage={stageId} seed={seed} mode={mode} (start time is decided after all players are ready)");
-        BeginRunReload(stageId, seed, go, mode);
+        NetSession.Log($"Run start broadcast stage={stageId} seed={seed} mode={mode} reaperMin={(mode == MultiplayerGameMode.Versus ? SelectedReaperMinutes : 0)} (start time is decided after all players are ready)");
+        BeginRunReload(stageId, seed, go, mode, mode == MultiplayerGameMode.Versus ? SelectedReaperMinutes : 0);
         return true;
     }
 
@@ -392,13 +411,15 @@ public class NetRunLauncher : MonoBehaviour
         reader.ReadValueSafe(out int seed);
         reader.ReadValueSafe(out double go);
         reader.ReadValueSafe(out byte mode);
-        NetSession.Log($"Run start received from clientId={senderClientId} stage={stage} seed={seed} mode={(MultiplayerGameMode)mode}");
-        BeginRunReload(stage.ToString(), seed, go, (MultiplayerGameMode)mode);
+        reader.ReadValueSafe(out byte reaperMin);
+        NetSession.Log($"Run start received from clientId={senderClientId} stage={stage} seed={seed} mode={(MultiplayerGameMode)mode} reaperMin={reaperMin}");
+        BeginRunReload(stage.ToString(), seed, go, (MultiplayerGameMode)mode, reaperMin);
     }
 
-    static void BeginRunReload(string stageId, int seed, double go, MultiplayerGameMode mode)
+    static void BeginRunReload(string stageId, int seed, double go, MultiplayerGameMode mode, int reaperMinutes)
     {
         pending = true;
+        pendingReaperMinutes = reaperMinutes;
         pendingStageId = stageId;
         pendingSeed = seed;
         pendingMode = mode;
@@ -435,6 +456,7 @@ public class NetRunLauncher : MonoBehaviour
             ActiveRunSeed = pendingSeed;
             ActiveRunStageId = pendingStageId;
             ActiveMode = pendingMode;
+            ActiveReaperMinutes = pendingReaperMinutes;
             WorldRng.BeginDeterministic(pendingSeed);
             waitElapsed = 0f;
             RunState = NetRunState.WaitingForPlayers;
