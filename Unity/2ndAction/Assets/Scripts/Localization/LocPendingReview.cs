@@ -114,7 +114,7 @@ public static class LocPendingReview
     public const string PresetEmpty = "空";                                                                     // ID 10237(中身の無いプリセット)
     public const string PresetMigratedNotice = "デッキを8つまで保存して切り替えられるようになりました。今のデッキは「デッキ 1」に入っています。"; // ID 10238(更新後に1回だけ)
 
-    // ID 10374〜10384(2026-11-05 マルチのルール: CO-OP の長押し復活 / 参加者の欄 / VERSUS の死神の乱入時間と MILE ボーナス)。エステルのレビュー待ち。
+    // ID 10374〜10384(2026-11-05 マルチのルール: CO-OP の長押し復活 / 参加者の欄 / VERSUS の死神の乱入時間と MILE ボーナス)。エステルのレビュー後に30言語へ反映済み。
     //  英語の見出し(REVIVE / FRONT / DOWN / REAPER APPROACHING / REAPER BONUS など)は訳さない(CO-OP/VERSUS と同じ扱い)
     public const string CoopRuleDesc = "倒れたらDOWN。DOWNした本人が長押しすると、一番前を走っている仲間(HP2以上)からHPを1もらって復活。全員DOWNで終了。"; // ID 10374(前: CoopRuleDescOld)
     public const string CoopRuleDescOld = "倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。";
@@ -135,9 +135,6 @@ public static class LocPendingReview
 
     // 2026-10-30: 10196〜10203 はエステルのレビュー後に30言語へ反映済み(Tools/loc/keys_extra33)→ 外した
     // 2026-10-31: 10223〜10298(デッキのプリセット 15件・カード拡張 60件。10232 は欠番)はエステルのレビュー後に30言語へ反映済み(Tools/loc/keys_extra34)→ 外した
-    public static readonly (string id, string key)[] Pending = {
-        ("10374", CoopRuleDesc), ("10375", VersusRuleDesc), ("10376", ReaperTimeHelp), ("10377", ReviveHoldHint), ("10378", ReviveFrontHpLow),
-        ("10379", ReviveNoRunner), ("10380", ReaperInSeconds), ("10381", ReaperSuddenDeath), ("10382", ResultRankBonus), ("10383", ResultBaseMile),
-        ("10384", VersusTakeHomeNote),
-    };
+    // 2026-11-05: 10374〜10384(マルチのルール)はエステルのレビュー後に30言語へ反映済み(Tools/loc/keys_extra38・Docs/LocReview_2026-11-05)→ 外した
+    public static readonly (string id, string key)[] Pending = { };
 }

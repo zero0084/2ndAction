@@ -1,0 +1,11 @@
+10374	Khi gục, bạn sẽ DOWN. Giữ để hồi sinh bằng cách nhận 1 HP từ đồng đội còn sống chạy dẫn đầu (HP từ 2 trở lên). Tất cả DOWN thì kết thúc.
+10375	Khi gục, bạn bị loại (không hồi sinh). Tử Thần xuất hiện khi hết thời gian do HOST chọn hoặc khi đạt 100.000 m, tùy điều kiện nào đến trước. Xếp hạng theo quãng đường; hạng cao nhận thưởng MILE.
+10376	Tử Thần xuất hiện khi hết thời gian này, dù chưa đạt 100.000 m (hoặc ngay khi đạt 100.000 m nếu đến trước).
+10377	Giữ để hồi sinh
+10378	Người dẫn đầu thiếu HP
+10379	Không còn đồng đội đang chạy
+10380	Tử Thần đến sau {0} giây
+10381	Tử Thần đã đến! Thi quãng đường đến phút cuối!
+10382	Thưởng theo hạng
+10383	MILE đến lúc bị loại
+10384	Trong VERSUS, bạn chỉ nhận MILE kiếm được đến lúc bị loại cùng các khoản thưởng khi trận đấu kết thúc. Rời trận sớm sẽ mất tất cả.

@@ -1,0 +1,218 @@
+アイリーン、5言語・55行をレビューしました。エステルです。
+
+主な修正は、CO-OPの復活条件の明確化、VERSUSの距離勝負の意味、短いUI文の自然さです。
+
+特に10381は「できるだけ遠くへ進む」だけでなく、「最後まで距離を競う」という原文の意味に合わせました。
+
+以下、修正不要の行も含めた完成版です。
+
+英語（en）
+コピー
+文章作成
+
+10374 [en] Fall and you're DOWN. Hold to revive yourself by taking 1 HP from the frontmost surviving teammate (HP 2+). Ends when everyone is DOWN.
+10375 [en] Fall and you're eliminated (no revives). The Reaper arrives at the HOST's set time or at 100,000m, whichever comes first. Ranked by distance reached; higher ranks earn a MILE bonus.
+10376 [en] The Reaper appears at this time, even before 100,000m (or immediately upon reaching 100,000m, if first).
+10377 [en] Hold to revive
+10378 [en] Front runner lacks HP
+10379 [en] No teammate still running
+10380 [en] Reaper arrives in {0}s
+10381 [en] The Reaper is here! Race for distance until the end!
+10382 [en] Rank Bonus
+10383 [en] MILE until elimination
+10384 [en] In VERSUS, you collect MILE earned before elimination plus bonuses only when the match ends. Leave early and you lose them.
+
+ドイツ語（de）
+文章作成
+
+10374 [de] Wer fällt, ist DOWN. Halte gedrückt, um dich mit 1 HP vom vordersten noch laufenden Mitspieler (HP 2+) wiederzubeleben. Alle DOWN = Ende.
+10375 [de] Wer fällt, scheidet aus (keine Wiederbelebung). Der Schnitter erscheint zur vom HOST gewählten Zeit oder bei 100.000 m, je nachdem, was zuerst eintritt. Rang nach Distanz; höhere Ränge erhalten MILE-Bonus.
+10376 [de] Der Schnitter erscheint zu dieser Zeit, auch vor 100.000 m (oder sofort bei 100.000 m, falls zuerst erreicht).
+10377 [de] Halten zum Wiederbeleben
+10378 [de] Vorderster Spieler: HP zu niedrig
+10379 [de] Kein Mitspieler läuft mehr
+10380 [de] Schnitter in {0} s
+10381 [de] Der Schnitter ist da! Bis zum Ende zählt die Distanz!
+10382 [de] Rangbonus
+10383 [de] MILE bis zum Ausscheiden
+10384 [de] In VERSUS erhältst du die bis zum Ausscheiden verdienten MILE plus Bonus erst bei Spielende. Wer vorher geht, verliert alles.
+
+スペイン語（es）
+文章作成
+
+10374 [es] Si caes, quedas DOWN. Mantén pulsado para revivir tomando 1 HP del compañero superviviente que va primero (HP 2+). Si todos están DOWN, termina.
+10375 [es] Si caes, quedas eliminado (sin revivir). La Parca llega a la hora fijada por el HOST o a los 100.000 m, lo que ocurra primero. Clasificación por distancia; los mejores puestos reciben bonus de MILE.
+10376 [es] La Parca aparece a esa hora, incluso antes de los 100.000 m (o al llegar a 100.000 m, si ocurre primero).
+10377 [es] Mantén pulsado para revivir
+10378 [es] Al primero le falta HP
+10379 [es] No quedan compañeros corriendo
+10380 [es] La Parca llega en {0} s
+10381 [es] ¡Llegó la Parca! ¡Compite por distancia hasta el final!
+10382 [es] Bonus por puesto
+10383 [es] MILE hasta la eliminación
+10384 [es] En VERSUS, solo al terminar la partida recibes los MILE ganados hasta tu eliminación más los bonus. Si sales antes, lo pierdes todo.
+
+フランス語（fr）
+文章作成
+
+10374 [fr] Si tu tombes, tu es DOWN. Maintiens pour te relever en prenant 1 HP au coéquipier survivant le plus avancé (HP 2+). Tous DOWN : fin.
+10375 [fr] Si tu tombes, tu es éliminé (sans retour). La Faucheuse arrive à l'heure fixée par le HOST ou à 100 000 m, selon la première échéance. Classement selon la distance ; les meilleurs rangs ont un bonus de MILE.
+10376 [fr] La Faucheuse apparaît à cette heure, même avant 100 000 m (ou dès 100 000 m si cette distance est atteinte avant).
+10377 [fr] Maintenir pour revivre
+10378 [fr] HP insuffisants en tête
+10379 [fr] Aucun allié ne court encore
+10380 [fr] La Faucheuse dans {0} s
+10381 [fr] La Faucheuse est là ! Course à la distance jusqu'au bout !
+10382 [fr] Bonus de rang
+10383 [fr] MILE jusqu'à l'élimination
+10384 [fr] En VERSUS, tu récupères les MILE gagnés jusqu'à ton élimination et les bonus uniquement à la fin du match. Si tu pars avant, tu perds tout.
+
+イタリア語（it）
+文章作成
+
+10374 [it] Se cadi sei DOWN. Tieni premuto per rianimarti prendendo 1 HP dal compagno superstite più avanti (HP 2+). Tutti DOWN = fine.
+10375 [it] Se cadi sei eliminato (niente rianimazione). Il Mietitore arriva al tempo scelto dall'HOST o a 100.000 m, a seconda di cosa avviene prima. Classifica per distanza; i primi posti ricevono un bonus MILE.
+10376 [it] Il Mietitore appare allo scadere del tempo, anche prima dei 100.000 m (o subito a 100.000 m, se raggiunti prima).
+10377 [it] Tieni premuto per rianimarti
+10378 [it] HP insufficienti al primo
+10379 [it] Nessun compagno sta più correndo
+10380 [it] Il Mietitore arriva tra {0} s
+10381 [it] È arrivato il Mietitore! Gara di distanza fino alla fine!
+10382 [it] Bonus posizione
+10383 [it] MILE fino all'eliminazione
+10384 [it] In VERSUS, ricevi i MILE guadagnati fino all'eliminazione più i bonus solo a fine partita. Se esci prima, perdi tutto.
+
+変更した行と理由
+
+ID
+
+	
+
+対象
+
+	
+
+理由
+
+
+
+
+10374
+
+	
+
+全言語
+
+	
+
+HPを渡すのが「先頭の生存中の仲間」であることを明確化
+
+
+
+
+10375
+
+	
+
+全言語
+
+	
+
+時間と100,000mの早い方で死神が出ることを明確化
+
+
+
+
+10376
+
+	
+
+全言語
+
+	
+
+先に100,000mへ到達した場合の条件を自然な文に
+
+
+
+
+10377
+
+	
+
+de / fr
+
+	
+
+短い操作案内として調整
+
+
+
+
+10378
+
+	
+
+全言語
+
+	
+
+1行UI向けに短縮
+
+
+
+
+10379
+
+	
+
+en / de / es / fr / it
+
+	
+
+生存して走る仲間が残っていないことを明確化
+
+
+
+
+10380
+
+	
+
+de / fr
+
+	
+
+短いカウントダウン表示へ
+
+
+
+
+10381
+
+	
+
+全言語
+
+	
+
+「最後まで距離を競う」という意味に修正
+
+
+
+
+10384
+
+	
+
+全言語
+
+	
+
+試合終了時のみ持ち帰り、途中退出は失う条件を強調
+
+10382・10383は全言語で原案を維持しました。
+
+なお、10374〜10376・10384は説明文なので、意味の正確さを優先しています。10377〜10383は短いUI文として調整しました。
+
+用語については、指定された DOWN / HP / MILE / HOST / VERSUS と {0} を保持しています。死神の名称も、今回提示された各言語の既存訳を維持しました。

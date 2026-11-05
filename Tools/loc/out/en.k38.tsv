@@ -1,0 +1,11 @@
+10374	Fall and you're DOWN. Hold to revive yourself by taking 1 HP from the frontmost surviving teammate (HP 2+). Ends when everyone is DOWN.
+10375	Fall and you're eliminated (no revives). The Reaper arrives at the HOST's set time or at 100,000m, whichever comes first. Ranked by distance reached; higher ranks earn a MILE bonus.
+10376	The Reaper appears at this time, even before 100,000m (or immediately upon reaching 100,000m, if first).
+10377	Hold to revive
+10378	Front runner lacks HP
+10379	No teammate still running
+10380	Reaper arrives in {0}s
+10381	The Reaper is here! Race for distance until the end!
+10382	Rank Bonus
+10383	MILE until elimination
+10384	In VERSUS, you collect MILE earned before elimination plus bonuses only when the match ends. Leave early and you lose them.

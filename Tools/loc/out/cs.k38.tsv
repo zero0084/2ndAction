@@ -1,0 +1,11 @@
+10374	Kdo padne, je DOWN. Podržením se oživíš za 1 HP od nejpřednějšího přeživšího spoluhráče (HP 2+). Všichni DOWN = konec.
+10375	Kdo padne, vypadává (bez oživení). Smrtka přijde v čase zvoleném HOST nebo při dosažení 100 000 m, podle toho, co nastane dřív. Pořadí určuje vzdálenost; vyšší příčky získají bonus MILE.
+10376	Smrtka se objeví po uplynutí času, i před 100 000 m (nebo hned při dosažení 100 000 m, pokud nastane dřív).
+10377	Podrž pro oživení
+10378	Hráč v čele nemá dost HP
+10379	Žádný spoluhráč už neběží
+10380	Smrtka za {0} s
+10381	Smrtka je tu! Až do konce rozhoduje vzdálenost!
+10382	Bonus za umístění
+10383	MILE do vyřazení
+10384	Ve VERSUS získáš MILE vydělané do vyřazení a bonusy až po skončení zápasu. Při předčasném odchodu o vše přijdeš.

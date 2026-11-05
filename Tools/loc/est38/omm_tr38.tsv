@@ -1,0 +1,319 @@
+en	10374	Fall and you're DOWN. Hold to revive yourself with 1 HP from the frontmost runner (HP 2+). Ends when everyone is DOWN.
+en	10375	Fall and you're out (no revives). The Reaper arrives at the HOST's set time or at 100,000m. Ranked by distance reached; higher ranks get a MILE bonus.
+en	10376	At this time the Reaper appears even before 100,000m (if 100,000m is reached first, it appears then).
+en	10377	Hold to revive
+en	10378	The front player's HP is too low
+en	10379	No teammate is running
+en	10380	Reaper arrives in {0}s
+en	10381	The Reaper is here! From now on, go as far as you can
+en	10382	Rank Bonus
+en	10383	MILE until elimination
+en	10384	In VERSUS, when the match ends you bring back the MILE earned until elimination plus bonuses (leave early and you lose it).
+de	10374	Wer fällt, ist DOWN. Halte gedrückt, um dich mit 1 HP vom vordersten Läufer (HP 2+) wiederzubeleben. Alle DOWN = Ende.
+de	10375	Wer fällt, scheidet aus (keine Wiederbelebung). Der Schnitter erscheint zur vom HOST gewählten Zeit oder bei 100.000 m. Rang nach Distanz; höhere Ränge erhalten MILE-Bonus.
+de	10376	Zu dieser Zeit erscheint der Schnitter auch vor 100.000 m (wird 100.000 m zuerst erreicht, dann dort).
+de	10377	Gedrückt halten zum Wiederbeleben
+de	10378	Der vorderste Spieler hat zu wenig HP
+de	10379	Kein Mitspieler läuft
+de	10380	Der Schnitter erscheint in {0} s
+de	10381	Der Schnitter ist da! Ab jetzt zählt jeder Meter
+de	10382	Rangbonus
+de	10383	MILE bis zum Ausscheiden
+de	10384	In VERSUS bringst du bei Spielende die bis zum Ausscheiden verdienten MILE plus Bonus mit (wer vorher geht, verliert sie).
+es	10374	Si caes, quedas DOWN. Mantén pulsado para revivir con 1 HP del corredor más adelantado (HP 2+). Todos DOWN = fin.
+es	10375	Si caes, quedas eliminado (sin revivir). La Parca llega a la hora fijada por el HOST o a los 100.000 m. Puesto según la distancia; los mejores puestos reciben bonus de MILE.
+es	10376	A esta hora la Parca aparece aunque no se hayan alcanzado los 100.000 m (si se llega antes a 100.000 m, aparece entonces).
+es	10377	Mantén pulsado para revivir
+es	10378	Al jugador más adelantado le falta HP
+es	10379	Ningún compañero está corriendo
+es	10380	La Parca llega en {0} s
+es	10381	¡Llegó la Parca! Desde ahora, llega lo más lejos posible
+es	10382	Bonus por puesto
+es	10383	MILE hasta la eliminación
+es	10384	En VERSUS, al terminar la partida te llevas los MILE ganados hasta tu eliminación más los bonus (si sales antes, los pierdes).
+fr	10374	Si tu tombes : DOWN. Maintiens pour te relever avec 1 HP pris au coureur de tête (HP 2+). Tous DOWN : fin.
+fr	10375	Si tu tombes, tu es éliminé (pas de relève). La Faucheuse arrive à l'heure fixée par le HOST ou à 100 000 m. Classement selon la distance ; les meilleurs rangs ont un bonus de MILE.
+fr	10376	À ce moment, la Faucheuse apparaît même avant 100 000 m (si 100 000 m est atteint avant, elle apparaît alors).
+fr	10377	Maintenir pour se relever
+fr	10378	Le joueur de tête n'a pas assez de HP
+fr	10379	Aucun allié ne court
+fr	10380	Arrivée de la Faucheuse dans {0} s
+fr	10381	La Faucheuse est là ! Désormais, va le plus loin possible
+fr	10382	Bonus de rang
+fr	10383	MILE jusqu'à l'élimination
+fr	10384	En VERSUS, à la fin du match, tu rapportes les MILE gagnés jusqu'à ton élimination plus les bonus (si tu quittes avant, tu les perds).
+it	10374	Se cadi sei DOWN. Tieni premuto per rianimarti con 1 HP dal corridore più avanti (HP 2+). Tutti DOWN = fine.
+it	10375	Se cadi sei eliminato (niente rianimazione). Il Mietitore arriva all'ora scelta dall'HOST o a 100.000 m. Classifica per distanza; i primi posti ricevono un bonus MILE.
+it	10376	A quest'ora il Mietitore appare anche prima dei 100.000 m (se si arriva prima a 100.000 m, appare allora).
+it	10377	Tieni premuto per rianimarti
+it	10378	Il giocatore in testa ha troppi pochi HP
+it	10379	Nessun alleato sta correndo
+it	10380	Il Mietitore arriva tra {0} s
+it	10381	È arrivato il Mietitore! Da ora, vai più lontano che puoi
+it	10382	Bonus posizione
+it	10383	MILE fino all'eliminazione
+it	10384	In VERSUS, a fine partita riporti i MILE guadagnati fino all'eliminazione più i bonus (se esci prima, li perdi).
+pt-BR	10374	Caiu = DOWN. Segure para reviver com 1 HP do corredor mais à frente (HP 2+). Todos em DOWN = fim.
+pt-BR	10375	Caiu = eliminado (sem reviver). O Ceifador chega no horário definido pelo HOST ou aos 100.000 m. Classificação pela distância; as melhores posições ganham bônus de MILE.
+pt-BR	10376	Neste horário o Ceifador aparece mesmo antes dos 100.000 m (se os 100.000 m forem alcançados antes, ele aparece nesse momento).
+pt-BR	10377	Segure para reviver
+pt-BR	10378	O jogador da frente está com pouco HP
+pt-BR	10379	Nenhum aliado está correndo
+pt-BR	10380	O Ceifador chega em {0} s
+pt-BR	10381	O Ceifador chegou! Agora, vá o mais longe possível
+pt-BR	10382	Bônus de posição
+pt-BR	10383	MILE até a eliminação
+pt-BR	10384	No VERSUS, ao fim da partida você leva os MILE ganhos até a eliminação mais os bônus (se sair antes, perde tudo).
+ro	10374	Cine cade e DOWN. Ține apăsat ca să reînvii cu 1 HP de la alergătorul din față (HP 2+). Când toți sunt DOWN, jocul se termină.
+ro	10375	Cine cade e eliminat (fără reînviere). Secerătoarea apare la ora aleasă de HOST sau la 100.000 m. Clasament după distanță; locurile fruntașe primesc bonus de MILE.
+ro	10376	La această oră, Secerătoarea apare chiar înainte de 100.000 m (dacă 100.000 m sunt atinși mai întâi, apare atunci).
+ro	10377	Ține apăsat pentru reînviere
+ro	10378	Jucătorul din față nu are destul HP
+ro	10379	Niciun coechipier nu mai aleargă
+ro	10380	Secerătoarea sosește în {0} s
+ro	10381	A sosit Secerătoarea! De acum, ajunge cât mai departe
+ro	10382	Bonus de loc
+ro	10383	MILE până la eliminare
+ro	10384	În VERSUS, la finalul meciului aduci MILE câștigați până la eliminare plus bonusurile (dacă pleci mai devreme, le pierzi).
+cs	10374	Kdo padne, je DOWN. Podržením se oživíš s 1 HP od běžce v čele (HP 2+). Když jsou všichni DOWN, konec.
+cs	10375	Kdo padne, vypadává (bez oživení). Smrtka přijde v čase zvoleném HOSTem nebo na 100 000 m. Pořadí podle vzdálenosti; přední místa získají bonus MILE.
+cs	10376	V tento čas se Smrtka objeví i před 100 000 m (pokud se 100 000 m dosáhne dřív, objeví se tehdy).
+cs	10377	Podrž pro oživení
+cs	10378	Hráč v čele nemá dost HP
+cs	10379	Žádný spoluhráč neběží
+cs	10380	Smrtka přijde za {0} s
+cs	10381	Smrtka je tady! Teď doběhni co nejdál
+cs	10382	Bonus za umístění
+cs	10383	MILE do vyřazení
+cs	10384	Ve VERSUS si na konci zápasu odneseš MILE získané do vyřazení plus bonusy (kdo odejde dřív, přijde o ně).
+pl	10374	Upadek = DOWN. Przytrzymaj, aby się wskrzesić za 1 HP od biegacza na czele (HP 2+). Wszyscy DOWN = koniec.
+pl	10375	Upadek = odpadasz (bez wskrzeszania). Żniwiarz pojawia się o czasie ustalonym przez HOSTA lub na 100 000 m. Miejsce według dystansu; najwyższe miejsca dostają bonus MILE.
+pl	10376	O tym czasie Żniwiarz pojawia się nawet przed 100 000 m (jeśli wcześniej padnie 100 000 m, pojawi się wtedy).
+pl	10377	Przytrzymaj, by się wskrzesić
+pl	10378	Gracz na czele ma za mało HP
+pl	10379	Żaden sojusznik nie biegnie
+pl	10380	Żniwiarz za {0} s
+pl	10381	Żniwiarz nadszedł! Teraz biegnij jak najdalej
+pl	10382	Bonus za miejsce
+pl	10383	MILE do odpadnięcia
+pl	10384	W VERSUS po zakończeniu meczu zabierasz MILE zdobyte do odpadnięcia plus bonusy (jeśli wyjdziesz wcześniej, tracisz je).
+ru	10374	Упал — DOWN. Удерживай, чтобы подняться с 1 HP от бегущего впереди всех (HP 2+). Все в DOWN — конец.
+ru	10375	Упал — выбыл (без воскрешения). Жнец появляется во время, выбранное HOST, или на 100 000 м. Места по дистанции; верхние места получают бонус MILE.
+ru	10376	В это время Жнец появится даже до 100 000 м (если 100 000 м достигнут раньше — тогда).
+ru	10377	Удерживай, чтобы подняться
+ru	10378	У игрока впереди мало HP
+ru	10379	Никто из союзников не бежит
+ru	10380	Жнец через {0} с
+ru	10381	Жнец здесь! Теперь беги как можно дальше
+ru	10382	Бонус за место
+ru	10383	MILE до выбывания
+ru	10384	В VERSUS по окончании матча ты получаешь MILE, заработанные до выбывания, и бонусы (если уйдёшь раньше — потеряешь их).
+uk	10374	Упав — DOWN. Утримуй, щоб піднятися з 1 HP від того, хто біжить попереду всіх (HP 2+). Усі в DOWN — кінець.
+uk	10375	Упав — вибув (без воскресіння). Жнець з'являється в час, обраний HOST, або на 100 000 м. Місця за дистанцією; верхні місця отримують бонус MILE.
+uk	10376	У цей час Жнець з'явиться навіть до 100 000 м (якщо 100 000 м досягнуто раніше — тоді).
+uk	10377	Утримуй, щоб піднятися
+uk	10378	У гравця попереду замало HP
+uk	10379	Ніхто із союзників не біжить
+uk	10380	Жнець за {0} с
+uk	10381	Жнець тут! Тепер біжи якомога далі
+uk	10382	Бонус за місце
+uk	10383	MILE до вибування
+uk	10384	У VERSUS після завершення матчу ти отримуєш MILE, зароблені до вибування, і бонуси (якщо підеш раніше — втратиш їх).
+tr	10374	Yenilince DOWN. En öndeki koşucudan (HP 2+) 1 HP alıp dirilmek için basılı tut. Herkes DOWN olursa biter.
+tr	10375	Yenilince elenirsin (diriliş yok). Azrail, HOST'un seçtiği zamanda veya 100.000 m'de gelir. Sıralama mesafeye göre; üst sıralar MILE bonusu alır.
+tr	10376	Bu sürede Azrail 100.000 m'den önce de gelir (100.000 m'ye önce ulaşılırsa o anda gelir).
+tr	10377	Dirilmek için basılı tut
+tr	10378	En öndeki oyuncunun HP'si yetersiz
+tr	10379	Koşan arkadaş yok
+tr	10380	Azrail {0} sn içinde geliyor
+tr	10381	Azrail geldi! Artık gidebildiğin kadar uzağa git
+tr	10382	Sıralama bonusu
+tr	10383	Elenene kadarki MILE
+tr	10384	VERSUS'ta maç bitince elenene kadar kazandığın MILE ve bonusları alırsın (erken ayrılırsan kaybedersin).
+id	10374	Tumbang = DOWN. Tahan untuk bangkit dengan 1 HP dari pelari terdepan (HP 2+). Semua DOWN = selesai.
+id	10375	Tumbang = gugur (tanpa bangkit). Malaikat Maut datang pada waktu yang diatur HOST atau di 100.000 m. Peringkat menurut jarak; peringkat atas dapat bonus MILE.
+id	10376	Pada waktu ini Malaikat Maut muncul meski belum 100.000 m (jika 100.000 m tercapai lebih dulu, muncul saat itu).
+id	10377	Tahan untuk bangkit
+id	10378	HP pemain terdepan tidak cukup
+id	10379	Tidak ada rekan yang berlari
+id	10380	Malaikat Maut datang dalam {0} dtk
+id	10381	Malaikat Maut datang! Mulai sekarang, lari sejauh mungkin
+id	10382	Bonus Peringkat
+id	10383	MILE sampai gugur
+id	10384	Di VERSUS, saat pertandingan selesai kamu membawa pulang MILE yang didapat sampai gugur plus bonus (keluar lebih awal = hilang).
+ms	10374	Tumbang = DOWN. Tahan untuk bangkit dengan 1 HP daripada pelari paling depan (HP 2+). Semua DOWN = tamat.
+ms	10375	Tumbang = tersingkir (tiada bangkit). Malaikat Maut muncul pada masa yang ditetapkan HOST atau pada 100,000 m. Kedudukan ikut jarak; kedudukan atas dapat bonus MILE.
+ms	10376	Pada masa ini Malaikat Maut muncul walaupun belum 100,000 m (jika 100,000 m dicapai dahulu, ia muncul ketika itu).
+ms	10377	Tahan untuk bangkit
+ms	10378	HP pemain paling depan tidak cukup
+ms	10379	Tiada rakan yang sedang berlari
+ms	10380	Malaikat Maut tiba dalam {0} saat
+ms	10381	Malaikat Maut sudah tiba! Mulai sekarang, lari sejauh mungkin
+ms	10382	Bonus Kedudukan
+ms	10383	MILE sehingga tersingkir
+ms	10384	Dalam VERSUS, apabila perlawanan tamat anda bawa pulang MILE yang diperoleh sehingga tersingkir serta bonus (keluar awal = hilang).
+fil	10374	Kapag natalo, DOWN. Pindutin nang matagal para mabuhay gamit ang 1 HP mula sa nangungunang runner (HP 2+). Tapos kapag DOWN lahat.
+fil	10375	Kapag natalo, tanggal na (walang pagbuhay). Darating ang Reaper sa oras na itinakda ng HOST o sa 100,000m. Ranggo ayon sa layo; may MILE bonus ang mas mataas na ranggo.
+fil	10376	Sa oras na ito, lilitaw ang Reaper kahit wala pang 100,000m (kung maaabot muna ang 100,000m, lilitaw ito noon).
+fil	10377	Pindutin nang matagal para mabuhay
+fil	10378	Kulang ang HP ng nangungunang player
+fil	10379	Walang kakamping tumatakbo
+fil	10380	Darating ang Reaper sa {0}s
+fil	10381	Narito na ang Reaper! Mula ngayon, tumakbo nang pinakamalayo
+fil	10382	Bonus sa Ranggo
+fil	10383	MILE hanggang matanggal
+fil	10384	Sa VERSUS, pagtapos ng laban, maiuuwi mo ang MILE na nakuha hanggang matanggal at ang mga bonus (mawawala kung umalis nang maaga).
+vi	10374	Gục thì DOWN. Giữ để hồi sinh với 1 HP lấy từ người chạy dẫn đầu (HP từ 2). Tất cả DOWN là kết thúc.
+vi	10375	Gục là bị loại (không hồi sinh). Tử Thần xuất hiện vào thời điểm HOST chọn hoặc ở 100.000 m. Xếp hạng theo quãng đường; hạng cao được thưởng MILE.
+vi	10376	Đến thời điểm này Tử Thần sẽ xuất hiện dù chưa tới 100.000 m (nếu tới 100.000 m trước thì xuất hiện lúc đó).
+vi	10377	Giữ để hồi sinh
+vi	10378	Người dẫn đầu không đủ HP
+vi	10379	Không có đồng đội nào đang chạy
+vi	10380	Tử Thần xuất hiện sau {0} giây
+vi	10381	Tử Thần đã đến! Từ giờ, hãy chạy xa nhất có thể
+vi	10382	Thưởng theo hạng
+vi	10383	MILE đến lúc bị loại
+vi	10384	Trong VERSUS, khi trận kết thúc bạn mang về MILE kiếm được đến lúc bị loại cùng tiền thưởng (rời sớm sẽ mất).
+th	10374	ล้มแล้วจะ DOWN กดค้างเพื่อฟื้นด้วย HP 1 หน่วยจากผู้วิ่งนำหน้าสุด (HP 2 ขึ้นไป) ทุกคน DOWN คือจบ
+th	10375	ล้มแล้วตกรอบ (ไม่มีฟื้นคืน) ยมทูต จะมาตามเวลาที่ HOST ตั้งหรือที่ 100,000m อันดับตัดสินจากระยะ อันดับสูงได้โบนัส MILE
+th	10376	เมื่อถึงเวลานี้ ยมทูต จะปรากฏแม้ยังไม่ถึง 100,000m (ถ้าถึง 100,000m ก่อน จะปรากฏตอนนั้น)
+th	10377	กดค้างเพื่อฟื้น
+th	10378	HP ของผู้เล่นที่นำหน้าไม่พอ
+th	10379	ไม่มีเพื่อนที่กำลังวิ่งอยู่
+th	10380	ยมทูต จะมาใน {0} วินาที
+th	10381	ยมทูต มาแล้ว! จากนี้วิ่งให้ไกลที่สุด
+th	10382	โบนัสอันดับ
+th	10383	MILE จนถึงตอนตกรอบ
+th	10384	ใน VERSUS เมื่อจบแมตช์ จะได้ MILE ที่หาได้จนถึงตอนตกรอบพร้อมโบนัส (ออกก่อนจะเสียทั้งหมด)
+lo	10374	ລົ້ມແມ່ນ DOWN ກົດຄ້າງໄວ້ເພື່ອຟື້ນດ້ວຍ HP 1 ຈາກຜູ້ແລ່ນໜ້າສຸດ (HP 2 ຂຶ້ນໄປ) ທຸກຄົນ DOWN ແມ່ນຈົບ
+lo	10375	ລົ້ມແມ່ນຕົກຮອບ (ບໍ່ຟື້ນຄືນ) ຍົມທູດ ມາຕາມເວລາທີ່ HOST ຕັ້ງ ຫຼື ທີ່ 100,000m ອັນດັບຕາມໄລຍະທາງ ອັນດັບສູງໄດ້ໂບນັດ MILE
+lo	10376	ເມື່ອຮອດເວລານີ້ ຍົມທູດ ຈະປາກົດເຖິງວ່າຍັງບໍ່ຮອດ 100,000m (ຖ້າຮອດ 100,000m ກ່ອນ ຈະປາກົດຕອນນັ້ນ)
+lo	10377	ກົດຄ້າງເພື່ອຟື້ນ
+lo	10378	HP ຂອງຜູ້ຫຼິ້ນໜ້າສຸດບໍ່ພໍ
+lo	10379	ບໍ່ມີໝູ່ທີ່ກຳລັງແລ່ນ
+lo	10380	ຍົມທູດ ຈະມາໃນ {0} ວິນາທີ
+lo	10381	ຍົມທູດ ມາແລ້ວ! ຕໍ່ຈາກນີ້ແລ່ນໃຫ້ໄກທີ່ສຸດ
+lo	10382	ໂບນັດອັນດັບ
+lo	10383	MILE ຈົນຕົກຮອບ
+lo	10384	ໃນ VERSUS ເມື່ອຈົບການແຂ່ງ ຈະໄດ້ MILE ທີ່ຫາໄດ້ຈົນຕົກຮອບພ້ອມໂບນັດ (ອອກກ່ອນຈະເສຍໝົດ)
+km	10374	ដួលគឺ DOWN។ ចុចឱ្យជាប់ដើម្បីរស់វិញដោយយក HP 1 ពីអ្នករត់មុខគេ (HP 2 ឡើងទៅ)។ ទាំងអស់គ្នា DOWN គឺចប់។
+km	10375	ដួលគឺធ្លាក់ចេញ (មិនរស់វិញ)។ មច្ចុរាជ មកតាមពេលដែល HOST កំណត់ ឬនៅ 100,000m។ ចំណាត់ថ្នាក់តាមចម្ងាយ ចំណាត់ថ្នាក់ខ្ពស់ទទួលបានប្រាក់រង្វាន់ MILE។
+km	10376	ដល់ពេលនេះ មច្ចុរាជ នឹងលេចមុខ ទោះមិនទាន់ដល់ 100,000m (បើដល់ 100,000m មុន នឹងលេចមុខពេលនោះ)។
+km	10377	ចុចឱ្យជាប់ដើម្បីរស់វិញ
+km	10378	HP របស់អ្នកលេងមុខគេមិនគ្រប់
+km	10379	គ្មានមិត្តកំពុងរត់ទេ
+km	10380	មច្ចុរាជ មកដល់ក្នុង {0} វិនាទី
+km	10381	មច្ចុរាជ មកដល់ហើយ! ពីពេលនេះ រត់ឱ្យបានឆ្ងាយបំផុត
+km	10382	ប្រាក់រង្វាន់តាមចំណាត់ថ្នាក់
+km	10383	MILE រហូតដល់ធ្លាក់ចេញ
+km	10384	ក្នុង VERSUS ពេលការប្រកួតចប់ អ្នកនឹងយក MILE ដែលរកបានរហូតដល់ធ្លាក់ចេញ និងប្រាក់រង្វាន់ (ចាកចេញមុនគឺបាត់អស់)។
+my	10374	ကျလျှင် DOWN။ ရှေ့ဆုံးပြေးသူ (HP2 နှင့်အထက်) ထံမှ HP 1 ယူ၍ ပြန်ရှင်ရန် ဖိထားပါ။ အားလုံး DOWN လျှင် ပြီးဆုံး။
+my	10375	ကျလျှင် ထွက်ရ (ပြန်မရှင်)။ HOST သတ်မှတ်ချိန် သို့မဟုတ် 100,000m တွင် သေမင်း ရောက်လာမည်။ အကွာအဝေးဖြင့် အဆင့်သတ်မှတ်ပြီး အဆင့်မြင့်သူများ MILE ဆုကြေး ရမည်။
+my	10376	ဤအချိန်ရောက်လျှင် 100,000m မရောက်သေးလည်း သေမင်း ပေါ်လာမည် (100,000m အရင်ရောက်လျှင် ထိုအချိန်တွင်)။
+my	10377	ပြန်ရှင်ရန် ဖိထားပါ
+my	10378	ရှေ့ဆုံးကစားသူ၏ HP မလုံလောက်ပါ
+my	10379	ပြေးနေသော အဖော် မရှိပါ
+my	10380	သေမင်း {0} စက္ကန့်အတွင်း ရောက်လာမည်
+my	10381	သေမင်း ရောက်လာပြီ! ယခုမှစ၍ အဝေးဆုံးအထိ ပြေးပါ
+my	10382	အဆင့်ဆုကြေး
+my	10383	ထွက်ရသည်အထိ MILE
+my	10384	VERSUS တွင် ပွဲပြီးသောအခါ ထွက်ရသည်အထိ ရရှိသော MILE နှင့် ဆုကြေးကို ယူသွားနိုင်သည် (စောစောထွက်လျှင် ဆုံးရှုံးမည်)။
+ko	10374	쓰러지면 DOWN. 길게 눌러 가장 앞서 달리는 동료(HP 2 이상)에게서 HP 1을 받아 부활. 전원 DOWN이면 종료.
+ko	10375	쓰러지면 탈락(부활 없음). HOST가 정한 시간 또는 100,000m에서 사신이 난입. 도달 거리로 순위가 정해지며, 순위에 따라 MILE 보너스.
+ko	10376	이 시간이 되면 100,000m 전이라도 사신이 난입합니다(100,000m에 먼저 도달하면 그 시점).
+ko	10377	길게 눌러 부활
+ko	10378	가장 앞선 플레이어의 HP가 부족합니다
+ko	10379	달리고 있는 동료가 없습니다
+ko	10380	사신 난입까지 {0}초
+ko	10381	사신이 난입했다! 이제부터 끝까지 거리를 겨룹니다
+ko	10382	순위 보너스
+ko	10383	탈락까지의 MILE
+ko	10384	VERSUS에서는 경기가 끝나면 탈락까지 번 MILE과 보너스를 가지고 돌아갑니다(도중에 나가면 잃습니다).
+zh-Hans	10374	倒下即DOWN。长按可从跑在最前面的队友(HP2以上)那里获得1点HP复活。全员DOWN即结束。
+zh-Hans	10375	倒下即淘汰(无法复活)。在HOST设定的时间或100,000m时死神乱入。按到达距离决定名次，名次越高MILE奖励越多。
+zh-Hans	10376	到了这个时间，即使未到100,000m死神也会乱入(若先到达100,000m则在那时乱入)。
+zh-Hans	10377	长按复活
+zh-Hans	10378	最前方玩家的HP不足
+zh-Hans	10379	没有正在奔跑的队友
+zh-Hans	10380	距离死神乱入还有{0}秒
+zh-Hans	10381	死神乱入！接下来比拼最终距离
+zh-Hans	10382	名次奖励
+zh-Hans	10383	淘汰前获得的MILE
+zh-Hans	10384	VERSUS在比赛结束时，可带回淘汰前获得的MILE和奖励(中途退出则会失去)。
+zh-Hant	10374	倒下即DOWN。長按可從跑在最前面的隊友(HP2以上)那裡獲得1點HP復活。全員DOWN即結束。
+zh-Hant	10375	倒下即淘汰(無法復活)。在HOST設定的時間或100,000m時死神亂入。依到達距離決定名次，名次越高MILE獎勵越多。
+zh-Hant	10376	到了這個時間，即使未到100,000m死神也會亂入(若先到達100,000m則在那時亂入)。
+zh-Hant	10377	長按復活
+zh-Hant	10378	最前方玩家的HP不足
+zh-Hant	10379	沒有正在奔跑的隊友
+zh-Hant	10380	距離死神亂入還有{0}秒
+zh-Hant	10381	死神亂入！接下來比拚最終距離
+zh-Hant	10382	名次獎勵
+zh-Hant	10383	淘汰前獲得的MILE
+zh-Hant	10384	VERSUS在比賽結束時，可帶回淘汰前獲得的MILE和獎勵(中途退出則會失去)。
+ar	10374	عند السقوط تصبح DOWN. اضغط مطولًا لتنهض بـ 1 HP من العدّاء الأول في المقدمة (HP 2 أو أكثر). تنتهي إذا سقط الجميع.
+ar	10375	السقوط يعني الإقصاء (بلا إحياء). يظهر حاصد الأرواح في الوقت الذي يحدده HOST أو عند 100,000m. الترتيب حسب المسافة، والمراكز الأعلى تنال مكافأة MILE.
+ar	10376	في هذا الوقت يظهر حاصد الأرواح حتى قبل 100,000m (وإن بُلغت 100,000m أولًا يظهر حينها).
+ar	10377	اضغط مطولًا للنهوض
+ar	10378	HP اللاعب في المقدمة غير كافٍ
+ar	10379	لا يوجد رفيق يركض
+ar	10380	يصل حاصد الأرواح خلال {0} ث
+ar	10381	وصل حاصد الأرواح! من الآن اركض لأبعد مسافة ممكنة
+ar	10382	مكافأة المركز
+ar	10383	MILE حتى الإقصاء
+ar	10384	في VERSUS عند انتهاء المباراة تعود بنقاط MILE التي جمعتها حتى إقصائك مع المكافآت (إن غادرت مبكرًا تخسرها).
+fa	10374	با افتادن DOWN می‌شوی. نگه دار تا با 1 HP از جلوترین دونده (HP 2 یا بیشتر) زنده شوی. اگر همه DOWN شوند، تمام است.
+fa	10375	با افتادن حذف می‌شوی (بدون زنده شدن). دروگر مرگ در زمانی که HOST تعیین کرده یا در 100,000m می‌آید. رتبه با مسافت؛ رتبه‌های بالاتر پاداش MILE می‌گیرند.
+fa	10376	در این زمان دروگر مرگ حتی پیش از 100,000m ظاهر می‌شود (اگر اول به 100,000m برسید، همان موقع).
+fa	10377	برای زنده شدن نگه دار
+fa	10378	HP بازیکن جلویی کافی نیست
+fa	10379	هیچ همراهی در حال دویدن نیست
+fa	10380	دروگر مرگ تا {0} ثانیه دیگر می‌رسد
+fa	10381	دروگر مرگ رسید! از حالا تا جایی که می‌توانی دور برو
+fa	10382	پاداش رتبه
+fa	10383	MILE تا زمان حذف
+fa	10384	در VERSUS با پایان مسابقه، MILE به‌دست‌آمده تا زمان حذف به‌همراه پاداش‌ها را می‌بری (اگر زودتر خارج شوی، از دست می‌رود).
+hi	10374	गिरने पर DOWN। दबाकर रखें और सबसे आगे दौड़ रहे साथी (HP 2+) से 1 HP लेकर वापसी करें। सब DOWN तो खेल खत्म।
+hi	10375	गिरे तो बाहर (वापसी नहीं)। HOST के तय समय पर या 100,000m पर यमदूत आता है। पहुँची दूरी से रैंक; ऊँची रैंक को MILE बोनस।
+hi	10376	इस समय पर 100,000m से पहले भी यमदूत आ जाएगा (अगर पहले 100,000m पहुँचे तो तभी)।
+hi	10377	वापसी के लिए दबाकर रखें
+hi	10378	सबसे आगे वाले खिलाड़ी का HP कम है
+hi	10379	कोई साथी दौड़ नहीं रहा
+hi	10380	यमदूत {0} सेकंड में आएगा
+hi	10381	यमदूत आ गया! अब जितना हो सके दूर जाएँ
+hi	10382	रैंक बोनस
+hi	10383	बाहर होने तक के MILE
+hi	10384	VERSUS में मैच खत्म होने पर बाहर होने तक कमाए MILE और बोनस मिलते हैं (बीच में छोड़ा तो नहीं मिलेंगे)।
+bn	10374	পড়ে গেলে DOWN। চেপে ধরে রাখো, সবার আগে দৌড়ানো সঙ্গীর (HP 2 বা বেশি) থেকে 1 HP নিয়ে আবার ওঠো। সবাই DOWN হলে শেষ।
+bn	10375	পড়ে গেলে বাদ (আর ফেরা নেই)। HOST-এর ঠিক করা সময়ে বা 100,000m-এ মৃত্যুদূত আসে। দূরত্বে র‍্যাঙ্ক; উপরের র‍্যাঙ্ক MILE বোনাস পায়।
+bn	10376	এই সময়ে 100,000m-এর আগেও মৃত্যুদূত আসবে (আগে 100,000m পৌঁছালে তখনই)।
+bn	10377	আবার উঠতে চেপে ধরে রাখো
+bn	10378	সবার আগের খেলোয়াড়ের HP যথেষ্ট নয়
+bn	10379	কোনো সঙ্গী দৌড়াচ্ছে না
+bn	10380	মৃত্যুদূত আসবে {0} সেকেন্ডে
+bn	10381	মৃত্যুদূত এসে গেছে! এখন থেকে যতদূর পারো যাও
+bn	10382	র‍্যাঙ্ক বোনাস
+bn	10383	বাদ পড়া পর্যন্ত MILE
+bn	10384	VERSUS-এ ম্যাচ শেষ হলে বাদ পড়া পর্যন্ত পাওয়া MILE আর বোনাস নিয়ে ফিরবে (মাঝপথে ছাড়লে হারাবে)।
+ta	10374	வீழ்ந்தால் DOWN. அழுத்திப் பிடித்தால் முன்னணியில் ஓடும் நண்பரிடமிருந்து (HP 2+) 1 HP பெற்று உயிர்த்தெழலாம். அனைவரும் DOWN ஆனால் முடிவு.
+ta	10375	வீழ்ந்தால் வெளியேற்றம் (உயிர்த்தெழல் இல்லை). HOST நிர்ணயித்த நேரத்தில் அல்லது 100,000m-இல் மரணதூதன் வரும். தூரத்தால் தரவரிசை; மேல் இடங்களுக்கு MILE போனஸ்.
+ta	10376	இந்த நேரத்தில் 100,000m-க்கு முன்பே மரணதூதன் தோன்றும் (முதலில் 100,000m அடைந்தால் அப்போதே).
+ta	10377	உயிர்த்தெழ அழுத்திப் பிடிக்கவும்
+ta	10378	முன்னணி வீரரின் HP போதவில்லை
+ta	10379	ஓடிக்கொண்டிருக்கும் நண்பர் இல்லை
+ta	10380	{0} வினாடியில் மரணதூதன் வரும்
+ta	10381	மரணதூதன் வந்துவிட்டது! இனி முடிந்தவரை தூரம் ஓடுங்கள்
+ta	10382	தரவரிசை போனஸ்
+ta	10383	வெளியேறும் வரையிலான MILE
+ta	10384	VERSUS-இல் போட்டி முடிந்ததும் வெளியேறும் வரை பெற்ற MILE-உம் போனஸும் கிடைக்கும் (இடையில் வெளியேறினால் இழப்பீர்கள்).
+sw	10374	Ukianguka uko DOWN. Bonyeza na ushikilie ili kufufuka kwa HP 1 kutoka kwa mkimbiaji wa mbele kabisa (HP 2+). Wote wakiwa DOWN, mchezo unaisha.
+sw	10375	Ukianguka unatolewa (hakuna kufufuka). Mvunaji anafika kwa muda uliowekwa na HOST au kwenye 100,000m. Nafasi kwa umbali; nafasi za juu hupata bonasi ya MILE.
+sw	10376	Wakati huu Mvunaji atatokea hata kabla ya 100,000m (100,000m ikifikiwa kwanza, atatokea wakati huo).
+sw	10377	Shikilia ili kufufuka
+sw	10378	HP ya mchezaji wa mbele haitoshi
+sw	10379	Hakuna mwenzako anayekimbia
+sw	10380	Mvunaji anafika baada ya sekunde {0}
+sw	10381	Mvunaji amefika! Sasa kimbia mbali kadiri uwezavyo
+sw	10382	Bonasi ya Nafasi
+sw	10383	MILE hadi kutolewa
+sw	10384	Katika VERSUS, mechi ikiisha unarudi na MILE ulizopata hadi kutolewa pamoja na bonasi (ukiondoka mapema, unazipoteza).

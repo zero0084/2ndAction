@@ -1,0 +1,202 @@
+アイリーン、続きの5言語・55行をレビューしました。エステルです。
+
+今回も、CO-OPの復活条件、VERSUSの死神出現条件、距離による順位、MILEの持ち帰り条件を原文に合わせています。
+
+特にチェコ語の HOSTem、ポーランド語の HOSTA は、HOST を英語のまま保持する指定に合わせて修正しました。10377〜10383は短いUI表示を優先しています。
+
+ポルトガル語（ブラジル）pt-BR
+文章作成
+
+10374 [pt-BR] Se cair, fica DOWN. Segure para reviver recebendo 1 HP do aliado sobrevivente mais à frente (HP 2+). Todos DOWN = fim.
+10375 [pt-BR] Se cair, é eliminado (sem reviver). O Ceifador chega no tempo definido pelo HOST ou aos 100.000 m, o que ocorrer primeiro. Classificação por distância; posições melhores ganham bônus de MILE.
+10376 [pt-BR] O Ceifador aparece ao fim desse tempo, mesmo antes dos 100.000 m (ou ao atingir 100.000 m, se isso ocorrer primeiro).
+10377 [pt-BR] Segure para reviver
+10378 [pt-BR] Líder sem HP suficiente
+10379 [pt-BR] Nenhum aliado ainda correndo
+10380 [pt-BR] Ceifador chega em {0} s
+10381 [pt-BR] O Ceifador chegou! Dispute distância até o fim!
+10382 [pt-BR] Bônus de posição
+10383 [pt-BR] MILE até a eliminação
+10384 [pt-BR] No VERSUS, você só recebe os MILE ganhos até a eliminação e os bônus quando a partida termina. Se sair antes, perde tudo.
+
+ルーマニア語（ro）
+文章作成
+
+10374 [ro] Dacă cazi, ești DOWN. Ține apăsat ca să reînvii luând 1 HP de la coechipierul supraviețuitor aflat cel mai în față (HP 2+). Toți DOWN = sfârșit.
+10375 [ro] Dacă cazi, ești eliminat (fără reînviere). Secerătoarea apare la timpul ales de HOST sau la 100.000 m, oricare survine prima. Clasamentul depinde de distanță; locurile fruntașe primesc bonus MILE.
+10376 [ro] Secerătoarea apare la expirarea timpului, chiar și înainte de 100.000 m (sau imediat la 100.000 m, dacă distanța e atinsă prima).
+10377 [ro] Ține apăsat pentru reînviere
+10378 [ro] Liderul nu are destul HP
+10379 [ro] Niciun coechipier nu mai aleargă
+10380 [ro] Secerătoarea vine în {0} s
+10381 [ro] Secerătoarea a sosit! Concurați la distanță până la final!
+10382 [ro] Bonus de loc
+10383 [ro] MILE până la eliminare
+10384 [ro] În VERSUS, primești MILE câștigați până la eliminare și bonusurile doar la finalul meciului. Dacă pleci mai devreme, pierzi tot.
+
+チェコ語（cs）
+文章作成
+
+10374 [cs] Kdo padne, je DOWN. Podržením se oživíš za 1 HP od nejpřednějšího přeživšího spoluhráče (HP 2+). Všichni DOWN = konec.
+10375 [cs] Kdo padne, vypadává (bez oživení). Smrtka přijde v čase zvoleném HOST nebo při dosažení 100 000 m, podle toho, co nastane dřív. Pořadí určuje vzdálenost; vyšší příčky získají bonus MILE.
+10376 [cs] Smrtka se objeví po uplynutí času, i před 100 000 m (nebo hned při dosažení 100 000 m, pokud nastane dřív).
+10377 [cs] Podrž pro oživení
+10378 [cs] Hráč v čele nemá dost HP
+10379 [cs] Žádný spoluhráč už neběží
+10380 [cs] Smrtka za {0} s
+10381 [cs] Smrtka je tu! Až do konce rozhoduje vzdálenost!
+10382 [cs] Bonus za umístění
+10383 [cs] MILE do vyřazení
+10384 [cs] Ve VERSUS získáš MILE vydělané do vyřazení a bonusy až po skončení zápasu. Při předčasném odchodu o vše přijdeš.
+
+ポーランド語（pl）
+文章作成
+
+10374 [pl] Gdy upadniesz, jesteś DOWN. Przytrzymaj, by się wskrzesić, biorąc 1 HP od najdalej biegnącego ocalałego sojusznika (HP 2+). Wszyscy DOWN = koniec.
+10375 [pl] Gdy upadniesz, odpadasz (bez wskrzeszenia). Żniwiarz pojawia się po czasie wybranym przez HOST lub po osiągnięciu 100 000 m, zależnie od tego, co nastąpi pierwsze. Ranking według dystansu; wyższe miejsca dają bonus MILE.
+10376 [pl] Żniwiarz pojawia się po upływie tego czasu, nawet przed 100 000 m (lub od razu po osiągnięciu 100 000 m, jeśli nastąpi to wcześniej).
+10377 [pl] Przytrzymaj, by się wskrzesić
+10378 [pl] Lider ma za mało HP
+10379 [pl] Nikt z drużyny już nie biegnie
+10380 [pl] Żniwiarz za {0} s
+10381 [pl] Żniwiarz nadchodzi! Liczy się dystans aż do końca!
+10382 [pl] Bonus za miejsce
+10383 [pl] MILE do odpadnięcia
+10384 [pl] W VERSUS otrzymasz MILE zdobyte do odpadnięcia i bonusy dopiero po zakończeniu meczu. Jeśli wyjdziesz wcześniej, stracisz wszystko.
+
+トルコ語（tr）
+文章作成
+
+10374 [tr] Düşersen DOWN olursun. En öndeki hayatta kalan takım arkadaşından (HP 2+) 1 HP alıp dirilmek için basılı tut. Herkes DOWN olursa biter.
+10375 [tr] Düşersen elenirsin (dirilme yok). Azrail, HOST'un seçtiği süre dolunca veya 100.000 m'ye ulaşılınca, hangisi önce olursa gelir. Sıralama mesafeye göre; üst sıralar MILE bonusu alır.
+10376 [tr] Azrail süre dolunca, 100.000 m'den önce de gelir (önce 100.000 m'ye ulaşılırsa hemen gelir).
+10377 [tr] Dirilmek için basılı tut
+10378 [tr] Öndeki oyuncunun HP'si yetersiz
+10379 [tr] Koşan takım arkadaşı kalmadı
+10380 [tr] Azrail {0} sn sonra geliyor
+10381 [tr] Azrail geldi! Sona kadar mesafe için yarış!
+10382 [tr] Sıralama bonusu
+10383 [tr] Elenene kadarki MILE
+10384 [tr] VERSUS'ta elenene kadar kazandığın MILE ve bonusları yalnızca maç bitince alırsın. Erken ayrılırsan hepsini kaybedersin.
+
+変更した行と理由
+
+ID
+
+	
+
+言語
+
+	
+
+理由
+
+
+
+
+10374
+
+	
+
+全5言語
+
+	
+
+復活用HPの提供者を「最前方の生存中の仲間」と明確化
+
+
+
+
+10375
+
+	
+
+全5言語
+
+	
+
+HOSTの設定時間と100,000mの早い方で死神が乱入することを明確化
+
+
+
+
+10376
+
+	
+
+全5言語
+
+	
+
+設定時間の経過と距離到達の条件を自然な表現に修正
+
+
+
+
+10378
+
+	
+
+pt-BR / ro / pl
+
+	
+
+1行表示に合わせて短縮
+
+
+
+
+10379
+
+	
+
+全5言語
+
+	
+
+走行中の仲間が残っていないことを明確化
+
+
+
+
+10380
+
+	
+
+pt-BR / ro / cs / tr
+
+	
+
+カウントダウン向けに簡潔化
+
+
+
+
+10381
+
+	
+
+全5言語
+
+	
+
+「最後まで距離を競う」という意味へ修正
+
+
+
+
+10384
+
+	
+
+全5言語
+
+	
+
+試合終了時のみMILEを受け取り、途中退出では失う条件を明確化
+
+10377・10382・10383は全言語で原案を維持しました。10378のチェコ語・トルコ語も原案を維持しています。
+
+DOWN / HP / MILE / HOST / VERSUS と {0} は指定どおり保持し、死神の呼称も提示された既存訳を使用しています。
+
+なお、10375の「HOSTが選んだ時間」は、ゲーム内では「時刻」ではなく「試合開始からの経過時間」なので、各言語でその意味になるよう調整しています。

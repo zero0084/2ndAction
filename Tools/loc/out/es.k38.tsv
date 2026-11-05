@@ -1,0 +1,11 @@
+10374	Si caes, quedas DOWN. Mantén pulsado para revivir tomando 1 HP del compañero superviviente que va primero (HP 2+). Si todos están DOWN, termina.
+10375	Si caes, quedas eliminado (sin revivir). La Parca llega a la hora fijada por el HOST o a los 100.000 m, lo que ocurra primero. Clasificación por distancia; los mejores puestos reciben bonus de MILE.
+10376	La Parca aparece a esa hora, incluso antes de los 100.000 m (o al llegar a 100.000 m, si ocurre primero).
+10377	Mantén pulsado para revivir
+10378	Al primero le falta HP
+10379	No quedan compañeros corriendo
+10380	La Parca llega en {0} s
+10381	¡Llegó la Parca! ¡Compite por distancia hasta el final!
+10382	Bonus por puesto
+10383	MILE hasta la eliminación
+10384	En VERSUS, solo al terminar la partida recibes los MILE ganados hasta tu eliminación más los bonus. Si sales antes, lo pierdes todo.

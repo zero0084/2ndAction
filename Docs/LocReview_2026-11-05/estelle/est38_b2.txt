@@ -1,0 +1,211 @@
+アイリーン、続きの5言語・55行をレビューしました。エステルです。
+
+今回も、CO-OPの復活条件、VERSUSの時間・距離条件、試合終了時のMILE持ち帰り規則を統一しました。特にフィリピン語は「倒された」と「DOWNした」の違いを修正し、ロシア語・ウクライナ語は短いUI文を自然に整えています。
+
+ロシア語（ru）
+文章作成
+
+10374 [ru] Если упал, ты DOWN. Удерживай, чтобы воскреснуть, получив 1 HP от самого переднего выжившего союзника (HP 2+). Если все DOWN — конец.
+10375 [ru] Если упал, выбываешь (без воскрешения). Жнец появляется по истечении времени, выбранного HOST, или при достижении 100 000 м — что наступит раньше. Места определяются дистанцией; за более высокие места дают бонус MILE.
+10376 [ru] Жнец появляется по истечении этого времени, даже до 100 000 м (или сразу при достижении 100 000 м, если это случится раньше).
+10377 [ru] Удерживай для воскрешения
+10378 [ru] У лидера мало HP
+10379 [ru] Никто из союзников больше не бежит
+10380 [ru] Жнец через {0} с
+10381 [ru] Жнец здесь! До конца соревнуйтесь в дистанции!
+10382 [ru] Бонус за место
+10383 [ru] MILE до выбывания
+10384 [ru] В VERSUS ты получаешь MILE, заработанные до выбывания, и бонусы только после завершения матча. Если уйдёшь раньше, потеряешь всё.
+
+ウクライナ語（uk）
+文章作成
+
+10374 [uk] Якщо впав, ти DOWN. Утримуй, щоб воскреснути, отримавши 1 HP від союзника, який вижив і біжить попереду всіх (HP 2+). Якщо всі DOWN — кінець.
+10375 [uk] Якщо впав, вибуваєш (без воскресіння). Жнець з'являється після часу, обраного HOST, або при досягненні 100 000 м — залежно від того, що станеться раніше. Місця визначає дистанція; вищі місця отримують бонус MILE.
+10376 [uk] Жнець з'являється після цього часу, навіть до 100 000 м (або одразу при досягненні 100 000 м, якщо це станеться раніше).
+10377 [uk] Утримуй для воскресіння
+10378 [uk] У лідера замало HP
+10379 [uk] Ніхто із союзників більше не біжить
+10380 [uk] Жнець через {0} с
+10381 [uk] Жнець тут! До кінця змагайтеся за дистанцію!
+10382 [uk] Бонус за місце
+10383 [uk] MILE до вибування
+10384 [uk] У VERSUS ти отримуєш MILE, зароблені до вибування, і бонуси лише після завершення матчу. Якщо підеш раніше, втратиш усе.
+
+インドネシア語（id）
+文章作成
+
+10374 [id] Jika tumbang, kamu DOWN. Tahan untuk bangkit dengan mengambil 1 HP dari rekan yang masih hidup dan berlari paling depan (HP 2+). Semua DOWN = selesai.
+10375 [id] Jika tumbang, kamu gugur (tanpa bangkit). Malaikat Maut datang saat waktu pilihan HOST habis atau saat mencapai 100.000 m, mana yang lebih dulu. Peringkat berdasarkan jarak; peringkat lebih tinggi mendapat bonus MILE.
+10376 [id] Malaikat Maut muncul saat waktu ini habis, meski belum 100.000 m (atau segera saat mencapai 100.000 m jika lebih dulu).
+10377 [id] Tahan untuk bangkit
+10378 [id] HP pelari terdepan kurang
+10379 [id] Tak ada rekan yang masih berlari
+10380 [id] Malaikat Maut dalam {0} dtk
+10381 [id] Malaikat Maut datang! Adu jarak hingga akhir!
+10382 [id] Bonus Peringkat
+10383 [id] MILE sampai gugur
+10384 [id] Di VERSUS, kamu hanya menerima MILE yang didapat sampai gugur beserta bonus setelah pertandingan selesai. Keluar lebih awal berarti kehilangan semuanya.
+
+マレー語（ms）
+文章作成
+
+10374 [ms] Jika tumbang, anda DOWN. Tekan dan tahan untuk bangkit dengan mengambil 1 HP daripada rakan yang masih hidup dan berlari paling depan (HP 2+). Semua DOWN = tamat.
+10375 [ms] Jika tumbang, anda tersingkir (tiada bangkit). Malaikat Maut muncul apabila masa pilihan HOST tamat atau apabila mencapai 100,000 m, yang mana lebih awal. Kedudukan ikut jarak; kedudukan lebih tinggi mendapat bonus MILE.
+10376 [ms] Malaikat Maut muncul apabila masa ini tamat, walaupun belum 100,000 m (atau sebaik mencapai 100,000 m jika lebih awal).
+10377 [ms] Tekan dan tahan untuk bangkit
+10378 [ms] HP pelari depan tidak cukup
+10379 [ms] Tiada rakan yang masih berlari
+10380 [ms] Malaikat Maut dalam {0} saat
+10381 [ms] Malaikat Maut tiba! Bersaing jarak hingga tamat!
+10382 [ms] Bonus Kedudukan
+10383 [ms] MILE sehingga tersingkir
+10384 [ms] Dalam VERSUS, anda hanya menerima MILE yang diperoleh sehingga tersingkir serta bonus selepas perlawanan tamat. Keluar awal bermakna kehilangan semuanya.
+
+フィリピン語（fil）
+文章作成
+
+10374 [fil] Kapag bumagsak, DOWN ka. Pindutin nang matagal para muling mabuhay gamit ang 1 HP mula sa kakamping buhay na nasa unahan (HP 2+). Kapag lahat ay DOWN, tapos na.
+10375 [fil] Kapag bumagsak, tanggal ka na (walang pagbuhay). Darating ang Reaper kapag naubos ang oras na pinili ng HOST o naabot ang 100,000m, alinman ang mauna. Ranggo ayon sa distansya; may MILE bonus ang mas mataas na ranggo.
+10376 [fil] Darating ang Reaper kapag naubos ang oras na ito, kahit wala pang 100,000m (o agad sa 100,000m kung iyon ang mauna).
+10377 [fil] Pindutin nang matagal para mabuhay
+10378 [fil] Kulang ang HP ng nangunguna
+10379 [fil] Wala nang kakamping tumatakbo
+10380 [fil] Reaper sa loob ng {0}s
+10381 [fil] Narito na ang Reaper! Paligsahan sa distansya hanggang dulo!
+10382 [fil] Bonus sa Ranggo
+10383 [fil] MILE hanggang matanggal
+10384 [fil] Sa VERSUS, makukuha mo lang ang MILE na naipon bago matanggal at ang mga bonus kapag natapos ang laban. Kung aalis ka nang maaga, mawawala ang lahat.
+
+変更した行と理由
+
+ID
+
+	
+
+言語
+
+	
+
+理由
+
+
+
+
+10374
+
+	
+
+全5言語
+
+	
+
+復活時にHPを渡すのが「最前方の生存中の仲間」であることを明確化
+
+
+
+
+10375
+
+	
+
+全5言語
+
+	
+
+HOST設定時間と100,000mの早い方で死神が乱入することを明確化
+
+
+
+
+10376
+
+	
+
+全5言語
+
+	
+
+設定時間の経過と距離到達の条件を明確化
+
+
+
+
+10377
+
+	
+
+ru / uk
+
+	
+
+復活操作の案内を自然に調整
+
+
+
+
+10378
+
+	
+
+全5言語
+
+	
+
+1行UI向けに短縮
+
+
+
+
+10379
+
+	
+
+全5言語
+
+	
+
+走行中の仲間が残っていないことを明確化
+
+
+
+
+10380
+
+	
+
+id / ms / fil
+
+	
+
+短いカウントダウン表示へ調整
+
+
+
+
+10381
+
+	
+
+全5言語
+
+	
+
+「最後まで距離を競う」という意味に修正
+
+
+
+
+10384
+
+	
+
+全5言語
+
+	
+
+試合終了時のみMILEを受け取り、途中退出は失うことを明確化
+
+10382・10383は全言語で原案を維持しました。10380のロシア語・ウクライナ語も原案のままです。
+
+指定の DOWN / HP / MILE / HOST / VERSUS と {0} は保持しています。死神の呼称も、今回の下書きにある既存訳（Жнец / Malaikat Maut / Reaperなど）に合わせました。

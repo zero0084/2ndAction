@@ -1,0 +1,11 @@
+10374	Se cair, fica DOWN. Segure para reviver recebendo 1 HP do aliado sobrevivente mais à frente (HP 2+). Todos DOWN = fim.
+10375	Se cair, é eliminado (sem reviver). O Ceifador chega no tempo definido pelo HOST ou aos 100.000 m, o que ocorrer primeiro. Classificação por distância; posições melhores ganham bônus de MILE.
+10376	O Ceifador aparece ao fim desse tempo, mesmo antes dos 100.000 m (ou ao atingir 100.000 m, se isso ocorrer primeiro).
+10377	Segure para reviver
+10378	Líder sem HP suficiente
+10379	Nenhum aliado ainda correndo
+10380	Ceifador chega em {0} s
+10381	O Ceifador chegou! Dispute distância até o fim!
+10382	Bônus de posição
+10383	MILE até a eliminação
+10384	No VERSUS, você só recebe os MILE ganhos até a eliminação e os bônus quando a partida termina. Se sair antes, perde tudo.

@@ -1,0 +1,11 @@
+10374	Dacă cazi, ești DOWN. Ține apăsat ca să reînvii luând 1 HP de la coechipierul supraviețuitor aflat cel mai în față (HP 2+). Toți DOWN = sfârșit.
+10375	Dacă cazi, ești eliminat (fără reînviere). Secerătoarea apare la timpul ales de HOST sau la 100.000 m, oricare survine prima. Clasamentul depinde de distanță; locurile fruntașe primesc bonus MILE.
+10376	Secerătoarea apare la expirarea timpului, chiar și înainte de 100.000 m (sau imediat la 100.000 m, dacă distanța e atinsă prima).
+10377	Ține apăsat pentru reînviere
+10378	Liderul nu are destul HP
+10379	Niciun coechipier nu mai aleargă
+10380	Secerătoarea vine în {0} s
+10381	Secerătoarea a sosit! Concurați la distanță până la final!
+10382	Bonus de loc
+10383	MILE până la eliminare
+10384	În VERSUS, primești MILE câștigați până la eliminare și bonusurile doar la finalul meciului. Dacă pleci mai devreme, pierzi tot.

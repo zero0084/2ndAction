@@ -1,0 +1,11 @@
+10374	Jika tumbang, kamu DOWN. Tahan untuk bangkit dengan mengambil 1 HP dari rekan yang masih hidup dan berlari paling depan (HP 2+). Semua DOWN = selesai.
+10375	Jika tumbang, kamu gugur (tanpa bangkit). Malaikat Maut datang saat waktu pilihan HOST habis atau saat mencapai 100.000 m, mana yang lebih dulu. Peringkat berdasarkan jarak; peringkat lebih tinggi mendapat bonus MILE.
+10376	Malaikat Maut muncul saat waktu ini habis, meski belum 100.000 m (atau segera saat mencapai 100.000 m jika lebih dulu).
+10377	Tahan untuk bangkit
+10378	HP pelari terdepan kurang
+10379	Tak ada rekan yang masih berlari
+10380	Malaikat Maut dalam {0} dtk
+10381	Malaikat Maut datang! Adu jarak hingga akhir!
+10382	Bonus Peringkat
+10383	MILE sampai gugur
+10384	Di VERSUS, kamu hanya menerima MILE yang didapat sampai gugur beserta bonus setelah pertandingan selesai. Keluar lebih awal berarti kehilangan semuanya.
