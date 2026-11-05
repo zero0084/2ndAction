@@ -76,6 +76,10 @@ public class SceneryCycle : MonoBehaviour
         if (tm == null || string.IsNullOrEmpty(stageId)) return;
         var p = Resources.Load<SceneryProfile>("Scenery/" + stageId + "_scenery");
         if (p == null || p.segments == null || p.segments.Length == 0) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // 前後比較(2026-11-05): -sceneryLegacy natural_cave,sky_corridor で、そのマップは景色の切り替えを使わない(直す前の見た目)
+        { var a = System.Environment.GetCommandLineArgs(); int ai = System.Array.IndexOf(a, "-sceneryLegacy"); if (ai >= 0 && ai + 1 < a.Length && System.Array.IndexOf(a[ai + 1].Split(','), stageId) >= 0) return; }
+#endif
         baseBg = tm.backgroundRenderer;
         if (baseBg == null) return;
         profile = p;

@@ -142,6 +142,9 @@ public class JourneyProfile : ScriptableObject
             C("red",    dim,  0.16f, 0.70f, true),  // 70〜80km  巨大結晶の聖域
             C("red",    dark, 0.12f, 0.72f),        // 80〜90km  最深部へ、光が少なくなる
         };
+        // 2026-11-05(マスター: 洞窟/天空も 10km ごとに別の場所へ): 背景は <stage>_scenery の A→B→C→D(2周目から色/明暗違い)。
+        //  どの関門でも景色の変わり目を内部の間に隠す(80〜100km は同じ景色のまま = 最後の章は変えない)
+        for (int i = 0; i < p.chapters.Length - 1; i++) p.chapters[i].sceneryChange = true;
         return p;
     }
 
@@ -171,6 +174,9 @@ public class JourneyProfile : ScriptableObject
             C(warm, 0.14f, 0.57f, 0.64f, true),  // 70〜80km  雲上の大聖堂(専用の絵が入るまで大きな神殿)
             C(aged, 0.12f, 0.57f, 0.64f),        // 80〜90km  天空の果ての神殿
         };
+        // 2026-11-05(マスター: 洞窟/天空も 10km ごとに別の場所へ): 背景は <stage>_scenery の A→B→C→D(2周目から色/明暗違い)。
+        //  どの関門でも景色の変わり目を内部の間に隠す(80〜100km は同じ景色のまま = 最後の章は変えない)
+        for (int i = 0; i < p.chapters.Length - 1; i++) p.chapters[i].sceneryChange = true;
         return p;
     }
 

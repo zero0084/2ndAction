@@ -1,0 +1,101 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67e79753b98d064ebd8af18980af58d, type: 3}
+  m_Name: sky_corridor_scenery
+  m_EditorClassIdentifier: Assembly-CSharp::SceneryProfile
+  stageId: sky_corridor
+  sceneries:
+  - id: A
+    label: "浮島群"
+    timeResources:
+    - 
+    - 
+    - Scenery/Sky/scn_sky_A_night
+    - 
+  - id: B
+    label: "雲海"
+    timeResources:
+    - Scenery/Sky/scn_sky_B
+    - Scenery/Sky/scn_sky_B
+    - Scenery/Sky/scn_sky_B
+    - Scenery/Sky/scn_sky_B
+  - id: C
+    label: "空中遺跡"
+    timeResources:
+    - Scenery/Sky/scn_sky_C
+    - Scenery/Sky/scn_sky_C
+    - Scenery/Sky/scn_sky_C
+    - Scenery/Sky/scn_sky_C
+  - id: D
+    label: "神殿へ続く道"
+    timeResources:
+    - Scenery/Sky/scn_sky_D
+    - Scenery/Sky/scn_sky_D
+    - Scenery/Sky/scn_sky_D
+    - Scenery/Sky/scn_sky_D
+  segments:
+  - scenery: 0
+    time: 0
+    length: 10000
+  - scenery: 1
+    time: 0
+    length: 10000
+  - scenery: 2
+    time: 0
+    length: 10000
+  - scenery: 3
+    time: 0
+    length: 10000
+  - scenery: 0
+    time: 1
+    length: 10000
+  - scenery: 1
+    time: 1
+    length: 10000
+  - scenery: 2
+    time: 1
+    length: 10000
+  - scenery: 3
+    time: 3
+    length: 10000
+  - scenery: 0
+    time: 2
+    length: 10000
+  - scenery: 0
+    time: 2
+    length: 10000
+  - scenery: 1
+    time: 0
+    length: 10000
+  - scenery: 2
+    time: 0
+    length: 10000
+  loopFromSegment: 0
+  blendMeters: 1000
+  mistPeakAlpha: 0.6
+  mistColor: {r: 1, g: 0.97, b: 0.92, a: 1}
+  prefetchMeters: 2500
+  timeTint:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 1, g: 0.86, b: 0.76, a: 1}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0.95, g: 0.88, b: 0.92, a: 1}
+  cloudTint:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 1, g: 0.82, b: 0.72, a: 1}
+  - {r: 0.55, g: 0.62, b: 0.82, a: 1}
+  - {r: 0.98, g: 0.86, b: 0.88, a: 1}
+  nightAmount:
+  - 0
+  - 0.3
+  - 1
+  - 0.45

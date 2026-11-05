@@ -1,6 +1,7 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 // 距離で進む昼夜と景色(2026-10-01)の確認。
@@ -13,7 +14,10 @@ public partial class QaSweep
     {
         Application.targetFrameRate = 60;
         // ---- 1) 予定表の計算(画面に関係なく)
-        var prof = Resources.Load<SceneryProfile>("Scenery/wasteland_road_scenery");
+        // 2026-11-05: -scStage natural_cave / sky_corridor で他のマップも(予定表の決まった答えは荒野だけ。他は一覧を書き出す)
+        string scStage = Arg("-scStage", "wasteland_road");
+        bool isWaste = scStage == "wasteland_road";
+        var prof = Resources.Load<SceneryProfile>("Scenery/" + scStage + "_scenery");
         Check(prof != null, "scenery profile exists");
         if (prof == null) yield break;
         (float d, string want)[] cases =
@@ -23,6 +27,7 @@ public partial class QaSweep
             (40000f, "B 昼"), (55000f, "C 夕方"), (65000f, "A 夜"), (75000f, "B 夜明け"), (85000f, "C 昼"), (95000f, "C 夕方"),
             (105000f, "A 夕方"), (115000f, "B 夜"), (120000f, "A 昼"), (130000f, "B 夕方"), (245000f, "A 昼"),
         };
+        if (!isWaste) { cases = new (float, string)[0]; for (float pd = 5000f; pd < 100000f; pd += 10000f) { int si = prof.SegmentAt(pd, out float sa, out float sb); L($"[plan] {pd / 1000f:0}km: {prof.Describe(si)} ({sa / 1000f:0}-{sb / 1000f:0}km)"); } }
         foreach (var c in cases)
         {
             int s = prof.SegmentAt(c.d, out float a, out float b);
@@ -31,10 +36,10 @@ public partial class QaSweep
         L($"[plan] loop={prof.TotalLength}m blend={prof.blendMeters}m segments={prof.segments.Length}");
 
         // ---- 2) 実際のRun: 開始=A昼、旧夜レイヤー停止
-        yield return BeginRun("swordsman", "wasteland_road");
+        yield return BeginRun("swordsman", scStage);
         PrepSceneryRun();
         yield return new WaitForSeconds(1f);
-        Check(SceneryCycle.Active, "SceneryCycle active on wasteland_road");
+        Check(SceneryCycle.Active, $"SceneryCycle active on {scStage}");
         Check(SceneryCycle.CurrentSegment == 0, $"run starts at segment 0 (got {SceneryCycle.CurrentSegment} {SceneryCycle.CurrentName})");
         var wtc = WorldTimeCycle.Instance;
         if (wtc != null && wtc.nightLayer != null) Check(!wtc.nightLayer.enabled, "old WorldTimeCycle night layer is off while SceneryCycle runs");
@@ -63,7 +68,8 @@ public partial class QaSweep
         yield return null;
 
         // ---- 4) 夜の見やすさ(実際に敵/障害物/穴が出ている所)
-        foreach (float d in new[] { 25000f, 65000f, 105000f, 4000f, 45000f, 85000f })
+        var playKm = Arg("-scPlayKm", "25,65,105,4,45,85").Split(',').Select(x => float.Parse(x, System.Globalization.CultureInfo.InvariantCulture) * 1000f).ToArray(); // 2026-11-05: 撮る距離(洞窟/天空は 5,15,…,95)
+        foreach (float d in playKm)
         {
             gm.DebugWarpToDistance(d);
             yield return new WaitForSeconds(5f);
@@ -71,7 +77,7 @@ public partial class QaSweep
             yield return null; yield return null;
             // 同じ場面(敵/障害物/穴がある)のまま、背景だけ夕方/夜/夜明けにして撮る(見やすさの比較)
             int baseSeg = SceneryCycle.CurrentSegment;
-            if (prof.segments[baseSeg].time == SceneryTime.Day)
+            if (isWaste && prof.segments[baseSeg].time == SceneryTime.Day)
                 for (int k = 1; k <= 3; k++)
                 {
                     SceneryCycle.DebugPreviewDistance = SceneryCycle.DistanceForSegment(baseSeg + k);
@@ -94,13 +100,13 @@ public partial class QaSweep
 
         // ---- 6) リトライで最初(A昼)に戻る
         yield return EndRun();
-        yield return BeginRun("swordsman", "wasteland_road");
+        yield return BeginRun("swordsman", scStage);
         PrepSceneryRun();
         yield return new WaitForSeconds(0.5f);
         Check(SceneryCycle.CurrentSegment == 0 && SceneryCycle.CurrentBlend == 0f, $"after retry: segment 0 (got {SceneryCycle.CurrentName})");
         Check(SceneryCycle.LoadedCount <= 2, $"after retry: loaded {SceneryCycle.LoadedCount} <= 2");
         var bg = TerrainManager.Instance.backgroundRenderer;
-        Check(bg != null && bg.sprite != null && bg.sprite.name == "WastelandBackground", $"after retry: base background is the original ({(bg != null && bg.sprite != null ? bg.sprite.name : "null")})");
+        if (isWaste) Check(bg != null && bg.sprite != null && bg.sprite.name == "WastelandBackground", $"after retry: base background is the original ({(bg != null && bg.sprite != null ? bg.sprite.name : "null")})");
 
         // ---- 7) 全部の境目を高速で通過: 移り具合が逆戻りしない/継ぎ目(絵の入れ替わりの瞬間の色の跳び)/読み込みの引っかかり/メモリ
         SetKmh(float.Parse(Arg("-qaSceneryKmh", "320")));
@@ -157,6 +163,29 @@ public partial class QaSweep
         L($"[mem] scenery textures resident max={maxLoaded} ({maxTex / 1024f / 1024f:F2}MB), syncLoadsTotal={SceneryCycle.SyncLoadCount} (warps only), lastSyncLoad={SceneryCycle.LastSyncLoadMs:F0}ms");
         Check(maxLoaded <= 3, $"at most 3 scenery textures resident while running (max {maxLoaded})");
         yield return EndRun();
+
+        // ---- 8) 疾走出発(2026-11-05): 到着の距離の景色で始まる(到着より前の関門は突破済み)
+        if (Arg("-scSprint", "1") == "1")
+            foreach (int dest in new[] { 30000, 60000 })
+            {
+                yield return ReloadHome();
+                gm = GameManager.Instance;
+                gm.SetSelectedCharacter("swordsman");
+                SprintRecords.DevUnlockAll = true; SprintRunner.QaRingPolicy = 1; SprintRunner.QaTimeScale = 6f;
+                bool okDep = gm.DepartSprint(scStage, dest);
+                float sw = 0f;
+                while (!(gm.HasStarted && !gm.CountdownActive && !gm.SprintActive) && sw < 60f) { yield return null; sw += Time.unscaledDeltaTime; }
+                SprintRunner.QaTimeScale = 1f; SprintRecords.DevUnlockAll = false;
+                pc = PlayerController.Instance;
+                PrepSceneryRun();
+                yield return new WaitForSeconds(1f);
+                int want = prof.SegmentAt(LandmarkJourney.SceneryDistance(gm.MaxDistance), out _, out _);
+                L($"[sprint] {scStage} -> {dest}m: arrived {gm.MaxDistance:F0}m, scenery {SceneryCycle.CurrentName} (want {prof.Describe(want)})");
+                Check(okDep && SceneryCycle.CurrentSegment == want, $"sprint to {dest}m shows the scenery of the arrival distance ({SceneryCycle.CurrentName})");
+                Shot($"sprint_{scStage}_{dest / 1000}k");
+                yield return null; yield return null;
+                yield return EndRun();
+            }
     }
 
     void PrepSceneryRun()

@@ -23,7 +23,7 @@ public partial class QaSweep
         string tag0 = Arg("-tsTag", "ts");
         foreach (float sp in speeds)
         {
-            yield return BeginRun("swordsman", "wasteland_road");
+            yield return BeginRun("swordsman", Arg("-tsStage", "wasteland_road")); // 2026-11-05: 洞窟/天空の内部も
             SetGod(true);
             GameManager.BlockExpGain = true;
             int entry = 0;

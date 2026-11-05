@@ -12,7 +12,7 @@ using UnityEngine;
 //  -bonusChaseLegacy を付けると直す前の動き(前後比較)。-bcFps で撮影(動画用の連番)
 public partial class QaSweep
 {
-    class BcGob { public int id, hits, reachEnter, overtakes, warps, cycles; public float reachT = -1f, lastHitT = -1f, maxAcc, sumWait; public int waits; public bool away = true, behind; public float prevDx = float.NaN, prevRelV = float.NaN, accT, accDx; public bool prevQuiet; public float lastStillLog = -9f; public int passedOver; }
+    class BcGob { public int id, hits, reachEnter, overtakes, warps, cycles; public float reachT = -1f, lastHitT = -1f, maxAcc, sumWait; public int waits; public bool away = true, behind; public float prevDx = float.NaN, prevRelV = float.NaN, accT, accDx; public bool prevQuiet; public float lastStillLog = -9f; public int passedOver; public float overT = -1f, overGameTime; public bool recovered; public int overWarps; public List<float> recoverSecs = new List<float>(); }
 
     IEnumerator BonusChaseMode()
     {
@@ -89,7 +89,7 @@ public partial class QaSweep
                         if (dx < -0.3f && !g.behind && Mathf.Abs(gp.y - pp.y) >= 2f) { g.behind = true; g.passedOver++; }
                         if (dx < -0.3f && !g.behind)
                         {
-                            g.behind = true; g.overtakes++;
+                            g.behind = true; g.overtakes++; g.overT = t; g.overGameTime = Time.time; g.recovered = false; g.overWarps = g.warps;
                             var sbh = be.GetComponent<EnemySpecialBehavior>();
                             L($"   [overtake] {tag} t={t:F2} dx={dx:F2} dy={gp.y - pp.y:F1} playerAir={!pc.IsGrounded} pv={pv:F1} pace={(sbh != null ? sbh.DebugGoblinPace : "-")} behaviour={(sbh != null && sbh.enabled)} lastHit={Time.time - be.LastHitTime:F2}s ago {(ec != null ? ec.DebugAirState : "")}");
                         }
@@ -102,11 +102,15 @@ public partial class QaSweep
                         }
                         if (dx > 0.3f) g.behind = false;
                         bool inReach = dx > 0f && dx <= reach;
+                        // 追い越した後: 何秒で攻撃が届く距離(前 0〜reach)へ戻ったか
+                        if (g.overT >= 0f && !g.recovered && inReach) { g.recovered = true; g.recoverSecs.Add(t - g.overT); L($"   [recover] {tag} t={t:F2} back in reach {t - g.overT:F2}s after the overtake (dx {dx:F2}, warps meanwhile {g.warps - g.overWarps})"); }
                         if (inReach && g.reachT < 0f) { g.reachT = t; g.reachEnter++; }
                         if (!inReach && dx > reach + 1.5f) { if (g.reachT >= 0f && g.lastHitT >= g.reachT) g.cycles++; g.reachT = -1f; }
                         if (dx > 0f && dx < best) { best = dx; target = ec; }
                     }
                     prevG[id] = gp;
+                    // 追い越した後にもう一度当てた(届く距離へ戻ったのと同じ)
+                    if (g.overT >= 0f && !g.recovered && be.LastHitTime > g.overGameTime + 0.05f) { g.recovered = true; g.recoverSecs.Add(t - g.overT); L($"   [recover] {tag} t={t:F2} hit again {t - g.overT:F2}s after the overtake"); }
                     if (be.LastHitTime > g.lastHitT && be.LastHitTime > 0f && g.reachT >= 0f)
                     {
                         if (g.lastHitT < g.reachT) { g.sumWait += Mathf.Max(0f, t - g.reachT); g.waits++; }
@@ -134,6 +138,10 @@ public partial class QaSweep
             Time.captureDeltaTime = 0f;
             System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, $"bc_{tag}_series.tsv"), series.ToString());
             var gl = gobs.Values.ToList();
+            // 追い越した後に戻らなかった(BONUS の終わりまで/消えるまで攻撃が届く距離へ戻らない)= 取り残された
+            foreach (var g in gl.Where(g => g.overT >= 0f && !g.recovered)) L($"   [lost] {tag} goblin overtaken at t={g.overT:F2} never came back in reach ({t - g.overT:F1}s left in the run)");
+            var rec = gl.SelectMany(g => g.recoverSecs).ToList();
+            if (gl.Any(g => g.overtakes > 0)) L($"[bc] {tag} after overtakes: recovered {rec.Count} (avg {(rec.Count > 0 ? rec.Average() : 0f):F2}s, max {(rec.Count > 0 ? rec.Max() : 0f):F2}s), lost {gl.Count(g => g.overT >= 0f && !g.recovered)}");
             int hits = gl.Sum(g => g.hits), overt = gl.Sum(g => g.overtakes), warps = gl.Sum(g => g.warps), cyc = gl.Sum(g => g.cycles), reachN = gl.Sum(g => g.reachEnter);
             float wait = gl.Sum(g => g.waits) > 0 ? gl.Sum(g => g.sumWait) / gl.Sum(g => g.waits) : -1f;
             float acc = gl.Count > 0 ? gl.Max(g => g.maxAcc) : 0f;
