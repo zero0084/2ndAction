@@ -958,6 +958,9 @@ public class EncounterDirector : MonoBehaviour
     EnemyDefinition PickEnemy(EncounterDistanceBand band, EncounterSlot slot, out EncounterEnemyEntry entry)
     {
         entry = null;
+        // 2026-11-05 空中雑魚: 空中の枠は、その距離で出せる空中雑魚を一定の確率で置く(AirMinionTuning)
+        var air = PickAirMinion(slot, out entry);
+        if (air != null) return air;
         var all = new List<(EnemyDefinition d, EncounterEnemyEntry e)>();
         var pref = new List<(EnemyDefinition d, EncounterEnemyEntry e)>();
         foreach (var e in band.enemies)
@@ -995,6 +998,95 @@ public class EncounterDirector : MonoBehaviour
         return t;
     }
 
+    // ===== 空中雑魚(2026-11-05) =====
+    // 1 つの組(PlanSlots)で横切りと群れは 1 つまで(横切りは画面の右の縁で待って一斉に飛ぶので、重ねると避けられない)
+    int planCrossers, planSwarms;
+    public static int AirMinionsPlaced, AirMinionSwarmMembers; // 確認用
+    public static readonly System.Collections.Generic.Dictionary<string, int> AirMinionCounts = new System.Collections.Generic.Dictionary<string, int>();
+    public static readonly System.Collections.Generic.Dictionary<string, int> AirMinionRejects = new System.Collections.Generic.Dictionary<string, int>(); // 確認用: 空中の枠で置かなかった理由
+    static void AirReject(string why) { AirMinionRejects.TryGetValue(why, out int n); AirMinionRejects[why] = n + 1; }
+    static readonly List<(AirMinionTuning.Species s, EnemyDefinition d)> airCands = new List<(AirMinionTuning.Species, EnemyDefinition)>();
+
+    EnemyDefinition PickAirMinion(EncounterSlot slot, out EncounterEnemyEntry entry)
+    {
+        entry = null;
+        if (slot == null || !EncounterSlots.IsAir(slot.kind)) return null;
+        if (!AirMinionTuning.On || profile == null) { AirReject("off"); return null; }
+        if (slot.preferOnly && slot.preferEnemyIds != null && slot.preferEnemyIds.Length > 0) { AirReject("preferOnly"); return null; } // 主役の決まった枠(空中ボスの乱入の編隊など)
+        var t = AirMinionTuning.I;
+        string stage = profile.stageId;
+        float km = planDistance / 1000f;
+        float chance = t.SubstituteChanceAt(km);
+        bool lc = stage == "last_corridor";
+        if (lc && km >= t.lastCorridorQuietFromKm) return null;
+        if (lc && km >= 90f) chance *= t.lastCorridorRushMul;
+        bool rush = lc ? km >= 90f : (km >= t.normalRushFromKm || RushWaveAt(planDistance) >= 0);
+        if (R01() >= chance) { AirReject("roll"); return null; }
+        airCands.Clear();
+        float total = 0f;
+        foreach (var sp in t.species)
+        {
+            if (sp == null || sp.weight <= 0f || !sp.Allows(stage, planDistance)) continue;
+            if ((sp.role == AirRole.Crosser || sp.role == AirRole.Swarm) && rush) continue; // 終盤の大群/ボスラッシュを潰さない
+            if (sp.role == AirRole.Crosser && planCrossers > 0) continue;
+            if (sp.role == AirRole.Swarm && planSwarms > 0) continue;
+            // 枠の高さと役: 高い枠 = 高空/急降下/群れ、低い枠 = 低空/急降下/横切り/群れ
+            if (slot.kind == EncounterSlotKind.AirHigh && (sp.role == AirRole.Low || sp.role == AirRole.Crosser)) continue;
+            if (slot.kind == EncounterSlotKind.AirLow && sp.role == AirRole.High) continue;
+            var d = EnemyDatabase.FindById(sp.id);
+            if (d == null || d.sprite == null) continue;
+            airCands.Add((sp, d));
+            total += sp.weight;
+        }
+        if (airCands.Count == 0) { AirReject($"none@{km:F0}km/{slot.kind}"); return null; }
+        float r = R01() * total;
+        var pick = airCands[airCands.Count - 1];
+        foreach (var c in airCands) { if (r < c.s.weight) { pick = c; break; } r -= c.s.weight; }
+        if (pick.s.role == AirRole.Crosser) planCrossers++;
+        if (pick.s.role == AirRole.Swarm) planSwarms++;
+        // 序盤(〜15km)は漂うだけ(T0)が多い。行動(突っ込み/急降下)は T1〜。急降下・横切りは役そのものが攻撃なので常に T1〜
+        bool always = pick.s.role == AirRole.Diver || pick.s.role == AirRole.Crosser;
+        entry = new EncounterEnemyEntry { enemyId = pick.s.id, weight = 1f, minTier = always || km >= 15f ? EnemyAiTier.T1 : EnemyAiTier.T0, maxTier = EnemyAiTier.T2 };
+        AirMinionsPlaced++;
+        AirMinionCounts.TryGetValue(pick.s.id, out int n); AirMinionCounts[pick.s.id] = n + 1;
+        return pick.d;
+    }
+
+    // 群れの種は 1 枠を数体に広げる(V 字の編隊は V 字に)。高さは種の範囲の中
+    void ExpandAirSwarms(TerrainManager tm, List<Planned> list)
+    {
+        var t = AirMinionTuning.I;
+        int n0 = list.Count;
+        for (int i = 0; i < n0; i++)
+        {
+            var p = list[i];
+            if (p.def == null || p.def.behaviorKind != EnemyBehaviorKind.AirSwarm) continue;
+            var sp = t.Find(p.def.enemyId);
+            if (sp == null) continue;
+            int count = Mathf.Max(1, Mathf.RoundToInt(Mathf.Lerp(sp.group.x, sp.group.y, R01()) * t.groupMul));
+            float ground = p.route == EncounterRoute.Upper && tm.GetSkyHeightAt(p.pos.x).HasValue ? tm.GetSkyHeightAt(p.pos.x).Value : tm.GetGroundLineAt(p.pos.x);
+            float? ceil = tm.GetEffectiveCeilingHeightAt(p.pos.x);
+            float lo = ground + sp.height.x, hi = ground + sp.height.y;
+            if (ceil.HasValue) hi = Mathf.Min(hi, ceil.Value - 0.8f);
+            if (hi < lo) hi = lo;
+            float mid = (lo + hi) * 0.5f;
+            p.pos = new Vector2(p.pos.x, sp.vFormation ? mid : Range(lo, hi));
+            list[i] = p;
+            for (int k = 1; k < count; k++)
+            {
+                Vector2 pos;
+                if (sp.vFormation)
+                {
+                    int row = (k + 1) / 2; float side = (k % 2 == 1) ? 1f : -1f;
+                    pos = new Vector2(p.pos.x + row * 1.3f, Mathf.Clamp(mid + side * row * 0.6f, lo - 0.2f, hi + 0.4f)); // 間隔はエステル案で広め(重なると黒い塊に見える)
+                }
+                else pos = new Vector2(p.pos.x + Range(-0.5f, 3.4f) * sp.spread, Range(lo, hi));
+                list.Add(new Planned { def = p.def, pos = pos, tier = p.tier, beh = p.beh, slot = p.slot, route = p.route });
+                AirMinionSwarmMembers++;
+            }
+        }
+    }
+
     // ---- 配置 ----
 
     struct Planned
@@ -1023,6 +1115,7 @@ public class EncounterDirector : MonoBehaviour
         float lastGroundX = float.NegativeInfinity;
         var list = new List<Planned>();
         int reqWanted = 0, reqPlaced = 0;
+        planCrossers = planSwarms = 0;
         foreach (var slot in slots)
         {
             if (slot.minIntensity > intensity) continue;
@@ -1071,6 +1164,7 @@ public class EncounterDirector : MonoBehaviour
         }
         if (reqPlaced < reqWanted) return null; // 主役を置けない(例: 守護兵の居ないGuardian Wall)なら、この場所では置かない
         AddDueFlyer(tm, band, intensity, probe, spacing, route, list); // 2026-11-04: 空の敵がしばらく居ない → この組の前に 1 体
+        ExpandAirSwarms(tm, list); // 2026-11-05: 空中雑魚の群れ
         if (profile.islandAware) KeepAirOrder(list);
         return list;
     }

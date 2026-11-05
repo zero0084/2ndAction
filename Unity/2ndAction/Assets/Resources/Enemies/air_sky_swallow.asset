@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: air_sky_swallow
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: air_sky_swallow
+  displayName: SKY SWALLOW
+  sprite: {fileID: 21300000, guid: 454d0df3cf17b0b4da67d6d8d16a86d7, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 1
+  category: 1
+  behaviorKind: 25
+  hpMultiplier: 0.35
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 0
+  runFrames:
+  - {fileID: 21300000, guid: 6350b655524ac2649aadd6f0d568f054, type: 3}
+  - {fileID: 21300000, guid: 34c779b5b4c208a4faa8d0bff80b1684, type: 3}
+  - {fileID: 21300000, guid: 1c37afdf48bf37e45838b8171914ee8b, type: 3}
+  - {fileID: 21300000, guid: 3d572ff4ab7e0da4da87bc0689d0c701, type: 3}
+  attackSprite: {fileID: 21300000, guid: 0fba95e6be82ec44e9fb8cb799cb44e2, type: 3}
+  mileReward: 1
+  visualScaleMultiplier: 1
+  aiTier: 1
+  stageIds:
+  - sky_corridor
+  bonusKind: 0
+  poses:
+    telegraph: {fileID: 21300000, guid: d38685039052b71449ce9adf10be8dae, type: 3}
+    attack: {fileID: 21300000, guid: 0fba95e6be82ec44e9fb8cb799cb44e2, type: 3}
+    recover: {fileID: 21300000, guid: 58bbf5cb7881a1d45b1f1b07376d7d6c, type: 3}
+    hit: {fileID: 21300000, guid: ae5ad107ee131aa4abcc90863a8680b1, type: 3}
+    death: {fileID: 21300000, guid: 521f0d5014a373a49ac053e78479e428, type: 3}
+    dormant: {fileID: 0}
+    wake: {fileID: 0}
+    charge: {fileID: 0}
+    dive: {fileID: 21300000, guid: 0fba95e6be82ec44e9fb8cb799cb44e2, type: 3}
+  motionLinks: []
+  runFrameOffsets: []
+  idleHoverAmplitude: 0
+  bodyColliderScale: {x: 0.3544922, y: 0.32421875}
+  bodyColliderOffset: {x: 0, y: 0}
+  launchScale: 1.2
+  knockbackScale: 1.1
+  finishMass: 0
+  finishKnockbackResistance: 0

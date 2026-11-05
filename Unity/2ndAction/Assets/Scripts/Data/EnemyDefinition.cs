@@ -42,7 +42,13 @@ public enum EnemyBehaviorKind
     TreasureGoblin,   // 宝袋を背負って同じ方向へ逃げる(殴ると少しMILE、叩くと一瞬加速して逃げる)
     Mimic,            // 宝箱に擬態→近づくと起きてPlayerの前に居続ける(殴った回数だけMILE、上限で逃走)
     GoldenSlime,      // とても弱い、跳ねるだけ(倒すと大量EXP)
-    CardFairy         // 小さく逃げ回る(撃破で確定Card Choice)
+    CardFairy,        // 小さく逃げ回る(撃破で確定Card Choice)
+    // 空中雑魚(2026-11-05)。処理は EnemySpecialBehavior.Air.cs、種ごとの数値は AirMinionTuning(Resources/Balance)。
+    AirLow,           // A 低空: 頭の少し上をゆっくり上下しながら前から来る(跳ぶと当たる)。T1〜 は短い横の突っ込み
+    AirHigh,          // B 高空: 二段ジャンプの高さをゆっくり漂う。空中のプレイヤーへ短く降りる
+    AirDiver,         // C 急降下: 高い所で止まって光る(軌道の線)→ プレイヤーへ斜め(蜘蛛は真下)に急降下 → 上へ戻る
+    AirCrosser,       // D 横切り: 画面の外で待つ → 高さに細い線(予告)→ 右から左へ高速で横切る
+    AirSwarm          // E 群れ/編隊: 小さい敵がまとまって前から来て空中の通り道を塞ぐ(V 字の編隊は横切る)
 }
 
 // BONUS ZONEの報酬の種類(BonusEnemyが読む)。None=通常の敵。

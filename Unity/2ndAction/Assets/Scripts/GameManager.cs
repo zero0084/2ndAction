@@ -3492,7 +3492,14 @@ public partial class GameManager : MonoBehaviour
     // be confirmed on a real device rather than inferred from review alone.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public static System.Action<string, int, int, int> QaDamageEvent; // (理由, ダメージ, 前のHP, 後のHP) 自動検証の記録用
+    public static System.Action<string> QaShieldEvent; // (理由) Shield で防いだ被弾(自動検証の記録用。2026-11-05 空中雑魚)
 #endif
+    static void QaShieldHook(string reason)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        QaShieldEvent?.Invoke(reason);
+#endif
+    }
     // 落下の理由は PlayerController が "DeathY[:元]" で渡す(以前は "Fall" と比べていて一致せず、カードの短い無敵が落下まで止めていた。2026-10-13)
     static bool IsFallReason(string reason) => reason != null && (reason == "Fall" || reason.StartsWith("DeathY"));
 
@@ -3512,7 +3519,7 @@ public partial class GameManager : MonoBehaviour
         if (!bypassInvincibleMode && InvincibleMode) return DamageResult.Ignored;
         // カードバランス v3: LAST CHANCE / PHOENIX / PERFECT GUARD の短い無敵(落下はそのまま通す)
         if (CardInvincibleActive && !IsFallReason(reason)) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(CardInvincible) reason={reason}"); return DamageResult.Ignored; }
-        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); OnShieldBlocked(); LastDamageShielded = true; return DamageResult.Ignored; }
+        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); OnShieldBlocked(); LastDamageShielded = true; QaShieldHook(reason); return DamageResult.Ignored; }
 
         // ボス戦の強化(2026-10-01): 重い一撃は複数ハート。ただしハートが満タンの時に1発で倒れることはない。
         int dmg = Mathf.Max(1, amount);

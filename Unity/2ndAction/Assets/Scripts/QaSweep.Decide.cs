@@ -149,7 +149,9 @@ public partial class QaSweep
         // 空の帯/上空封鎖: 地上にいる(オートの跳躍を止める。空中なら急降下で降りる)
         // 危険が来る少し前〜過ぎるまでだけ(それより前に跳躍を止めると、平らにした区間の手前の穴/壁に当たる)
         bool stayLow = cue == DecisionEvents.Cue.StayLow && now > DecisionEvents.CueDangerAt - 0.35f && now < DecisionEvents.CueDangerEnd + 0.15f;
-        if (a != null && stayLow != deHeldAvoid) { a.SetAutoAvoid(!stayLow); deHeldAvoid = stayLow; }
+        // 空中雑魚の予兆(急降下/横切り)は一瞬なので、オートの回避は止めない(止めると穴/壁に当たる)。空中なら急降下で降りるだけ
+        bool holdAvoid = stayLow && !DecisionEvents.CueFromAir;
+        if (a != null && holdAvoid != deHeldAvoid) { a.SetAutoAvoid(!holdAvoid); deHeldAvoid = holdAvoid; }
         if (stayLow && !pc.IsGrounded && pc.AssistVelocityY > -1f && now > DecisionEvents.CueDangerAt - 0.9f) pc.debugInjectOnce = PlayerController.FlickDirection.Down;
         // 地上の帯/地上封鎖: 危険が来る少し前に跳ぶ(地上封鎖は背が高いので頂点で二段)
         if (cue == DecisionEvents.Cue.JumpOver && deJumpAt < 0f && now < DecisionEvents.CueDangerEnd)

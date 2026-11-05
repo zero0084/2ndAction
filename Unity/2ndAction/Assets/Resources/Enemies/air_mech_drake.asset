@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: air_mech_drake
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: air_mech_drake
+  displayName: MECH DRAKE
+  sprite: {fileID: 21300000, guid: f04d0d931755b6b43927b489686c2eaf, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 1
+  category: 1
+  behaviorKind: 24
+  hpMultiplier: 0.8
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 0
+  runFrames:
+  - {fileID: 21300000, guid: 8325d785af22ae144a989693b47e0ce1, type: 3}
+  - {fileID: 21300000, guid: 3e3318a03b6599b4c9ce941a17cc4d9a, type: 3}
+  - {fileID: 21300000, guid: c79143843b302da4397972f88ee7e349, type: 3}
+  - {fileID: 21300000, guid: ef009605c2199ed498594b3dd5d99afd, type: 3}
+  attackSprite: {fileID: 21300000, guid: 1d9bba766fc2ae84d9b9cb896b02b7a9, type: 3}
+  mileReward: 2
+  visualScaleMultiplier: 1
+  aiTier: 1
+  stageIds:
+  - last_corridor
+  bonusKind: 0
+  poses:
+    telegraph: {fileID: 21300000, guid: 15c40d12051d1fd499e222d6d5b98a6f, type: 3}
+    attack: {fileID: 21300000, guid: 1d9bba766fc2ae84d9b9cb896b02b7a9, type: 3}
+    recover: {fileID: 21300000, guid: c29ddd9debc0a18489e8044ced3e6839, type: 3}
+    hit: {fileID: 21300000, guid: 77b3c8355c9bf514099173268f5d6ba3, type: 3}
+    death: {fileID: 21300000, guid: 41c572fda8748e744a3c8db5e6fffcd6, type: 3}
+    dormant: {fileID: 0}
+    wake: {fileID: 0}
+    charge: {fileID: 0}
+    dive: {fileID: 21300000, guid: 1d9bba766fc2ae84d9b9cb896b02b7a9, type: 3}
+  motionLinks: []
+  runFrameOffsets: []
+  idleHoverAmplitude: 0
+  bodyColliderScale: {x: 0.41035157, y: 0.30859375}
+  bodyColliderOffset: {x: 0, y: 0}
+  launchScale: 1.2
+  knockbackScale: 1.1
+  finishMass: 0
+  finishKnockbackResistance: 0

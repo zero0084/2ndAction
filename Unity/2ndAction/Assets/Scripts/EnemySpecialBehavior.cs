@@ -311,6 +311,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         if (kind == EnemyBehaviorKind.Flying && flyingDiveEnabled) InitFlyingDive();
         if (IsSkyKind) InitSky(); // 天空回廊Enemy(EnemySpecialBehavior.Sky.cs)
         if (IsBonusKind) InitBonus(); // BONUS ZONEの報酬Enemy(EnemySpecialBehavior.Bonus.cs)
+        if (IsAirKind) InitAir(); // 空中雑魚(EnemySpecialBehavior.Air.cs)
     }
 
     // 敵AI行動Tier試験実装(2026-09-16) - Hit Reaction/Knockback/Launchに
@@ -324,7 +325,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
     // Start()/InitStationaryMeleeが一度だけ担う。
     // Floating Origin: 一時的にDisableされる間も追従するようStart~OnDestroyで購読する。
     void OnOriginShifted(float s) { spawnX -= s; skyDiveTo.x -= s; skyDiveFrom.x -= s; }
-    void OnDestroy() { FloatingOrigin.Shifted -= OnOriginShifted; }
+    void OnDestroy() { FloatingOrigin.Shifted -= OnOriginShifted; AirDestroyLine(); }
 
     void OnEnable()
     {
@@ -368,6 +369,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
 
         if (IsSkyKind) ResetSkyAfterInterrupt();
         if (IsBonusKind) ResetBonusAfterInterrupt();
+        if (IsAirKind) ResetAirAfterInterrupt();
 
         if (kind == EnemyBehaviorKind.Flying && flyingDiveEnabled && flyingDiveHitboxGO != null)
         {
@@ -392,6 +394,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         if (flyingDiveMarkerGO != null) flyingDiveMarkerGO.SetActive(false);
         SkyOnDisable();
         BonusOnDisable();
+        AirOnDisable();
     }
 
     // 属性(2026-10-03): 氷を受けた敵は行動(移動/予備動作/攻撃の間隔)の時間がゆっくり進む。Freeze中は0=止まる。
@@ -431,7 +434,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
             case EnemyBehaviorKind.StationaryMelee: UpdateStationaryMelee(); break;
             case EnemyBehaviorKind.CaveHopper: UpdateCaveHopper(); break;
             case EnemyBehaviorKind.BurrowWorm: UpdateBurrowWorm(); break;
-            default: if (IsSkyKind) UpdateSky(); else if (IsBonusKind) UpdateBonus(); break;
+            default: if (IsSkyKind) UpdateSky(); else if (IsBonusKind) UpdateBonus(); else if (IsAirKind) UpdateAir(); break;
         }
     }
 
@@ -1333,7 +1336,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
                 case EnemyBehaviorKind.BurrowWorm:
                     return wormState == WormState.Emerge || wormState == WormState.Attack;
                 default:
-                    return IsSkyKind && SkyInAttackPose;
+                    return (IsSkyKind || IsAirKind) && SkyInAttackPose;
             }
         }
     }

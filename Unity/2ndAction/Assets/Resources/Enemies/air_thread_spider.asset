@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: air_thread_spider
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: air_thread_spider
+  displayName: THREAD SPIDER
+  sprite: {fileID: 21300000, guid: 837c9cdb7dab79840a76954b50dcad19, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 1
+  category: 1
+  behaviorKind: 23
+  hpMultiplier: 0.9
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 0
+  runFrames:
+  - {fileID: 21300000, guid: 84d63779635f3fe44b3b6604d3b4cfae, type: 3}
+  - {fileID: 21300000, guid: 9f6c580700f3d8045a32a64eacbe9379, type: 3}
+  - {fileID: 21300000, guid: 752e8341067ff714bb8da5ca8f0093b0, type: 3}
+  - {fileID: 21300000, guid: c8222d632a9c3094dbb62af43c37b968, type: 3}
+  attackSprite: {fileID: 21300000, guid: dca645291f2d97f43972779096a330ff, type: 3}
+  mileReward: 2
+  visualScaleMultiplier: 1
+  aiTier: 1
+  stageIds:
+  - natural_cave
+  bonusKind: 0
+  poses:
+    telegraph: {fileID: 21300000, guid: 3ce0251b79263544cb93af36f9112060, type: 3}
+    attack: {fileID: 21300000, guid: dca645291f2d97f43972779096a330ff, type: 3}
+    recover: {fileID: 21300000, guid: 4ff0c5a947d0b34408350677913e1792, type: 3}
+    hit: {fileID: 21300000, guid: 94780de9d5bf860489496240e17860bf, type: 3}
+    death: {fileID: 21300000, guid: a7de84ddad1e3c3448f2d7cc10b46919, type: 3}
+    dormant: {fileID: 0}
+    wake: {fileID: 0}
+    charge: {fileID: 0}
+    dive: {fileID: 21300000, guid: dca645291f2d97f43972779096a330ff, type: 3}
+  motionLinks: []
+  runFrameOffsets: []
+  idleHoverAmplitude: 0
+  bodyColliderScale: {x: 0.26210937, y: 0.26953125}
+  bodyColliderOffset: {x: 0, y: 0}
+  launchScale: 1.2
+  knockbackScale: 1.1
+  finishMass: 0
+  finishKnockbackResistance: 0

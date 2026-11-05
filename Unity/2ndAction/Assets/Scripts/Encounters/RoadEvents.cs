@@ -14,7 +14,7 @@ using UnityEngine;
 //  ・ボス戦/BONUS ZONE/門をくぐる間/カウントダウン中は始めない(少し後へ送る。区間の終わりを過ぎたらその区間は無し)。
 //  ・マルチ: 出現を決める HOST だけが持つ(JOIN は何もしない)。乱入はソロ/CPU サポートだけ(マルチは今は対象外)。
 // 2026-11-05: 判断型の道中イベント(DecisionEvents)の種類を末尾に追加(50km から。今までの種類も 50km からは DecisionEvents が選ぶ)
-public enum RoadEventKind { None, Rush, Flying, Elite, Chase, AirRaid, SkyBlock, GroundBlock, Alternate, TelegraphRush, HeavyHitter, AerialBrute }
+public enum RoadEventKind { None, Rush, Flying, Elite, Chase, AirRaid, SkyBlock, GroundBlock, Alternate, TelegraphRush, HeavyHitter, AerialBrute, AirDive, AirCross }
 
 public class RoadEvents : MonoBehaviour
 {
@@ -24,7 +24,7 @@ public class RoadEvents : MonoBehaviour
     static float activeUntil;
     // 確認用(QA)
     public static int Started;
-    public static readonly int[] StartedByKind = new int[12];
+    public static readonly int[] StartedByKind = new int[14];
     public static readonly List<string> History = new List<string>(); // 「km 種類 label」
     public static int Postponed, Skipped, RaidFallbacks;
 

@@ -309,6 +309,7 @@ public static class EnemyDatabaseBuilder
 
         // 天空回廊の固有Enemy 8種(2026-09-28)。素材の取り込みから行う(SkyEnemyDatabase参照)。
         SkyEnemyDatabase.Build();
+        AirEnemyDatabase.Build(); // 空中雑魚 18 種(2026-11-05)
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();

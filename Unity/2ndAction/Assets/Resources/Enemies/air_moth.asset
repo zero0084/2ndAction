@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: air_moth
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: air_moth
+  displayName: GIANT MOTH
+  sprite: {fileID: 21300000, guid: 7edaeeba406136644a89e2b8ee04b97a, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 1
+  category: 1
+  behaviorKind: 21
+  hpMultiplier: 0.6
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 0
+  runFrames:
+  - {fileID: 21300000, guid: a5a56d10ecfa4fb4783e526af8fd4695, type: 3}
+  - {fileID: 21300000, guid: 0c08ac300cd6d7d4a94a8a2d7f3a1775, type: 3}
+  - {fileID: 21300000, guid: 48fd23fc1a8193a449122fd4bdd8ae16, type: 3}
+  - {fileID: 21300000, guid: b0b0c09cacfb64a428b647d5cf1b0f67, type: 3}
+  attackSprite: {fileID: 21300000, guid: f2a76ef1b7e451344b87f52c41d83f8b, type: 3}
+  mileReward: 1
+  visualScaleMultiplier: 1
+  aiTier: 1
+  stageIds:
+  - natural_cave
+  bonusKind: 0
+  poses:
+    telegraph: {fileID: 21300000, guid: b18dc6238d849d84b93bfff1d6893e7a, type: 3}
+    attack: {fileID: 21300000, guid: f2a76ef1b7e451344b87f52c41d83f8b, type: 3}
+    recover: {fileID: 21300000, guid: 6c63fe19716786640a71a93e10dfb99a, type: 3}
+    hit: {fileID: 21300000, guid: 5fc219317a1df024182a2f697a594e0c, type: 3}
+    death: {fileID: 21300000, guid: c39a3b9912c9e064387ca00c2fe27eb0, type: 3}
+    dormant: {fileID: 0}
+    wake: {fileID: 0}
+    charge: {fileID: 0}
+    dive: {fileID: 21300000, guid: f2a76ef1b7e451344b87f52c41d83f8b, type: 3}
+  motionLinks: []
+  runFrameOffsets: []
+  idleHoverAmplitude: 0
+  bodyColliderScale: {x: 0.38027343, y: 0.3984375}
+  bodyColliderOffset: {x: 0, y: 0}
+  launchScale: 1.2
+  knockbackScale: 1.1
+  finishMass: 0
+  finishKnockbackResistance: 0

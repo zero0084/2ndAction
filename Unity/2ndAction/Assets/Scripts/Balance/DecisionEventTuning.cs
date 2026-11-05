@@ -39,6 +39,8 @@ public class DecisionEventTuning : ScriptableObject
         public float legacyRush = 0.35f, legacyFlying = 0.25f, legacyElite = 0.25f, legacyChase = 0.25f, airRaid = 0.6f;
         [Tooltip("通常の Encounter の敵を高火力敵にする確率(1体ずつ)")]
         [Range(0f, 1f)] public float heavyHitterInNormal = 0f;
+        [Tooltip("空中雑魚(2026-11-05): 急降下の連続 AirDive / 横切りの連続 AirCross の重み(その距離で急降下/横切りの種が居る時だけ)")]
+        public float airDive = 0.8f, airCross = 0.8f;
     }
 
     [Tooltip("距離の帯(fromKm の小さい順)")]
@@ -58,6 +60,43 @@ public class DecisionEventTuning : ScriptableObject
                    skyBlock = 1f, groundBlock = 1f, alternate = 1.1f, telegraphRush = 1.2f, heavyHitter = 1f, aerialBrute = 1f,
                    legacyRush = 0.3f, legacyFlying = 0.25f, legacyElite = 0.25f, legacyChase = 0.25f, airRaid = 0.6f, heavyHitterInNormal = 0.1f },
     };
+    [Header("ラスダン(LAST CORRIDOR, 2026-11-05 空中雑魚と一緒に): ボスが多いので控えめ。種類は 帯/上空封鎖/地上封鎖/急降下/横切り だけ")]
+    public bool lastCorridor = true;
+    public Band[] lastCorridorBands = DefaultLastCorridorBands();
+    public static Band[] DefaultLastCorridorBands() => new[]
+    {
+        // 50〜65km: まれに(地上 + 空の混成が増える区間。Encounter が主役)
+        new Band { fromKm = 50f, chance = 0.5f, gapSeconds = new Vector2(34f, 50f), restAfterSeconds = 8f, warnMul = 1.2f, safeMul = 1.15f, countMul = 0.85f,
+                   skyBlock = 1f, groundBlock = 0.6f, alternate = 0f, telegraphRush = 1f, heavyHitter = 0f, aerialBrute = 0f,
+                   legacyRush = 0f, legacyFlying = 0f, legacyElite = 0f, legacyChase = 0f, airRaid = 0f, airDive = 0.6f, airCross = 0.4f },
+        // 65〜80km: 少し増やす
+        new Band { fromKm = 65f, chance = 0.6f, gapSeconds = new Vector2(26f, 40f), restAfterSeconds = 6f, warnMul = 1.05f, safeMul = 1f, countMul = 1f,
+                   skyBlock = 1f, groundBlock = 0.7f, alternate = 0.6f, telegraphRush = 1f, heavyHitter = 0f, aerialBrute = 0f,
+                   legacyRush = 0f, legacyFlying = 0f, legacyElite = 0f, legacyChase = 0f, airRaid = 0f, airDive = 0.9f, airCross = 0.8f },
+        // 80〜90km: 空中封鎖・編隊・急降下(集大成)。90km からはボスラッシュが優先(出さない)
+        new Band { fromKm = 80f, chance = 0.7f, gapSeconds = new Vector2(20f, 32f), restAfterSeconds = 5f, warnMul = 1f, safeMul = 1f, countMul = 1.05f,
+                   skyBlock = 1.3f, groundBlock = 0.5f, alternate = 0.9f, telegraphRush = 0.9f, heavyHitter = 0f, aerialBrute = 0f,
+                   legacyRush = 0f, legacyFlying = 0f, legacyElite = 0f, legacyChase = 0f, airRaid = 0f, airDive = 1.3f, airCross = 1.2f },
+    };
+    [Tooltip("急降下の連続: 数(最小〜最大)と、1体ずつの間隔(走行の秒)")]
+    public Vector2 airDiveCount = new Vector2(3f, 4f);
+    public float airDiveSpacingSeconds = 1.5f;
+    [Tooltip("横切りの連続: 数(最小〜最大)と、1体ずつの間隔(秒)。高さは 地上 → 跳躍 → 地上 … と交互")]
+    public Vector2 airCrossCount = new Vector2(3f, 4f);
+    public float airCrossIntervalSeconds = 1.5f;
+
+    public Band BandFor(string stage, float km)
+    {
+        if (stage == "last_corridor")
+        {
+            var arr = lastCorridorBands != null && lastCorridorBands.Length > 0 ? lastCorridorBands : DefaultLastCorridorBands();
+            Band lb = arr[0];
+            foreach (var x in arr) if (x != null && km >= x.fromKm) lb = x;
+            return lb;
+        }
+        return BandAt(km);
+    }
+
     public Band BandAt(float km)
     {
         Band b = bands != null && bands.Length > 0 ? bands[0] : DefaultBands()[0];

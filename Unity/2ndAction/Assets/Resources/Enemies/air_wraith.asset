@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: air_wraith
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: air_wraith
+  displayName: WRAITH
+  sprite: {fileID: 21300000, guid: af5132586fac8b24f81240b54270ca38, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 1
+  category: 1
+  behaviorKind: 21
+  hpMultiplier: 0.7
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 0
+  runFrames:
+  - {fileID: 21300000, guid: 8d5cb0675d4332d4e93a0fcb91babc80, type: 3}
+  - {fileID: 21300000, guid: 0407d859a27903040b1db26b01a56662, type: 3}
+  - {fileID: 21300000, guid: 29a9eb5d822b51c438266791d45b7793, type: 3}
+  - {fileID: 21300000, guid: dbad65c6be38ff04ea4c57e609231a68, type: 3}
+  attackSprite: {fileID: 21300000, guid: 9069ed208657bc143b0ee3b69deb55e2, type: 3}
+  mileReward: 1
+  visualScaleMultiplier: 1
+  aiTier: 1
+  stageIds:
+  - last_corridor
+  bonusKind: 0
+  poses:
+    telegraph: {fileID: 21300000, guid: 562a04d09dde5a542a218f96906f1f28, type: 3}
+    attack: {fileID: 21300000, guid: 9069ed208657bc143b0ee3b69deb55e2, type: 3}
+    recover: {fileID: 21300000, guid: a38acc1b6435e564186c8f1ef257db85, type: 3}
+    hit: {fileID: 21300000, guid: 047a12539bd04de40bd79f244d61185f, type: 3}
+    death: {fileID: 21300000, guid: cfbefd09030efd54da70d246cc0c1e7d, type: 3}
+    dormant: {fileID: 0}
+    wake: {fileID: 0}
+    charge: {fileID: 0}
+    dive: {fileID: 21300000, guid: 9069ed208657bc143b0ee3b69deb55e2, type: 3}
+  motionLinks: []
+  runFrameOffsets: []
+  idleHoverAmplitude: 0
+  bodyColliderScale: {x: 0.3308594, y: 0.375}
+  bodyColliderOffset: {x: 0, y: 0}
+  launchScale: 1.2
+  knockbackScale: 1.1
+  finishMass: 0
+  finishKnockbackResistance: 0

@@ -1,0 +1,2 @@
+stage	char	mode	speed	scale	start_km	end_km	died	secs	air_picks	swarm_extra	picked	seen	killed	hits	hearts	hit_sources	air_rejects
+wasteland_road	swordsman	idle	100	1	55.0	56.85	0	70	0	0		air_sand_swallow:1 air_vulture:1 air_red_eagle:4 air_sand_spirit:4 air_locust:7		0	0		roll:3 none@0km/AirLow:1

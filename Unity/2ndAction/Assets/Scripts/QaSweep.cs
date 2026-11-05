@@ -101,6 +101,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaJourney") { mode = "journey"; dir = a[i + 1]; }
             if (a[i] == "-qaDiff") { mode = "diff"; dir = a[i + 1]; }
             if (a[i] == "-qaDecide") { mode = "decide"; dir = a[i + 1]; } // 2026-11-05 判断型の道中イベント
+            if (a[i] == "-qaAir") { mode = "air"; dir = a[i + 1]; } // 2026-11-05 空中雑魚
             if (a[i] == "-qaRaid") { mode = "raid"; dir = a[i + 1]; }
             if (a[i] == "-qaRoadVid") { mode = "roadvid"; dir = a[i + 1]; }
             if (a[i] == "-qaHaltRoute") { mode = "haltroute"; dir = a[i + 1]; }
@@ -329,6 +330,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "journey") yield return JourneyMode();
         else if (mode == "diff") yield return DiffMode();
         else if (mode == "decide") yield return DecideMode();
+        else if (mode == "air") yield return AirMode();
         else if (mode == "raid") yield return RaidMode();
         else if (mode == "roadvid") yield return RoadVidMode();
         else if (mode == "haltroute") yield return HaltRouteMode();

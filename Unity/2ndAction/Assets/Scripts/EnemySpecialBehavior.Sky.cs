@@ -128,13 +128,14 @@ public partial class EnemySpecialBehavior
 
     // ガーゴイルは出現した最初のフレーム(Start前)から石像として扱う(一瞬でも起きた姿を見せない)。
     SkyState SkyStateNow => !skyInitialized && kind == EnemyBehaviorKind.Gargoyle ? SkyState.Dormant : skyState;
-    public string DebugState => IsSkyKind ? $"{kind}/{aiTier} {SkyStateNow}" : IsBonusKind ? $"{kind} {bonusState}" : kind.ToString();
+    public string DebugState => IsSkyKind || IsAirKind ? $"{kind}/{aiTier} {SkyStateNow}" : IsBonusKind ? $"{kind} {bonusState}" : kind.ToString();
 
     // EnemyAnimatorが出す絵(天空回廊Enemyの状態 → EnemyPose)。既存の種は常にNone(従来の攻撃ポーズのまま)。
     public EnemyPose CurrentPose
     {
         get
         {
+            if (IsAirKind) return AirPose;
             if (!IsSkyKind) return IsBonusKind ? BonusPose : EnemyPose.None;
             switch (SkyStateNow)
             {

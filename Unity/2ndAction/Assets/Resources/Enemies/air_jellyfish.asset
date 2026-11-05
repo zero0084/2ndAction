@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: air_jellyfish
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: air_jellyfish
+  displayName: FLOATING JELLYFISH
+  sprite: {fileID: 21300000, guid: ac003aab944ad4940bea5425a21a6c56, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 1
+  category: 1
+  behaviorKind: 22
+  hpMultiplier: 1.2
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 0
+  runFrames:
+  - {fileID: 21300000, guid: 10f1ba99dea3a0b4d88714c7a5ecfcb8, type: 3}
+  - {fileID: 21300000, guid: 0cdfd5433d099a6419dca8997bc3316e, type: 3}
+  - {fileID: 21300000, guid: 1a987f3e456fa0b4daff2a19aa5e4359, type: 3}
+  - {fileID: 21300000, guid: fa73456d456486740bb65c9f81ec2363, type: 3}
+  attackSprite: {fileID: 21300000, guid: 7b057a28c03262249afee0edf6585b84, type: 3}
+  mileReward: 2
+  visualScaleMultiplier: 1
+  aiTier: 1
+  stageIds:
+  - natural_cave
+  bonusKind: 0
+  poses:
+    telegraph: {fileID: 21300000, guid: fcc95891999af1d49b571befb8114821, type: 3}
+    attack: {fileID: 21300000, guid: 7b057a28c03262249afee0edf6585b84, type: 3}
+    recover: {fileID: 21300000, guid: 91a7d85c1ad728a4dbff076bbf998037, type: 3}
+    hit: {fileID: 21300000, guid: f5382e3490333364b98d484cf8efeae6, type: 3}
+    death: {fileID: 21300000, guid: 61b31ce02a1398149a2454b3a2254622, type: 3}
+    dormant: {fileID: 0}
+    wake: {fileID: 0}
+    charge: {fileID: 0}
+    dive: {fileID: 21300000, guid: 7b057a28c03262249afee0edf6585b84, type: 3}
+  motionLinks: []
+  runFrameOffsets: []
+  idleHoverAmplitude: 0
+  bodyColliderScale: {x: 0.27929688, y: 0.21289062}
+  bodyColliderOffset: {x: 0, y: 0}
+  launchScale: 0.9
+  knockbackScale: 0.8
+  finishMass: 0
+  finishKnockbackResistance: 0

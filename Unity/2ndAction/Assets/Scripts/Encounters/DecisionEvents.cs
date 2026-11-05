@@ -57,18 +57,22 @@ public class DecisionEvents : MonoBehaviour
         DontDestroyOnLoad(go);
         Instance = go.AddComponent<DecisionEvents>();
         EncounterDirector.Spawned += Instance.OnDirectorSpawned;
+        EnemySpecialBehavior.AirThreat += OnAirThreat;
     }
 
     public static bool Usable
     {
         get
         {
-            if (!DecisionEventTuning.On || !RoadEventTuning.On || !DifficultyTuning.Active) return false;
+            if (!DecisionEventTuning.On || !RoadEventTuning.On) return false;
             if (NetRunLauncher.IsMultiplayerRun) return false; // マルチは今は対象外
-            return true;
+            if (DifficultyTuning.Active) return true;
+            return IsLastCorridor && T.lastCorridor; // 2026-11-05: ラスダンも控えめに(空中雑魚と一緒に)
         }
     }
     public static bool InRange(float d) => d >= T.fromKm * 1000f && d < T.untilKm * 1000f;
+    static bool IsLastCorridor { get { var gm = GameManager.Instance; return gm != null && gm.HasStarted && gm.ActiveRunStageId == "last_corridor" && !ArenaMode.Active && !TutorialMode.Active; } }
+    static DecisionEventTuning.Band BandNow(float km) { var gm = GameManager.Instance; return T.BandFor(gm != null ? gm.ActiveRunStageId : "", km); }
     // RoadEvents の 5km の区間の予定はこの距離まで(この先はここで選ぶ)
     public static float LegacyUntilMeters => Usable ? T.fromKm * 1000f : float.PositiveInfinity;
 
@@ -99,7 +103,7 @@ public class DecisionEvents : MonoBehaviour
         if (!Usable) return;
         float d = gm.MaxDistance;
         if (!InRange(d)) return;
-        var band = T.BandAt(d / 1000f);
+        var band = BandNow(d / 1000f);
         var pc = PlayerController.Instance;
         float speed = pc != null ? Mathf.Max(5f, pc.CurrentAutoRunSpeed) : 25f;
         if (nextCandidateAt < 0f) { nextCandidateAt = Time.time + Range(band.gapSeconds) * 0.5f; return; } // 50km に入ってすぐは少し待つ
@@ -162,7 +166,12 @@ public class DecisionEvents : MonoBehaviour
             (RoadEventKind.Elite, b.legacyElite),
             (RoadEventKind.Chase, b.legacyChase),
             (RoadEventKind.AirRaid, RoadEvents.RaidPossibleNow(d) ? b.airRaid * (sky ? 1.3f : 1f) : 0f),
+            (RoadEventKind.AirDive, AirSpecies(d, AirRole.Diver) != null ? b.airDive : 0f),
+            (RoadEventKind.AirCross, AirSpecies(d, AirRole.Crosser) != null ? b.airCross : 0f),
         };
+        if (stage == "last_corridor") // ラスダン: 今までの道中イベント/高火力/鎧の敵は無し(帯の重みも 0 にしてある)
+            w.RemoveAll(x => x.k == RoadEventKind.HeavyHitter || x.k == RoadEventKind.AerialBrute || x.k == RoadEventKind.Rush || x.k == RoadEventKind.Flying
+                || x.k == RoadEventKind.Elite || x.k == RoadEventKind.Chase || x.k == RoadEventKind.AirRaid);
         float sum = 0f;
         foreach (var x in w) if (x.k != lastKind) sum += x.w; // 同じ種類の連続なし
         if (sum <= 0f) return RoadEventKind.None;
@@ -200,6 +209,8 @@ public class DecisionEvents : MonoBehaviour
             RoadEventKind.TelegraphRush => LaneSweep(token, b, PickLane(b), 1),
             RoadEventKind.HeavyHitter => HeavyHitters(token, b, d),
             RoadEventKind.AerialBrute => Brutes(token, b, d),
+            RoadEventKind.AirDive => AirDive(token, b, d),
+            RoadEventKind.AirCross => AirCross(token, b, d),
             _ => null,
         };
         if (main == null) { Running = RoadEventKind.None; RoadEvents.EndExternal("none"); return; }
@@ -611,6 +622,14 @@ public class DecisionEvents : MonoBehaviour
             MarkRoute(go, r.upper);
             DecisionEnemy.Attach(go, DecisionRole.Heavy); placed++;
         }
+        // 空中雑魚: 急降下の種が居れば半分の確率で 1 体を「高火力の急降下」に(上からの予兆を見て跳ぶ/倒す)
+        var diver = AirSpecies(d, AirRole.Diver);
+        if (diver != null && R01() < 0.5f && placed > 0)
+        {
+            float x = r.x1 + spacing * 0.8f;
+            var go = tm.SpawnEncounterEnemy(diver, new Vector2(x, tm.GetGroundLineAt(x) + 4.6f), EnemyAiTier.T2, diver.behaviorKind);
+            if (go != null) { DecisionEnemy.Attach(go, DecisionRole.Heavy); placed++; }
+        }
         if (!quiet) Log(RoadEventKind.HeavyHitter, d, $"heavy hitters {placed}");
         else History.Add($"{d / 1000f:F2}\t+HeavyHitter\t{placed}");
         if (!quiet) yield return WaitPassed(token, r.x1 + 2f, 12f);
@@ -651,6 +670,93 @@ public class DecisionEvents : MonoBehaviour
 
     static int LargeHpNow() => DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(DifficultyTuning.I.largeHpMultiplier) : CombatScale.K;
 
+    // ===================================================================== //
+    // 空中雑魚(2026-11-05): 急降下の連続 / 横切りの連続
+    // ===================================================================== //
+    // その距離で出せる、その役の空中雑魚(重みで 1 種)
+    EnemyDefinition AirSpecies(float d, AirRole role)
+    {
+        if (!AirMinionTuning.On) return null;
+        var gm = GameManager.Instance;
+        string st = gm != null ? gm.ActiveRunStageId : "";
+        EnemyDefinition pick = null; float sum = 0f;
+        foreach (var sp in AirMinionTuning.I.species)
+        {
+            if (sp == null || sp.role != role || sp.weight <= 0f || !sp.Allows(st, d)) continue;
+            var def = EnemyDatabase.FindById(sp.id);
+            if (def == null || def.sprite == null) continue;
+            sum += sp.weight;
+            if (R01() * sum < sp.weight) pick = def;
+        }
+        return pick;
+    }
+
+    // 急降下の連続: 3〜4 体を間隔を空けて高い所に置く。各体が止まって光る + 軌道の線 → 着く位置へ急降下(地上なら跳ぶ/空中なら急降下で降りる/倒す)
+    IEnumerator AirDive(int token, DecisionEventTuning.Band b, float d)
+    {
+        var pc = PlayerController.Instance; var tm = TerrainManager.Instance;
+        if (pc == null || tm == null) yield break;
+        var def = AirSpecies(d, AirRole.Diver);
+        if (def == null) { yield return SkyBlock(token, b, d, false); yield break; }
+        var sp = AirMinionTuning.I.Find(def.enemyId);
+        float v = Mathf.Max(5f, pc.CurrentAutoRunSpeed);
+        int n = Mathf.Max(2, Mathf.RoundToInt(Range(T.airDiveCount) * b.countMul * Mathf.Max(0.2f, T.intensity)));
+        float spacing = Mathf.Max(9f, v * T.airDiveSpacingSeconds * b.safeMul);
+        float x0 = pc.transform.position.x + Mathf.Max(22f, v * 2.4f);
+        float lastX = x0;
+        int placed = 0;
+        for (int i = 0; i < n; i++)
+        {
+            float x = x0 + spacing * i;
+            float g = tm.GetGroundLineAt(x);
+            float h = sp != null ? Mathf.Lerp(sp.height.x, sp.height.y, R01()) : 4.6f;
+            var ceil = tm.GetEffectiveCeilingHeightAt(x);
+            float y = g + h; if (ceil.HasValue) y = Mathf.Min(y, ceil.Value - 0.8f);
+            var go = tm.SpawnEncounterEnemy(def, new Vector2(x, y), EnemyAiTier.T2, def.behaviorKind);
+            if (go == null) continue;
+            placed++; lastX = x;
+        }
+        Log(RoadEventKind.AirDive, d, $"{def.enemyId} x{placed} spacing {spacing:F0}m");
+        yield return WaitPassed(token, lastX + 6f, 25f);
+    }
+
+    // 横切りの連続: 画面の右の外で待ち、地上の高さ → 跳躍の高さ → … と交互に 1 体ずつ横切る(線の高さを見て 跳ぶ/地上にいる)
+    IEnumerator AirCross(int token, DecisionEventTuning.Band b, float d)
+    {
+        var pc = PlayerController.Instance; var tm = TerrainManager.Instance;
+        if (pc == null || tm == null) yield break;
+        var def = AirSpecies(d, AirRole.Crosser);
+        if (def == null) { yield return LaneSweep(token, b, PickLane(b), 1); yield break; }
+        int n = Mathf.Max(2, Mathf.RoundToInt(Range(T.airCrossCount) * b.countMul * Mathf.Max(0.2f, T.intensity)));
+        bool ground = R01() < 0.5f;
+        float interval = T.airCrossIntervalSeconds * b.safeMul;
+        int placed = 0;
+        for (int i = 0; i < n; i++)
+        {
+            float x = pc.transform.position.x + 30f + i * 2f;
+            var go = tm.SpawnEncounterEnemy(def, new Vector2(x, tm.GetGroundLineAt(x) + 2f), EnemyAiTier.T2, def.behaviorKind);
+            if (go == null) continue;
+            var sb = go.GetComponent<EnemySpecialBehavior>();
+            if (sb != null) sb.ConfigureCrosser(ground, 0.4f + i * interval);
+            ground = !ground;
+            transient.Add(go); placed++;
+        }
+        Log(RoadEventKind.AirCross, d, $"{def.enemyId} x{placed} interval {interval:F1}s");
+        float until = Time.time + 1.5f + n * interval + AirMinionTuning.I.crosserWarnSeconds + 2.5f;
+        while (Time.time < until && token == eventToken) yield return null;
+        transient.Clear(); // 抜けた横切りは自分で消える
+    }
+
+    // 空中雑魚の危険(急降下の着く時刻/横切りが来る時刻)を予兆として出す(QA の人の操作が読む。今の予兆が無い時か、空中の道中イベントの間)
+    static void OnAirThreat(Cue c, float dangerAt, float len)
+    {
+        if (CurrentCue != Cue.None && Running != RoadEventKind.AirDive && Running != RoadEventKind.AirCross && Time.time < CueDangerEnd) return;
+        SetCue(c, dangerAt, dangerAt - Time.time + len + 0.3f, len);
+        CueFromAir = true;
+        AirCues++;
+    }
+    public static int AirCues;
+
     // プレイヤーが x を越える(または時間切れ)まで待つ
     IEnumerator WaitPassed(int token, float sceneX, float maxSeconds)
     {
@@ -671,19 +777,23 @@ public class DecisionEvents : MonoBehaviour
         if (!Usable || list == null) return;
         var gm = GameManager.Instance;
         if (gm == null || !InRange(gm.MaxDistance)) return;
-        float chance = T.BandAt(gm.MaxDistance / 1000f).heavyHitterInNormal;
+        float chance = BandNow(gm.MaxDistance / 1000f).heavyHitterInNormal;
         if (chance <= 0f) return;
         foreach (var m in list)
         {
-            if (m.go == null || m.def == null || !IsGroundNormal(m.def)) continue;
-            if (R01() < chance) { DecisionEnemy.Attach(m.go, DecisionRole.Heavy); HeavyInNormal++; }
+            if (m.go == null || m.def == null) continue;
+            bool airMinion = m.def.behaviorKind >= EnemyBehaviorKind.AirLow && m.def.behaviorKind <= EnemyBehaviorKind.AirCrosser; // 空中雑魚(群れは除く)も半分の確率で
+            if (!IsGroundNormal(m.def) && !airMinion) continue;
+            if (R01() < chance * (airMinion ? 0.5f : 1f)) { DecisionEnemy.Attach(m.go, DecisionRole.Heavy); HeavyInNormal++; }
         }
     }
     public static int HeavyInNormal;
 
     // ---- 予兆(QA の人の操作が読む) ----
+    public static bool CueFromAir { get; private set; } // 今の予兆が空中雑魚(急降下/横切り)の物か(QA の人の操作: オートの回避は止めない)
     static void SetCue(Cue c, float dangerAt, float validFor, float dangerLen)
     {
+        CueFromAir = false;
         CurrentCue = c; CueDangerAt = dangerAt; CueDangerEnd = dangerAt + Mathf.Max(0.05f, dangerLen); CueUntil = Time.time + validFor;
     }
 
@@ -708,6 +818,16 @@ public class DecisionEvents : MonoBehaviour
             if (def == null || !pred(def)) continue;
             list.Add((def, e.weight)); sum += e.weight;
         }
+        // 2026-11-05 空中雑魚: その距離で出せる空中雑魚も候補に(上空封鎖/空の群れ/編隊。今までの空の敵より少し多め)
+        if (AirMinionTuning.On && dir != null && dir.Profile != null)
+            foreach (var sp in AirMinionTuning.I.species)
+            {
+                if (sp == null || sp.weight <= 0f || !sp.Allows(dir.Profile.stageId, d)) continue;
+                var def = EnemyDatabase.FindById(sp.id);
+                if (def == null || def.sprite == null || !pred(def)) continue;
+                float w = AirMinionTuning.I.decisionEventWeight * sp.weight;
+                list.Add((def, w)); sum += w;
+            }
         if (list.Count == 0) return null;
         float r = R01() * sum;
         foreach (var x in list) { if (r < x.w) return x.def; r -= x.w; }
@@ -745,7 +865,7 @@ public class DecisionEvents : MonoBehaviour
         if (Running != RoadEventKind.None) Instance.Abort("debug");
         RoadEvents.EndExternal("debug");
         float d = GameManager.Instance.MaxDistance;
-        Instance.StartKind(kind, T.BandAt(Mathf.Max(T.fromKm, d / 1000f)), d, combo);
+        Instance.StartKind(kind, BandNow(Mathf.Max(T.fromKm, d / 1000f)), d, combo);
         return true;
     }
 

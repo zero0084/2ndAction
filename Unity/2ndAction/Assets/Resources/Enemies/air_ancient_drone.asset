@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: air_ancient_drone
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: air_ancient_drone
+  displayName: ANCIENT FLYING WEAPON
+  sprite: {fileID: 21300000, guid: 463d819db4c7b154287a0b564c4c90d2, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 1
+  category: 1
+  behaviorKind: 22
+  hpMultiplier: 1.4
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 0
+  runFrames:
+  - {fileID: 21300000, guid: ec743f3427a2745408d8f9cb2da1ba25, type: 3}
+  - {fileID: 21300000, guid: 280444440a1270942837ae377f92ef00, type: 3}
+  - {fileID: 21300000, guid: 4b54b25808e7fee4eb0b1f9640804ecb, type: 3}
+  - {fileID: 21300000, guid: af2d5611f7e61c64db6d79ddde3792ac, type: 3}
+  attackSprite: {fileID: 21300000, guid: 8c203d6ea9a6c694a8a1aa05a0ff716a, type: 3}
+  mileReward: 2
+  visualScaleMultiplier: 1
+  aiTier: 1
+  stageIds:
+  - last_corridor
+  bonusKind: 0
+  poses:
+    telegraph: {fileID: 21300000, guid: 926d329aa651ddc48af50c0390e0575e, type: 3}
+    attack: {fileID: 21300000, guid: 8c203d6ea9a6c694a8a1aa05a0ff716a, type: 3}
+    recover: {fileID: 21300000, guid: 1854ae9816789cf4d94548603a7a6fe4, type: 3}
+    hit: {fileID: 21300000, guid: 69d24deb67433b84da7039a15b1f9531, type: 3}
+    death: {fileID: 21300000, guid: 5d5784b840d3eec4980e1136a4ac995e, type: 3}
+    dormant: {fileID: 0}
+    wake: {fileID: 0}
+    charge: {fileID: 0}
+    dive: {fileID: 21300000, guid: 8c203d6ea9a6c694a8a1aa05a0ff716a, type: 3}
+  motionLinks: []
+  runFrameOffsets: []
+  idleHoverAmplitude: 0
+  bodyColliderScale: {x: 0.31796876, y: 0.26953125}
+  bodyColliderOffset: {x: 0, y: 0}
+  launchScale: 0.85
+  knockbackScale: 0.75
+  finishMass: 0
+  finishKnockbackResistance: 0
