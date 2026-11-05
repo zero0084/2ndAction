@@ -1,0 +1,2 @@
+mode	char	stage	speed	build	start_km	end_km	died	death_km	secs	maxHp	lv	hits	hearts	decision_events	legacy_events	by_kind	damage_sources	sweep_hits	brute_flings	brute_ground	heavy_hits	flattened	region_rejects
+idle	swordsman	wasteland_road	100	recommended	60.3	62.20	0		70	8	7	3	5	6	6	TelegraphRush:1 SkyBlock:1 GroundBlock:1 AerialBrute:1 HeavyHitter:1 Alternate:1	LaneSweep@Alternate:4 DeathY:1	2	0	1	0	13	upper_route_overhead:127 upper_route_ends:222 pit:1

@@ -1,0 +1,7 @@
+mode	char	stage	km	kind	detail	hits	hearts	hp_before
+idle	swordsman	wasteland_road	60.47	TelegraphRush	lane Air warn 1.10s n 7 enemy flying_wyvern	0	0	8
+idle	swordsman	wasteland_road	60.73	SkyBlock	flyers 7 len 44m warn 1.10s	0	0	8
+idle	swordsman	wasteland_road	61.00	GroundBlock	heavies 5 len 9.4m warn 1.10s	0	0	8
+idle	swordsman	wasteland_road	61.27	AerialBrute	brutes 2	0	0	8
+idle	swordsman	wasteland_road	61.60	HeavyHitter	heavy hitters 2	0	0	8
+idle	swordsman	wasteland_road	61.88	Alternate	steps 3 first Air	2	4	8
