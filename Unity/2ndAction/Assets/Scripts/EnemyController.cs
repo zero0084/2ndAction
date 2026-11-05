@@ -334,6 +334,8 @@ public partial class EnemyController : MonoBehaviour
         if (NetReplica) return;
         if (dying) return;
         if (bonus != null) BonusRunnerExtra(); // BONUS のゴブリン: プレイヤーの実際の前進を毎フレーム測っておく(被弾の間の運びに使う)
+        // 2026-11-04: ヒットストップが始まったフレーム(timeScale = 0、deltaTime はまだ前の値)は動かさない(プレイヤーと同じ。打ち上げ中の敵だけ 1 フレーム進んで跳んで見えた)
+        if (Time.timeScale <= 0f) return;
 
         // 実機フィードバック(2026-09-12第5弾) - Pickup/Vacuum中は
         // VacuumPickupRoutineがこの敵の位置を専有する(通常のLaunch物理と

@@ -398,7 +398,9 @@ public partial class EnemySpecialBehavior : MonoBehaviour
     // この敵の行動はすべてこの時間で進む(WaitForSecondsは使っていない)ので、止まっている間は新しい攻撃も始まらない。
     ElementStatus elementStatus;
     // カード v3: FAST ENEMIES / HELL MODE / PANDEMONIUM で雑魚の行動が速くなる。精鋭はさらに少し速い
-    float EDt => Time.deltaTime * (elementStatus != null ? elementStatus.TimeScale : 1f) * ChallengeSystem.EnemyActionScale * (enemyCtl != null && enemyCtl.IsElite ? ChallengeSystem.EliteActionMul : 1f);
+    // 2026-11-04: ヒットストップ(Time.timeScale = 0)はフレームの途中で始まる。プレイヤーは timeScale を見てそのフレームから止まるが、
+    //  Time.deltaTime は次のフレームまで前の値のまま → 敵だけ 1 フレーム多く進み、粗いフレーム(20fps)で画面の上で 1m 以上前へ跳んで見えた。プレイヤーと同じく止める
+    float EDt => (Time.timeScale <= 0f ? 0f : Time.deltaTime) * (elementStatus != null ? elementStatus.TimeScale : 1f) * ChallengeSystem.EnemyActionScale * (enemyCtl != null && enemyCtl.IsElite ? ChallengeSystem.EliteActionMul : 1f);
     EnemyController enemyCtl;
 
     void Update()

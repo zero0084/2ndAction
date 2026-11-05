@@ -15,7 +15,7 @@ using UnityEngine;
 public partial class QaSweep
 {
     class RaObs { public int id; public string name; public float spawnT, spawnDx, spawnVx, visT = -1f, visVx, visDx, contactT = -1f; public bool popIn; }
-    class RaFly { public int id; public string name; public float spawnT, spawnDx, spawnVy, visT = -1f, visVx, onScreen, minVy = 9f, maxVy = -9f, lastT; public bool killed, passed; public int mileAtPass = -1; }
+    class RaFly { public int id; public string name; public float spawnT, spawnDx, spawnVy, visT = -1f, visVx, onScreen, minVy = 9f, maxVy = -9f, lastT, maxTop = -9f, hudTime, aimTime; public bool killed, passed; public int mileAtPass = -1; }
 
     IEnumerator RoadAuditMode()
     {
@@ -90,7 +90,11 @@ public partial class QaSweep
                     if (seenEn.Contains(id)) continue;
                     seenEn.Add(id);
                     var v0 = cam.WorldToViewportPoint(e.transform.position);
-                    f = new RaFly { id = id, name = e.name.Replace("(Clone)", ""), spawnT = t, spawnDx = e.transform.position.x - px, spawnVy = v0.y };
+                    var esb = e.GetComponent<EnemySpecialBehavior>();
+                    var esr = e.GetComponentInChildren<SpriteRenderer>();
+                    string sname = esr != null && esr.sprite != null ? esr.sprite.name : "";
+                    if (sname.Length > 18) sname = sname.Substring(0, 18);
+                    f = new RaFly { id = id, name = (esb != null ? esb.kind.ToString() : "?") + "/" + sname, spawnT = t, spawnDx = e.transform.position.x - px, spawnVy = v0.y };
                     fly[id] = f;
                 }
                 f.lastT = t;
@@ -101,6 +105,10 @@ public partial class QaSweep
                     if (f.visT < 0f) { f.visT = t; f.visVx = evx; }
                     f.onScreen += Time.deltaTime;
                     f.minVy = Mathf.Min(f.minVy, evy); f.maxVy = Mathf.Max(f.maxVy, evy);
+                    float top = cam.WorldToViewportPoint(eb.max).y;
+                    f.maxTop = Mathf.Max(f.maxTop, top);
+                    if (top > RaHudLine) f.hudTime += Time.deltaTime; // 体の上端が上の HUD の帯に入っている
+                    if (evy < RaHudLine - 0.03f && evx > 0.05f && evx < 0.95f) f.aimTime += Time.deltaTime; // 体の中心が HUD より下で画面の中 = 見て狙える時間
                 }
                 if (!f.passed && !f.killed && e.transform.position.x < px - 3f) { f.passed = true; f.mileAtPass = gm.RunMile; }
             }
@@ -132,7 +140,11 @@ public partial class QaSweep
         var fs = fly.Values.ToList();
         var vis = fs.Where(f => f.visT >= 0f).ToList();
         L($"[ra] {tag} flyers: spawned {fs.Count} ({fs.Count / Mathf.Max(0.1f, dist / 1000f):F1}/km), seen on screen {vis.Count}, killed {fs.Count(f => f.killed)}, passed {fs.Count(f => f.passed)}, avg on-screen {(vis.Count > 0 ? vis.Average(f => f.onScreen) : 0f):F1}s, viewport y {(vis.Count > 0 ? vis.Min(f => f.minVy) : 0f):F2}..{(vis.Count > 0 ? vis.Max(f => f.maxVy) : 0f):F2}, entered from x {(vis.Count > 0 ? vis.Min(f => f.visVx) : 0f):F2}");
-        foreach (var g in fs.GroupBy(f => f.name)) L($"   {g.Key}: {g.Count()} (seen {g.Count(f => f.visT >= 0f)})");
+        foreach (var g in fs.GroupBy(f => f.name))
+        {
+            var gv = g.Where(f => f.visT >= 0f).ToList();
+            L($"   {g.Key}: {g.Count()} (seen {gv.Count}) on-screen avg {(gv.Count > 0 ? gv.Average(f => f.onScreen) : 0f):F1}s, aimable avg {(gv.Count > 0 ? gv.Average(f => f.aimTime) : 0f):F1}s, center y {(gv.Count > 0 ? gv.Min(f => f.minVy) : 0f):F2}..{(gv.Count > 0 ? gv.Max(f => f.maxVy) : 0f):F2}, top max {(gv.Count > 0 ? gv.Max(f => f.maxTop) : 0f):F2}, time under the HUD avg {(gv.Count > 0 ? gv.Average(f => f.hudTime) : 0f):F2}s");
+        }
         // 空中の敵の間隔(前の敵を見逃しても次が出るか): 生成の間の最大の空き
         var times = fs.Select(f => f.spawnT).OrderBy(x => x).ToList();
         float maxGap = 0f; for (int i = 1; i < times.Count; i++) maxGap = Mathf.Max(maxGap, times[i] - times[i - 1]);
@@ -142,6 +154,8 @@ public partial class QaSweep
         SetGod(false);
         yield return EndRun();
     }
+
+    static float RaHudLine => float.Parse(Arg("-raHudLine", "0.83"), System.Globalization.CultureInfo.InvariantCulture); // 上の HUD の帯の下端(画面の下からの割合)
 
     static Bounds RaBounds(GameObject go)
     {

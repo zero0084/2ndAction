@@ -12,7 +12,7 @@ using UnityEngine;
 //  -bonusChaseLegacy を付けると直す前の動き(前後比較)。-bcFps で撮影(動画用の連番)
 public partial class QaSweep
 {
-    class BcGob { public int id, hits, reachEnter, overtakes, warps, cycles; public float reachT = -1f, lastHitT = -1f, maxAcc, sumWait; public int waits; public bool away = true, behind; public float prevDx = float.NaN, prevRelV = float.NaN, accT, accDx; public bool prevQuiet; public float lastStillLog = -9f; }
+    class BcGob { public int id, hits, reachEnter, overtakes, warps, cycles; public float reachT = -1f, lastHitT = -1f, maxAcc, sumWait; public int waits; public bool away = true, behind; public float prevDx = float.NaN, prevRelV = float.NaN, accT, accDx; public bool prevQuiet; public float lastStillLog = -9f; public int passedOver; }
 
     IEnumerator BonusChaseMode()
     {
@@ -21,6 +21,8 @@ public partial class QaSweep
         float secs = float.Parse(Arg("-bcSecs", "22"), inv), reach = float.Parse(Arg("-bcReach", "3.0"), inv);
         string type = Arg("-bcType", "mile_rush"), tag0 = Arg("-bcTag", BonusChaseLegacyArg ? "legacy" : "new");
         int fps = int.Parse(Arg("-bcFps", "0"));
+        // -bcDt 0.05: 1 フレームの時間を固定(エミュレーターの粗いフレームを Windows で再現する。撮影は毎フレーム)。0 = 実時間
+        float fixDt = float.Parse(Arg("-bcDt", "0"), inv);
         foreach (float kmh in kmhs)
         {
             string tag = $"{tag0}_{kmh:F0}";
@@ -34,8 +36,9 @@ public partial class QaSweep
             SetKmh(kmh);
             bool forced = BonusZone.Instance != null && BonusZone.Instance.Force(type);
             Check(forced, $"{tag}: BONUS ZONE {type} started");
-            if (fps > 0) Time.captureDeltaTime = 1f / 30f;
-            int every = fps > 0 ? Mathf.Max(1, 30 / fps) : 0, frame = 0;
+            float stepDt = fixDt > 0f ? fixDt : 1f / 30f;
+            if (fps > 0 || fixDt > 0f) Time.captureDeltaTime = stepDt;
+            int every = fps > 0 ? Mathf.Max(1, Mathf.RoundToInt(1f / stepDt) / fps) : 0, frame = 0;
             var gobs = new Dictionary<int, BcGob>();
             var series = new StringBuilder("t\tdx\tpace\tplayerV\tgoblinV\n");
             float t = 0f, attackCool = 0f; int swings = 0;
@@ -71,13 +74,24 @@ public partial class QaSweep
                                 if (!float.IsNaN(g.prevRelV) && quiet && g.prevQuiet) g.maxAcc = Mathf.Max(g.maxAcc, Mathf.Abs(gv - g.prevRelV) / g.accT);
                                 g.prevRelV = gv; g.prevQuiet = quiet; g.accT = 0f; g.accDx = 0f;
                             }
-                            if (gp.x - pg.x > Mathf.Max(1.2f, pv * dt + 1f)) g.warps++;
+                            if (gp.x - pg.x > Mathf.Max(1.2f, pv * dt + 1f))
+                            {
+                                g.warps++;
+                                // 前への跳び: 画面に見えていたか(跳ぶ前/後)・その時の状態
+                                var wc = Camera.main;
+                                Vector3 v0 = wc != null ? wc.WorldToViewportPoint(pg) : Vector3.zero, v1 = wc != null ? wc.WorldToViewportPoint(gp) : Vector3.zero;
+                                bool on0 = v0.x > 0f && v0.x < 1f && v0.y > 0f && v0.y < 1f, on1 = v1.x > 0f && v1.x < 1f && v1.y > 0f && v1.y < 1f;
+                                var sbw = be.GetComponent<EnemySpecialBehavior>();
+                                L($"   [warp] {tag} t={t:F2} frame={frame} dx={dx:F2} step={gp.x - pg.x:F2}m (player {pp.x - prevP.x:F2}m) dt={dt:F3} {(on0 || on1 ? "ON SCREEN" : "off screen")} vp {v0.x:F2},{v0.y:F2} -> {v1.x:F2},{v1.y:F2} pace={(sbw != null ? sbw.DebugGoblinPace : "-")} {(sbw != null ? sbw.DebugGoblinGround : "")} behaviour={(sbw != null && sbw.enabled)} {(ec != null ? ec.DebugAirState : "")}");
+                            }
                         }
+                        // 追い越し = 同じ高さ(高さの差 2m 未満)で前へ出た。空中コンボで上の段/空を通り過ぎるのは数えない(記録だけ)
+                        if (dx < -0.3f && !g.behind && Mathf.Abs(gp.y - pp.y) >= 2f) { g.behind = true; g.passedOver++; }
                         if (dx < -0.3f && !g.behind)
                         {
                             g.behind = true; g.overtakes++;
                             var sbh = be.GetComponent<EnemySpecialBehavior>();
-                            L($"   [overtake] {tag} t={t:F2} dx={dx:F2} pv={pv:F1} pace={(sbh != null ? sbh.DebugGoblinPace : "-")} behaviour={(sbh != null && sbh.enabled)} lastHit={Time.time - be.LastHitTime:F2}s ago {(ec != null ? ec.DebugAirState : "")}");
+                            L($"   [overtake] {tag} t={t:F2} dx={dx:F2} dy={gp.y - pp.y:F1} playerAir={!pc.IsGrounded} pv={pv:F1} pace={(sbh != null ? sbh.DebugGoblinPace : "-")} behaviour={(sbh != null && sbh.enabled)} lastHit={Time.time - be.LastHitTime:F2}s ago {(ec != null ? ec.DebugAirState : "")}");
                         }
                         // 止まっている(プレイヤーの速さの 2 割未満)のに倒れていない時の状態
                         if (prevG.TryGetValue(id, out var pg2) && dt > 0f && pv > 5f && (gp.x - pg2.x) / dt < pv * 0.2f && dx < 4f && (t - g.lastStillLog) > 0.25f)
@@ -115,7 +129,7 @@ public partial class QaSweep
                 prevP = pp;
                 if (every > 0 && (frame++ % every) == 0) Shot($"bc_{tag}_{frame:00000}");
                 yield return null;
-                t += fps > 0 ? 1f / 30f : Time.deltaTime;
+                t += fps > 0 || fixDt > 0f ? stepDt : Time.deltaTime;
             }
             Time.captureDeltaTime = 0f;
             System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, $"bc_{tag}_series.tsv"), series.ToString());
@@ -123,7 +137,7 @@ public partial class QaSweep
             int hits = gl.Sum(g => g.hits), overt = gl.Sum(g => g.overtakes), warps = gl.Sum(g => g.warps), cyc = gl.Sum(g => g.cycles), reachN = gl.Sum(g => g.reachEnter);
             float wait = gl.Sum(g => g.waits) > 0 ? gl.Sum(g => g.sumWait) / gl.Sum(g => g.waits) : -1f;
             float acc = gl.Count > 0 ? gl.Max(g => g.maxAcc) : 0f;
-            L($"[bc] {tag}: goblins {gl.Count}, swings {swings}, hits {hits}, reach entries {reachN}, hit->away->hit cycles {cyc}, OVERTAKES {overt}, forward warps {warps}, avg reach->hit {wait:F2}s, max goblin accel {acc:F1} m/s2 (0.1s windows, outside hits), speed {pc.CurrentAutoRunSpeed * GameManager.KmhPerMps:F0} km/h");
+            L($"[bc] {tag}: goblins {gl.Count}, swings {swings}, hits {hits}, reach entries {reachN}, hit->away->hit cycles {cyc}, OVERTAKES {overt} (passed over/under in the air {gl.Sum(g => g.passedOver)}), forward warps {warps}, avg reach->hit {wait:F2}s, max goblin accel {acc:F1} m/s2 (0.1s windows, outside hits), speed {pc.CurrentAutoRunSpeed * GameManager.KmhPerMps:F0} km/h");
             Check(overt == 0, $"{tag}: the player does not overtake a running goblin ({overt})");
             Check(warps == 0, $"{tag}: goblins do not warp forward ({warps})");
             Check(hits >= 2 && reachN > 0 && (float)hits / reachN >= 0.6f, $"{tag}: entering reach gives time for a hit (hits {hits} / reach entries {reachN})");

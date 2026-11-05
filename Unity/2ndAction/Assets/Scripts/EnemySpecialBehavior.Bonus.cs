@@ -28,6 +28,7 @@ public partial class EnemySpecialBehavior
     [Tooltip("これより近い/後ろになったら前へ戻る(追い越されない)")] public float goblinMinLead = 0.8f;
     [Tooltip("画面の外(前)にいる間に寄る速さ(プレイヤーの速さに対する割合)。見えてからは goblinFarCatchUp/goblinCatchUp")] public float goblinOffscreenCatchUp = 0.6f;
     [Tooltip("高速(時速 108km 以上)で並走の距離/近すぎる距離に足す量(m)。速さに比例して 0 から")] public float goblinWindowLeadFast = 0.9f, goblinMinLeadFast = 0.6f;
+    [Tooltip("殴られた瞬間の離れる速さ(プレイヤーより速い分 m/s)。そこから goblinPullSpeed までなめらかに")] public float goblinHitKick = 1.5f;
     [Header("BONUS - Mimic")]
     public float mimicWakeDistance = 6.5f;
     public float mimicWakeTime = 0.45f;
@@ -154,10 +155,13 @@ public partial class EnemySpecialBehavior
         else if (dt > 0f && Time.frameCount == goblinPrevFrame + 1) // 被弾で止まっていた間の移動は速さに数えない
         {
             float pv = (px - goblinPrevPx) / dt;
-            if (pv >= 0f && pv < v + 15f) goblinPlayerV = Mathf.Lerp(goblinPlayerV, pv, 1f - Mathf.Exp(-dt / 0.08f));
+            // 速くなる時(攻撃の踏み込み)はすぐ合わせ、遅くなる時はなめらかに戻す(遅れて合わせると踏み込みの分だけ追い越されていた)
+            if (pv >= 0f && pv < v + 15f) goblinPlayerV = pv > goblinPlayerV ? pv : Mathf.Lerp(goblinPlayerV, pv, 1f - Mathf.Exp(-dt / 0.06f));
         }
         goblinPrevPx = px; goblinPrevFrame = Time.frameCount;
-        v = Mathf.Max(v, goblinPlayerV);
+        // 2026-11-05: 自動の走りの速さではなく、プレイヤーが実際に進んでいる速さを基準にする(壁/段差で止まった時にゴブリンだけ
+        //  時速 80km で走り去り、エミュレーターの粗いフレームでは前へ跳んで見えた)。踏み込みで速くなる時はすぐ、止まる時はなめらかに合わせる
+        if (goblinPlayerV >= 0f) v = goblinPlayerV;
         float target, accel = goblinRelAccel;
         // 速いほど 1 フレームの前進と攻撃の踏み込みが大きいので、並走の距離と「近すぎる」距離を少し広げる(時速 36km 以下は既定のまま、時速 108km で +0.9m / +0.6m)
         float fastK = Mathf.Clamp01((v - 10f) / 20f);
@@ -167,7 +171,7 @@ public partial class EnemySpecialBehavior
         {
             bool hit = bonusComp != null && bonusComp.LastHitTime > goblinHitSeen;
             // 殴られた: 離れ始める。被弾の間(ノックバック)に遅れた分は持ち越さない(後ろ向きの相対速度を捨てる = 被弾の後に追い越されない)
-            if (hit) { goblinHitSeen = bonusComp.LastHitTime; goblinPace = GoblinPace.Pull; goblinPaceT = 0f; goblinRel = Mathf.Max(goblinRel, 0f); }
+            if (hit) { goblinHitSeen = bonusComp.LastHitTime; goblinPace = GoblinPace.Pull; goblinPaceT = 0f; goblinRel = Mathf.Max(goblinRel, goblinHitKick); } // 殴られた瞬間は少しだけ弾かれる(続けて踏み込まれても重ならない)
             goblinPaceT += dt;
             switch (goblinPace)
             {
