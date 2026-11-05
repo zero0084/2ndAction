@@ -575,6 +575,7 @@ public partial class EnemyController : MonoBehaviour
             // center - reads as "where the blade actually reached".
             Vector3 contactPoint = other.ClosestPoint(transform.position);
             int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1);
+            if (decision != null) { var ai = other.GetComponent<PlayerAttackInfo>(); damage = decision.ModifyIncoming(damage, ai != null ? ai.kind : PlayerAttackKind.Normal, isLaunched, hp); } // 判断型の道中イベント(2026-11-05)
             int hpBefore = hp;
             hp -= Mathf.Max(1, damage);
             bool killed = hp <= 0;
@@ -639,6 +640,8 @@ public partial class EnemyController : MonoBehaviour
     }
 
     // 体との接触ダメージを与えてよい状態か(OnTriggerEnter2Dの時点と同じ条件を、決める瞬間にもう一度見る)。
+    DecisionEnemy decisionCached; bool decisionLooked;
+    DecisionEnemy decision { get { if (!decisionLooked || (decisionCached == null && Time.frameCount % 30 == 0)) { decisionLooked = true; decisionCached = GetComponent<DecisionEnemy>(); } return decisionCached; } }
     public bool CanDealContactDamage => isActiveAndEnabled && !dying && !IsReactingToHit && bonus == null && !ArenaDummy && !(NetReplica && NetRemoteReacting);
     // 開発用の闘技場の動かない標的(接触ダメージ/攻撃なし)
     [System.NonSerialized] public bool ArenaDummy;
@@ -651,6 +654,7 @@ public partial class EnemyController : MonoBehaviour
         // マルチプレイPhase 2.5: JOINのパペットとの接触は「この敵(NetId)との接触」としてHOSTへ申告する。
         if (NetReplica) NetMatch.SetClaimContext(NetMatch.ClaimKind.EnemyContact, NetId);
         DifficultyTuning.NextAttackerHpMul = HpClass; // 2026-11-03: 大型の雑魚は重い
+        if (decision != null && decision.ExtraHearts > 0) { DifficultyTuning.NextAttackerExtraHearts = decision.ExtraHearts; DecisionEnemy.HeavyHitsDealt++; } // 2026-11-05: 高火力敵
         try { PlayerController.Instance.TakeDamage(source: "Enemy:" + name); }
         finally { NetMatch.ClearClaimContext(); }
     }
@@ -759,7 +763,7 @@ public partial class EnemyController : MonoBehaviour
                     // →「まだ密着してしまう」との追加報告を受け、距離ベース
                     // (KnockbackRoutine)から速度ベース(ApplyGroundKnockback)
                     // へ全面変更。
-                    if (!hitNoKnockback) ApplyGroundKnockback();
+                    if (!hitNoKnockback && !(decision != null && decision.ResistGround)) ApplyGroundKnockback(); // 2026-11-05: 鎧の敵は地上の攻撃で下がらない
                     if (PlayerController.Instance != null && netReactionAttacker == 0) PlayerController.Instance.NotifyGroundHitConnect(); // 他の参加者/仲間の攻撃ではプレイヤーを減速させない
                 }
                 break;

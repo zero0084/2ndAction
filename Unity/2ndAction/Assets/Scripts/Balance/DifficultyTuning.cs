@@ -161,6 +161,9 @@ public class DifficultyTuning : ScriptableObject
     // 敵の側が TakeDamage の直前に書く(どの敵か)。1回使ったら消える
     static float nextHp = -1f; static int nextHpFrame = -1;
     public static float NextAttackerHpMul { get => nextHpFrame == Time.frameCount ? nextHp : -1f; set { nextHp = value; nextHpFrame = Time.frameCount; } } // 同じフレームの被弾にだけ効く
+    // 2026-11-05 判断型の道中イベントの高火力敵: そのフレームの被弾にだけ足すハート
+    static int nextExtra; static int nextExtraFrame = -1;
+    public static int NextAttackerExtraHearts { get => nextExtraFrame == Time.frameCount ? nextExtra : 0; set { nextExtra = value; nextExtraFrame = Time.frameCount; } }
     public static int Adjusted, Unchanged; // 確認用
     public static string LastAdjust = "";
 
@@ -187,6 +190,8 @@ public class DifficultyTuning : ScriptableObject
         };
         if (curve == null) { Unchanged++; return amount; }
         int hearts = Mathf.Max(1, Mathf.RoundToInt(Eval(curve, km)));
+        int extra = NextAttackerExtraHearts; nextExtraFrame = -1;
+        if (extra > 0 && (kind == Hit.Contact || kind == Hit.Normal || kind == Hit.Large)) hearts += extra; // 高火力敵(2026-11-05)
         int result = hearts * CombatScale.HpPerHeart;
         Adjusted++;
         LastAdjust = $"{reason} {kind}{(large ? "(large)" : "")} @{km:F1}km: {amount} -> {result}";

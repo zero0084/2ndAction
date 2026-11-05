@@ -231,6 +231,8 @@ public class EncounterDirector : MonoBehaviour
     // 障害物の配置側が、Encounterの範囲に障害物を重ねないために使う(シーン座標)。
     // 地面(一本道/下ルート)の障害物用。上ルートの障害物はIsInUpperEncounterSpan。
     public static bool IsInEncounterSpan(float sceneX, float margin) => InSpan(sceneX, margin, false);
+    // 判断型の道中イベント(2026-11-05): 区間(論理 X)を障害物の置かない所にする
+    public static void AddExternalSpan(double logicalStart, double logicalEnd) { if (Instance != null) Instance.spans.Add((new Vector2((float)logicalStart, (float)logicalEnd), EncounterRoute.Main)); }
     public static bool IsInUpperEncounterSpan(float sceneX, float margin) => InSpan(sceneX, margin, true);
 
     static bool InSpan(float sceneX, float margin, bool upper)
@@ -414,6 +416,7 @@ public class EncounterDirector : MonoBehaviour
             // 89,9xxmで決めた出現位置が90,000mの先=ボスラッシュの中へ雑魚を置いていた)
             if (SuppressAt != null && SuppressAt(runDistance - DebugDistanceOffset)) { SuppressedFrames++; nextAnchor += 20f; continue; }
             if (BossManager.FinaleQuietAt(runDistance - DebugDistanceOffset)) { nextAnchor += 20f; continue; } // 95km から先は置かない
+            if (DecisionEvents.IsReservedLogical(nextAnchor)) { nextAnchor = DecisionEvents.ReservedEndLogical(nextAnchor) + 2.0; continue; } // 判断型の道中イベントの区間(2026-11-05)
             // 二重生成の防止(3.1): 同じ出現位置(1m単位)は1回しか決めない。最前の人が入れ替わっても基準点は前へしか進まないが、念のためHOSTで一意に管理する。
             long key = (long)System.Math.Round(nextAnchor);
             if (plannedAnchors.Contains(key)) { DuplicateAnchorsBlocked++; nextAnchor = key + 1.0; continue; }

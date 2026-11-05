@@ -167,7 +167,7 @@ public class ContactDamageResolver : MonoBehaviour
             var p = pending[i];
             if (p.enemy == null || !p.enemy.CanDealContactDamage || pc == null) { pending.RemoveAt(i); continue; }
             if (p.deferred && (p.player == null || !p.enemy.OverlapsBody(p.player))) { pending.RemoveAt(i); continue; } // もう離れた
-            if (pc.HasContactGrace(p.enemy))
+            if (pc.HasContactGrace(p.enemy) && !(p.enemy.GetComponent<DecisionEnemy>() is DecisionEnemy dm && dm.IgnoresContactGrace)) // 2026-11-05: 当てても下がらない鎧の敵は猶予なし
             {
                 if (!p.deferred) { p.deferred = true; pending[i] = p; PlayerController.ContactGraceBlocked++; }
                 continue;

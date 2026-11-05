@@ -33,6 +33,8 @@ public class EnemyMeleeHitbox : MonoBehaviour
         {
             var owner = GetComponentInParent<EnemyController>();
             DifficultyTuning.NextAttackerHpMul = owner != null ? owner.HpClass : -1f; // 2026-11-03: 大型の雑魚の攻撃は重い
+            var dm = owner != null ? owner.GetComponent<DecisionEnemy>() : null;
+            if (dm != null && dm.ExtraHearts > 0) { DifficultyTuning.NextAttackerExtraHearts = dm.ExtraHearts; DecisionEnemy.HeavyHitsDealt++; } // 2026-11-05: 高火力敵
             PlayerController.Instance.TakeDamage(source: "EnemyMelee:" + name);
         }
     }

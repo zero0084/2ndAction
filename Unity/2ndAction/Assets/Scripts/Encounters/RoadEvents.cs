@@ -13,7 +13,8 @@ using UnityEngine;
 //  ・始まりの知らせは小さく: WARNING の帯(訳済みの文「WARNING  {0} が迫る!」)+ 音 + 空の影/砂ぼこり/地響き。
 //  ・ボス戦/BONUS ZONE/門をくぐる間/カウントダウン中は始めない(少し後へ送る。区間の終わりを過ぎたらその区間は無し)。
 //  ・マルチ: 出現を決める HOST だけが持つ(JOIN は何もしない)。乱入はソロ/CPU サポートだけ(マルチは今は対象外)。
-public enum RoadEventKind { None, Rush, Flying, Elite, Chase, AirRaid }
+// 2026-11-05: 判断型の道中イベント(DecisionEvents)の種類を末尾に追加(50km から。今までの種類も 50km からは DecisionEvents が選ぶ)
+public enum RoadEventKind { None, Rush, Flying, Elite, Chase, AirRaid, SkyBlock, GroundBlock, Alternate, TelegraphRush, HeavyHitter, AerialBrute }
 
 public class RoadEvents : MonoBehaviour
 {
@@ -23,7 +24,7 @@ public class RoadEvents : MonoBehaviour
     static float activeUntil;
     // 確認用(QA)
     public static int Started;
-    public static readonly int[] StartedByKind = new int[6];
+    public static readonly int[] StartedByKind = new int[12];
     public static readonly List<string> History = new List<string>(); // 「km 種類 label」
     public static int Postponed, Skipped, RaidFallbacks;
 
@@ -64,14 +65,16 @@ public class RoadEvents : MonoBehaviour
         float d = gm.MaxDistance;
         var bm = BossManager.Instance;
         // 終わり: 時間(乱入はボスが終わった時 = OnRaidEnded)。ボス戦が始まったら道中のイベントも閉じる
-        if (Active != RoadEventKind.None && Active != RoadEventKind.AirRaid)
+        //  判断型(DecisionEvents)の種類は DecisionEvents が終わりを決める(ここでは安全装置の時間だけ)
+        if (Active != RoadEventKind.None && Active != RoadEventKind.AirRaid && external && Time.time >= activeUntil) EndExternal("time (safety)");
+        if (Active != RoadEventKind.None && Active != RoadEventKind.AirRaid && !external)
         {
             if (Time.time >= activeUntil) End("time");
             else if (bm != null && bm.IsBossPhase && !bm.AirRaidActive) End("boss gate");
         }
         if (Active == RoadEventKind.AirRaid && (bm == null || !bm.AirRaidActive)) End("raid over");
 
-        if (d < T.fromKm * 1000f || d >= T.untilKm * 1000f) return;
+        if (d < T.fromKm * 1000f || d >= Mathf.Min(T.untilKm * 1000f, DecisionEvents.LegacyUntilMeters)) return; // 2026-11-05: 50km からは DecisionEvents が選ぶ
         int s = Mathf.FloorToInt(d / SectionM);
         if (!plans.TryGetValue(s, out var p)) { p = MakePlan(s, d); plans[s] = p; }
         if (p.done || p.kind == RoadEventKind.None || d < p.at || Active != RoadEventKind.None) return;
@@ -187,7 +190,38 @@ public class RoadEvents : MonoBehaviour
     {
         if (Active == RoadEventKind.None) return;
         Debug.Log($"[RoadEvent] END {Active} ({why}) at {(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f):F0}m");
-        Active = RoadEventKind.None; ActiveLabel = "";
+        Active = RoadEventKind.None; ActiveLabel = ""; external = false;
+    }
+
+    // ---- 判断型の道中イベント(DecisionEvents)から(2026-11-05) ----
+    static bool external;
+    public static void MarkExternal(RoadEventKind kind, string label, float maxSeconds)
+    {
+        if (Instance == null) return;
+        Active = kind; ActiveLabel = label; external = true;
+        activeUntil = Time.time + Mathf.Max(3f, maxSeconds);
+        Started++; StartedByKind[(int)kind]++;
+        History.Add($"{(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f) / 1000f:F1}	{kind}	{label}");
+    }
+    public static void EndExternal(string why)
+    {
+        if (!external) return;
+        if (Instance != null) Instance.End(why);
+        external = false;
+    }
+    // 今までの種類(敵ラッシュ/飛行編隊/強敵/追跡/乱入)を 50km からの管理で起こす
+    public static bool StartLegacy(RoadEventKind kind, float d)
+    {
+        if (Instance == null || Active != RoadEventKind.None) return false;
+        var p = new Plan { section = -2, kind = kind, at = d, hi = d + 5000f, done = true };
+        Instance.Begin(p, d);
+        return Active != RoadEventKind.None;
+    }
+    public static bool RaidPossibleNow(float d)
+    {
+        if (Instance == null || !Instance.RaidPlannable(d)) return false;
+        var bm = BossManager.Instance;
+        return bm != null && bm.CanStartAirRaid(d, out _);
     }
 
     public static void OnRaidEnded(bool defeated) { if (Instance != null && Active == RoadEventKind.AirRaid) Instance.End(defeated ? "raid boss defeated" : "raid boss left"); }
@@ -291,7 +325,7 @@ public class RoadEvents : MonoBehaviour
     }
 
     // ---- EncounterDirector が読む値 ----
-    static RoadEventKind DirKind => Active == RoadEventKind.AirRaid ? RoadEventKind.None : Active;
+    static RoadEventKind DirKind => Active == RoadEventKind.AirRaid || (int)Active >= (int)RoadEventKind.SkyBlock ? RoadEventKind.None : Active; // 判断型は普通の Encounter の間隔を変えない
     public static float PaceMul => DirKind == RoadEventKind.Rush ? T.rushPace : DirKind == RoadEventKind.Flying ? T.flyingPace : DirKind == RoadEventKind.Chase ? T.chasePace : 1f;
     public static float Surge => DirKind == RoadEventKind.Rush ? T.rushSurge : -1f;
     public static bool NoRest => DirKind != RoadEventKind.None;
