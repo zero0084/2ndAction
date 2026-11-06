@@ -1,0 +1,40 @@
+10577	Dès que les HP tombent à 30% ou moins, gagnez des boucliers temporaires qui disparaissent après 8s (1 au Lv1, 2 au Lv5, 3 au Lv9). Recharge en 90s (60s au Lv9). Ils sont comptés séparément des boucliers normaux, avec un maximum de 3 au total
+10578	Convertit 30% (70% au Lv9) des soins dépassant les HP max. en boucliers temporaires (1 par cœur de soins, disparaît après 20s). Maximum 1 (2 au Lv5, 3 au Lv9) ; une conversion toutes les 3s
+10579	Pendant 3s (5s au Lv9) après un coup d'au moins 2 cœurs, dégâts reçus -1 cœur (minimum 1) et attaque +20% (+40% au Lv9). Recharge en 8s. Les contacts infligeant 1 cœur ne déclenchent pas l'effet
+10580	Restaure des HP lorsque vous provoquez le BREAK d'un boss (1 cœur au Lv1, 2 au Lv5, 3 au Lv9). Une fois toutes les 20s
+10581	Pour chaque cœur de HP max. au-delà de 5, soins et vitesse de recharge des boucliers +2% (+4% au Lv9). Maximum +30% (+50% au Lv9)
+10582	Réussissez 5 coups (4 au Lv5, 3 au Lv9) sans toucher le sol pour obtenir attaque +10% (+26% au Lv9) pendant 3s. Atterrir remet le compteur à zéro
+10583	Les attaques aériennes remplissent plus vite la jauge BREAK des boss (+15%, +55% au Lv9)
+10584	Pendant 2.5s après un atterrissage en piqué : vitesse de déplacement +10% (+26% au Lv9), attaque +15% (+39% au Lv9). S'active à chaque atterrissage
+10585	Attaques aériennes contre les ennemis projetés +12% (+44% au Lv9). Leur chute est ralentie de 10% (30% au Lv9). Les fenêtres de saisie et le timing des coups restent inchangés
+10586	À 130km/h ou plus : attaque +15% (+47% au Lv9), accumulation du BREAK des boss +10% (+42% au Lv9). Les dégâts des accidents à grande vitesse restent inchangés
+10587	Une fois par course, si les HP tombent à 25% ou moins, restaure 30% (60% au Lv9) des HP max. et augmente l'attaque et la vitesse de déplacement de +20% (+40% au Lv9) pendant 8s
+10588	Lorsqu'un bouclier (même temporaire) se brise, libère une onde de choc infligeant 300% (700% au Lv9) de l'attaque dans un rayon de 3m et ajoute +5% (+15% au Lv9) au BREAK d'un boss. Une fois toutes les 6s (3s au Lv9)
+10589	Convertit 50% (100% au Lv9) des soins par absorption dépassant les HP max. (absorption à l'impact, soins par élimination, absorption du saignement) en Bouclier de sang qui annule les dégâts en cœurs (max. 1 cœur, 3 au Lv9 ; perd 1 cœur toutes les 10s). Tant qu'il est actif, chance de saignement +10% (+30% au Lv9)
+10590	Plus le deck contient de types élémentaires (Feu/Glace/Foudre/Vent/Sang), plus les chances et la puissance de tous les éléments augmentent : 2 types +6%, 3 +12%, 4 +20%, 5 +30% (+10/20/32/50% au Lv9). Avec ELEMENTAL FOCUS, seul le bonus le plus élevé s'applique
+10591	Si les cartes élémentaires du deck sont toutes du même type : puissance +30% (+70% au Lv9) et chance +10% (+30% au Lv9). Bonus réduit de moitié avec 2 types, aucun avec 3 ou plus. Avec ELEMENTAL CHAOS, seul le bonus le plus élevé s'applique
+10592	Attaque contre les ennemis en BREAK +15% (+47% au Lv9), puissance élémentaire +10% (+42% au Lv9). Les boss vaincus pendant BREAK donnent MILE et EXP +10% (+42% au Lv9)
+10593	Chaque ennemi vaincu augmente l'attaque de +0.2% (+0.4% au Lv9) jusqu'à la fin de la course. Maximum +15% (+40% au Lv9). Réinitialisé à la fin de la course
+10594	À partir de 80km : vitesse de déplacement +10% (+20% au Lv9), attaque +30% (+70% au Lv9), accumulation du BREAK des boss +20% (+60% au Lv9). Accidents, événements de décision et dégâts des ennemis inchangés
+10595	[RISQUE] Les attaques ennemies ont 30% de chances d'infliger 1 cœur supplémentaire, ennemis surpuissants +10%, intervalle des événements de décision -30%, apparitions ennemies +15% (indépendant du Lv ; les HP ennemis n'augmentent pas). [RÉCOMPENSE] MILE des ennemis/BONUS/boss +100% (+300% au Lv9), EXP gagnée +60% (+180% au Lv9)
+10596	Une fois par course, un coup mortel vous laisse à 1 cœur (invincible pendant 1.5s). Puis pendant 10s : attaque +40% (+100% au Lv9), vitesse de déplacement +15% (+30% au Lv9), accumulation du BREAK des boss +30% (+80% au Lv9). Utilisé avant PHOENIX
+10597	HP à 30% ou moins : {0} bouclier(s) temporaire(s) ({1}s) / recharge {2}s
+10598	{0}% des soins excédentaires en boucliers temporaires (max. {1}, durée {2}s)
+10599	Pendant {0}s après un coup de 2+ cœurs : dégâts -1 cœur, attaque +{1}%
+10600	BREAK restaure {0} cœur(s) (toutes les {1}s)
+10601	Par cœur de HP max. au-delà de 5 : soins et recharge des boucliers +{0}% (max. +{1}%)
+10602	{0} coups sans atterrir : attaque +{2}% pendant {1}s
+10603	Accumulation du BREAK par attaques aériennes +{0}%
+10604	Après un piqué, pendant {0}s : vitesse +{1}%, attaque +{2}%
+10605	Attaques aériennes vs ennemis projetés +{0}% / chute ralentie de {1}%
+10606	À 130km/h ou plus : attaque +{0}%, BREAK +{1}%
+10607	Une fois/course, HP ≤25% : soins {0}% HP max., attaque/vitesse +{2}% pendant {1}s
+10608	Bouclier brisé : attaque ×{0}% sur 3m, BREAK boss +{1}% (toutes les {2}s)
+10609	{0}% des soins absorbés excédentaires en Bouclier de sang (max. {1} cœurs) / saignement +{2}%
+10610	Deck à 2/3/4/5 éléments : chance/puissance +{0}/{1}/{2}/{3}%
+10611	Deck à 1 élément : puissance +{0}%, chance +{1}% (moitié avec 2)
+10612	En BREAK : attaque +{0}%, puissance élémentaire +{1}%, MILE/EXP +{2}%
+10613	Attaque +{0}% par ennemi vaincu (max. +{1}%)
+10614	Dès 80km : vitesse +{0}%, attaque +{1}%, BREAK +{2}%
+10615	Attaques ennemies : +1 cœur avec {0}% de chance / ennemis surpuissants +{1}% / intervalle -{2}%
+10616	Une fois/course : survie à 1 cœur, puis {0}s attaque +{1}%, vitesse +{2}%, BREAK +{3}%

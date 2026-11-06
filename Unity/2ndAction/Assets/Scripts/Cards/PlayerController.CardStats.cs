@@ -20,6 +20,7 @@ public partial class PlayerController
         ShieldCharges = 0; shieldCapacityApplied = 0; shieldRechargeTimer = 0f;
         overdriveActive = false; overdriveCharge = 0f; overdriveExitTimer = 0f;
         airDominionStacks = 0; skyMasterRefreshUsed = 0; brakeTimer = 0f;
+        MapCardsReset(); // 2026-11-06 マップ専用カード(一時シールド・時間の強化)
     }
 
     static float Ratio(float target, float applied) => applied > 1e-6f ? target / applied : 1f;
@@ -67,6 +68,7 @@ public partial class PlayerController
         if (overdriveActive) c += CT(EffectType.OverdrivePct);
         float edge = CT(EffectType.ComboEdgePct);
         if (edge != 0f && ComboCounterUI.Instance != null) c += edge * Mathf.Min(CardRules.ComboEdgeMaxSteps, ComboCounterUI.Instance.ComboCount);
+        c += MapCardsStatePct(); // 2026-11-06 マップ専用カード(REVENGE ARMOR / AIR COMBO / DIVE BOOST / SONIC EDGE / SECOND RISE / ENDLESS GROWTH / FINAL DRIVE / ONE MORE CHANCE)
         return c;
     }
 
@@ -105,6 +107,7 @@ public partial class PlayerController
             if (es != null && cond > 0 && es.Charged) c += ElementSystem.ConductorPct(cond);
         }
         if (sky > 0 && airTarget) c += ElementSystem.UpdraftPct(sky);
+        c += MapCardsTargetPct(victim); // 2026-11-06 BREAK DOMINION(BREAK 中の敵)/ LAUNCH MASTER(打ち上げた敵)
         return c;
     }
 
@@ -173,7 +176,8 @@ public partial class PlayerController
         }
     }
     public float ShieldRechargeSeconds => Mathf.Max(CardRules.ShieldRechargeMinSeconds, CardRules.ShieldRechargeBaseSeconds - CT(EffectType.ShieldRecharge))
-        * DifficultyTuning.ShieldRechargeMul(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f); // 2026-11-06: 終盤ほど遅く
+        * DifficultyTuning.ShieldRechargeMul(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f) // 2026-11-06: 終盤ほど遅く
+        * MapCardsShieldRechargeMul; // 2026-11-06 IRON HEART(5ハートを超えた最大HPで速く。上限あり)
     public float ShieldRechargeProgress => ShieldCharges < ShieldCapacity ? Mathf.Clamp01(shieldRechargeTimer / ShieldRechargeSeconds) : 1f;
 
     void UpdateShieldCapacity()
@@ -236,6 +240,7 @@ public partial class PlayerController
         }
         else { overdriveActive = false; overdriveCharge = 0f; }
 
+        MapCardsTick(); // 2026-11-06 マップ専用カード(一時シールドの期限 / 空中の数え / 急降下の着地)。着地の判定に cardWasGrounded を使うので、その更新より前
         if (brakeTimer > 0f) brakeTimer -= dt;
         if (isGrounded)
         {
@@ -259,6 +264,7 @@ public partial class PlayerController
     {
         if (cardT == null || target == null || isGrounded) return;
         if (attack != null && attack.elementProc) return;
+        MapCardsOnAirHit(); // 2026-11-06 AIR COMBO(着地せずに当てた回数)
         // AIR DOMINION: 着地するまでの空中での命中を数える
         if (CT(EffectType.AirDominionPct) > 0f && Time.time - airDominionLastHit > 0.15f)
         {
@@ -277,7 +283,7 @@ public partial class PlayerController
     public static int SkyMasterRefreshes;
 
     // BRAKE ATTACK: 主攻撃の直後だけ少し減速
-    float CardAutoSpeedScale => brakeTimer > 0f ? 0.9f : 1f;
+    float CardAutoSpeedScale => (brakeTimer > 0f ? 0.9f : 1f) * MapCardsSpeedMul; // 2026-11-06 DIVE BOOST / SECOND RISE / FINAL DRIVE / ONE MORE CHANCE
 
     // HUNTER: ボス戦の前進/後退の伸び、遠いボスへ寄る速さ
     float CardHunterLungeScale => CT(EffectType.HunterLevel) > 0f && BossBattle.AnyBossFighting ? 1f + 0.04f * CT(EffectType.HunterLevel) : 1f;

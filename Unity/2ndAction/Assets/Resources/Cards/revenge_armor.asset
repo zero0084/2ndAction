@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: revenge_armor
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: revenge_armor
+  cardName: REVENGE ARMOR
+  icon: {fileID: 2800000, guid: a1ba48dd3899cd146afd105ab5162a66, type: 3}
+  description: "\u30CF\u30FC\u30C82\u3064\u4EE5\u4E0A\u306E\u88AB\u5F3E\u306E\u5F8C3\u79D2(Lv9\u30675\u79D2)\u3001\u53D7\u3051\u308B\u30C0\u30E1\u30FC\u30B8\u304C\u30CF\u30FC\u30C81\u3064\u6E1B\u308A(\u6700\u4F4E\u30CF\u30FC\u30C81\u3064)\u3001\u653B\u6483+20%(Lv9\u3067+40%)\u3002\u518D\u767A\u52D5\u307E\u30678\u79D2\u3002\u30CF\u30FC\u30C81\u3064\u306E\u63A5\u89E6\u3067\u306F\u767A\u52D5\u3057\u306A\u3044"
+  category: 2
+  sortOrder: 216
+  recommendPriority: 5
+  effects:
+  - type: 153
+    value: 1
+    scaling: 0
+  rarity: 3
+  unlockDistance: 5000
+  gachaStage: 2
+  element: 0

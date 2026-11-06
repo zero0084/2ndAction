@@ -164,6 +164,9 @@ public static class CardDatabaseBuilder
             {
                 card.effects.Add(new CardEffect { type = type, value = value });
             }
+            // 2026-11-06 マップ専用カード: 作る時から表(CardBalanceV3.MapTable)の効果を入れる(Build だけでも正しい値になる)
+            var mapFx = CardBalanceV3.MapEffectsFor(spec.id);
+            if (mapFx != null) card.effects = mapFx;
 
             AssetDatabase.CreateAsset(card, assetPath);
         }
@@ -1068,6 +1071,26 @@ public static class CardDatabaseBuilder
         // --- 2026-11-06 共通カードの追加(18 枚)。名前/説明は LocCardCommon、効果・レア度・解放は Editor/CardBalanceV3.cs(CommonTable)が入れる。
         //     アイコンは Assets/Art/Icons/CardIcons/<id>.png(エステルと制作予定)。無い間は手続き生成の仮のアイコン(MILE = 金の硬貨 / EXP = 上向きの矢印 等) --- //
         foreach (var x in CommonSpecs()) { var sp = x; sp.sortOrder = so++; yield return sp; }
+
+        // --- 2026-11-06 マップ専用カード 20 枚(map_cards_v2.md)。名前/説明/レア度/カテゴリ/属性は LocCardMap、効果は Editor/CardBalanceV3.cs(MapTable)が入れる。
+        //     アイコンは Assets/Art/Icons/CardIcons/<id>.png(マスターが別に制作)。無い間は手続き生成の仮のアイコン(Generated/Icon_<id>.png) --- //
+        foreach (var x in MapSpecs()) { var sp = x; sp.sortOrder = so++; yield return sp; }
+    }
+
+    static IEnumerable<Spec> MapSpecs()
+    {
+        // 仮のアイコンの形と色(カテゴリから)。絵が入れば ResolveIconPath が CardIcons/<id>.png を使う
+        IconGlyph GlyphOf(CardCategory c) => c == CardCategory.Movement ? IconGlyph.SpeedLines : c == CardCategory.Defense ? IconGlyph.Shield : c == CardCategory.Heal ? IconGlyph.Droplet
+            : c == CardCategory.Growth ? IconGlyph.Coin : c == CardCategory.Risk ? IconGlyph.CrossSwords : c == CardCategory.Special ? IconGlyph.WingSword : IconGlyph.Ring;
+        Color ColorOf(CardMapCategory m) => m == CardMapCategory.Wilderness ? new Color(1f, 0.6f, 0.3f) : m == CardMapCategory.Cave ? new Color(0.5f, 0.85f, 0.6f)
+            : m == CardMapCategory.Sky ? new Color(0.55f, 0.8f, 1f) : new Color(0.75f, 0.5f, 1f);
+        foreach (var c in LocCardMap.Cards)
+        {
+            // 効果は仮の1つ(CardBalanceV3.ApplyMap が表の値で置き換える)
+            yield return new Spec { id = c.id, name = c.name, category = c.category, description = c.desc, glyph = GlyphOf(c.category), glyphColor = ColorOf(c.map),
+                effects = new[] { (EffectType.AttackPct, 0f) }, recommendPriority = 5,
+                rarity = c.rarity, unlockDistance = LocCardMap.UnlockOf(c.rarity), gachaStage = LocCardMap.StageOf(c.rarity), element = c.element };
+        }
     }
 
     static IEnumerable<Spec> CommonSpecs()

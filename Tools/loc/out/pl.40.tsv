@@ -1,0 +1,40 @@
+10577	Gdy HP spadnie do 30% lub mniej, otrzymujesz tymczasowe tarcze znikające po 8s (1 na Lv1, 2 na Lv5, 3 na Lv9). Odnowienie po 90s (60s na Lv9). Liczą się oddzielnie od zwykłych tarcz, łącznie maksymalnie 3
+10578	Zamienia 30% (70% na Lv9) leczenia ponad maksymalne HP na tymczasowe tarcze (1 za każde serce leczenia; znikają po 20s). Maksymalnie 1 (2 na Lv5, 3 na Lv9); konwersja raz na 3s
+10579	Przez 3s (5s na Lv9) po trafieniu za co najmniej 2 serca: otrzymywane obrażenia -1 serce (minimum 1), atak +20% (+40% na Lv9). Odnowienie po 8s. Trafienia kontaktowe za 1 serce nie aktywują efektu
+10580	Przywraca HP, gdy wprowadzisz bossa w BREAK (1 serce na Lv1, 2 na Lv5, 3 na Lv9). Raz na 20s
+10581	Za każde serce maksymalnego HP powyżej 5 leczenie i szybkość odnawiania tarcz +2% (+4% na Lv9). Maksymalnie +30% (+50% na Lv9)
+10582	Traf 5 razy (4 na Lv5, 3 na Lv9) bez dotykania ziemi, aby zyskać atak +10% (+26% na Lv9) na 3s. Lądowanie zeruje licznik
+10583	Ataki w powietrzu szybciej zwiększają BREAK bossów (+15%, +55% na Lv9)
+10584	Przez 2.5s po lądowaniu z ataku nurkującego: szybkość ruchu +10% (+26% na Lv9), atak +15% (+39% na Lv9). Aktywuje się przy każdym takim lądowaniu
+10585	Ataki powietrzne przeciwko podrzuconym wrogom +12% (+44% na Lv9). Podrzuceni wrogowie spadają o 10% (30% na Lv9) wolniej. Okna sterowania i czas trafień pozostają bez zmian
+10586	Podczas biegu z prędkością co najmniej 130km/h: atak +15% (+47% na Lv9), narastanie BREAK bossów +10% (+42% na Lv9). Obrażenia od wypadków przy dużej prędkości bez zmian
+10587	Raz na bieg, gdy HP spadnie do 25% lub mniej, odzyskujesz 30% (60% na Lv9) maksymalnego HP i zyskujesz atak oraz szybkość ruchu +20% (+40% na Lv9) na 8s
+10588	Gdy tarcza (także tymczasowa) pęka, uwalnia falę uderzeniową o sile 300% (700% na Lv9) twojego ataku w promieniu 3m i dodaje +5% (+15% na Lv9) do BREAK bossa. Raz na 6s (3s na Lv9)
+10589	Zamienia 50% (100% na Lv9) nadmiarowego leczenia przez wysysanie (przy trafieniu, zabiciu i krwawieniu) ponad maksymalne HP w Krwawą tarczę, która anuluje obrażenia w sercach (maks. 1 serce, 3 na Lv9; traci 1 co 10s). Gdy jest aktywna, szansa krwawienia +10% (+30% na Lv9)
+10590	Im więcej rodzajów żywiołów (Ogień/Lód/Błyskawice/Wiatr/Krew) wśród kart żywiołów w talii, tym większa szansa i moc wszystkich żywiołów: 2 rodzaje +6%, 3 +12%, 4 +20%, 5 +30% (+10/20/32/50% na Lv9). Z ELEMENTAL FOCUS działa tylko wyższy bonus
+10591	Jeśli wszystkie karty żywiołów w talii są jednego rodzaju, moc tego żywiołu +30% (+70% na Lv9), szansa +10% (+30% na Lv9). Przy 2 rodzajach połowa bonusu, przy 3 lub więcej brak efektu. Z ELEMENTAL CHAOS działa tylko wyższy bonus
+10592	Atak przeciw wrogom w BREAK +15% (+47% na Lv9), moc żywiołów +10% (+42% na Lv9). Bossowie pokonani podczas BREAK dają MILE i EXP +10% (+42% na Lv9)
+10593	Każdy pokonany wróg zwiększa atak o +0.2% (+0.4% na Lv9) do końca biegu. Maksymalnie +15% (+40% na Lv9). Resetuje się po zakończeniu biegu
+10594	Od 80km: szybkość ruchu +10% (+20% na Lv9), atak +30% (+70% na Lv9), narastanie BREAK bossów +20% (+60% na Lv9). Wypadki, wydarzenia decyzyjne i obrażenia wrogów bez zmian
+10595	[RYZYKO] Ataki wrogów mają 30% szans na zadanie o 1 serce więcej obrażeń, silnie atakujący wrogowie +10%, odstępy między wydarzeniami decyzyjnymi -30%, pojawianie się wrogów +15% (nie zależy od Lv; HP wrogów nie wzrasta). [NAGRODA] MILE za wrogów/BONUS/bossów +100% (+300% na Lv9), zdobywane EXP +60% (+180% na Lv9)
+10596	Raz na bieg śmiertelny cios pozostawia ci 1 serce (niewrażliwość przez 1.5s). Następnie przez 10s: atak +40% (+100% na Lv9), szybkość ruchu +15% (+30% na Lv9), narastanie BREAK bossów +30% (+80% na Lv9). Aktywuje się przed PHOENIX
+10597	Przy HP ≤30%: {0} tymczasowych tarcz ({1}s) / odnowienie {2}s
+10598	{0}% nadmiarowego leczenia w tymczasowe tarcze (maks. {1}, czas {2}s)
+10599	Przez {0}s po ciosie za 2+ serca: obrażenia -1 serce, atak +{1}%
+10600	BREAK przywraca {0} serc (co {1}s)
+10601	Za serce maks. HP ponad 5: leczenie/odnowienie tarcz +{0}% (maks. +{1}%)
+10602	{0} trafień bez lądowania: atak +{2}% przez {1}s
+10603	Narastanie BREAK od ataków powietrznych +{0}%
+10604	Po lądowaniu z nurkowania przez {0}s: szybkość +{1}%, atak +{2}%
+10605	Ataki powietrzne na podrzuconych +{0}% / spadanie wolniejsze o {1}%
+10606	Od 130km/h: atak +{0}%, narastanie BREAK +{1}%
+10607	Raz/bieg przy HP ≤25%: leczenie {0}% maks. HP, atak/szybkość +{2}% przez {1}s
+10608	Pęknięcie tarczy: {0}% ataku w promieniu 3m, BREAK bossa +{1}% (co {2}s)
+10609	{0}% nadmiaru wysysania w Krwawą tarczę (maks. {1} serc) / krwawienie +{2}%
+10610	Talia z 2/3/4/5 żywiołami: szansa/moc +{0}/{1}/{2}/{3}%
+10611	Talia z 1 żywiołem: moc +{0}%, szansa +{1}% (połowa przy 2)
+10612	Przeciw wrogom w BREAK: atak +{0}%, moc żywiołów +{1}%, MILE/EXP +{2}%
+10613	Atak +{0}% za wroga (maks. +{1}%)
+10614	Od 80km: szybkość +{0}%, atak +{1}%, BREAK +{2}%
+10615	Ataki wrogów: +1 serce z szansą {0}% / silni wrogowie +{1}% / odstępy -{2}%
+10616	Raz/bieg: przeżyj z 1 sercem, potem {0}s atak +{1}%, szybkość +{2}%, BREAK +{3}%

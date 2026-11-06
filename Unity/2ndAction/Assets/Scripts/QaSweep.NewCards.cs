@@ -76,7 +76,11 @@ public partial class QaSweep
         string[] want = DefaultSave.StarterIds; // 2026-11-06: HEART UP/SHIELD/VAMPIRE を外して新しい★1 3枚
         var deck = DefaultSave.StartingDeck(GameManager.DeckCapacity);
         Check(deck.SequenceEqual(want), $"[A] initial deck = fixed starter set: {string.Join(",", deck)}");
-        Check(LocPendingReview.Pending.Length == 0 && Loc.Ready("連続ヒット(画面の「N HIT」)が10回に届くたびにMILE+1(1Lvごとに+1)。20回・30回…と続けるほど何度ももらえる(1回の連続ヒットで100HITまで)") , $"[A] new strings translated (pending {LocPendingReview.Pending.Length})"); // 2026-11-06: 28 言語へ反映済み
+        // 2026-11-06: 28 言語へ反映済み。その後のマップ専用カード(LocCardMap)はレビュー待ちで Pending にあるので、共通カードの文だけを見る
+        var commonKeys = new HashSet<string>(LocCardCommon.PendingList().Where(p => int.Parse(p.id) >= 10518).Select(p => p.key)); // 名前(10500〜10517)は英字のまま
+        int commonPending = LocPendingReview.Pending.Count(p => commonKeys.Contains(p.key));
+        int commonNoDe = commonKeys.Count(k => !Loc.HasTranslation("de", k));
+        Check(commonPending == 0 && commonNoDe == 0, $"[A] common card strings translated (pending {commonPending}, missing in de {commonNoDe})");
     }
 
     // ---------------------------------------------------------------- D

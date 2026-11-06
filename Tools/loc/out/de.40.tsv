@@ -1,0 +1,40 @@
+10577	Sobald HP auf 30% oder weniger fallen, erhältst du temporäre Schilde, die nach 8s verschwinden (1 auf Lv1, 2 auf Lv5, 3 auf Lv9). Aufladezeit 90s (60s auf Lv9). Sie werden getrennt von normalen Schilden gezählt, insgesamt maximal 3
+10578	Wandelt 30% (70% auf Lv9) der Heilung über die maximalen HP hinaus in temporäre Schilde um (1 pro Herz Heilung, verschwinden nach 20s). Maximal 1 (2 auf Lv5, 3 auf Lv9); Umwandlung alle 3s
+10579	Für 3s (5s auf Lv9) nach einem Treffer mit mindestens 2 Herzen Schaden: erlittener Schaden -1 Herz (mindestens 1), Angriff +20% (+40% auf Lv9). Aufladezeit 8s. Kontakttreffer mit 1 Herz lösen den Effekt nicht aus
+10580	Stellt HP wieder her, wenn du einen Boss in BREAK versetzt (1 Herz auf Lv1, 2 auf Lv5, 3 auf Lv9). Einmal alle 20s
+10581	Für jedes Herz maximaler HP über 5 steigen Heilung und Schild-Aufladegeschwindigkeit um +2% (+4% auf Lv9). Maximal +30% (+50% auf Lv9)
+10582	Lande 5 Treffer (4 auf Lv5, 3 auf Lv9), ohne den Boden zu berühren, um für 3s Angriff +10% (+26% auf Lv9) zu erhalten. Landen setzt den Zähler zurück
+10583	Angriffe in der Luft füllen die BREAK-Leiste von Bossen schneller (+15%, +55% auf Lv9)
+10584	Für 2.5s nach der Landung aus einem Sturzangriff: Bewegungstempo +10% (+26% auf Lv9), Angriff +15% (+39% auf Lv9). Wird bei jeder Landung ausgelöst
+10585	Luftangriffe gegen hochgeschleuderte Gegner +12% (+44% auf Lv9). Diese fallen 10% (30% auf Lv9) langsamer. Eingabefenster und Treffertiming bleiben unverändert
+10586	Bei mindestens 130km/h: Angriff +15% (+47% auf Lv9), BREAK-Aufbau bei Bossen +10% (+42% auf Lv9). Unfallschaden bei hohem Tempo bleibt unverändert
+10587	Einmal pro Lauf: Fallen HP auf 25% oder weniger, werden 30% (60% auf Lv9) der maximalen HP geheilt. Angriff und Bewegungstempo steigen für 8s um +20% (+40% auf Lv9)
+10588	Wenn ein Schild (auch ein temporärer) zerbricht, entsteht eine Schockwelle mit 300% (700% auf Lv9) deines Angriffs im Umkreis von 3m und +5% (+15% auf Lv9) Boss-BREAK. Einmal alle 6s (3s auf Lv9)
+10589	Wandelt 50% (100% auf Lv9) der Absorptionsheilung über maximale HP hinaus (Trefferabsorption, Heilung bei Kills, Blutungsabsorption) in einen Blutschild um, der Schaden in Herzen aufhebt (max. 1 Herz, 3 auf Lv9; verliert alle 10s 1 Herz). Solange aktiv: Blutungschance +10% (+30% auf Lv9)
+10590	Je mehr Elementarten (Feuer/Eis/Blitz/Wind/Blut) die Elementkarten im Deck abdecken, desto höher sind Chance und Stärke aller Elemente: 2 Arten +6%, 3 +12%, 4 +20%, 5 +30% (+10/20/32/50% auf Lv9). Mit ELEMENTAL FOCUS gilt nur der höhere Bonus
+10591	Wenn alle Elementkarten im Deck dieselbe Art haben: Elementstärke +30% (+70% auf Lv9), Chance +10% (+30% auf Lv9). Bei 2 Arten halbiert, bei 3 oder mehr ohne Wirkung. Mit ELEMENTAL CHAOS gilt nur der höhere Bonus
+10592	Angriff gegen Gegner in BREAK +15% (+47% auf Lv9), Elementstärke +10% (+42% auf Lv9). Während BREAK besiegte Bosse geben MILE und EXP +10% (+42% auf Lv9)
+10593	Jeder besiegte Gegner erhöht den Angriff für den Rest des Laufs um +0.2% (+0.4% auf Lv9). Maximal +15% (+40% auf Lv9). Wird am Laufende zurückgesetzt
+10594	Ab 80km: Bewegungstempo +10% (+20% auf Lv9), Angriff +30% (+70% auf Lv9), BREAK-Aufbau bei Bossen +20% (+60% auf Lv9). Unfälle, Entscheidungsereignisse und Gegnerschaden bleiben unverändert
+10595	[RISIKO] Gegnerangriffe verursachen mit 30% Chance 1 Herz mehr Schaden, besonders starke Gegner +10%, Abstände zwischen Entscheidungsereignissen -30%, Gegnererscheinungen +15% (unabhängig von Lv; Gegner-HP steigen nicht). [BELOHNUNG] MILE für Gegner/BONUS/Bosse +100% (+300% auf Lv9), erhaltene EXP +60% (+180% auf Lv9)
+10596	Einmal pro Lauf überlebst du einen tödlichen Treffer mit 1 Herz (1.5s unverwundbar). Danach für 10s: Angriff +40% (+100% auf Lv9), Bewegungstempo +15% (+30% auf Lv9), Boss-BREAK-Aufbau +30% (+80% auf Lv9). Wird vor PHOENIX eingesetzt
+10597	Bei HP ≤30%: {0} temporäre Schilde ({1}s) / Aufladen {2}s
+10598	{0}% überschüssige Heilung wird zu temporären Schilden (max. {1}, Dauer {2}s)
+10599	Für {0}s nach 2+ Herzen Schaden: erlittener Schaden -1 Herz, Angriff +{1}%
+10600	BREAK heilt {0} Herz(en) (alle {1}s)
+10601	Pro max. HP-Herz über 5: Heilung/Schild-Aufladen +{0}% (max. +{1}%)
+10602	{0} Treffer ohne Landung: Angriff +{2}% für {1}s
+10603	BREAK-Aufbau durch Luftangriffe +{0}%
+10604	Nach Sturzlandung für {0}s: Tempo +{1}%, Angriff +{2}%
+10605	Luftangriffe vs. hochgeschleuderte Gegner +{0}% / Falltempo -{1}%
+10606	Ab 130km/h: Angriff +{0}%, BREAK-Aufbau +{1}%
+10607	Einmal/Lauf bei HP ≤25%: {0}% max. HP heilen, Angriff/Tempo +{2}% für {1}s
+10608	Schildbruch: {0}% Angriff im Umkreis von 3m, Boss-BREAK +{1}% (alle {2}s)
+10609	{0}% überschüssige Absorptionsheilung zu Blutschild (max. {1} Herzen) / Blutung +{2}%
+10610	Deck mit 2/3/4/5 Elementen: Chance/Stärke +{0}/{1}/{2}/{3}%
+10611	Deck mit 1 Element: Stärke +{0}%, Chance +{1}% (halbiert bei 2)
+10612	Gegen BREAK-Gegner: Angriff +{0}%, Elementstärke +{1}%, MILE/EXP +{2}%
+10613	Angriff +{0}% pro besiegtem Gegner (max. +{1}%)
+10614	Ab 80km: Tempo +{0}%, Angriff +{1}%, BREAK-Aufbau +{2}%
+10615	Gegnerangriffe: +1 Herz mit {0}% Chance / starke Gegner +{1}% / Ereignisabstand -{2}%
+10616	Einmal/Lauf: mit 1 Herz überleben, dann {0}s Angriff +{1}%, Tempo +{2}%, BREAK +{3}%

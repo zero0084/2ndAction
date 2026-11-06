@@ -39,6 +39,9 @@ public class DifficultyTuning : ScriptableObject
     [Tooltip("対象: 穴/落下")] public bool accidentFall = true;
     [Tooltip("この距離(km)までは速度の段階を掛けず事故は1ハート(序盤の最大HPが少ない間。2026-11-06 マスター決定 15km。0 = 最初から。開発版 -accidentFromKm N で上書き)")] public float accidentFromKm = 15f;
     public float largeHpMultiplier = 1.75f;
+    [Header("ラン中のレベルで最大HP(2026-11-06 初期デッキから HEART UP 等を外した後。Balance/GameManager.LevelHp.cs)")]
+    [Tooltip("このレベルごとに最大HPがハート+1(0 = しない)")] public int levelHpEvery = 5;
+    [Tooltip("ランの中で増える最大HPの上限(ハート)")] public int levelHpMaxHearts = 6;
     [Header("ボス撃破の回復(2026-11-06 初期デッキから HP/SHIELD/VAMPIRE を外した後の検討。既定 0 = なし)")]
     [Tooltip("通常マップでボス(関門のボス)を倒した時に回復するハートの数。0 = しない")] public int bossDefeatHealHearts = 0;
     [Tooltip("この距離(km)まで")] public float bossDefeatHealUntilKm = 40f;

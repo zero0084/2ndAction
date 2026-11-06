@@ -1,0 +1,40 @@
+10577	Quando gli HP scendono al 30% o meno, ottieni scudi temporanei che svaniscono dopo 8s (1 a Lv1, 2 a Lv5, 3 a Lv9). Ricarica in 90s (60s a Lv9). Sono conteggiati separatamente dagli scudi normali, fino a un massimo totale di 3
+10578	Converte il 30% (70% a Lv9) delle cure oltre gli HP massimi in scudi temporanei (1 per ogni cuore di cura; svaniscono dopo 20s). Massimo 1 (2 a Lv5, 3 a Lv9); una conversione ogni 3s
+10579	Per 3s (5s a Lv9) dopo un colpo da almeno 2 cuori, danni subiti -1 cuore (minimo 1) e attacco +20% (+40% a Lv9). Ricarica in 8s. I colpi da contatto di 1 cuore non attivano l'effetto
+10580	Recupera HP quando mandi un boss in BREAK (1 cuore a Lv1, 2 a Lv5, 3 a Lv9). Una volta ogni 20s
+10581	Per ogni cuore di HP massimi oltre 5, cure e velocità di ricarica degli scudi +2% (+4% a Lv9). Massimo +30% (+50% a Lv9)
+10582	Metti a segno 5 colpi (4 a Lv5, 3 a Lv9) senza toccare terra per ottenere attacco +10% (+26% a Lv9) per 3s. Atterrare azzera il conteggio
+10583	Gli attacchi aerei accumulano più rapidamente il BREAK dei boss (+15%, +55% a Lv9)
+10584	Per 2.5s dopo l'atterraggio da una picchiata: velocità di movimento +10% (+26% a Lv9), attacco +15% (+39% a Lv9). Si attiva a ogni atterraggio
+10585	Attacchi aerei contro nemici lanciati in aria +12% (+44% a Lv9). I nemici lanciati cadono il 10% (30% a Lv9) più lentamente. Finestre di input e tempi dei colpi invariati
+10586	Correndo a 130km/h o più: attacco +15% (+47% a Lv9), accumulo BREAK dei boss +10% (+42% a Lv9). I danni da incidente ad alta velocità restano invariati
+10587	Una volta per corsa, quando gli HP scendono al 25% o meno, recuperi il 30% (60% a Lv9) degli HP massimi e ottieni attacco e velocità di movimento +20% (+40% a Lv9) per 8s
+10588	Quando uno scudo (anche temporaneo) si rompe, rilascia un'onda d'urto pari al 300% (700% a Lv9) dell'attacco entro 3m e aggiunge +5% (+15% a Lv9) al BREAK di un boss. Una volta ogni 6s (3s a Lv9)
+10589	Converte il 50% (100% a Lv9) delle cure da assorbimento oltre gli HP massimi (assorbimento sui colpi, cure per uccisione, assorbimento da sanguinamento) in uno Scudo di sangue che annulla danni in cuori (max 1 cuore, 3 a Lv9; perde 1 cuore ogni 10s). Finché è attivo, probabilità di sanguinamento +10% (+30% a Lv9)
+10590	Più tipi elementali (Fuoco/Ghiaccio/Fulmine/Vento/Sangue) sono presenti tra le carte elementali del mazzo, più aumentano probabilità e potenza di tutti gli elementi: 2 tipi +6%, 3 +12%, 4 +20%, 5 +30% (+10/20/32/50% a Lv9). Con ELEMENTAL FOCUS si applica solo il bonus maggiore
+10591	Se tutte le carte elementali del mazzo sono di un solo tipo, potenza di quell'elemento +30% (+70% a Lv9) e probabilità +10% (+30% a Lv9). Con 2 tipi il bonus si dimezza, con 3 o più non ha effetto. Con ELEMENTAL CHAOS si applica solo il bonus maggiore
+10592	Attacco contro nemici in BREAK +15% (+47% a Lv9), potenza elementale +10% (+42% a Lv9). I boss sconfitti durante BREAK danno MILE ed EXP +10% (+42% a Lv9)
+10593	Ogni nemico sconfitto aumenta l'attacco di +0.2% (+0.4% a Lv9) per il resto della corsa. Massimo +15% (+40% a Lv9). Si azzera al termine della corsa
+10594	Da 80km in poi: velocità di movimento +10% (+20% a Lv9), attacco +30% (+70% a Lv9), accumulo BREAK dei boss +20% (+60% a Lv9). Incidenti, eventi decisionali e danni nemici invariati
+10595	[RISCHIO] Gli attacchi nemici hanno il 30% di probabilità di infliggere 1 cuore in più, nemici ad alto danno +10%, intervalli degli eventi decisionali -30%, comparsa dei nemici +15% (non cambia con Lv; gli HP nemici non aumentano). [RICOMPENSA] MILE da nemici/BONUS/boss +100% (+300% a Lv9), EXP ottenuta +60% (+180% a Lv9)
+10596	Una volta per corsa, un colpo letale ti lascia con 1 cuore (invulnerabile per 1.5s). Poi per 10s: attacco +40% (+100% a Lv9), velocità di movimento +15% (+30% a Lv9), accumulo BREAK dei boss +30% (+80% a Lv9). Si attiva prima di PHOENIX
+10597	HP al 30% o meno: {0} scudi temporanei ({1}s) / ricarica {2}s
+10598	{0}% delle cure in eccesso in scudi temporanei (max {1}, durata {2}s)
+10599	Per {0}s dopo un colpo da 2+ cuori: danni -1 cuore, attacco +{1}%
+10600	BREAK ripristina {0} cuori (ogni {1}s)
+10601	Per cuore di HP massimi oltre 5: cure/ricarica scudi +{0}% (max +{1}%)
+10602	{0} colpi senza atterrare: attacco +{2}% per {1}s
+10603	Accumulo BREAK con attacchi aerei +{0}%
+10604	Dopo una picchiata, per {0}s: velocità +{1}%, attacco +{2}%
+10605	Attacchi aerei vs nemici lanciati +{0}% / caduta rallentata del {1}%
+10606	A 130km/h o più: attacco +{0}%, accumulo BREAK +{1}%
+10607	Una volta/corsa, HP ≤25%: recupera {0}% degli HP max, attacco/velocità +{2}% per {1}s
+10608	Scudo rotto: {0}% dell'attacco entro 3m, BREAK boss +{1}% (ogni {2}s)
+10609	{0}% delle cure da assorbimento in eccesso in Scudo di sangue (max {1} cuori) / sanguinamento +{2}%
+10610	Mazzo con 2/3/4/5 elementi: probabilità/potenza +{0}/{1}/{2}/{3}%
+10611	Mazzo con 1 elemento: potenza +{0}%, probabilità +{1}% (metà con 2)
+10612	Contro nemici in BREAK: attacco +{0}%, potenza elementale +{1}%, MILE/EXP +{2}%
+10613	Attacco +{0}% per nemico sconfitto (max +{1}%)
+10614	Da 80km: velocità +{0}%, attacco +{1}%, accumulo BREAK +{2}%
+10615	Attacchi nemici: +1 cuore con probabilità {0}% / nemici ad alto danno +{1}% / intervalli -{2}%
+10616	Una volta/corsa: sopravvivi con 1 cuore, poi per {0}s attacco +{1}%, velocità +{2}%, BREAK +{3}%

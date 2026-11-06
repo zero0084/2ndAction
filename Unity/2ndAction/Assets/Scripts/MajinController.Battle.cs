@@ -115,6 +115,7 @@ public partial class MajinController : IBossBattleDebug
         if (BossBattle.DebugNoStagger) return;
         if (battle == null || battle.staggerMax <= 0f || Broken || state == State.Entering || state == State.Dead || breakRecovering) return;
         v *= ElementSystem.IceStaggerMul(gameObject, v); // 2026-10-30: 冷えた/凍結したボスは BREAK が溜まりやすい
+        v *= MapCardRules.BreakGainMul; // 2026-11-06 SKY BREAKER(空中)/ SONIC EDGE(130km/h 以上)/ FINAL DRIVE(80km 以降)/ ONE MORE CHANCE の強化中
         float before = StaggerFraction;
         stagger += v * staggerMul * (Time.time < breakResistUntil ? WildBossBase.PostBreakStaggerScale : 1f); // BREAK の直後は溜まりにくい(2026-10-18)
         lastStaggerTime = Time.time;
@@ -122,6 +123,7 @@ public partial class MajinController : IBossBattleDebug
         stagger = battle.staggerMax;
         BreakCount++;
         Debug.Log($"[BossBattle] Majin BREAK #{BreakCount}");
+        MapCardRules.OnBossBreak(); // 2026-11-06 BREAK FEAST(BREAK させると回復)
         BossBattleHud.Banner("BREAK!", new Color(1f, 0.85f, 0.3f), 1.0f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossBreak);
         StopAllCoroutines();

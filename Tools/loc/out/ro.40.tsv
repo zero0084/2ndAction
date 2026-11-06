@@ -1,0 +1,40 @@
+10577	Când HP scade la 30% sau mai puțin, primești scuturi temporare care dispar după 8s (1 la Lv1, 2 la Lv5, 3 la Lv9). Reîncărcare în 90s (60s la Lv9). Sunt numărate separat de scuturile normale, maximum 3 în total
+10578	Transformă 30% (70% la Lv9) din vindecarea peste HP maxim în scuturi temporare (1 pentru fiecare inimă vindecată; dispar după 20s). Maximum 1 (2 la Lv5, 3 la Lv9); o conversie la fiecare 3s
+10579	Timp de 3s (5s la Lv9) după o lovitură de cel puțin 2 inimi: daune primite -1 inimă (minimum 1), atac +20% (+40% la Lv9). Reîncărcare în 8s. Loviturile de contact de 1 inimă nu activează efectul
+10580	Reface HP când provoci BREAK unui șef (1 inimă la Lv1, 2 la Lv5, 3 la Lv9). O dată la 20s
+10581	Pentru fiecare inimă de HP maxim peste 5, vindecarea și viteza de reîncărcare a scuturilor +2% (+4% la Lv9). Maximum +30% (+50% la Lv9)
+10582	Lovește de 5 ori (4 la Lv5, 3 la Lv9) fără să atingi solul pentru a primi atac +10% (+26% la Lv9) timp de 3s. Aterizarea resetează numărătoarea
+10583	Atacurile aeriene acumulează BREAK-ul șefilor mai repede (+15%, +55% la Lv9)
+10584	Timp de 2.5s după aterizarea dintr-un plonjon: viteză de deplasare +10% (+26% la Lv9), atac +15% (+39% la Lv9). Se activează la fiecare astfel de aterizare
+10585	Atacuri aeriene împotriva inamicilor aruncați în aer +12% (+44% la Lv9). Aceștia cad cu 10% (30% la Lv9) mai lent. Ferestrele de comandă și momentele loviturilor rămân neschimbate
+10586	La alergare cu 130km/h sau mai mult: atac +15% (+47% la Lv9), acumulare BREAK la șefi +10% (+42% la Lv9). Daunele din accidente la viteză mare rămân neschimbate
+10587	O dată pe cursă, când HP scade la 25% sau mai puțin, recuperezi 30% (60% la Lv9) din HP maxim și primești atac și viteză de deplasare +20% (+40% la Lv9) timp de 8s
+10588	Când un scut (inclusiv temporar) se sparge, eliberează o undă de șoc cu 300% (700% la Lv9) din atacul tău pe o rază de 3m și adaugă +5% (+15% la Lv9) la BREAK-ul unui șef. O dată la 6s (3s la Lv9)
+10589	Transformă 50% (100% la Lv9) din vindecarea prin absorbție peste HP maxim (absorbție la lovire, vindecare la ucidere, absorbție prin sângerare) într-un Scut de sânge care anulează daune în inimi (max. 1 inimă, 3 la Lv9; pierde 1 la fiecare 10s). Cât timp este activ, șansa de sângerare +10% (+30% la Lv9)
+10590	Cu cât ai mai multe tipuri de elemente (Foc/Gheață/Fulger/Vânt/Sânge) printre cărțile elementale din pachet, cu atât cresc șansa și puterea tuturor elementelor: 2 tipuri +6%, 3 +12%, 4 +20%, 5 +30% (+10/20/32/50% la Lv9). Cu ELEMENTAL FOCUS se aplică doar bonusul mai mare
+10591	Dacă toate cărțile elementale din pachet sunt de un singur tip, puterea acelui element +30% (+70% la Lv9), șansa +10% (+30% la Lv9). Cu 2 tipuri bonusul se înjumătățește, cu 3 sau mai multe nu are efect. Cu ELEMENTAL CHAOS se aplică doar bonusul mai mare
+10592	Atac împotriva inamicilor în BREAK +15% (+47% la Lv9), putere elementală +10% (+42% la Lv9). Șefii învinși în timpul BREAK oferă MILE și EXP +10% (+42% la Lv9)
+10593	Fiecare inamic învins crește atacul cu +0.2% (+0.4% la Lv9) până la sfârșitul cursei. Maximum +15% (+40% la Lv9). Se resetează la finalul cursei
+10594	De la 80km: viteză de deplasare +10% (+20% la Lv9), atac +30% (+70% la Lv9), acumulare BREAK la șefi +20% (+60% la Lv9). Accidentele, evenimentele de decizie și daunele inamicilor rămân neschimbate
+10595	[RISC] Atacurile inamicilor au 30% șansă să provoace cu 1 inimă mai mult, inamici cu atac puternic +10%, intervale între evenimentele de decizie -30%, apariții de inamici +15% (nu depinde de Lv; HP-ul inamicilor nu crește). [RECOMPENSĂ] MILE de la inamici/BONUS/șefi +100% (+300% la Lv9), EXP obținut +60% (+180% la Lv9)
+10596	O dată pe cursă, o lovitură fatală te lasă cu 1 inimă (invulnerabil timp de 1.5s). Apoi, timp de 10s: atac +40% (+100% la Lv9), viteză de deplasare +15% (+30% la Lv9), acumulare BREAK la șefi +30% (+80% la Lv9). Se activează înainte de PHOENIX
+10597	La HP ≤30%: {0} scuturi temporare ({1}s) / reîncărcare {2}s
+10598	{0}% din vindecarea excedentară în scuturi temporare (max. {1}, durată {2}s)
+10599	Timp de {0}s după lovitură de 2+ inimi: daune -1 inimă, atac +{1}%
+10600	BREAK reface {0} inimi (o dată la {1}s)
+10601	Per inimă de HP maxim peste 5: vindecare/reîncărcare scuturi +{0}% (max. +{1}%)
+10602	{0} lovituri fără aterizare: atac +{2}% timp de {1}s
+10603	Acumulare BREAK din atacuri aeriene +{0}%
+10604	După aterizare din plonjon, timp de {0}s: viteză +{1}%, atac +{2}%
+10605	Atacuri aeriene vs inamici aruncați +{0}% / cădere cu {1}% mai lentă
+10606	De la 130km/h: atac +{0}%, acumulare BREAK +{1}%
+10607	O dată/cursă la HP ≤25%: vindecă {0}% HP maxim, atac/viteză +{2}% timp de {1}s
+10608	Scut spart: {0}% din atac pe 3m, BREAK șef +{1}% (o dată la {2}s)
+10609	{0}% din absorbția excedentară în Scut de sânge (max. {1} inimi) / sângerare +{2}%
+10610	Pachet cu 2/3/4/5 elemente: șansă/putere +{0}/{1}/{2}/{3}%
+10611	Pachet cu 1 element: putere +{0}%, șansă +{1}% (jumătate cu 2)
+10612	Contra inamicilor în BREAK: atac +{0}%, putere elementală +{1}%, MILE/EXP +{2}%
+10613	Atac +{0}% per inamic învins (max. +{1}%)
+10614	De la 80km: viteză +{0}%, atac +{1}%, BREAK +{2}%
+10615	Atacuri inamice: +1 inimă cu șansă {0}% / inamici puternici +{1}% / intervale -{2}%
+10616	O dată/cursă: supraviețuiești cu 1 inimă, apoi {0}s atac +{1}%, viteză +{2}%, BREAK +{3}%

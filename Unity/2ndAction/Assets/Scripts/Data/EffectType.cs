@@ -215,5 +215,27 @@ public enum EffectType
     ChainBountyLevel,       // 10HIT 以上の連続ヒット中の撃破の MILE/EXP
     IronMarathonLevel,      // 被弾せずに 1km ごとに MILE/EXP
     TrophyHuntLevel,        // ボス撃破で、前のボスからの撃破数に応じた MILE/EXP
-    HorizonLevel            // 走行 10km ごとに MILE/EXP の割合
+    HorizonLevel,           // 走行 10km ごとに MILE/EXP の割合
+    // 2026-11-06 マップ専用カード 20 枚(Docs/Cards_2026-11-06/map_cards_v2.md)。どれも Lv が強さになる挙動(数値は MapCardRules、表示は CardBehaviorText)。
+    // アセットには数(int)で入るので、必ず末尾へ足す(途中に入れない)
+    LastBastionLevel,       // 自然洞窟: HP30% 以下で一時シールド
+    OverflowWardLevel,      // 自然洞窟: 最大HPを超えた回復 → 一時シールド
+    RevengeArmorLevel,      // 自然洞窟: 大きな被弾の後の軽減と攻撃
+    BreakFeastLevel,        // 自然洞窟: BREAK させると回復
+    IronHeartLevel,         // 自然洞窟: 5ハートを超えた最大HPで回復量・Shield の回復
+    AirComboLevel,          // 天空回廊: 着地せずに当て続けると攻撃
+    SkyBreakerLevel,        // 天空回廊: 空中の攻撃の BREAK
+    DiveBoostLevel,         // 天空回廊: 急降下の着地の後の移動速度・攻撃
+    LaunchMasterLevel,      // 天空回廊: 打ち上げた敵への空中の攻撃・落下をゆっくり
+    SonicEdgeLevel,         // 天空回廊: 130km/h 以上で攻撃・BREAK
+    SecondRiseLevel,        // ラスダン: 1ランに1回 HP25% 以下で回復と強化
+    ShieldBurstLevel,       // ラスダン: Shield が壊れると衝撃
+    BloodArmorLevel,        // ラスダン: 吸収の超過 → 血の盾
+    ElementalChaosLevel,    // ラスダン: デッキの属性の種類が多いほど属性全体
+    ElementalFocusLevel,    // ラスダン: デッキの属性が1種類なら、その属性
+    BreakDominionLevel,     // ラスダン: BREAK 中の敵へ
+    EndlessGrowthLevel,     // ラスダン: 撃破ごとに攻撃(そのランだけ)
+    FinalDriveLevel,        // ラスダン: 80km 以降の移動速度・攻撃・BREAK
+    LastGambleLevel,        // ラスダン: 危険(敵の攻撃 +1 ハート等)。報酬は既存の MILE/EXP の種類
+    OneMoreChanceLevel      // ラスダン: 1ランに1回 倒れるダメージでハート1つ残る
 }

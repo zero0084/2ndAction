@@ -138,5 +138,7 @@ public static class LocPendingReview
     // 2026-11-05: 10374〜10384(マルチのルール)はエステルのレビュー後に30言語へ反映済み(Tools/loc/keys_extra38・Docs/LocReview_2026-11-05)→ 外した
     // 2026-11-06: 共通カードの追加 18 枚(ID 10500〜10556、LocCardCommon)とカード編集の絞り込み(10460〜10469)は、エステルの訳を 28 言語へ反映済み
     //  (Tools/loc/est39・keys_extra39all.tsv、merge_add.py 39)→ 外した。カード名(10500〜10517)は既存のカードと同じく全言語で英字のまま
-    public static readonly (string id, string key)[] Pending = new (string id, string key)[0];
+    // 2026-11-06: マップ専用カード 20 枚(LocCardMap、map_cards_v2.md)。説明 10577〜10596・効果の行 10597〜10616 → エステルの訳を28言語へ反映済み(merge_add.py 40)
+    //  (Tools/loc/est40/src40_for_estelle.txt・keys_extra40.tsv)。日本語と英語だけ入っている。名前(10557〜10576)は英字のまま
+    public static readonly (string id, string key)[] Pending = new (string id, string key)[0]; // 2026-11-06: マップのカード20枚の40件(LocCardMap)はエステルの訳を28言語へ反映済み
 }

@@ -196,6 +196,9 @@ public static class CardBalanceV3
         // ---- 2026-11-06 共通カードの追加(18 枚)。名前・説明は LocCardCommon、数値の式は CardRewards。★1 = 最初から / ★3 = 5km / ★4 = 20km
         foreach (var c in CommonTable()) yield return c;
 
+        // ---- 2026-11-06 マップ専用カード 20 枚(map_cards_v2.md)。名前・説明・レア度は LocCardMap、数値は MapCardRules
+        foreach (var c in MapTable()) yield return c;
+
         // ---- #100 ULTIMATE(2026-10-04): 新しい cardId。数値は UltimateTuning(Lv1/5/9 の前進・威力・BUFF・Gauge の溜まりやすさ)
         yield return Named(Card(UltimateCardId, "Gaugeが100%で発動(左下のボタン)。キャラ固有の必殺技で画面内の通常の敵を一撃で倒し、ボスには最大HPの20〜40%のダメージ(Lvで上がる)。そのまま大きく前進し(Lv1 300m → Lv9 1000m。ボス関門などの手前で止まり、ボス戦中は前進しない)、しばらく強化が続く(Lv1 5秒 → Lv9 12秒)。Gaugeは距離・撃破・ボスへのダメージで溜まる",
             new E(EffectType.UltimateLevel, 1f)), "ULTIMATE");
@@ -259,6 +262,63 @@ public static class CardBalanceV3
         yield return X("trophy_hunt", 4, 5, new E(EffectType.TrophyHuntLevel, 1f));
         yield return X("horizon", 4, 5, new E(EffectType.HorizonLevel, 1f));
     }
+
+    // 2026-11-06 マップ専用カード 20 枚(Docs/Cards_2026-11-06/map_cards_v2.md)。どれも新しい挙動の種類1つ(Lv が強さ。数値は MapCardRules)。
+    //  LAST GAMBLE の報酬と密度は既存の種類(MILE/EXP の枠・敵の出現)。Lv1 / Lv5 / Lv9 = 100 / 200 / 300%・60 / 120 / 180%(毎Lv + 固定)
+    static IEnumerable<C> MapTable()
+    {
+        C X(string id, int rec, params E[] fx)
+        {
+            var t = LocCardMap.Find(id);
+            var c = Rar(Named(Card(id, t.desc, t.element, fx), t.name), t.rarity, LocCardMap.StageOf(t.rarity), LocCardMap.UnlockOf(t.rarity));
+            c.rec = rec;
+            return c;
+        }
+        // ---- 自然洞窟
+        yield return X("last_bastion", 5, new E(EffectType.LastBastionLevel, 1f));
+        yield return X("overflow_ward", 5, new E(EffectType.OverflowWardLevel, 1f));
+        yield return X("revenge_armor", 5, new E(EffectType.RevengeArmorLevel, 1f));
+        yield return X("break_feast", 5, new E(EffectType.BreakFeastLevel, 1f));
+        yield return X("iron_heart", 5, new E(EffectType.IronHeartLevel, 1f));
+        // ---- 天空回廊
+        yield return X("air_combo", 5, new E(EffectType.AirComboLevel, 1f));
+        yield return X("sky_breaker", 5, new E(EffectType.SkyBreakerLevel, 1f));
+        yield return X("dive_boost", 5, new E(EffectType.DiveBoostLevel, 1f));
+        yield return X("launch_master", 5, new E(EffectType.LaunchMasterLevel, 1f));
+        yield return X("sonic_edge", 5, new E(EffectType.SonicEdgeLevel, 1f));
+        // ---- ラストダンジョン
+        yield return X("second_rise", 5, new E(EffectType.SecondRiseLevel, 1f));
+        yield return X("shield_burst", 5, new E(EffectType.ShieldBurstLevel, 1f));
+        yield return X("blood_armor", 5, new E(EffectType.BloodArmorLevel, 1f));
+        yield return X("elemental_chaos", 5, new E(EffectType.ElementalChaosLevel, 1f));
+        yield return X("elemental_focus", 5, new E(EffectType.ElementalFocusLevel, 1f));
+        yield return X("break_dominion", 5, new E(EffectType.BreakDominionLevel, 1f));
+        yield return X("endless_growth", 5, new E(EffectType.EndlessGrowthLevel, 1f));
+        yield return X("final_drive", 5, new E(EffectType.FinalDriveLevel, 1f));
+        yield return X("last_gamble", 1, new E(EffectType.LastGambleLevel, 1f, Once),
+            new E(EffectType.MileGainMultiplier, 0.25f), new E(EffectType.MileGainMultiplier, 0.75f, Once),
+            new E(EffectType.BossMileGainMultiplier, 0.25f), new E(EffectType.BossMileGainMultiplier, 0.75f, Once),
+            new E(EffectType.ExpGain, 0.15f), new E(EffectType.ExpGain, 0.45f, Once),
+            new E(EffectType.EnemySpawnRate, MapCardRules.GambleDensity, Once));
+        yield return X("one_more_chance", 5, new E(EffectType.OneMoreChanceLevel, 1f));
+    }
+
+    // マップ専用カードの効果(CardDatabaseBuilder.Build が新しいアセットを作る時に入れる。ApplyMap と同じ値)
+    public static List<CardEffect> MapEffectsFor(string id)
+    {
+        foreach (var c in MapTable())
+        {
+            if (c.id != id) continue;
+            var l = new List<CardEffect>();
+            foreach (var e in c.fx) l.Add(new CardEffect { type = e.t, value = e.v, scaling = e.s });
+            return l;
+        }
+        return null;
+    }
+
+    // 2026-11-06 マップ専用カード(20 枚): アセットを作り(CardDatabaseBuilder.Build)、この表の値を入れる。batchmode: -executeMethod CardBalanceV3.ApplyMap
+    [MenuItem("Tools/OneMoreMile/Apply map cards (2026-11-06, 20 cards)")]
+    public static void ApplyMap() => ApplyFiltered(new HashSet<string>(LocCardMap.Ids));
 
     // 2026-11-06 共通カードの追加(18 枚): アセットを作り(CardDatabaseBuilder.Build)、この表の値を入れる。batchmode: -executeMethod CardBalanceV3.ApplyCommon
     [MenuItem("Tools/OneMoreMile/Apply common cards (2026-11-06, 18 cards)")]

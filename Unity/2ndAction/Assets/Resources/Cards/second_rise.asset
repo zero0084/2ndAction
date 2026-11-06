@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: second_rise
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: second_rise
+  cardName: SECOND RISE
+  icon: {fileID: 2800000, guid: 0269a852ed0030b4cba2fbfa8e93085b, type: 3}
+  description: "1\u30E9\u30F3\u306B1\u56DE\u3001HP\u304C25%\u4EE5\u4E0B\u306B\u306A\u308B\u3068\u6700\u5927HP\u306E30%(Lv9\u306760%)\u3092\u56DE\u5FA9\u3057\u30018\u79D2\u9593
+    \u653B\u6483\u3068\u79FB\u52D5\u901F\u5EA6+20%(Lv9\u3067+40%)"
+  category: 4
+  sortOrder: 224
+  recommendPriority: 5
+  effects:
+  - type: 161
+    value: 1
+    scaling: 0
+  rarity: 4
+  unlockDistance: 20000
+  gachaStage: 3
+  element: 0

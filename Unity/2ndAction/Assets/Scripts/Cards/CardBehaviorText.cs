@@ -16,6 +16,9 @@ public static class CardBehaviorText
     static string Exp(string id, params string[] args) => Loc.Src(LocCardExpansion.Find(id).behavior, args);
     // 2026-11-06 共通カードの追加(LocCardCommon の文。訳のレビューが済むまで、その言語では英語の文)
     static string Com(string id, params string[] args) => Loc.Src(LocCardCommon.Find(id).behavior, args);
+    // 2026-11-06 マップ専用カード 20 枚(LocCardMap の文。訳のレビューが済むまで、その言語では英語の文)
+    static string Map(string id, params string[] args) => Loc.Src(LocCardMap.Find(id).behavior, args);
+    static string Pf(float v) => (v * 100f).ToString("0.#"); // 0.2% のような小さい割合も出す
 
     // 2026-10-29: 日本語の元の文(数値は差し込み済み)を返す。訳は表示の時に Loc.Auto が型(各キー)で行う
     //  (合成カードの説明は作り置きなので、作った時の言語で固まらないように。並べ替えも表示の時に1回だけ)
@@ -86,6 +89,27 @@ public static class CardBehaviorText
             case EffectType.IronMarathonLevel: return Com("iron_marathon", M(CardRewards.IronMarathonMile(lv)), M(CardRewards.IronMarathonExp(lv)));
             case EffectType.TrophyHuntLevel: return Com("trophy_hunt", M(CardRewards.TrophyMilePerKill(lv)), M(CardRewards.TrophyExpPerKill(lv)));
             case EffectType.HorizonLevel: return Com("horizon", Pct(CardRewards.HorizonPerStep(lv)), Pct(CardRewards.HorizonPerStep(lv) * CardRewards.HorizonMaxSteps));
+            // 2026-11-06 マップ専用カード 20 枚(数値は MapCardRules と同じ)
+            case EffectType.LastBastionLevel: return Map("last_bastion", MapCardRules.LastBastionShields(lv).ToString(), M(MapCardRules.LastBastionShieldSeconds), M(MapCardRules.LastBastionCooldown(lv)));
+            case EffectType.OverflowWardLevel: return Map("overflow_ward", Pct(MapCardRules.OverflowPct(lv)), MapCardRules.OverflowMax(lv).ToString(), M(MapCardRules.OverflowShieldSeconds));
+            case EffectType.RevengeArmorLevel: return Map("revenge_armor", M(MapCardRules.RevengeSeconds(lv)), Pct(MapCardRules.RevengeAttack(lv)));
+            case EffectType.BreakFeastLevel: return Map("break_feast", MapCardRules.BreakFeastHearts(lv).ToString(), M(MapCardRules.BreakFeastCooldown));
+            case EffectType.IronHeartLevel: return Map("iron_heart", Pf(MapCardRules.IronHeartPerHeart(lv)), Pct(MapCardRules.IronHeartCap(lv)));
+            case EffectType.AirComboLevel: return Map("air_combo", MapCardRules.AirComboHits(lv).ToString(), M(MapCardRules.AirComboSeconds), Pct(MapCardRules.AirComboAttack(lv)));
+            case EffectType.SkyBreakerLevel: return Map("sky_breaker", Pct(MapCardRules.SkyBreaker(lv)));
+            case EffectType.DiveBoostLevel: return Map("dive_boost", M(MapCardRules.DiveBoostSeconds), Pct(MapCardRules.DiveSpeed(lv)), Pct(MapCardRules.DiveAttack(lv)));
+            case EffectType.LaunchMasterLevel: return Map("launch_master", Pct(MapCardRules.LaunchAttack(lv)), Pct(MapCardRules.LaunchSlow(lv)));
+            case EffectType.SonicEdgeLevel: return Map("sonic_edge", Pct(MapCardRules.SonicAttack(lv)), Pct(MapCardRules.SonicBreak(lv)));
+            case EffectType.SecondRiseLevel: return Map("second_rise", Pct(MapCardRules.SecondRiseHeal(lv)), M(MapCardRules.SecondRiseSeconds), Pct(MapCardRules.SecondRiseBuff(lv)));
+            case EffectType.ShieldBurstLevel: return Map("shield_burst", Pct(MapCardRules.ShieldBurstPower(lv)), Pct(MapCardRules.ShieldBurstBreak(lv)), M(MapCardRules.ShieldBurstInterval(lv)));
+            case EffectType.BloodArmorLevel: return Map("blood_armor", Pct(MapCardRules.BloodArmorPct(lv)), MapCardRules.BloodArmorMax(lv).ToString(), Pct(MapCardRules.BloodArmorBleed(lv)));
+            case EffectType.ElementalChaosLevel: return Map("elemental_chaos", Pct(MapCardRules.ChaosBonus(lv, 2)), Pct(MapCardRules.ChaosBonus(lv, 3)), Pct(MapCardRules.ChaosBonus(lv, 4)), Pct(MapCardRules.ChaosBonus(lv, 5)));
+            case EffectType.ElementalFocusLevel: return Map("elemental_focus", Pct(MapCardRules.FocusPower(lv, 1)), Pct(MapCardRules.FocusChance(lv, 1)));
+            case EffectType.BreakDominionLevel: return Map("break_dominion", Pct(MapCardRules.DominionAttack(lv)), Pct(MapCardRules.DominionElement(lv)), Pct(MapCardRules.DominionReward(lv)));
+            case EffectType.EndlessGrowthLevel: return Map("endless_growth", Pf(MapCardRules.GrowthPerKill(lv)), Pct(MapCardRules.GrowthCap(lv)));
+            case EffectType.FinalDriveLevel: return Map("final_drive", Pct(MapCardRules.FinalSpeed(lv)), Pct(MapCardRules.FinalAttack(lv)), Pct(MapCardRules.FinalBreak(lv)));
+            case EffectType.LastGambleLevel: return Map("last_gamble", Pct(MapCardRules.GambleExtraHeartChance), Pct(MapCardRules.GambleHeavyChance), Pct(1f - MapCardRules.GambleGapMul));
+            case EffectType.OneMoreChanceLevel: return Map("one_more_chance", M(MapCardRules.OneMoreSeconds), Pct(MapCardRules.OneMoreAttack(lv)), Pct(MapCardRules.OneMoreSpeed(lv)), Pct(MapCardRules.OneMoreBreak(lv)));
             case EffectType.ShieldGuard: return Loc.Src("このカードだけでも Shield を1つ持てる");
             case EffectType.UltimateLevel:
             {

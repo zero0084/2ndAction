@@ -1,0 +1,40 @@
+10577	Khi HP giảm xuống 30% hoặc thấp hơn, nhận các khiên tạm thời biến mất sau 8s (1 ở Lv1, 2 ở Lv5, 3 ở Lv9). Hồi lại sau 90s (60s ở Lv9). Tính riêng với khiên thường, tổng tối đa 3 khiên tạm thời
+10578	Chuyển 30% (70% ở Lv9) lượng hồi phục vượt quá HP tối đa thành khiên tạm thời (1 khiên cho mỗi lượng hồi bằng 1 tim; biến mất sau 20s). Tối đa 1 (2 ở Lv5, 3 ở Lv9); chuyển đổi mỗi 3s một lần
+10579	Trong 3s (5s ở Lv9) sau khi chịu đòn gây sát thương từ 2 tim trở lên, sát thương nhận vào giảm 1 tim (tối thiểu 1) và tấn công +20% (+40% ở Lv9). Hồi lại sau 8s. Va chạm gây 1 tim sát thương không kích hoạt hiệu ứng
+10580	Hồi HP khi khiến trùm vào trạng thái BREAK (1 tim ở Lv1, 2 ở Lv5, 3 ở Lv9). Mỗi 20s một lần
+10581	Với mỗi tim HP tối đa vượt quá 5, lượng hồi phục và tốc độ hồi khiên +2% (+4% ở Lv9). Tối đa +30% (+50% ở Lv9)
+10582	Đánh trúng 5 lần (4 ở Lv5, 3 ở Lv9) mà không chạm đất để tăng tấn công +10% (+26% ở Lv9) trong 3s. Tiếp đất sẽ đặt lại bộ đếm
+10583	Đòn tấn công trên không tích lũy BREAK của trùm nhanh hơn (+15%, +55% ở Lv9)
+10584	Trong 2.5s sau khi tiếp đất từ cú lao xuống: tốc độ di chuyển +10% (+26% ở Lv9), tấn công +15% (+39% ở Lv9). Kích hoạt mỗi lần tiếp đất từ cú lao xuống
+10585	Đòn tấn công trên không vào kẻ địch bị hất tung +12% (+44% ở Lv9). Kẻ địch bị hất tung rơi chậm hơn 10% (30% ở Lv9). Thời gian nhận lệnh và thời điểm đòn đánh trúng không thay đổi
+10586	Khi chạy ở tốc độ 130km/h trở lên: tấn công +15% (+47% ở Lv9), tích lũy BREAK của trùm +10% (+42% ở Lv9). Sát thương do tai nạn ở tốc độ cao không thay đổi
+10587	Một lần mỗi lượt chạy, khi HP giảm xuống 25% hoặc thấp hơn, hồi 30% (60% ở Lv9) HP tối đa và tăng tấn công cùng tốc độ di chuyển +20% (+40% ở Lv9) trong 8s
+10588	Khi một khiên (kể cả khiên tạm thời) vỡ, phát ra sóng xung kích gây sát thương bằng 300% (700% ở Lv9) sức tấn công trong bán kính 3m và cộng +5% (+15% ở Lv9) vào BREAK của trùm. Mỗi 6s một lần (3s ở Lv9)
+10589	Chuyển 50% (100% ở Lv9) lượng hồi phục do hút máu vượt quá HP tối đa (hút khi đánh trúng, hồi khi hạ địch, hút từ chảy máu) thành Khiên Máu giúp vô hiệu hóa sát thương theo đơn vị tim (tối đa 1 tim, 3 ở Lv9; mất 1 tim mỗi 10s). Khi có Khiên Máu, tỷ lệ gây chảy máu +10% (+30% ở Lv9)
+10590	Càng có nhiều loại nguyên tố (Lửa/Băng/Sét/Gió/Máu) trong các thẻ nguyên tố của bộ bài, tỷ lệ kích hoạt và sức mạnh của mọi nguyên tố càng tăng: 2 loại +6%, 3 +12%, 4 +20%, 5 +30% (+10/20/32/50% ở Lv9). Nếu có ELEMENTAL FOCUS, chỉ áp dụng mức thưởng cao hơn
+10591	Nếu tất cả thẻ nguyên tố trong bộ bài chỉ thuộc 1 loại, sức mạnh nguyên tố đó +30% (+70% ở Lv9) và tỷ lệ kích hoạt +10% (+30% ở Lv9). Với 2 loại, hiệu ứng giảm một nửa; từ 3 loại trở lên không có hiệu ứng. Nếu có ELEMENTAL CHAOS, chỉ áp dụng mức thưởng cao hơn
+10592	Tấn công vào kẻ địch đang trong BREAK +15% (+47% ở Lv9), sức mạnh nguyên tố +10% (+42% ở Lv9). Trùm bị hạ trong BREAK cho MILE và EXP +10% (+42% ở Lv9)
+10593	Mỗi kẻ địch bị hạ tăng tấn công +0.2% (+0.4% ở Lv9) trong phần còn lại của lượt chạy. Tối đa +15% (+40% ở Lv9). Đặt lại khi lượt chạy kết thúc
+10594	Từ 80km trở đi: tốc độ di chuyển +10% (+20% ở Lv9), tấn công +30% (+70% ở Lv9), tích lũy BREAK của trùm +20% (+60% ở Lv9). Tai nạn, sự kiện quyết định và sát thương của kẻ địch không thay đổi
+10595	[RỦI RO] Đòn tấn công của địch có 30% khả năng gây thêm 1 tim sát thương, kẻ địch gây sát thương cao +10%, khoảng cách giữa các sự kiện quyết định -30%, số lần xuất hiện của địch +15% (không đổi theo Lv; HP địch không tăng). [PHẦN THƯỞNG] MILE từ địch/BONUS/trùm +100% (+300% ở Lv9), EXP nhận được +60% (+180% ở Lv9)
+10596	Một lần mỗi lượt chạy, đòn đánh chí mạng lẽ ra khiến bạn gục ngã sẽ để lại 1 tim (bất tử trong 1.5s). Sau đó trong 10s: tấn công +40% (+100% ở Lv9), tốc độ di chuyển +15% (+30% ở Lv9), tích lũy BREAK của trùm +30% (+80% ở Lv9). Kích hoạt trước PHOENIX
+10597	HP ≤30%: {0} khiên tạm thời ({1}s) / hồi lại {2}s
+10598	{0}% hồi phục dư thành khiên tạm thời (tối đa {1}, tồn tại {2}s)
+10599	Trong {0}s sau đòn gây 2+ tim: sát thương nhận -1 tim, tấn công +{1}%
+10600	BREAK hồi {0} tim (mỗi {1}s một lần)
+10601	Mỗi tim HP tối đa vượt 5: hồi phục/hồi khiên +{0}% (tối đa +{1}%)
+10602	{0} đòn trúng không tiếp đất: tấn công +{2}% trong {1}s
+10603	Tích lũy BREAK từ đòn trên không +{0}%
+10604	Sau khi tiếp đất từ cú lao xuống {0}s: tốc độ +{1}%, tấn công +{2}%
+10605	Đòn trên không vào địch bị hất tung +{0}% / rơi chậm hơn {1}%
+10606	Từ 130km/h: tấn công +{0}%, tích lũy BREAK +{1}%
+10607	Một lần/lượt chạy khi HP ≤25%: hồi {0}% HP tối đa, tấn công/tốc độ +{2}% trong {1}s
+10608	Khiên vỡ: {0}% sức tấn công trong 3m, BREAK trùm +{1}% (mỗi {2}s)
+10609	{0}% hồi phục dư từ hút máu thành Khiên Máu (tối đa {1} tim) / tỷ lệ chảy máu +{2}%
+10610	Bộ bài có 2/3/4/5 nguyên tố: tỷ lệ/sức mạnh +{0}/{1}/{2}/{3}%
+10611	Bộ bài có 1 nguyên tố: sức mạnh +{0}%, tỷ lệ +{1}% (một nửa với 2)
+10612	Đánh địch trong BREAK: tấn công +{0}%, sức mạnh nguyên tố +{1}%, MILE/EXP +{2}%
+10613	Tấn công +{0}% mỗi địch bị hạ (tối đa +{1}%)
+10614	Từ 80km: tốc độ +{0}%, tấn công +{1}%, tích lũy BREAK +{2}%
+10615	Đòn địch: +1 tim với tỷ lệ {0}% / địch sát thương cao +{1}% / khoảng cách sự kiện -{2}%
+10616	Một lần/lượt chạy: sống sót với 1 tim, sau đó {0}s tấn công +{1}%, tốc độ +{2}%, BREAK +{3}%

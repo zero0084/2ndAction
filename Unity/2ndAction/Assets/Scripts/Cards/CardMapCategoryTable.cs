@@ -145,6 +145,27 @@ public static class CardMapCategoryTable
         ("iron_marathon", C, "複合の報酬"),
         ("trophy_hunt", C, "複合の報酬"),
         ("horizon", C, "複合の報酬"),
+        // ---- 2026-11-06 マップ専用カード 20 枚(Docs/Cards_2026-11-06/map_cards_v2.md。文とレア度は LocCardMap)
+        ("last_bastion", V, "被弾を別の形で使う耐久(HP30%以下で一時シールド)"),
+        ("overflow_ward", V, "回復の超過を一時シールドへ(耐久)"),
+        ("revenge_armor", V, "大きな被弾の後の軽減と反撃(耐久)"),
+        ("break_feast", V, "BREAK で回復(耐久)"),
+        ("iron_heart", V, "最大HPで回復と Shield を伸ばす(HP)"),
+        ("air_combo", S, "空中で当て続ける(空中)"),
+        ("sky_breaker", S, "空中の攻撃で BREAK(空中・BREAK)"),
+        ("dive_boost", S, "急降下の着地から加速(空中・速度)"),
+        ("launch_master", S, "打ち上げた敵への空中の攻撃(Launch)"),
+        ("sonic_edge", S, "130km/h 以上の攻撃と BREAK(速度)"),
+        ("second_rise", L, "1ランに1回の立て直し(ルール変更級)"),
+        ("shield_burst", L, "Shield が壊れると衝撃(デッキの組み方が変わる)"),
+        ("blood_armor", L, "吸収の超過を血の盾へ(デッキの組み方が変わる)"),
+        ("elemental_chaos", L, "属性を広げるほど強い(デッキの組み方が変わる)"),
+        ("elemental_focus", L, "属性を絞るほど強い(デッキの組み方が変わる)"),
+        ("break_dominion", L, "BREAK 中の敵を支配(デッキの組み方が変わる)"),
+        ("endless_growth", L, "撃破のたびに伸びる(そのランだけ)"),
+        ("final_drive", L, "★5 終盤の戦闘(80km 以降)"),
+        ("last_gamble", L, "★5 危険と報酬"),
+        ("one_more_chance", L, "★5 致死の回避と最後の強化"),
     };
 
     public static void Fill()

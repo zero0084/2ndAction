@@ -1,0 +1,40 @@
+10577	Apabila HP turun kepada 30% atau kurang, dapat perisai sementara yang hilang selepas 8s (1 pada Lv1, 2 pada Lv5, 3 pada Lv9). Boleh diaktifkan semula selepas 90s (60s pada Lv9). Dikira berasingan daripada perisai biasa, maksimum 3 perisai sementara
+10578	Menukar 30% (70% pada Lv9) pemulihan yang melebihi HP maksimum kepada perisai sementara (1 bagi setiap pemulihan senilai 1 hati; hilang selepas 20s). Maksimum 1 (2 pada Lv5, 3 pada Lv9); penukaran sekali setiap 3s
+10579	Selama 3s (5s pada Lv9) selepas menerima serangan yang menyebabkan kerosakan 2 hati atau lebih, kerosakan diterima berkurang 1 hati (minimum 1) dan serangan +20% (+40% pada Lv9). Aktif semula selepas 8s. Kerosakan sentuhan 1 hati tidak mencetuskan kesan ini
+10580	Memulihkan HP apabila menyebabkan bos memasuki BREAK (1 hati pada Lv1, 2 pada Lv5, 3 pada Lv9). Sekali setiap 20s
+10581	Bagi setiap hati HP maksimum yang melebihi 5, jumlah pemulihan dan kelajuan pemulihan perisai +2% (+4% pada Lv9). Maksimum +30% (+50% pada Lv9)
+10582	Lakukan 5 pukulan tepat (4 pada Lv5, 3 pada Lv9) tanpa menyentuh tanah untuk mendapat serangan +10% (+26% pada Lv9) selama 3s. Mendarat menetapkan semula kiraan
+10583	Serangan ketika berada di udara mempercepat pengumpulan BREAK bos (+15%, +55% pada Lv9)
+10584	Selama 2.5s selepas mendarat daripada serangan menjunam: kelajuan pergerakan +10% (+26% pada Lv9), serangan +15% (+39% pada Lv9). Aktif setiap kali mendarat daripada serangan menjunam
+10585	Serangan udara terhadap musuh yang dilambung ke atas +12% (+44% pada Lv9). Musuh yang dilambung jatuh 10% (30% pada Lv9) lebih perlahan. Tempoh penerimaan input dan masa pukulan mengenai sasaran tidak berubah
+10586	Ketika berlari pada kelajuan 130km/h atau lebih: serangan +15% (+47% pada Lv9), pengumpulan BREAK bos +10% (+42% pada Lv9). Kerosakan akibat kemalangan pada kelajuan tinggi tidak berubah
+10587	Sekali setiap larian, apabila HP turun kepada 25% atau kurang, pulihkan 30% (60% pada Lv9) HP maksimum dan tingkatkan serangan serta kelajuan pergerakan +20% (+40% pada Lv9) selama 8s
+10588	Apabila perisai (termasuk perisai sementara) pecah, lepaskan gelombang kejutan dengan kekuatan 300% (700% pada Lv9) daripada serangan anda dalam radius 3m dan tambah +5% (+15% pada Lv9) kepada BREAK bos. Sekali setiap 6s (3s pada Lv9)
+10589	Menukar 50% (100% pada Lv9) pemulihan melalui penyerapan yang melebihi HP maksimum (penyerapan ketika terkena sasaran, pemulihan apabila menewaskan musuh, penyerapan daripada pendarahan) kepada Perisai Darah yang membatalkan kerosakan mengikut unit hati (maksimum 1 hati, 3 pada Lv9; berkurang 1 setiap 10s). Semasa Perisai Darah aktif, peluang menyebabkan pendarahan +10% (+30% pada Lv9)
+10590	Semakin banyak jenis unsur (Api/Ais/Kilat/Angin/Darah) dalam kad unsur dek, semakin tinggi peluang pengaktifan dan kuasa semua unsur: 2 jenis +6%, 3 +12%, 4 +20%, 5 +30% (+10/20/32/50% pada Lv9). Jika turut memiliki ELEMENTAL FOCUS, hanya bonus yang lebih tinggi digunakan
+10591	Jika semua kad unsur dalam dek hanya daripada 1 jenis, kuasa unsur tersebut +30% (+70% pada Lv9) dan peluang pengaktifan +10% (+30% pada Lv9). Dengan 2 jenis, kesan menjadi separuh; dengan 3 jenis atau lebih, tiada kesan. Jika turut memiliki ELEMENTAL CHAOS, hanya bonus yang lebih tinggi digunakan
+10592	Serangan terhadap musuh dalam BREAK +15% (+47% pada Lv9), kuasa unsur +10% (+42% pada Lv9). Bos yang ditewaskan semasa BREAK memberikan MILE dan EXP +10% (+42% pada Lv9)
+10593	Setiap musuh yang ditewaskan meningkatkan serangan +0.2% (+0.4% pada Lv9) sepanjang baki larian tersebut. Maksimum +15% (+40% pada Lv9). Ditetapkan semula apabila larian tamat
+10594	Mulai 80km: kelajuan pergerakan +10% (+20% pada Lv9), serangan +30% (+70% pada Lv9), pengumpulan BREAK bos +20% (+60% pada Lv9). Kemalangan, peristiwa keputusan dan kerosakan daripada musuh tidak berubah
+10595	[RISIKO] Serangan musuh mempunyai peluang 30% menyebabkan kerosakan tambahan 1 hati, musuh berkuasa serangan tinggi +10%, selang peristiwa keputusan -30%, kemunculan musuh +15% (tidak berubah mengikut Lv; HP musuh tidak meningkat). [GANJARAN] MILE daripada musuh/BONUS/bos +100% (+300% pada Lv9), EXP diperoleh +60% (+180% pada Lv9)
+10596	Sekali setiap larian, serangan maut membolehkan anda terus hidup dengan 1 hati (kebal selama 1.5s). Kemudian selama 10s: serangan +40% (+100% pada Lv9), kelajuan pergerakan +15% (+30% pada Lv9), pengumpulan BREAK bos +30% (+80% pada Lv9). Diaktifkan sebelum PHOENIX
+10597	HP ≤30%: {0} perisai sementara ({1}s) / aktif semula {2}s
+10598	{0}% pemulihan berlebihan jadi perisai sementara (maks. {1}, tempoh {2}s)
+10599	Selama {0}s selepas serangan 2+ hati: kerosakan -1 hati, serangan +{1}%
+10600	BREAK memulihkan {0} hati (sekali setiap {1}s)
+10601	Setiap hati HP maksimum melebihi 5: pemulihan/cas perisai +{0}% (maks. +{1}%)
+10602	{0} pukulan tanpa mendarat: serangan +{2}% selama {1}s
+10603	Pengumpulan BREAK daripada serangan udara +{0}%
+10604	Selepas mendarat daripada junaman selama {0}s: kelajuan +{1}%, serangan +{2}%
+10605	Serangan udara terhadap musuh dilambung +{0}% / jatuh {1}% lebih perlahan
+10606	Pada 130km/h atau lebih: serangan +{0}%, pengumpulan BREAK +{1}%
+10607	Sekali/larian pada HP ≤25%: pulihkan {0}% HP maksimum, serangan/kelajuan +{2}% selama {1}s
+10608	Perisai pecah: {0}% serangan dalam 3m, BREAK bos +{1}% (setiap {2}s)
+10609	{0}% pemulihan penyerapan berlebihan jadi Perisai Darah (maks. {1} hati) / peluang pendarahan +{2}%
+10610	Dek dengan 2/3/4/5 unsur: peluang/kuasa +{0}/{1}/{2}/{3}%
+10611	Dek dengan 1 unsur: kuasa +{0}%, peluang +{1}% (separuh dengan 2)
+10612	Terhadap musuh dalam BREAK: serangan +{0}%, kuasa unsur +{1}%, MILE/EXP +{2}%
+10613	Serangan +{0}% setiap musuh ditewaskan (maks. +{1}%)
+10614	Mulai 80km: kelajuan +{0}%, serangan +{1}%, pengumpulan BREAK +{2}%
+10615	Serangan musuh: +1 hati dengan peluang {0}% / musuh berkuasa tinggi +{1}% / selang peristiwa -{2}%
+10616	Sekali/larian: hidup dengan 1 hati, kemudian {0}s serangan +{1}%, kelajuan +{2}%, BREAK +{3}%

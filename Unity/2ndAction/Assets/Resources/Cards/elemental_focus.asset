@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: elemental_focus
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: elemental_focus
+  cardName: ELEMENTAL FOCUS
+  icon: {fileID: 2800000, guid: 2f1106d064f315847ac3db79e3f2e441, type: 3}
+  description: "\u30C7\u30C3\u30AD\u306E\u5C5E\u6027\u30AB\u30FC\u30C9\u304C1\u7A2E\u985E\u3060\u3051\u306A\u3089\u3001\u305D\u306E\u5C5E\u6027\u306E\u5A01\u529B+30%(Lv9\u3067+70%)\u30FB\u78BA\u7387+10%(Lv9\u3067+30%)\u30022\u7A2E\u985E\u306A\u3089\u534A\u5206\u30013\u7A2E\u985E\u4EE5\u4E0A\u306F\u52B9\u679C\u306A\u3057\u3002ELEMENTAL
+    CHAOS\u3068\u4E21\u65B9\u6301\u3064\u3068\u9AD8\u3044\u65B9\u3060\u3051"
+  category: 5
+  sortOrder: 228
+  recommendPriority: 5
+  effects:
+  - type: 165
+    value: 1
+    scaling: 0
+  rarity: 4
+  unlockDistance: 20000
+  gachaStage: 3
+  element: 0

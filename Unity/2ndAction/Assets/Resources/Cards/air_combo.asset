@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: air_combo
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: air_combo
+  cardName: AIR COMBO
+  icon: {fileID: 2800000, guid: 7e023d1881b0493438dad74f113ab714, type: 3}
+  description: "\u7740\u5730\u305B\u305A\u306B\u653B\u6483\u30925\u56DE(Lv5\u30674\u56DE\u3001Lv9\u30673\u56DE)\u5F53\u3066\u308B\u3068\u30013\u79D2\u9593
+    \u653B\u6483+10%(Lv9\u3067+26%)\u3002\u7740\u5730\u3059\u308B\u3068\u6570\u3048\u76F4\u3057"
+  category: 1
+  sortOrder: 219
+  recommendPriority: 5
+  effects:
+  - type: 156
+    value: 1
+    scaling: 0
+  rarity: 2
+  unlockDistance: 0
+  gachaStage: 1
+  element: 0

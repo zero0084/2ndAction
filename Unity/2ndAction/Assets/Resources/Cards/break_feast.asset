@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: break_feast
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: break_feast
+  cardName: BREAK FEAST
+  icon: {fileID: 2800000, guid: eaee77c5e60f97f4da8de258e3a7e154, type: 3}
+  description: "\u30DC\u30B9\u3092BREAK\u3055\u305B\u308B\u3068HP\u304C\u56DE\u5FA9\u3059\u308B(Lv1\u3067\u30CF\u30FC\u30C81\u3064\u3001Lv5\u30672\u3064\u3001Lv9\u30673\u3064)\u300220\u79D2\u306B1\u56DE"
+  category: 4
+  sortOrder: 217
+  recommendPriority: 5
+  effects:
+  - type: 154
+    value: 1
+    scaling: 0
+  rarity: 3
+  unlockDistance: 5000
+  gachaStage: 2
+  element: 0

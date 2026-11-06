@@ -1,0 +1,40 @@
+10577	Cuando los HP bajan al 30% o menos, obtienes escudos temporales que desaparecen tras 8s (1 en Lv1, 2 en Lv5, 3 en Lv9). Recarga en 90s (60s en Lv9). Se cuentan aparte de los escudos normales, hasta un máximo total de 3
+10578	Convierte el 30% (70% en Lv9) de la curación que supera los HP máximos en escudos temporales (1 por cada corazón de curación; desaparecen tras 20s). Máximo 1 (2 en Lv5, 3 en Lv9); una conversión cada 3s
+10579	Durante 3s (5s en Lv9) tras recibir un golpe de 2 corazones o más, daño recibido -1 corazón (mínimo 1) y ataque +20% (+40% en Lv9). Recarga en 8s. Los golpes por contacto de 1 corazón no lo activan
+10580	Recupera HP al provocar BREAK en un jefe (1 corazón en Lv1, 2 en Lv5, 3 en Lv9). Una vez cada 20s
+10581	Por cada corazón de HP máximo por encima de 5, curación y velocidad de recarga de escudos +2% (+4% en Lv9). Máximo +30% (+50% en Lv9)
+10582	Conecta 5 golpes (4 en Lv5, 3 en Lv9) sin tocar el suelo para obtener ataque +10% (+26% en Lv9) durante 3s. Aterrizar reinicia el contador
+10583	Los ataques aéreos aumentan más rápido el BREAK de los jefes (+15%, +55% en Lv9)
+10584	Durante 2.5s tras aterrizar de un ataque en picado: velocidad de movimiento +10% (+26% en Lv9), ataque +15% (+39% en Lv9). Se activa en cada aterrizaje
+10585	Ataques aéreos contra enemigos lanzados +12% (+44% en Lv9). Los enemigos lanzados caen un 10% (30% en Lv9) más lento. Las ventanas de entrada y el momento de impacto no cambian
+10586	Al correr a 130km/h o más: ataque +15% (+47% en Lv9), acumulación de BREAK de jefes +10% (+42% en Lv9). El daño por accidentes a alta velocidad no cambia
+10587	Una vez por carrera, cuando los HP bajan al 25% o menos, recupera el 30% (60% en Lv9) de los HP máximos y aumenta ataque y velocidad de movimiento +20% (+40% en Lv9) durante 8s
+10588	Cuando se rompe un escudo (incluidos los temporales), libera una onda de choque del 300% (700% en Lv9) de tu ataque en un radio de 3m y añade +5% (+15% en Lv9) al BREAK de un jefe. Una vez cada 6s (3s en Lv9)
+10589	Convierte el 50% (100% en Lv9) de la curación por absorción que supera los HP máximos (absorción al golpear, curación por derrotas y absorción por sangrado) en un Escudo de sangre que anula daño en corazones (máx. 1 corazón, 3 en Lv9; pierde 1 cada 10s). Mientras esté activo, probabilidad de sangrado +10% (+30% en Lv9)
+10590	Cuantos más tipos elementales (Fuego/Hielo/Rayo/Viento/Sangre) haya entre las cartas elementales del mazo, mayores serán la probabilidad y potencia de todos los elementos: 2 tipos +6%, 3 +12%, 4 +20%, 5 +30% (+10/20/32/50% en Lv9). Con ELEMENTAL FOCUS, solo se aplica el bonus mayor
+10591	Si todas las cartas elementales del mazo son de un solo tipo, potencia de ese elemento +30% (+70% en Lv9) y probabilidad +10% (+30% en Lv9). Con 2 tipos, la mitad; con 3 o más, sin efecto. Con ELEMENTAL CHAOS, solo se aplica el bonus mayor
+10592	Ataque contra enemigos en BREAK +15% (+47% en Lv9), potencia elemental +10% (+42% en Lv9). Los jefes derrotados durante BREAK otorgan MILE y EXP +10% (+42% en Lv9)
+10593	Cada enemigo derrotado aumenta el ataque +0.2% (+0.4% en Lv9) durante el resto de la carrera. Máximo +15% (+40% en Lv9). Se reinicia al terminar la carrera
+10594	Desde 80km: velocidad de movimiento +10% (+20% en Lv9), ataque +30% (+70% en Lv9), acumulación de BREAK de jefes +20% (+60% en Lv9). Accidentes, eventos de decisión y daño enemigo no cambian
+10595	[RIESGO] Los ataques enemigos tienen un 30% de probabilidad de causar 1 corazón adicional, enemigos de gran daño +10%, intervalos entre eventos de decisión -30%, aparición de enemigos +15% (no cambia con Lv; los HP enemigos no aumentan). [RECOMPENSA] MILE por enemigos/BONUS/jefes +100% (+300% en Lv9), EXP obtenida +60% (+180% en Lv9)
+10596	Una vez por carrera, un golpe mortal te deja con 1 corazón (invulnerable durante 1.5s). Después, durante 10s: ataque +40% (+100% en Lv9), velocidad de movimiento +15% (+30% en Lv9), acumulación de BREAK de jefes +30% (+80% en Lv9). Se usa antes de PHOENIX
+10597	HP al 30% o menos: {0} escudos temporales ({1}s) / recarga {2}s
+10598	{0}% de curación excedente a escudos temporales (máx. {1}, duran {2}s)
+10599	Durante {0}s tras golpe de 2+ corazones: daño -1 corazón, ataque +{1}%
+10600	BREAK recupera {0} corazones (cada {1}s)
+10601	Por corazón de HP máximo sobre 5: curación/recarga de escudos +{0}% (máx. +{1}%)
+10602	{0} golpes sin aterrizar: ataque +{2}% durante {1}s
+10603	Acumulación de BREAK con ataques aéreos +{0}%
+10604	Tras aterrizar en picado, durante {0}s: velocidad +{1}%, ataque +{2}%
+10605	Ataques aéreos vs. enemigos lanzados +{0}% / caída {1}% más lenta
+10606	A 130km/h o más: ataque +{0}%, acumulación de BREAK +{1}%
+10607	Una vez/carrera, HP ≤25%: recupera {0}% de HP máximo, ataque/velocidad +{2}% durante {1}s
+10608	Escudo roto: {0}% del ataque en 3m, BREAK de jefe +{1}% (cada {2}s)
+10609	{0}% de absorción excedente a Escudo de sangre (máx. {1} corazones) / sangrado +{2}%
+10610	Mazo con 2/3/4/5 elementos: probabilidad/potencia +{0}/{1}/{2}/{3}%
+10611	Mazo con 1 elemento: potencia +{0}%, probabilidad +{1}% (mitad con 2)
+10612	Contra enemigos en BREAK: ataque +{0}%, potencia elemental +{1}%, MILE/EXP +{2}%
+10613	Ataque +{0}% por enemigo derrotado (máx. +{1}%)
+10614	Desde 80km: velocidad +{0}%, ataque +{1}%, BREAK +{2}%
+10615	Ataques enemigos: +1 corazón con {0}% de prob. / enemigos de gran daño +{1}% / intervalos -{2}%
+10616	Una vez/carrera: sobrevive con 1 corazón, luego {0}s ataque +{1}%, velocidad +{2}%, BREAK +{3}%

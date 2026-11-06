@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: blood_armor
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: blood_armor
+  cardName: BLOOD ARMOR
+  icon: {fileID: 2800000, guid: 372c3fc20c2d27140a76f9751676a3ac, type: 3}
+  description: "\u5438\u53CE(\u547D\u4E2D\u306E\u5438\u53CE\u30FB\u6483\u7834\u306E\u56DE\u5FA9\u30FB\u51FA\u8840\u306E\u5438\u53CE)\u3067\u6700\u5927HP\u3092\u8D85\u3048\u305F\u5206\u306E50%(Lv9\u3067100%)\u3092\u3001\u30CF\u30FC\u30C8\u5358\u4F4D\u3067\u88AB\u5F3E\u3092\u6D88\u3059\u300C\u8840\u306E\u76FE\u300D\u306B\u3059\u308B(\u6700\u5927\u30CF\u30FC\u30C81\u3064\u3001Lv9\u30673\u3064\u300210\u79D2\u30671\u3064\u305A\u3064\u6E1B\u308B)\u3002\u8840\u306E\u76FE\u304C\u3042\u308B\u9593
+    \u51FA\u8840\u306E\u78BA\u7387+10%(Lv9\u3067+30%)"
+  category: 2
+  sortOrder: 226
+  recommendPriority: 5
+  effects:
+  - type: 163
+    value: 1
+    scaling: 0
+  rarity: 4
+  unlockDistance: 20000
+  gachaStage: 3
+  element: 5

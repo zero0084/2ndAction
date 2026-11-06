@@ -67,6 +67,12 @@ public static class CardEffectFormat
             case EffectType.ComboTrainingLevel: case EffectType.HuntTrainingLevel: case EffectType.RoadTrainingLevel: case EffectType.SurvivalTrainingLevel:
             case EffectType.DangerBountyLevel: case EffectType.SkySiegeLevel: case EffectType.CrossroadsLevel: case EffectType.HighStakesLevel:
             case EffectType.ChainBountyLevel: case EffectType.IronMarathonLevel: case EffectType.TrophyHuntLevel: case EffectType.HorizonLevel:
+            // 2026-11-06 マップ専用カード 20 枚(MapCardRules)
+            case EffectType.LastBastionLevel: case EffectType.OverflowWardLevel: case EffectType.RevengeArmorLevel: case EffectType.BreakFeastLevel:
+            case EffectType.IronHeartLevel: case EffectType.AirComboLevel: case EffectType.SkyBreakerLevel: case EffectType.DiveBoostLevel:
+            case EffectType.LaunchMasterLevel: case EffectType.SonicEdgeLevel: case EffectType.SecondRiseLevel: case EffectType.ShieldBurstLevel:
+            case EffectType.BloodArmorLevel: case EffectType.ElementalChaosLevel: case EffectType.ElementalFocusLevel: case EffectType.BreakDominionLevel:
+            case EffectType.EndlessGrowthLevel: case EffectType.FinalDriveLevel: case EffectType.LastGambleLevel: case EffectType.OneMoreChanceLevel:
                 return true;
         }
         return false;

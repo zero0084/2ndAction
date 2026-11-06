@@ -445,7 +445,7 @@ public class BossJuggle : IAirComboTarget
         }
         if (!Anchored)
         {
-            VelY -= Gravity * dt;
+            VelY -= Gravity * dt * (VelY < 0f ? MapCardRules.LaunchFallMul : 1f); // 2026-11-06 LAUNCH MASTER: 落ちる時だけゆっくり
             vy = Mathf.Max(VelY, -26f);
             VelY = vy;
         }

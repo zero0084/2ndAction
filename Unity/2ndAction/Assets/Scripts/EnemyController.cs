@@ -347,7 +347,7 @@ public partial class EnemyController : MonoBehaviour
             juggleElapsed += Time.deltaTime;
             // エリアルコンボ改修(2026-10-18): この端末のプレイヤーのコンボ中は、斜め前の当たる所へ寄せる(EnemyController.AerialCombo)
             if (comboAnchored && ComboAnchorStep()) return;
-            launchVelocityY -= launchGravity * Time.deltaTime;
+            launchVelocityY -= launchGravity * Time.deltaTime * (launchVelocityY < 0f ? MapCardRules.LaunchFallMul : 1f); // 2026-11-06 LAUNCH MASTER: 落ちる時だけゆっくり(上がる高さ/判定の時刻は変えない)
 
             // アエリアルコンボ追加調整(2026-09-12第2弾) - Slam中(縦の叩き
             // 落とし)以外は、毎フレーム「主人公の現在速度(パリティ)+減衰

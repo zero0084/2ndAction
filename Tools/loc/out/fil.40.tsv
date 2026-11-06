@@ -1,0 +1,40 @@
+10577	Kapag bumaba ang HP sa 30% o mas mababa, makakakuha ng mga pansamantalang kalasag na nawawala pagkalipas ng 8s (1 sa Lv1, 2 sa Lv5, 3 sa Lv9). Muling magagamit pagkatapos ng 90s (60s sa Lv9). Hiwalay ang bilang sa mga karaniwang kalasag, hanggang 3 pansamantala sa kabuuan
+10578	Ginagawang pansamantalang kalasag ang 30% (70% sa Lv9) ng healing na lumampas sa maximum HP (1 bawat healing na katumbas ng 1 puso; nawawala pagkatapos ng 20s). Hanggang 1 (2 sa Lv5, 3 sa Lv9); isang conversion bawat 3s
+10579	Sa loob ng 3s (5s sa Lv9) matapos makatanggap ng hit na may damage na 2 puso o higit pa, bawas 1 puso ang damage na matatanggap (minimum 1) at attack +20% (+40% sa Lv9). Muling magagamit pagkatapos ng 8s. Hindi ito naa-activate ng contact hit na 1 puso
+10580	Nagbabalik ng HP kapag nagdulot ka ng BREAK sa boss (1 puso sa Lv1, 2 sa Lv5, 3 sa Lv9). Isang beses bawat 20s
+10581	Para sa bawat puso ng maximum HP na lampas sa 5, healing at bilis ng pag-recharge ng kalasag +2% (+4% sa Lv9). Hanggang +30% (+50% sa Lv9)
+10582	Makatama ng 5 hit (4 sa Lv5, 3 sa Lv9) nang hindi lumalapag para makakuha ng attack +10% (+26% sa Lv9) sa loob ng 3s. Mare-reset ang bilang kapag lumapag
+10583	Mas mabilis mapuno ang BREAK ng boss mula sa mga attack habang nasa ere (+15%, +55% sa Lv9)
+10584	Sa loob ng 2.5s pagkatapos lumapag mula sa dive: bilis ng paggalaw +10% (+26% sa Lv9), attack +15% (+39% sa Lv9). Naa-activate sa bawat paglapag mula sa dive
+10585	Air attacks laban sa mga kalabang naihagis pataas +12% (+44% sa Lv9). Mas mabagal silang bumagsak nang 10% (30% sa Lv9). Hindi nagbabago ang mga oras ng pagtanggap ng input at pagtama ng attack
+10586	Habang tumatakbo sa 130km/h o mas mabilis: attack +15% (+47% sa Lv9), pag-ipon ng BREAK ng boss +10% (+42% sa Lv9). Hindi nagbabago ang damage mula sa aksidente sa mataas na bilis
+10587	Isang beses bawat takbo, kapag bumaba ang HP sa 25% o mas mababa, ibalik ang 30% (60% sa Lv9) ng maximum HP at dagdagan ang attack at bilis ng paggalaw ng +20% (+40% sa Lv9) sa loob ng 8s
+10588	Kapag nabasag ang kalasag (kasama ang pansamantalang kalasag), magpakawala ng shockwave na may lakas na 300% (700% sa Lv9) ng attack sa loob ng 3m at magdagdag ng +5% (+15% sa Lv9) sa BREAK ng boss. Isang beses bawat 6s (3s sa Lv9)
+10589	Ginagawang Kalasag ng Dugo ang 50% (100% sa Lv9) ng sobrang healing mula sa pag-absorb (hit drain, healing sa pagtalo, bleed drain) na lumampas sa maximum HP. Kinakansela nito ang damage ayon sa bilang ng puso (hanggang 1 puso, 3 sa Lv9; nababawasan ng 1 bawat 10s). Habang may Kalasag ng Dugo, tsansang magdulot ng pagdurugo +10% (+30% sa Lv9)
+10590	Habang dumarami ang uri ng elemento (Apoy/Yelo/Kidlat/Hangin/Dugo) sa mga elemental card ng deck, tumataas ang tsansa at lakas ng lahat ng elemento: 2 uri +6%, 3 +12%, 4 +20%, 5 +30% (+10/20/32/50% sa Lv9). Kung may ELEMENTAL FOCUS, ang mas mataas na bonus lang ang gagana
+10591	Kung iisang uri lang ang lahat ng elemental card sa deck, lakas ng elementong iyon +30% (+70% sa Lv9) at tsansa +10% (+30% sa Lv9). Kalahati ang epekto kung 2 uri, walang epekto kung 3 o higit pa. Kung may ELEMENTAL CHAOS, ang mas mataas na bonus lang ang gagana
+10592	Attack laban sa mga kalabang nasa BREAK +15% (+47% sa Lv9), lakas ng elemento +10% (+42% sa Lv9). Ang mga boss na natalo habang nasa BREAK ay nagbibigay ng MILE at EXP +10% (+42% sa Lv9)
+10593	Bawat kalabang natalo ay nagdaragdag ng attack +0.2% (+0.4% sa Lv9) hanggang matapos ang takbong iyon. Hanggang +15% (+40% sa Lv9). Mare-reset kapag natapos ang takbo
+10594	Mula 80km pataas: bilis ng paggalaw +10% (+20% sa Lv9), attack +30% (+70% sa Lv9), pag-ipon ng BREAK ng boss +20% (+60% sa Lv9). Hindi nagbabago ang mga aksidente, event ng pagpapasya, at damage ng kalaban
+10595	[PELIGRO] May 30% tsansa ang attack ng kalaban na magdulot ng dagdag na 1 pusong damage, malalakas umatake na kalaban +10%, agwat ng mga event ng pagpapasya -30%, paglitaw ng kalaban +15% (hindi nagbabago ayon sa Lv; hindi tumataas ang HP ng kalaban). [GANTIMPALA] MILE mula sa kalaban/BONUS/boss +100% (+300% sa Lv9), nakuhang EXP +60% (+180% sa Lv9)
+10596	Isang beses bawat takbo, mabubuhay ka na may 1 pusong natitira kahit tamaan ng nakamamatay na hit (hindi tinatablan ng damage sa loob ng 1.5s). Pagkatapos, sa loob ng 10s: attack +40% (+100% sa Lv9), bilis ng paggalaw +15% (+30% sa Lv9), pag-ipon ng BREAK ng boss +30% (+80% sa Lv9). Mauunang ma-activate bago ang PHOENIX
+10597	HP ≤30%: {0} pansamantalang kalasag ({1}s) / muling aktibo {2}s
+10598	{0}% ng sobrang healing sa pansamantalang kalasag (max {1}, tagal {2}s)
+10599	Sa {0}s matapos ang 2+ pusong hit: damage -1 puso, attack +{1}%
+10600	BREAK nagbabalik ng {0} puso (bawat {1}s)
+10601	Bawat maximum HP na puso lampas 5: healing/recharge ng kalasag +{0}% (max +{1}%)
+10602	{0} hit nang hindi lumalapag: attack +{2}% sa loob ng {1}s
+10603	Pag-ipon ng BREAK mula sa air attacks +{0}%
+10604	Pagkatapos ng dive landing sa loob ng {0}s: bilis +{1}%, attack +{2}%
+10605	Air attacks sa kalabang naihagis +{0}% / pagbagsak {1}% mas mabagal
+10606	Sa 130km/h pataas: attack +{0}%, pag-ipon ng BREAK +{1}%
+10607	Isang beses/takbo sa HP ≤25%: ibalik {0}% ng max HP, attack/bilis +{2}% sa {1}s
+10608	Kalasag nabasag: {0}% ng attack sa loob ng 3m, BREAK ng boss +{1}% (bawat {2}s)
+10609	{0}% ng sobrang drain healing sa Kalasag ng Dugo (max {1} puso) / tsansa ng pagdurugo +{2}%
+10610	Deck na may 2/3/4/5 elemento: tsansa/lakas +{0}/{1}/{2}/{3}%
+10611	Deck na may 1 elemento: lakas +{0}%, tsansa +{1}% (kalahati sa 2)
+10612	Laban sa kalabang nasa BREAK: attack +{0}%, lakas ng elemento +{1}%, MILE/EXP +{2}%
+10613	Attack +{0}% bawat kalabang natalo (max +{1}%)
+10614	Mula 80km: bilis +{0}%, attack +{1}%, pag-ipon ng BREAK +{2}%
+10615	Attack ng kalaban: +1 puso sa {0}% tsansa / malalakas na kalaban +{1}% / agwat ng event -{2}%
+10616	Isang beses/takbo: mabuhay na may 1 puso, pagkatapos {0}s attack +{1}%, bilis +{2}%, BREAK +{3}%

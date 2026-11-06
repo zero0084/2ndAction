@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: endless_growth
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: endless_growth
+  cardName: ENDLESS GROWTH
+  icon: {fileID: 2800000, guid: aca91bf269b977d489c79714d982a1f6, type: 3}
+  description: "\u6575\u3092\u5012\u3059\u305F\u3073\u306B\u3001\u305D\u306E\u30E9\u30F3\u306E\u9593\u3060\u3051\u653B\u6483+0.2%(Lv9\u3067+0.4%)\u3002\u4E0A\u9650+15%(Lv9\u3067+40%)\u3002\u30E9\u30F3\u304C\u7D42\u308F\u308B\u3068\u6D88\u3048\u308B"
+  category: 1
+  sortOrder: 230
+  recommendPriority: 5
+  effects:
+  - type: 167
+    value: 1
+    scaling: 0
+  rarity: 3
+  unlockDistance: 5000
+  gachaStage: 2
+  element: 0

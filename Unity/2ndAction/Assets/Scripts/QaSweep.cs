@@ -120,6 +120,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaTapVideo") { mode = "tapvideo"; dir = a[i + 1]; } // 2026-10-23 タップ攻撃の動画
             if (a[i] == "-qaHomeLayout") { mode = "homelayout"; dir = a[i + 1]; } // 2026-10-23 ホームの重なり
             if (a[i] == "-qaGachaSkin") { mode = "gachaskin"; dir = a[i + 1]; } // 2026-11-06 ガチャのマップ別の見た目
+            if (a[i] == "-qaMapCardShots") { mode = "mapcardshots"; dir = a[i + 1]; } // 2026-11-06 マップ専用カードの見え方
             if (a[i] == "-qaTutorial") { mode = "tutorial"; dir = a[i + 1]; }
             if (a[i] == "-qaGacha") { mode = "gacha"; dir = a[i + 1]; }
             if (a[i] == "-qaDeck") { mode = "deck"; dir = a[i + 1]; }
@@ -137,6 +138,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaTitle") { mode = "title"; dir = a[i + 1]; } // 2026-10-31 タイトル画面(-titleScreen 1 と一緒に)
             if (a[i] == "-qaExit") { mode = "exit"; dir = a[i + 1]; } // 2026-10-31 終了・中断の入口/画面設定/文字の大きさ
             if (a[i] == "-qaNewCards") { mode = "newcards"; dir = a[i + 1]; } // 2026-11-06 共通カードの追加 18 枚とマップ分類の解禁
+            if (a[i] == "-qaMapCards") { mode = "mapcards"; dir = a[i + 1]; } // 2026-11-06 マップ専用カードの追加 第1弾 26 枚(MOSS BED / SEALED CORE)
             if (a[i] == "-qaRare5") { mode = "rare5"; dir = a[i + 1]; } // 2026-11-01 デッキ編集で★5が出ない不具合
             if (a[i] == "-qaCardList") { mode = "cardlist"; dir = a[i + 1]; } // 2026-11-06 カード編集画面の枚数増加(仮想スクロール/絞り込み/並び替え)
             if (a[i] == "-qaBgTone") { mode = "bgtone"; dir = a[i + 1]; } // 2026-11-01 背景を控えめにして敵を見やすく(前後比較)
@@ -293,6 +295,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "tapvideo") yield return TapVideoMode();
         else if (mode == "homelayout") yield return HomeLayoutMode();
         else if (mode == "gachaskin") yield return GachaSkinMode();
+        else if (mode == "mapcardshots") yield return MapCardShotsMode();
         else if (mode == "pauseloc") yield return PauseLocMode();
         else if (mode == "cardfix") yield return CardFixMode();
         else if (mode == "hitaudit") yield return HitAuditMode();
@@ -371,6 +374,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "rare5") yield return Rare5Mode();
         else if (mode == "cardlist") yield return CardListMode();
         else if (mode == "newcards") yield return NewCardsMode();
+        else if (mode == "mapcards") yield return MapCardsMode();
         else if (mode == "bgtone") yield return BgToneMode();
         else if (mode == "elemvis") yield return ElemVisMode();
         else if (mode == "unlock") yield return UnlockModeQa();

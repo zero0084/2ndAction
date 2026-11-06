@@ -45,29 +45,30 @@ public sealed class ElementStats
     static float Chance(float c) => Mathf.Clamp01(c);
     static float Scale => ElementSystem.DamageScale;
 
-    public float BurnChance => Chance(Get(EffectType.BurnChance));
+    // 2026-11-06 ELEMENTAL CHAOS / ELEMENTAL FOCUS: 確率・威力の倍率(MapCardRules。デッキの属性の種類で決まる。高い方だけ)
+    public float BurnChance => Chance(MapCardRules.ElementChance(ElementType.Fire, Get(EffectType.BurnChance)));
     public float BurnPower => Mathf.Max(0f, Get(EffectType.BurnPower));                       // 基礎(1秒あたり)
-    public float BurnDps => BurnPower * (1f + Mathf.Max(0f, Get(EffectType.BurnPowerPct))) * Scale;
+    public float BurnDps => BurnPower * (1f + Mathf.Max(0f, Get(EffectType.BurnPowerPct))) * Scale * MapCardRules.ElementPower(ElementType.Fire);
     public float BurnDuration => DefaultBurnDuration + Mathf.Max(0f, Get(EffectType.BurnDuration));
 
-    public float ChillChance => Chance(Get(EffectType.ChillChance));
-    public float ChillSlow => Mathf.Clamp(Get(EffectType.ChillSlow), 0f, 0.7f);
+    public float ChillChance => Chance(MapCardRules.ElementChance(ElementType.Ice, Get(EffectType.ChillChance)));
+    public float ChillSlow => Mathf.Clamp(Get(EffectType.ChillSlow) * MapCardRules.ElementPower(ElementType.Ice), 0f, 0.7f); // 氷の「威力」= 減速(上限はそのまま)
     public float ChillDuration => DefaultChillDuration + Mathf.Max(0f, Get(EffectType.ChillDuration));
     public int FreezeStacks => ChillSlow > 0f ? Mathf.Max(2, DefaultFreezeThreshold - Mathf.RoundToInt(Get(EffectType.FreezeThresholdReduce))) : 0;
     public float FreezeDuration => DefaultFreezeDuration + Mathf.Max(0f, Get(EffectType.FreezeDuration));
     public int AbsoluteZero => Mathf.RoundToInt(Get(EffectType.AbsoluteZeroLevel));
 
-    public float LightningChance => Chance(Get(EffectType.LightningChance));
+    public float LightningChance => Chance(MapCardRules.ElementChance(ElementType.Thunder, Get(EffectType.LightningChance)));
     public float LightningPower => Mathf.Max(0f, Get(EffectType.LightningPower));
     // 2026-10-30: 雷は 0.5 倍(系統を揃えると落雷の1発で雑魚が倒れ、連鎖と合わせて雑魚の群れに炎の3倍速かった。0.6 でもボス・雑魚とも一番だった)
     public const float LightningScale = 0.5f;
-    public float LightningDamage => LightningPower * (1f + Mathf.Max(0f, Get(EffectType.LightningDamagePct))) * Scale * LightningScale;
+    public float LightningDamage => LightningPower * (1f + Mathf.Max(0f, Get(EffectType.LightningDamagePct))) * Scale * LightningScale * MapCardRules.ElementPower(ElementType.Thunder);
     public int LightningChains => Mathf.Clamp(Mathf.RoundToInt(Get(EffectType.LightningChains)), 0, 8);
     public float LightningRange => BaseLightningRange + Mathf.Max(0f, Get(EffectType.LightningRange));
     public float LightningSplash => Mathf.Clamp(Get(EffectType.LightningSplash), 0f, 3f);
     public float LightningShock => Mathf.Clamp(Get(EffectType.LightningShock), 0f, 0.6f);
 
-    public float WindBladeChance => Chance(Get(EffectType.WindBladeChance));
+    public float WindBladeChance => Chance(MapCardRules.ElementChance(ElementType.Wind, Get(EffectType.WindBladeChance)));
     // 2026-10-30: 空中で攻撃すると風刃が出やすい(×1.5)/ 空中の敵には風刃のダメージ+50%(風の役割 = 空中戦)
     public const float WindAirChanceMul = 1.5f, WindAirTargetBonus = 0.5f;
     // 2026-10-30: 命中を重ねると必ず落雷(THUNDER STRIKE の Lv。Lv1 で13回ごと → Lv9 で5回ごと。0 = 無し)
@@ -76,13 +77,23 @@ public sealed class ElementStats
     public float HitLifesteal => Mathf.Clamp(Get(EffectType.HitLifestealPct), 0f, 0.25f);
     public float IceBreak => Mathf.Max(0f, Get(EffectType.IceBreakPct));
     public float WindBladePower => Mathf.Max(0f, Get(EffectType.WindBladePower));
-    public float WindBladeDamage => WindBladePower * Scale;
+    public float WindBladeDamage => WindBladePower * Scale * MapCardRules.ElementPower(ElementType.Wind);
     public int WindPierce => Mathf.Clamp(Mathf.RoundToInt(Get(EffectType.WindPierce)), 0, 20);
     public float WindRange => BaseWindRange + Mathf.Max(0f, Get(EffectType.WindRange));
     public float WindSpeed => BaseWindSpeed * (1f + Mathf.Max(0f, Get(EffectType.WindSpeedPct)));
 
-    public float BleedChance => Chance(Get(EffectType.BleedChance));
-    public float BleedPower => Mathf.Max(0f, Get(EffectType.BleedPower));
+    // 2026-11-06 BLOOD ARMOR: 血の盾がある間は出血の確率を足す(出血の威力のある時だけ)
+    public float BleedChance => Chance(MapCardRules.ElementChance(ElementType.Blood, Get(EffectType.BleedChance)) + BloodArmorBleed);
+    float BloodArmorBleed
+    {
+        get
+        {
+            var gm = GameManager.Instance;
+            int lv = MapCardRules.Lv(EffectType.BloodArmorLevel);
+            return lv > 0 && gm != null && gm.BloodShieldHearts > 0 ? MapCardRules.BloodArmorBleed(lv) : 0f;
+        }
+    }
+    public float BleedPower => Mathf.Max(0f, Get(EffectType.BleedPower)) * MapCardRules.ElementPower(ElementType.Blood);
     public float BleedDuration => DefaultBleedDuration + Mathf.Max(0f, Get(EffectType.BleedDuration));
     public float BleedLifesteal => Mathf.Clamp01(Get(EffectType.BleedLifesteal));
     public float BloodLowHpBonus => Mathf.Max(0f, Get(EffectType.BloodLowHpBonus));

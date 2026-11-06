@@ -86,11 +86,11 @@ public static class CardRewards
         return false;
     }
     // 高火力敵(DANGER BOUNTY)・空中雑魚(SKY SIEGE)・判断イベント(CROSSROADS)。読むのは DecisionEvents / EncounterDirector
-    public static float HeavyChanceBonus => L(EffectType.DangerBountyLevel) > 0f ? DangerHeavyChance(L(EffectType.DangerBountyLevel)) : 0f;
+    public static float HeavyChanceBonus => (L(EffectType.DangerBountyLevel) > 0f ? DangerHeavyChance(L(EffectType.DangerBountyLevel)) : 0f) + MapCardRules.GambleHeavyBonus; // 2026-11-06 LAST GAMBLE +10%
     public static float AirChanceBonus => L(EffectType.SkySiegeLevel) > 0f ? SkySiegeAirChance(L(EffectType.SkySiegeLevel)) : 0f;
     public static float AirFormationMul => L(EffectType.SkySiegeLevel) > 0f ? SkySiegeFormationMul(L(EffectType.SkySiegeLevel)) : 1f;
     public static float DecisionFromKm(float normalFromKm) { float lv = L(EffectType.CrossroadsLevel); return lv > 0f ? Mathf.Min(normalFromKm, CrossroadsFromKm(lv)) : normalFromKm; }
-    public static float DecisionGapMul { get { float lv = L(EffectType.CrossroadsLevel); return lv > 0f ? CrossroadsGapMul(lv) : 1f; } }
+    public static float DecisionGapMul { get { float lv = L(EffectType.CrossroadsLevel); return (lv > 0f ? CrossroadsGapMul(lv) : 1f) * MapCardRules.GambleGapMulNow; } } // 2026-11-06 LAST GAMBLE ×0.7
 
     // ---------------------------------------------------------------- このランの数え
     static GameManager boundGm;

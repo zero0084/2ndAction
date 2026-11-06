@@ -1,0 +1,40 @@
+10577	Quando o HP cai para 30% ou menos, ganhe escudos temporários que desaparecem após 8s (1 no Lv1, 2 no Lv5, 3 no Lv9). Recarga em 90s (60s no Lv9). Contados separadamente dos escudos normais, até 3 no total
+10578	Converte 30% (70% no Lv9) da cura que excede o HP máximo em escudos temporários (1 por coração de cura; desaparecem após 20s). Máximo 1 (2 no Lv5, 3 no Lv9); uma conversão a cada 3s
+10579	Por 3s (5s no Lv9) após sofrer um golpe de 2 corações ou mais, dano recebido -1 coração (mínimo 1) e ataque +20% (+40% no Lv9). Recarga em 8s. Contatos que causam 1 coração não ativam o efeito
+10580	Recupera HP ao causar BREAK em um chefe (1 coração no Lv1, 2 no Lv5, 3 no Lv9). Uma vez a cada 20s
+10581	Para cada coração de HP máximo acima de 5, cura e velocidade de recarga dos escudos +2% (+4% no Lv9). Máximo +30% (+50% no Lv9)
+10582	Acerte 5 golpes (4 no Lv5, 3 no Lv9) sem tocar o chão para ganhar ataque +10% (+26% no Lv9) por 3s. Aterrissar reinicia a contagem
+10583	Ataques no ar acumulam BREAK dos chefes mais rapidamente (+15%, +55% no Lv9)
+10584	Por 2.5s após aterrissar de um mergulho: velocidade de movimento +10% (+26% no Lv9), ataque +15% (+39% no Lv9). Ativa a cada aterrissagem
+10585	Ataques aéreos contra inimigos lançados ao ar +12% (+44% no Lv9). Inimigos lançados caem 10% (30% no Lv9) mais devagar. Janelas de comando e tempo dos acertos não mudam
+10586	Ao correr a 130km/h ou mais: ataque +15% (+47% no Lv9), acúmulo de BREAK dos chefes +10% (+42% no Lv9). O dano de acidentes em alta velocidade não muda
+10587	Uma vez por corrida, quando o HP cai para 25% ou menos, recupera 30% (60% no Lv9) do HP máximo e ganha ataque e velocidade de movimento +20% (+40% no Lv9) por 8s
+10588	Quando um escudo (inclusive temporário) quebra, libera uma onda de choque de 300% (700% no Lv9) do seu ataque em um raio de 3m e adiciona +5% (+15% no Lv9) ao BREAK de um chefe. Uma vez a cada 6s (3s no Lv9)
+10589	Converte 50% (100% no Lv9) da cura por absorção que excede o HP máximo (absorção ao acertar, cura por abates e absorção por sangramento) em um Escudo de Sangue que anula dano em corações (máx. 1 coração, 3 no Lv9; perde 1 a cada 10s). Enquanto ativo, chance de sangramento +10% (+30% no Lv9)
+10590	Quanto mais tipos elementais (Fogo/Gelo/Raio/Vento/Sangue) houver entre as cartas elementais do deck, maiores serão as chances e o poder de todos os elementos: 2 tipos +6%, 3 +12%, 4 +20%, 5 +30% (+10/20/32/50% no Lv9). Com ELEMENTAL FOCUS, só vale o bônus maior
+10591	Se todas as cartas elementais do deck forem de um único tipo, poder desse elemento +30% (+70% no Lv9) e chance +10% (+30% no Lv9). Metade com 2 tipos; sem efeito com 3 ou mais. Com ELEMENTAL CHAOS, só vale o bônus maior
+10592	Ataque contra inimigos em BREAK +15% (+47% no Lv9), poder elemental +10% (+42% no Lv9). Chefes derrotados durante BREAK concedem MILE e EXP +10% (+42% no Lv9)
+10593	Cada inimigo derrotado aumenta o ataque em +0.2% (+0.4% no Lv9) pelo restante da corrida. Máximo +15% (+40% no Lv9). Reinicia ao terminar a corrida
+10594	A partir de 80km: velocidade de movimento +10% (+20% no Lv9), ataque +30% (+70% no Lv9), acúmulo de BREAK dos chefes +20% (+60% no Lv9). Acidentes, eventos de decisão e dano dos inimigos não mudam
+10595	[RISCO] Ataques inimigos têm 30% de chance de causar 1 coração extra, inimigos de alto dano +10%, intervalos entre eventos de decisão -30%, aparição de inimigos +15% (não muda com Lv; HP dos inimigos não aumenta). [RECOMPENSA] MILE por inimigos/BONUS/chefes +100% (+300% no Lv9), EXP obtida +60% (+180% no Lv9)
+10596	Uma vez por corrida, um golpe fatal deixa você com 1 coração (invulnerável por 1.5s). Depois, por 10s: ataque +40% (+100% no Lv9), velocidade de movimento +15% (+30% no Lv9), acúmulo de BREAK dos chefes +30% (+80% no Lv9). Ativa antes de PHOENIX
+10597	HP em 30% ou menos: {0} escudos temporários ({1}s) / recarga {2}s
+10598	{0}% da cura excedente vira escudos temporários (máx. {1}, duração {2}s)
+10599	Por {0}s após golpe de 2+ corações: dano -1 coração, ataque +{1}%
+10600	BREAK recupera {0} coração(ões) (a cada {1}s)
+10601	Por coração de HP máximo acima de 5: cura/recarga de escudos +{0}% (máx. +{1}%)
+10602	{0} acertos sem aterrissar: ataque +{2}% por {1}s
+10603	Acúmulo de BREAK com ataques aéreos +{0}%
+10604	Após mergulho, por {0}s: velocidade +{1}%, ataque +{2}%
+10605	Ataques aéreos contra inimigos lançados +{0}% / queda {1}% mais lenta
+10606	A 130km/h ou mais: ataque +{0}%, acúmulo de BREAK +{1}%
+10607	Uma vez/corrida, HP ≤25%: cura {0}% do HP máximo, ataque/velocidade +{2}% por {1}s
+10608	Escudo quebrado: {0}% do ataque em 3m, BREAK do chefe +{1}% (a cada {2}s)
+10609	{0}% da absorção excedente vira Escudo de Sangue (máx. {1} corações) / sangramento +{2}%
+10610	Deck com 2/3/4/5 elementos: chance/poder +{0}/{1}/{2}/{3}%
+10611	Deck com 1 elemento: poder +{0}%, chance +{1}% (metade com 2)
+10612	Contra inimigos em BREAK: ataque +{0}%, poder elemental +{1}%, MILE/EXP +{2}%
+10613	Ataque +{0}% por inimigo derrotado (máx. +{1}%)
+10614	A partir de 80km: velocidade +{0}%, ataque +{1}%, BREAK +{2}%
+10615	Ataques inimigos: +1 coração com chance de {0}% / inimigos de alto dano +{1}% / intervalos -{2}%
+10616	Uma vez/corrida: sobreviva com 1 coração, depois {0}s ataque +{1}%, velocidade +{2}%, BREAK +{3}%

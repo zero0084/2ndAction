@@ -1,0 +1,40 @@
+10577	Jakmile HP klesne na 30% nebo méně, získáš dočasné štíty, které zmizí po 8s (1 na Lv1, 2 na Lv5, 3 na Lv9). Obnovení za 90s (60s na Lv9). Počítají se odděleně od běžných štítů, celkem maximálně 3
+10578	Přemění 30% (70% na Lv9) léčení nad maximální HP na dočasné štíty (1 za každé srdce léčení; zmizí po 20s). Maximálně 1 (2 na Lv5, 3 na Lv9); přeměna jednou za 3s
+10579	Po dobu 3s (5s na Lv9) po zásahu za 2 nebo více srdcí: utržené poškození -1 srdce (minimum 1), útok +20% (+40% na Lv9). Obnovení za 8s. Kontaktní zásahy za 1 srdce efekt nespustí
+10580	Obnoví HP, když způsobíš bossovi BREAK (1 srdce na Lv1, 2 na Lv5, 3 na Lv9). Jednou za 20s
+10581	Za každé srdce maximálního HP nad 5 se léčení a rychlost obnovy štítů zvýší o +2% (+4% na Lv9). Maximálně +30% (+50% na Lv9)
+10582	Zasaď 5 zásahů (4 na Lv5, 3 na Lv9) bez dotyku země a získáš útok +10% (+26% na Lv9) na 3s. Přistání vynuluje počítadlo
+10583	Útoky ve vzduchu rychleji naplňují BREAK bossů (+15%, +55% na Lv9)
+10584	Na 2.5s po dopadu ze střemhlavého útoku: rychlost pohybu +10% (+26% na Lv9), útok +15% (+39% na Lv9). Aktivuje se při každém takovém dopadu
+10585	Vzdušné útoky proti vyhozeným nepřátelům +12% (+44% na Lv9). Vyhození nepřátelé padají o 10% (30% na Lv9) pomaleji. Časová okna vstupů a načasování zásahů se nemění
+10586	Při běhu rychlostí 130km/h nebo více: útok +15% (+47% na Lv9), nabíjení BREAK bossů +10% (+42% na Lv9). Poškození při nehodách ve vysoké rychlosti se nemění
+10587	Jednou za běh, když HP klesne na 25% nebo méně, obnoví 30% (60% na Lv9) maximálního HP a zvýší útok a rychlost pohybu o +20% (+40% na Lv9) na 8s
+10588	Když se rozbije štít (včetně dočasného), vyšle rázovou vlnu se silou 300% (700% na Lv9) tvého útoku v okruhu 3m a přidá +5% (+15% na Lv9) k BREAK bosse. Jednou za 6s (3s na Lv9)
+10589	Přemění 50% (100% na Lv9) přebytečného léčení vysáváním (při zásahu, zabití a krvácení) nad maximální HP na Krvavý štít, který ruší poškození v srdcích (max. 1 srdce, 3 na Lv9; každých 10s ztratí 1). Dokud je aktivní, šance na krvácení +10% (+30% na Lv9)
+10590	Čím více druhů živlů (Oheň/Led/Blesk/Vítr/Krev) obsahují živelné karty v balíčku, tím vyšší je šance a síla všech živlů: 2 druhy +6%, 3 +12%, 4 +20%, 5 +30% (+10/20/32/50% na Lv9). S ELEMENTAL FOCUS platí pouze vyšší bonus
+10591	Pokud jsou všechny živelné karty v balíčku jednoho druhu, síla daného živlu +30% (+70% na Lv9) a šance +10% (+30% na Lv9). Při 2 druzích poloviční bonus, při 3 nebo více bez účinku. S ELEMENTAL CHAOS platí pouze vyšší bonus
+10592	Útok proti nepřátelům v BREAK +15% (+47% na Lv9), síla živlů +10% (+42% na Lv9). Bossové poražení během BREAK dávají MILE a EXP +10% (+42% na Lv9)
+10593	Každý poražený nepřítel zvýší útok o +0.2% (+0.4% na Lv9) do konce běhu. Maximálně +15% (+40% na Lv9). Po skončení běhu se bonus vynuluje
+10594	Od 80km: rychlost pohybu +10% (+20% na Lv9), útok +30% (+70% na Lv9), nabíjení BREAK bossů +20% (+60% na Lv9). Nehody, rozhodovací události a poškození od nepřátel se nemění
+10595	[RIZIKO] Útoky nepřátel mají 30% šanci způsobit o 1 srdce více poškození, nepřátelé se silnými útoky +10%, intervaly rozhodovacích událostí -30%, výskyt nepřátel +15% (nezávisí na Lv; HP nepřátel se nezvyšuje). [ODMĚNA] MILE za nepřátele/BONUS/bossy +100% (+300% na Lv9), získané EXP +60% (+180% na Lv9)
+10596	Jednou za běh tě smrtelný zásah nechá přežít s 1 srdcem (nezranitelnost na 1.5s). Poté na 10s: útok +40% (+100% na Lv9), rychlost pohybu +15% (+30% na Lv9), nabíjení BREAK bossů +30% (+80% na Lv9). Aktivuje se před PHOENIX
+10597	Při HP ≤30%: {0} dočasných štítů ({1}s) / obnovení {2}s
+10598	{0}% přebytečného léčení na dočasné štíty (max. {1}, trvání {2}s)
+10599	Na {0}s po zásahu za 2+ srdce: poškození -1 srdce, útok +{1}%
+10600	BREAK obnoví {0} srdcí (jednou za {1}s)
+10601	Za srdce max. HP nad 5: léčení/obnova štítů +{0}% (max. +{1}%)
+10602	{0} zásahů bez přistání: útok +{2}% na {1}s
+10603	Nabíjení BREAK vzdušnými útoky +{0}%
+10604	Po střemhlavém dopadu na {0}s: rychlost +{1}%, útok +{2}%
+10605	Vzdušné útoky na vyhozené nepřátele +{0}% / pád pomalejší o {1}%
+10606	Od 130km/h: útok +{0}%, nabíjení BREAK +{1}%
+10607	Jednou/běh při HP ≤25%: léčení {0}% max. HP, útok/rychlost +{2}% na {1}s
+10608	Rozbití štítu: {0}% útoku v okruhu 3m, BREAK bosse +{1}% (jednou za {2}s)
+10609	{0}% přebytku vysávání na Krvavý štít (max. {1} srdcí) / krvácení +{2}%
+10610	Balíček se 2/3/4/5 živly: šance/síla +{0}/{1}/{2}/{3}%
+10611	Balíček s 1 živlem: síla +{0}%, šance +{1}% (polovina při 2)
+10612	Proti nepřátelům v BREAK: útok +{0}%, síla živlů +{1}%, MILE/EXP +{2}%
+10613	Útok +{0}% za nepřítele (max. +{1}%)
+10614	Od 80km: rychlost +{0}%, útok +{1}%, BREAK +{2}%
+10615	Útoky nepřátel: +1 srdce s šancí {0}% / silní nepřátelé +{1}% / intervaly -{2}%
+10616	Jednou/běh: přežij s 1 srdcem, pak {0}s útok +{1}%, rychlost +{2}%, BREAK +{3}%

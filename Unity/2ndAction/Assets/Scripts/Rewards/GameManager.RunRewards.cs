@@ -87,12 +87,14 @@ public partial class GameManager
     public void RegisterBossDefeat(float mileBase, float expFraction, bool grantExp = true)
     {
         if (EscapeFrozen) return; // 脱出の成功の確定後は報酬を増やさない(2026-10-24)
+        float dominion = MapCardRules.TakeBrokenKillMul(); // 2026-11-06 BREAK DOMINION: BREAK 中に倒したボスの MILE/EXP
         if (grantExp)
         {
             BossKillCount++;
+            MapOnKill(); // 2026-11-06 ENDLESS GROWTH(ボスも1体)
             CpuParty.OnBossDefeated(); // CPU サポート: 仲間も1枚取る(報酬はランに1回だけ。仲間の分は増やさない)
             float exp = Mathf.Max(RunRewards.BossExpMin, ExpToNext * Mathf.Max(0f, expFraction));
-            float bossScale = CardRules.ExpMultiplier(ExpBucketKill + Card.Get(EffectType.BossExpPct)); // 2026-11-06 BOSS TRAINING / HIGH STAKES: ボス撃破の EXP も撃破の枠に足して曲線
+            float bossScale = CardRules.ExpMultiplier(ExpBucketKill + Card.Get(EffectType.BossExpPct)) * dominion; // 2026-11-06 BOSS TRAINING / HIGH STAKES: ボス撃破の EXP も撃破の枠に足して曲線(BREAK DOMINION は最後に掛ける)
             LastBossExpGranted = exp * bossScale * expGainMultiplier;
             GainBossExp(exp * bossScale);
             CardRewards.OnBossKilled(this); // 2026-11-06 TROPHY HUNT
@@ -102,6 +104,7 @@ public partial class GameManager
         // Card Expansion/Gacha Evolution Ver.1 - Boss Challenge/Rush, One More Mile, Pandemonium, etc.
         float exact = Share(Mathf.Max(0f, mileBase)) * BossMileGainMultiplier * FinalEvolution.MileMul;
         exact *= CardRewards.HorizonMileMul(this); // 2026-11-06 HORIZON
+        exact *= dominion; // 2026-11-06 BREAK DOMINION
         Track(2, Mathf.Max(0f, mileBase), exact);
         int add = TakeWhole(ref mileCarry, exact);
         RunBossMile += add;

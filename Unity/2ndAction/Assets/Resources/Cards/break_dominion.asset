@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: break_dominion
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: break_dominion
+  cardName: BREAK DOMINION
+  icon: {fileID: 2800000, guid: b8fb374f02881f743a4a03440b484a2d, type: 3}
+  description: "BREAK\u4E2D\u306E\u6575\u3078\u306E\u653B\u6483+15%(Lv9\u3067+47%)\u30FB\u5C5E\u6027\u306E\u5A01\u529B+10%(Lv9\u3067+42%)\u3002BREAK\u4E2D\u306B\u5012\u3057\u305F\u30DC\u30B9\u306EMILE\u3068EXP+10%(Lv9\u3067+42%)"
+  category: 1
+  sortOrder: 229
+  recommendPriority: 5
+  effects:
+  - type: 166
+    value: 1
+    scaling: 0
+  rarity: 4
+  unlockDistance: 20000
+  gachaStage: 3
+  element: 0

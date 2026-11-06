@@ -257,7 +257,7 @@ public static partial class ElementSystem
         int heal = Mathf.FloorToInt(hitHealCarry);
         if (heal <= 0) return;
         hitHealCarry -= heal;
-        gm.KitHeal(heal);
+        gm.DrainHeal(heal); // 吸収(2026-11-06 BLOOD ARMOR の対象。回復の量は KitHeal と同じ)
         ElementTelemetry.HealHp += heal; ElementTelemetry.HitHealHp += heal;
         if (victim != null && Time.time - lastHitHealFx > 0.6f) { lastHitHealFx = Time.time; ElementVfx.BloodReturn(CenterOf(victim), 0); NetElementFx.Blood(victim, true); }
     }
@@ -281,6 +281,8 @@ public static partial class ElementSystem
     public static void DealQuiet(Component victim, int dmg, ElementType element)
     {
         if (victim == null || dmg <= 0 || !IsAlive(victim)) return;
+        dmg = MapCardRules.ElementDamageOnBroken(victim, dmg, element); // 2026-11-06 BREAK DOMINION: BREAK 中の敵へ属性の威力
+        MapCardRules.NoteHit(victim); // BREAK 中に倒したか(撃破の報酬)
         Vector3 at = CenterOf(victim);
         bool dealt = false;
         switch (victim)
@@ -297,7 +299,7 @@ public static partial class ElementSystem
     {
         var gm = GameManager.Instance;
         if (gm == null || amount <= 0) return;
-        gm.KitHeal(amount);
+        gm.DrainHeal(amount); // 出血の吸収(2026-11-06 BLOOD ARMOR の対象)
         BleedHealed += amount;
         ElementTelemetry.BleedHealHp += amount; ElementTelemetry.HealHp += amount;
         if (from != null && ElementVfx.New) ElementVfx.BloodReturn(CenterOf(from), 0); // 敵からプレイヤーへ戻る(2026-10-30)

@@ -2490,6 +2490,7 @@ public partial class GameManager : MonoBehaviour
         {
             Exp -= ExpToNext;
             Level++;
+            ApplyLevelHp(); // 2026-11-06 ラン中のレベルで最大HP(DifficultyTuning.levelHpEvery)
             ExpToNext = expBaseForLevel2 + expGrowthPerLevel * (Level - 1);
             CpuParty.OnLeaderLevelUp(); // CPU サポート: 仲間も1枚取る(止めない)
             TriggerLevelUpChoice();
@@ -3538,10 +3539,15 @@ public partial class GameManager : MonoBehaviour
         int dmg = Mathf.Max(1, amount);
         dmg = DifficultyTuning.Adjust(dmg, reason, MaxDistance);
         dmg = CardRewards.ApplyBossRisk(dmg, reason); // 2026-11-06 HIGH STAKES: ボスから受けるダメージ(ハート単位)
+        dmg = MapCardRules.GambleExtra(dmg, reason); // 2026-11-06 LAST GAMBLE: 敵の攻撃は 30% でハート+1(事故・落下・障害物は変えない)
         dmg = AccidentDamage.Apply(dmg, reason); // 2026-11-06: 高速時の事故(接触/障害物/壁/落下)は走行速度で 1/2/3 ハート // 2026-11-03: 通常マップは距離の帯と攻撃の種類で被ダメージを決める(旧仕様: -diffLegacy 1)
         // HEAVY ARMOR(v3): 強い一撃(ハート2つ以上)をハート1つ軽くする
         // 2026-10-28: 説明どおり「ハート2つ以上」から(以前はハート1つを少しでも超えれば = 再戦の倍率で 13 などでも 10 へ切り下げていた)
+        int rawHit = dmg; // 2026-11-06 REVENGE ARMOR: 軽減の前の一撃の大きさ(ハート2つ以上で発動)
         if (dmg >= 2 * CombatScale.HpPerHeart && Card.Get(EffectType.HeavyArmorLevel) > 0f) { dmg = Mathf.Max(CombatScale.PlayerHit, dmg - CombatScale.HpPerHeart); HeavyArmorSaves++; }
+        // 2026-11-06 REVENGE ARMOR の軽減 / BLOOD ARMOR の血の盾(ハート単位で消す。全部消えたら被弾なし)
+        dmg = MapCardsReduceIncoming(dmg);
+        if (dmg <= 0) { FreezeDiagnostics.LogEvent($"[Damage] BloodShield reason={reason}"); return DamageResult.Ignored; }
         // 満タンからの強い一撃(ハート2つ分以上)だけでは倒れない(旧: ハート1つ残す。新: 通常の一撃ぶん=ハート1つ残す)
         if (dmg > CombatScale.PlayerHit && Lives >= maxLives && dmg >= Lives) dmg = Mathf.Max(CombatScale.PlayerHit, Lives - CombatScale.PlayerHit);
         FreezeDiagnostics.LogEvent($"[Damage] Hit reason={reason} amount={dmg} pos=({dmgPos.x:F2},{dmgPos.y:F2}) livesBefore={Lives} timeScale={Time.timeScale:F2}");
@@ -3555,6 +3561,15 @@ public partial class GameManager : MonoBehaviour
         NoteHudDamage(); // 2026-10-31: 非表示モードでは被弾の直後だけ HP を見せる
         // マルチプレイPhase 2.5: HOST自身のHPの変化もHOSTの表(全員へ配る正解)へ即反映する。
         if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
+        // 2026-11-06 ONE MORE CHANCE: 倒れる被弾を1ランに1回だけハート1つで残す。PHOENIX / FINAL EVOLUTION の緊急復活より先
+        //  (ここで Lives が 1 以上になるので、同じ被弾で下の復活は出ない。落下なら通常の被弾と同じく足場へ戻る)
+        if (Lives <= 0 && MapCardsTryOneMoreChance())
+        {
+            if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
+            MapCardsAfterDamage(livesBeforeHit, rawHit);
+            RequestInterruptSave();
+            return DamageResult.Hit;
+        }
         if (Lives <= 0 && FinalEvolution.TryEmergencyRevive(this))
         {
             // FINAL EVOLUTION(PHOENIX): 専用の緊急復活(通常の PHOENIX Charge は使わない/増やさない)
@@ -3606,6 +3621,7 @@ public partial class GameManager : MonoBehaviour
             return DamageResult.GameOver;
         }
         AfterPlayerDamaged(); // LAST CHANCE / SECOND WIND(v3)
+        MapCardsAfterDamage(livesBeforeHit, rawHit); // 2026-11-06 REVENGE ARMOR / LAST BASTION / SECOND RISE
         // Item 11 - HP is the single most important piece of "強制終了に
         // よる逃げ対策" state; saved the instant it actually changes; not
         // gated on !IsGameOver since a fatal hit already returned above.
@@ -3824,7 +3840,7 @@ public partial class GameManager : MonoBehaviour
         {
             lifestealReadyAt = Time.time + DifficultyTuning.LifestealCooldown(MaxDistance);
             LifestealProcs++; ElementTelemetry.LifestealHeals++; ElementTelemetry.Proc(ElementType.Blood);
-            CardHeal(HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart);
+            CardHeal(HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart, true); // 吸収(BLOOD ARMOR の対象)
             ElementTelemetry.HealHp += HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart; ElementTelemetry.LifestealHealHp += HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart;
             // 2026-10-30(視認性): 吸収した敵(撃破の直後なら倒した敵、それ以外は最後に当てた所)から、血がプレイヤーへ戻る
             ElementVfx.BloodReturn(Time.time - ElementVfx.LastKillTime < 0.5f ? ElementVfx.LastKillPos : ElementVfx.LastHitPos, HealHearts(CardRules.BaseHealHearts));
@@ -3833,7 +3849,17 @@ public partial class GameManager : MonoBehaviour
     }
 
     // 10〜12人目(2026-09-28) - 吸血鬼の吸血回復用の公開入口(回復量と頻度の上限は吸血鬼側で管理)。
-    public void KitHeal(int amount) { amount = HealScaled(amount); if (amount > 0 && !IsGameOver) AddLife(amount); }
+    public void KitHeal(int amount) => HealWithOverflow(amount, false);
+    // 2026-11-06: 命中の吸収/出血の吸収(BLOOD ARMOR の対象)。回復の量は KitHeal と同じ
+    public void DrainHeal(int amount) => HealWithOverflow(amount, true);
+    void HealWithOverflow(int amount, bool drain)
+    {
+        amount = HealScaled(amount);
+        if (amount <= 0 || IsGameOver) return;
+        int before = Lives;
+        AddLife(amount);
+        if (before + amount > maxLives) MapCardsOnHealOverflow(before + amount - maxLives, drain); // 2026-11-06 BLOOD ARMOR / OVERFLOW WARD(最大HPを超えた分)
+    }
     public void KitHealFull(int amount) { if (amount > 0 && !IsGameOver) AddLife(amount); } // 最大 HP が増えた分(終盤の回復の倍率を掛けない)
 
     void AddLife(int amount = 1)
@@ -4235,6 +4261,7 @@ public partial class GameManager : MonoBehaviour
         MaxDistanceExact = data.checkpointDistance;
         HighestReachedDistance = Mathf.Max(data.highestReachedDistance, data.checkpointDistance);
         Level = Mathf.Max(1, data.level);
+        SyncLevelHpAfterResume();
         Exp = data.exp;
         ExpToNext = data.expToNext > 0f ? data.expToNext : expBaseForLevel2;
         EnemyKillCount = data.enemyKillCount;
@@ -5408,7 +5435,7 @@ public partial class GameManager : MonoBehaviour
         numStyle.normal.textColor = new Color(1f, 0.85f, 0.88f, 0.95f);
         // カードバランス v3: 封印したハート(HP犠牲)と Shield の数も出す
         var pcHud = PlayerController.Instance;
-        string extra = (SealedHearts > 0 ? $"  封印{SealedHearts}個" : "") + (pcHud != null && (pcHud.ShieldCapacity > 0 || pcHud.ShieldCharges > 0) ? $"  Shield {pcHud.ShieldCharges}" : "");
+        string extra = (SealedHearts > 0 ? $"  封印{SealedHearts}個" : "") + (pcHud != null && (pcHud.ShieldCapacity > 0 || pcHud.ShieldCharges > 0 || pcHud.TempShieldCount > 0) ? $"  Shield {pcHud.ShieldCharges + pcHud.TempShieldCount}" : ""); // 2026-11-06: 一時シールドも足して出す
         // 2026-10-28: 最大HPが上限(ハート99個)に届いたら「MAX」を添える(これ以上 HP のカードを取っても増えないことが分かるように)
         string capMark = maxLives >= CardRules.MaxHeartsCap * CombatScale.HpPerHeart ? " MAX" : "";
         LocGUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 22f, 18f), $"{Lives} / {maxLives}{capMark}{extra}", numStyle);

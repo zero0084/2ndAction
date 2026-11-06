@@ -1705,6 +1705,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (tune == null || tune.staggerMax <= 0f || Broken || phaseRoaring || entering || breakRecovering) return;
         float before = StaggerFraction;
         v *= ElementSystem.IceStaggerMul(gameObject, v); // 2026-10-30: 冷えた/凍結したボスは BREAK が溜まりやすい(氷の役割)
+        v *= MapCardRules.BreakGainMul; // 2026-11-06 SKY BREAKER(空中)/ SONIC EDGE(130km/h 以上)/ FINAL DRIVE(80km 以降)/ ONE MORE CHANCE の強化中
         stagger += v * staggerDefense * (Time.time < breakResistUntil ? PostBreakStaggerScale : 1f); // BREAK の直後は溜まりにくい(2026-10-18、続けて BREAK し続けない)
         lastStaggerTime = Time.time;
         if (stagger < tune.staggerMax) { TryFlinch(before, StaggerFraction); return; } // 怯み(2026-10-18)
@@ -1712,6 +1713,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         Broken = true;
         BreakCount++;
         Debug.Log($"[BossBattle] {bossName} BREAK #{BreakCount} t={Time.time - battleStartedAt:F1}s");
+        MapCardRules.OnBossBreak(); // 2026-11-06 BREAK FEAST(BREAK させると回復)
         BossBattleHud.Banner("BREAK!", new Color(1f, 0.85f, 0.3f), 1.0f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossBreak); // 2026-10-06: 崩しの専用の音(割れる)
         RunHitStop(0.08f);

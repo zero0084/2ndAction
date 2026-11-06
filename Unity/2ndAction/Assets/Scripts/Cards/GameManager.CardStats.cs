@@ -48,6 +48,7 @@ public partial class GameManager
         secondWindReadyDistance = 0f; lastChanceArmed = true; lastChanceUsedAt = -999f;
         CardInvincibleUntil = -1f;
         ChallengeSystem.ResetRun();
+        MapCardsResetRun(); // 2026-11-06 マップ専用カード(血の盾 / 1ランに1回 / 撃破の数 / 間隔)
         if (PlayerController.Instance != null) PlayerController.Instance.ResetCardFactors();
     }
 
@@ -295,8 +296,18 @@ public partial class GameManager
     // 吸収/SECOND WIND など、まとまった回復(OVERHEAL: 満タンで溢れた分は Shield 1 へ)
     // 2026-11-06: 終盤の回復の効き(DifficultyTuning.LateHealMul)。端数は持ち越す
     float lateHealCarry;
+    float ironHealCarry;
     public int HealScaled(int amount)
     {
+        // 2026-11-06 IRON HEART: 5ハートを超えた最大HPで回復量が増える(上限あり)。終盤の倍率の前に掛ける(端数は持ち越し)
+        int ih = Mathf.Clamp(Mathf.RoundToInt(Card.Get(EffectType.IronHeartLevel)), 0, 9);
+        if (ih > 0 && amount > 0)
+        {
+            ironHealCarry += amount * MapCardRules.IronHeartBonus(ih, maxLives);
+            int extra = Mathf.FloorToInt(ironHealCarry);
+            ironHealCarry -= extra;
+            amount += extra;
+        }
         float m = DifficultyTuning.LateHealMul(MaxDistance);
         if (m >= 0.999f || amount <= 0) return amount;
         lateHealCarry += amount * m;
@@ -307,12 +318,13 @@ public partial class GameManager
     }
     public static int LateHealCut; // 確認用(削った回復の合計 HP)
 
-    public void CardHeal(int amount)
+    public void CardHeal(int amount, bool drain = false)
     {
         amount = HealScaled(amount);
         if (amount <= 0 || IsGameOver) return;
         int before = Lives;
         AddLife(amount);
+        if (before + amount > maxLives) MapCardsOnHealOverflow(before + amount - maxLives, drain); // 2026-11-06 BLOOD ARMOR(吸収)/ OVERFLOW WARD
         if (before + amount > maxLives && Card.Get(EffectType.OverhealLevel) > 0f && PlayerController.Instance != null)
         {
             if (PlayerController.Instance.AddOverhealShield()) OverhealShields++;
@@ -360,6 +372,7 @@ public partial class GameManager
     void UpdateCardRunState()
     {
         if (!lastChanceArmed && Lives > CombatScale.HpPerHeart && Time.time - lastChanceUsedAt >= CardRules.LastChanceRearmSeconds) lastChanceArmed = true;
+        MapCardsTick(); // 2026-11-06 マップ専用カード(血の盾が減る / 超過の回復の変換)
     }
 
     // PHOENIX: 倒れる被弾を取り消す。Charge を使い、PHOENIX はこのランの取得状態から外れる(候補に再び出る。取り直しは Lv1 から)

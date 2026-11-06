@@ -707,6 +707,7 @@ public partial class PlayerController : MonoBehaviour
     public void AddShieldCharges(int amount) => ShieldCharges += amount;
     public bool TryConsumeShield()
     {
+        if (TryConsumeTempShield()) return true; // 2026-11-06 一時シールド(LAST BASTION / OVERFLOW WARD)を先に(時間で消えるので)
         if (ShieldCharges <= 0) return false;
         ShieldCharges--;
         return true;

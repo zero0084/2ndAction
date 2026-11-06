@@ -1,0 +1,40 @@
+10577	HP %30'a veya altına düştüğü anda, 8s sonra kaybolan geçici kalkanlar kazanırsın (Lv1'de 1, Lv5'te 2, Lv9'da 3). Yenilenme süresi 90s (Lv9'da 60s). Normal kalkanlardan ayrı sayılır; toplam en fazla 3
+10578	Maksimum HP'yi aşan iyileşmenin %30'unu (Lv9'da %70) geçici kalkanlara dönüştürür (her 1 kalplik iyileşme için 1; 20s sonra kaybolur). En fazla 1 (Lv5'te 2, Lv9'da 3); her 3s'de bir dönüşüm
+10579	En az 2 kalplik hasar aldıktan sonra 3s boyunca (Lv9'da 5s) alınan hasar 1 kalp azalır (en az 1) ve saldırı +20% (Lv9'da +40%). Yenilenme süresi 8s. 1 kalplik temas hasarı tetiklemez
+10580	Bir bossu BREAK durumuna soktuğunda HP yeniler (Lv1'de 1 kalp, Lv5'te 2, Lv9'da 3). Her 20s'de bir
+10581	Maksimum HP'nin 5'i aşan her kalbi için iyileşme miktarı ve kalkan yenilenme hızı +2% (Lv9'da +4%). En fazla +30% (Lv9'da +50%)
+10582	Yere değmeden 5 vuruş (Lv5'te 4, Lv9'da 3) isabet ettirirsen 3s boyunca saldırı +10% (Lv9'da +26%). Yere inmek sayacı sıfırlar
+10583	Havadayken yapılan saldırılar bossların BREAK birikimini hızlandırır (+15%, Lv9'da +55%)
+10584	Dalıştan yere indikten sonraki 2.5s boyunca hareket hızı +10% (Lv9'da +26%), saldırı +15% (Lv9'da +39%). Her dalış inişinde tetiklenir
+10585	Havaya fırlatılmış düşmanlara yönelik hava saldırıları +12% (Lv9'da +44%). Fırlatılan düşmanlar %10 (Lv9'da %30) daha yavaş düşer. Girdi pencereleri ve vuruş zamanlaması değişmez
+10586	130km/h veya üzeri hızda koşarken saldırı +15% (Lv9'da +47%), boss BREAK birikimi +10% (Lv9'da +42%). Yüksek hızlı kazaların hasarı değişmez
+10587	Her koşuda bir kez, HP %25'e veya altına düştüğünde maksimum HP'nin %30'unu (Lv9'da %60) yeniler ve 8s boyunca saldırı ile hareket hızı +20% (Lv9'da +40%)
+10588	Bir kalkan (geçici kalkanlar dahil) kırıldığında, 3m yarıçapta saldırı gücünün %300'ü (Lv9'da %700) kadar şok dalgası yayar ve boss BREAK birikimine +5% (Lv9'da +15%) ekler. Her 6s'de bir (Lv9'da 3s)
+10589	Maksimum HP'yi aşan emme kaynaklı iyileşmenin (vuruşla emme, öldürmeyle iyileşme, kanama emmesi) %50'sini (Lv9'da %100), hasarı kalp cinsinden engelleyen Kan Kalkanı'na dönüştürür (en fazla 1 kalp, Lv9'da 3; her 10s'de 1 kalp kaybeder). Kan Kalkanı varken kanama ihtimali +10% (Lv9'da +30%)
+10590	Destedeki element kartlarının türü (Ateş/Buz/Yıldırım/Rüzgâr/Kan) arttıkça tüm elementlerin ihtimali ve gücü artar: 2 tür +6%, 3 tür +12%, 4 tür +20%, 5 tür +30% (Lv9'da +10/20/32/50%). ELEMENTAL FOCUS ile birlikteyse yalnızca yüksek bonus uygulanır
+10591	Destedeki tüm element kartları tek türdeyse o elementin gücü +30% (Lv9'da +70%), ihtimali +10% (Lv9'da +30%). 2 türde bonus yarıya iner, 3 veya daha fazla türde etkisizdir. ELEMENTAL CHAOS ile birlikteyse yalnızca yüksek bonus uygulanır
+10592	BREAK durumundaki düşmanlara saldırı +15% (Lv9'da +47%), element gücü +10% (Lv9'da +42%). BREAK sırasında yenilen bosslardan kazanılan MILE ve EXP +10% (Lv9'da +42%)
+10593	Yendiğin her düşman, koşunun geri kalanında saldırıyı +0.2% (Lv9'da +0.4%) artırır. En fazla +15% (Lv9'da +40%). Koşu bitince sıfırlanır
+10594	80km'den itibaren hareket hızı +10% (Lv9'da +20%), saldırı +30% (Lv9'da +70%), boss BREAK birikimi +20% (Lv9'da +60%). Kazalar, karar etkinlikleri ve düşman hasarı değişmez
+10595	[RİSK] Düşman saldırıları %30 ihtimalle 1 kalp fazla hasar verir, ağır vurucu düşmanlar +10%, karar etkinlikleri aralığı -30%, düşman ortaya çıkma sıklığı +15% (Lv ile değişmez; düşman HP'si artmaz). [ÖDÜL] Düşman/BONUS/boss MILE +100% (Lv9'da +300%), kazanılan EXP +60% (Lv9'da +180%)
+10596	Her koşuda bir kez, ölümcül bir darbeden 1 kalple kurtulursun (1.5s dokunulmazlık). Ardından 10s boyunca saldırı +40% (Lv9'da +100%), hareket hızı +15% (Lv9'da +30%), boss BREAK birikimi +30% (Lv9'da +80%). PHOENIX'ten önce kullanılır
+10597	HP ≤30%: {0} geçici kalkan ({1}s) / yenilenme {2}s
+10598	Fazla iyileşmenin %{0}'ı geçici kalkana dönüşür (en fazla {1}, süre {2}s)
+10599	2+ kalplik darbeden sonra {0}s: alınan hasar -1 kalp, saldırı +{1}%
+10600	BREAK, {0} kalp yeniler (her {1}s'de bir)
+10601	5 üzerindeki her maks. HP kalbi: iyileşme/kalkan yenilenmesi +{0}% (en fazla +{1}%)
+10602	Yere inmeden {0} vuruş: {1}s boyunca saldırı +{2}%
+10603	Hava saldırılarıyla BREAK birikimi +{0}%
+10604	Dalış inişinden sonra {0}s: hareket hızı +{1}%, saldırı +{2}%
+10605	Fırlatılan düşmanlara hava saldırısı +{0}% / düşüş %{1} yavaş
+10606	130km/h ve üzeri: saldırı +{0}%, BREAK birikimi +{1}%
+10607	Koşuda 1 kez, HP ≤25%: maks. HP'nin %{0}'ını yenile, {1}s saldırı/hız +{2}%
+10608	Kalkan kırılınca: 3m içinde saldırının %{0}'ı, boss BREAK +{1}% (her {2}s'de)
+10609	Fazla emmenin %{0}'ı Kan Kalkanı olur (en fazla {1} kalp) / kanama ihtimali +{2}%
+10610	Destede 2/3/4/5 element: ihtimal/güç +{0}/{1}/{2}/{3}%
+10611	Destede 1 element: güç +{0}%, ihtimal +{1}% (2 türde yarısı)
+10612	BREAK düşmanlarına: saldırı +{0}%, element gücü +{1}%, MILE/EXP +{2}%
+10613	Yenilen düşman başına saldırı +{0}% (en fazla +{1}%)
+10614	80km'den itibaren: hız +{0}%, saldırı +{1}%, BREAK birikimi +{2}%
+10615	Düşman saldırıları %{0} ihtimalle +1 kalp / ağır vurucular +{1}% / etkinlik aralığı -{2}%
+10616	Koşuda 1 kez: 1 kalple kurtul, ardından {0}s saldırı +{1}%, hız +{2}%, BREAK +{3}%
