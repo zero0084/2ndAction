@@ -61,6 +61,10 @@ public static class BossVoice
         { "Sky/SkySerpent", new Profile(Kind.Dragon, 1.05f) },
         { "Sky/Guardian", new Profile(Kind.Humanoid, 1.15f) },
         { "Sky/MechDragon", new Profile(Kind.Mech, 1.0f) },       // メカドラゴン(ラスダンのまれなボス)
+        // 通常マップのラスボス(2026-11-06)
+        { "Wild/Garmud", new Profile(Kind.Beast, 0.68f, 1.05f) },  // 荒野王(低く重い獣の咆哮)
+        { "Cave/Noctaris", new Profile(Kind.Dragon, 0.62f) },      // 深淵の主(低い異形の声)
+        { "Sky/Seraphiel", new Profile(Kind.Humanoid, 1.2f, 0.95f) }, // 天帝
         // 死神(100,000m の追跡 / ラスダンの三姉妹)
         { "Reaper", new Profile(Kind.Reaper, 1.0f) },
     };

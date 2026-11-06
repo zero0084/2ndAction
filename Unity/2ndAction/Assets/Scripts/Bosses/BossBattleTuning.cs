@@ -188,6 +188,11 @@ public class BossBattleTuning : ScriptableObject
             // 死神三姉妹(2026-10-20): 段階/特殊/必殺技は使わず、崩しだけ(弾き返した弾・攻撃で溜まって怯む/BREAK)
             new Entry { key = "ReaperSister", phaseThresholds = new float[0], specialCooldown = 0f, ultimateCooldown = 0f, staggerMax = 32f, staggerRecoveryPerSec = 2.5f, breakDuration = 2.6f },
             new Entry { key = "MechDragon", phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7f,   ultimateCooldown = 18f, firstUltimateDelay = 1.5f, staggerMax = 52f, staggerRecoveryPerSec = 4f, breakDuration = 3.4f, normalDamage = 15 },
+            // 通常マップのラスボス(2026-11-06): 3段階。HP で長くしない(難しさは技の組み合わせ)。崩しは大ボス並み、BREAK は長め(最後の大きなご褒美)。
+            //  必殺技は長い大技なので間隔を長めに(98km の再戦の強さで間隔が縮むため。26秒 → 約16秒)。段階が上がってすぐには撃たない(5秒)
+            new Entry { key = "Garmud",    phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 6.5f, ultimateCooldown = 26f, firstUltimateDelay = 5f, staggerMax = 44f, staggerRecoveryPerSec = 4f, breakDuration = 3.4f },
+            new Entry { key = "Noctaris",  phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 6.5f, ultimateCooldown = 26f, firstUltimateDelay = 5f, staggerMax = 42f, staggerRecoveryPerSec = 4f, breakDuration = 3.4f },
+            new Entry { key = "Seraphiel", phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 6.5f, ultimateCooldown = 26f, firstUltimateDelay = 5f, staggerMax = 44f, staggerRecoveryPerSec = 4f, breakDuration = 3.4f },
         };
     }
 }

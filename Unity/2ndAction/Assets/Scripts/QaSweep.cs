@@ -102,6 +102,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaDiff") { mode = "diff"; dir = a[i + 1]; }
             if (a[i] == "-qaDecide") { mode = "decide"; dir = a[i + 1]; } // 2026-11-05 判断型の道中イベント
             if (a[i] == "-qaAir") { mode = "air"; dir = a[i + 1]; } // 2026-11-05 空中雑魚
+            if (a[i] == "-qaTier") { mode = "tier"; dir = a[i + 1]; } // 2026-11-05 デッキ 3 段階の難易度
             if (a[i] == "-qaRaid") { mode = "raid"; dir = a[i + 1]; }
             if (a[i] == "-qaRoadVid") { mode = "roadvid"; dir = a[i + 1]; }
             if (a[i] == "-qaHaltRoute") { mode = "haltroute"; dir = a[i + 1]; }
@@ -168,6 +169,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaTextShots") { mode = "textshots"; dir = a[i + 1]; }
             if (a[i] == "-qaLocUi") { mode = "locui"; dir = a[i + 1]; }
             if (a[i] == "-qaMapFinale") { mode = "mapfinale"; dir = a[i + 1]; }
+            if (a[i] == "-qaFinalBoss") { mode = "finalboss"; dir = a[i + 1]; } // 2026-11-06 通常マップの専用ラスボス
             if (a[i] == "-qaMaxSpeed") { mode = "maxspeed"; dir = a[i + 1]; }
             if (a[i] == "-qaEscape") { mode = "escape"; dir = a[i + 1]; }
             if (a[i] == "-qaAnimJitter") { mode = "animjitter"; dir = a[i + 1]; }
@@ -331,6 +333,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "diff") yield return DiffMode();
         else if (mode == "decide") yield return DecideMode();
         else if (mode == "air") yield return AirMode();
+        else if (mode == "tier") yield return TierMode();
         else if (mode == "raid") yield return RaidMode();
         else if (mode == "roadvid") yield return RoadVidMode();
         else if (mode == "haltroute") yield return HaltRouteMode();
@@ -387,6 +390,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "textshots") yield return TextShotsMode();
         else if (mode == "locui") yield return LocUiMode();
         else if (mode == "mapfinale") yield return MapFinaleMode();
+        else if (mode == "finalboss") yield return FinalBossMode();
         else if (mode == "maxspeed") yield return MaxSpeedMode();
         else if (mode == "escape") yield return EscapeMode();
         else if (mode == "animjitter") yield return AnimJitterMode();

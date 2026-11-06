@@ -50,7 +50,12 @@ public partial class HighSpeedAssist : MonoBehaviour
     //  弱い = 「間に合う最後の踏み切り」だけ(自分で跳ばなかった時の救済)、強い = 従来どおり頂点が危険の真上に来る踏み切り。
     [Tooltip("補助が最大になる速度(km/h)。engageKmh〜この間は段階的に強くなる")]
     public float fullAssistKmh = 130f;
-    public float Strength => Engaged ? Mathf.Clamp01(Mathf.InverseLerp(engageKmh, Mathf.Max(engageKmh + 1f, fullAssistKmh), JudgedKmh)) : 0f;
+    public float Strength => !Engaged ? 0f : HandsOff ? 1f : Mathf.Clamp01(Mathf.InverseLerp(engageKmh, Mathf.Max(engageKmh + 1f, fullAssistKmh), JudgedKmh));
+    // 2026-11-05: しばらく(handsOffSeconds 秒)人の操作が無い = オートに任せている。補助の強さを最大に(踏み切りを危険の真ん中に合わせ、余裕を持って越える)。
+    //  以前は 100km/h(自然な最高速度)で強さ 0 = 「間に合う最後の踏み切り」寄りで、放置では穴/壁に当たりやすかった。操作している人は今までどおり段階的
+    [Tooltip("この秒数、人の操作が無ければ補助の強さを最大にする")]
+    public float handsOffSeconds = 4f;
+    public bool HandsOff { get { var pc = PlayerController.Instance; return pc != null && Time.unscaledTime - pc.LastManualInputTime > handsOffSeconds; } }
 
     [Header("障害物の破壊(2026-09-29)")]
     [Tooltip("接触までに壊し切る見込みがあれば、跳ばずに前攻撃で壊して通る")]
@@ -105,6 +110,7 @@ public partial class HighSpeedAssist : MonoBehaviour
     public Status CurrentStatus { get; private set; } = Status.WaitingSpeed;
     public string BlockedReason { get; private set; } = "";
     public float JudgedKmh { get; private set; }
+    public float EffectiveEngageKmh { get; private set; } // 実際に始める速さ(最高速度が開始の速さより低い時はその 97%)
     public bool Engaged { get; private set; }
     public string LastAction { get; private set; } = "";
     public float LastActionTime { get; private set; } = -99f;
@@ -270,8 +276,14 @@ public partial class HighSpeedAssist : MonoBehaviour
         //  先読みの範囲は実際の前進で(止まっている間は短い範囲のまま)
         float v = pc.CurrentAutoRunSpeed;
         JudgedKmh = GameManager.SpeedKmh(pc.AbilityRunSpeed);
-        if (!Engaged && JudgedKmh >= engageKmh) Engaged = true;
-        else if (Engaged && JudgedKmh < releaseKmh) Engaged = false;
+        // 2026-11-05: 最高速度が開始の速さ(既定 100km/h)に届かない時(設定「最高速度」60%、SPEED DOWN のカード等)は、
+        //  その人の最高速度の 97% で始める(以前は一度も始まらず、オート ON でも穴/壁にそのまま当たっていた)。加速の途中は今までどおり手で操作
+        float topKmh = JudgedKmh / Mathf.Max(0.01f, pc.NaturalMultiplierAt(gm.MaxDistance)) * Mathf.Max(1.01f, pc.NaturalCapMultiplier * PlayerController.UserSpeedScale);
+        float engageNow = engageKmh > 0.01f ? Mathf.Min(engageKmh, topKmh * 0.97f) : engageKmh;
+        float releaseNow = Mathf.Min(releaseKmh, engageNow - 10f);
+        EffectiveEngageKmh = engageNow;
+        if (!Engaged && JudgedKmh >= engageNow) Engaged = true;
+        else if (Engaged && JudgedKmh < releaseNow) Engaged = false;
         // 先読みに必要な範囲まで地形/天井を先に作っておく(補助が働く時だけ。通常速度では従来の範囲のまま)。
         SetGenerateAhead(assistEnabled && Engaged ? LookAheadMeters(v) + 30f : 0f);
         if (lastDecideFrame < Time.frameCount - 1)

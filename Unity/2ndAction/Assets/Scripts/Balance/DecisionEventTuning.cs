@@ -56,9 +56,13 @@ public class DecisionEventTuning : ScriptableObject
                    skyBlock = 1f, groundBlock = 1f, alternate = 0.8f, telegraphRush = 1.2f, heavyHitter = 0.8f, aerialBrute = 0.9f,
                    legacyRush = 0.3f, legacyFlying = 0.25f, legacyElite = 0.25f, legacyChase = 0.25f, airRaid = 0.6f, heavyHitterInNormal = 0.06f },
         // 75〜90km: やや頻繁。2種類の組み合わせもある
-        new Band { fromKm = 75f, chance = 0.9f, gapSeconds = new Vector2(8f, 15f), restAfterSeconds = 4f, warnMul = 0.95f, safeMul = 0.95f, comboChance = 0.35f, countMul = 1.15f,
+        new Band { fromKm = 75f, chance = 0.9f, gapSeconds = new Vector2(8f, 15f), restAfterSeconds = 4f, warnMul = 0.95f, safeMul = 0.95f, comboChance = 0.35f, countMul = 1.2f,
                    skyBlock = 1f, groundBlock = 1f, alternate = 1.1f, telegraphRush = 1.2f, heavyHitter = 1f, aerialBrute = 1f,
                    legacyRush = 0.3f, legacyFlying = 0.25f, legacyElite = 0.25f, legacyChase = 0.25f, airRaid = 0.6f, heavyHitterInNormal = 0.1f },
+        // 82〜90km(2026-11-05 デッキ 3 段階の調整): 強いデッキ+放置が終盤で安定しないよう、こまめに・重ねて(Shield/回復で受け切れない回数)
+        new Band { fromKm = 82f, chance = 0.95f, gapSeconds = new Vector2(6f, 11f), restAfterSeconds = 3f, warnMul = 0.95f, safeMul = 0.95f, comboChance = 0.5f, countMul = 1.35f,
+                   skyBlock = 1f, groundBlock = 1f, alternate = 1.2f, telegraphRush = 1.3f, heavyHitter = 1.1f, aerialBrute = 1f,
+                   legacyRush = 0.3f, legacyFlying = 0.25f, legacyElite = 0.3f, legacyChase = 0.25f, airRaid = 0.6f, heavyHitterInNormal = 0.15f, airDive = 1.1f, airCross = 1.1f },
     };
     [Header("ラスダン(LAST CORRIDOR, 2026-11-05 空中雑魚と一緒に): ボスが多いので控えめ。種類は 帯/上空封鎖/地上封鎖/急降下/横切り だけ")]
     public bool lastCorridor = true;
@@ -110,6 +114,21 @@ public class DecisionEventTuning : ScriptableObject
     [Tooltip("次の関門(ボス)までこの距離(m)より近い時は始めない(+ 速さ × gateClearSeconds)")]
     public float gateClearMeters = 500f;
     public float gateClearSeconds = 6f;
+    [Header("高速域(2026-11-05、900km/h でイベントがほぼ起きなかった)")]
+    [Tooltip("この速さ(m/秒)から高速の扱い(100km/h = 約28m/秒)")]
+    public float fastFromMps = 40f;
+    [Tooltip("この速さ(m/秒)で高速の扱いが最大(900km/h = 250m/秒)")]
+    public float fastFullMps = 200f;
+    [Tooltip("最大の高速での、関門の手前を空ける秒数(遅い時は gateClearSeconds)。5km ごとの関門が 20 秒で来るので、6 秒だと区間のほとんどが使えなかった")]
+    public float fastGateClearSeconds = 2.2f;
+    [Tooltip("最大の高速での、関門の手前を空ける距離(m、遅い時は gateClearMeters)")]
+    public float fastGateClearMeters = 250f;
+    [Tooltip("最大の高速での、候補の間隔(秒)に掛ける。実時間で見て適度な頻度(関門の間が短いので少し詰める。距離で同じにすると多すぎる)")]
+    public float fastGapMul = 0.55f;
+    [Tooltip("最大の高速での、ボスの後に空ける秒数")]
+    public float fastAfterBossSeconds = 2.5f;
+    // 0 = 普通の速さ、1 = 最大の高速
+    public float FastT(float speedMps) => Mathf.InverseLerp(fastFromMps, fastFullMps, speedMps);
     [Tooltip("ボス戦の後、この秒数は始めない")]
     public float afterBossSeconds = 5f;
     [Tooltip("今までの道中イベント(空中ボスの乱入など)が終わってから、この秒数は始めない(エステル: 乱入の後は最低 5 秒)")]

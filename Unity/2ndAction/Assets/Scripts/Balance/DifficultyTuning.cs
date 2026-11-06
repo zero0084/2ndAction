@@ -14,13 +14,16 @@ public class DifficultyTuning : ScriptableObject
 
     [Header("被ダメージ(ハートの数。x = 距離 km、y = ハート。間は直線で、最後にハート単位へ丸める)")]
     [Tooltip("雑魚の体当たり(軽い接触)")]
-    public Vector2[] contactHearts = { new Vector2(0, 1), new Vector2(60, 1), new Vector2(90, 2) };
+    public Vector2[] contactHearts = { new Vector2(0, 1), new Vector2(60, 1), new Vector2(85, 1.8f), new Vector2(97, 2.3f) };
+    [Tooltip("2026-11-05 デッキ 3 段階の調整: ハートの曲線の間の値(例 1.4)を、確率で 1 か 2 にする(0.4 の確率で 2)。"
+           + "四捨五入だと 70km のボスでいきなり 1→2 になり、放置の倒れる地点がそこへ集中した。false = 四捨五入(前の作り)")]
+    public bool stochasticHearts = true;
     [Tooltip("雑魚の通常攻撃(近接の攻撃判定・弾)")]
-    public Vector2[] normalHearts = { new Vector2(0, 1), new Vector2(30, 1), new Vector2(60, 2) };
+    public Vector2[] normalHearts = { new Vector2(0, 1), new Vector2(30, 1), new Vector2(60, 2), new Vector2(85, 2.3f), new Vector2(97, 2.6f) };
     [Tooltip("大型の雑魚(HP 倍率が largeHpMultiplier 以上)の攻撃・接触")]
-    public Vector2[] largeHearts = { new Vector2(0, 1), new Vector2(29.9f, 1), new Vector2(30, 2), new Vector2(60, 2), new Vector2(90, 3) };
+    public Vector2[] largeHearts = { new Vector2(0, 1), new Vector2(22, 1), new Vector2(40, 2), new Vector2(60, 2), new Vector2(90, 3), new Vector2(97, 3.3f) };
     [Tooltip("ボスの通常の攻撃(元のダメージがハート1つ)。2026-11-03 の比較: 60km 台から2にすると、不注意なプレイで 63〜65km のボス1体に2回倒された → 70km から2")]
-    public Vector2[] bossHearts = { new Vector2(0, 1), new Vector2(69.9f, 1), new Vector2(70, 2) };
+    public Vector2[] bossHearts = { new Vector2(0, 1), new Vector2(50, 1), new Vector2(80, 2), new Vector2(92, 2.5f), new Vector2(99, 2.8f) };
     [Tooltip("ボスの大技(元のダメージがハート2つ以上)")]
     public Vector2[] bossHeavyHearts = { new Vector2(0, 2), new Vector2(60, 2), new Vector2(90, 3) };
     [Tooltip("障害物/地形の針/壁(今までどおり)")]
@@ -36,6 +39,26 @@ public class DifficultyTuning : ScriptableObject
     //  0〜20km は 0.95(黒剣士なら基本1発)/ 20〜40km は 1〜2発 / 40km からは上の smallHpScale(APK 429 の値)へつながる(約 50km で上限が効かなくなる)。
     //  キャラの個性は残す(攻撃の弱い/手数の多いキャラは 1〜2発・連撃の序盤)。大型・強敵(HP 倍率 > smallCapMaxHpMul)/ボスは対象外。
     //  上限はカードの成長に関係なく決まった値 → カードで攻撃が上がると、より遠く/より多くの敵が一撃圏内に入る
+    [Header("ボスの HP(2026-11-05 デッキ 3 段階の調整)")]
+    [Tooltip("ボスの HP に掛ける倍率(x = km)。初期デッキでは序盤のボス戦が長く(平均 28 秒)、40km の手前で倒れた → 序盤だけ短く。後半は今のまま")]
+    public Vector2[] bossHpScale = { new Vector2(0, 0.75f), new Vector2(25, 0.75f), new Vector2(45, 0.9f), new Vector2(55, 1f) };
+    public static float BossHpScale(float distance) => Active && !HeartsV1 ? Mathf.Max(0.2f, Eval(I.bossHpScale, distance / 1000f)) : 1f;
+
+    [Header("吸収(VAMPIRE 等、撃破で回復)の間隔(2026-11-05 デッキ 3 段階の調整)")]
+    [Tooltip("回復した後、次に回復できるまでの秒数(x = km)。撃破ごとに最大 75% でハート 1 つ回復するため、敵の多い終盤はオート放置でも回復が被弾を上回り、"
+           + "中程度/強いデッキが 100km まで安定していた。間隔を空けて、回復の価値は残しつつ放置で無限にはしない")]
+    public Vector2[] lifestealCooldown = { new Vector2(0, 0.5f), new Vector2(40, 1f), new Vector2(60, 2f), new Vector2(75, 3.5f), new Vector2(85, 5f), new Vector2(95, 6f) }; // 2026-11-06(T9): 終盤をもう一段長く
+    // 2026-11-06(T9): 中/強デッキの放置が 100km まで安定 = SHIELD(最大3・最短8秒で回復)が終盤の被弾を200回以上消していた。
+    //  終盤ほど SHIELD の回復を遅くする(倍率)。序盤の初期デッキには関係しない(SHIELD を育てた人の終盤だけ)。-shieldMul 0 で無効
+    public Vector2[] shieldRechargeMul = { new Vector2(0, 1f), new Vector2(50, 1f), new Vector2(70, 1.6f), new Vector2(85, 2.2f), new Vector2(95, 2.5f) };
+    public static float ShieldRechargeMul(float distance) => Active && !HeartsV1 && !ShieldMulOff ? Mathf.Max(1f, Eval(I.shieldRechargeMul, distance / 1000f)) : 1f;
+    public static bool ShieldMulOff;
+    // 2026-11-06(T10): 回復構成の放置が 100km 安定 = 命中の吸収(与えたダメージの割合)が終盤の大きな与ダメージで膨らみ、40km で 360 ハート回復していた
+    //  → 終盤ほど命中の吸収の割合を下げる(通常マップ)。-shieldMul 0 で SHIELD と一緒に無効
+    public Vector2[] hitLifestealMul = { new Vector2(0, 1f), new Vector2(50, 1f), new Vector2(70, 0.7f), new Vector2(85, 0.5f), new Vector2(95, 0.4f) };
+    public static float HitLifestealMul(float distance) => Active && !HeartsV1 && !ShieldMulOff ? Mathf.Clamp01(Eval(I.hitLifestealMul, distance / 1000f)) : 1f;
+    public static float LifestealCooldown(float distance) => Active && !HeartsV1 ? Mathf.Max(0f, Eval(I.lifestealCooldown, distance / 1000f)) : 0f;
+
     [Header("序盤の小型雑魚の HP の上限(2026-11-04)")]
     public bool smallHpCap = true;
     [Tooltip("基準: カードなしの黒剣士の前攻撃1段目の威力(HP)")]
@@ -129,6 +152,15 @@ public class DifficultyTuning : ScriptableObject
                 if (i >= 0 && i + 1 < a.Length) SmallCapOff = a[i + 1] == "1";
                 i = System.Array.IndexOf(a, "-densityV1");
                 if (i >= 0 && i + 1 < a.Length) DensityV1 = a[i + 1] == "1";
+                i = System.Array.IndexOf(a, "-shieldMul");
+                if (i >= 0 && i + 1 < a.Length && a[i + 1] == "0") ShieldMulOff = true;
+                i = System.Array.IndexOf(a, "-heartsV1");
+                if (i >= 0 && i + 1 < a.Length && a[i + 1] == "1")
+                {
+                    HeartsV1 = true;
+                    inst.largeHearts = new[] { new Vector2(0, 1), new Vector2(29.9f, 1), new Vector2(30, 2), new Vector2(60, 2), new Vector2(90, 3) };
+                    inst.bossHearts = new[] { new Vector2(0, 1), new Vector2(69.9f, 1), new Vector2(70, 2) };
+                }
 #endif
             }
             return inst;
@@ -189,7 +221,8 @@ public class DifficultyTuning : ScriptableObject
             _ => null,
         };
         if (curve == null) { Unchanged++; return amount; }
-        int hearts = Mathf.Max(1, Mathf.RoundToInt(Eval(curve, km)));
+        float hv = Eval(curve, km);
+        int hearts = Mathf.Max(1, t.stochasticHearts && !HeartsV1 ? StochasticRound(hv) : Mathf.RoundToInt(hv));
         int extra = NextAttackerExtraHearts; nextExtraFrame = -1;
         if (extra > 0 && (kind == Hit.Contact || kind == Hit.Normal || kind == Hit.Large)) hearts += extra; // 高火力敵(2026-11-05)
         int result = hearts * CombatScale.HpPerHeart;
@@ -197,6 +230,10 @@ public class DifficultyTuning : ScriptableObject
         LastAdjust = $"{reason} {kind}{(large ? "(large)" : "")} @{km:F1}km: {amount} -> {result}";
         return result;
     }
+
+    // 1.4 → 60% で 1、40% で 2(期待値はそのまま、段差を作らない)
+    static int StochasticRound(float v) { int f = Mathf.FloorToInt(v); return f + (Random.value < v - f ? 1 : 0); }
+    public static bool HeartsV1; // 開発版 -heartsV1 1 = 前の作り(四捨五入・前の曲線)。比較用
 
     // 元のダメージの大きさ(ボスは再戦の倍率を戻して)と出どころで種類を決める
     static Hit Classify(string reason, int amount, bool large)

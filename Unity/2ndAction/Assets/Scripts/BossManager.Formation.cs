@@ -155,6 +155,7 @@ public partial class BossManager
             bool skySmall = IsSkyStage && (k == "Sky/Dragon" || k == "Sky/Majin");
             if ((t & LastDungeonBossTuning.Tag.Solo) != 0 || ((t & LastDungeonBossTuning.Tag.NoRush) != 0 && !skySmall)) continue;
             if (k == ld.rareKey || k.EndsWith("/MechDragon")) continue;
+            if (IsFinalOnlyKey(k)) continue; // 2026-11-06: マップのラスボスは 98km だけ
             if (!TagsFit(group, t)) continue;
             res.Add(k);
         }

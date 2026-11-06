@@ -13,7 +13,7 @@ using UnityEngine;
 //  ・必殺技は判断を2回以上求め、終わった後は種類ごとに見た目の違う大きな隙(CaveRecovery)。
 //  ・再戦(BossRematchTuning)はHP以外も強くなる: 段階の追加(上位以上)/必殺技の追加の一手(強化以上)/第2段階の技を最初から(上位以上)。
 // プレイヤーのジャンプは頂点約2.0(1段)/約4(2段)。地面の攻撃は高さ1.2以下、天井の攻撃は地面から2.3より上で止まる。
-public enum CaveBossKind { Centipede, Scorpion, Mole, Troll, Worm, CrystalGolem, Bat, ScorpionKing, Basilisk, Drake, AncientDemon }
+public enum CaveBossKind { Centipede, Scorpion, Mole, Troll, Worm, CrystalGolem, Bat, ScorpionKing, Basilisk, Drake, AncientDemon, Noctaris } // Noctaris(2026-11-06): 自然洞窟のラスボス(98km だけ)。末尾に足す
 
 // ===================================================================== //
 // 洞窟ボスの共通層(HazardBossBase の上に、洞窟の初期化の形だけ)

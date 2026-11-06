@@ -34,6 +34,7 @@ public partial class BossManager
         public readonly List<string> plan = new List<string>(); // 節目ごとのボス(firstK から)
         public bool lastReinforcementDone;              // 98kmの増援を予約した
         public bool held99;                             // 99kmで足止めした
+        public bool setRush, held98, finalSpawned;      // 通常マップ 95〜98km の3体同時の組(2026-11-06、BossManager.FinaleSet.cs)
         public LastDungeonBossTuning.Slot telegraphing; // 予告中(出現の直前)
         public float telegraphEnd, lastSpawnAt = -99f;
         public int milestonesReserved, maxQueue, maxCatchUp;
@@ -290,7 +291,7 @@ public partial class BossManager
         int alive = ActiveCount(enc);
         why = "";
         if (alive == 0) return true;
-        if (enc.mapRush) { why = "map rush: one at a time"; return false; } // 2026-10-15: 各マップのラッシュは1体ずつ
+        if (enc.mapRush && !enc.setRush) { why = "map rush: one at a time"; return false; } // 2026-10-15: 各マップのラッシュは1体ずつ
         if (alive >= Mathf.Max(1, ld.maxSimultaneous)) { why = $"together {alive}/{ld.maxSimultaneous}"; return false; }
         var t = ld.TagsOf(key);
         // Solo(希少な強敵): 居る間は他のボスを足さない / 他のボスが居る間は出さない(2026-10-13)
@@ -322,7 +323,7 @@ public partial class BossManager
     // 待っているボスのうち、条件を満たしたものを出す(前から順に。撃破で次は撃破1回につき1体)
     void RushSpawnDue(BossEncounter enc)
     {
-        if (enc != null && enc.continuous) { ContinuousRushTick(enc); return; }
+        if (enc != null && enc.continuous) { if (enc.setRush) SetRushTick(enc); else ContinuousRushTick(enc); return; }
         if (enc == null || !enc.rush || enc.waiting.Count == 0 || !IsBossPhase) return;
         float elapsed = Time.time - enc.startedAt;
         for (int i = 0; i < enc.waiting.Count; i++)
@@ -374,7 +375,8 @@ public partial class BossManager
         // 同時に並ぶ間合いの枠(出ているボスが使っていない一番小さい番号)
         int slot = 0;
         for (; slot < 4; slot++) { bool used = false; foreach (var b in enc.activeBosses) if (b != null && !b.IsDead && b.slotIndex == slot) used = true; if (!used) break; }
-        if (enc.mapRush) SetMapRushStrength(s.key, s.value * gateIntervalMeters); // 2026-10-15: 各マップのラッシュ = その節目の距離の再戦の強さ × 倍率
+        if (enc.setRush) SetSetStrength(s);
+        else if (enc.mapRush) SetMapRushStrength(s.key, s.value * gateIntervalMeters); // 2026-10-15: 各マップのラッシュ = その節目の距離の再戦の強さ × 倍率
         else SetLastDungeonStrength(s.key, (enc.continuous ? s.value : enc.gateK) * gateIntervalMeters, true, enc.continuous); // 走りながら: その節目の距離の強さ
         lastSpawnedWild = null;
         if (fam == GateFamily.Cave)
@@ -634,7 +636,7 @@ public partial class BossManager
     int prewarmedK;
     void PrewarmNextRushBoss(BossEncounter enc)
     {
-        if (enc.nextK > RushLastK || prewarmedK == enc.nextK) return;
+        if (enc.setRush || enc.nextK > RushLastK || prewarmedK == enc.nextK) return;
         float d = GateDistance();
         if (d < enc.nextK * gateIntervalMeters - 200f) return;
         prewarmedK = enc.nextK;

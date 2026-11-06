@@ -3795,7 +3795,8 @@ public partial class GameManager : MonoBehaviour
     void TryLifesteal() => TryLifesteal(1f);
 
     // v3: 吸収の確率(VAMPIRE/PREDATOR、HP25%以下の BLOOD RUSH)で、ハート1つ(+OVERHEAL)を回復
-    public static int LifestealProcs;
+    public static int LifestealProcs, LifestealCooledDown;
+    float lifestealReadyAt;
     public void TryLifesteal(float chanceScale)
     {
         float chance = lifestealChance;
@@ -3803,8 +3804,10 @@ public partial class GameManager : MonoBehaviour
         chance = Mathf.Min(CardRules.LifestealChanceCap, chance) * chanceScale;
         if (chance > 0f) chance = Mathf.Min(1f, chance + FinalEvolution.LifestealChanceAdd * chanceScale); // FINAL EVOLUTION(VAMPIRE)
         if (chance <= 0f) return;
+        if (Time.time < lifestealReadyAt) { LifestealCooledDown++; return; } // 2026-11-05: 回復の間隔(通常マップ、DifficultyTuning.LifestealCooldown)
         if (Random.value < chance)
         {
+            lifestealReadyAt = Time.time + DifficultyTuning.LifestealCooldown(MaxDistance);
             LifestealProcs++; ElementTelemetry.LifestealHeals++; ElementTelemetry.Proc(ElementType.Blood);
             CardHeal(HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart);
             ElementTelemetry.HealHp += HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart; ElementTelemetry.LifestealHealHp += HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart;

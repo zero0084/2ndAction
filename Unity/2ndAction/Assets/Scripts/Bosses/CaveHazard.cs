@@ -166,6 +166,7 @@ public class CaveHazard : MonoBehaviour
         follow = null; followOffset = 0f; drift = 0f; damage = CombatScale.PlayerHit; heavy = false; strong = true;
         hitsLeft = 0; lastHitTime = -9f; rot = 0f; colShrink = 0.85f; fallDur = 0.35f; slowFactor = 1f; slowDuration = 0f;
         onActivate = null; onLand = null; overReported = false; bodyAspect = 0f;
+        warnThemeMix = 0f; outlineOn = false; if (outline != null) outline.enabled = false; band.sortingOrder = RenderOrder.Boss - 1;
         col.enabled = false;
         foreach (var sr in new[] { band, body, shadow, pebA, pebB }) { sr.enabled = false; sr.flipY = false; sr.flipX = false; sr.transform.localPosition = Vector3.zero; sr.transform.localRotation = Quaternion.identity; sr.transform.localScale = Vector3.one; }
         gameObject.name = "CaveHazard_" + k;
@@ -366,6 +367,33 @@ public class CaveHazard : MonoBehaviour
     public void SetDrift(float speed) { drift = speed; }
     public void SetSlow(float factor, float duration) { slowFactor = factor; slowDuration = duration; NetAttackSync.UpdateSlow(gameObject, factor, duration); } // 登録の後で決まった減速も HOST の記録へ
     public void SetTint(Color c) { body.color = c; }
+
+    // 2026-11-06(通常マップのラスボス): 予告の帯の色にボスごとの色を少し混ぜる(低い=赤/高い=紫/背が高い=金 の見分けは保つ)。
+    //  outline = 帯のまわりに角の枠(天帝セラフィエルの青紫の縁取り)。見た目だけ(判定・時間は変えない。マルチの写しには出ない)
+    Color warnTheme; float warnThemeMix; bool outlineOn; SpriteRenderer outline;
+    public void SetWarnTheme(Color c, float mix, bool withOutline = false)
+    {
+        warnTheme = c; warnThemeMix = Mathf.Clamp01(mix); outlineOn = withOutline;
+        band.sortingOrder = RenderOrder.Boss; // ラスボスの体(Boss - 1)より手前に予告を出す
+        if (withOutline && outline == null)
+        {
+            outline = Child(transform, "Outline", RenderOrder.Boss + 1);
+            outline.sprite = BossFx.WarnCorners();
+        }
+    }
+    void SyncOutline()
+    {
+        if (outline == null) return;
+        bool on = outlineOn && band.enabled && band.sprite != null;
+        outline.enabled = on;
+        if (!on) return;
+        Vector2 b = band.sprite.bounds.size;
+        Vector3 s = band.transform.localScale;
+        outline.transform.localPosition = band.transform.localPosition;
+        SetSized(outline, b.x * s.x + 0.25f, b.y * s.y + 0.25f);
+        float pulse = 0.5f + 0.5f * Mathf.Sin(Time.time * 14f);
+        outline.color = new Color(warnTheme.r, warnTheme.g, warnTheme.b, Mathf.Lerp(0.55f, 1f, pulse));
+    }
     // 見た目だけ別の絵にする(魔人の爪 = 斬撃など)。判定・予告はそのまま
     public void SetBodySprite(Sprite sp, bool flipX = false) { body.sprite = sp; body.flipX = flipX; AttackArt.Animate(body); }
     // 2026-10-21: 横切る体(Wave)を専用の絵にした時、絵の縦横比を保つ(高さは判定の帯の 1.1倍、長さは判定の 1〜1.8倍の範囲。見た目は判定より大きく)
@@ -408,6 +436,7 @@ public class CaveHazard : MonoBehaviour
             default: UpdateTell(g, CeilingAt(p.x)); break;
         }
 
+        if (outline != null) SyncOutline();
         // 回避不能の検出: 床側と天井側の攻撃が同じフレームにプレイヤーの列で有効
         if (col.enabled && damage > 0) CountOverPlayer(p.x);
 
@@ -451,6 +480,7 @@ public class CaveHazard : MonoBehaviour
         float blink = 0.5f + 0.5f * Mathf.Sin(Time.time * Mathf.Lerp(8f, 26f, f));
         float a = Mathf.Lerp(0.12f, 0.42f, f) * Mathf.Lerp(0.7f, 1f, blink);
         band.enabled = true;
+        if (warnThemeMix > 0f) tint = Color.Lerp(tint, warnTheme, warnThemeMix); // ボスごとの色(2026-11-06)
         band.color = new Color(tint.r, tint.g, tint.b, a * 1.1f);
         band.transform.localPosition = new Vector3(0f, (yA + yB) * 0.5f, 0f);
         SetSized(band, width, Mathf.Max(0.15f, yB - yA));

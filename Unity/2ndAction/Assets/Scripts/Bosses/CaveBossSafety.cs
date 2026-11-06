@@ -28,7 +28,17 @@ public static class CaveBossSafety
     // 洞窟ボスと戦っている間(ラン再開後も含む)と必殺技の間は、新しい穴/坂を作らない(シングル)。
     // 天井の攻撃(地面にいる)と穴(跳ぶ)が重なる詰みを地形の側でも作らない。
     public static bool LastStageActive => GameManager.Instance != null && GameManager.Instance.ActiveRunStageId == BossManager.LastStageId; // ラスダン(2026-10-05): 天空と同じく必殺技の間だけ
-    public static bool ForceFlatTerrain => !Multi && ((CaveStageActive && (BossBattle.UltimateActive || CaveBossFighting)) || ((SkyStageActive || LastStageActive) && BossBattle.UltimateActive));
+    public static bool ForceFlatTerrain => !Multi && ((CaveStageActive && (BossBattle.UltimateActive || CaveBossFighting)) || ((SkyStageActive || LastStageActive) && BossBattle.UltimateActive) || FinalBossFighting);
+    // 2026-11-06: 通常マップのラスボス(98km)と戦っている間も、新しい穴/坂を作らない(シングル)。上下の判断が続く戦いに穴が重なると、
+    //  地面にいる(高い帯)と跳ぶ(穴)が同時になって避けられない(試験で天帝との戦いの被弾の半分以上が穴への落下だった)
+    static bool FinalBossFighting
+    {
+        get
+        {
+            foreach (var b in BossBattle.Living) if (b is WildBossBase w && w != null && !w.IsDead && BossManager.IsFinalOnlyKey(w.DeathKey)) return true;
+            return false;
+        }
+    }
     static bool CaveBossFighting => BossManager.Instance != null && BossManager.Instance.IsBossPhase && BossManager.Instance.AliveWildCount > 0;
     public static bool HoldZako => (CaveStageActive || SkyStageActive || LastStageActive) && BossBattle.UltimateActive && !NetCombat.Replica;
 

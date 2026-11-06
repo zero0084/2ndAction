@@ -71,7 +71,7 @@ public abstract partial class WildBossBase : IBossDeathBody
             float artSign = artFacesLeft ? (facing < 0f ? 1f : -1f) : (facing < 0f ? -1f : 1f);
             visual.localScale = new Vector3(scaleFactor * artSign, scaleFactor, 1f);
             visual.localRotation = Quaternion.identity;
-            visual.localPosition = Vector3.zero;
+            visual.localPosition = new Vector3(0f, ArtFootOffset(1f), 0f); // キャンバスの絵(ラスボス)は足元を地面へ。他のボスは 0
         }
         DisableAllHitboxes(); // 攻撃判定と予兆の表示を消す
         if (rig != null) { rig.ResetCells(); rig.SetColor(Color.white); }

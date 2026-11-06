@@ -172,7 +172,8 @@ public partial class PlayerController
             return cap;
         }
     }
-    public float ShieldRechargeSeconds => Mathf.Max(CardRules.ShieldRechargeMinSeconds, CardRules.ShieldRechargeBaseSeconds - CT(EffectType.ShieldRecharge));
+    public float ShieldRechargeSeconds => Mathf.Max(CardRules.ShieldRechargeMinSeconds, CardRules.ShieldRechargeBaseSeconds - CT(EffectType.ShieldRecharge))
+        * DifficultyTuning.ShieldRechargeMul(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f); // 2026-11-06: 終盤ほど遅く
     public float ShieldRechargeProgress => ShieldCharges < ShieldCapacity ? Mathf.Clamp01(shieldRechargeTimer / ShieldRechargeSeconds) : 1f;
 
     void UpdateShieldCapacity()

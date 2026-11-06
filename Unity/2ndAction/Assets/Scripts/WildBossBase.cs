@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum WildBossKind { Wolf, GoblinRider, Serpent, Cyclops, Spider, Golem, Griffin, Hydra, Demon, Dragon, BlackKnight }
+public enum WildBossKind { Wolf, GoblinRider, Serpent, Cyclops, Spider, Golem, Griffin, Hydra, Demon, Dragon, BlackKnight, Garmud } // Garmud(2026-11-06): 荒野街道のラスボス(98km だけ)。末尾に足す(番号は闘技場の設定/マルチで使う)
 
 // 荒野街道ボス追加(2026-09-20) - 新ボス群(巨大オオカミ〜黒騎士)共通の基盤。
 //
@@ -231,7 +231,25 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         float spriteW = idleSprite != null ? idleSprite.bounds.size.x : 1f;
         scaleFactor = bodyHeight / Mathf.Max(0.01f, spriteH);
         halfWidth = spriteW * scaleFactor * 0.5f;
+        artCanvasH = spriteH; artCanvasW = spriteW;
     }
+
+    // 2026-11-06(通常マップのラスボス): 体が真ん中に描かれた正方形のキャンバスの絵(1024x1024、まわりは透明)を、見えている体で合わせる。
+    //  bottom/top/left/right = キャンバスの中で体が見えている範囲(下端/左端からの割合、0〜1)。bodyHeight は見えている体の高さになり、
+    //  足元(bottom)が地面に来るように絵を下げる(取り込みは他のボスと同じ下端の中央のピボットのまま)。OnInit の最初に呼ぶ。
+    //  そのボスのコマ(BossAnim)が無く仮の絵で戦う時は何もしない(今までどおり絵の全体 = 体)
+    protected float artFootLift;            // キャンバスの下端から足元までの高さ(キャンバスの高さに対する割合)
+    float artCanvasH = 1f, artCanvasW = 1f;
+    protected bool FitCanvasArt(float bottom, float top, float left, float right)
+    {
+        var a = Anim;
+        if (a == null || a.idle == null || idleSprite == null || idleSprite != a.idle[0]) return false;
+        scaleFactor = bodyHeight / Mathf.Max(0.01f, artCanvasH * Mathf.Max(0.05f, top - bottom));
+        halfWidth = artCanvasW * scaleFactor * Mathf.Max(0.05f, right - left) * 0.5f;
+        artFootLift = Mathf.Clamp01(bottom);
+        return true;
+    }
+    float ArtFootOffset(float sy) => -artFootLift * artCanvasH * scaleFactor * sy;
 
     void BuildHurtbox()
     {
@@ -792,7 +810,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         {
             float k = hitTimer / 0.16f;
             off.x += Mathf.Sin(Time.time * 70f) * 0.05f * h * k;
-            tint = Color.Lerp(tint, new Color(1f, 0.25f, 0.25f, baseColor.a), 0.7f * Mathf.Clamp01(k));
+            tint = Color.Lerp(tint, new Color(1f, 0.25f, 0.25f, baseColor.a), (Broken ? 0.35f : 0.7f) * Mathf.Clamp01(k)); // 2026-11-06(エステル): BREAK 中は赤を半分に(弱点の光と BREAK の姿勢を隠さない)
         }
         // 2026-10-18: 怯み(後ろへのけぞる) / BREAK で打ち上がっている間(上がる時は反り、落ちる時は前へ) / 大型の膝つき(低く)
         if (flinchTimer > 0f) { float k = Mathf.Clamp01(flinchTimer / FlinchSeconds); rot += facing * 9f * k; off.x -= facing * 0.05f * h * k; }
@@ -815,7 +833,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         float artSign = artFacesLeft ? (facing < 0f ? 1f : -1f) : (facing < 0f ? -1f : 1f);
         visual.localScale = new Vector3(scaleFactor * artSign * sx, scaleFactor * sy, 1f);
         visual.localRotation = Quaternion.Euler(0f, 0f, rot);
-        visual.localPosition = new Vector3(off.x, off.y, 0f);
+        visual.localPosition = new Vector3(off.x, off.y + ArtFootOffset(sy), 0f); // ArtFootOffset: キャンバスの絵の足元を地面へ(他のボスは 0)
 
         // 格子リグの変形(走り/這い/羽ばたき/なびき)。姿勢に応じて強さを変える。
         float loco = 1f;
@@ -1098,15 +1116,18 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         // 複数体: 予備動作の開始を全体で少しずらす(同時に攻撃が重ならないように)。待つ間は走り続ける。
         float gateWait = 0f;
         if (foreseen == null) Foresee(zones); // 複数体の順番待ちの間も、決まった攻撃の範囲を先読みで出せる
-        while (Time.time < BossAttackGate.NextTime && !dead && gateWait < 2.5f)
+        bool heavyHeld = false;
+        while (!dead && ((Time.time < BossAttackGate.NextTime && gateWait < 2.5f) || (BossAttackGate.HeavyBlocked(duration, Time.time) && gateWait < BossAttackGate.HeavyMaxWait)))
         {
-            ForeseeTick(Mathf.Min(BossAttackGate.NextTime - Time.time, 2.5f - gateWait));
+            if (!heavyHeld && BossAttackGate.HeavyBlocked(duration, Time.time)) { heavyHeld = true; BossAttackGate.HeavyDeferred++; }
+            ForeseeTick(Mathf.Max(0.05f, Mathf.Min(Mathf.Max(BossAttackGate.NextTime - Time.time, 0.3f), BossAttackGate.HeavyMaxWait - gateWait)));
             gateWait += Time.deltaTime;
             relVelocity = 0f;
             SetPose(Pose.Move);
             yield return null;
         }
         BossAttackGate.NextTime = Time.time + BossAttackGate.Interval;
+        BossAttackGate.AddHeavy(duration, Time.time);
         interrupted = false;
         windingUp = true;
         facingLocked = true;
@@ -1814,6 +1835,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (!BossBattle.TryBeginUltimate(this)) return false;
         UltimateRunning = true;
         UltimatesUsed++;
+        ultimateSerial = ++ultimateSerialCounter; // この発動の弾をまとめる(1 回当たったら残りは当てない)
         lastUltimateTime = Time.time;
         Debug.Log($"[BossBattle] {bossName} ULTIMATE '{title}' #{UltimatesUsed} t={Time.time - battleStartedAt:F1}s");
         BossBattleHud.Banner(title, color, 1.6f);
@@ -1869,10 +1891,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // 必殺技の部品(重い一撃=ultimateDamage)
     protected int UltimateDamage => Mathf.Max(1, BossBattleTuning.I.ultimateDamage); // 2026-10-02: 20(旧2)
 
+    static int ultimateSerialCounter; int ultimateSerial;
     protected BossProjectile Projectile(Sprite sprite, Color color, Vector3 pos, Vector2 size, Vector2 velocity, float life, bool heavy)
     {
         var p = BossProjectile.Create(sprite, color, pos, size, velocity, life, RenderOrder.Boss + 1);
         if (heavy) p.damageAmount = UltimateDamage;
+        if (UltimateRunning && p != null) p.ultimateGroup = ultimateSerial;
         return p;
     }
 
@@ -2392,4 +2416,17 @@ public static class BossAttackGate
 {
     public static float NextTime;
     public static float Interval = 0.8f; // 調整用: 次の体が予備動作を始めるまでの最短間隔(秒)
+    // 2026-11-06(通常マップ 95〜98km の3体同時): 強攻撃(溜め HeavyWindup 秒以上)は同時に MaxHeavy 体まで。通常攻撃は制限しない
+    public static int MaxHeavy = 2;
+    public static float HeavyWindup = 0.8f, HeavyTail = 1.2f, HeavyMaxWait = 4f;
+    static readonly System.Collections.Generic.List<float> heavyEnds = new System.Collections.Generic.List<float>();
+    public static int HeavyDeferred, HeavyPeak;
+    public static int ActiveHeavy(float now) { heavyEnds.RemoveAll(x => x < now); return heavyEnds.Count; }
+    public static bool HeavyBlocked(float duration, float now) => duration >= HeavyWindup && MaxHeavy > 0 && ActiveHeavy(now) >= MaxHeavy;
+    public static void AddHeavy(float duration, float now)
+    {
+        if (duration < HeavyWindup) return;
+        heavyEnds.Add(now + duration + HeavyTail);
+        HeavyPeak = Mathf.Max(HeavyPeak, ActiveHeavy(now));
+    }
 }

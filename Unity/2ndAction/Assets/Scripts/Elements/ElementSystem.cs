@@ -252,6 +252,7 @@ public static partial class ElementSystem
         if (gm.CardLevel("blood_rush") > 0 && gm.Lives <= gm.maxLives * 0.5f) pct *= 2f;
         bool boss = victim != null && !(victim is EnemyController);
         if (boss && e.Get(EffectType.PredatorLevel) > 0f) pct *= 2f;
+        pct *= DifficultyTuning.HitLifestealMul(gm.MaxDistance); // 2026-11-06: 終盤ほど弱く(通常マップ)
         hitHealCarry += damage * pct;
         int heal = Mathf.FloorToInt(hitHealCarry);
         if (heal <= 0) return;

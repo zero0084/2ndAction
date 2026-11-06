@@ -611,6 +611,7 @@ public partial class BossManager : MonoBehaviour
         if (BonusZone.Instance != null && BonusZone.Instance.BlocksBoss) return;
         if (player == null || dragonIdleFrames == null || dragonIdleFrames.Length == 0) return;
         // ラスダン 90〜98km(2026-10-06): 走りながらのボスラッシュは距離を止めない(関門の演出/距離の固定を通らずに始める)
+        if (TryStartSetRush()) return;       // 2026-11-06: 通常マップ 95〜98km の3体同時の組
         if (TryStartContinuousRush()) return;
 
         float targetDistance = CurrentTargetDistance();
@@ -1182,6 +1183,8 @@ public partial class BossManager : MonoBehaviour
             case WildBossKind.Hydra: return new WildSpec(1800, 320, 5.0f, 10f, new Color(0.3f, 1f, 0.6f));
             case WildBossKind.Demon: return new WildSpec(2000, 400, 4.5f, 9f, new Color(0.8f, 0.3f, 1f));
             case WildBossKind.BlackKnight: return new WildSpec(2800, 500, 3.2f, 9f, new Color(0.5f, 0.6f, 1f));
+            // 2026-11-06 荒野街道のラスボス(98km)。高さ = 見えている体(軍旗の先まで)。通常の大ボスより一回り大きい
+            case WildBossKind.Garmud: return new WildSpec(4300, 700, 8.0f, 12f, new Color(1f, 0.55f, 0.25f));
             default: return new WildSpec(300, 50, 3f, 9f, Color.white);
         }
     }
@@ -1215,6 +1218,7 @@ public partial class BossManager : MonoBehaviour
             case WildBossKind.Griffin: boss = go.AddComponent<GriffinBoss>(); break;
             case WildBossKind.Hydra: boss = go.AddComponent<HydraBoss>(); break;
             case WildBossKind.Demon: boss = go.AddComponent<DemonBoss>(); break;
+            case WildBossKind.Garmud: boss = go.AddComponent<GarmudBoss>(); break;
             default: boss = go.AddComponent<BlackKnightBoss>(); break;
         }
 
@@ -1241,6 +1245,7 @@ public partial class BossManager : MonoBehaviour
             boss.windupSprite = art.windup;
             boss.attackSprite = art.attack;
         }
+        if (kind == WildBossKind.Garmud && boss.idleSprite == null) boss.idleSprite = FinalBossIdle("garmud", FindArt(WildBossKind.Golem)); // ラスボスの絵は Resources/BossAnim から(無ければ仮の絵)
         // 素材が無い場合でも戦えるよう、単色ブロックで代用(見た目は仮)
         if (boss.idleSprite == null) boss.idleSprite = squareSprite;
 
@@ -1269,6 +1274,8 @@ public partial class BossManager : MonoBehaviour
             case CaveBossKind.Basilisk: return new CaveSpec(2100, 410, 3.4f, 9f, new Color(0.6f, 0.9f, 0.35f));
             case CaveBossKind.Drake: return new CaveSpec(2600, 470, 4.4f, 9f, new Color(1f, 0.55f, 0.25f));
             case CaveBossKind.AncientDemon: return new CaveSpec(2900, 520, 3.6f, 9f, new Color(0.75f, 0.25f, 1f));
+            // 2026-11-06 自然洞窟のラスボス(98km)。低く長い体(高さ = 見えている体、幅は約1.6倍)
+            case CaveBossKind.Noctaris: return new CaveSpec(4400, 720, 7.2f, 12f, new Color(0.55f, 0.85f, 1f));
             default: return new CaveSpec(300, 50, 3f, 9f, Color.white);
         }
     }
@@ -1303,6 +1310,7 @@ public partial class BossManager : MonoBehaviour
             case CaveBossKind.ScorpionKing: boss = go.AddComponent<ScorpionKingBoss>(); break;
             case CaveBossKind.Basilisk: boss = go.AddComponent<BasiliskBoss>(); break;
             case CaveBossKind.Drake: boss = go.AddComponent<DrakeBoss>(); break;
+            case CaveBossKind.Noctaris: boss = go.AddComponent<NoctarisBoss>(); break;
             default: boss = go.AddComponent<AncientDemonBoss>(); break;
         }
 
@@ -1336,6 +1344,7 @@ public partial class BossManager : MonoBehaviour
         // 実イラスト未着手の間は、CaveBossFxの手続き的シルエットを暫定ボディ
         // として使う(荒野街道のsquareSprite代用と同じ位置づけ - 差し替え
         // 前提の仮素材)。
+        if (kind == CaveBossKind.Noctaris && boss.idleSprite == null) { var ca = FindCaveArt(CaveBossKind.CrystalGolem); boss.idleSprite = FinalBossIdle("noctaris", null) ?? (ca != null ? ca.idle : null); } // ラスボス(無ければ仮の絵)
         if (boss.idleSprite == null) boss.idleSprite = CaveBodySilhouette(kind);
         if (boss.windupSprite == null) boss.windupSprite = boss.idleSprite;
 
@@ -1465,6 +1474,7 @@ public partial class BossManager : MonoBehaviour
             case SkyBossKind.SkySerpent: return new SkySpec(2500, 490, 3.4f, 8f, new Color(0.75f, 0.85f, 1f));
             case SkyBossKind.Guardian: return new SkySpec(3200, 580, 3.6f, 7f, new Color(1f, 0.92f, 0.65f));
             case SkyBossKind.MechDragon: return new SkySpec(4400, 900, 5.5f, 8f, new Color(0.45f, 0.75f, 1f)); // 希少な強敵: 全ボスで最上位の HP(ラスダンの倍率込みで同じ距離の上位ボスの約1.4倍)
+            case SkyBossKind.Seraphiel: return new SkySpec(4600, 760, 8.4f, 12f, new Color(1f, 0.92f, 0.6f)); // 2026-11-06 天空回廊のラスボス(98km)。高さ = 光輪から衣の裾まで
             default: return new SkySpec(600, 80, 3f, 9f, Color.white);
         }
     }
@@ -1499,6 +1509,7 @@ public partial class BossManager : MonoBehaviour
             case SkyBossKind.SkySerpent: boss = go.AddComponent<SkySerpentBoss>(); break;
             case SkyBossKind.MechDragon: boss = go.AddComponent<MechDragonBoss>(); break;
             case SkyBossKind.Guardian: boss = go.AddComponent<CelestialGuardianBoss>(); break;
+            case SkyBossKind.Seraphiel: boss = go.AddComponent<SeraphielBoss>(); break;
             default: boss = go.AddComponent<CelestialGuardianBoss>(); break;
         }
 
@@ -1526,6 +1537,7 @@ public partial class BossManager : MonoBehaviour
             boss.attackSprite = art.attack;
         }
         // 実イラストが無い場合の暫定ボディ(自然洞窟のCaveBodySilhouetteと同じ位置づけ)
+        if (kind == SkyBossKind.Seraphiel && boss.idleSprite == null) { var ga = FindSkyArt(SkyBossKind.Guardian); boss.idleSprite = FinalBossIdle("seraphiel", null) ?? (ga != null ? ga.idle : null); } // ラスボス(無ければ仮の絵)
         if (boss.idleSprite == null) boss.idleSprite = SkyBossFx.Placeholder(kind);
         if (boss.windupSprite == null) boss.windupSprite = boss.idleSprite;
 
@@ -1638,6 +1650,7 @@ public partial class BossManager : MonoBehaviour
         BossesDefeated++;
         aliveWildThisEncounter--;
         EncounterOnDefeated(who);
+        SetOnBossDefeated(who);
         var enc = CurrentBossEncounter;
         if (RushGateK > 0) Debug.Log($"[BossRush] Boss Defeated {(who != null ? who.bossName : "?")} (gate {RushGateK * 1000}m, remaining {aliveWildThisEncounter}, waiting {(enc != null ? enc.waiting.Count : 0)})");
         // ボスラッシュ: 撃破で次(OnKill)/誰も居なくなったら待っているボスを出す。待っているボスも残り数に入っているので関門は終わらない
@@ -1657,6 +1670,7 @@ public partial class BossManager : MonoBehaviour
         float multiplier = GameManager.Instance != null ? GameManager.Instance.BossHpMultiplier : 1f;
         // 2026-10-02: ボスHPの再設計案(開発版DEBUGで15/20/25発を選んだ時だけ。既定/製品版は1)
         multiplier *= BossHpPlan.Multiplier(BossHpPlan.CurrentDistance);
+        multiplier *= DifficultyTuning.BossHpScale(BossHpPlan.CurrentDistance); // 2026-11-05: 通常マップの序盤のボス戦を短く(デッキ 3 段階の調整)
         return Mathf.Max(1, Mathf.RoundToInt(baseHp * Mathf.Max(0.01f, multiplier)));
     }
 

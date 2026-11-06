@@ -72,7 +72,7 @@ public partial class BossManager
     // 対象のマップ/人数(各マップのラッシュと同じ: ソロ・CPU・協力の HOST。対戦は今までどおりの関門)
     bool MapFinaleStage => MapFinaleEnabled && MapRushStage;
     // 91〜94km は関門を作らない(雑魚の大群の区間)
-    bool FinaleSkipsGate(int k) => MapFinaleStage && k > FinaleBossK && k < FinaleTrioFirstK;
+    bool FinaleSkipsGate(int k) => MapFinaleStage && ((k > FinaleBossK && k < FinaleTrioFirstK) || SetRushSkipsGate(k)); // 2026-11-06: 96〜99km は3体同時の組が受け持つ
     bool FinaleTrioGate(int k) => MapFinaleStage && k >= FinaleTrioFirstK && k <= FinaleTrioLastK;
 
     // ---- 90〜95km: 雑魚の大群 ----
@@ -156,7 +156,7 @@ public partial class BossManager
     public string LastTrioPlan { get; private set; } = "";
     public static readonly List<string> TrioLog = new List<string>(); // 確認用(関門ごとの構成と撃破までの秒)
 
-    List<string> BuildTrioPlan(int k, out List<int> classes)
+    List<string> BuildTrioPlan(int k, out List<int> classes, ICollection<string> avoid = null)
     {
         string stage = GameManager.Instance != null ? GameManager.Instance.ActiveRunStageId : "";
         classes = new List<int>(TrioClasses[Mathf.Clamp(k - FinaleTrioFirstK, 0, TrioClasses.Length - 1)]);
@@ -173,12 +173,13 @@ public partial class BossManager
             for (int ex = Mathf.Max(0, TrioRecentExclude); ex >= 0 && pick == null; ex--)
             {
                 int exNow = ex;
-                bool Ok(string x) { int ri = recentFought.IndexOf(x); return !plan.Contains(x) && (ri < 0 || ri >= exNow); }
+                bool Ok(string x) { int ri = recentFought.IndexOf(x); return !plan.Contains(x) && (avoid == null || !avoid.Contains(x)) && (ri < 0 || ri >= exNow); }
                 var ok = cands.FindAll(Ok);
                 if (ok.Count == 0 && cands != all) ok = all.FindAll(Ok);
                 if (ok.Count > 0) pick = ok[Random.Range(0, ok.Count)]; // HOST/シングルだけが呼ぶ
             }
-            plan.Add(pick ?? all[Random.Range(0, all.Count)]);
+            if (pick == null) { var free = all.FindAll(x => !plan.Contains(x) && (avoid == null || !avoid.Contains(x))); pick = free.Count > 0 ? free[Random.Range(0, free.Count)] : all[Random.Range(0, all.Count)]; }
+            plan.Add(pick);
         }
         return plan;
     }

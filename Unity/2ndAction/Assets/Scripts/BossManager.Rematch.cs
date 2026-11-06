@@ -50,6 +50,7 @@ public partial class BossManager
     // その種類が本来初めて出てくる距離(m)。再戦のHPの基準に使う
     float FirstDistanceOf(GateFamily f, int kind)
     {
+        if (IsFinalOnlyKey(Key(f, kind))) return SetFinalK * gateIntervalMeters; // 2026-11-06: ラスボスは 98km が初登場(距離の倍率を掛けない)
         if (f == GateFamily.Wild)
         {
             var k = (WildBossKind)kind;
@@ -159,6 +160,7 @@ public partial class BossManager
             {
                 if (skip.Contains(key)) continue;
                 if (key == "Sky/MechDragon") continue; // 希少な強敵はラスダンだけ(通常マップの再戦には出さない)
+                if (IsFinalOnlyKey(key)) continue;     // 2026-11-06: マップのラスボスは 98km だけ(再戦に出さない)
                 float w = tn.WeightFor(key, fiveK);
                 if (w <= 0f) continue;
                 cands.Add((key, w)); total += w;
@@ -176,7 +178,7 @@ public partial class BossManager
     // 戦闘が終わった(関門のボスを全部倒した): プールへ登録
     void RegisterEncounterDefeated()
     {
-        if (string.IsNullOrEmpty(CurrentEncounterKey) || !RematchStage) { ResetRematchEncounter(); return; }
+        if (string.IsNullOrEmpty(CurrentEncounterKey) || !RematchStage || IsFinalOnlyKey(CurrentEncounterKey)) { ResetRematchEncounter(); return; } // ラスボスはプールへ入れない
         if (!defeatedPool.Contains(CurrentEncounterKey))
         {
             defeatedPool.Add(CurrentEncounterKey);
@@ -225,7 +227,7 @@ public partial class BossManager
         defeatedPool.Clear(); recentFought.Clear();
         if (d != null && d.bossPoolVersion >= 1)
         {
-            if (d.defeatedBosses != null) foreach (var k in d.defeatedBosses) if (ParseKey(k, out _, out _) && !defeatedPool.Contains(k)) defeatedPool.Add(k);
+            if (d.defeatedBosses != null) foreach (var k in d.defeatedBosses) if (ParseKey(k, out _, out _) && !IsFinalOnlyKey(k) && !defeatedPool.Contains(k)) defeatedPool.Add(k);
             if (d.recentBosses != null) foreach (var k in d.recentBosses) if (ParseKey(k, out _, out _)) recentFought.Add(k);
             return;
         }
@@ -249,12 +251,12 @@ public partial class BossManager
     public void DebugUnlockAll()
     {
         var fam = StageFamily;
-        if (fam == GateFamily.Sky) foreach (SkyBossKind s in System.Enum.GetValues(typeof(SkyBossKind))) { if (s == SkyBossKind.MechDragon) continue; string k = Key(fam, (int)s); if (!defeatedPool.Contains(k)) defeatedPool.Add(k); }
-        else if (fam == GateFamily.Cave) foreach (CaveBossKind c in System.Enum.GetValues(typeof(CaveBossKind))) { string k = Key(fam, (int)c); if (!defeatedPool.Contains(k)) defeatedPool.Add(k); }
-        else foreach (WildBossKind w in System.Enum.GetValues(typeof(WildBossKind))) { string k = Key(fam, (int)w); if (!defeatedPool.Contains(k)) defeatedPool.Add(k); }
+        if (fam == GateFamily.Sky) foreach (SkyBossKind s in System.Enum.GetValues(typeof(SkyBossKind))) { if (s == SkyBossKind.MechDragon) continue; string k = Key(fam, (int)s); if (!IsFinalOnlyKey(k) && !defeatedPool.Contains(k)) defeatedPool.Add(k); }
+        else if (fam == GateFamily.Cave) foreach (CaveBossKind c in System.Enum.GetValues(typeof(CaveBossKind))) { string k = Key(fam, (int)c); if (!IsFinalOnlyKey(k) && !defeatedPool.Contains(k)) defeatedPool.Add(k); }
+        else foreach (WildBossKind w in System.Enum.GetValues(typeof(WildBossKind))) { string k = Key(fam, (int)w); if (!IsFinalOnlyKey(k) && !defeatedPool.Contains(k)) defeatedPool.Add(k); } // ラスボスは入れない(2026-11-06)
         LastRematchDecision = "unlock all";
     }
-    public void DebugUnlock(string key) { if (ParseKey(key, out _, out _) && !defeatedPool.Contains(key)) defeatedPool.Add(key); }
+    public void DebugUnlock(string key) { if (ParseKey(key, out _, out _) && !IsFinalOnlyKey(key) && !defeatedPool.Contains(key)) defeatedPool.Add(key); }
     public void DebugSetRecentExclude(int n) { BossRematchTuning.I.recentExclude = Mathf.Clamp(n, 0, 5); }
     // 次の関門をすぐ始める(その手前へワープ)
     public bool DebugStartNextGateNow()

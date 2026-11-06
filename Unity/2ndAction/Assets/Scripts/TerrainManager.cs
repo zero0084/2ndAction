@@ -1286,6 +1286,12 @@ public class TerrainManager : MonoBehaviour
         arenaTo = 0f;
         var bm = BossManager.Instance;
         if (bm == null || NetRunLauncher.IsMultiplayerRun || ArenaMode.Active || !BossHalt.Enabled) return false;
+        // 2026-11-06: 通常マップ 95〜98km の組のラッシュの足止め(98.5km / 99km)の所も平地に(足止めの間に穴で落ちない)
+        foreach (float hold in bm.SetRushHoldPoints)
+        {
+            float ha = hold - BossArenaBefore, hb = hold + BossArenaAfter;
+            if (toRun >= ha && fromRun <= hb) { arenaTo = hb; return true; }
+        }
         float gate = bm.NextBossDistance;
         if (gate <= 0f || float.IsInfinity(gate)) return false;
         float a = gate - BossArenaBefore; arenaTo = gate + BossArenaAfter;

@@ -749,6 +749,7 @@ public partial class PlayerController : MonoBehaviour
     // これが無いと、高速走行中にプレイヤーが自分の弾や跳ね返した火球を追い越してしまい、
     // 逆に正面から来る敵弾は走行速度ぶん速く迫って避けられなくなる。ボス自身もこの速度で
     // 並走しているため、ボスの弾・跳ね返した弾の当たり方も設計どおりに保たれる。
+    public float LastManualInputTime { get; private set; } = -999f;
     public static float RunFrameSpeed => Instance != null ? Instance.CurrentAutoRunSpeed : 0f;
     // 高速走行の視認性補正(2026-09-22) - 基礎速度に対する現在のAuto Run速度の倍率(1.0〜maxSpeedMultiplier)。
     // 表示/カメラ補正/配置間隔が参照するだけで、実際の移動速度計算には一切影響しない。
@@ -1169,6 +1170,7 @@ public partial class PlayerController : MonoBehaviour
         // 高速時の自動操作補助(2026-09-28): 手動入力が無いフレームだけ、補助の判断を同じ入力経路へ入れる。
         // (ここへ来るのは停止/カード選択/カウントダウン/死亡/ダウン/終了のどれでもない時だけ)
         // エリアルコンボ改修(2026-10-18): このフレームに入力が無ければ、覚えている先行入力を入れる(補助の判断より優先)
+        if (requestedFlick.HasValue) LastManualInputTime = Time.unscaledTime; // 2026-11-05: 人の操作の時刻(補助の強さ: しばらく操作が無ければ最大)
         flickFromBuffer = FlickBufferBefore();
         ApplyHighSpeedAssist();
         // タップ攻撃: タップからの前攻撃なら、その技の前への踏み込みを消す。手動のフリック/キー/補助の入力が来たら戻す

@@ -357,8 +357,14 @@ public class BossTelegraphMarker : MonoBehaviour
         if (!sr.enabled) return;
         float blink = 0.5f + 0.5f * Mathf.Sin(Time.time * Mathf.Lerp(8f, 26f, p));
         float a = Mathf.Lerp(0.10f, 0.42f, p) * Mathf.Lerp(0.7f, 1f, blink);
-        sr.color = new Color(1f, Mathf.Lerp(0.5f, 0.1f, p), 0.08f, a);
+        Color c = new Color(1f, Mathf.Lerp(0.5f, 0.1f, p), 0.08f, a);
+        if (themeMix > 0f) { Color m = Color.Lerp(c, theme, themeMix); m.a = a; c = m; }
+        sr.color = c;
     }
+
+    // 2026-11-06(通常マップのラスボス): 予兆の色にボスごとの色を混ぜる(見た目だけ)
+    Color theme; float themeMix;
+    public void SetTheme(Color c, float mix) { theme = c; themeMix = Mathf.Clamp01(mix); if (sr != null) sr.sortingOrder = RenderOrder.Boss; } // ラスボスの体(Boss - 1)より手前
 
     public void Hide()
     {
@@ -380,6 +386,12 @@ public class BossProjectile : MonoBehaviour
     public bool damage = true;
     public int damageAmount = CombatScale.PlayerHit; // ボス戦の強化(2026-10-01)
     public bool passThrough;     // 当たっても消えない(岩柱/大玉など)
+    // 2026-11-05 デッキ 3 段階の調整: 同じ必殺技(1 回の発動)の弾は、プレイヤーに 1 回当たったら残りは当てない。
+    //  大蛇の「大地を裂く大蛇」(低い → 高い → 低い の 3 波、どれも必殺技の重いダメージ)で放置が 1 回の発動で 3 回当たり、
+    //  70km の関門が事実上の壁になっていた。避ければ 0 のまま(人の操作の価値は同じ)、避けなければ 1 回だけ
+    public int ultimateGroup;
+    static int lastHitUltimateGroup;
+    public static int UltimateRepeatHitsSkipped; // 確認用
     public float bounceHeight;   // >0: 地面を跳ねながら進む(落石)。hugGround時のみ
     public float bouncePeriod = 0.6f;
     public float spin;           // 見た目の回転(度/秒)
@@ -464,7 +476,13 @@ public class BossProjectile : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player") || PlayerController.Instance == null) return;
-        if (damage) PlayerController.Instance.TakeDamage(source: "BossProjectile:" + name, amount: BossManager.ScaleDamage(damageAmount));
+        bool repeat = ultimateGroup != 0 && ultimateGroup == lastHitUltimateGroup;
+        if (repeat) UltimateRepeatHitsSkipped++;
+        if (damage && !repeat)
+        {
+            if (ultimateGroup != 0) lastHitUltimateGroup = ultimateGroup;
+            PlayerController.Instance.TakeDamage(source: "BossProjectile:" + name, amount: BossManager.ScaleDamage(damageAmount));
+        }
         if (slowFactor < 1f) PlayerController.Instance.ApplyMoveSlow(slowFactor, slowDuration);
         if (!passThrough) Destroy(gameObject);
     }

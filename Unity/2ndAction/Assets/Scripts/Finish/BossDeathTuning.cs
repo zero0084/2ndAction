@@ -86,6 +86,10 @@ public class BossDeathTuning : ScriptableObject
         new BossEntry("Sky/SkySerpent", BossDeathProfile.Serpent, 2.4f, 4f, 13f, BossDeathFx.Storm),
         new BossEntry("Sky/Guardian", BossDeathProfile.Humanoid, 1.8f, 5f, 14f, BossDeathFx.Halo),
         new BossEntry("Sky/MechDragon", BossDeathProfile.Flying, 2.4f, 6f, 16f, BossDeathFx.Lightning), // 希少な強敵: 火花を散らして落ちる
+        // 通常マップのラスボス(2026-11-06): 短く倒れる(長い演出なし)。荒野王 = 前のめりに崩れる巨体 / 深淵の主 = 結晶が砕けて崩れる / 天帝 = 光輪が砕けて落ちる
+        new BossEntry("Wild/Garmud", BossDeathProfile.Giant, 4.5f, 2f, 11f),
+        new BossEntry("Cave/Noctaris", BossDeathProfile.Golem, 4.5f, 2f, 12f, BossDeathFx.Crystal),
+        new BossEntry("Sky/Seraphiel", BossDeathProfile.Flying, 2.0f, 4f, 13f, BossDeathFx.Halo),
         new BossEntry("Majin", BossDeathProfile.Humanoid, 2.0f, 6f, 14f),
         new BossEntry("Reaper", BossDeathProfile.Humanoid, 1.4f, 6f, 14f),
         // 2026-10-20: 姉妹ごとの倒れ方(長女 = 膝をつく人型 / 次女 = 浮遊が保てず落ちる / 三女 = 空中で崩れて落ちる)。声は "Reaper" のまま

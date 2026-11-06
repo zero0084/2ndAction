@@ -1,6 +1,6 @@
 """空中雑魚のシート(エステルの生成画像: 横一列にポーズ、単色の背景)を、ゲームのコマへ切り分ける(2026-11-05)。
 
-  python slice.py <sheet.png> <out_dir> [--bg magenta|green] [--names a,b,c...] [--max 256] [--preview <jpg>]
+  python slice.py <sheet.png> <out_dir> [--bg magenta|green|blue] [--names a,b,c...] [--max 256] [--preview <jpg>]
 
   ・切り抜き: 背景らしさ(マゼンタ: min(R,B)-G / 緑: G-max(R,B))で透明に + 縁の色かぶりを抜く(Tools/newchar/frames.py と同じ考え方)
   ・ポーズの分け方: 不透明な画素の「列ごとの数」で横の塊に分け、大きい塊 N 個(N = 名前の数)をポーズにする。
@@ -24,6 +24,8 @@ def cutout(rgb, bg, keepcolor=False):
     r, g, b = a[..., 0], a[..., 1], a[..., 2]
     if bg == 'green':
         m = g - np.maximum(r, b)
+    elif bg == 'blue':  # 2026-11-06: 赤橙の光(ガルムードの予兆)は緑の背景だと黄緑に濁る → 青の背景
+        m = b - np.maximum(r, g)
     else:
         m = np.minimum(r, b) - g
     alpha = np.clip(1.0 - (m - 35) / 110.0, 0, 1)
@@ -48,6 +50,8 @@ def cutout(rgb, bg, keepcolor=False):
     out = a.copy()
     if bg == 'green':
         out[..., 1] = g - k
+    elif bg == 'blue':
+        out[..., 2] = np.minimum(b - k, g)  # 赤橙・砂色・鉄は B <= G。背景の青が混ざった光の青みを抜く(青い体のボスには使わない)
     else:
         out[..., 0] = r - k
         out[..., 2] = b - k
@@ -57,7 +61,7 @@ def cutout(rgb, bg, keepcolor=False):
     semi = (alpha > 0) & (alpha < 0.95) & (m > 35) & ~inner
     if semi.any():
         a2 = np.clip((255.0 - m) / 305.0, 0.05, 1.0)
-        bgc = np.array([0, 255, 0] if bg == 'green' else [255, 0, 255], np.float32)
+        bgc = np.array([0, 255, 0] if bg == 'green' else [0, 0, 255] if bg == 'blue' else [255, 0, 255], np.float32)
         unmix = (a - (1 - a2[..., None]) * bgc) / a2[..., None]
         out[semi] = np.clip(unmix[semi], 0, 255)
         alpha = np.where(semi, np.minimum(alpha, a2 * 1.15), alpha)

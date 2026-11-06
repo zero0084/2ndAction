@@ -106,7 +106,9 @@ public class DecisionEvents : MonoBehaviour
         var band = BandNow(d / 1000f);
         var pc = PlayerController.Instance;
         float speed = pc != null ? Mathf.Max(5f, pc.CurrentAutoRunSpeed) : 25f;
-        if (nextCandidateAt < 0f) { nextCandidateAt = Time.time + Range(band.gapSeconds) * 0.5f; return; } // 50km に入ってすぐは少し待つ
+        float fastT = T.FastT(speed); // 2026-11-05: 高速域では候補の間隔・関門の手前・ボスの後を短く(実時間の頻度を保つ)
+        float gapMul = Mathf.Lerp(1f, T.fastGapMul, fastT);
+        if (nextCandidateAt < 0f) { nextCandidateAt = Time.time + Range(band.gapSeconds) * 0.5f * gapMul; return; } // 50km に入ってすぐは少し待つ
         // 今までの道中イベント(乱入/ラッシュ等)が終わった時: 最低 afterLegacySeconds は空ける
         bool legacyNow = RoadEvents.Active != RoadEventKind.None && Running == RoadEventKind.None;
         if (legacyWas && !legacyNow) { restUntil = Mathf.Max(restUntil, Time.time + Mathf.Max(T.afterLegacySeconds, band.restAfterSeconds)); nextCandidateAt = Mathf.Max(nextCandidateAt, restUntil); }
@@ -120,7 +122,7 @@ public class DecisionEvents : MonoBehaviour
             Postponed++; nextCandidateAt = Time.time + 1.5f; return;
         }
         Rolled++;
-        if (R01() >= band.chance) { RolledOff++; nextCandidateAt = Time.time + Range(band.gapSeconds) * 0.5f; return; }
+        if (R01() >= band.chance) { RolledOff++; nextCandidateAt = Time.time + Range(band.gapSeconds) * 0.5f * gapMul; return; }
         var kind = PickKind(band, d);
         if (kind == RoadEventKind.None) { nextCandidateAt = Time.time + 3f; return; }
         StartKind(kind, band, d, R01() < band.comboChance);
@@ -130,7 +132,9 @@ public class DecisionEvents : MonoBehaviour
     {
         why = "";
         if (bm != null && bm.IsBossPhase) { why = "boss"; return true; }
-        if (Time.time - lastBossSeen < T.afterBossSeconds) { why = "after boss"; return true; }
+        if (bm != null && bm.FinaleNoZakoAt(d)) { why = "finale"; return true; } // 2026-11-06: 通常マップの 95〜100km(ボスの組 → ラスボス → 静かな道)は出さない
+        float fastT = T.FastT(speed);
+        if (Time.time - lastBossSeen < Mathf.Lerp(T.afterBossSeconds, T.fastAfterBossSeconds, fastT)) { why = "after boss"; return true; }
         if (BonusZone.Instance != null && BonusZone.Instance.State != BonusZone.Phase.Idle) { why = "bonus zone"; return true; }
         if (LandmarkJourney.GateVisible) { why = "gate"; return true; }
         if (gm.CountdownActive || gm.ResumeGateActive) { why = "countdown"; return true; }
@@ -138,7 +142,8 @@ public class DecisionEvents : MonoBehaviour
         if (bm != null)
         {
             float gap = bm.NextBossDistance - d;
-            if (gap > 0f && gap < T.gateClearMeters + speed * T.gateClearSeconds) { why = $"gate in {gap:F0}m"; return true; }
+            float clear = Mathf.Lerp(T.gateClearMeters, T.fastGateClearMeters, fastT) + speed * Mathf.Lerp(T.gateClearSeconds, T.fastGateClearSeconds, fastT);
+            if (gap > 0f && gap < clear) { why = $"gate in {gap:F0}m"; return true; }
         }
         if (UltimateArt.Driving) { why = "ultimate"; return true; }
         return false;
@@ -244,8 +249,10 @@ public class DecisionEvents : MonoBehaviour
 
     void FinishLater(DecisionEventTuning.Band b, float extra)
     {
-        restUntil = Time.time + b.restAfterSeconds + extra;
-        nextCandidateAt = Time.time + Mathf.Max(b.restAfterSeconds, Range(b.gapSeconds)) + extra;
+        var pcF = PlayerController.Instance;
+        float gapMulF = Mathf.Lerp(1f, T.fastGapMul, T.FastT(pcF != null ? pcF.CurrentAutoRunSpeed : 0f));
+        nextCandidateAt = Time.time + Mathf.Max(b.restAfterSeconds * gapMulF, Range(b.gapSeconds) * gapMulF) + extra;
+        restUntil = Time.time + b.restAfterSeconds * gapMulF + extra;
     }
 
     void Abort(string why)
