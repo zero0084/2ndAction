@@ -14,17 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
   characterId: luka
   displayName: LUKA
-  subtitle: Paw, Pounce, Leap
+  subtitle: Cat Punches, Pounces, Big Jumps
   role: AGILE
-  flavorText: 'A small, brave tabby cat full of energy.
-
-    No weapon, no armor
-    - just quick paws
-
-    and a fearless pounce.
-
-    Small enough to slip past
-    danger, light enough to leap high.'
+  flavorText: "A brave little tabby with quick paws\nand fearless pounces. His small body\nslips past danger, and he jumps high.\nNo weapons or armor needed."
   portrait: {fileID: 2800000, guid: 9aa4d11a25fb26244890863161151830, type: 3}
   mainVisual: {fileID: 2800000, guid: 7b41fdd48444f1649ae856733fc1b3f2, type: 3}
   lifeRating: 2

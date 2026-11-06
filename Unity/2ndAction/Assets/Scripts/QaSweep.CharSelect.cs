@@ -25,6 +25,19 @@ public partial class QaSweep
         if (ui == null) yield break;
         var sel = typeof(CharacterSelectUI).GetMethod("SelectIndex", BindingFlags.Instance | BindingFlags.NonPublic);
         var all = CharacterDatabase.AllCharacters;
+        // 2026-11-07(キャラ文言の30言語の確認): -csLangs ja,en,... = 1回の起動で言語を順に切り替えて14人ずつ撮る(切り替えの途中の撮影は省く)
+        string csLangs = Arg("-csLangs", "");
+        string[] langList = csLangs == "" ? new[] { "" } : csLangs.Split(',');
+        foreach (string lang in langList)
+        {
+        string tag = "";
+        if (lang != "")
+        {
+            Loc.Set(lang, false);
+            yield return new WaitForSecondsRealtime(1.2f);
+            tag = lang + "_";
+            L($"[lang] {lang}");
+        }
         for (int i = 0; i < all.Count; i++)
         {
             ui.DebugSelectAndCenter(i); // 2026-10-22: カルーセルの位置も合わせる(以前は選ぶだけで、一覧は開いた時の位置のまま)
@@ -53,9 +66,12 @@ public partial class QaSweep
             var art = face != null ? face.Find("Art")?.GetComponent<UnityEngine.UI.RawImage>() : null;
             Check(art != null && art.texture == all[i].mainVisual, $"{all[i].characterId}: the card shows this character's portrait in the common card frame");
             if (art != null) L($"[card] {all[i].characterId} face {face.rect.size} uv {art.uvRect}");
-            Shot($"charsel_{Screen.width}x{Screen.height}_{i:00}_{all[i].characterId}");
+            LogCharTexts(ui, i, all[i], lang); // 2026-11-06 キャラ文言の更新: 一行/型ラベルの欠け・紹介文の折り返し
+            Shot($"charsel_{tag}{Screen.width}x{Screen.height}_{i:00}_{all[i].characterId}");
             yield return new WaitForSecondsRealtime(0.3f);
         }
+        }
+        if (csLangs != "") yield break;
         // 切り替えの途中(消えかけ/出かけ): 3人ぶん撮る
         foreach (int i in new[] { 4, 8, 12 })
         {
@@ -81,6 +97,40 @@ public partial class QaSweep
             }
             Time.captureDeltaTime = 0f;
         }
+    }
+
+    // 2026-11-06(キャラ文言の更新): 一行/型ラベル(情報パネル・カードの小さな字)が1行に収まるか(OVER = はみ出して欠ける)、
+    //  紹介文が実際に何行で描かれたか(| で区切った各行)と、枠を超えてスクロールになるか(SCROLL)
+    void LogCharTexts(CharacterSelectUI ui, int i, CharacterDefinition def, string lang = "")
+    {
+        Canvas.ForceUpdateCanvases();
+        string id = (lang != "" ? lang + " " : "") + def.characterId;
+        void One(string what, UnityEngine.UI.Text t)
+        {
+            if (t == null) return;
+            float pw = t.preferredWidth, w = t.rectTransform.rect.width;
+            L($"[txt] {id} {what} w {pw:F0}/{w:F0} fs {t.fontSize}{(pw > w + 0.5f ? " OVER" : "")} \"{t.text}\"");
+        }
+        One("name", ui.titleText); // 2026-11-07: 名前(フィリピン語のお嬢様が縦画面で2行目が切れていた)
+        One("subtitle", ui.subtitleText);
+        One("role", ui.roleBadgeText);
+        var face = ui.DebugFace(i);
+        One("cardrole", face != null ? face.Find("Role")?.GetComponent<UnityEngine.UI.Text>() : null);
+        var ft = ui.flavorText;
+        if (ft == null) return;
+        var gen = ft.cachedTextGenerator;
+        string s = ft.text ?? "";
+        var sb = new System.Text.StringBuilder();
+        for (int k = 0; k < gen.lineCount; k++)
+        {
+            int a = Mathf.Clamp(gen.lines[k].startCharIdx, 0, s.Length);
+            int b = k + 1 < gen.lineCount ? Mathf.Clamp(gen.lines[k + 1].startCharIdx, a, s.Length) : s.Length;
+            sb.Append(" | ").Append(s.Substring(a, b - a).Replace("\n", ""));
+        }
+        var vp = ft.GetComponentInParent<UguiScrollText>();
+        float vh = vp != null && vp.Viewport != null ? vp.Viewport.rect.height : ft.rectTransform.rect.height;
+        int expect = (Loc.Plain(def.flavorText) ?? "").Split('\n').Length; // 訳の文の行数(右から左の言語は RtlTextWrap が改行を足すので、表示の文ではなく訳で数える)
+        L($"[txt] {id} flavor lines {gen.lineCount} (source {expect}){(gen.lineCount > expect ? " WRAP" : "")} fs {ft.fontSize}{(ui.FlavorJoined ? " JOIN" : "")} h {ft.preferredHeight:F0}/{vh:F0} w {ft.rectTransform.rect.width:F0}{(ft.preferredHeight > vh + 1f ? " SCROLL" : "")}{sb}");
     }
 
     // 縦横比を保って描かれた範囲(画面の座標、x y w h)

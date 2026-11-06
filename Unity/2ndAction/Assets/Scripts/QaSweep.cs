@@ -138,7 +138,10 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaTitle") { mode = "title"; dir = a[i + 1]; } // 2026-10-31 タイトル画面(-titleScreen 1 と一緒に)
             if (a[i] == "-qaExit") { mode = "exit"; dir = a[i + 1]; } // 2026-10-31 終了・中断の入口/画面設定/文字の大きさ
             if (a[i] == "-qaNewCards") { mode = "newcards"; dir = a[i + 1]; } // 2026-11-06 共通カードの追加 18 枚とマップ分類の解禁
-            if (a[i] == "-qaMapCards") { mode = "mapcards"; dir = a[i + 1]; } // 2026-11-06 マップ専用カードの追加 第1弾 26 枚(MOSS BED / SEALED CORE)
+            if (a[i] == "-qaMapCards") { mode = "mapcards"; dir = a[i + 1]; } // 2026-11-06 マップ専用カード 20 枚(map_cards_v2.md)
+            if (a[i] == "-qaRunOnce") { mode = "runonce"; dir = a[i + 1]; } // 2026-11-06 1ランに1回のカード / レベルの最大HP と CONTINUE
+            if (a[i] == "-qaBloodHud") { mode = "bloodhud"; dir = a[i + 1]; } // 2026-11-06 血の盾の HUD の撮影
+            if (a[i] == "-qaBigDetail") { mode = "bigdetail"; dir = a[i + 1]; } // 2026-11-06 長押しの大きな詳細(全カード・横/縦)
             if (a[i] == "-qaRare5") { mode = "rare5"; dir = a[i + 1]; } // 2026-11-01 デッキ編集で★5が出ない不具合
             if (a[i] == "-qaCardList") { mode = "cardlist"; dir = a[i + 1]; } // 2026-11-06 カード編集画面の枚数増加(仮想スクロール/絞り込み/並び替え)
             if (a[i] == "-qaBgTone") { mode = "bgtone"; dir = a[i + 1]; } // 2026-11-01 背景を控えめにして敵を見やすく(前後比較)
@@ -148,6 +151,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaOnline") { mode = "online"; dir = a[i + 1]; }
             if (a[i] == "-qaRecords") { mode = "records"; dir = a[i + 1]; }
             if (a[i] == "-qaPortrait") { mode = "portrait"; dir = a[i + 1]; }
+            if (a[i] == "-qaChoiceText") { mode = "choicetext"; dir = a[i + 1]; } // 2026-11-06 3択の名前/説明が空になる件(縦横・FINAL EVOLUTION・連続)
             if (a[i] == "-qaLocDyn") { mode = "locdyn"; dir = a[i + 1]; } // 2026-10-29: 組み立てる文の訳
             if (a[i] == "-qaLocSwitch") { mode = "locswitch"; dir = a[i + 1]; } // 2026-10-29: 合成カードの説明と言語の切り替え
             if (a[i] == "-qaLocFallback") { mode = "locfallback"; dir = a[i + 1]; }
@@ -375,6 +379,9 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "cardlist") yield return CardListMode();
         else if (mode == "newcards") yield return NewCardsMode();
         else if (mode == "mapcards") yield return MapCardsMode();
+        else if (mode == "runonce") yield return RunOnceMode();
+        else if (mode == "bloodhud") yield return BloodHudMode();
+        else if (mode == "bigdetail") yield return BigDetailMode();
         else if (mode == "bgtone") yield return BgToneMode();
         else if (mode == "elemvis") yield return ElemVisMode();
         else if (mode == "unlock") yield return UnlockModeQa();
@@ -382,6 +389,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "online") yield return OnlineModeQa();
         else if (mode == "records") yield return RecordsModeQa();
         else if (mode == "portrait") yield return PortraitModeQa();
+        else if (mode == "choicetext") yield return ChoiceTextMode();
         else if (mode == "locdyn") yield return LocDynMode();
         else if (mode == "locswitch") yield return LocSwitchMode();
         else if (mode == "locfallback") yield return LocFallbackMode();

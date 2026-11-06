@@ -14,16 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
   characterId: fighter
   displayName: BRAWLER
-  subtitle: Fists That Answer Back
+  subtitle: A Fist That Strikes Back
   role: COUNTER
-  flavorText: 'A martial artist who fights
-
-    with nothing but iron gauntlets.
-
-    He
-    must get close - and when you strike first,
-
-    he strikes back harder.'
+  flavorText: "His short-range combo ends in a\npowerful fourth hit. A timed back\nstance counters enemy attacks safely,\nbut cannot stop falls or hazards."
   portrait: {fileID: 2800000, guid: 6892ecc28e2104741a135e89028aa2bc, type: 3}
   mainVisual: {fileID: 2800000, guid: 602930f385dca5f4ebb18085074f7c41, type: 3}
   lifeRating: 4

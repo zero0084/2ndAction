@@ -16,15 +16,7 @@ MonoBehaviour:
   displayName: GUNSLINGER
   subtitle: One Shot, One Distance
   role: RANGED
-  flavorText: 'Twin pistols, a single sharp line of fire.
-
-    She wins the fight
-    before it ever
-
-    closes in - but let an enemy through,
-
-    and she has no
-    answer for it.'
+  flavorText: "She fires forward, back, or diagonally\nup or down. Downshots slow her fall.\nEach narrow bullet hits only one foe."
   portrait: {fileID: 2800000, guid: 1d360988fbe33db4c9272ae17ec1bf62, type: 3}
   mainVisual: {fileID: 2800000, guid: 0820291bcb9ca4a46b300f9c9260754e, type: 3}
   lifeRating: 3

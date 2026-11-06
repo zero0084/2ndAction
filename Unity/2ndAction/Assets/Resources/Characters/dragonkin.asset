@@ -14,17 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
   characterId: dragonkin
   displayName: DRAGONKIN
-  subtitle: Claw, Tail, Wing, Flame
+  subtitle: Claws, Tail, Wings, Flame
   role: BRUTE
-  flavorText: 'A warrior with the blood of dragons.
-
-    She needs no weapon - claws,
-    tail and fire
-
-    sweep everything aside.
-
-    Her size makes her easy to hit,
-    but hard to stop.'
+  flavorText: "She sweeps foes with claws, tail,\nand flame. She can jump high and glide.\nHer large body is easy to hit, but she\nhas high HP and resists knockback."
   portrait: {fileID: 2800000, guid: 1bcecbfc7ab82124aafeb9e1deaa5f6b, type: 3}
   mainVisual: {fileID: 2800000, guid: 7fe57518e8fa78b4f88453f5e677259f, type: 3}
   lifeRating: 5

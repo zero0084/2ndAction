@@ -16,15 +16,7 @@ MonoBehaviour:
   displayName: SHRINE MAIDEN
   subtitle: Seal the Path Ahead
   role: SEALER
-  flavorText: 'An exorcist of a mountain shrine.
-
-    She lays ofuda and barriers
-    ahead,
-
-    and the path itself turns against her foes -
-
-    but she is slow
-    to strike first.'
+  flavorText: "Her talismans explode after a delay;\na second triggers a bigger blast.\nHer barrier slows regular foes,\nand her shikigami attacks behind."
   portrait: {fileID: 2800000, guid: 76c8b909aa725fd459162f630d4f5531, type: 3}
   mainVisual: {fileID: 2800000, guid: fdd0a48850a2e8b4a880f6fe1c9fa6fb, type: 3}
   lifeRating: 3

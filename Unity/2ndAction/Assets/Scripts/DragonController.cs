@@ -315,7 +315,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
 
     void Update()
     {
-        if (NetPuppet) { if (state != State.Dead) AnimateSprite(); return; }
+        if (NetPuppet) { MapCardRules.PuppetBreakTick(ref mapPuppetBroken, juggle); if (state != State.Dead) AnimateSprite(); return; } // 2026-11-06 BREAK FEAST(JOIN)
         if (state == State.Dead) return;
 
         AnimateSprite();
@@ -845,7 +845,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
             int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage);
             var info = other.GetComponent<PlayerAttackInfo>();
             bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
-            pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air);
+            pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air) * BalanceTuning.CharBossStaggerScale(PlayerController.Instance); // 2026-11-07: キャラごとの崩しの倍率(双剣士)
             pendingKind = info != null ? info.kind : PlayerAttackKind.Normal; // 2026-10-18: BREAK のコンボ用
             pendingManual = info == null || (!info.elementProc && !info.suppressHitStop);
             NoteFinalAttack(other, info); // BOSS FINISH
@@ -1002,7 +1002,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         if (BossBattle.DebugNoStagger) return;
         if (battle == null || battle.staggerMax <= 0f || state == State.Stunned || state == State.Entering || breakRecovering) return;
         v *= ElementSystem.IceStaggerMul(gameObject, v); // 2026-10-30: 冷えた/凍結したボスは BREAK が溜まりやすい
-        v *= MapCardRules.BreakGainMul; // 2026-11-06 SKY BREAKER(空中)/ SONIC EDGE(130km/h 以上)/ FINAL DRIVE(80km 以降)/ ONE MORE CHANCE の強化中
+        if (netAttacker <= 0) v *= MapCardRules.BreakGainMul; // 2026-11-06 SKY BREAKER(空中)/ SONIC EDGE(130km/h 以上)/ FINAL DRIVE(80km 以降)/ ONE MORE CHANCE の強化中。HOST の端末で受けた他のプレイヤーの攻撃には掛けない
         float before = StaggerFraction;
         stagger += v * staggerMul * (Time.time < breakResistUntil ? WildBossBase.PostBreakStaggerScale : 1f); // BREAK の直後は溜まりにくい(2026-10-18)
         lastStaggerTime = Time.time;
@@ -1368,6 +1368,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     // ===================================================================== //
     [System.NonSerialized] public int NetId;
     [System.NonSerialized] public bool NetPuppet;
+    bool mapPuppetBroken; // 2026-11-06 BREAK FEAST(JOIN): HOST の BREAK が始まったか
 
     // マルチプレイPhase 2.5: HOSTのAIが狙う相手(全ての活動中プレイヤーから選ばれる)。並走の基準速度もその相手。
     EnemyTargetSelector netTarget;

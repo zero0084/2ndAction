@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // 長押しの大きな詳細(2026-10-31)。所持カード / デッキのカード / キャラカードのどれでも。小さな詳細の「詳細」ボタンからも(パッド/キー)。
-//  名前・種類・Lv・レア度・所持数 / 主な効果 / Lv1・現在・Lv9 の効果 / 説明 / COMBO / FINAL EVOLUTION / 使用状況 / 解放条件
+//  2026-11-06(マスターの依頼): 同じ効果の文が 3 回(主な効果の MAIN の行 / Lv ごとの効果 / 説明)出ていたので、1 回ずつにした。並びは
+//   ① 概要(種類・Lv・レア度・所持数・説明)→ ② Lv の比較(Lv1 / 現在 / Lv9。合成カードは副能力も)→ ③ 詳しい条件(COMBO / FINAL EVOLUTION / 使用状況 / 解放条件)
 //  下に「分解 (+N MILE)」(CardDismantle)。装備中で空きが無い時は押すと理由を出す(勝手に外さない)。
 //  窓の外を押す / ×  / 戻る で閉じる。窓が開いている間、後ろの一覧は反応しない
 public partial class DeckEditUI
@@ -172,33 +173,63 @@ public partial class DeckEditUI
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Cancel);
     }
 
+    // 効果の文を「 / 」で区切って1行ずつ(頭に「・」)。色は今の Lv だけ。
+    //  字下げを空白にすると、長い1行(日本語は区切りの空白が無い)が空白の後で折り返されて空行になり、字下げも消えたため「・」にした
+    static void AppendEffectLines(StringBuilder sb, string text, string color)
+    {
+        if (string.IsNullOrEmpty(text)) { sb.Append("・-\n"); return; }
+        foreach (var part in text.Split(new[] { " / " }, System.StringSplitOptions.RemoveEmptyEntries))
+        {
+            sb.Append("・");
+            if (color != null) sb.Append("<color=").Append(color).Append('>');
+            sb.Append(part.Trim());
+            if (color != null) sb.Append("</color>");
+            sb.Append('\n');
+        }
+    }
+
+    // ① 概要と ② Lv の比較までの文(確認用: 開いた時にスクロールせずに見えるか)
+    string bigTopText = "";
+    public string DebugBigTopText => bigTopText;
+
     string BuildBigInfo(CardDefinition card, string key, int level, string levelLabel, int count)
     {
         var gm = GameManager.Instance;
         var sb = new StringBuilder();
         const string head = "<color=#ffd76a><b>", headEnd = "</b></color>";
-        // 種類 / Lv / 所持
+        string mainId = CardMastery.BaseIdOf(key);
+        // ---- ① 概要: 種類 / Lv / レア度 / 所持 / 育成 / 説明(効果の文はここで1回だけ)
         sb.Append(card.category.ToString().ToUpperInvariant()).Append("  /  ").Append(levelLabel).Append("  /  ").Append(card.RarityStars).Append('\n');
         sb.Append(Loc.F(LocDeckEdit.OwnedLine, count, CardDismantle.FreeCount(key, level))).Append('\n');
         string mastery = MasteryDetailLine(card);
         if (!string.IsNullOrEmpty(mastery)) sb.Append(Loc.Auto(mastery));
-        // 主な効果(合成カードは MAIN/SUB)
-        sb.Append('\n').Append(Loc.Auto(BuildDetailValueText(card))).Append('\n');
-        // Lv1 / 現在 / Lv9
-        string mainId = CardMastery.BaseIdOf(key);
+        sb.Append('\n').Append(Loc.Auto(DetailDescription(card))).Append('\n');
+        // ---- ② Lv の比較: Lv1 / 現在 / Lv9(主能力)。合成カードの副能力は、主能力と別の効果なのでその Lv の値を下に並べる
         int cur = level;
         CardVariant v = CardVariant.IsVariantKey(key) ? CardVariant.Parse(key) : null;
         if (v != null && v.abilities.Count > 0) cur = Mathf.Clamp(v.abilities[0].stacks, 1, CardVariant.MaxLevel);
         sb.Append('\n').Append(head).Append(Loc.T(LocDeckEdit.LvEffects)).Append(headEnd).Append('\n');
+        // 2026-11-06(エステルのレビュー): Lv ごとに「見出しの行(Lv1(現在) など)」→「効果の行」。効果は「 / 」で区切った部品を1行ずつ
+        //  (縦画面で文と数値が続けて折り返され、どこからが次の Lv か分かりにくかった)
         foreach (int lv in new System.Collections.Generic.SortedSet<int> { 1, cur, CardVariant.MaxLevel })
         {
             bool isCur = lv == cur;
-            string line = Loc.Auto(CardVariant.AbilityEffectTextAt(mainId, lv));
-            sb.Append(isCur ? "<color=#8FE9D6>" : "").Append($"Lv{lv}").Append(isCur ? $"({Loc.T(LocDeckEdit.Current)})" : "").Append(": ").Append(line).Append(isCur ? "</color>" : "").Append('\n');
+            string col = isCur ? "#8FE9D6" : "#c8cde0";
+            sb.Append($"<color={col}><b>Lv{lv}").Append(isCur ? $"({Loc.T(LocDeckEdit.Current)})" : "").Append("</b></color>\n");
+            AppendEffectLines(sb, Loc.Auto(CardVariant.AbilityEffectTextAt(mainId, lv)), isCur ? col : null);
         }
-        // 説明
-        sb.Append('\n').Append(Loc.Auto(DetailDescription(card))).Append('\n');
-        // COMBO
+        if (v != null && v.abilities.Count > 1)
+            for (int i = 1; i < v.abilities.Count; i++)
+            {
+                var ab = v.abilities[i];
+                int alv = Mathf.Clamp(ab.stacks, 1, CardVariant.MaxLevel);
+                sb.Append("<color=#8FB8E9><b>SUB</b></color>  <b>").Append(Loc.Auto(CardVariant.AbilityName(ab.id))).Append($"  Lv{alv}</b>");
+                if (ab.stacks > CardVariant.MaxLevel) sb.Append(Loc.Auto(Loc.Src("(強化量{0}・効くのはLv9まで)", ab.stacks)));
+                sb.Append('\n');
+                AppendEffectLines(sb, Loc.Auto(CardVariant.AbilityEffectTextAt(ab.id, ab.stacks)), null);
+            }
+        bigTopText = sb.ToString();
+        // ---- ③ 詳しい条件: COMBO / FINAL EVOLUTION / 使用状況 / 解放条件
         var combos = ComboTuning.I != null ? ComboTuning.I.combos : null;
         var comboLines = new StringBuilder();
         if (combos != null)
@@ -211,12 +242,10 @@ public partial class DeckEditUI
             }
         sb.Append('\n').Append(head).Append(Loc.T(LocDeckEdit.ComboHead)).Append(headEnd).Append('\n');
         sb.Append(comboLines.Length > 0 ? comboLines.ToString() : "・" + Loc.T(LocDeckEdit.NotEligible) + "\n");
-        // FINAL EVOLUTION
         var fe = FinalEvolutionTuning.I != null ? FinalEvolutionTuning.I.For(mainId) : null;
         sb.Append('\n').Append(head).Append("FINAL EVOLUTION").Append(headEnd).Append('\n');
         if (fe != null) sb.Append("・").Append(Loc.Auto(fe.title)).Append(string.IsNullOrEmpty(fe.description) ? "" : "\n  " + Loc.Auto(fe.description)).Append('\n');
         else sb.Append("・").Append(Loc.T(LocDeckEdit.NotEligible)).Append('\n');
-        // 使用状況
         sb.Append('\n').Append(head).Append(Loc.T(LocDeckEdit.StateHead)).Append(headEnd).Append('\n');
         bool any = false;
         if (gm != null)
@@ -227,12 +256,43 @@ public partial class DeckEditUI
             if (DeckPresets.InInactivePreset(key)) { sb.Append("・").Append(Loc.T(LocDeckEdit.StatePreset)).Append('\n'); any = true; }
         }
         if (!any) sb.Append("・").Append(Loc.T(LocDeckEdit.StateFree)).Append('\n');
-        // 解放条件
         CardDefinition baseDef = CardDatabase.FindBaseById(mainId) ?? card;
         sb.Append('\n').Append(head).Append(Loc.T(LocDeckEdit.UnlockHead)).Append(headEnd).Append('\n');
         sb.Append("・").Append(Loc.F(LocDeckEdit.UnlockLine, Mathf.RoundToInt(baseDef.unlockDistance).ToString("N0"), Mathf.Max(1, baseDef.gachaStage))).Append('\n');
+        string mapCond = CardMapUnlock.ConditionSrc(baseDef); // マップ分類のカード(そのマップの到達距離 / ラスダンの解放)
+        if (!string.IsNullOrEmpty(mapCond)) sb.Append("・").Append(Loc.Auto(mapCond)).Append('\n');
         return sb.ToString();
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 確認用(-qaBigDetail): 窓が画面に収まるか / 題名が入るか / ① ② がスクロールせずに見えるか
+    public string DebugBigLayout(out bool panelInside, out bool titleFits, out bool topFits, out float topH, out float viewH)
+    {
+        panelInside = titleFits = topFits = false; topH = viewH = 0f;
+        if (bigPanel == null || bigInfo == null || root == null) return "not built";
+        Canvas.ForceUpdateCanvases();
+        var rootRt = (RectTransform)root.transform;
+        var pr = RectIn(rootRt, bigPanel); var rr = rootRt.rect;
+        panelInside = pr.xMin >= rr.xMin - 1f && pr.xMax <= rr.xMax + 1f && pr.yMin >= rr.yMin - 1f && pr.yMax <= rr.yMax + 1f;
+        var tset = bigTitle.GetGenerationSettings(bigTitle.rectTransform.rect.size);
+        tset.resizeTextForBestFit = false; tset.fontSize = bigTitle.resizeTextMinSize; tset.horizontalOverflow = HorizontalWrapMode.Overflow;
+        float tw = bigTitle.cachedTextGeneratorForLayout.GetPreferredWidth(bigTitle.text, tset) / Mathf.Max(0.01f, bigTitle.pixelsPerUnit);
+        titleFits = tw <= bigTitle.rectTransform.rect.width * 2f + 1f; // 2 行までは折り返す(最小の文字の大きさで)
+        var vp = BigInfoViewport;
+        viewH = vp != null ? vp.rect.height : 0f;
+        float w = vp != null ? vp.rect.width : bigInfoRt.rect.width;
+        var set = bigInfo.GetGenerationSettings(new Vector2(w, 0f));
+        topH = bigInfo.cachedTextGeneratorForLayout.GetPreferredHeight(bigTopText, set) / Mathf.Max(0.01f, bigInfo.pixelsPerUnit);
+        topFits = topH <= viewH + 1f;
+        return $"panel {pr} in {rr}, title {tw:F0}/{bigTitle.rectTransform.rect.width:F0}, top {topH:F0}/{viewH:F0}";
+    }
+    static Rect RectIn(RectTransform parent, RectTransform child)
+    {
+        var c = new Vector3[4]; child.GetWorldCorners(c);
+        Vector2 a = parent.InverseTransformPoint(c[0]), b = parent.InverseTransformPoint(c[2]);
+        return Rect.MinMaxRect(Mathf.Min(a.x, b.x), Mathf.Min(a.y, b.y), Mathf.Max(a.x, b.x), Mathf.Max(a.y, b.y));
+    }
+#endif
 
     void RefreshBigDismantle()
     {

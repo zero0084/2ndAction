@@ -179,7 +179,6 @@ public static partial class CardProcs
         var st = e.GetComponent<ElementStatus>();
         bool burning = st != null && st.BurningOrDiedBurning;
         ComboOnKill(e, st); // COMBO(WILDFIRE)
-        gm.MapOnKill(); // 2026-11-06 ENDLESS GROWTH(撃破の数)
         int ce = Lv(EffectType.ChainExplosionLevel);
         if (ce > 0) gm.StartCoroutine(ChainExplosion(at, ce, 0, new HashSet<Component> { e }));
         int inf = Lv(EffectType.InfernoLevel);

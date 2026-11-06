@@ -264,6 +264,7 @@ public partial class HighSpeedAssist : MonoBehaviour
     void Update()
     {
         if (IsPlanner) { Engaged = true; if (planOwner != null) JudgedKmh = GameManager.SpeedKmh(planOwner.AbilityRunSpeed); return; }
+        PredTick(); // 確認用(予測と実際の着地のずれ)
         PlayerController pc = PlayerController.Instance;
         GameManager gm = GameManager.Instance;
         if (pc == null || gm == null || !gm.HasStarted || gm.IsGameOver)
@@ -513,6 +514,8 @@ public partial class HighSpeedAssist : MonoBehaviour
     readonly Dictionary<Collider2D, int> tagCache = new Dictionary<Collider2D, int>(); // 0:無関係 1:障害物 2:敵 3:壊せる障害物
 
     float halfW, bodyH, jumpForce, airJumpForce, gravity, failY, headH, vx, aerialRemain, aerialScale;
+    float jumpLungeV, jumpLungeT; // 2026-11-07: ジャンプの瞬間の前への跳び込み(ルカの飛びつき)。PlayerController.AssistJumpLungeSpeed/Time
+    int jumpDecayFree; float lastGroundYNow; // 2026-11-07: JUMP COUNT UP の空中ジャンプの減衰(PlayerController.AssistJumpDecayFree)
     bool hasCave;
     float ceilKnownUntil, groundKnownUntil;
 
@@ -523,6 +526,8 @@ public partial class HighSpeedAssist : MonoBehaviour
         Vector2 body = pc.AssistBodySize;
         halfW = body.x * 0.5f; bodyH = body.y;
         jumpForce = pc.AssistJumpForce; airJumpForce = pc.AssistAirJumpForce; gravity = Mathf.Max(0.1f, pc.AssistGravity);
+        jumpLungeV = pc.AssistJumpLungeSpeed; jumpLungeT = pc.AssistJumpLungeTime;
+        jumpDecayFree = pc.AssistJumpDecayFree; lastGroundYNow = pc.AssistLastGroundY;
         aerialRemain = pc.AssistAerialAssistRemaining; aerialScale = pc.AssistAerialGravityScale;
         failY = pc.AssistFailY; hasCave = tm.HasCave; headH = tm.CavePlayerHeadHeight;
         ceilKnownUntil = tm.CeilingKnownUntil; groundKnownUntil = tm.GeneratedEndX;
@@ -626,6 +631,9 @@ public partial class HighSpeedAssist : MonoBehaviour
                 {
                     var hitState = start;
                     hitState.vy = Mathf.Max(start.vy, pc.AssistAerialFallResetSpeed);
+                    // 2026-11-07: 空中の前攻撃の踏み込み(黒剣士 1.2m / 双剣士 0.9m / ルカ 0.25m)も入れる。以前は滞空だけで、
+                    //  当たって伸びた着地が予測より先の段差の壁/穴へずれていた(速いキャラ・手数の多いキャラほど多い)
+                    hitState.lungeV = pc.AssistAttackLungeSpeed; hitState.lungeT = pc.AssistAttackLungeTime;
                     float keepRemain = aerialRemain;
                     aerialRemain = Mathf.Max(aerialRemain, pc.AssistAerialWindow);
                     ignoreOc = breaking ? run.obOc : null;
@@ -677,6 +685,7 @@ public partial class HighSpeedAssist : MonoBehaviour
             if (bestT <= frameDt * 0.5f)
             {
                 AutoDoubleJumps++;
+                PredBegin(planOwner, start, 0f, -1f, horizonT, 1);
                 Act("二段ジャンプ", $"{HazardName(run.hazard)}まで{run.hazardTime:F2}s");
                 return PlayerController.FlickDirection.Up;
             }
@@ -703,6 +712,7 @@ public partial class HighSpeedAssist : MonoBehaviour
                 {
                     cachedTakeoffTime = -1f; cachedHazardX = float.NaN;
                     AutoJumps++;
+                    if (!cachedDouble) PredBegin(planOwner, start, 0f, -1f, horizonT, 0);
                     Act(cachedDouble ? "ジャンプ(二段予定)" : "ジャンプ", $"{HazardName(run.hazard)}まで{run.hazardTime:F2}s/{run.hazardX - start.x:F1}m");
                     return PlayerController.FlickDirection.Up;
                 }
@@ -763,6 +773,7 @@ public partial class HighSpeedAssist : MonoBehaviour
         {
             cachedTakeoffTime = -1f; cachedHazardX = float.NaN;
             AutoJumps++;
+            if (!bestDouble) PredBegin(planOwner, start, 0f, -1f, horizonT, 0);
             Act(bestDouble ? "ジャンプ(二段予定)" : "ジャンプ", $"{HazardName(run.hazard)}まで{run.hazardTime:F2}s/{run.hazardX - start.x:F1}m");
             return PlayerController.FlickDirection.Up;
         }
@@ -772,6 +783,34 @@ public partial class HighSpeedAssist : MonoBehaviour
     }
 
     readonly List<float> safeTaus = new List<float>(32);
+
+    // ---- 確認用(2026-11-07 双剣士/ルカの調査): 跳んだ時の予測の着地と、実際の着地のずれ ----
+    // 跳んだ瞬間の計画(その後に別のジャンプ/被弾が無かった時だけ)の着地の時刻と X を覚え、実際に着地した所と比べる。挙動は変えない
+    public static int PredN, PredLong, PredShort; public static float PredDxSum, PredAbsDxSum, PredDtSum;
+    public static void ResetPredStats() { PredN = PredLong = PredShort = 0; PredDxSum = PredAbsDxSum = PredDtSum = 0f; }
+    public static string PredStats => PredN == 0 ? "pred n=0" : $"pred n={PredN} dx={PredDxSum / PredN:F2} |dx|={PredAbsDxSum / PredN:F2} dt={PredDtSum / PredN:F3} long(>0.5m)={PredLong} short(<-0.5m)={PredShort}";
+    bool predOn, predAir; float predT0, predLandT, predLandX; int predJumps; PlayerController predPc;
+    void PredBegin(PlayerController pc, SimState start, float jumpAt, float doubleAt, float horizonT, int air)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (pc == null) return;
+        SimResult r = Simulate(start, jumpAt, doubleAt, horizonT, false);
+        if (r.firstLandTime <= 0f) { predOn = false; return; }
+        predOn = true; predAir = false; predPc = pc; predT0 = Time.time; predLandT = r.firstLandTime; predLandX = FloatingOrigin.ToLogical(r.firstLandX); predJumps = pc.AssistJumpsUsed + 1;
+#endif
+    }
+    void PredTick()
+    {
+        if (!predOn || predPc == null) return;
+        if (predPc.IsReacting || predPc.AssistJumpsUsed > predJumps || Time.time - predT0 > 4f) { predOn = false; return; } // 別のジャンプ/被弾 = 比べない
+        if (!predPc.IsGrounded) predAir = true;
+        if (!predAir) { if (Time.time - predT0 > 0.25f) predOn = false; return; } // 跳ばなかった
+        if (!predPc.IsGrounded) return;
+        predOn = false;
+        float dx = FloatingOrigin.ToLogical(predPc.transform.position.x) - predLandX, dt = (Time.time - predT0) - predLandT;
+        PredN++; PredDxSum += dx; PredAbsDxSum += Mathf.Abs(dx); PredDtSum += dt;
+        if (dx > 0.5f) PredLong++; else if (dx < -0.5f) PredShort++;
+    }
 
     // ---- 攻撃の対象選び ----
     Box? breakTarget;
@@ -879,7 +918,7 @@ public partial class HighSpeedAssist : MonoBehaviour
     // ===================================================================== //
     // 軌道予測(既存のジャンプ物理: velocityY=jumpForce、重力gravity、天井で上昇停止、上から横切った面に着地)
     // ===================================================================== //
-    struct SimState { public float x, y, vy, offset; public bool grounded, onSky; public int jumpsLeft, maxJumps; }
+    struct SimState { public float x, y, vy, offset; public bool grounded, onSky; public int jumpsLeft, maxJumps; public float lungeV, lungeT; } // lungeV/T: 始めから続く前への踏み込み(2026-11-07 空中の攻撃)
 
     // 2026-10-13 第3弾: ボスの理由(攻撃を避ける/ボスへ跳ぶ/空中の二段で避ける)で「今」跳んでよいか。
     // 地形の補助と同じ先読み(穴・壁・天井・天井の針・障害物・着地の後の余裕)で、跳んだ後の軌道が安全に着地できる時だけ true。
@@ -920,6 +959,7 @@ public partial class HighSpeedAssist : MonoBehaviour
         public float hazardX, hazardTime, hazardCenterTime;
         public float leaveTime;      // (行動なし)危険に関わる最後の足場を離れる時刻(踏み切り候補の上限)
         public float firstLandTime;  // 空中から始めた時、最初に着地する時刻(着地しなければ-1)
+        public float firstLandX;     // その着地の X(2026-11-07 予測と実際の着地のずれの確認用)
         public bool breakable;       // 危険が「壊せる障害物」
         public ObstacleController obOc;
         public float obMinX, obMaxX, obMinY, obMaxY;
@@ -937,7 +977,8 @@ public partial class HighSpeedAssist : MonoBehaviour
         bool grounded = s.grounded, onSky = s.onSky;
         int jumpsLeft = s.jumpsLeft;
         bool jumped = false, doubled = false, landedAfter = false;
-        float runway = -1f;
+        float runway = -1f, lungeLeft = s.lungeT, lungeV = s.lungeV;
+        float simGroundY = s.grounded ? s.y : lastGroundYNow; // 直前に立っていた高さ(空中ジャンプの減衰の基準)
         float lastGroundT = 0f;
         float pitStartX = float.NaN;
         int steps = Mathf.Min(4000, Mathf.CeilToInt(horizonT / dt) + 2);
@@ -954,14 +995,19 @@ public partial class HighSpeedAssist : MonoBehaviour
             {
                 jumped = true;
                 if (jumpsLeft <= 0) { res.reason = "ジャンプ回数なし"; return Fail(res, Hazard.FallOut, x, t); }
-                vy = jumpForce; grounded = false; jumpsLeft--;
+                // 2026-11-07: 空中から始めた計画(二段ジャンプの候補)は空中のジャンプの強さで(以前は地上のジャンプの強さのままで、
+                //  空中の跳びが弱いキャラ = ルカ ×0.9 / 格闘家 / 竜人 / 宇宙人 は、届かない二段ジャンプを「届く」と見て段差の壁に当たっていた)
+                vy = (BalanceTuning.AssistJumpLunge && !grounded ? airJumpForce : jumpForce) * JumpDecayAt(s.maxJumps - jumpsLeft + 1, y, prevGOk && !prevPit ? prevGh + s.offset : simGroundY); grounded = false; jumpsLeft--;
+                if (jumpLungeT > 0f) { lungeLeft = jumpLungeT; lungeV = jumpLungeV; }
             }
             if (doubleAt >= 0f && !doubled && t >= doubleAt && !grounded)
             {
                 doubled = true;
-                if (jumpsLeft > 0) { vy = airJumpForce; jumpsLeft--; }
+                if (jumpsLeft > 0) { vy = airJumpForce * JumpDecayAt(s.maxJumps - jumpsLeft + 1, y, prevGOk && !prevPit ? prevGh + s.offset : simGroundY); jumpsLeft--; if (jumpLungeT > 0f) { lungeLeft = jumpLungeT; lungeV = jumpLungeV; } }
             }
-            float nx = x + vx * dt;
+            // 2026-11-07: ジャンプの技の前への跳び込み(ルカの飛びつき)。実際の動き(PlayerController.Move の lungeVelocityX)と同じく前進に足す
+            float nx = x + (vx + (lungeLeft > 0f ? lungeV : 0f)) * dt;
+            lungeLeft -= dt;
             float ny;
             if (nx > groundKnownUntil) return EndUnknown(res, planned, x, t, "地形が未生成");
             // この刻みの地点の面(上ルート/地面)は1回だけ問い合わせ、次の刻みの「1つ前」として持ち回す
@@ -1013,7 +1059,8 @@ public partial class HighSpeedAssist : MonoBehaviour
                 else if (landGround) { ny = groundY; vy = 0f; grounded = true; onSky = false; }
                 if (grounded)
                 {
-                    if (res.firstLandTime < 0f) res.firstLandTime = t;
+                    simGroundY = ny;
+                    if (res.firstLandTime < 0f) { res.firstLandTime = t; res.firstLandX = nx; }
                     jumpsLeft = s.maxJumps; // 着地でジャンプ回数が戻る(既存と同じ)
                     if (planned && jumped && !landedAfter) { landedAfter = true; runway = landingRunwaySeconds; }
                 }
@@ -1054,6 +1101,15 @@ public partial class HighSpeedAssist : MonoBehaviour
         if (planned) { res.safe = false; res.reason = "着地が先読み範囲外"; res.hazard = Hazard.Unknown; return res; }
         res.safe = true;
         return res;
+    }
+
+    // 2026-11-07: 空中ジャンプの初速の倍率(PlayerController.CardJumpImpulseScale と同じ決まり)。jumpIndex = 何回目のジャンプか(1 = 地上)。
+    //  以前は JUMP COUNT UP の3回目以降の弱いジャンプも満額で予測し、届かない二段ジャンプで段差の壁/穴に当たっていた
+    float JumpDecayAt(int jumpIndex, float y, float refY)
+    {
+        if (jumpIndex <= jumpDecayFree) return 1f;
+        if (y < refY - CardRules.JumpRecoveryBelow) return 1f; // 足場より下へ落ちている時は減衰しない
+        return Mathf.Max(CardRules.JumpDecayMin, 1f - CardRules.JumpDecayPerJump * (jumpIndex - jumpDecayFree));
     }
 
     SimResult Fail(SimResult r, Hazard h, float x, float t, float pitStartX = float.NaN)

@@ -19,6 +19,40 @@ public partial class PlayerController
 
     void CatReset() { CatComboStage = 0; catNextStage = 1; catGraceTimer = 0f; }
 
+    // 次に前を押した時に出る段(補助の予測用。猶予の間は続きの段、それ以外は1段目)
+    public int CatAssistNextStage => catGraceTimer > 0f ? Mathf.Clamp(catNextStage, 1, 3) : 1;
+
+    // 2026-11-07(初期デッキで 10km まで届かない件): 猫パンチ(1・2段目)と飛びかかり(3段目)は判定の出る時間を長く、戻りを同じだけ短く(1回の長さは同じ)。
+    // 判定が 0.07秒(飛びかかり 0.14秒の後に 0.3秒の戻り)だけだと、約 110km/h では間隔 3〜5m で並ぶ雑魚の2体目が
+    // 戻りの間に体へ届いて体当たりになっていた(BalanceTuning.CatPawActive)
+    public float CatPawActiveTime(int stage)
+    {
+        var p = kitDef.cat; float s = AttackSpeedMultiplier;
+        float active = ArcherPick(p.comboActive, stage - 1, 0.08f) * s;
+        if (BalanceTuning.CatPawActive)
+            active += Mathf.Min((stage < 3 ? BalanceTuning.CatPawActiveAdd : BalanceTuning.CatPounceActiveAdd) * s, ArcherPick(p.comboRecovery, stage - 1, 0.1f) * s * 0.9f);
+        return active;
+    }
+
+    // 2026-11-07(同上): 猫パンチ(1・2段目)は序盤の小型の雑魚を1発で倒せる威力に(0.75 → 1.0 = 黒剣士の1段目と同じ)、
+    // その分 飛びかかり(3段目)を 1.7 → 1.3 に(3段の合計 3.2 → 3.3 = ボスへの火力はほぼ同じ)。
+    // 以前はパンチ1発で倒れず(序盤の上限 HP は黒剣士の1段目で1発の値)、2発目を同じ敵に使う間に次の雑魚が体へ届いていた(BalanceTuning.CatPawOneShot)
+    // 2026-11-07(同上): ボス戦の猫パンチ(1・2段目)の踏み込み 0.25 → 0.7m(ボス戦の伸び BossBattle.LungeScale ×1.4〜2.6 が掛かる)。
+    // 間合いが 1.05m と短いのに踏み込みも小さく、ゴブリンライダーの棍棒の届く 2.5m 前後から空振りを続けて殴られていた
+    // (5〜9km のゴブリンライダー1戦で失うハート 黒剣士 0〜1.3 / ルカ 2.0〜3.7)。当てた相手の手前で止まる(LungeStopX)のは今までどおり
+    public float CatComboLunge(int stage)
+    {
+        float v = ArcherPick(kitDef.cat.comboLunge, stage - 1, 0.25f);
+        return BalanceTuning.CatBossLunge && stage < 3 && BossBattle.AnyBossFighting ? Mathf.Max(v, BalanceTuning.CatBossLungeDistance) : v;
+    }
+
+    public float CatComboDamageScale(int stage)
+    {
+        float v = ArcherPick(kitDef.cat.comboDamageScale, stage - 1, 1f);
+        if (!BalanceTuning.CatPawOneShot) return v;
+        return stage < 3 ? Mathf.Max(v, BalanceTuning.CatPawDamage) : Mathf.Min(v, BalanceTuning.CatPounceDamage);
+    }
+
     void CatTick(float dt)
     {
         if (catGraceTimer > 0f)
@@ -73,8 +107,8 @@ public partial class PlayerController
             SetSeqTag(ChainTag(stage, maxComboChain)); // AttackSeq
             float s = AttackSpeedMultiplier;
             float windup = ArcherPick(p.comboWindup, stage - 1, 0.05f) * s;
-            float active = ArcherPick(p.comboActive, stage - 1, 0.08f) * s;
-            float recovery = ArcherPick(p.comboRecovery, stage - 1, 0.1f) * s;
+            float active = CatPawActiveTime(stage);
+            float recovery = ArcherPick(p.comboRecovery, stage - 1, 0.1f) * s - (active - ArcherPick(p.comboActive, stage - 1, 0.08f) * s);
             attackCooldownTimer = windup + active + recovery;
             PlayKitPose(CatComboPoses[stage - 1], windup + active, windup);
             float t = 0f;
@@ -90,8 +124,8 @@ public partial class PlayerController
             float h = pounce ? p.hitHeight + 0.08f : p.hitHeight;
             float thick = p.hitThickness + (pounce ? 0.25f : 0f);
             ArmKitBox(new Vector2(0.2f + reach * 0.5f, h), new Vector2(reach, thick), 0f, PlayerAttackKind.Normal,
-                ArcherPick(p.comboDamageScale, stage - 1, 1f), ArcherPick(p.comboKnockbackScale, stage - 1, 1f), ArcherPick(p.comboHitStop, stage - 1, 0.03f));
-            lungeVelocityX = ArcherPick(p.comboLunge, stage - 1, 0.25f) / Mathf.Max(0.01f, active);
+                CatComboDamageScale(stage), ArcherPick(p.comboKnockbackScale, stage - 1, 1f), ArcherPick(p.comboHitStop, stage - 1, 0.03f));
+            lungeVelocityX = CatComboLunge(stage) / Mathf.Max(0.01f, active);
             Vector3 paw = KitWorld(new Vector2(0.2f + reach * 0.85f, h));
             if (pounce)
             {

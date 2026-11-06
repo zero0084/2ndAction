@@ -14,17 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
   characterId: vampire
   displayName: VAMPIRE
-  subtitle: The Longer, The Stronger
+  subtitle: Keep Hitting, Grow Stronger
   role: BLOOD
-  flavorText: 'A noble of the night who needs no blade.
-
-    Every wound he deals
-    feeds his blood,
-
-    and a long fight only makes him faster -
-
-    but he starts
-    every battle hungry.'
+  flavorText: "Hits fill his blood gauge, boosting\npower and speed. At full gauge, he gets\na five-second boost and can heal.\nIt drains when he stops hitting\nor is hit on the ground."
   portrait: {fileID: 2800000, guid: fadd1f6c459a71446bcd2dc7887b0e29, type: 3}
   mainVisual: {fileID: 2800000, guid: 24692b7ca09c64d449536ae91e6b97eb, type: 3}
   lifeRating: 3

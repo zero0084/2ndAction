@@ -188,9 +188,9 @@ public static class CharacterDatabaseBuilder
         swordsman.id = "swordsman";
         swordsman.displayName = "SWORDSMAN";
         swordsman.hurtFramesDir = "Assets/Art/PlayerHurt_v1"; swordsman.deathFramesDir = "Assets/Art/PlayerDeath_v1"; swordsman.reactionPpu = 186f; // 2026-10-18 被弾3コマ/倒れる4コマ(無ければ今までどおり)
-        swordsman.subtitle = "The One Who Keeps Moving";
+        swordsman.subtitle = "One Who Never Stops";
         swordsman.role = "BALANCED";
-        swordsman.flavorText = "A lone swordsman who walks his own path.\nNo matter how many times he falls,\nhe rises again - because there is still\na further place to reach.";
+        swordsman.flavorText = "A lone swordsman on his own path.\nHis three-hit combo advances forward.\nHe launches foes with an upward slash\nand strikes down with a diving slash.";
         swordsman.portraitPath = $"{PortraitFolder}/swordsman_card.png"; // 2026-10-20: 他の9人と同じ作りの枠入りカード(エステルと相談)。古い swordsman_portrait.png は使わない
         swordsman.lifeRating = 3; swordsman.powerRating = 4; swordsman.speedRating = 3; swordsman.comboRating = 3;
         swordsman.challengeFlag = false;
@@ -221,9 +221,9 @@ public static class CharacterDatabaseBuilder
         dualBlade.id = "dual_blade";
         dualBlade.displayName = "DUAL BLADE";
         dualBlade.hurtFramesDir = "Assets/Art/DualBladeHurt_v1"; dualBlade.deathFramesDir = "Assets/Art/DualBladeDeath_v1"; dualBlade.reactionPpu = 425f; // 2026-10-18 被弾3コマ/倒れる4コマ(無ければ今までどおり)
-        dualBlade.subtitle = "Swift Steel, Endless Motion";
-        dualBlade.role = "GROUND COMBO";
-        dualBlade.flavorText = "A swift dual-wielder who chains strikes\ntogether without ever slowing down.\nSpeed and momentum are her greatest weapons.";
+        dualBlade.subtitle = "Swift Blades, Endless Dance";
+        dualBlade.role = "SWIFT COMBO";
+        dualBlade.flavorText = "She runs fast and strikes even faster.\nHer five-hit combo works on the ground\nand in midair. Each hit is light,\nbut her speed makes up for it.";
         dualBlade.portraitPath = $"{PortraitFolder}/dual_blade_card.png"; // 2026-10-20: 枠入りカード
         // マスター指示(2026-09-13、3人目主人公追加)の星評価方向どおり -
         // 「黒剣士より手数・速度寄り」と伝わる表示。LIFEは黒剣士と同等
@@ -333,13 +333,13 @@ public static class CharacterDatabaseBuilder
         nobleLady.id = "noble_lady";
         nobleLady.displayName = "NOBLE LADY";
         nobleLady.hurtFramesDir = "Assets/Art/NobleLadyHurt_v1"; nobleLady.deathFramesDir = "Assets/Art/NobleLadyDeath_v1"; nobleLady.reactionPpu = 272f; // 2026-10-18 被弾3コマ/倒れる4コマ(無ければ今までどおり)
-        nobleLady.subtitle = "A Hero Not Yet Awakened";
+        nobleLady.subtitle = "A Hero Yet to Awaken";
         // マスターとエステル(相談用ChatGPT)のレビューで「HEAVY=強い/硬い
         // 印象があり、LIFE3・POWER1のこのキャラには誤解を招く」との指摘
         // を反映し、性能タイプを一切示唆しないNOBLE KNIGHTへ変更(2026-09-
         // 13)。星評価を見て初めて弱さに気づく、というギャップ狙いを維持。
         nobleLady.role = "NOBLE KNIGHT";
-        nobleLady.flavorText = "Clad in silver and gold, she wields a\ngreatsword said to fell dragons.\nHer legend, however, has yet to catch\nup with her armor.";
+        nobleLady.flavorText = "Her greatsword hits hard. Beyond 20 km,\nher power and reach keep growing.\nEnemy hits cannot interrupt\nher attacks.";
         nobleLady.portraitPath = $"{PortraitFolder}/noble_lady_card.png"; // 2026-10-20: 枠入りカード
         // 表示専用の星評価 - マスター提示例(LIFE3/POWER1/SPEED1/COMBO1)
         // に合わせ、他2キャラより明確に見劣りするようにする。
@@ -448,7 +448,7 @@ public static class CharacterDatabaseBuilder
         gunslinger.hurtFramesDir = "Assets/Art/GunslingerHurt_v1"; gunslinger.deathFramesDir = "Assets/Art/GunslingerDeath_v1"; gunslinger.reactionPpu = 550f; // 2026-10-18 被弾3コマ/倒れる4コマ(無ければ今までどおり)
         gunslinger.subtitle = "One Shot, One Distance";
         gunslinger.role = "RANGED";
-        gunslinger.flavorText = "Twin pistols, a single sharp line of fire.\nShe wins the fight before it ever\ncloses in - but let an enemy through,\nand she has no answer for it.";
+        gunslinger.flavorText = "She fires forward, back, or diagonally\nup or down. Downshots slow her fall.\nEach narrow bullet hits only one foe.";
         // カード枠問題修正(2026-09-25) - portraitPath(カルーセルの小さい
         // カード)は新規生成した枠入りカード画像へ、mainVisualPath(中央の
         // 大きな全身表示)は元の枠なし立ち絵切り抜きへ、と役割を分離。
@@ -565,9 +565,9 @@ public static class CharacterDatabaseBuilder
         Spec lancer = DefaultBaseline;
         lancer.id = "dragon_lancer";
         lancer.displayName = "DRAGON LANCER";
-        lancer.subtitle = "Break Through, Never Yield";
-        lancer.role = "BREAKER";
-        lancer.flavorText = "A young dragon knight bearing a lance\nforged from a dragon's fang.\nHe breaks every line head-on -\nbut anything that slips inside his reach\nis hard for him to answer.";
+        lancer.subtitle = "Pierce Through, Never Yield";
+        lancer.role = "PIERCER";
+        lancer.flavorText = "His long spear pierces lined-up foes\nwith heavy damage and knockback.\nBut enemies too close to him\nare hard to hit.";
         lancer.portraitPath = $"{PortraitFolder}/dragon_lancer_card.png";
         lancer.mainVisualPath = $"{PortraitFolder}/dragon_lancer_portrait.png";
         lancer.lifeRating = 4; lancer.powerRating = 5; lancer.speedRating = 2; lancer.comboRating = 1;
@@ -650,7 +650,7 @@ public static class CharacterDatabaseBuilder
         archer.displayName = "RANGER";
         archer.subtitle = "Draw, Aim, Pierce";
         archer.role = "SNIPER";
-        archer.flavorText = "A ranger of the deep woods\nwith a longbow taller than himself.\nThe longer he draws, the harder it hits -\nbut up close, he has little to answer with.";
+        archer.flavorText = "Waiting after any shot strengthens\nhis next forward arrow. At full charge,\nit pierces foes. Rapid fire is weak;\ntaking damage resets the charge.";
         archer.lifeRating = 3; archer.powerRating = 4; archer.speedRating = 2; archer.comboRating = 1;
         archer.sortOrder = 5;
         archer.belongings = new[]
@@ -673,7 +673,7 @@ public static class CharacterDatabaseBuilder
         mage.displayName = "SORCERESS";
         mage.subtitle = "Float Above, Strike Below";
         mage.role = "FLIGHT MAGE";
-        mage.flavorText = "A sorceress who never touches the ground.\nShe rises and sinks at will,\nraining spells on whatever lies below -\nbut a single blow cuts deep.";
+        mage.flavorText = "She floats above the ground and gaps.\nChanging height casts a spell.\nHer HP is low, and enemy hits\nknock her back farther.";
         mage.lifeRating = 2; mage.powerRating = 3; mage.speedRating = 3; mage.comboRating = 2;
         mage.sortOrder = 6;
         mage.belongings = new[]
@@ -692,9 +692,9 @@ public static class CharacterDatabaseBuilder
         Spec fighter = DefaultBaseline;
         fighter.id = "fighter";
         fighter.displayName = "BRAWLER";
-        fighter.subtitle = "Fists That Answer Back";
+        fighter.subtitle = "A Fist That Strikes Back";
         fighter.role = "COUNTER";
-        fighter.flavorText = "A martial artist who fights\nwith nothing but iron gauntlets.\nHe must get close - and when you strike first,\nhe strikes back harder.";
+        fighter.flavorText = "His short-range combo ends in a\npowerful fourth hit. A timed back\nstance counters enemy attacks safely,\nbut cannot stop falls or hazards.";
         fighter.lifeRating = 4; fighter.powerRating = 3; fighter.speedRating = 3; fighter.comboRating = 5;
         fighter.sortOrder = 7;
         fighter.belongings = new[]
@@ -712,9 +712,9 @@ public static class CharacterDatabaseBuilder
         Spec ninja = DefaultBaseline;
         ninja.id = "ninja";
         ninja.displayName = "SHINOBI";
-        ninja.subtitle = "Vanish, Cut, Vanish";
+        ninja.subtitle = "Vanish, Slash, Vanish Again";
         ninja.role = "MOBILITY";
-        ninja.flavorText = "A shinobi who is never where you strike.\nShe blinks through enemies with a single cut\nand is gone before they fall -\nbut she cannot take many hits.";
+        ninja.flavorText = "She dashes through foes with a slash.\nHer dash grants brief invulnerability,\nbut her low maximum HP leaves\nlittle room for mistakes.";
         ninja.lifeRating = 2; ninja.powerRating = 3; ninja.speedRating = 5; ninja.comboRating = 3;
         ninja.sortOrder = 8;
         ninja.belongings = new[]
@@ -736,7 +736,7 @@ public static class CharacterDatabaseBuilder
         miko.displayName = "SHRINE MAIDEN";
         miko.subtitle = "Seal the Path Ahead";
         miko.role = "SEALER";
-        miko.flavorText = "An exorcist of a mountain shrine.\nShe lays ofuda and barriers ahead,\nand the path itself turns against her foes -\nbut she is slow to strike first.";
+        miko.flavorText = "Her talismans explode after a delay;\na second triggers a bigger blast.\nHer barrier slows regular foes,\nand her shikigami attacks behind.";
         miko.lifeRating = 3; miko.powerRating = 2; miko.speedRating = 3; miko.comboRating = 2;
         miko.sortOrder = 9;
         miko.belongings = new[]
@@ -756,9 +756,9 @@ public static class CharacterDatabaseBuilder
         Spec vampire = DefaultBaseline;
         vampire.id = "vampire";
         vampire.displayName = "VAMPIRE";
-        vampire.subtitle = "The Longer, The Stronger";
+        vampire.subtitle = "Keep Hitting, Grow Stronger";
         vampire.role = "BLOOD";
-        vampire.flavorText = "A noble of the night who needs no blade.\nEvery wound he deals feeds his blood,\nand a long fight only makes him faster -\nbut he starts every battle hungry.";
+        vampire.flavorText = "Hits fill his blood gauge, boosting\npower and speed. At full gauge, he gets\na five-second boost and can heal.\nIt drains when he stops hitting\nor is hit on the ground.";
         vampire.lifeRating = 3; vampire.powerRating = 3; vampire.speedRating = 3; vampire.comboRating = 4;
         vampire.sortOrder = 10;
         vampire.belongings = new[]
@@ -776,9 +776,9 @@ public static class CharacterDatabaseBuilder
         Spec dragonkin = DefaultBaseline;
         dragonkin.id = "dragonkin";
         dragonkin.displayName = "DRAGONKIN";
-        dragonkin.subtitle = "Claw, Tail, Wing, Flame";
+        dragonkin.subtitle = "Claws, Tail, Wings, Flame";
         dragonkin.role = "BRUTE";
-        dragonkin.flavorText = "A warrior with the blood of dragons.\nShe needs no weapon - claws, tail and fire\nsweep everything aside.\nHer size makes her easy to hit, but hard to stop.";
+        dragonkin.flavorText = "She sweeps foes with claws, tail,\nand flame. She can jump high and glide.\nHer large body is easy to hit, but she\nhas high HP and resists knockback.";
         dragonkin.lifeRating = 5; dragonkin.powerRating = 5; dragonkin.speedRating = 2; dragonkin.comboRating = 2;
         dragonkin.sortOrder = 11;
         dragonkin.belongings = new[]
@@ -801,9 +801,9 @@ public static class CharacterDatabaseBuilder
         Spec luka = DefaultBaseline;
         luka.id = "luka";
         luka.displayName = "LUKA";
-        luka.subtitle = "Paw, Pounce, Leap";
+        luka.subtitle = "Cat Punches, Pounces, Big Jumps";
         luka.role = "AGILE";
-        luka.flavorText = "A small, brave tabby cat full of energy.\nNo weapon, no armor - just quick paws\nand a fearless pounce.\nSmall enough to slip past danger, light enough to leap high.";
+        luka.flavorText = "A brave little tabby with quick paws\nand fearless pounces. His small body\nslips past danger, and he jumps high.\nNo weapons or armor needed.";
         luka.lifeRating = 2; luka.powerRating = 3; luka.speedRating = 5; luka.comboRating = 4;
         luka.sortOrder = 12;
         luka.belongings = new CharacterDefinition.BelongingItem[0];
@@ -822,9 +822,9 @@ public static class CharacterDatabaseBuilder
         Spec penta = DefaultBaseline;
         penta.id = "pentatuttulu";
         penta.displayName = "PENTATUTTULU";
-        penta.subtitle = "Stretch, Bounce, Poyon";
+        penta.subtitle = "Stretch, Bounce, Boing!";
         penta.role = "STRETCH";
-        penta.flavorText = "A fluffy, cloud-white visitor from somewhere far away.\nIts arms and legs stretch farther than you think,\nand it bounces off what it stomps on.\nNobody knows where it came from.";
+        penta.flavorText = "Its arms and legs stretch far.\nStomping a foe in midair makes it bounce\nup once per jump. No one knows\nwhere this fluffy visitor came from.";
         penta.lifeRating = 4; penta.powerRating = 3; penta.speedRating = 2; penta.comboRating = 3;
         penta.sortOrder = 13;
         penta.belongings = new CharacterDefinition.BelongingItem[0];

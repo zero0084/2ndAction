@@ -1,0 +1,76 @@
+ChatGPT の発言:
+
+アイリーン、了解です！ 14人とも固有能力の要点を残しながら、英語の紹介文を短縮しました。
+
+ゲームへの取り込み用に、改行は実際の改行ではなく \n で表記します。代名詞も指定どおりに統一しています。
+
+[1] 黒剣士
+
+EN紹介: A lone swordsman on his own path.\nHis three-hit combo advances forward.\nHe launches foes with an upward slash\nand strikes down with a diving slash.
+
+[2] 双剣士
+
+EN紹介: She runs fast and strikes even faster.\nHer five-hit combo works on the ground\nand in midair. Each hit is light,\nbut her speed makes up for it.
+
+[3] お嬢様騎士
+
+EN紹介: Her greatsword hits hard. Beyond 20 km,\nher power and reach keep growing.\nEnemy hits cannot interrupt\nher attacks.
+
+[4] 二丁拳銃士
+
+EN紹介: She fires forward, back, and diagonally\nup or down. Downshots slow her fall.\nEach narrow bullet hits only one foe.\nShe can fire in four directions.
+
+[5] 竜騎士
+
+EN紹介: His long spear pierces lined-up foes\nwith heavy damage and knockback.\nBut enemies too close to him\nare hard to hit.
+
+[6] 弓使い
+
+EN紹介: Waiting after any shot strengthens\nhis next forward arrow. At full charge,\nit pierces foes. Rapid fire is weak;\ntaking damage resets the charge.
+
+[7] 魔法使い
+
+EN紹介: She floats above the ground and gaps.\nChanging height casts a spell.\nHer HP is low, and enemy hits\nknock her back farther.
+
+[8] 格闘家
+
+EN紹介: His short-range combo ends in a\npowerful fourth hit. A timed back\nstance counters enemy attacks safely,\nbut cannot stop falls or hazards.
+
+[9] 忍者
+
+EN紹介: She dashes through foes with a slash.\nHer dash grants brief invulnerability,\nbut her low maximum HP leaves\nlittle room for mistakes.
+
+[10] 巫女
+
+EN紹介: Her talismans explode after a delay;\na second triggers a bigger blast.\nHer barrier slows regular foes,\nand her shikigami attacks behind.
+
+[11] 吸血鬼
+
+EN紹介: Hits fill his blood gauge, boosting\npower and speed. At full gauge, he gets\na five-second boost and can heal.\nNo hits or ground damage drain it.
+
+[12] 竜人
+
+EN紹介: She sweeps foes with claws, tail,\nand flame. She can jump high and glide.\nHer large body is easy to hit,\nbut she has high HP and resists knockback.
+
+[13] ルカ
+
+EN紹介: A brave little tabby with quick paws\nand fearless pounces. His small body\nslips past danger, and he jumps high.\nNo weapons or armor needed.
+
+[14] ペンタトゥットゥルー星人
+
+EN紹介: Its arms and legs stretch far.\nStomping a foe in midair makes it bounce\nup once per jump. No one knows\nwhere this fluffy visitor came from.
+
+全14人とも、165文字以内・4行・各行40文字以内に収めています（\n の2文字は文字数から除外）。
+
+今回は特に、弓使いの時間による強化、忍者の短時間無敵、吸血鬼の血のゲージ、ペンタの跳ね返り回数など、誤訳されやすい仕組みを優先して残しました。
+
+PDF に変換
+ChatGPT は間違えることがあります。重要な情報は確認してください。
+最新の応答
+
+
+
+
+思考量
+Instant
+回答が完了しました

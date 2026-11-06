@@ -1492,6 +1492,7 @@ public partial class PlayerController : MonoBehaviour
         float effectiveKnockback = knockbackVelocityX * knockbackFrac;
         // ボス戦(2026-10-01): 攻撃の前進/後退を大きくする(ボスが離れているほど前進を伸ばす。近いと伸ばしすぎない)
         lungeScaleNow = Mathf.Approximately(lungeVelocityX, 0f) ? 1f : BossBattle.LungeScale(lungeVelocityX, transform.position.x) * CardHunterLungeScale;
+        if (lungeVelocityX > 0f && !IsAlly) lungeScaleNow *= BossHalt.ForwardLungeLimit(transform.position.x); // 2026-11-07: 止まって戦うボス戦で戦闘範囲より前へ踏み込みで出ない(BossHalt.ForwardLungeLimit)
         if (!ArenaMode.FixedSpeed) autoSpeed *= CardAutoSpeedScale * CardHunterApproachScale(transform.position.x) * UltimateArt.BuffRunSpeedMul; // 闘技場の「実効速度固定」では補正を掛けない // v3: BRAKE ATTACK / HUNTER / #100 ULTIMATE の BUFF(勢い)
         float newX = transform.position.x + (autoSpeed + EffectiveLungeX * lungeScaleNow + effectiveKnockback) * dt; // タップ攻撃は前への踏み込み無し(EffectiveLungeX)
         float prevX = transform.position.x;

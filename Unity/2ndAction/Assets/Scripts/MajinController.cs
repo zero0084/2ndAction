@@ -258,7 +258,7 @@ public partial class MajinController : MonoBehaviour
 
     void Update()
     {
-        if (NetPuppet) { if (state != State.Dead) AnimateSprite(); return; }
+        if (NetPuppet) { MapCardRules.PuppetBreakTick(ref mapPuppetBroken, juggle); if (state != State.Dead) AnimateSprite(); return; } // 2026-11-06 BREAK FEAST(JOIN)
         if (state == State.Dead) return;
 
         AnimateSprite();
@@ -605,7 +605,7 @@ public partial class MajinController : MonoBehaviour
             int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage);
             var info = other.GetComponent<PlayerAttackInfo>();
             bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
-            pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air); // 天空ボス強化: 崩し
+            pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air) * BalanceTuning.CharBossStaggerScale(PlayerController.Instance); // 天空ボス強化: 崩し(2026-11-07: キャラごとの倍率 = 双剣士)
             pendingKind = info != null ? info.kind : PlayerAttackKind.Normal; // 2026-10-18: BREAK のコンボ用
             pendingManual = info == null || (!info.elementProc && !info.suppressHitStop);
             NoteFinalAttack(other, info); // BOSS FINISH
@@ -779,6 +779,7 @@ public partial class MajinController : MonoBehaviour
     // ===================================================================== //
     [System.NonSerialized] public int NetId;
     [System.NonSerialized] public bool NetPuppet;
+    bool mapPuppetBroken; // 2026-11-06 BREAK FEAST(JOIN): HOST の BREAK が始まったか
 
     // マルチプレイPhase 2.5: HOSTのAIが狙う相手(全ての活動中プレイヤーから選ばれる)。並走の基準速度もその相手。
     EnemyTargetSelector netTarget;

@@ -20,12 +20,31 @@ public partial class GameManager
         MapGrowthKills = 0; BloodShieldHearts = 0; SecondRiseUsed = false; OneMoreChanceUsed = false;
         bloodCarryHp = 0f; bloodDecayAt = 0f; overflowCarryHp = 0f; overflowReadyAt = 0f;
         lastBastionReadyAt = revengeReadyAt = breakFeastReadyAt = 0f;
+        netLastAuthHp = -1;
         MapCardRules.LastBrokenHitAt = -99f;
         MapCardRules.InvalidateDeck();
         CardProcs.ResetMapCards(); // SHIELD BURST の間隔
     }
 
     int MLv(EffectType t) => Mathf.Clamp(Mathf.RoundToInt(Card.Get(t)), 0, 9);
+
+    // ---- CONTINUE(RunCheckpoint)へ: 1ランに1回のカードを使ったか
+    //  チェックポイントの保存 = 今の状態のまま / 中断の保存(台帳だけ)= 使った印だけ足す(消さない)/ 新しいラン・倒れた・ホームから新しく = 消える
+    void MapCardsExportRun(RunCheckpoint.Data data)
+    {
+        data.mapSecondRiseUsed = SecondRiseUsed;
+        data.mapOneMoreChanceUsed = OneMoreChanceUsed;
+    }
+    void MapCardsKeepUsedOnInterrupt(RunCheckpoint.Data data)
+    {
+        data.mapSecondRiseUsed |= SecondRiseUsed;
+        data.mapOneMoreChanceUsed |= OneMoreChanceUsed;
+    }
+    void MapCardsImportRun(RunCheckpoint.Data data)
+    {
+        SecondRiseUsed = data.mapSecondRiseUsed;
+        OneMoreChanceUsed = data.mapOneMoreChanceUsed;
+    }
 
     // 毎フレーム(UpdateCardRunState): 血の盾が減る / 間隔で待っていた超過の回復を一時シールドへ
     void MapCardsTick()
@@ -156,7 +175,7 @@ public partial class GameManager
     bool MapCardsTryOneMoreChance()
     {
         int lv = MLv(EffectType.OneMoreChanceLevel);
-        if (lv <= 0 || OneMoreChanceUsed || Lives > 0) return false;
+        if (lv <= 0 || OneMoreChanceUsed || Lives > 0 || MapCardRules.Multiplayer) return false; // マルチは HOST の DOWN/脱落(SoloOnly)
         OneMoreChanceUsed = true;
         Lives = Mathf.Min(maxLives, CombatScale.HpPerHeart);
         NetMatch.RequestSetMax(maxLives, false);
@@ -165,6 +184,33 @@ public partial class GameManager
         MapCardRules.OneMoreChances++;
         BossBattleHud.Banner("ONE MORE CHANCE", new Color(1f, 0.95f, 0.7f), 1.4f);
         return true;
+    }
+
+    // ===================================================================== マルチの JOIN
+    // JOIN の被弾の申告の前(NetPrecheckDamage): 血の盾があれば 1 つ使って、この被弾を申告しない(HOST へは何も送らないので HP はずれない)。
+    //  JOIN はダメージの量を知らない(HOST が決める)ので「ハート単位」ではなく 1 回の被弾を 1 つで消す。落下は対象外(足場へ戻す処理と合わせる)
+    public static int JoinBloodBlocks; // 確認用
+    bool MapCardsJoinBloodBlock(string reason)
+    {
+        if (BloodShieldHearts <= 0 || IsFallReason(reason)) return false;
+        BloodShieldHearts--;
+        MapCardRules.BloodShieldUsed++;
+        JoinBloodBlocks++;
+        return true;
+    }
+
+    // JOIN: HOST が確定した HP が下がった(NetApplyAuthoritativeLives)→ この端末で被弾の後のカード(LAST BASTION / REVENGE ARMOR の攻撃 / SECOND RISE)。
+    //  回復は KitHeal → HOST へ申告(RequestHeal)。HOST の端末は自分の被弾だけを TryDamagePlayer で扱うので、二重には出ない
+    //  差は「前に HOST から届いた値」と比べる(この端末で先に足した回復が HOST に届く前に表で戻った分を、被弾と数えない)
+    public static int JoinAfterDamageCalls; // 確認用
+    int netLastAuthHp = -1;
+    void MapCardsJoinAuthHp(int hp)
+    {
+        int before = netLastAuthHp;
+        netLastAuthHp = hp;
+        if (before < 0 || hp >= before || hp <= 0) return;
+        JoinAfterDamageCalls++;
+        MapCardsAfterDamage(before, before - hp);
     }
 
     // ===================================================================== BREAK / 撃破

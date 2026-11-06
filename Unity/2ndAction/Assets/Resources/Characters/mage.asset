@@ -16,15 +16,7 @@ MonoBehaviour:
   displayName: SORCERESS
   subtitle: Float Above, Strike Below
   role: FLIGHT MAGE
-  flavorText: 'A sorceress who never touches the ground.
-
-    She rises and sinks
-    at will,
-
-    raining spells on whatever lies below -
-
-    but a single blow
-    cuts deep.'
+  flavorText: "She floats above the ground and gaps.\nChanging height casts a spell.\nHer HP is low, and enemy hits\nknock her back farther."
   portrait: {fileID: 2800000, guid: 6da1fa8995b2b814d9f3e3354e6aa64d, type: 3}
   mainVisual: {fileID: 2800000, guid: 6d99583bcfc3542499b713ea798764a4, type: 3}
   lifeRating: 2

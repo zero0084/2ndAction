@@ -27,6 +27,24 @@ public partial class PlayerController
         }
         return jumpForce;
     }
+    // 2026-11-07(ルカの道中の段差/穴): ジャンプの瞬間に出る技の前への跳び込み(前進に上乗せする速さ m/秒 と、その長さ 秒)。
+    // ルカの飛びつき(CatLeap: leapDistanceX を leapTime で)。他のキャラは 0(今までどおり)
+    public float AssistJumpLungeSpeed => BalanceTuning.AssistJumpLunge && kit == CharacterKit.Cat && kitDef != null ? kitDef.cat.leapDistanceX / Mathf.Max(0.01f, kitDef.cat.leapTime) : 0f;
+    public float AssistJumpLungeTime => BalanceTuning.AssistJumpLunge && kit == CharacterKit.Cat && kitDef != null ? kitDef.cat.leapTime : 0f;
+    // 2026-11-07: 前攻撃1回の前への踏み込み(前進に上乗せする速さ m/秒 と長さ 秒)。補助が空中で攻撃してよいかの予測に使う。
+    // 剣の連撃(黒剣士/双剣士): lungeDistance を攻撃の判定の時間で / ルカ: 猫パンチの踏み込み。他の技のキャラは 0(今までどおり)
+    bool AssistSwordLunge => !HasKit && !isRangedCharacter && !isLancerCharacter && !IsNoble;
+    public float AssistAttackLungeTime => !BalanceTuning.AssistAirAttackLunge ? 0f
+        : kit == CharacterKit.Cat && kitDef != null ? CatPawActiveTime(CatAssistNextStage)
+        : AssistSwordLunge ? attackActiveTime * AttackSpeedMultiplier : 0f;
+    public float AssistAttackLungeSpeed => !BalanceTuning.AssistAirAttackLunge ? 0f
+        : kit == CharacterKit.Cat && kitDef != null ? CatComboLunge(CatAssistNextStage) / Mathf.Max(0.01f, CatPawActiveTime(CatAssistNextStage))
+        : AssistSwordLunge ? lungeDistance / Mathf.Max(0.01f, attackActiveTime) : 0f;
+    // 2026-11-07: JUMP COUNT UP で増えた空中ジャンプの減衰(CardJumpImpulseScale)を補助の予測に入れるための値。
+    // 減衰しない回数(これを超えた回からの空中ジャンプが弱くなる)と、減衰しない高さの基準(直前に立っていた高さ)。
+    // 技のジャンプのキャラ(初速を技が上書きする)は減衰しない扱い(999)
+    public int AssistJumpDecayFree => !BalanceTuning.AssistJumpDecay || HasKit ? 999 : baseJumpCount + CardRules.JumpDecayFreeJumps;
+    public float AssistLastGroundY => cardLastGroundY;
     public float AssistGravity => gravity;
     // 空中攻撃が当たった直後の滞空補助(重力が弱まる残り時間と倍率)
     public float AssistAerialAssistRemaining => isGrounded ? 0f : Mathf.Min(aerialAssistTimer, Mathf.Max(0f, aerialAssistMaxTotalDuration - aerialAssistTotalUsed));
@@ -179,7 +197,7 @@ public partial class PlayerController
                 case CharacterKit.Fighter: return ArcherPick(kitDef.fighter.comboDamageScale, 0, 1f);
                 case CharacterKit.Vampire: return ArcherPick(kitDef.vampire.comboDamageScale, 0, 1f);
                 case CharacterKit.Dragonkin: return ArcherPick(kitDef.dragonkin.comboDamageScale, 0, 1f);
-                case CharacterKit.Cat: return ArcherPick(kitDef.cat.comboDamageScale, 0, 1f);
+                case CharacterKit.Cat: return CatComboDamageScale(1);
                 case CharacterKit.Cloud: return ArcherPick(kitDef.cloud.comboDamageScale, 0, 1f);
                 case CharacterKit.Ninja: return kitDef.ninja.slashDamageScale;
                 case CharacterKit.Miko: return kitDef.miko.ofudaDamageScale;

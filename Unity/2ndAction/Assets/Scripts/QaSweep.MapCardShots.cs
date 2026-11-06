@@ -25,7 +25,7 @@ public partial class QaSweep
         Check(CardDatabase.AllCards.Count(c => !CardVariant.IsVariantKey(c.cardId)) == 150, $"150 cards ({CardDatabase.AllCards.Count})");
 
         // ---- ガチャ
-        foreach (var id in new[] { "last_bastion", "sonic_edge", "elemental_chaos", "one_more_chance" })
+        foreach (var id in new[] { "last_bastion", "sonic_edge", "elemental_chaos", "one_more_chance", "air_combo", "launch_master", "final_drive" }) // 2026-11-06 夜: 絵を差し替えた3枚を追加
         {
             var c = CardDatabase.FindBaseById(id);
             if (c == null) { Check(false, $"card {id} exists"); continue; }
@@ -51,7 +51,7 @@ public partial class QaSweep
             Shot($"mc_deck_{GachaSkinFx.KeyOf(m)}_{res}"); yield return null; yield return null;
         }
         // 長押しの詳細: ラスダンの絞り込みの中の ONE MORE CHANCE と FINAL DRIVE
-        foreach (var want in new[] { "one_more_chance", "elemental_chaos", "sonic_edge" })
+        foreach (var want in new[] { "one_more_chance", "elemental_chaos", "sonic_edge", "air_combo", "launch_master", "final_drive" }) // 2026-11-06 夜: 絵を差し替えた3枚を追加
         {
             ui.DebugSetMapFilter((int)CardMapCategories.Of(CardDatabase.FindBaseById(want))); yield return new WaitForSecondsRealtime(0.4f);
             int idx = -1; for (int i = 0; i < ui.DebugOwnedShownCount; i++) { var d = ui.DebugShownDef(i); if (d != null && CardMastery.BaseIdOf(d.cardId) == want) { idx = i; break; } }
@@ -73,14 +73,29 @@ public partial class QaSweep
         yield return new WaitForSecondsRealtime(2f);
         for (int k = 0; k < 2; k++)
         {
+            autoPickHold = true; // 2026-11-06 夜: 撮る前に自動の選択が押さないように(前の回で動かした自動選択が残っている)
             typeof(GameManager).GetMethod("TriggerLevelUpChoice", NP).Invoke(gm, null);
             yield return WaitTut(() => gm.IsRewardSequenceWaitingForSelection, 6f);
             yield return new WaitForSecondsRealtime(0.8f);
             Shot($"mc_choice{k}_{res}"); yield return null; yield return null;
-            autoPickHold = false; StartCoroutine(AutoPickCards());
+            autoPickHold = false; // 撮った後は、起動時から動いている自動選択(AutoPickCards)に選ばせる
             yield return WaitTut(() => !gm.IsRewardSequenceRunning, 8f);
             yield return new WaitForSecondsRealtime(0.8f);
         }
+        // 2026-11-06 夜: 絵を差し替えた3枚だけの3択(デッキをその3枚にして、もう1回)
+        var deckF = typeof(GameManager).GetField("deckCards", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var deckL = (System.Collections.Generic.List<string>)deckF.GetValue(gm);
+        var deckKeep = new System.Collections.Generic.List<string>(deckL);
+        deckL.Clear(); deckL.AddRange(new[] { "air_combo", "launch_master", "final_drive" });
+        autoPickHold = true;
+        typeof(GameManager).GetMethod("TriggerLevelUpChoice", NP).Invoke(gm, null);
+        yield return WaitTut(() => gm.IsRewardSequenceWaitingForSelection, 6f);
+        yield return new WaitForSecondsRealtime(0.8f);
+        Shot($"mc_choice_newart_{res}"); yield return null; yield return null;
+        autoPickHold = false;
+        yield return WaitTut(() => !gm.IsRewardSequenceRunning, 8f);
+        yield return new WaitForSecondsRealtime(0.8f);
+        deckL.Clear(); deckL.AddRange(deckKeep);
         Shot($"mc_run_{res}"); yield return null; yield return null;
         stopKeepAlive = true;
         L($"[mapcards] shots done ({res})");

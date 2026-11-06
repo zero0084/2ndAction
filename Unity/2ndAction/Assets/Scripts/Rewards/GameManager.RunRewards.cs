@@ -56,6 +56,7 @@ public partial class GameManager
             EnemyKillCount++;
             GainExp(enemyKillExp * (chain > 0f ? CardRules.ExpMultiplier(ExpBucketKill + chain) : KillExpScale) * Mathf.Max(0f, expMul)); // v3: 精鋭は EXP×2
             CardRewards.OnEnemyKilled(this); // 2026-11-06 HUNT PAY / HUNT TRAINING / TROPHY HUNT の数え
+            MapOnKill(); // 2026-11-06 ENDLESS GROWTH(撃破の数。マルチはラストヒットの人)
             UltimateArt.OnEnemyKilled(expMul > 1.5f); // #100 ULTIMATE の Gauge(発動中は溜まらない)
             TryLifesteal();
         }

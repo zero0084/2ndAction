@@ -201,6 +201,7 @@ public partial class GameManager
             }
             // FINAL EVOLUTION(2026-10-05): ACTIVE の能力は、そのカード自身の効果(マイナスの効果も)を ×amplify。枠/曲線/上限はこの先でそのまま通る
             float amp = FinalEvolution.Amplify(c.cardId);
+            if (MapCardRules.SoloOnly(c.cardId) && MapCardRules.Multiplayer) continue; // 2026-11-06: マルチでは効かない(キャラカード等で持っていても)
             foreach (var e in c.effects)
             {
                 if (e.type == EffectType.SacrificeHearts) continue;
@@ -430,6 +431,7 @@ public partial class GameManager
         }
         secondWindReadyDistance = data.secondWindReadyDistance;
         lastChanceArmed = !data.lastChanceSpent;
+        MapCardsImportRun(data); // 2026-11-06 1ランに1回のカード
     }
 
     void ExportCardRunState(RunCheckpoint.Data data)
@@ -438,6 +440,7 @@ public partial class GameManager
         data.phoenixResetHistoryIndex = phoenixResetHistoryIndex;
         data.secondWindReadyDistance = secondWindReadyDistance;
         data.lastChanceSpent = !lastChanceArmed;
+        MapCardsExportRun(data); // 2026-11-06 1ランに1回のカード
     }
 }
 

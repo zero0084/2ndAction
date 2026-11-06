@@ -14,14 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
   characterId: dual_blade
   displayName: DUAL BLADE
-  subtitle: Swift Steel, Endless Motion
-  role: GROUND COMBO
-  flavorText: 'A swift dual-wielder who chains strikes
-
-    together without ever
-    slowing down.
-
-    Speed and momentum are her greatest weapons.'
+  subtitle: Swift Blades, Endless Dance
+  role: SWIFT COMBO
+  flavorText: "She runs fast and strikes even faster.\nHer five-hit combo works on the ground\nand in midair. Each hit is light,\nbut her speed makes up for it."
   portrait: {fileID: 2800000, guid: 7474a08adfcb5b844b1abe27c904880a, type: 3}
   mainVisual: {fileID: 2800000, guid: 370edb95842c064428e4159cd46c8180, type: 3}
   lifeRating: 4

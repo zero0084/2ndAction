@@ -23,6 +23,21 @@ public static class BossHalt
     // 戦闘範囲の目安(この端末の場面の X)。止まった所を中心に、ボスが動き回れる幅
     public static float AnchorX { get; private set; }
     public const float ArenaBehind = 9f, ArenaAhead = 22f;
+    public static double AnchorLX { get; private set; } // 2026-11-07: 止まった所の論理X(浮動原点がずれても使える)
+
+    // 2026-11-07(双剣士の調査): 止まって戦う間、攻撃の踏み込み(ボス戦では ×1.4〜2.6 に伸びる)で止まった所から前へ出すぎない。
+    // ボスはプレイヤーとの間合いを保って下がるので、手数の多いキャラ(双剣士 = 振りが 0.75倍の時間)ほど踏み込みを重ねて前へずれ続け、
+    // 1戦で 20〜30m(黒剣士/ルカは 14m 前後)、長引くと平らにしてある所(関門の先 55m まで、TerrainManager.BossArenaAfter)を越えて
+    // 戦いの最中に穴/段差の壁に当たっていた(双剣士だけ、ボス戦の地形の被弾 1ラン平均 1〜2ハート)。
+    // 止まった所から LungeAheadSoft m 先で踏み込みを弱め始め、LungeAheadMax m 先で前への踏み込みを 0 にする(後ろへの踏み込み/ノックバックはそのまま)
+    public static float LungeAheadSoft = 22f, LungeAheadMax = 30f;
+    public static float ForwardLungeLimit(float playerX)
+    {
+        if (!BalanceTuning.HaltLungeLimit || !Holding) return 1f;
+        double ahead = playerX + FloatingOrigin.Offset - AnchorLX;
+        if (ahead <= LungeAheadSoft) return 1f;
+        return Mathf.Clamp01((float)((LungeAheadMax - ahead) / Mathf.Max(0.1f, LungeAheadMax - LungeAheadSoft)));
+    }
 
     // その場で止める条件(外の仕組みが「止めない」を決める時に使う)
     public static System.Func<string> Exempt; // null 以外を返したら止めない(理由)
@@ -54,7 +69,7 @@ public static class BossHalt
         if (tickFrame == Time.frameCount) return;
         tickFrame = Time.frameCount;
         bool want = Wants(pc, out string why);
-        if (want && !wasHolding) { Starts++; AnchorX = pc != null ? pc.transform.position.x : 0f; Debug.Log($"[BossHalt] hold ({why}) x={AnchorX:F1}"); fieldCleared = false; }
+        if (want && !wasHolding) { Starts++; AnchorX = pc != null ? pc.transform.position.x : 0f; AnchorLX = AnchorX + FloatingOrigin.Offset; Debug.Log($"[BossHalt] hold ({why}) x={AnchorX:F1}"); fieldCleared = false; }
         // 止まった所(=戦闘範囲)に残った道中の雑魚/障害物を片付ける(報酬なし、煙だけ)。止まりきる少し前に1回
         if (want && !fieldCleared && Factor < 0.35f && pc != null) { fieldCleared = true; ClearField(pc.transform.position.x); }
         if (!want && wasHolding) { Releases++; Debug.Log($"[BossHalt] release ({LastReason} -> {why}) early local shown/promoted/cancelled={TelegraphLead.EarlyShown}/{TelegraphLead.EarlyPromoted}/{TelegraphLead.EarlyCancelled} net sent/recv/late={NetCombat.EarlyTeleSent}/{NetCombat.EarlyTeleReceived}/{NetCombat.EarlyTeleLate} remote shown/expired/cancel={RemoteForesight.Shown}/{RemoteForesight.Expired}/{RemoteForesight.Cancelled} hold sent/recv={NetCombat.BossHoldSent}/{NetCombat.BossHoldReceived}"); }

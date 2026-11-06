@@ -89,6 +89,39 @@ public static class BalanceTuning
     public static bool AssistMageAltitude = true;
     public static bool MageHoverSafety = true;
 
+    // ===== 双剣士/ルカの序盤(2026-11-07、初期デッキで 10km の関門まで届かない件。キャラ側の調整 + 自動の補助の予測の抜け) =====
+    // 10km の大蛇そのもの(HP/攻撃)は変えない。開発版は -charFix base で全部切った状態(比較用)、-charFix lj,lp,lo,lb,la,jd,ds,hl で個別
+    // --- ルカ ---
+    // lj: 自動の補助の跳びの予測を実際の跳び方に合わせる。①ジャンプで前へ跳ぶ技の前進(ルカの飛びつき = 0.16秒で 1.4m)
+    //     ②空中から始める計画(二段ジャンプの候補)は空中のジャンプの強さで(ルカは空中 ×0.9。以前は地上の強さで計算していた)
+    //     予測と実際の着地のずれ(平地の地形試験 6km): 平均 1.44m → 0.28m
+    public static bool AssistJumpLunge = true;
+    // lp: ルカの猫パンチ(1・2段目)の判定の出ている時間 0.07 → 0.15秒・戻り 0.09 → 0.01秒、飛びかかり(3段目)は判定 0.14 → 0.34秒・戻り 0.3 → 0.1秒
+    //     (1回の長さは同じ = 火力は同じ)。判定が短く、約 110km/h では間隔 3〜5m で並ぶ雑魚の2体目が戻りの間に体へ届き、
+    //     一度も殴られないまま体当たりになっていた(接触した時の雑魚の HP は満タン)
+    public static bool CatPawActive = true;
+    public static float CatPawActiveAdd = 0.08f, CatPounceActiveAdd = 0.2f;
+    // lo: ルカの猫パンチ(1・2段目)の威力 0.75 → 1.0(序盤の小型の雑魚を1発で)、飛びかかり 1.7 → 1.3(3段の合計はほぼ同じ = ボスへの火力は同じ)
+    public static bool CatPawOneShot = true;
+    public static float CatPawDamage = 1.0f, CatPounceDamage = 1.3f;
+    // lb: ルカのボス戦の猫パンチの踏み込み 0.25 → 0.7m(PlayerController.CatComboLunge)
+    public static bool CatBossLunge = true;
+    public static float CatBossLungeDistance = 0.7f;
+    // --- 双剣士 ---
+    // ds: 双剣士の連撃はボスの崩し(BREAK のゲージ)が溜まりやすい(1発ごとの崩し ×1.5)。手数の多さを強みにする(個性)。
+    //     双剣士は1発が軽く(攻撃力 黒剣士の半分・振りは 0.75倍の時間)、ボスへの火力が黒剣士の約 0.7倍で、10km の大蛇の戦いが長く受けるハートも多かった。
+    //     BREAK の間はボスが攻撃せず、ダメージも 1.35倍(ボス側の値は変えない。この端末のプレイヤーの攻撃だけ)
+    public static bool DualBladeStagger = true;
+    public static float DualBladeStaggerMul = 1.5f;
+    public static float CharBossStaggerScale(PlayerController pc) => DualBladeStagger && pc != null && pc.CharId == "dual_blade" ? DualBladeStaggerMul : 1f;
+    // --- 全キャラ(自動の補助/止まって戦うボス戦。手数の多い・速いキャラほど効く) ---
+    // la: 自動の補助が空中で前攻撃してよいかの予測に、攻撃の踏み込みを入れる(以前は当たった時の滞空だけ)
+    public static bool AssistAirAttackLunge = true;
+    // jd: 自動の補助の予測に JUMP COUNT UP の空中ジャンプの減衰を入れる(以前は満額で予測。技のジャンプのキャラは対象外)
+    public static bool AssistJumpDecay = true;
+    // hl: 止まって戦うボス戦で、止まった所から 22〜30m より前へ攻撃の踏み込みで出ない(BossHalt.ForwardLungeLimit)
+    public static bool HaltLungeLimit = true;
+
     public static string Describe => $"lateEnemyHp={(LateEnemyHp ? $"on(from {LateHpFrom:F0}m every {LateHpEvery:F0}m)" : "off")} attackUpHighLevel={(AttackUpHighLevel ? "on" : "off")} bossFrontReturn={(BossFrontReturn ? "on" : "off")} assistFlyingBosses={(AssistFlyingBosses ? "on" : "off")} assistFighterCombo={(AssistFighterCombo ? "on" : "off")} assistKitJumpModel={(AssistKitJumpModel ? "on" : "off")} noble={(NobleAwaken ? "awaken " : "")}{(NobleArmor ? "armor " : "")}{(NobleHeavy ? "heavy " : "")}{(NobleReach ? "reach" : "")} fighterFullJump={(FighterFullJump ? "on" : "off")}";
 
     // 雑魚の HP の距離の段(DistanceTierManager.CurrentEnemyHp)
@@ -149,6 +182,13 @@ public static class BalanceTuning
             string v = a[i + 1];
             BossSpecialBreather = v.Contains("breather"); AssistApproachLunge = v.Contains("lunge");
             Debug.Log($"[BalanceTuning] standoffFix {v}: specialBreather={BossSpecialBreather} approachLunge={AssistApproachLunge}");
+        }
+        for (int i = 0; i < a.Length - 1; i++)
+        {
+            if (a[i] != "-charFix") continue; // 2026-11-07 双剣士/ルカ: base = 調整前 / lj,lp,lo,lb,ds,la,jd,hl を個別に
+            string v = a[i + 1];
+            AssistJumpLunge = v.Contains("lj"); CatPawActive = v.Contains("lp"); CatPawOneShot = v.Contains("lo"); AssistAirAttackLunge = v.Contains("la"); AssistJumpDecay = v.Contains("jd"); DualBladeStagger = v.Contains("ds"); CatBossLunge = v.Contains("lb"); HaltLungeLimit = v.Contains("hl");
+            Debug.Log($"[BalanceTuning] charFix {v}: assistJumpLunge={AssistJumpLunge} catPawActive={CatPawActive} catPawOneShot={CatPawOneShot} airAttackLunge={AssistAirAttackLunge} jumpDecay={AssistJumpDecay} dualBladeStagger={DualBladeStagger} catBossLunge={CatBossLunge} haltLungeLimit={HaltLungeLimit}");
         }
         for (int i = 0; i < a.Length - 1; i++)
         {

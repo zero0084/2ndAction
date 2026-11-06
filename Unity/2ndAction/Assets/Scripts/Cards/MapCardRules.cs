@@ -147,18 +147,36 @@ public static class MapCardRules
         if (gm != null) gm.MapOnEnemyBreak();
     }
 
-    // BREAK 中か(ボスの本体/当たり判定)
+    // BREAK 中か(ボスの本体/当たり判定)。JOIN のパペットは HOST の BREAK を BossJuggle(写し)が開いているかで見る
     public static bool IsBroken(Component c)
     {
         if (c is BossHurtbox h) c = h.owner;
         switch (c)
         {
-            case WildBossBase b: return b.Broken;
-            case DragonController d: return d.Broken;
-            case MajinController m: return m.Broken;
+            case WildBossBase b: return b.Broken || (b.NetPuppet && b.Juggle != null && b.Juggle.Open);
+            case DragonController d: return d.Broken || (d.NetPuppet && d.Juggle != null && d.Juggle.Open);
+            case MajinController m: return m.Broken || (m.NetPuppet && m.Juggle != null && m.Juggle.Open);
         }
         return false;
     }
+
+    // JOIN のパペット(毎フレーム): HOST の BREAK が始まった(写しの BossJuggle が開いた)瞬間 → この端末の BREAK FEAST。
+    //  HOST の端末では本物のボスの AddStagger が OnBossBreak を呼ぶ(パペットは呼ばない)ので、二重には数えない
+    public static int PuppetBreaksSeen; // 確認用
+    public static void PuppetBreakTick(ref bool wasOpen, BossJuggle j)
+    {
+        bool open = j != null && j.Open;
+        if (open && !wasOpen) { PuppetBreaksSeen++; OnBossBreak(); }
+        wasOpen = open;
+    }
+
+    // ================================================================ マルチ
+    // HP を決める端末(ソロ/HOST)の被弾の入口が要るカードのうち、JOIN では成り立たないもの。マルチのランでは候補に出さず、持っていても効かない
+    //  ONE MORE CHANCE: 倒れる判定は HOST(協力は DOWN/復活、対戦は脱落)。LAST GAMBLE: 危険(敵の攻撃 +1 ハート/高火力敵/判断イベント/敵の密度)が
+    //  HOST の世界と HOST の被弾にしか掛からず、JOIN は報酬だけになる。#100 ULTIMATE(マルチ未対応)と同じ扱い
+    public static bool SoloOnly(string cardId) => cardId == "one_more_chance" || cardId == "last_gamble";
+    public static bool Offerable(CardDefinition c) => c == null || !SoloOnly(c.cardId) || !NetMatch.Active;
+    public static bool Multiplayer => NetRunLauncher.IsMultiplayerRun;
     // 打ち上げた敵か(雑魚の Launched / ボスの BREAK の打ち上げで浮いている)
     public static bool IsLaunched(Component c)
     {
@@ -243,7 +261,7 @@ public static class MapCardRules
     }
 
     // ================================================================ LAST GAMBLE(危険の側)
-    public static bool GambleOn => Lv(EffectType.LastGambleLevel) > 0;
+    public static bool GambleOn => Lv(EffectType.LastGambleLevel) > 0 && !Multiplayer; // マルチでは効かない(SoloOnly)
     public static float GambleHeavyBonus => GambleOn ? GambleHeavyChance : 0f;   // 高火力敵(CardRewards.HeavyChanceBonus に足す)
     public static float GambleGapMulNow => GambleOn ? GambleGapMul : 1f;         // 判断イベントの間隔(CardRewards.DecisionGapMul に掛ける)
     // 敵の攻撃(雑魚/ボス/弾/死神)だけ。落下・障害物・壁・天井の棘(事故)は変えない

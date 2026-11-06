@@ -14,17 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
   characterId: swordsman
   displayName: SWORDSMAN
-  subtitle: The One Who Keeps Moving
+  subtitle: One Who Never Stops
   role: BALANCED
-  flavorText: 'A lone swordsman who walks his own path.
-
-    No matter how many times
-    he falls,
-
-    he rises again - because there is still
-
-    a further place to
-    reach.'
+  flavorText: "A lone swordsman on his own path.\nHis three-hit combo advances forward.\nHe launches foes with an upward slash\nand strikes down with a diving slash."
   portrait: {fileID: 2800000, guid: 76f48764f1d5ff042914b6eb09cec195, type: 3}
   mainVisual: {fileID: 2800000, guid: fafad1396c67944449f563dfe7150086, type: 3}
   lifeRating: 3

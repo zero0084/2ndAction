@@ -295,9 +295,14 @@ public class RewardCardSequence : MonoBehaviour
         // before this pass.)
         gameObject.SetActive(true);
         appliedThisRun = false;
+        runGeneration++;
         StartCoroutine(RunSequence(cardData, onApply, announcementText));
         return true;
     }
+
+    // 2026-11-06: 何回目の StartSequence か。止めた古い3択のコードの続き(onApply の中から次の3択が始まった時など)が、
+    //  新しい3択の表示を消したり appliedThisRun を書き換えたりしないための目印
+    int runGeneration;
 
     IEnumerator RunSequence(RewardCardData[] cardData, System.Action<string> onApply, string announcementText)
     {
@@ -344,15 +349,20 @@ public class RewardCardSequence : MonoBehaviour
         // see its own comment). GameManager's 30s pendingChoiceStuckTimer
         // watchdog remains the outermost net regardless, in case both of
         // these somehow still aren't enough.
+        int gen = runGeneration;
         try
         {
             yield return RunSequenceBody(cardData, onApply, announcementText, cardCount);
         }
         finally
         {
-            running = false;
-            waitingForSelection = false;
-            if (gameObject != null) gameObject.SetActive(false);
+            // 2026-11-06: 次の3択が既に始まっていたら、その表示/状態を片付けない(古い3択の後始末だけで終わる)
+            if (gen == runGeneration)
+            {
+                running = false;
+                waitingForSelection = false;
+                if (gameObject != null) gameObject.SetActive(false);
+            }
         }
     }
 
@@ -485,7 +495,11 @@ public class RewardCardSequence : MonoBehaviour
             portraitConfirmText[i].rectTransform.offsetMin = new Vector2(pillW + 20f, 0f);
             portraitBadge[i].SetActive(false);
             if (on) tx.text = PortraitText(data[i], false);
+            // 2026-11-06: 新しい3択では文が前回と同じでも先頭から(前回のスクロール位置/測った高さを持ち越さない)
+            var sc = UguiScrollText.Wrap(tx);
+            if (sc != null) sc.ResetForNewContent();
         }
+        lastTextSetFrame = Time.frameCount;
         if (portraitHint == null)
         {
             var go = new GameObject("PortraitHint", typeof(RectTransform));
@@ -542,6 +556,172 @@ public class RewardCardSequence : MonoBehaviour
             if (portraitBadge[i] != null) portraitBadge[i].SetActive(sel);
             if (portraitData != null && i < portraitData.Length && portraitDesc[i] != null) portraitDesc[i].text = PortraitText(portraitData[i], sel);
         }
+        lastTextSetFrame = Time.frameCount;
+    }
+
+    // ===== 3択の文字の確かめ(2026-11-06、実機: 縦画面の3択で2・3段目のカード名/説明が空だった。発生の時機は不明) =====
+    //  選べるようになった次のフレーム・0.25秒後・以後1秒ごと・選び直した次のフレームに、各枠の「出すべき文」と「実際の表示」を
+    //  突き合わせる。食い違い(空/前の3択の文/非表示/切り抜きで消えた/スクロールで外れた/文字が生成されていない/カード面と候補の不一致)
+    //  が見つかったら直して、候補と各枠の状態を1行で記録する(製品版でも出る軽い記録。3枚×数項目の比較だけ)。
+    public static int ChoiceTextRepairs { get; private set; }   // 直した回数(確認用。0 のままが正常)
+    public static string LastChoiceTextProblem { get; private set; } = "";
+    public static bool QaNoRepair; // 試験用: 見つけるだけで直さない(直す前の不具合を数える)
+    int choiceSerial;
+    string choiceKind = "";
+    int lastTextSetFrame = -10;
+    readonly int[] genZeroStreak = new int[3];
+    string lastLoggedProblem;
+    public int ChoiceSerial => choiceSerial;
+    public bool QaPortrait => portrait;
+    public int QaHighlighted => highlightedIndex;
+    public int QaCardCount => currentCardData != null ? currentCardCount : 0;
+    public RewardCardData QaData(int i) => currentCardData != null && i >= 0 && i < currentCardCount ? currentCardData[i] : default;
+    public Text QaPortraitDesc(int i) => i >= 0 && i < portraitDesc.Length ? portraitDesc[i] : null;
+    public RectTransform QaPortraitViewport(int i) { var t = QaPortraitDesc(i); var sc = t != null ? t.GetComponentInParent<UguiScrollText>(true) : null; return sc != null ? sc.Viewport : t != null ? t.rectTransform : null; }
+    public string QaExpectedPortraitText(int i) => currentCardData != null && i >= 0 && i < currentCardCount ? PortraitText(currentCardData[i], i == highlightedIndex) : null;
+
+    // 右から左の言語は RtlTextWrap が表示の文を幅に合わせて書き換える → 空でなければ良しとする(書き換えと入れ直しを繰り返さない)
+    static bool TextMatches(string shown, string want) => shown == want || (Loc.IsRtl && !string.IsNullOrEmpty(shown) && !string.IsNullOrEmpty(want));
+    static string Clip(string s, int n) { s = (s ?? "").Replace("\n", "/"); return s.Length <= n ? s : s.Substring(0, n) + "…"; }
+
+    // 候補と各枠の状態(記録用の1行)
+    public string DescribeChoiceSlots()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"#{choiceSerial} {choiceKind} portrait={portrait} n={currentCardCount} hl={highlightedIndex} wait={waitingForSelection} lang={Loc.Current} fontRebuilds={fontRebuildsThisChoice}/{textRedirtiesThisChoice} screen={Screen.width}x{Screen.height}");
+        for (int i = 0; i < currentCardCount && currentCardData != null && i < cards.Length; i++)
+        {
+            var d = currentCardData[i];
+            sb.Append($" | [{i}] id={d.CardId} title='{Clip(d.Title, 24)}' descLen={(d.Description ?? "").Length}");
+            var c = cards[i];
+            if (c != null) sb.Append($" face={(c.gameObject.activeInHierarchy ? "on" : "off")}:{c.Data.CardId}:'{Clip(c.titleText != null ? c.titleText.text : "", 16)}'");
+            if (portrait)
+            {
+                var t = QaPortraitDesc(i);
+                if (t == null) { sb.Append(" desc=null"); continue; }
+                var sc = t.GetComponentInParent<UguiScrollText>(true);
+                var root = sc != null ? sc.gameObject : t.gameObject;
+                Rect vr = sc != null && sc.Viewport != null ? sc.Viewport.rect : t.rectTransform.rect;
+                sb.Append($" desc={(root.activeInHierarchy ? "on" : "off")}/{(t.enabled ? "en" : "dis")} len={(t.text ?? "").Length} same={(t.text == PortraitText(d, i == highlightedIndex))} cull={t.canvasRenderer.cull} a={t.color.a:F2}/{t.canvasRenderer.GetInheritedAlpha():F2} gen={t.cachedTextGenerator.characterCountVisible} vp={vr.width:F0}x{vr.height:F0} scroll={(sc != null ? sc.ScrollY : 0f):F0}/{(sc != null ? sc.MaxScroll : 0f):F0}");
+            }
+        }
+        if (!portrait && detailTitleText != null) sb.Append($" | detail title='{Clip(detailTitleText.text, 20)}' descLen={(detailDescriptionText != null ? (detailDescriptionText.text ?? "").Length : -1)} panel={(detailPanelGroup != null && detailPanelGroup.gameObject.activeInHierarchy ? detailPanelGroup.alpha.ToString("F2") : "off")}");
+        return sb.ToString();
+    }
+
+    // 戻り値 = 見つかった食い違いの数。repair=true なら直す
+    public int ValidateChoiceDisplay(bool repair, System.Text.StringBuilder found = null)
+    {
+        if (currentCardData == null || currentCardCount <= 0) return 0;
+        int problems = 0;
+        bool afterRender = Time.frameCount > lastTextSetFrame + 1; // 文を入れたフレームの描画が終わった後か(文字の生成数を見てよいか)
+        bool redoPortrait = false, redoDetail = false;
+        for (int i = 0; i < currentCardCount && i < cards.Length; i++)
+        {
+            var d = currentCardData[i];
+            string p = "";
+            var c = cards[i];
+            if (c == null || !c.gameObject.activeInHierarchy) p += " face-hidden";
+            else
+            {
+                if (c.Data.CardId != d.CardId) p += " face-id";
+                if (c.titleText != null && !TextMatches(c.titleText.text, Loc.Auto(d.Title))) p += " face-title";
+                if (!string.IsNullOrEmpty(p) && repair && !QaNoRepair) c.SetContent(d, showDetails: false);
+            }
+            if (string.IsNullOrEmpty(d.Title) || string.IsNullOrEmpty(d.Description)) p += " data-empty"; // 候補のデータ自体が空(表示ではなく作る側の問題)
+            if (portrait)
+            {
+                var t = QaPortraitDesc(i);
+                if (t == null) { p += " desc-missing"; redoPortrait = true; }
+                else
+                {
+                    var sc = t.GetComponentInParent<UguiScrollText>(true);
+                    var root = sc != null ? sc.gameObject : t.gameObject;
+                    string want = PortraitText(d, i == highlightedIndex);
+                    if (!root.activeInHierarchy) p += " desc-inactive";
+                    if (!t.enabled) p += " desc-disabled";
+                    if (!TextMatches(t.text, want)) p += string.IsNullOrEmpty(t.text) ? " desc-empty" : " desc-stale";
+                    if (t.color.a < 0.5f) p += " desc-alpha";
+                    if (t.canvasRenderer.cull) p += " desc-culled";
+                    if (sc != null && sc.Viewport != null && (sc.Viewport.rect.height < 8f || sc.Viewport.rect.width < 8f)) p += " desc-size";
+                    if (sc != null && sc.ScrollY > sc.MaxScroll + 1f) p += " desc-scroll";
+                    bool gen0 = afterRender && root.activeInHierarchy && t.enabled && !string.IsNullOrEmpty(t.text) && t.cachedTextGenerator.characterCountVisible <= 0;
+                    // 文字の生成が0: 文字の絵(フォントの貼り付け先)が作り直された直後の1フレームは正常にも起きる → 2回続いた時だけ食い違いとして数える(1回目は静かに作り直させる)
+                    if (gen0) { genZeroStreak[i]++; if (genZeroStreak[i] >= 2) p += " desc-nogen"; else if (repair && !QaNoRepair) t.SetAllDirty(); }
+                    else genZeroStreak[i] = 0;
+                    if (p.Contains(" desc-")) redoPortrait = true;
+                }
+            }
+            if (p.Length > 0) { problems++; found?.Append($" [{i}]{p}"); }
+        }
+        if (!portrait && detailTitleText != null && detailPanelGroup != null && detailPanelGroup.gameObject.activeInHierarchy)
+        {
+            string wantTitle = highlightedIndex >= 0 && highlightedIndex < currentCardCount ? Loc.Auto(currentCardData[highlightedIndex].Title) : "";
+            string wantDesc = highlightedIndex >= 0 && highlightedIndex < currentCardCount ? Loc.Auto(currentCardData[highlightedIndex].Description) : Loc.Auto("カードを選んでください");
+            string p = "";
+            if (!TextMatches(detailTitleText.text, wantTitle)) p += " detail-title";
+            if (detailDescriptionText != null && !TextMatches(detailDescriptionText.text, wantDesc)) p += " detail-desc";
+            if (p.Length > 0) { problems++; redoDetail = true; found?.Append(" [detail]" + p); }
+        }
+        if (repair && !QaNoRepair && (redoPortrait || redoDetail))
+        {
+            if (redoPortrait)
+            {
+                SetupPortraitDescs(currentCardData, currentCardCount); // 位置/表示/文を全部入れ直す(何度呼んでも同じ結果)
+                foreach (var t in portraitDesc) if (t != null) t.SetAllDirty();
+            }
+            if (redoDetail)
+            {
+                if (highlightedIndex >= 0 && highlightedIndex < currentCardCount) UpdateDetailPanel(currentCardData[highlightedIndex]); else ShowDetailPrompt();
+            }
+        }
+        return problems;
+    }
+
+    // ---- 文字の作り直し(2026-11-06) ----
+    //  3択の文字はラン中の HUD(IMGUI)と同じフォント(= 同じ文字の絵)を使う。長いランでは色々な大きさの字で文字の絵が一杯になり、
+    //  作り直し(Font.textureRebuilt)が起きる。Unity は表示中の Text を作り直すが、Android ではアプリが裏へ回って戻った時に文字の絵が
+    //  作り直されることもある。3択を出している間にどちらかが起きたら、次のフレームで3択の文字を全部作り直させる(古い文字の絵の位置を
+    //  指したまま空/別の字に見える状態を残さない)。1回の3択で最大30回まで(作り直しが続く時に毎フレーム作り直し続けない)。
+    int fontRebuildsThisChoice, textRedirtiesThisChoice;
+    int redirtyAtFrame = int.MaxValue;
+    string redirtyReason = "";
+    void OnEnable() { Font.textureRebuilt += OnFontTextureRebuilt; }
+    void OnDisable() { Font.textureRebuilt -= OnFontTextureRebuilt; }
+    void OnFontTextureRebuilt(Font f)
+    {
+        if (!running) return;
+        fontRebuildsThisChoice++;
+        if (redirtyAtFrame == int.MaxValue) { redirtyAtFrame = Time.frameCount + 1; redirtyReason = "font"; }
+    }
+    void OnApplicationPause(bool paused) { if (!paused && running) { redirtyAtFrame = Time.frameCount; redirtyReason = "resume"; } }
+    void OnApplicationFocus(bool focus) { if (focus && running) { redirtyAtFrame = Time.frameCount; redirtyReason = "focus"; } }
+    void LateUpdate()
+    {
+        if (!running || Time.frameCount < redirtyAtFrame) return;
+        redirtyAtFrame = int.MaxValue;
+        if (QaNoRepair) return; // 試験: Unity 自身の作り直しだけで表示が保たれるかを見る
+        if (textRedirtiesThisChoice >= 30) return;
+        textRedirtiesThisChoice++;
+        foreach (var t in GetComponentsInChildren<Text>(false)) t.FontTextureChanged(); // Unity が文字の絵の作り直しで行うのと同じ(生成のやり直し+描き直し)
+        if (redirtyReason != "font") Debug.Log($"[ChoiceText] texts rebuilt after app {redirtyReason} (#{choiceSerial})");
+        if (waitingForSelection) checkDisplayAtFrame = Time.frameCount + 2; // 作り直した後の表示を確かめる
+    }
+
+    // 選択待ちの間の確かめ(食い違いがあれば記録して直す)
+    void CheckChoiceDisplay(string when)
+    {
+        var sb = new System.Text.StringBuilder();
+        int n = ValidateChoiceDisplay(!QaNoRepair, sb);
+        if (n <= 0) return;
+        string key = sb.ToString();
+        LastChoiceTextProblem = $"#{choiceSerial} {when}:{key}";
+        if (key == lastLoggedProblem) return; // 同じ食い違いを毎秒書かない/数えない(直せない「候補のデータが空」が続く時など)
+        lastLoggedProblem = key;
+        if (!QaNoRepair) ChoiceTextRepairs++;
+        string msg = $"[ChoiceText] display mismatch ({when}){key} {(QaNoRepair ? "(not repaired)" : "-> repaired")} :: {DescribeChoiceSlots()}";
+        Debug.LogWarning(msg);
+        FreezeDiagnostics.LogEvent(msg.Length > 600 ? msg.Substring(0, 600) : msg);
     }
 
     // ✓ の形(文字の絵に頼らない: 2本の細い四角を傾けて置く)
@@ -602,6 +782,13 @@ public class RewardCardSequence : MonoBehaviour
 
     IEnumerator RunSequenceBody(RewardCardData[] cardData, System.Action<string> onApply, string announcementText, int cardCount)
     {
+        int myGeneration = runGeneration;
+        choiceSerial++;
+        choiceKind = announcementText;
+        currentCardData = null; currentCardCount = 0; // 前の3択の候補を、この3択の確かめ/タップで使わない
+        lastLoggedProblem = null;
+        for (int i = 0; i < genZeroStreak.Length; i++) genZeroStreak[i] = 0;
+        fontRebuildsThisChoice = 0; textRedirtiesThisChoice = 0; redirtyAtFrame = int.MaxValue;
         portrait = PortraitRunView.IsPortraitScreen;
         slots = portrait ? PortraitSlots() : cardSlotPositions;
         HidePortraitDescs();
@@ -749,6 +936,12 @@ public class RewardCardSequence : MonoBehaviour
             cards[i].StartIdlePulse(0.15f, 0.55f, 1.1f);
         }
         LogStep("Cards As Choice UI Complete");
+        // 2026-11-06: 何を出したかを1行で残す(実機で「名前/説明が空」が出た時に、候補のデータの有無と各枠の状態を後から見分けるため)
+        {
+            string open = "[ChoiceText] open " + DescribeChoiceSlots();
+            Debug.Log(open);
+            FreezeDiagnostics.LogEvent(open.Length > 600 ? open.Substring(0, 600) : open);
+        }
 
         // Belt-and-suspenders: if a tap somehow never gets recognized by
         // either input path below, this guarantees the run can never be
@@ -760,12 +953,23 @@ public class RewardCardSequence : MonoBehaviour
         // 1回目のタップ(選択)→2回目のタップ(確定)の2段階になった分、
         // 旧来の単純な1タップ選択より余裕を持たせる。
         const float selectionTimeoutSeconds = 30f;
+        // 2026-11-06: 表示の確かめ(選べるようになった次のフレーム・0.25秒後・以後1秒ごと・選び直した次のフレーム)
+        int waitFrames = 0; float nextDisplayCheck = Time.unscaledTime + 0.25f;
+        checkDisplayAtFrame = Time.frameCount + 1;
         while (selectedIndex < 0)
         {
             if (Time.unscaledTime - waitStart > selectionTimeoutSeconds)
             {
                 selectedIndex = highlightedIndex >= 0 ? highlightedIndex : 0;
                 break;
+            }
+            waitFrames++;
+            if (Time.frameCount >= checkDisplayAtFrame || Time.unscaledTime >= nextDisplayCheck)
+            {
+                try { CheckChoiceDisplay(waitFrames <= 2 ? "open" : "wait"); }
+                catch (System.Exception e) { Debug.LogWarning("[ChoiceText] check failed: " + e.Message); } // 確かめ自体が選択を止めることはしない
+                checkDisplayAtFrame = int.MaxValue;
+                nextDisplayCheck = Time.unscaledTime + 1f;
             }
             yield return null;
         }
@@ -818,7 +1022,10 @@ public class RewardCardSequence : MonoBehaviour
         LogStep("Confirm Glow Complete");
 
         LogStep("Apply Upgrade");
+        Debug.Log($"[ChoiceText] picked #{choiceSerial} [{selectedIndex}] {winnerData.CardId} '{winnerData.Title}' (fontRebuilds={fontRebuildsThisChoice}, rebuiltTexts={textRedirtiesThisChoice}, repairs={ChoiceTextRepairs})");
         onApply(winnerData.CardId);
+        // 2026-11-06: onApply の中で次の3択が始まった(この3択は止められた)時は、ここから先(閉じる演出/表示の片付け)をしない
+        if (myGeneration != runGeneration) yield break;
         appliedThisRun = true; // ここから先は閉じる演出だけ(次の選択が来たら打ち切ってよい)
         LogPresentation("[LevelUpPresentation] Gameplay resumed");
         LogStep("Apply Upgrade Complete");
@@ -1022,10 +1229,13 @@ public class RewardCardSequence : MonoBehaviour
             StartCoroutine(card.FadeTo(isSelected || portrait ? 1f : unselectedCardDimAlpha, cardHighlightTransitionDuration));
         }
         if (portrait) RefreshPortraitPanels();
+        checkDisplayAtFrame = Time.frameCount + 1; // 選び直した表示を次のフレームで確かめる
     }
+    int checkDisplayAtFrame = int.MaxValue;
 
     void UpdateDetailPanel(RewardCardData data)
     {
+        lastTextSetFrame = Time.frameCount;
         UguiScrollText.Wrap(detailDescriptionText); // 2026-10-08: 長い説明は枠の中でスクロール(縮めない)
         if (detailTitleText != null) detailTitleText.text = Loc.Auto(data.Title);
         if (detailLevelText != null) detailLevelText.text = Loc.Auto(data.LevelLine);
@@ -1036,6 +1246,7 @@ public class RewardCardSequence : MonoBehaviour
     // 1枚もまだ選ばれていない間、詳細説明エリアに出す案内文。
     void ShowDetailPrompt()
     {
+        lastTextSetFrame = Time.frameCount;
         UguiScrollText.Wrap(detailDescriptionText);
         if (detailTitleText != null) detailTitleText.text = "";
         if (detailLevelText != null) detailLevelText.text = "";

@@ -1459,7 +1459,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             int dmg = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamageFallback);
             var info = other.GetComponent<PlayerAttackInfo>();
             bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
-            pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air);
+            pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air) * BalanceTuning.CharBossStaggerScale(PlayerController.Instance); // 2026-11-07: キャラごとの崩しの倍率(双剣士)
             // 2026-10-18: BREAK のコンボ用。カードの追加攻撃(elementProc)/結界や燃える地面(suppressHitStop)は手動の攻撃ではない
             pendingKind = info != null ? info.kind : PlayerAttackKind.Normal;
             pendingManual = info == null || (!info.elementProc && !info.suppressHitStop);
@@ -1705,7 +1705,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (tune == null || tune.staggerMax <= 0f || Broken || phaseRoaring || entering || breakRecovering) return;
         float before = StaggerFraction;
         v *= ElementSystem.IceStaggerMul(gameObject, v); // 2026-10-30: 冷えた/凍結したボスは BREAK が溜まりやすい(氷の役割)
-        v *= MapCardRules.BreakGainMul; // 2026-11-06 SKY BREAKER(空中)/ SONIC EDGE(130km/h 以上)/ FINAL DRIVE(80km 以降)/ ONE MORE CHANCE の強化中
+        if (netAttacker <= 0) v *= MapCardRules.BreakGainMul; // 2026-11-06 SKY BREAKER(空中)/ SONIC EDGE(130km/h 以上)/ FINAL DRIVE(80km 以降)/ ONE MORE CHANCE の強化中。HOST の端末で受けた他のプレイヤーの攻撃には掛けない
         stagger += v * staggerDefense * (Time.time < breakResistUntil ? PostBreakStaggerScale : 1f); // BREAK の直後は溜まりにくい(2026-10-18、続けて BREAK し続けない)
         lastStaggerTime = Time.time;
         if (stagger < tune.staggerMax) { TryFlinch(before, StaggerFraction); return; } // 怯み(2026-10-18)
@@ -2132,8 +2132,10 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (hpBar != null) { hpBar.SetFraction((float)Hp / maxHp); hpBar.SetHidden(); }
     }
 
+    bool mapPuppetBroken; // 2026-11-06 BREAK FEAST(JOIN): HOST の BREAK が始まったか
     void NetPuppetUpdate()
     {
+        MapCardRules.PuppetBreakTick(ref mapPuppetBroken, juggle);
         float dt = Time.deltaTime;
         poseTime += dt;
         if (hitTimer > 0f) hitTimer -= dt;

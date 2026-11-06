@@ -351,7 +351,7 @@ public partial class NetAutoTest : MonoBehaviour
         {
             string a = args[i];
             string next = i + 1 < args.Length ? args[i + 1] : "";
-            if (ParseWorldArg(a, next) || ParseAuraArg(a, next) || ParseRulesArg(a, next)) { }
+            if (ParseWorldArg(a, next) || ParseAuraArg(a, next) || ParseRulesArg(a, next) || ParseMapCardsArg(a, next)) { } // 2026-11-06 マップ専用カード
             else if (a == "-netAutoHost") role = "HOST";
             else if (a == "-netAutoJoin") { role = "JOIN"; joinIp = next; }
             else if (a == "-netAutoRoom") onlineRoom = next; // ONLINE: HOST が作る部屋の名前 / JOIN が一覧から探す名前
@@ -606,6 +606,7 @@ public partial class NetAutoTest : MonoBehaviour
                 RemoteChoiceMonitor();
                 ResultConflictTest(gm);
                 Phase3Test(gm);
+                MapCardsTick(gm); // 2026-11-06 マップ専用カード(-netAutoMapCards)
                 if (step == Step.Done) break;
                 if (role == "HOST" && bossAt > 0f && !bossSpawned && runTime >= bossAt) SpawnTestBoss();
                 RewardKillTick(runTime);
@@ -1074,7 +1075,7 @@ public partial class NetAutoTest : MonoBehaviour
         else
         {
             SetPrivateProperty(gm, "InvincibleMode", true);
-            if (gm.Lives < 500) SetPrivateProperty(gm, "Lives", 990);
+            if (gm.Lives < 500 && !mapNet) SetPrivateProperty(gm, "Lives", 990); // -netAutoMapCards: HP は筋書きどおりに(HOST の表と比べる)
         }
         if (shiftTest && FloatingOrigin.Instance != null && FloatingOrigin.Instance.shiftThreshold > 400f)
         {
@@ -1339,6 +1340,7 @@ public partial class NetAutoTest : MonoBehaviour
     {
         if (step == Step.Done) return;
         step = Step.Done;
+        MapCardsSummary(GameManager.Instance); // 2026-11-06 マップ専用カード(-netAutoMapCards)
         if (NetCombat.Instance != null)
         {
             foreach (string k in NetCombat.Instance.KillLog) L("KILL " + k);

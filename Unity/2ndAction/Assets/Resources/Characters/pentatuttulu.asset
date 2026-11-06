@@ -14,17 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
   characterId: pentatuttulu
   displayName: PENTATUTTULU
-  subtitle: Stretch, Bounce, Poyon
+  subtitle: Stretch, Bounce, Boing!
   role: STRETCH
-  flavorText: 'A fluffy, cloud-white visitor from somewhere far away.
-
-    Its arms
-    and legs stretch farther than you think,
-
-    and it bounces off what it stomps
-    on.
-
-    Nobody knows where it came from.'
+  flavorText: "Its arms and legs stretch far.\nStomping a foe in midair makes it bounce\nup once per jump. No one knows\nwhere this fluffy visitor came from."
   portrait: {fileID: 2800000, guid: 9780d35688bc64a40a188c12e6e83917, type: 3}
   mainVisual: {fileID: 2800000, guid: c53fa6b8c66d43c44a5e34ac045e1885, type: 3}
   lifeRating: 4

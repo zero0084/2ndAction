@@ -95,6 +95,10 @@ public static class RunCheckpoint
         public int phoenixResetHistoryIndex = -1;
         public float secondWindReadyDistance;
         public bool lastChanceSpent;
+        // 2026-11-06 マップ専用カード: 1ランに1回のカード(SECOND RISE / ONE MORE CHANCE)を使ったか。古いデータは未使用。
+        //  中断の保存(チェックポイントの状態を書き換えない方)でも「使った」は書く(使ってから中断 → CONTINUE で使い直せないように)
+        public bool mapSecondRiseUsed;
+        public bool mapOneMoreChanceUsed;
         // #100 ULTIMATE(2026-10-04): Gauge(%)。古いデータは0
         public float ultimateGauge;
         // FINAL EVOLUTION(2026-10-04): 資格/READY/ACTIVE/USED/残り。古いデータは空(状態なし)

@@ -3546,7 +3546,7 @@ public partial class GameManager : MonoBehaviour
         int rawHit = dmg; // 2026-11-06 REVENGE ARMOR: 軽減の前の一撃の大きさ(ハート2つ以上で発動)
         if (dmg >= 2 * CombatScale.HpPerHeart && Card.Get(EffectType.HeavyArmorLevel) > 0f) { dmg = Mathf.Max(CombatScale.PlayerHit, dmg - CombatScale.HpPerHeart); HeavyArmorSaves++; }
         // 2026-11-06 REVENGE ARMOR の軽減 / BLOOD ARMOR の血の盾(ハート単位で消す。全部消えたら被弾なし)
-        dmg = MapCardsReduceIncoming(dmg);
+        if (!IsFallReason(reason)) dmg = MapCardsReduceIncoming(dmg); // 落下は外す(血の盾で消すと足場へ戻らず落ち続けるため。Shield は LastDamageShielded で戻す)
         if (dmg <= 0) { FreezeDiagnostics.LogEvent($"[Damage] BloodShield reason={reason}"); return DamageResult.Ignored; }
         // 満タンからの強い一撃(ハート2つ分以上)だけでは倒れない(旧: ハート1つ残す。新: 通常の一撃ぶん=ハート1つ残す)
         if (dmg > CombatScale.PlayerHit && Lives >= maxLives && dmg >= Lives) dmg = Mathf.Max(CombatScale.PlayerHit, Lives - CombatScale.PlayerHit);
@@ -3640,6 +3640,7 @@ public partial class GameManager : MonoBehaviour
         if (!bypassInvincibleMode && InvincibleMode) return false;
         if (CardInvincibleActive && !IsFallReason(reason)) return false;
         if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} (net claim)"); OnShieldBlocked(); return false; }
+        if (MapCardsJoinBloodBlock(reason)) { FreezeDiagnostics.LogEvent($"[Damage] BloodShield reason={reason} (net claim)"); return false; } // 2026-11-06 BLOOD ARMOR(JOIN)
         return true;
     }
 
@@ -3662,6 +3663,7 @@ public partial class GameManager : MonoBehaviour
         if (hp < Lives) { heartDamageFlashTimer = heartDamageFlashDuration; NoteHudDamage(); }
         maxLives = Mathf.Max(1, max);
         Lives = Mathf.Clamp(hp, 0, Mathf.Max(maxLives, hp));
+        MapCardsJoinAuthHp(hp); // 2026-11-06 マップ専用カード(JOIN の被弾の後。HOST の値どうしの差で見る)
     }
 
     // ===== マルチ(2026-09-28): 状態の優先順位 =====
@@ -4126,6 +4128,7 @@ public partial class GameManager : MonoBehaviour
         {
             data.ledger = RunLedger.Current;
             data.interruptLives = Lives; // 2026-11-03: HP だけは中断の時点(保存/アプリの終了だけで回復しない。BeginContinuedRun)
+            MapCardsKeepUsedOnInterrupt(data); // 2026-11-06: 1ランに1回のカードは「使った」だけ残す(走り直しで使い直せない)
             RunCheckpoint.Save(data);
             InterruptSavesLedgerOnly++;
             return;
@@ -4323,6 +4326,9 @@ public partial class GameManager : MonoBehaviour
         SprintSkippedMeters = data.sprintSkippedMeters; // 疾走出発で飛ばした距離(MILE から除く。古いデータは0)
         // v3: 最大HPは取得のやり直しで決まる(成長 − 封印)。保存した最大HPは、カードが1枚も無い古い保存の互換のためにだけ使う
         if (data.maxLives > 0 && cardOrder.Count == 0) maxLives = data.maxLives;
+        // 2026-11-06: ラン中のレベルで増えた最大HP(GameManager.LevelHp)。取得のやり直しは基本 + カードだけなので、ここで足し直す。
+        //  カードが1枚も無い古い形(上の行)は保存した最大HPにもう入っているので足さない。数え(levelHpApplied)は今の Lv にそろえる(二重に足さない)
+        RestoreLevelHpAfterResume(cardOrder.Count > 0);
         // 2026-11-03(ct422 の確認、HP+20 の報告): 2026-10-15 から中断の保存はチェックポイントの状態を書き換えないので、
         // チェックポイントより後に受けたダメージが CONTINUE で消えていた(例: 50/50 で始めて 2発 → 30/50 で中断 → 再開で 50/50)。
         // HP は中断の時点の値にする(最大HPはチェックポイントの時点。それを超える分は切る)。古い保存(-1)は今までどおり
@@ -5438,7 +5444,9 @@ public partial class GameManager : MonoBehaviour
         string extra = (SealedHearts > 0 ? $"  封印{SealedHearts}個" : "") + (pcHud != null && (pcHud.ShieldCapacity > 0 || pcHud.ShieldCharges > 0 || pcHud.TempShieldCount > 0) ? $"  Shield {pcHud.ShieldCharges + pcHud.TempShieldCount}" : ""); // 2026-11-06: 一時シールドも足して出す
         // 2026-10-28: 最大HPが上限(ハート99個)に届いたら「MAX」を添える(これ以上 HP のカードを取っても増えないことが分かるように)
         string capMark = maxLives >= CardRules.MaxHeartsCap * CombatScale.HpPerHeart ? " MAX" : "";
-        LocGUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 22f, 18f), $"{Lives} / {maxLives}{capMark}{extra}", numStyle);
+        Rect numRect = new Rect(rect.x + 12f, rect.y + 4f, rect.width - 22f, 18f);
+        numRect.width -= DrawBloodShieldBadge(numRect, numStyle); // 2026-11-06 BLOOD ARMOR の血の盾(深紅のしずく ×N。0 の時は出さない)
+        LocGUI.Label(numRect, $"{Lives} / {maxLives}{capMark}{extra}", numStyle);
 
         float flash = heartDamageFlashDuration > 0f ? Mathf.Clamp01(heartDamageFlashTimer / heartDamageFlashDuration) : 0f;
         float pulse = 1f - flash * 0.08f;
@@ -5734,7 +5742,7 @@ public partial class GameManager : MonoBehaviour
         return v != null ? Mathf.Clamp(v.level, 1, MaxRunCardLevel) : 1;
     }
     // 2026-10-03: 主能力のLvがまだ9未満なら候補に出せる(合成カードは能力ごとに空きの分だけ効く。GameManager.CardCap.cs)
-    public bool CanStillPick(CardDefinition c) => c != null && GetCurrentRunStack(c.cardId) < MaxRunCardLevel && SacrificeAllowsNextLevel(c.cardId) && UltimateArt.Offerable(c);
+    public bool CanStillPick(CardDefinition c) => c != null && GetCurrentRunStack(c.cardId) < MaxRunCardLevel && SacrificeAllowsNextLevel(c.cardId) && UltimateArt.Offerable(c) && MapCardRules.Offerable(c); // 2026-11-06: マルチで成り立たないマップ専用カード
     public int MaxedCardSkips { get; private set; } // Lv9のカードが選ばれて効果を重ねなかった回数(確認用)
 
     // カードのラン中Lv = そのカードの主能力を、このランで(キャラカード枠/取得/合成のどの表記からでも)何回分適用したか。
@@ -6342,7 +6350,8 @@ public partial class GameManager : MonoBehaviour
             homeIdle.playbackSpeed = homeIdle.playbackSpeed < 0.5f ? 1f : 0.15f;
 #endif
 
-        DrawCurtainSway(roomFadeAlpha, 0f);   // 静止表示(揺れなし)
+        // 2026-11-06(マスター): ガチャの台と青いカーテンが重なって台が浮いて見えるので、カーテンは描かない(背景はカーテンを消して窓/壁を描き足した版)
+        if (ShowHomeCurtain) DrawCurtainSway(roomFadeAlpha, 0f);
         fx.DrawDoor(bgRoomRect, roomFadeAlpha);
         fx.DrawCards(bgRoomRect, roomFadeAlpha);
         fx.DrawBookGlow(bgRoomRect, roomFadeAlpha);
@@ -6358,6 +6367,7 @@ public partial class GameManager : MonoBehaviour
     // た同一アセットなので色/質感のズレが無い)を別レイヤーとして重ね、
     // その素材だけを上端(レール)を軸に回転させる、背景と分離した構造へ
     // 変更した。
+    public static bool ShowHomeCurtain = false; // 2026-11-06: ホームのカーテンを描かない(戻すなら true)
     void DrawCurtainSway(float roomFadeAlpha, float t)
     {
         if (homeCurtain == null) return;

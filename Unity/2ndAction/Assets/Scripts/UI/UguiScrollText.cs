@@ -16,6 +16,7 @@ public class UguiScrollText : MonoBehaviour
     public RectTransform Viewport => viewport; // 2026-10-28: 置き場所の調整(確認の画面の左右の余白)
     Text text;
     Image bar, track;
+    RectMask2D mask;
     string lastText; float lastWidth;
     float scrollY, contentH, viewH;
     bool pressed, dragging; Vector2 pressPos; float lastPointerY;
@@ -35,7 +36,7 @@ public class UguiScrollText : MonoBehaviour
         vrt.anchorMin = trt.anchorMin; vrt.anchorMax = trt.anchorMax; vrt.pivot = trt.pivot;
         vrt.anchoredPosition = trt.anchoredPosition; vrt.sizeDelta = trt.sizeDelta;
         vrt.localScale = trt.localScale; vrt.localRotation = trt.localRotation;
-        vp.AddComponent<RectMask2D>();
+        var mask = vp.AddComponent<RectMask2D>();
         var cgo = new GameObject("Content", typeof(RectTransform));
         var crt = cgo.GetComponent<RectTransform>();
         crt.SetParent(vrt, false);
@@ -57,11 +58,16 @@ public class UguiScrollText : MonoBehaviour
         br.anchorMin = new Vector2(0f, 1f); br.anchorMax = new Vector2(1f, 1f); br.pivot = new Vector2(0.5f, 1f); br.sizeDelta = new Vector2(0f, 40f);
         var bimg = bgo.AddComponent<Image>(); bimg.color = new Color(1f, 0.85f, 0.45f, 0.8f); bimg.raycastTarget = false;
         var s = vp.AddComponent<UguiScrollText>();
-        s.viewport = vrt; s.content = crt; s.text = t; s.bar = bimg; s.track = timg;
+        s.viewport = vrt; s.content = crt; s.text = t; s.bar = bimg; s.track = timg; s.mask = mask;
         return s;
     }
 
     public void ResetTop() { scrollY = 0f; Apply(); }
+    // 2026-11-06(3択の文字の確かめ): 文が前回と同じでも先頭へ戻し、高さも測り直す(前の3択のスクロール位置/高さを持ち越さない)
+    public void ResetForNewContent() { lastText = null; scrollY = 0f; if (content != null) content.anchoredPosition = Vector2.zero; }
+    public float ScrollY => scrollY;
+    public float MaxScroll => Mathf.Max(0f, contentH - viewH);
+    public RectTransform Content => content;
 
     void OnDisable() { pressed = dragging = false; }
 
@@ -93,6 +99,10 @@ public class UguiScrollText : MonoBehaviour
         float max = Mathf.Max(0f, contentH - viewH);
         bool show = max > 1f;
         if (track != null && track.enabled != show) track.enabled = show;
+        // 2026-11-06: 文が窓に収まる時は切り抜き(RectMask2D)を使わない(切り抜く物が無い。端末によって切り抜き/隠す判定の食い違いで
+        //  文が消える可能性を、続きが無い普通の場合から外す)。続きがある時だけ切り抜く
+        bool clip = max > 0.5f;
+        if (mask != null && mask.enabled != clip) mask.enabled = clip;
         if (bar != null)
         {
             if (bar.enabled != show) bar.enabled = show;

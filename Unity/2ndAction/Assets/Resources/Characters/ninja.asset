@@ -14,17 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
   characterId: ninja
   displayName: SHINOBI
-  subtitle: Vanish, Cut, Vanish
+  subtitle: Vanish, Slash, Vanish Again
   role: MOBILITY
-  flavorText: 'A shinobi who is never where you strike.
-
-    She blinks through enemies
-    with a single cut
-
-    and is gone before they fall -
-
-    but she cannot take
-    many hits.'
+  flavorText: "She dashes through foes with a slash.\nHer dash grants brief invulnerability,\nbut her low maximum HP leaves\nlittle room for mistakes."
   portrait: {fileID: 2800000, guid: 0a60a1b7b8334ca4883bc511ed2614de, type: 3}
   mainVisual: {fileID: 2800000, guid: 69eb4a04c69bcb34198f0486ad38a2a1, type: 3}
   lifeRating: 2

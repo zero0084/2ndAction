@@ -16,15 +16,7 @@ MonoBehaviour:
   displayName: RANGER
   subtitle: Draw, Aim, Pierce
   role: SNIPER
-  flavorText: 'A ranger of the deep woods
-
-    with a longbow taller than himself.
-
-    The
-    longer he draws, the harder it hits -
-
-    but up close, he has little to answer
-    with.'
+  flavorText: "Waiting after any shot strengthens\nhis next forward arrow. At full charge,\nit pierces foes. Rapid fire is weak;\ntaking damage resets the charge."
   portrait: {fileID: 2800000, guid: d340941c437714a429e71866bbaf52f8, type: 3}
   mainVisual: {fileID: 2800000, guid: 9a20a2f5236fbd34081c13d116f30a72, type: 3}
   lifeRating: 3

@@ -31,6 +31,25 @@ public partial class GameManager
         levelHpApplied = LevelHpEvery > 0 ? Mathf.Min(LevelHpMaxHearts, (Level - 1) / LevelHpEvery) : 0;
     }
 
+    // CONTINUE(BeginContinuedRun)の取得のやり直しの後: 今の Lv の分の最大HPを足し直す(上限 +LevelHpMaxHearts はそのまま)。
+    //  2026-11-06 の修正: 以前は数えだけそろえていて、カードを持っている時は CONTINUE で最大HPのレベル分が消えていた。
+    //  HP(Lives)はこの後に中断の時点の値へそろえるので、ここでは回復しない
+    public static int LevelHpRestored; // 確認用(CONTINUE で足し直したハートの数)
+    void RestoreLevelHpAfterResume(bool addHearts)
+    {
+        SyncLevelHpAfterResume();
+        if (!addHearts || TutorialMode.Active) return;
+        int add = 0;
+        for (int i = 0; i < levelHpApplied; i++)
+        {
+            if (maxLives >= maxLivesCap) break;
+            maxLives = Mathf.Min(maxLivesCap, maxLives + CombatScale.HpPerHeart);
+            add++;
+        }
+        LevelHpRestored += add;
+        if (add > 0) Debug.Log($"[Continue] level HP restored +{add} hearts (Lv{Level}, max {maxLives})");
+    }
+
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void LevelHpDevArgs()

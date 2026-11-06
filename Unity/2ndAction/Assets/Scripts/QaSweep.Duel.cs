@@ -177,6 +177,9 @@ public partial class QaSweep
         };
         GameManager.QaDamageEvent += tap;
         float d0 = gm.MaxDistance, t = 0f; int swing0 = PlayerAttackInfo.SwingCount;
+        // 2026-11-07(双剣士/ルカの調査): -duelSpeedScale 1.15 = 走る速さだけ変えて比べる(黒剣士を双剣士の速さで走らせる 等)
+        PlayerController.DebugSpeedScale = float.Parse(Arg("-duelSpeedScale", "1"), System.Globalization.CultureInfo.InvariantCulture);
+        HighSpeedAssist.ResetPredStats();
         while (gm.MaxDistance - d0 < meters && t < 420f && gm.HasStarted && !gm.IsGameOver)
         {
             if (gm.Lives < gm.maxLives / 3) DuelRefillHp();
@@ -184,9 +187,10 @@ public partial class QaSweep
             yield return null; t += Time.deltaTime;
         }
         GameManager.QaDamageEvent -= tap;
+        PlayerController.DebugSpeedScale = 1f;
         float run = Mathf.Max(1f, gm.MaxDistance - d0);
         rowsOut.Append($"{ch}\t{deckName}\t{d}\t{withEnemies}\t{run:F0}\t{t:F0}\t{falls}\t{walls}\t{obst}\t{enemyHits}\t{other}\t{falls / run * 10000f:F1}\t{walls / run * 10000f:F1}\t{PlayerAttackInfo.SwingCount - swing0}\t{string.Join(" | ", fails.OrderByDescending(kv => kv.Value).Take(4).Select(kv => $"{kv.Key} x{kv.Value}"))}\n");
-        L($"[duel] {ch} {deckName} {d:F0} terrain enemies={withEnemies}: {run:F0}m falls {falls} walls {walls} obstacles {obst} enemyHits {enemyHits}");
+        L($"[duel] {ch} {deckName} {d:F0} terrain enemies={withEnemies}: {run:F0}m falls {falls} walls {walls} obstacles {obst} enemyHits {enemyHits} {HighSpeedAssist.PredStats}");
         stopKeepAlive = false; StartCoroutine(KeepAlive());
         GameManager.BlockExpGain = false;
         if (EncounterDirector.Instance != null) EncounterDirector.Instance.enabled = true;

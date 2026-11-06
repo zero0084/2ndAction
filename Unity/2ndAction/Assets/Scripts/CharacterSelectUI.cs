@@ -274,6 +274,8 @@ public partial class CharacterSelectUI : MonoBehaviour
             PlaceVisualClip(new Vector2((left + right) * 0.5f, (topY + bottomY) * 0.5f), new Vector2(right - left, topY - bottomY));
         }
         if (carouselContent != null && VisibleCount > 0) carouselContent.anchoredPosition = new Vector2(TargetContentXForIndex(selectedIndex), carouselContent.anchoredPosition.y);
+        Canvas.ForceUpdateCanvases(); // 2026-11-07: 紹介文の幅が変わったので、収め方を測り直す
+        RefreshFlavorFit();
     }
 
     public void Open()
@@ -411,7 +413,7 @@ public partial class CharacterSelectUI : MonoBehaviour
         bool unlocked = UnlockRules.IsCharacterUnlocked(def.characterId);
         if (subtitleText != null) subtitleText.text = Loc.Auto(unlocked ? def.subtitle : "LOCKED");
         UguiScrollText.Wrap(flavorText); // 2026-10-08: 長い説明は枠の中でスクロール
-        if (flavorText != null) flavorText.text = Loc.Auto(def.flavorText); // 2026-10-08: 未解放は一覧に出ないので条件は出さない
+        SetFlavor(def); // 2026-10-08: 未解放は一覧に出ないので条件は出さない / 2026-11-07: 訳の行が枠より長い時の収め方(CharacterSelectUI.FlavorFit)
         if (roleBadgeText != null) roleBadgeText.text = Loc.Auto(def.role);
         if (roleBadgeBg != null) roleBadgeBg.color = def.challengeFlag ? RoleBadgeChallengeColor : RoleBadgeNormalColor;
         if (challengeBadge != null) challengeBadge.SetActive(def.challengeFlag);
