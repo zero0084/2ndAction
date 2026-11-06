@@ -1,0 +1,47 @@
+10518	Chaque fois que votre série de coups (compteur « N HIT ») atteint un multiple de 10, gagnez +1 MILE (+1 par Lv). Récompense répétée à 20, 30, etc. (jusqu'à 100 HIT par série)
+10519	Gagnez +1 MILE (+1 par Lv) tous les 10 ennemis ordinaires vaincus. Les boss ne comptent pas
+10520	MILE pour les boss vaincus +12% par Lv
+10521	Gagnez +2 MILE (+2 par Lv) tous les 1km parcourus. Les distances sautées avec le départ lancé ou CONTINUE ne comptent pas
+10522	Gagnez +1 MILE (+1 par Lv) toutes les 30s de survie pendant une course. Le choix des cartes et les pauses ne comptent pas
+10523	Chaque fois que votre série de coups atteint un multiple de 10, gagnez EXP +20 (+20 par Lv). Jusqu'à 100 HIT par série
+10524	Gagnez EXP +30 (+30 par Lv) tous les 10 ennemis ordinaires vaincus. Les boss ne comptent pas
+10525	EXP pour les boss vaincus +15% par Lv
+10526	Gagnez EXP +100 (+100 par Lv) tous les 1km parcourus. Les distances sautées avec le départ lancé ou CONTINUE ne comptent pas
+10527	Gagnez EXP +30 (+30 par Lv) toutes les 30s de survie pendant une course. Le choix des cartes et les pauses ne comptent pas
+10528	Certains ennemis deviennent des ennemis surpuissants (aura magenta, +1 cœur de dégâts) : +3% par Lv, max. 30%, dès 0km. En échange : MILE des ennemis/BONUS +15% par Lv, EXP des ennemis vaincus +10% par Lv. Transformation uniquement en solo sur les cartes normales
+10529	Les ennemis aériens (en piqué, en traversée, etc.) occupent plus souvent les emplacements aériens (+5% par Lv), et les groupes avec des ennemis volants apparaissent plus souvent (+10% par Lv). En échange : EXP des ennemis vaincus +15% par Lv, MILE des ennemis/BONUS +8% par Lv
+10530	Les événements de décision (alertes de voie, barrages, ennemis surpuissants, etc.) commencent plus tôt (normalement 50km, 4km plus tôt par Lv, au plus tôt 10km) et sont plus fréquents (intervalle -5% par Lv, max. -50%). En échange : MILE des ennemis/BONUS +12% par Lv, EXP gagnée +8% par Lv. Événements uniquement en solo sur les cartes normales
+10531	Dégâts reçus des boss +10% par Lv (en cœurs ; une fraction peut ajouter 1 cœur). En échange : MILE des boss vaincus +35% par Lv, EXP des boss vaincus +15% par Lv
+10532	Les ennemis ordinaires vaincus pendant une série d'au moins 10 HIT rapportent plus de MILE et d'EXP de victoire (+15% par Lv). Maintenez la série en éliminant les ennemis
+10533	Tous les 1km parcourus sans subir de dégâts, gagnez +3 MILE et EXP +150 (augmente par Lv). Subir des dégâts remet le compteur à zéro, mais pas un blocage avec Shield
+10534	Vaincre un boss rapporte +0.2 MILE et EXP +3 par ennemi ordinaire vaincu depuis le boss précédent (augmente par Lv, max. 100 ennemis). Éliminez les ennemis avant d'affronter le boss
+10535	Tous les 10km, les MILE des ennemis/boss/BONUS et l'EXP gagnée augmentent de +2% par Lv (maximum à 100km ; +20% au Lv1). Plus vous courez loin, plus le bonus augmente
+10536	+{0} MILE tous les 10 HIT
+10537	+{0} MILE tous les 10 ennemis ordinaires vaincus
+10539	+{0} MILE tous les 1km
+10540	+{0} MILE toutes les 30s
+10541	EXP +{0} tous les 10 HIT
+10542	EXP +{0} tous les 10 ennemis ordinaires vaincus
+10544	EXP +{0} tous les 1km
+10545	EXP +{0} toutes les 30s
+10546	Chance d'ennemis surpuissants +{0}%
+10547	Ennemis aériens +{0}% / groupes volants ×{1}
+10548	Événements de décision dès {0}km / intervalle ×{1}
+10549	Dégâts reçus des boss +{0}%
+10550	Ennemis vaincus pendant une série de 10+ HIT : MILE/EXP +{0}%
+10551	Tous les 1km sans dégâts : +{0} MILE, EXP +{1}
+10552	Boss vaincu, par ennemi : +{0} MILE, EXP +{1} (max. 100)
+10553	MILE/EXP +{0}% tous les 10km (max. +{1}% à 100km)
+10554	EXP des boss vaincus
+10555	Atteindre {1}m sur {0} et revenir
+10556	Débloquer le dernier donjon
+10460	COMMUN
+10461	TERRES SAUVAGES
+10462	GROTTE
+10463	CIEL
+10464	DONJON FINAL
+10465	Élément
+10466	Carte
+10467	Ordre de déblocage
+10468	Verrouillées : {0}
+10469	Aucune carte ne correspond à ces filtres

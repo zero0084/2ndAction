@@ -1,0 +1,47 @@
+10518	Kila mfululizo wako wa mipigo (kihesabu cha "N HIT") unapofikia kizidisho cha 10, pata +1 MILE (+1 kwa kila Lv). Zawadi hurudiwa kwa 20, 30 na kuendelea (hadi 100 HIT kwa mfululizo)
+10519	Pata +1 MILE (+1 kwa kila Lv) kwa kila maadui 10 wa kawaida walioshindwa. Mabosi hawahesabiwi
+10520	MILE kwa kumshinda bosi +12% kwa kila Lv
+10521	Pata +2 MILE (+2 kwa kila Lv) kwa kila 1km unayokimbia. Sehemu zilizorukwa kwa Mwanzo wa Kasi au CONTINUE hazihesabiwi
+10522	Pata +1 MILE (+1 kwa kila Lv) kwa kila 30s unazoishi wakati wa mbio. Uchaguzi wa kadi na kusitisha havihesabiwi
+10523	Kila mfululizo wa mipigo unapofikia kizidisho cha 10, pata EXP +20 (+20 kwa kila Lv). Hadi 100 HIT kwa mfululizo
+10524	Pata EXP +30 (+30 kwa kila Lv) kwa kila maadui 10 wa kawaida walioshindwa. Mabosi hawahesabiwi
+10525	EXP kwa kumshinda bosi +15% kwa kila Lv
+10526	Pata EXP +100 (+100 kwa kila Lv) kwa kila 1km unayokimbia. Sehemu zilizorukwa kwa Mwanzo wa Kasi au CONTINUE hazihesabiwi
+10527	Pata EXP +30 (+30 kwa kila Lv) kwa kila 30s unazoishi wakati wa mbio. Uchaguzi wa kadi na kusitisha havihesabiwi
+10528	Baadhi ya maadui huwa washambuliaji wenye nguvu kubwa (aura ya zambarau-nyekundu, uharibifu wa +1 moyo): +3% kwa kila Lv, upeo 30%, kuanzia 0km. Badala yake: MILE za maadui/BONUS +15% kwa kila Lv, EXP za kuwashinda maadui +10% kwa kila Lv. Maadui hubadilika tu kwenye mbio za solo katika ramani za kawaida
+10529	Maadui wa angani (wanaopiga mbizi, wanaopita, n.k.) hujaza nafasi za angani mara nyingi zaidi (+5% kwa kila Lv), na makundi yenye maadui wanaoruka huonekana zaidi (+10% kwa kila Lv). Badala yake: EXP za kuwashinda maadui +15% kwa kila Lv, MILE za maadui/BONUS +8% kwa kila Lv
+10530	Matukio ya kufanya maamuzi njiani (maonyo ya njia, vizuizi, maadui wenye nguvu kubwa, n.k.) huanza mapema (kawaida 50km; 4km mapema kwa kila Lv, mapema zaidi 10km) na hutokea mara nyingi zaidi (nafasi -5% kwa kila Lv, upeo -50%). Badala yake: MILE za maadui/BONUS +12% kwa kila Lv, EXP inayopatikana +8% kwa kila Lv. Matukio hutokea tu kwenye mbio za solo katika ramani za kawaida
+10531	Uharibifu unaopokelewa kutoka kwa mabosi +10% kwa kila Lv (kwa mioyo; sehemu ya desimali inaweza kuongeza moyo 1). Badala yake: MILE kwa kumshinda bosi +35% kwa kila Lv, EXP kwa kumshinda bosi +15% kwa kila Lv
+10532	Maadui wa kawaida wanaoshindwa wakati mfululizo una 10 HIT au zaidi hutoa MILE na EXP zaidi (+15% kwa kila Lv). Endelea kuwashinda maadui bila kukatisha mfululizo
+10533	Kila 1km unayokimbia bila kupata uharibifu hukupa +3 MILE na EXP +150 (huongezeka kwa kila Lv). Kupata uharibifu huanzisha hesabu upya, lakini kuzuia kwa Shield hakufanyi hivyo
+10534	Kumshinda bosi hukupa +0.2 MILE na EXP +3 kwa kila adui wa kawaida aliyeshindwa tangu bosi aliyepita (huongezeka kwa kila Lv, hadi maadui 100). Washinde maadui kabla ya kukabiliana na bosi
+10535	Kila 10km, MILE za maadui/mabosi/BONUS na EXP inayopatikana huongezeka kwa +2% kwa kila Lv (upeo katika 100km; +20% kwenye Lv1). Kadiri unavyokimbia mbali, ndivyo bonasi inavyoongezeka
+10536	+{0} MILE kila 10 HIT
+10537	+{0} MILE kwa maadui 10 wa kawaida walioshindwa
+10539	+{0} MILE kila 1km
+10540	+{0} MILE kila 30s
+10541	EXP +{0} kila 10 HIT
+10542	EXP +{0} kwa maadui 10 wa kawaida walioshindwa
+10544	EXP +{0} MILE kila 1km
+10545	EXP +{0} kila 30s
+10546	Nafasi ya maadui kuwa washambuliaji wenye nguvu +{0}%
+10547	Maadui wa angani +{0}% / makundi yenye wanaoruka ×{1}
+10548	Matukio ya maamuzi kuanzia {0}km / nafasi ×{1}
+10549	Uharibifu kutoka kwa mabosi +{0}%
+10550	Maadui walioshindwa kwenye mfululizo wa 10+ HIT: MILE/EXP +{0}%
+10551	Kila 1km bila uharibifu: +{0} MILE, EXP +{1}
+10552	Bosi akishindwa, kwa kila adui: +{0} MILE, EXP +{1} (upeo 100)
+10553	MILE/EXP +{0}% kila 10km (upeo +{1}% katika 100km)
+10554	EXP kwa kumshinda bosi
+10555	Fikia {1}m kwenye {0} kisha urudi
+10556	Fungua Shimo la Mwisho
+10460	JUMLA
+10461	PORI
+10462	PANGO
+10463	ANGA
+10464	SHIMO LA MWISHO
+10465	Kipengele
+10466	Ramani
+10467	Mpangilio wa kufungua
+10468	Zimefungwa: {0}
+10469	Hakuna kadi zinazolingana na vichujio hivi

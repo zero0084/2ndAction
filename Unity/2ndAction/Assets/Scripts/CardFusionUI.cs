@@ -59,7 +59,7 @@ public class CardFusionUI : MonoBehaviour
     readonly List<(RectTransform rect, Text label, Image fill)> sortButtons = new List<(RectTransform, Text, Image)>();
     ScrollRect gridScroll, detailScroll, resultScroll;
     RectTransform gridContent;
-    class Cell { public RectTransform root; public RectTransform scaler; public RewardCardUI card; public Text info; public Text tag; public Image tagBg; public string key; }
+    class Cell { public RectTransform root; public RectTransform scaler; public RewardCardUI card; public Text info; public Text tag; public Image tagBg; public string key; public int index = -1; }
     readonly List<Cell> cells = new List<Cell>();
     readonly List<CardInventory.Stack> shown = new List<CardInventory.Stack>();
     class Slot { public RectTransform frame; public Image glow; public RewardCardUI card; public Text label; public RectTransform clearButton; public Text activeBadge; public Image activeBadgeBg; }
@@ -343,6 +343,7 @@ public class CardFusionUI : MonoBehaviour
         }
         listCountText = AddText(NewRect("Count", sortRow, new Vector2(0.69f, 0), new Vector2(1, 1), Vector2.zero, Vector2.zero), 21, TextDim, TextAnchor.MiddleRight);
         gridScroll = MakeScroll("Grid", leftPanel, Vector2.zero, Vector2.one, new Vector2(18, 16), new Vector2(-18, -142), out gridContent);
+        gridScroll.onValueChanged.AddListener(_ => { if (phase == Phase.Select) BindVisibleCells(false); }); // 2026-11-06: 見えている段だけ枠に入れる
 
         // ===== 右: 合成操作・詳細 ===== //
         rightPanel = Panel("OpPanel", rootRect, new Vector2(0.605f, 0.02f), new Vector2(0.99f, 1f), Vector2.zero, new Vector2(0, -116));
@@ -530,6 +531,7 @@ public class CardFusionUI : MonoBehaviour
             totalCopies += s.count;
             if (MatchesFilter(def)) shown.Add(s);
         }
+        sortDefs.Clear();
         shown.Sort(CompareStacks);
         if (listCountText != null) listCountText.text = Loc.Auto($"表示{shown.Count}件 / 所持{totalCopies}枚");
         LayoutGrid();
@@ -574,9 +576,12 @@ public class CardFusionUI : MonoBehaviour
         b.label.color = on ? Color.white : TextDim;
     }
 
+    // 2026-11-06: 並び替えの比較のたびに FindById(カードの数だけ探す)をしていて、束が 1000 を超えると 0.4 秒かかった → Refresh の中で1回だけ引いておく
+    readonly Dictionary<string, CardDefinition> sortDefs = new Dictionary<string, CardDefinition>();
+    CardDefinition SortDef(string key) { if (!sortDefs.TryGetValue(key, out var d)) { d = CardDatabase.FindById(key); sortDefs[key] = d; } return d; }
     int CompareStacks(CardInventory.Stack a, CardInventory.Stack b)
     {
-        CardDefinition da = CardDatabase.FindById(a.cardId), db = CardDatabase.FindById(b.cardId);
+        CardDefinition da = SortDef(a.cardId), db = SortDef(b.cardId);
         int byName = string.CompareOrdinal(da.cardName, db.cardName);
         int primary;
         switch (sortMode)
@@ -663,39 +668,76 @@ public class CardFusionUI : MonoBehaviour
         gridContent.sizeDelta = new Vector2(0f, Mathf.Max(view.height, pad * 2f + rows * cellH + Mathf.Max(0, rows - 1) * gap));
         float scale = cardW / (cardTemplate != null ? cardTemplate.rect.sizeDelta.x : 180f);
 
-        while (cells.Count < shown.Count) cells.Add(MakeCell(cells.Count));
-        for (int i = 0; i < cells.Count; i++)
-        {
-            Cell c = cells[i];
-            if (i >= shown.Count) { c.root.gameObject.SetActive(false); c.key = null; continue; }
-            var s = shown[i];
-            int col = i % cols, row = i / cols;
-            c.root.gameObject.SetActive(true);
-            c.root.sizeDelta = new Vector2(cardW, cellH);
-            c.root.anchoredPosition = new Vector2(startX + col * (cardW + gap), -pad - row * (cellH + gap));
-            c.scaler.localScale = Vector3.one * scale;
-            c.scaler.anchoredPosition = Vector2.zero;
-            c.key = s.cardId;
-            CardDefinition def = CardDatabase.FindById(s.cardId);
-            c.card.ShowFrontImmediate(MakeData(def, s.cardId), showDetails: false);
+        gCols = cols; gCardW = cardW; gCellH = cellH; gStartX = startX; gScale = scale; gGap = gap; gPad = pad;
+        BindVisibleCells(true);
+    }
 
-            int available = CardFusionLogic.AvailableCount(s.cardId);
-            int selected = (mainKey == s.cardId ? 1 : 0) + (materialKey == s.cardId ? 1 : 0);
-            CardVariant v = CardVariant.Parse(s.cardId);
-            int abilities = v != null ? v.AbilityCount : 1;
-            // 2026-10-13: 狭い幅で2行目(能力/★)が切れていた → 所持/使用可 と 能力/★ を2行に分け、枠に収まる大きさに(訳も通す)
-            string line2 = (abilities > 1 ? Loc.F("能力{0}", abilities) : "")
-                + (v != null && v.level >= CardVariant.MaxLevel ? (CardMastery.IsAwakened(v.mainId) ? "  <color=#ffe08a>AWAKENED</color>" : $"  <color=#ffd76a>★{CardMastery.MasteryLevel(v.mainId)}</color>") : "");
-            c.info.text = Loc.F("所持{0}", s.count) + "  " + Loc.T("使用可") + $"<color=#{(available - selected > 0 ? "ffe08a" : "ff8f86")}>{Mathf.Max(0, available - selected)}</color>"
-                + (line2.Trim().Length > 0 ? "\n" + line2.Trim() : "");
-            bool isMain = mainKey == s.cardId, isMat = materialKey == s.cardId;
-            c.card.SetSelected(isMain || isMat);
-            c.tag.text = Loc.Auto(isMain && isMat ? "メイン+素材" : isMain ? "メイン" : isMat ? "素材" : (available <= 0 ? "使用中" : ""));
-            c.tagBg.color = isMain || isMat ? new Color(0.55f, 0.36f, 0.08f, 0.95f) : new Color(0.3f, 0.08f, 0.08f, 0.9f);
-            c.tagBg.gameObject.SetActive(c.tag.text.Length > 0);
-            if (available <= 0 && !isMain && !isMat && c.card.frameImage != null) c.card.frameImage.color = new Color(1f, 1f, 1f, 0.35f);
-            if (c.card.canvasGroup != null) c.card.canvasGroup.alpha = available <= 0 && !isMain && !isMat ? 0.55f : 1f;
+    // 2026-11-06(カードの枚数が増えても重くならない): 以前は所持の束の数だけ枠を作り、Refresh のたびに全部を書き直していた
+    //  (束が 600 を超えると開く時・タップのたびに重い)。→ 見えている段 + 上下に1段ずつの予備だけ枠を置き、スクロールで中身を入れ替える。
+    //  束 i は枠 i % 枠の数 に入る。枠の数は画面の大きさで決まり、足りなければ増やす(上限なし)
+    int gCols = 1; float gCardW, gCellH, gStartX, gScale = 1f, gGap = 16f, gPad = 6f;
+    void BindVisibleCells(bool force)
+    {
+        if (gridScroll == null || gridContent == null) return;
+        int cols = Mathf.Max(1, gCols);
+        float pitch = gCellH + gGap;
+        if (pitch <= 1f) return;
+        int rows = Mathf.CeilToInt(shown.Count / (float)cols);
+        float viewH = gridScroll.viewport.rect.height;
+        float top = Mathf.Max(0f, gridContent.anchoredPosition.y - gPad);
+        int visRows = Mathf.CeilToInt(viewH / pitch) + 1;
+        int need = (visRows + 2) * cols;
+        while (cells.Count < need) cells.Add(MakeCell(cells.Count));
+        int pool = cells.Count;
+        int first = Mathf.Clamp(Mathf.FloorToInt(top / pitch) - 1, 0, Mathf.Max(0, rows));
+        int last = Mathf.Clamp(Mathf.CeilToInt((top + viewH) / pitch) + 1, first, rows);
+        last = Mathf.Min(last, first + pool / cols);
+        var want = new int[pool];
+        for (int k = 0; k < pool; k++) want[k] = -1;
+        int dEnd = Mathf.Min(shown.Count, last * cols);
+        for (int d = first * cols; d < dEnd; d++) want[d % pool] = d;
+        for (int k = 0; k < pool; k++)
+        {
+            Cell c = cells[k];
+            int i = want[k];
+            if (i < 0) { if (c.root.gameObject.activeSelf) c.root.gameObject.SetActive(false); c.key = null; c.index = -1; continue; }
+            if (!force && c.index == i && c.key == shown[i].cardId) continue;
+            BindCell(c, i);
         }
+    }
+
+    void BindCell(Cell c, int i)
+    {
+        int cols = Mathf.Max(1, gCols);
+        float cardW = gCardW, cellH = gCellH, startX = gStartX, scale = gScale, gap = gGap, pad = gPad;
+        var s = shown[i];
+        int col = i % cols, row = i / cols;
+        c.index = i;
+        c.root.gameObject.SetActive(true);
+        c.root.sizeDelta = new Vector2(cardW, cellH);
+        c.root.anchoredPosition = new Vector2(startX + col * (cardW + gap), -pad - row * (cellH + gap));
+        c.scaler.localScale = Vector3.one * scale;
+        c.scaler.anchoredPosition = Vector2.zero;
+        c.key = s.cardId;
+        CardDefinition def = CardDatabase.FindById(s.cardId);
+        c.card.ShowFrontImmediate(MakeData(def, s.cardId), showDetails: false);
+
+        int available = CardFusionLogic.AvailableCount(s.cardId);
+        int selected = (mainKey == s.cardId ? 1 : 0) + (materialKey == s.cardId ? 1 : 0);
+        CardVariant v = CardVariant.Parse(s.cardId);
+        int abilities = v != null ? v.AbilityCount : 1;
+        // 2026-10-13: 狭い幅で2行目(能力/★)が切れていた → 所持/使用可 と 能力/★ を2行に分け、枠に収まる大きさに(訳も通す)
+        string line2 = (abilities > 1 ? Loc.F("能力{0}", abilities) : "")
+            + (v != null && v.level >= CardVariant.MaxLevel ? (CardMastery.IsAwakened(v.mainId) ? "  <color=#ffe08a>AWAKENED</color>" : $"  <color=#ffd76a>★{CardMastery.MasteryLevel(v.mainId)}</color>") : "");
+        c.info.text = Loc.F("所持{0}", s.count) + "  " + Loc.T("使用可") + $"<color=#{(available - selected > 0 ? "ffe08a" : "ff8f86")}>{Mathf.Max(0, available - selected)}</color>"
+            + (line2.Trim().Length > 0 ? "\n" + line2.Trim() : "");
+        bool isMain = mainKey == s.cardId, isMat = materialKey == s.cardId;
+        c.card.SetSelected(isMain || isMat);
+        c.tag.text = Loc.Auto(isMain && isMat ? "メイン+素材" : isMain ? "メイン" : isMat ? "素材" : (available <= 0 ? "使用中" : ""));
+        c.tagBg.color = isMain || isMat ? new Color(0.55f, 0.36f, 0.08f, 0.95f) : new Color(0.3f, 0.08f, 0.08f, 0.9f);
+        c.tagBg.gameObject.SetActive(c.tag.text.Length > 0);
+        if (available <= 0 && !isMain && !isMat && c.card.frameImage != null) c.card.frameImage.color = new Color(1f, 1f, 1f, 0.35f);
+        if (c.card.canvasGroup != null) c.card.canvasGroup.alpha = available <= 0 && !isMain && !isMat ? 0.55f : 1f;
     }
 
     Cell MakeCell(int index)
@@ -1399,6 +1441,7 @@ public class CardFusionUI : MonoBehaviour
         Refresh();
     }
     public void DebugFuse() => OnFuseTapped();
+    public int DebugCellCount => cells.Count; // 確認用: 一覧のカードの部品の数
     public void DebugSkip() => skipRequested = true;
     public void DebugContinue() => OnContinue();
     public void DebugBackToList() => OnBackToList();

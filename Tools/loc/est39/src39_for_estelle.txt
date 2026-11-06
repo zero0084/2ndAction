@@ -1,0 +1,47 @@
+10518	JA: 連続ヒット(画面の「N HIT」)が10回に届くたびにMILE+1(1Lvごとに+1)。20回・30回…と続けるほど何度ももらえる(1回の連続ヒットで100HITまで)	EN: Each time your hit streak (the "N HIT" counter) reaches a multiple of 10, gain +1 MILE (+1 per Lv). Keeps paying at 20, 30 and so on (up to 100 HIT per streak)
+10519	JA: 雑魚を10体倒すたびにMILE+1(1Lvごとに+1)。ボスは数えない	EN: Gain +1 MILE (+1 per Lv) for every 10 enemies defeated. Bosses don't count
+10520	JA: ボス撃破のMILE+12%/Lv	EN: Boss defeat MILE +12% per Lv
+10521	JA: 1km走るたびにMILE+2(1Lvごとに+2)。疾走出発やCONTINUEで飛ばした区間は数えない	EN: Gain +2 MILE (+2 per Lv) for every 1km you run. Sections skipped by Sprint Start or CONTINUE don't count
+10522	JA: ランで30秒生き残るたびにMILE+1(1Lvごとに+1)。カード選択・一時停止の間は数えない	EN: Gain +1 MILE (+1 per Lv) for every 30 seconds you survive in a run. Card choices and pauses don't count
+10523	JA: 連続ヒットが10回に届くたびにEXP+20(1Lvごとに+20)。1回の連続ヒットで100HITまで	EN: Each time your hit streak reaches a multiple of 10, gain EXP +20 (+20 per Lv). Up to 100 HIT per streak
+10524	JA: 雑魚を10体倒すたびにEXP+30(1Lvごとに+30)。ボスは数えない	EN: Gain EXP +30 (+30 per Lv) for every 10 enemies defeated. Bosses don't count
+10525	JA: ボス撃破のEXP+15%/Lv	EN: Boss defeat EXP +15% per Lv
+10526	JA: 1km走るたびにEXP+100(1Lvごとに+100)。疾走出発やCONTINUEで飛ばした区間は数えない	EN: Gain EXP +100 (+100 per Lv) for every 1km you run. Sections skipped by Sprint Start or CONTINUE don't count
+10527	JA: ランで30秒生き残るたびにEXP+30(1Lvごとに+30)。カード選択・一時停止の間は数えない	EN: Gain EXP +30 (+30 per Lv) for every 30 seconds you survive in a run. Card choices and pauses don't count
+10528	JA: 雑魚の一部が高火力敵(赤紫のオーラ。攻撃のダメージ+1ハート)になる(1Lvごとに+3%、最大30%。0kmから)。代わりに敵撃破・BONUSのMILE+15%/Lv、敵撃破EXP+10%/Lv。敵が変わるのはソロの通常マップだけ	EN: Some enemies become Heavy Hitters (magenta aura, +1 heart damage) (+3% per Lv, up to 30%, from 0km). In return: enemy/BONUS MILE +15% per Lv, enemy defeat EXP +10% per Lv. Enemies only change in solo runs on normal maps
+10529	JA: 空中の敵の枠に空中雑魚(急降下・横切りなど)が出やすくなり(+5%/Lv)、空の敵がいる組も出やすくなる(+10%/Lv)。代わりに敵撃破EXP+15%/Lv、敵撃破・BONUSのMILE+8%/Lv	EN: Air enemies (divers, crossers, etc.) fill air slots more often (+5% per Lv), and groups with flying enemies appear more often (+10% per Lv). In return: enemy defeat EXP +15% per Lv, enemy/BONUS MILE +8% per Lv
+10530	JA: 道中の判断イベント(上下の帯・封鎖・高火力敵など)が早い距離から始まり(通常50km → 1Lvごとに4km早く、最短10km)、間隔も短くなる(-5%/Lv、最大-50%)。代わりに敵撃破・BONUSのMILE+12%/Lv、獲得EXP+8%/Lv。判断イベントはソロの通常マップだけ	EN: Road decision events (lane warnings, blockades, Heavy Hitters, etc.) start earlier (normally 50km; 4km earlier per Lv, 10km at the earliest) and come more often (gap -5% per Lv, up to -50%). In return: enemy/BONUS MILE +12% per Lv, EXP gained +8% per Lv. Decision events only happen in solo runs on normal maps
+10531	JA: ボスから受けるダメージ+10%/Lv(ハート単位。端数は確率で1つ増える)。代わりにボス撃破MILE+35%/Lv、ボス撃破EXP+15%/Lv	EN: Damage taken from bosses +10% per Lv (in hearts; a fraction may add 1 more heart). In return: boss defeat MILE +35% per Lv, boss defeat EXP +15% per Lv
+10532	JA: 連続ヒットが10HIT以上続いている間に倒した雑魚のMILEと撃破EXPが増える(+15%/Lv)。連続ヒットを切らさずに倒し続けるほど得	EN: Enemies defeated while your hit streak is at 10 HIT or more give more MILE and defeat EXP (+15% per Lv). Keep the streak going while you defeat enemies
+10533	JA: 被弾せずに1km走るたびにMILE+3とEXP+150(1Lvごとに増加)。被弾すると数え直し(Shieldで防いだ時はそのまま)	EN: Every 1km you run without taking damage gives +3 MILE and EXP +150 (more per Lv). Taking damage resets the count (blocking with a Shield doesn't)
+10534	JA: ボスを倒すと、前のボスから倒した雑魚1体につきMILE+0.2とEXP+3(1Lvごとに増加、最大100体分)。雑魚を倒してからボスへ挑むほど得	EN: Defeating a boss gives +0.2 MILE and EXP +3 for each enemy defeated since the previous boss (more per Lv, up to 100 enemies). Clear out enemies before you take on the boss
+10535	JA: 走行距離10kmごとに、敵撃破・ボス・BONUSのMILEと獲得EXPが+2%/Lvずつ増える(100kmで最大、Lv1で+20%)。遠くまで走るほど伸びる	EN: Every 10km you run, enemy/boss/BONUS MILE and EXP gained rise by +2% per Lv (max at 100km; +20% at Lv1). The farther you run, the more it grows
+10536	JA: 10HITごとに +{0} MILE	EN: +{0} MILE every 10 HIT
+10537	JA: 雑魚10体撃破ごとに +{0} MILE	EN: +{0} MILE per 10 enemies defeated
+10539	JA: 1kmごとに +{0} MILE	EN: +{0} MILE every 1km
+10540	JA: 30秒ごとに +{0} MILE	EN: +{0} MILE every 30s
+10541	JA: 10HITごとに EXP+{0}	EN: EXP +{0} every 10 HIT
+10542	JA: 雑魚10体撃破ごとに EXP+{0}	EN: EXP +{0} per 10 enemies defeated
+10544	JA: 1kmごとに EXP+{0}	EN: EXP +{0} every 1km
+10545	JA: 30秒ごとに EXP+{0}	EN: EXP +{0} every 30s
+10546	JA: 雑魚が高火力敵になる確率 +{0}%	EN: Chance enemies become Heavy Hitters +{0}%
+10547	JA: 空中雑魚の出現 +{0}%・空の敵がいる組 ×{1}	EN: Air enemies +{0}% / groups with flyers ×{1}
+10548	JA: 判断イベントが{0}kmから・間隔×{1}	EN: Decision events from {0}km / gap ×{1}
+10549	JA: ボスから受けるダメージ +{0}%	EN: Damage taken from bosses +{0}%
+10550	JA: 10HIT以上の連続ヒット中の撃破 MILE・EXP +{0}%	EN: Defeats during a 10+ HIT streak: MILE/EXP +{0}%
+10551	JA: 被弾せずに1kmごとに +{0} MILE・EXP+{1}	EN: Every 1km without damage: +{0} MILE, EXP +{1}
+10552	JA: ボス撃破で 雑魚1体につき +{0} MILE・EXP+{1}(最大100体)	EN: On boss defeat, per enemy: +{0} MILE, EXP +{1} (up to 100)
+10553	JA: 10kmごとに MILE・EXP +{0}%(100kmで最大+{1}%)	EN: MILE/EXP +{0}% per 10km (max +{1}% at 100km)
+10554	JA: ボス撃破EXP	EN: Boss defeat EXP
+10555	JA: {0}で{1}m到達して帰還	EN: Reach {1}m on {0} and return
+10556	JA: ラストダンジョンの解放	EN: Unlock the Last Dungeon
+10460	JA: 共通	EN: COMMON	(UI: カード編集: マップ別の絞り込みのタブ(共通のカード)。英語は大文字の短い語)
+10461	JA: 荒野	EN: WILDERNESS	(UI: カード編集: マップ別の絞り込みのタブ(荒野街道で解放するカード)。英語は大文字の短い語)
+10462	JA: 洞窟	EN: CAVE	(UI: カード編集: マップ別の絞り込みのタブ(自然洞窟で解放するカード))
+10463	JA: 天空	EN: SKY	(UI: カード編集: マップ別の絞り込みのタブ(天空回廊で解放するカード))
+10464	JA: ラスダン	EN: LAST DUNGEON	(UI: カード編集: マップ別の絞り込みのタブ(ラストダンジョンで解放するカード))
+10465	JA: 属性	EN: Element	(UI: カード編集: 絞り込みのボタンの見出し / 並び替えの項目(カードの属性: 炎・氷・雷・風・血))
+10466	JA: マップ	EN: Map	(UI: カード編集: 並び替えの項目(マップの分類の順))
+10467	JA: 解放順	EN: Unlock order	(UI: カード編集: 並び替えの項目(解放される順 = 距離・ガチャの段階))
+10468	JA: 未解放 {0}	EN: Locked: {0}	(UI: カード編集: マップを選んでいる時の枚数の行。{0}=このマップでまだ解放していないカードの種類の数)
+10469	JA: この条件のカードはありません	EN: No cards match these filters	(UI: カード編集: 絞り込みの結果が0件の時、一覧の中に出す)

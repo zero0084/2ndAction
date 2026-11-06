@@ -16,7 +16,7 @@ public partial class DeckEditUI
     Image bigDismantleBg;
     string bigKey; int bigLevel;
     public bool BigDetailOpen => bigRoot != null && bigRoot.activeSelf;
-    public bool OverlayOpen => BigDetailOpen || (confirmDialog != null && confirmDialog.IsOpen);
+    public bool OverlayOpen => BigDetailOpen || FilterPopupOpen || (confirmDialog != null && confirmDialog.IsOpen);
     public static int BigDetailOpened { get; private set; } // 確認用
     public string DebugBigInfo => bigInfo != null ? (bigTitle != null ? bigTitle.text : "") + "\n" + bigInfo.text : "";
 
@@ -67,10 +67,14 @@ public partial class DeckEditUI
         bigCloseRt.pivot = new Vector2(1f, 1f); bigCloseRt.anchoredPosition = new Vector2(-12f, -12f);
         var cbg = bigCloseRt.gameObject.AddComponent<Image>(); cbg.color = new Color(0.12f, 0.14f, 0.28f, 0.95f); cbg.raycastTarget = false;
         var col = bigCloseRt.gameObject.AddComponent<Outline>(); col.effectColor = UiTheme.GoldEdge; col.effectDistance = new Vector2(2f, -2f);
-        var ct = NewUi("X", bigCloseRt, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-        ct.anchorMin = Vector2.zero; ct.anchorMax = Vector2.one; ct.offsetMin = ct.offsetMax = Vector2.zero;
-        var ctx = ct.gameObject.AddComponent<Text>(); ctx.font = font; ctx.fontSize = 44; ctx.fontStyle = FontStyle.Bold; ctx.alignment = TextAnchor.MiddleCenter;
-        ctx.color = UiIcons.ControlColor; ctx.text = "×"; ctx.raycastTarget = false;
+        // 2026-11-06(エステルのレビュー): 「×」の文字はフォントに頼らず、白銀の太い棒2本を ±45° に回して描く(UiIcons.DrawClose と同じ割合)
+        foreach (float ang in new[] { 45f, -45f })
+        {
+            var bar = NewUi("XBar", bigCloseRt, new Vector2(0.5f, 0.5f), new Vector2(36f, 7f), Vector2.zero);
+            bar.pivot = new Vector2(0.5f, 0.5f); bar.anchoredPosition = Vector2.zero; bar.localEulerAngles = new Vector3(0f, 0f, ang);
+            var bi = bar.gameObject.AddComponent<Image>(); bi.color = UiIcons.ControlColor; bi.raycastTarget = false;
+            var bs = bar.gameObject.AddComponent<Shadow>(); bs.effectColor = new Color(0f, 0f, 0f, 0.45f); bs.effectDistance = new Vector2(1f, -1.5f);
+        }
 
         bigDismantleRt = NewUi("Dismantle", bigPanel, new Vector2(0f, 1f), new Vector2(360f, 70f), Vector2.zero);
         bigDismantleBg = bigDismantleRt.gameObject.AddComponent<Image>(); bigDismantleBg.raycastTarget = false;
@@ -92,10 +96,19 @@ public partial class DeckEditUI
         bool portrait = H > W;
         float pw = portrait ? W - 40f : Mathf.Min(W - 120f, 1500f);
         float ph = portrait ? Mathf.Min(H - 140f, 1700f) : H - 90f;
+        float panelY = 0f;
+        Rect gear = GearInRoot(); // x = 中央から、y = 上端から(下は負)
+        if (portrait && gear.yMin < 0f)
+        {
+            // 縦: 窓の上端を設定ボタンの下(+8)へ下げ、下端は今までどおり
+            float top = -(H - ph) * 0.5f; // 今までの上端(画面の上端から。下は負)
+            float want = gear.yMin - 8f;
+            if (want < top) { float d = top - want; ph -= d; panelY = -d * 0.5f; }
+        }
         bigPanel.sizeDelta = new Vector2(pw, ph);
         UiTheme.Apply(bigInfo, UiTheme.TextRole.Body, portrait ? 1.3f : 1.05f); // 縦画面は文字を大きめに(幅が狭く、行は縦にスクロールできる)
         bigInfo.color = UiTheme.Text; bigInfo.alignment = TextAnchor.UpperLeft; bigInfo.supportRichText = true;
-        bigPanel.anchoredPosition = Vector2.zero;
+        bigPanel.anchoredPosition = new Vector2(0f, panelY);
         float pad = 28f;
         float cardH = portrait ? Mathf.Min(ph * 0.3f, 460f) : Mathf.Min(ph - 2f * pad - 90f, 560f);
         float k = cardH / 294f;
@@ -132,6 +145,7 @@ public partial class DeckEditUI
         var gm = GameManager.Instance;
         CardDefinition card = CardDatabase.FindById(key);
         if (gm == null || card == null) return;
+        if (FilterPopupOpen) return; // 2026-11-06: 絞り込みの選択肢の窓が開いている間は開かない(窓が先)
         BuildBigDetail();
         if (bigRoot == null) return;
         if (level < 1) level = LevelOfKey(key);
@@ -281,6 +295,7 @@ public partial class DeckEditUI
             return;
         }
         DismantleDoneCount++;
+        masteryCountsDirty = true;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
         StartCoroutine(PlayConvertGlow());
         if (detailCardId == key) ResetDetail();
@@ -293,6 +308,9 @@ public partial class DeckEditUI
     // 自動試験用
     public void DebugOpenBigDetailOwned(string key) { foreach (var s in CardInventory.Stacks) if (s.cardId == key) { OpenBigDetail(s.cardId, s.level); return; } }
     public void DebugDismantleTap() => OnDismantleTapped();
+    public RectTransform DebugBigCloseRect => bigCloseRt;
+    public RectTransform DebugBigPanel => bigPanel;
+    public void DebugBigTap(Vector2 p) => HandleBigTap(p);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public bool DebugConfirmYes() { if (confirmDialog == null || !confirmDialog.IsOpen) return false; confirmDialog.DebugYes(); return true; }
 #endif

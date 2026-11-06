@@ -184,13 +184,8 @@ public class CardVisualTour : MonoBehaviour
     // 一覧の指定カードが見える位置までスクロールする
     static void ScrollTo(DeckEditUI ui, int idx)
     {
-        if (idx < 0 || idx >= ui.ownedCards.Length) return;
-        var sr = ui.ownedScrollRect;
-        Canvas.ForceUpdateCanvases();
-        RectTransform card = ui.ownedCards[idx].rect;
-        float contentH = sr.content.rect.height, viewH = sr.viewport.rect.height;
-        float top = -card.anchoredPosition.y - card.rect.height * 0.5f - 30f;
-        sr.verticalNormalizedPosition = 1f - Mathf.Clamp01(top / Mathf.Max(1f, contentH - viewH));
+        // 2026-11-06: 一覧は仮想スクロール(見えている段だけ枠がある)→ 一覧の側で見える位置へ動かす
+        ui.ScrollOwnedIntoView(idx);
     }
 
     IEnumerator HideDiagnostics()

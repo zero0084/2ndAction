@@ -46,6 +46,7 @@ public partial class QaSweep
         if (k.StartsWith("Boss") || k.StartsWith("WildBoss") || k.StartsWith("CaveBoss") || k.StartsWith("Dragon") || k.StartsWith("SkyStrike") || k.StartsWith("Majin") || k.StartsWith("Mech")) return "boss";
         if (k.StartsWith("Reaper")) return "reaper";
         bool ev = DecisionEvents.Running != RoadEventKind.None || RoadEvents.Active != RoadEventKind.None;
+        if (k.StartsWith("Enemy:")) return "crash"; // 2026-11-06: 雑魚への体当たり/接触 = 事故(高速時の事故ダメージの対象)。攻撃(EnemyMelee/Fireball)とは分ける
         if (k.StartsWith("Enemy") || k.StartsWith("Fireball")) return bossPhase && k.StartsWith("Fireball") ? "boss" : ev ? "event" : "zako";
         return "other";
     }
@@ -114,7 +115,7 @@ public partial class QaSweep
             }
             PlayerController.DebugSpeedScale = speedScale;
             TimeControl.SetDebugTimeScale(ts);
-            tiHits.Clear(); tiShield = 0; tiHealEvents = 0; tiHealHp = 0;
+            tiHits.Clear(); tiShield = 0; tiHealEvents = 0; tiHealHp = 0; AccidentDamage.ResetStats();
             int ev0 = DecisionEvents.Started;
             var seen = new HashSet<EnemyController>(); var firstSeen = new Dictionary<EnemyController, float>(); var killS = new List<float>(); int airSeen = 0;
             System.Action<EnemyController, PlayerAttackKind, bool, bool> onHit = (e, k, air, killed) => { if (killed && e != null && e.Definition != null && e.Definition.hpMultiplier < 5f && firstSeen.TryGetValue(e, out float f0)) killS.Add(Time.time - f0); };
@@ -170,13 +171,15 @@ public partial class QaSweep
             bool died = gm.IsGameOver;
             float endD = gm.MaxDistance / 1000f;
             var fatal = died && tiHits.Count > 0 ? tiHits[tiHits.Count - 1] : null;
+            // 2026-11-06: 高速時の事故ダメージ(段階ごとの回数と、種類ごとの HP)
+            Debug.Log($"[QA] [accident] {ch} {tier} {modeArg} tiers(<{DifficultyTuning.I.accidentKmh1:0}/{DifficultyTuning.I.accidentKmh1:0}+/{DifficultyTuning.I.accidentKmh2:0}+)={AccidentDamage.HitsTier1}/{AccidentDamage.HitsTier2}/{AccidentDamage.HitsTier3} hpAdded={AccidentDamage.HpAdded} contact={AccidentDamage.HitsByKind[1]}x/{AccidentDamage.HpByKind[1]}hp obstacle={AccidentDamage.HitsByKind[2]}x/{AccidentDamage.HpByKind[2]}hp wall={AccidentDamage.HitsByKind[3]}x/{AccidentDamage.HpByKind[3]}hp fall={AccidentDamage.HitsByKind[4]}x/{AccidentDamage.HpByKind[4]}hp off={AccidentDamage.Off}");
             // 2026-11-06: 終盤 95〜100km(3体同時の組 → ラスボス → 静かな道)のまとめ
             {
                 var bmF = BossManager.Instance;
                 var h95 = tiHits.Where(h => h.km >= 95f).ToList();
                 string fin = bmF == null ? "-" : $"sets={bmF.SetsStarted} spawned={bmF.SetBossesSpawned} maxAlive={bmF.MaxSetAlive} dropped={bmF.SetLeftoversDropped} hold98={bmF.SetHolds98} " +
                     $"t95-99={(t95 > 0f && t99 > 0f ? (t99 - t95) : -1f):F0}s finalUp={(bmF.FinalSpawnedAt > 0f && bmF.SetStartedAt > 0f ? bmF.FinalSpawnedAt - bmF.SetStartedAt : -1f):F0}s heavyDeferred={BossAttackGate.HeavyDeferred} heavyPeak={BossAttackGate.HeavyPeak} setHeals={bmF.SetKillHeals}";
-                Debug.Log($"[QA] [finale] {ch} {stage} {tier} {modeArg} died={died} end={endD:F2} hpMin95={hpMin95 * 100f:F0}% hits95={h95.Count} hearts95={h95.Sum(h => h.hearts)} by95=[{string.Join(" ", h95.GroupBy(h => h.cat).Select(g => g.Key + ":" + g.Sum(x => x.hearts)))}] {fin}");
+                Debug.Log($"[QA] [finale] {ch} {stage} {tier} {modeArg} died={died} end={endD:F2} hpMin95={hpMin95 * 100f:F0}% hits95={h95.Count} hearts95={h95.Sum(h => h.hearts)} by95=[{string.Join(" ", h95.GroupBy(h => h.cat).Select(g => g.Key + ":" + g.Sum(x => x.hearts)))}] src95=[{string.Join(" ", h95.GroupBy(h => h.src).OrderByDescending(g => g.Sum(x => x.hearts)).Take(6).Select(g => g.Key + ":" + g.Sum(x => x.hearts)))}] {fin}");
             }
             string last30 = string.Join(" ", tiHits.Where(h => fatal != null && fatal.t - h.t <= 30f).GroupBy(h => h.cat).Select(g => $"{g.Key}:{g.Sum(x => x.hearts)}"));
             string byCat = string.Join(" ", tiHits.GroupBy(h => h.cat).OrderByDescending(g => g.Sum(x => x.hearts)).Select(g => $"{g.Key}:{g.Sum(x => x.hearts)}"));

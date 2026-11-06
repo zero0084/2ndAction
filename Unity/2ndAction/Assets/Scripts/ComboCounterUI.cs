@@ -35,6 +35,7 @@ public class ComboCounterUI : MonoBehaviour
     {
         ComboCount++;
         timer = resetWindow;
+        CardRewards.OnHit(ComboCount); // 2026-11-06 COMBO PAY / COMBO TRAINING(10HIT ごと)
     }
 
     // エリアルコンボ改修(2026-10-18): 空中追撃の段(AIR 2 / AIR 3 …)。「N HIT」の下に小さく出す(敵/足場/予告に重ねない)

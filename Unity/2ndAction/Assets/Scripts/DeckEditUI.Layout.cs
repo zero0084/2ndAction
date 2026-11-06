@@ -113,6 +113,7 @@ public partial class DeckEditUI
             detailToggleIcon.color = UiIcons.ControlColor;
         }
         BuildDragParts();
+        BuildFilterParts(rootRt, font); // 2026-11-06: マップのタブ / レア度・属性・並び替え(DeckEditUI.Filters)
     }
 
     // 種類の内訳の数字
@@ -240,9 +241,15 @@ public partial class DeckEditUI
             float colH = -(-H + m) + colTop; // 下端まで
             PlaceTop(panelCollection, 0f, colTop, UW, colH);
             PlaceTop(collectionCountText != null ? collectionCountText.rectTransform : null, 0f, colTop - 8f, UW - 32f, 34f);
-            float tabW = Mathf.Min(64f, (UW - 32f - 7 * 6f) / 8f);
-            PlaceTabs(0f, colTop - 48f, tabW, 50f);
-            float listTop = colTop - 108f;
+            // 2026-11-06: 絞り込みは2段。1段目 = マップのタブ(幅いっぱい、高く・数字も読める大きさ)、
+            //  2段目 = 種類のアイコン(左)+ レア度・属性・並び替え(右)。エステルのレビュー: 縦画面ではボタンとタブの数字が小さかった → 縦だけ大きく
+            float innerL = -UW * 0.5f + 16f, innerW = UW - 32f;
+            const float mapH = 76f, row2H = 66f;
+            PlaceMapTabs(innerL, colTop - 44f, innerW, mapH, 1.35f);
+            float tabW = Mathf.Min(row2H - 4f, (innerW * 0.46f - 7 * 6f) / 8f), tabsW = 8 * tabW + 7 * 6f;
+            PlaceTabs(innerL + tabsW * 0.5f, colTop - 44f - mapH - 8f, tabW, row2H);
+            PlaceChoosers(innerL + tabsW + 12f, colTop - 44f - mapH - 8f, innerW - tabsW - 12f, row2H, 1.3f);
+            float listTop = colTop - 44f - mapH - 8f - row2H - 10f;
             PlaceTop((RectTransform)ownedScrollRect.transform, 0f, listTop, UW - 24f, listTop - (-H + m) - 12f);
             FitGrid(ownedScrollRect, ColsFor(ownedScrollRect, 160f, 4, 7), 0, 1f);
         }
@@ -273,11 +280,16 @@ public partial class DeckEditUI
             float detW = detailCollapsed ? 60f : Mathf.Clamp(UW * 0.22f, 340f, 430f);
             float colR = R - detW - gap, colW = colR - L;
             PlaceTop(panelCollection, (L + colR) * 0.5f, botTop, colW, botH);
-            float tabW = 60f, tabsW = 8 * tabW + 7 * 6f;
-            PlaceTabs(colR - 16f - tabsW + tabsW * 0.5f, botTop - 10f, tabW, 46f);
-            float cntW = colW - tabsW - 48f;
-            PlaceTop(collectionCountText != null ? collectionCountText.rectTransform : null, L + 16f + cntW * 0.5f, botTop - 14f, cntW, 38f);
-            float listTop = botTop - 66f;
+            // 2026-11-06: 1段目 = 枚数(左)+ レア度・属性・並び替え(右) / 2段目 = マップのタブ(左、目立つ)+ 種類のアイコン(右)
+            float inL = L + 16f, inR = colR - 16f;
+            float tabW = 56f, tabsW = 8 * tabW + 7 * 6f;
+            float chW = Mathf.Clamp((inR - inL) * 0.36f, 380f, 560f);
+            PlaceChoosers(inR - chW, botTop - 12f, chW, 46f, 1f); // 欄の上端の飾りに掛からないよう少し下げる
+            float cntW = inR - chW - inL - 16f;
+            PlaceTop(collectionCountText != null ? collectionCountText.rectTransform : null, inL + cntW * 0.5f, botTop - 13f, cntW, 38f);
+            PlaceTabs(inR - tabsW * 0.5f, botTop - 64f, tabW, 48f);
+            PlaceMapTabs(inL, botTop - 64f, Mathf.Min(inR - tabsW - 20f - inL, 900f), 48f, 1f);
+            float listTop = botTop - 122f;
             PlaceTop((RectTransform)ownedScrollRect.transform, (L + colR) * 0.5f, listTop, colW - 24f, listTop - (-H + m) - 10f);
             FitGrid(ownedScrollRect, ColsFor(ownedScrollRect, 132f, 5, 12), 0, 1f);
             PlaceTop(detailPanelRt, R - detW * 0.5f, botTop, detW, botH);
@@ -287,6 +299,10 @@ public partial class DeckEditUI
         RefreshCategoryRow();
         RefreshCharSlotHints();
         Canvas.ForceUpdateCanvases();
+        if (FilterPopupOpen) CloseFilterPopup(); // 窓の位置はボタンから決めるので、並べ直したら閉じる
+        PlaceOwnedScrollbar();                   // 一覧の右の細いスクロールバー(DeckEditUI.Virtual)
+        UpdateVirtual(false);                   // 列の数・幅が変わった時だけ全部を並べ直す(UpdateVirtual が見る)
+        RefreshFilterBar();
         Debug.Log($"[DeckEdit] layout v2 {(layoutPortrait ? "portrait" : "landscape")} {W:F0}x{H:F0} owned {ownedScrollRect.content.GetComponent<GridLayoutGroup>().constraintCount} cols x{ownedScrollRect.content.localScale.x:F2}, deck x{deckScrollRect.content.localScale.x:F2}, detail {(detailCollapsed ? "collapsed" : "open")}");
     }
 

@@ -1,0 +1,47 @@
+10518	Ogni volta che la serie di colpi (contatore «N HIT») raggiunge un multiplo di 10, ottieni +1 MILE (+1 per Lv). La ricompensa si ripete a 20, 30 e così via (fino a 100 HIT per serie)
+10519	Ottieni +1 MILE (+1 per Lv) ogni 10 nemici comuni sconfitti. I boss non contano
+10520	MILE per boss sconfitti +12% per Lv
+10521	Ottieni +2 MILE (+2 per Lv) ogni 1km percorso. I tratti saltati con Partenza sprint o CONTINUE non contano
+10522	Ottieni +1 MILE (+1 per Lv) ogni 30s di sopravvivenza durante una corsa. Scelta delle carte e pause non contano
+10523	Ogni volta che la serie di colpi raggiunge un multiplo di 10, ottieni EXP +20 (+20 per Lv). Fino a 100 HIT per serie
+10524	Ottieni EXP +30 (+30 per Lv) ogni 10 nemici comuni sconfitti. I boss non contano
+10525	EXP per boss sconfitti +15% per Lv
+10526	Ottieni EXP +100 (+100 per Lv) ogni 1km percorso. I tratti saltati con Partenza sprint o CONTINUE non contano
+10527	Ottieni EXP +30 (+30 per Lv) ogni 30s di sopravvivenza durante una corsa. Scelta delle carte e pause non contano
+10528	Alcuni nemici diventano nemici ad alto danno (aura magenta, +1 cuore di danno): +3% per Lv, max 30%, da 0km. In cambio: MILE da nemici/BONUS +15% per Lv, EXP da nemici sconfitti +10% per Lv. I nemici cambiano solo nelle corse in solitaria sulle mappe normali
+10529	I nemici aerei (in picchiata, di passaggio, ecc.) occupano più spesso gli spazi aerei (+5% per Lv) e compaiono più gruppi con nemici volanti (+10% per Lv). In cambio: EXP da nemici sconfitti +15% per Lv, MILE da nemici/BONUS +8% per Lv
+10530	Gli eventi decisionali lungo il percorso (avvisi di corsia, blocchi, nemici ad alto danno, ecc.) iniziano prima (normalmente a 50km, 4km prima per Lv, minimo 10km) e sono più frequenti (intervallo -5% per Lv, max -50%). In cambio: MILE da nemici/BONUS +12% per Lv, EXP ottenuta +8% per Lv. Eventi solo nelle corse in solitaria sulle mappe normali
+10531	Danni subiti dai boss +10% per Lv (in cuori; una frazione può aggiungere 1 cuore). In cambio: MILE per boss sconfitti +35% per Lv, EXP per boss sconfitti +15% per Lv
+10532	I nemici comuni sconfitti durante una serie di almeno 10 HIT danno più MILE ed EXP da sconfitta (+15% per Lv). Mantieni la serie mentre elimini i nemici
+10533	Ogni 1km percorso senza subire danni dà +3 MILE ed EXP +150 (aumentano per Lv). Subire danni azzera il conteggio, ma bloccare con Shield no
+10534	Sconfiggere un boss dà +0.2 MILE ed EXP +3 per ogni nemico comune sconfitto dal boss precedente (aumentano per Lv, max 100 nemici). Elimina i nemici prima di affrontare il boss
+10535	Ogni 10km, MILE da nemici/boss/BONUS ed EXP ottenuta aumentano di +2% per Lv (massimo a 100km; +20% a Lv1). Più lontano corri, maggiore è il bonus
+10536	+{0} MILE ogni 10 HIT
+10537	+{0} MILE ogni 10 nemici comuni sconfitti
+10539	+{0} MILE ogni 1km
+10540	+{0} MILE ogni 30s
+10541	EXP +{0} ogni 10 HIT
+10542	EXP +{0} ogni 10 nemici comuni sconfitti
+10544	EXP +{0} ogni 1km
+10545	EXP +{0} ogni 30s
+10546	Probabilità di nemici ad alto danno +{0}%
+10547	Nemici aerei +{0}% / gruppi volanti ×{1}
+10548	Eventi decisionali da {0}km / intervallo ×{1}
+10549	Danni subiti dai boss +{0}%
+10550	Nemici sconfitti con serie di 10+ HIT: MILE/EXP +{0}%
+10551	Ogni 1km senza danni: +{0} MILE, EXP +{1}
+10552	Boss sconfitto, per nemico: +{0} MILE, EXP +{1} (max 100)
+10553	MILE/EXP +{0}% ogni 10km (max +{1}% a 100km)
+10554	EXP per boss sconfitti
+10555	Raggiungi {1}m su {0} e torna indietro
+10556	Sblocca il dungeon finale
+10460	COMUNE
+10461	TERRE SELVAGGE
+10462	GROTTA
+10463	CIELO
+10464	DUNGEON FINALE
+10465	Elemento
+10466	Mappa
+10467	Ordine di sblocco
+10468	Bloccate: {0}
+10469	Nessuna carta corrisponde ai filtri

@@ -52,7 +52,10 @@ public partial class QaSweep
         gm.OpenDeckEdit();
         yield return new WaitForSecondsRealtime(1.4f);
         var ui = gm.deckEditUI;
-        R5Check(ui.DebugOwnedShownCount == stacks && ui.DebugOwnedSlotCount >= stacks, $"C: 'ALL' shows every owned stack ({ui.DebugOwnedShownCount}/{stacks}, slots {ui.DebugOwnedSlotCount})");
+        // 2026-11-06: 一覧は仮想スクロール(枠は見えている段の分だけ)→ 一覧の束の数と、最後の束まで動かすと枠に出ることを見る
+        var lastCard = ui.DebugOwnedCardAt(stacks - 1);
+        R5Check(ui.DebugOwnedShownCount == stacks && lastCard != null && lastCard.gameObject.activeInHierarchy, $"C: 'ALL' shows every owned stack ({ui.DebugOwnedShownCount}/{stacks}, slots {ui.DebugOwnedSlotCount}, the last one reachable {lastCard != null})");
+        ui.DebugSetOwnedScroll(1f);
         // A/B/C: ★1〜★5 の表示(全て)
         for (int r = 1; r <= 4; r++)
         {

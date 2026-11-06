@@ -1,0 +1,16 @@
+id	name	module	abilities	description	enhanced	power	radius	cooldown	chance	count	lv1Factor	risk	enabled
+blazing_edge	BLAZING EDGE	BurningBlast	flame_blade+burning_soul	炎上中の敵を斬ると小さな炎の爆発(同じ敵には1秒に1回、爆発からは爆発しない)	FLAME BLADE/BURNING SOUL の最終進化中: 爆発が広く、爆発でも炎上させる	0.45	1.3	1	1	0	0.45	0	1
+wildfire	WILDFIRE	Wildfire	burning_soul+inferno	炎上中の敵を倒すと、まわりの敵(最大3体)へ強い炎上が飛び移る(COMBO の炎上で倒れても飛ばない)	最終進化中: 飛び移る数+1、炎上が少し強い	1	3	0.4	1	3	0.45	0	1
+frozen_prison	FROZEN PRISON	FreezeNova	frost_edge+ice_prison	敵が凍った(ボスは強い減速)瞬間、まわりへ冷気の衝撃波(冷やす+小ダメージ)	最終進化中: 衝撃波が広く、ボスにも少し長く効く	0.3	2	0.6	1	0	0.45	0	1
+shatter	SHATTER	Shatter	ice_prison+absolute_zero	凍った雑魚を締め/叩きつけで砕き、まわりへ氷の破片(ボスは砕けない)	最終進化中: 破片が広い	1.2	1.8	0.3	1	0	0.45	0	1
+thunder_chain	THUNDER CHAIN	ExtraChain	thunder_strike+chain_lightning	落雷が確率で近くの別の敵へもう1本走る(同じ敵へは0.4秒に1回)	THUNDER STRIKE/CHAIN LIGHTNING の最終進化中: 必ず走り、終点で小さな炸裂	0.6	5	0.4	0.5	1	0.45	0	1
+storm_lord	STORM LORD	ChainBurst	chain_lightning+thunder_lord	連鎖の最後の地点で雷の炸裂(炸裂からは連鎖しない)	最終進化中: 炸裂が広い	0.6	1.8	0.5	1	0	0.45	0	1
+gale_edge	GALE EDGE	WindBurst	wind_cutter+gale	風刃の貫通+1、当たった所に小さな風圧	最終進化中: 貫通+2	0.3	1.2	0.25	1	1	0.45	0	1
+cyclone	CYCLONE	WindTornado	gale+tornado	風刃が4回当たるごとに小さな竜巻(同時に2つまで)	最終進化中: 同時に3つまで、竜巻が少し大きい	0.5	1.4	0.8	1	4	0.45	0	1
+blood_aegis	BLOOD AEGIS	BloodAegis	vampire+overheal	満タンで溢れた回復を Blood Aegis へ(被弾を1回防ぐ。最大1つ、3秒に1回まで)	VAMPIRE/OVERHEAL の最終進化中: 最大2つ	0	0	3	1	1	0.45	0	1
+sonic_momentum	SONIC MOMENTUM	SonicWave	speed_up+momentum	100km/h 以上で主攻撃が当たると、前方へ小さな衝撃波(速さそのものは上げない)	SPEED UP/MOMENTUM の最終進化中: 衝撃波が遠くまで届く	0.35	2.2	0.5	1	100	0.45	0	1
+redline	REDLINE	Redline	momentum+overdrive	OVERDRIVE を2秒続けると、1.5秒ごとにまわりへ赤い衝撃(実速度は変えない)	最終進化中: 衝撃が広い	0.4	2.4	1.5	1	2	0.45	0	1
+aegis_counter	AEGIS COUNTER	AegisBreak	shield+counter	最後の Shield が割れた瞬間、まわりへ大きな反撃の衝撃波(1回の消費で1回)	最終進化中: 衝撃波が広い	1.6	3.6	0.5	1	0	0.45	0	1
+sky_assault	SKY ASSAULT	AirAssault	aerial_blade+sky_master	着地せずに空中で3回当てるごとに追撃の斬撃(着地で数え直し)	最終進化中: 2回ごと	0.6	1.8	0.1	1	3	0.45	0	1
+finishing_blow	FINISHING BLOW	FinisherWave	combo_plus+combo_master	締めの一撃で、さらに前方へ衝撃波(初撃には出ない)	最終進化中: 衝撃波が大きい	0.7	2.4	0.2	1	0	0.45	0	1
+death_wish	DEATH WISH	DeathWish	berserker+glass_cannon	HP50%以下の間、主攻撃の命中から確率で深紅の斬撃(封印したハートはそのまま = リスクは残る)	最終進化中: 確率が上がる	0.6	2	0.35	0.3	50	0.45	1	1

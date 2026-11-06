@@ -1,0 +1,47 @@
+10518	Vuruş serin ("N HIT" sayacı) her 10'un katına ulaştığında +1 MILE kazan (+1 her Lv için). 20, 30 ve sonrasında da tekrar kazanırsın (seri başına en fazla 100 HIT)
+10519	Öldürdüğün her 10 normal düşman için +1 MILE kazan (+1 her Lv için). Bosslar sayılmaz
+10520	Boss yenme MILE +12% her Lv için
+10521	Koştuğun her 1km için +2 MILE kazan (+2 her Lv için). Hızlı Başlangıç veya CONTINUE ile atlanan mesafeler sayılmaz
+10522	Koşuda hayatta kaldığın her 30s için +1 MILE kazan (+1 her Lv için). Kart seçimi ve duraklamalar sayılmaz
+10523	Vuruş serin her 10'un katına ulaştığında EXP +20 kazan (+20 her Lv için). Seri başına en fazla 100 HIT
+10524	Öldürdüğün her 10 normal düşman için EXP +30 kazan (+30 her Lv için). Bosslar sayılmaz
+10525	Boss yenme EXP +15% her Lv için
+10526	Koştuğun her 1km için EXP +100 kazan (+100 her Lv için). Hızlı Başlangıç veya CONTINUE ile atlanan mesafeler sayılmaz
+10527	Koşuda hayatta kaldığın her 30s için EXP +30 kazan (+30 her Lv için). Kart seçimi ve duraklamalar sayılmaz
+10528	Bazı düşmanlar Ağır Vurucuya dönüşür (mor-kırmızı aura, +1 kalp hasarı): her Lv için +3%, en fazla 30%, 0km'den itibaren. Karşılığında: düşman/BONUS MILE +15% her Lv için, düşman yenme EXP +10% her Lv için. Düşmanlar yalnızca normal haritalardaki tek kişilik koşularda değişir
+10529	Havadaki düşmanlar (dalış yapanlar, geçip gidenler vb.) hava konumlarında daha sık belirir (+5% her Lv için). Uçan düşman içeren gruplar da daha sık çıkar (+10% her Lv için). Karşılığında: düşman yenme EXP +15% her Lv için, düşman/BONUS MILE +8% her Lv için
+10530	Yol karar olayları (şerit uyarıları, barikatlar, Ağır Vurucular vb.) daha erken başlar (normalde 50km; her Lv için 4km erken, en erken 10km) ve daha sık görülür (aralık -5% her Lv için, en fazla -50%). Karşılığında: düşman/BONUS MILE +12% her Lv için, kazanılan EXP +8% her Lv için. Olaylar yalnızca normal haritalardaki tek kişilik koşularda gerçekleşir
+10531	Bosslardan alınan hasar +10% her Lv için (kalp cinsinden; kesirli kısım fazladan 1 kalp hasara neden olabilir). Karşılığında: boss yenme MILE +35% her Lv için, boss yenme EXP +15% her Lv için
+10532	Vuruş serin en az 10 HIT iken öldürdüğün normal düşmanlar daha fazla MILE ve yenme EXP verir (+15% her Lv için). Düşmanları öldürürken seriyi sürdür
+10533	Hasar almadan koştuğun her 1km için +3 MILE ve EXP +150 kazan (her Lv ile artar). Hasar almak sayacı sıfırlar, Shield ile engellemek sıfırlamaz
+10534	Boss yenince, önceki bosstan beri öldürdüğün her normal düşman için +0.2 MILE ve EXP +3 kazan (her Lv ile artar, en fazla 100 düşman). Bossa meydan okumadan önce düşmanları temizle
+10535	Her 10km'de düşman/boss/BONUS MILE ve kazanılan EXP, her Lv için +2% artar (100km'de en yüksek; Lv1'de +20%). Ne kadar uzağa koşarsan o kadar artar
+10536	Her 10 HIT için +{0} MILE
+10537	Öldürülen her 10 normal düşman için +{0} MILE
+10539	Her 1km için +{0} MILE
+10540	Her 30s için +{0} MILE
+10541	Her 10 HIT için EXP +{0}
+10542	Öldürülen her 10 normal düşman için EXP +{0}
+10544	Her 1km için EXP +{0}
+10545	Her 30s için EXP +{0}
+10546	Ağır Vurucu olma olasılığı +{0}%
+10547	Havadaki düşmanlar +{0}% / uçanlı gruplar ×{1}
+10548	Karar olayları {0}km'den itibaren / aralık ×{1}
+10549	Bosslardan alınan hasar +{0}%
+10550	10+ HIT serisindeki öldürmeler: MILE/EXP +{0}%
+10551	Hasarsız her 1km: +{0} MILE, EXP +{1}
+10552	Boss yenince, düşman başına: +{0} MILE, EXP +{1} (en fazla 100)
+10553	Her 10km'de MILE/EXP +{0}% (100km'de en fazla +{1}%)
+10554	Boss yenme EXP
+10555	{0} haritasında {1}m'ye ulaş ve geri dön
+10556	Son Zindanı aç
+10460	ORTAK
+10461	VAHŞİ DOĞA
+10462	MAĞARA
+10463	GÖKYÜZÜ
+10464	SON ZİNDAN
+10465	Element
+10466	Harita
+10467	Açılma sırası
+10468	Kilitli: {0}
+10469	Bu filtrelere uygun kart yok

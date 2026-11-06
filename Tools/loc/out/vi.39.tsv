@@ -1,0 +1,47 @@
+10518	Mỗi khi chuỗi đòn đánh (bộ đếm "N HIT") đạt bội số của 10, nhận +1 MILE (+1 mỗi Lv). Tiếp tục nhận ở 20, 30, v.v. (tối đa 100 HIT mỗi chuỗi)
+10519	Nhận +1 MILE (+1 mỗi Lv) cho mỗi 10 kẻ địch thường bị hạ. Không tính trùm
+10520	MILE khi hạ trùm +12% mỗi Lv
+10521	Nhận +2 MILE (+2 mỗi Lv) cho mỗi 1km chạy được. Không tính quãng đường bỏ qua bằng Khởi đầu tăng tốc hoặc CONTINUE
+10522	Nhận +1 MILE (+1 mỗi Lv) cho mỗi 30s sống sót trong lượt chạy. Không tính thời gian chọn thẻ và tạm dừng
+10523	Mỗi khi chuỗi đòn đánh đạt bội số của 10, nhận EXP +20 (+20 mỗi Lv). Tối đa 100 HIT mỗi chuỗi
+10524	Nhận EXP +30 (+30 mỗi Lv) cho mỗi 10 kẻ địch thường bị hạ. Không tính trùm
+10525	EXP khi hạ trùm +15% mỗi Lv
+10526	Nhận EXP +100 (+100 mỗi Lv) cho mỗi 1km chạy được. Không tính quãng đường bỏ qua bằng Khởi đầu tăng tốc hoặc CONTINUE
+10527	Nhận EXP +30 (+30 mỗi Lv) cho mỗi 30s sống sót trong lượt chạy. Không tính thời gian chọn thẻ và tạm dừng
+10528	Một số kẻ địch trở thành kẻ địch gây sát thương cao (hào quang đỏ tím, sát thương +1 tim): +3% mỗi Lv, tối đa 30%, từ 0km. Đổi lại: MILE từ kẻ địch/BONUS +15% mỗi Lv, EXP khi hạ địch +10% mỗi Lv. Kẻ địch chỉ thay đổi khi chơi đơn trên bản đồ thường
+10529	Kẻ địch trên không (lao xuống, bay ngang, v.v.) xuất hiện ở vị trí trên không thường xuyên hơn (+5% mỗi Lv), và các nhóm có kẻ địch bay cũng xuất hiện nhiều hơn (+10% mỗi Lv). Đổi lại: EXP khi hạ địch +15% mỗi Lv, MILE từ kẻ địch/BONUS +8% mỗi Lv
+10530	Các sự kiện cần quyết định trên đường (cảnh báo làn, phong tỏa, kẻ địch gây sát thương cao, v.v.) bắt đầu sớm hơn (thường từ 50km, sớm hơn 4km mỗi Lv, sớm nhất 10km) và xảy ra thường xuyên hơn (khoảng cách -5% mỗi Lv, tối đa -50%). Đổi lại: MILE từ kẻ địch/BONUS +12% mỗi Lv, EXP nhận được +8% mỗi Lv. Chỉ xảy ra khi chơi đơn trên bản đồ thường
+10531	Sát thương nhận từ trùm +10% mỗi Lv (tính theo tim; phần lẻ có thể gây thêm 1 tim sát thương). Đổi lại: MILE khi hạ trùm +35% mỗi Lv, EXP khi hạ trùm +15% mỗi Lv
+10532	Kẻ địch thường bị hạ khi chuỗi đòn đánh đạt ít nhất 10 HIT sẽ cho thêm MILE và EXP khi hạ địch (+15% mỗi Lv). Duy trì chuỗi đòn đánh khi tiếp tục hạ địch
+10533	Mỗi 1km chạy mà không chịu sát thương, nhận +3 MILE và EXP +150 (tăng theo Lv). Chịu sát thương sẽ đặt lại bộ đếm, nhưng chặn bằng Shield thì không
+10534	Khi hạ trùm, nhận +0.2 MILE và EXP +3 cho mỗi kẻ địch thường đã hạ kể từ trùm trước (tăng theo Lv, tối đa 100 kẻ địch). Hạ thêm kẻ địch trước khi đối đầu trùm
+10535	Mỗi 10km chạy, MILE từ kẻ địch/trùm/BONUS và EXP nhận được tăng +2% mỗi Lv (tối đa ở 100km; +20% tại Lv1). Chạy càng xa, mức tăng càng lớn
+10536	Mỗi 10 HIT: +{0} MILE
+10537	Mỗi 10 kẻ địch thường bị hạ: +{0} MILE
+10539	Mỗi 1km: +{0} MILE
+10540	Mỗi 30s: +{0} MILE
+10541	Mỗi 10 HIT: EXP +{0}
+10542	Mỗi 10 kẻ địch thường bị hạ: EXP +{0}
+10544	Mỗi 1km: EXP +{0}
+10545	Mỗi 30s: EXP +{0}
+10546	Tỷ lệ kẻ địch thành loại sát thương cao +{0}%
+10547	Kẻ địch trên không +{0}% / nhóm có địch bay ×{1}
+10548	Sự kiện quyết định từ {0}km / khoảng cách ×{1}
+10549	Sát thương nhận từ trùm +{0}%
+10550	Hạ địch trong chuỗi 10+ HIT: MILE/EXP +{0}%
+10551	Mỗi 1km không chịu sát thương: +{0} MILE, EXP +{1}
+10552	Khi hạ trùm, mỗi kẻ địch: +{0} MILE, EXP +{1} (tối đa 100)
+10553	MILE/EXP +{0}% mỗi 10km (tối đa +{1}% tại 100km)
+10554	EXP khi hạ trùm
+10555	Đạt {1}m tại {0} rồi quay về
+10556	Mở khóa Hầm ngục cuối
+10460	CHUNG
+10461	HOANG DÃ
+10462	HANG ĐỘNG
+10463	BẦU TRỜI
+10464	HẦM NGỤC CUỐI
+10465	Nguyên tố
+10466	Bản đồ
+10467	Thứ tự mở khóa
+10468	Chưa mở khóa: {0}
+10469	Không có thẻ phù hợp bộ lọc

@@ -28,6 +28,16 @@ public class DifficultyTuning : ScriptableObject
     public Vector2[] bossHeavyHearts = { new Vector2(0, 2), new Vector2(60, 2), new Vector2(90, 3) };
     [Tooltip("障害物/地形の針/壁(今までどおり)")]
     public Vector2[] obstacleHearts = { new Vector2(0, 1) };
+    [Header("高速時の事故ダメージ(2026-11-06、Balance/AccidentDamage.cs)")]
+    [Tooltip("走行速度で事故(接触/障害物/壁/落下)のダメージを決める")] public bool accidentSpeedDamage = true;
+    [Tooltip("1段階目の速度(km/h): これ以上で accidentHearts[1]")] public float accidentKmh1 = 100f;
+    [Tooltip("2段階目の速度(km/h): これ以上で accidentHearts[2]")] public float accidentKmh2 = 130f;
+    [Tooltip("段階ごとのハート数: [0]=1段階目未満 [1]=1段階目以上 [2]=2段階目以上")] public int[] accidentHearts = { 1, 2, 3 };
+    [Tooltip("対象: 雑魚への体当たり/接触")] public bool accidentContact = true;
+    [Tooltip("対象: 障害物")] public bool accidentObstacle = true;
+    [Tooltip("対象: 地形の壁")] public bool accidentWall = true;
+    [Tooltip("対象: 穴/落下")] public bool accidentFall = true;
+    [Tooltip("この距離(km)までは速度の段階を掛けない(序盤の最大HPが少ない間。0 = 最初から。比較用: 開発版 -accidentFromKm 15)")] public float accidentFromKm = 0f;
     public float largeHpMultiplier = 1.75f;
 
     [Header("雑魚の HP(今の距離の HP に掛ける倍率。x = km)")]
@@ -55,7 +65,11 @@ public class DifficultyTuning : ScriptableObject
     public static bool ShieldMulOff;
     // 2026-11-06(T10): 回復構成の放置が 100km 安定 = 命中の吸収(与えたダメージの割合)が終盤の大きな与ダメージで膨らみ、40km で 360 ハート回復していた
     //  → 終盤ほど命中の吸収の割合を下げる(通常マップ)。-shieldMul 0 で SHIELD と一緒に無効
-    public Vector2[] hitLifestealMul = { new Vector2(0, 1f), new Vector2(50, 1f), new Vector2(70, 0.7f), new Vector2(85, 0.5f), new Vector2(95, 0.4f) };
+    public Vector2[] hitLifestealMul = { new Vector2(0, 1f), new Vector2(50, 1f), new Vector2(70, 0.85f), new Vector2(85, 0.7f), new Vector2(95, 0.6f) };
+    // 2026-11-06(T11): 回復の種類ごとに削っても中/強デッキの放置が 100km 安定 → 回復(カード/吸収/撃破の回復)全体の効きを終盤ほど下げる。
+    //  最大 HP が増えた分の回復(HEART UP 等)と、ハート1つ未満への端数は持ち越し(GameManager.HealScaled)
+    public Vector2[] lateHealMul = { new Vector2(0, 1f), new Vector2(50, 1f), new Vector2(70, 0.8f), new Vector2(85, 0.6f), new Vector2(95, 0.5f) };
+    public static float LateHealMul(float distance) => Active && !HeartsV1 && !ShieldMulOff ? Mathf.Clamp01(Eval(I.lateHealMul, distance / 1000f)) : 1f;
     public static float HitLifestealMul(float distance) => Active && !HeartsV1 && !ShieldMulOff ? Mathf.Clamp01(Eval(I.hitLifestealMul, distance / 1000f)) : 1f;
     public static float LifestealCooldown(float distance) => Active && !HeartsV1 ? Mathf.Max(0f, Eval(I.lifestealCooldown, distance / 1000f)) : 0f;
 

@@ -71,6 +71,8 @@ public class EncounterDirector : MonoBehaviour
     public static System.Action<Record, EncounterFormation, List<(GameObject go, EnemyDefinition def, EncounterSlotKind slot)>> OnEncounterSpawned;
     // ステージ固有の演出が使う通知(複数登録できる。テスト用のOnEncounterSpawnedとは別)。
     public static event System.Action<Record, EncounterFormation, List<(GameObject go, EnemyDefinition def, EncounterSlotKind slot)>> Spawned;
+    // 2026-11-06: 上下ルートの組(RoutePair)を出した直後(Spawned は1本道の Encounter だけ。今までの受け手の挙動を変えないよう別にした)
+    public static event System.Action<Record, EncounterFormation, List<(GameObject go, EnemyDefinition def, EncounterSlotKind slot)>> SpawnedPair;
 
     // ===== ラストダンジョン(2026-09-30)の差し込み口。すべて走行距離(m)で決まる(マルチでもHOSTの判断が全員に共有される) =====
     //  SuppressAt(距離) … trueの間は何も置かない(ボスラッシュ/静寂/エンドロール)
@@ -789,6 +791,7 @@ public class EncounterDirector : MonoBehaviour
             w *= RushFormationBias(f); // 2026-10-24: 雑魚の大群の段階(飛ぶ敵が多い/地上の大物+混成)
             w *= RoadEvents.FormationMul(f) * MixedBias(f); // 2026-11-04: 飛行編隊 / 40km から地上+空の混成を多く(DifficultyTuning.mixedBias)
             w *= FlyerDueBias(f); // 2026-11-04: 空の敵がしばらく出ていない → 次は空の枠がある組を選びやすく
+            w *= SkySiegeBias(f); // 2026-11-06 SKY SIEGE(カード): 空の枠がある組を選びやすく
             // 同じFormationの連続防止(絶対禁止ではない)
             int idx = formationHistory.LastIndexOf(f.formationId);
             if (idx >= 0)
@@ -849,6 +852,15 @@ public class EncounterDirector : MonoBehaviour
         DueFlyersAdded++;
     }
     public static int DueFlyersAdded; // 確認用
+
+    // 2026-11-06 SKY SIEGE(カード): 空の枠がある組の重み × CardRewards.AirFormationMul(カードが無ければ 1)
+    static float SkySiegeBias(EncounterFormation f)
+    {
+        float m = CardRewards.AirFormationMul;
+        if (m <= 1.001f) return 1f;
+        foreach (var s in f.slots) if (s != null && (s.kind == EncounterSlotKind.AirLow || s.kind == EncounterSlotKind.AirMiddle || s.kind == EncounterSlotKind.AirHigh)) return m;
+        return 1f;
+    }
 
     // 2026-11-04: 距離で地上+空の混成の組を多く(40〜60km「混成が増える」。終盤の大群の区間は RushFormationBias のまま)
     float MixedBias(EncounterFormation f)
@@ -1017,6 +1029,7 @@ public class EncounterDirector : MonoBehaviour
         string stage = profile.stageId;
         float km = planDistance / 1000f;
         float chance = t.SubstituteChanceAt(km);
+        if (CardRewards.AirChanceBonus > 0f) chance = Mathf.Min(CardRewards.SkySiegeAirChanceCap, chance + CardRewards.AirChanceBonus); // 2026-11-06 SKY SIEGE(カード)
         bool lc = stage == "last_corridor";
         if (lc && km >= t.lastCorridorQuietFromKm) return null;
         if (lc && km >= 90f) chance *= t.lastCorridorRushMul;
@@ -1411,6 +1424,7 @@ public class EncounterDirector : MonoBehaviour
         if (lMax >= lMin) spans.Add((new Vector2(FloatingOrigin.ToLogical(lMin) - 2f, FloatingOrigin.ToLogical(lMax) + 2f), EncounterRoute.Lower));
         Commit(rec);
         OnEncounterSpawned?.Invoke(rec, pair, spawnedGos);
+        SpawnedPair?.Invoke(rec, pair, spawnedGos);
     }
 
     // 片方のルートの中身。ルートの頭(routeFrontLoad以内)で地形条件に合う置き場所を探す。

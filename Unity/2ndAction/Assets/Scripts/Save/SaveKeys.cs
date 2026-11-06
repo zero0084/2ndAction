@@ -70,6 +70,8 @@ public static class SaveKeys
         new Entry(DevSprintUnlockAll, SaveCategory.Dev, SaveType.Int, "開発版: 疾走出発の行き先を全部選べる"),
         new Entry(UnlockRules.InitKey, SaveCategory.Progress, SaveType.Int, "解放条件の仕組みを入れた印(2026-10-07。既存データは今使えた物を全部解放済みにした)"),
         new Entry(UnlockRules.StagesKey, SaveCategory.Progress, SaveType.String, "解放したマップ(カンマ区切り。arena=闘技場。荒野街道は常に)"),
+        new Entry(CardMapUnlock.InitKey, SaveCategory.Progress, SaveType.Int, "カードのマップ分類による解禁を入れた印(2026-11-06。既存データは今まで使えたカードを解禁済みのままにした)"),
+        new Entry(CardMapUnlock.GrandfatherKey, SaveCategory.Progress, SaveType.String, "マップ分類の前から使えていたので解禁済みのままにするカード(カンマ区切りの cardId)"),
         new Entry(UnlockRules.CharsKey, SaveCategory.Progress, SaveType.String, "解放したキャラ(カンマ区切り。黒剣士は常に)"),
         new Entry(UnlockRules.NotifiedKey, SaveCategory.Progress, SaveType.String, "解放のお知らせを確認した物(s:/c: + ID)"),
         new Entry(UnlockRules.RevealShownKey, SaveCategory.Progress, SaveType.Int, "ラスダン出現の演出を出した(解放とは別)"),

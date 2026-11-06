@@ -1,0 +1,47 @@
+10518	Pokaždé, když série zásahů (počítadlo „N HIT“) dosáhne násobku 10, získáš +1 MILE (+1 za každý Lv). Odměna se opakuje při 20, 30 atd. (až 100 HIT za sérii)
+10519	Získáš +1 MILE (+1 za každý Lv) za každých 10 poražených běžných nepřátel. Bossové se nepočítají
+10520	MILE za poražení bosse +12% za Lv
+10521	Získáš +2 MILE (+2 za každý Lv) za každý uběhnutý 1km. Úseky přeskočené pomocí Rychlého startu nebo CONTINUE se nepočítají
+10522	Získáš +1 MILE (+1 za každý Lv) za každých 30s přežití během běhu. Výběr karet a pauzy se nepočítají
+10523	Pokaždé, když série zásahů dosáhne násobku 10, získáš EXP +20 (+20 za každý Lv). Až 100 HIT za sérii
+10524	Získáš EXP +30 (+30 za každý Lv) za každých 10 poražených běžných nepřátel. Bossové se nepočítají
+10525	EXP za poražení bosse +15% za Lv
+10526	Získáš EXP +100 (+100 za každý Lv) za každý uběhnutý 1km. Úseky přeskočené pomocí Rychlého startu nebo CONTINUE se nepočítají
+10527	Získáš EXP +30 (+30 za každý Lv) za každých 30s přežití během běhu. Výběr karet a pauzy se nepočítají
+10528	Někteří nepřátelé se změní na silně útočící nepřátele (purpurová aura, +1 srdce poškození): +3% za Lv, max. 30%, od 0km. Na oplátku: MILE za nepřátele/BONUS +15% za Lv, EXP za poražené nepřátele +10% za Lv. Nepřátelé se mění jen při sólovém běhu na běžných mapách
+10529	Vzdušní nepřátelé (střemhlav útočící, prolétávající atd.) častěji obsazují vzdušné pozice (+5% za Lv) a častěji se objevují skupiny s létajícími nepřáteli (+10% za Lv). Na oplátku: EXP za poražené nepřátele +15% za Lv, MILE za nepřátele/BONUS +8% za Lv
+10530	Rozhodovací události na cestě (varování v pruzích, zátarasy, silní nepřátelé atd.) začínají dříve (běžně od 50km, o 4km dříve za Lv, nejdříve od 10km) a objevují se častěji (rozestup -5% za Lv, max. -50%). Na oplátku: MILE za nepřátele/BONUS +12% za Lv, získané EXP +8% za Lv. Jen při sólovém běhu na běžných mapách
+10531	Poškození od bossů +10% za Lv (v srdcích; zlomková část může přidat 1 srdce). Na oplátku: MILE za poražení bosse +35% za Lv, EXP za poražení bosse +15% za Lv
+10532	Běžní nepřátelé poražení během série alespoň 10 HIT dávají více MILE a EXP za poražení (+15% za Lv). Porážej další nepřátele bez přerušení série
+10533	Za každý 1km bez utrženého poškození získáš +3 MILE a EXP +150 (více za každý Lv). Utržené poškození vynuluje počítadlo, blokování pomocí Shield ne
+10534	Poražení bosse dá +0.2 MILE a EXP +3 za každého běžného nepřítele poraženého od předchozího bosse (více za každý Lv, max. 100 nepřátel). Před bojem s bossem porážej nepřátele
+10535	Každých 10km se MILE za nepřátele/bosse/BONUS a získané EXP zvýší o +2% za Lv (maximum při 100km; +20% na Lv1). Čím dál běžíš, tím větší bonus
+10536	+{0} MILE každých 10 HIT
+10537	+{0} MILE za 10 poražených běžných nepřátel
+10539	+{0} MILE každý 1km
+10540	+{0} MILE každých 30s
+10541	EXP +{0} každých 10 HIT
+10542	EXP +{0} za 10 poražených běžných nepřátel
+10544	EXP +{0} každý 1km
+10545	EXP +{0} každých 30s
+10546	Šance na silně útočící nepřátele +{0}%
+10547	Vzdušní nepřátelé +{0}% / skupiny s létajícími ×{1}
+10548	Rozhodovací události od {0}km / rozestup ×{1}
+10549	Poškození od bossů +{0}%
+10550	Poražení během série 10+ HIT: MILE/EXP +{0}%
+10551	Každý 1km bez poškození: +{0} MILE, EXP +{1}
+10552	Po poražení bosse, za nepřítele: +{0} MILE, EXP +{1} (max. 100)
+10553	MILE/EXP +{0}% každých 10km (max. +{1}% při 100km)
+10554	EXP za poražení bosse
+10555	Dosáhni {1}m na mapě {0} a vrať se
+10556	Odemkni poslední dungeon
+10460	SPOLEČNÉ
+10461	DIVOČINA
+10462	JESKYNĚ
+10463	NEBE
+10464	POSLEDNÍ DUNGEON
+10465	Živel
+10466	Mapa
+10467	Pořadí odemčení
+10468	Zamčené: {0}
+10469	Žádné karty neodpovídají filtrům

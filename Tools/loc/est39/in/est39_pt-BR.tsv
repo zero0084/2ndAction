@@ -1,0 +1,47 @@
+10518	Sempre que sua sequência de golpes (contador "N HIT") atingir um múltiplo de 10, ganhe +1 MILE (+1 por Lv). A recompensa se repete em 20, 30 e assim por diante (até 100 HIT por sequência)
+10519	Ganhe +1 MILE (+1 por Lv) a cada 10 inimigos comuns derrotados. Chefes não contam
+10520	MILE por derrotar chefes +12% por Lv
+10521	Ganhe +2 MILE (+2 por Lv) a cada 1km percorrido. Trechos pulados pela Partida Rápida ou CONTINUE não contam
+10522	Ganhe +1 MILE (+1 por Lv) a cada 30s de sobrevivência durante uma corrida. Escolhas de cartas e pausas não contam
+10523	Sempre que sua sequência de golpes atingir um múltiplo de 10, ganhe EXP +20 (+20 por Lv). Até 100 HIT por sequência
+10524	Ganhe EXP +30 (+30 por Lv) a cada 10 inimigos comuns derrotados. Chefes não contam
+10525	EXP por derrotar chefes +15% por Lv
+10526	Ganhe EXP +100 (+100 por Lv) a cada 1km percorrido. Trechos pulados pela Partida Rápida ou CONTINUE não contam
+10527	Ganhe EXP +30 (+30 por Lv) a cada 30s de sobrevivência durante uma corrida. Escolhas de cartas e pausas não contam
+10528	Alguns inimigos se tornam inimigos de alto dano (aura magenta, +1 coração de dano): +3% por Lv, máx. 30%, desde 0km. Em troca: MILE por inimigos/BONUS +15% por Lv, EXP por inimigos derrotados +10% por Lv. Os inimigos só mudam em corridas solo nos mapas normais
+10529	Inimigos aéreos (mergulhadores, os que cruzam a tela etc.) ocupam espaços aéreos com mais frequência (+5% por Lv), e grupos com inimigos voadores aparecem mais (+10% por Lv). Em troca: EXP por inimigos derrotados +15% por Lv, MILE por inimigos/BONUS +8% por Lv
+10530	Eventos de decisão no caminho (avisos de faixa, bloqueios, inimigos de alto dano etc.) começam mais cedo (normalmente em 50km; 4km antes por Lv, mínimo 10km) e ocorrem com mais frequência (intervalo -5% por Lv, máx. -50%). Em troca: MILE por inimigos/BONUS +12% por Lv, EXP obtida +8% por Lv. Eventos apenas em corridas solo nos mapas normais
+10531	Dano recebido de chefes +10% por Lv (em corações; uma fração pode adicionar 1 coração). Em troca: MILE por derrotar chefes +35% por Lv, EXP por derrotar chefes +15% por Lv
+10532	Inimigos comuns derrotados durante uma sequência de pelo menos 10 HIT concedem mais MILE e EXP por derrota (+15% por Lv). Mantenha a sequência enquanto derrota inimigos
+10533	A cada 1km percorrido sem sofrer dano, ganhe +3 MILE e EXP +150 (aumentam por Lv). Sofrer dano zera a contagem, mas bloquear com Shield não
+10534	Ao derrotar um chefe, ganhe +0.2 MILE e EXP +3 por inimigo comum derrotado desde o chefe anterior (aumentam por Lv, até 100 inimigos). Derrote inimigos antes de enfrentar o chefe
+10535	A cada 10km, MILE por inimigos/chefes/BONUS e EXP obtida aumentam +2% por Lv (máximo em 100km; +20% no Lv1). Quanto mais longe correr, maior será o bônus
+10536	+{0} MILE a cada 10 HIT
+10537	+{0} MILE a cada 10 inimigos comuns derrotados
+10539	+{0} MILE a cada 1km
+10540	+{0} MILE a cada 30s
+10541	EXP +{0} a cada 10 HIT
+10542	EXP +{0} a cada 10 inimigos comuns derrotados
+10544	EXP +{0} a cada 1km
+10545	EXP +{0} a cada 30s
+10546	Chance de inimigos de alto dano +{0}%
+10547	Inimigos aéreos +{0}% / grupos com voadores ×{1}
+10548	Eventos de decisão a partir de {0}km / intervalo ×{1}
+10549	Dano recebido de chefes +{0}%
+10550	Derrotas durante sequência de 10+ HIT: MILE/EXP +{0}%
+10551	A cada 1km sem dano: +{0} MILE, EXP +{1}
+10552	Ao derrotar chefe, por inimigo: +{0} MILE, EXP +{1} (até 100)
+10553	MILE/EXP +{0}% a cada 10km (máx. +{1}% em 100km)
+10554	EXP por derrotar chefes
+10555	Alcance {1}m em {0} e retorne
+10556	Desbloquear a Masmorra Final
+10460	COMUM
+10461	TERRAS SELVAGENS
+10462	CAVERNA
+10463	CÉU
+10464	MASMORRA FINAL
+10465	Elemento
+10466	Mapa
+10467	Ordem de desbloqueio
+10468	Bloqueadas: {0}
+10469	Nenhuma carta corresponde a estes filtros

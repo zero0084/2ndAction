@@ -1,0 +1,291 @@
+lang	id	ja	text
+en	10460	共通	COMMON
+en	10461	荒野	WILDERNESS
+en	10462	洞窟	CAVE
+en	10463	天空	SKY
+en	10464	ラスダン	LAST DUNGEON
+en	10465	属性	Element
+en	10466	マップ	Map
+en	10467	解放順	Unlock order
+en	10468	未解放 {0}	Locked: {0}
+en	10469	この条件のカードはありません	No cards match these filters
+zh-Hans	10460	共通	通用
+zh-Hans	10461	荒野	荒野
+zh-Hans	10462	洞窟	洞窟
+zh-Hans	10463	天空	天空
+zh-Hans	10464	ラスダン	最终迷宫
+zh-Hans	10465	属性	属性
+zh-Hans	10466	マップ	地图
+zh-Hans	10467	解放順	解锁顺序
+zh-Hans	10468	未解放 {0}	未解锁 {0}
+zh-Hans	10469	この条件のカードはありません	没有符合条件的卡牌
+zh-Hant	10460	共通	通用
+zh-Hant	10461	荒野	荒野
+zh-Hant	10462	洞窟	洞窟
+zh-Hant	10463	天空	天空
+zh-Hant	10464	ラスダン	最終迷宮
+zh-Hant	10465	属性	屬性
+zh-Hant	10466	マップ	地圖
+zh-Hant	10467	解放順	解鎖順序
+zh-Hant	10468	未解放 {0}	未解鎖 {0}
+zh-Hant	10469	この条件のカードはありません	沒有符合條件的卡牌
+ko	10460	共通	공통
+ko	10461	荒野	황야
+ko	10462	洞窟	동굴
+ko	10463	天空	천공
+ko	10464	ラスダン	라스트 던전
+ko	10465	属性	속성
+ko	10466	マップ	맵
+ko	10467	解放順	해금순
+ko	10468	未解放 {0}	미해금 {0}
+ko	10469	この条件のカードはありません	조건에 맞는 카드가 없습니다
+id	10460	共通	UMUM
+id	10461	荒野	TANDUS
+id	10462	洞窟	GUA
+id	10463	天空	LANGIT
+id	10464	ラスダン	DUNGEON AKHIR
+id	10465	属性	Elemen
+id	10466	マップ	Peta
+id	10467	解放順	Urutan buka
+id	10468	未解放 {0}	Terkunci: {0}
+id	10469	この条件のカードはありません	Tidak ada kartu yang cocok
+ms	10460	共通	UMUM
+ms	10461	荒野	GERSANG
+ms	10462	洞窟	GUA
+ms	10463	天空	LANGIT
+ms	10464	ラスダン	DUNGEON AKHIR
+ms	10465	属性	Elemen
+ms	10466	マップ	Peta
+ms	10467	解放順	Urutan buka kunci
+ms	10468	未解放 {0}	Terkunci: {0}
+ms	10469	この条件のカードはありません	Tiada kad yang sepadan
+vi	10460	共通	CHUNG
+vi	10461	荒野	HOANG ĐỊA
+vi	10462	洞窟	HANG ĐỘNG
+vi	10463	天空	BẦU TRỜI
+vi	10464	ラスダン	HẦM NGỤC CUỐI
+vi	10465	属性	Nguyên tố
+vi	10466	マップ	Bản đồ
+vi	10467	解放順	Thứ tự mở khóa
+vi	10468	未解放 {0}	Chưa mở: {0}
+vi	10469	この条件のカードはありません	Không có thẻ nào phù hợp
+th	10460	共通	ทั่วไป
+th	10461	荒野	แดนรกร้าง
+th	10462	洞窟	ถ้ำ
+th	10463	天空	ฟ้า
+th	10464	ラスダン	ดันเจี้ยนสุดท้าย
+th	10465	属性	ธาตุ
+th	10466	マップ	แผนที่
+th	10467	解放順	ลำดับปลดล็อก
+th	10468	未解放 {0}	ยังล็อก {0}
+th	10469	この条件のカードはありません	ไม่มีการ์ดที่ตรงเงื่อนไข
+fil	10460	共通	KARANIWAN
+fil	10461	荒野	ILANG
+fil	10462	洞窟	KUWEBA
+fil	10463	天空	LANGIT
+fil	10464	ラスダン	HULING DUNGEON
+fil	10465	属性	Elemento
+fil	10466	マップ	Mapa
+fil	10467	解放順	Ayos ng pag-unlock
+fil	10468	未解放 {0}	Naka-lock: {0}
+fil	10469	この条件のカードはありません	Walang kard na tugma
+my	10460	共通	အထွေထွေ
+my	10461	荒野	မြေရိုင်း
+my	10462	洞窟	ဂူ
+my	10463	天空	ကောင်းကင်
+my	10464	ラスダン	နောက်ဆုံးဒန်ဂျွန်
+my	10465	属性	ဓာတ်
+my	10466	マップ	မြေပုံ
+my	10467	解放順	ဖွင့်သည့်အစဉ်
+my	10468	未解放 {0}	မဖွင့်ရသေး {0}
+my	10469	この条件のカードはありません	ကိုက်ညီသောကတ် မရှိပါ
+km	10460	共通	ទូទៅ
+km	10461	荒野	វាលរហោស្ថាន
+km	10462	洞窟	រូងភ្នំ
+km	10463	天空	មេឃ
+km	10464	ラスダン	ឌុងហ្គឺនចុងក្រោយ
+km	10465	属性	ធាតុ
+km	10466	マップ	ផែនទី
+km	10467	解放順	លំដាប់ដោះសោ
+km	10468	未解放 {0}	មិនទាន់ដោះសោ {0}
+km	10469	この条件のカードはありません	គ្មានកាតត្រូវលក្ខខណ្ឌ
+lo	10460	共通	ທົ່ວໄປ
+lo	10461	荒野	ທົ່ງຮ້າງ
+lo	10462	洞窟	ຖ້ຳ
+lo	10463	天空	ທ້ອງຟ້າ
+lo	10464	ラスダン	ດັນເຈີນສຸດທ້າຍ
+lo	10465	属性	ທາດ
+lo	10466	マップ	ແຜນທີ່
+lo	10467	解放順	ລຳດັບປົດລັອກ
+lo	10468	未解放 {0}	ຍັງລັອກ {0}
+lo	10469	この条件のカードはありません	ບໍ່ມີບັດທີ່ກົງເງື່ອນໄຂ
+hi	10460	共通	सामान्य
+hi	10461	荒野	बंजर
+hi	10462	洞窟	गुफा
+hi	10463	天空	आकाश
+hi	10464	ラスダン	अंतिम कालकोठरी
+hi	10465	属性	तत्व
+hi	10466	マップ	नक्शा
+hi	10467	解放順	अनलॉक क्रम
+hi	10468	未解放 {0}	लॉक: {0}
+hi	10469	この条件のカードはありません	इन फ़िल्टरों से मेल खाता कोई कार्ड नहीं
+bn	10460	共通	সাধারণ
+bn	10461	荒野	বিরান
+bn	10462	洞窟	গুহা
+bn	10463	天空	আকাশ
+bn	10464	ラスダン	শেষ ডানজন
+bn	10465	属性	উপাদান
+bn	10466	マップ	মানচিত্র
+bn	10467	解放順	আনলকের ক্রম
+bn	10468	未解放 {0}	লক: {0}
+bn	10469	この条件のカードはありません	মিলে যাওয়া কোনো কার্ড নেই
+ta	10460	共通	பொது
+ta	10461	荒野	பாழ்நிலம்
+ta	10462	洞窟	குகை
+ta	10463	天空	வானம்
+ta	10464	ラスダン	இறுதி நிலவறை
+ta	10465	属性	தனிமம்
+ta	10466	マップ	வரைபடம்
+ta	10467	解放順	திறப்பு வரிசை
+ta	10468	未解放 {0}	பூட்டியவை: {0}
+ta	10469	この条件のカードはありません	பொருந்தும் அட்டைகள் இல்லை
+fr	10460	共通	COMMUN
+fr	10461	荒野	LANDES
+fr	10462	洞窟	GROTTE
+fr	10463	天空	CIEL
+fr	10464	ラスダン	DONJON FINAL
+fr	10465	属性	Élément
+fr	10466	マップ	Carte
+fr	10467	解放順	Ordre de déblocage
+fr	10468	未解放 {0}	Verrouillées : {0}
+fr	10469	この条件のカードはありません	Aucune carte ne correspond
+de	10460	共通	ALLGEMEIN
+de	10461	荒野	ÖDLAND
+de	10462	洞窟	HÖHLE
+de	10463	天空	HIMMEL
+de	10464	ラスダン	LETZTER DUNGEON
+de	10465	属性	Element
+de	10466	マップ	Karte
+de	10467	解放順	Freischaltreihenfolge
+de	10468	未解放 {0}	Gesperrt: {0}
+de	10469	この条件のカードはありません	Keine passenden Karten
+es	10460	共通	COMÚN
+es	10461	荒野	PÁRAMO
+es	10462	洞窟	CUEVA
+es	10463	天空	CIELO
+es	10464	ラスダン	MAZMORRA FINAL
+es	10465	属性	Elemento
+es	10466	マップ	Mapa
+es	10467	解放順	Orden de desbloqueo
+es	10468	未解放 {0}	Bloqueadas: {0}
+es	10469	この条件のカードはありません	Ninguna carta coincide
+pt-BR	10460	共通	COMUM
+pt-BR	10461	荒野	ERMO
+pt-BR	10462	洞窟	CAVERNA
+pt-BR	10463	天空	CÉU
+pt-BR	10464	ラスダン	MASMORRA FINAL
+pt-BR	10465	属性	Elemento
+pt-BR	10466	マップ	Mapa
+pt-BR	10467	解放順	Ordem de desbloqueio
+pt-BR	10468	未解放 {0}	Bloqueadas: {0}
+pt-BR	10469	この条件のカードはありません	Nenhuma carta corresponde
+it	10460	共通	COMUNI
+it	10461	荒野	DESOLATA
+it	10462	洞窟	CAVERNA
+it	10463	天空	CIELO
+it	10464	ラスダン	DUNGEON FINALE
+it	10465	属性	Elemento
+it	10466	マップ	Mappa
+it	10467	解放順	Ordine di sblocco
+it	10468	未解放 {0}	Bloccate: {0}
+it	10469	この条件のカードはありません	Nessuna carta corrisponde
+pl	10460	共通	WSPÓLNE
+pl	10461	荒野	PUSTKOWIE
+pl	10462	洞窟	JASKINIA
+pl	10463	天空	NIEBO
+pl	10464	ラスダン	OSTATNI LOCH
+pl	10465	属性	Żywioł
+pl	10466	マップ	Mapa
+pl	10467	解放順	Kolejność odblokowania
+pl	10468	未解放 {0}	Zablokowane: {0}
+pl	10469	この条件のカードはありません	Brak pasujących kart
+uk	10460	共通	СПІЛЬНІ
+uk	10461	荒野	ПУСТКИ
+uk	10462	洞窟	ПЕЧЕРА
+uk	10463	天空	НЕБО
+uk	10464	ラスダン	ОСТАННЄ ПІДЗЕМЕЛЛЯ
+uk	10465	属性	Стихія
+uk	10466	マップ	Мапа
+uk	10467	解放順	Порядок розблокування
+uk	10468	未解放 {0}	Заблоковано: {0}
+uk	10469	この条件のカードはありません	Немає відповідних карт
+ru	10460	共通	ОБЩИЕ
+ru	10461	荒野	ПУСТОШИ
+ru	10462	洞窟	ПЕЩЕРА
+ru	10463	天空	НЕБО
+ru	10464	ラスダン	ПОСЛЕДНЕЕ ПОДЗЕМЕЛЬЕ
+ru	10465	属性	Стихия
+ru	10466	マップ	Карта
+ru	10467	解放順	Порядок разблокировки
+ru	10468	未解放 {0}	Заблокировано: {0}
+ru	10469	この条件のカードはありません	Нет подходящих карт
+tr	10460	共通	ORTAK
+tr	10461	荒野	ÇORAK
+tr	10462	洞窟	MAĞARA
+tr	10463	天空	GÖK
+tr	10464	ラスダン	SON ZİNDAN
+tr	10465	属性	Element
+tr	10466	マップ	Harita
+tr	10467	解放順	Kilit açma sırası
+tr	10468	未解放 {0}	Kilitli: {0}
+tr	10469	この条件のカードはありません	Eşleşen kart yok
+cs	10460	共通	SPOLEČNÉ
+cs	10461	荒野	PUSTINA
+cs	10462	洞窟	JESKYNĚ
+cs	10463	天空	NEBE
+cs	10464	ラスダン	POSLEDNÍ KOBKA
+cs	10465	属性	Živel
+cs	10466	マップ	Mapa
+cs	10467	解放順	Pořadí odemčení
+cs	10468	未解放 {0}	Zamčeno: {0}
+cs	10469	この条件のカードはありません	Žádné odpovídající karty
+ro	10460	共通	COMUNE
+ro	10461	荒野	PUSTIU
+ro	10462	洞窟	PEȘTERĂ
+ro	10463	天空	CER
+ro	10464	ラスダン	TEMNIȚA FINALĂ
+ro	10465	属性	Element
+ro	10466	マップ	Hartă
+ro	10467	解放順	Ordinea deblocării
+ro	10468	未解放 {0}	Blocate: {0}
+ro	10469	この条件のカードはありません	Nicio carte nu se potrivește
+ar	10460	共通	عام
+ar	10461	荒野	البراري
+ar	10462	洞窟	الكهف
+ar	10463	天空	السماء
+ar	10464	ラスダン	الزنزانة الأخيرة
+ar	10465	属性	العنصر
+ar	10466	マップ	الخريطة
+ar	10467	解放順	ترتيب الفتح
+ar	10468	未解放 {0}	مقفلة: {0}
+ar	10469	この条件のカードはありません	لا توجد بطاقات مطابقة
+fa	10460	共通	عمومی
+fa	10461	荒野	بیابان
+fa	10462	洞窟	غار
+fa	10463	天空	آسمان
+fa	10464	ラスダン	سیاه‌چال آخر
+fa	10465	属性	عنصر
+fa	10466	マップ	نقشه
+fa	10467	解放順	ترتیب باز شدن
+fa	10468	未解放 {0}	قفل: {0}
+fa	10469	この条件のカードはありません	کارتی مطابق نیست
+sw	10460	共通	ZA KAWAIDA
+sw	10461	荒野	NYIKA
+sw	10462	洞窟	PANGO
+sw	10463	天空	ANGA
+sw	10464	ラスダン	SHIMO LA MWISHO
+sw	10465	属性	Elementi
+sw	10466	マップ	Ramani
+sw	10467	解放順	Mpangilio wa kufungua
+sw	10468	未解放 {0}	Imefungwa: {0}
+sw	10469	この条件のカードはありません	Hakuna kadi zinazolingana

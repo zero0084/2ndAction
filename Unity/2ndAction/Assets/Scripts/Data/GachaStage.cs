@@ -37,10 +37,17 @@ public static class GachaStage
     // unlockDistance/gachaStage are both satisfied - never removed from
     // the pool once unlocked, regardless of how far the stage grows past
     // it ("旧Cardを排出Poolから削除しないでください").
+    // 2026-11-06: マップ分類のカードは、そのマップでの到達(CardMapUnlock)も要る。共通のカードは今までどおり
     public static bool IsCardEligible(CardDefinition card, float bestDistance, int currentStage)
     {
         if (DevAllCardsOpen) return true; // 開発版: 全カード開放(2026-10-02)
-        return bestDistance >= card.unlockDistance && currentStage >= card.gachaStage;
+        return IsCardEligibleByDistance(card, bestDistance, currentStage) && CardMapUnlock.MapGateOpen(card);
+    }
+
+    // 今までの条件だけ(BEST の距離とガチャの段階)。初期デッキ(DefaultSave.StartingDeck)と既存データの解禁の引き継ぎが使う
+    public static bool IsCardEligibleByDistance(CardDefinition card, float bestDistance, int currentStage)
+    {
+        return card != null && bestDistance >= card.unlockDistance && currentStage >= card.gachaStage;
     }
 
     // 開発版だけ: 距離/ガチャ段階に関係なく全カードを「解放済み」にする(ガチャの候補・解放済みカードの一覧)。製品版では常にfalse

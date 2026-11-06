@@ -198,11 +198,15 @@ public static class DefaultSave
     }
 
     // 初期デッキ(=初期所持カード)。解放済みのカードの先頭から capacity 枚
+    // 2026-11-06: マップ分類(CardMapUnlock)では変えない = 今までの条件(BEST の距離とガチャの段階)で選ぶ。新規データは BEST 0m
     public static System.Collections.Generic.List<string> StartingDeck(int capacity)
     {
         var list = new System.Collections.Generic.List<string>();
-        foreach (CardDefinition card in CardDatabase.UnlockedCards)
+        float best = GameManager.Instance != null ? GameManager.Instance.BestDistance : 0f;
+        int stage = GachaStage.StageForDistance(best);
+        foreach (CardDefinition card in CardDatabase.AllCards)
         {
+            if (!GachaStage.DevAllCardsOpen && !GachaStage.IsCardEligibleByDistance(card, best, stage)) continue;
             if (list.Count >= capacity) break;
             list.Add(card.cardId);
         }

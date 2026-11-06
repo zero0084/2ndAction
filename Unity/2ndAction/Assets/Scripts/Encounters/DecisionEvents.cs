@@ -57,6 +57,7 @@ public class DecisionEvents : MonoBehaviour
         DontDestroyOnLoad(go);
         Instance = go.AddComponent<DecisionEvents>();
         EncounterDirector.Spawned += Instance.OnDirectorSpawned;
+        EncounterDirector.SpawnedPair += Instance.OnDirectorSpawnedPair; // 2026-11-06 DANGER BOUNTY: 上下ルートの組にも(カードの分だけ)
         EnemySpecialBehavior.AirThreat += OnAirThreat;
     }
 
@@ -70,7 +71,8 @@ public class DecisionEvents : MonoBehaviour
             return IsLastCorridor && T.lastCorridor; // 2026-11-05: ラスダンも控えめに(空中雑魚と一緒に)
         }
     }
-    public static bool InRange(float d) => d >= T.fromKm * 1000f && d < T.untilKm * 1000f;
+    // 2026-11-06 CROSSROADS(カード): 始まる距離を早める(CardRewards.DecisionFromKm。カードが無ければ T.fromKm のまま)
+    public static bool InRange(float d) => d >= CardRewards.DecisionFromKm(T.fromKm) * 1000f && d < T.untilKm * 1000f;
     static bool IsLastCorridor { get { var gm = GameManager.Instance; return gm != null && gm.HasStarted && gm.ActiveRunStageId == "last_corridor" && !ArenaMode.Active && !TutorialMode.Active; } }
     static DecisionEventTuning.Band BandNow(float km) { var gm = GameManager.Instance; return T.BandFor(gm != null ? gm.ActiveRunStageId : "", km); }
     // RoadEvents の 5km の区間の予定はこの距離まで(この先はここで選ぶ)
@@ -107,7 +109,7 @@ public class DecisionEvents : MonoBehaviour
         var pc = PlayerController.Instance;
         float speed = pc != null ? Mathf.Max(5f, pc.CurrentAutoRunSpeed) : 25f;
         float fastT = T.FastT(speed); // 2026-11-05: 高速域では候補の間隔・関門の手前・ボスの後を短く(実時間の頻度を保つ)
-        float gapMul = Mathf.Lerp(1f, T.fastGapMul, fastT);
+        float gapMul = Mathf.Lerp(1f, T.fastGapMul, fastT) * CardRewards.DecisionGapMul; // 2026-11-06 CROSSROADS: 候補の間隔を短く
         if (nextCandidateAt < 0f) { nextCandidateAt = Time.time + Range(band.gapSeconds) * 0.5f * gapMul; return; } // 50km に入ってすぐは少し待つ
         // 今までの道中イベント(乱入/ラッシュ等)が終わった時: 最低 afterLegacySeconds は空ける
         bool legacyNow = RoadEvents.Active != RoadEventKind.None && Running == RoadEventKind.None;
@@ -250,7 +252,7 @@ public class DecisionEvents : MonoBehaviour
     void FinishLater(DecisionEventTuning.Band b, float extra)
     {
         var pcF = PlayerController.Instance;
-        float gapMulF = Mathf.Lerp(1f, T.fastGapMul, T.FastT(pcF != null ? pcF.CurrentAutoRunSpeed : 0f));
+        float gapMulF = Mathf.Lerp(1f, T.fastGapMul, T.FastT(pcF != null ? pcF.CurrentAutoRunSpeed : 0f)) * CardRewards.DecisionGapMul; // 2026-11-06 CROSSROADS
         nextCandidateAt = Time.time + Mathf.Max(b.restAfterSeconds * gapMulF, Range(b.gapSeconds) * gapMulF) + extra;
         restUntil = Time.time + b.restAfterSeconds * gapMulF + extra;
     }
@@ -783,8 +785,9 @@ public class DecisionEvents : MonoBehaviour
     {
         if (!Usable || list == null) return;
         var gm = GameManager.Instance;
-        if (gm == null || !InRange(gm.MaxDistance)) return;
-        float chance = BandNow(gm.MaxDistance / 1000f).heavyHitterInNormal;
+        if (gm == null) return;
+        // 2026-11-06 DANGER BOUNTY(カード): どの距離でも高火力敵になる確率を足す(50km 以降は帯の確率に足す)
+        float chance = (InRange(gm.MaxDistance) ? BandNow(gm.MaxDistance / 1000f).heavyHitterInNormal : 0f) + CardRewards.HeavyChanceBonus;
         if (chance <= 0f) return;
         foreach (var m in list)
         {
@@ -795,6 +798,19 @@ public class DecisionEvents : MonoBehaviour
         }
     }
     public static int HeavyInNormal;
+
+    // 上下ルートの組(荒野街道の分岐): 今までは高火力敵を混ぜていない。DANGER BOUNTY(カード)の確率だけを足す
+    void OnDirectorSpawnedPair(EncounterDirector.Record rec, EncounterFormation f, List<(GameObject go, EnemyDefinition def, EncounterSlotKind slot)> list)
+    {
+        if (!Usable || list == null) return;
+        float chance = CardRewards.HeavyChanceBonus;
+        if (chance <= 0f) return;
+        foreach (var m in list)
+        {
+            if (m.go == null || m.def == null || !IsGroundNormal(m.def)) continue;
+            if (R01() < chance) { DecisionEnemy.Attach(m.go, DecisionRole.Heavy); HeavyInNormal++; }
+        }
+    }
 
     // ---- 予兆(QA の人の操作が読む) ----
     public static bool CueFromAir { get; private set; } // 今の予兆が空中雑魚(急降下/横切り)の物か(QA の人の操作: オートの回避は止めない)

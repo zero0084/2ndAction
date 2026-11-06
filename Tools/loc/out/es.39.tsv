@@ -1,0 +1,47 @@
+10518	Cada vez que tu racha de golpes (contador «N HIT») llegue a un múltiplo de 10, obtienes +1 MILE (+1 por Lv). Se repite a los 20, 30, etc. (hasta 100 HIT por racha)
+10519	Obtienes +1 MILE (+1 por Lv) por cada 10 enemigos normales derrotados. Los jefes no cuentan
+10520	MILE por derrotar jefes +12% por Lv
+10521	Obtienes +2 MILE (+2 por Lv) por cada 1km recorrido. No cuentan los tramos saltados con Salida rápida o CONTINUE
+10522	Obtienes +1 MILE (+1 por Lv) por cada 30s que sobrevivas en una carrera. No cuentan la selección de cartas ni las pausas
+10523	Cada vez que tu racha de golpes alcance un múltiplo de 10, obtienes EXP +20 (+20 por Lv). Hasta 100 HIT por racha
+10524	Obtienes EXP +30 (+30 por Lv) por cada 10 enemigos normales derrotados. Los jefes no cuentan
+10525	EXP por derrotar jefes +15% por Lv
+10526	Obtienes EXP +100 (+100 por Lv) por cada 1km recorrido. No cuentan los tramos saltados con Salida rápida o CONTINUE
+10527	Obtienes EXP +30 (+30 por Lv) por cada 30s que sobrevivas en una carrera. No cuentan la selección de cartas ni las pausas
+10528	Algunos enemigos se vuelven enemigos de gran daño (aura magenta, +1 corazón de daño): +3% por Lv, máx. 30%, desde 0km. A cambio: MILE por enemigos/BONUS +15% por Lv, EXP por derrotas +10% por Lv. Solo cambia enemigos en partidas individuales de mapas normales
+10529	Los enemigos aéreos (en picado, que cruzan, etc.) ocupan más espacios aéreos (+5% por Lv) y aparecen más grupos con enemigos voladores (+10% por Lv). A cambio: EXP por derrotas +15% por Lv, MILE por enemigos/BONUS +8% por Lv
+10530	Los eventos de decisión del camino (avisos de carril, bloqueos, enemigos de gran daño, etc.) empiezan antes (normalmente a 50km; 4km antes por Lv, mínimo 10km) y ocurren más seguido (intervalo -5% por Lv, máx. -50%). A cambio: MILE por enemigos/BONUS +12% por Lv, EXP obtenida +8% por Lv. Solo en partidas individuales de mapas normales
+10531	Daño recibido de jefes +10% por Lv (en corazones; una fracción puede añadir 1 corazón). A cambio: MILE por derrotar jefes +35% por Lv, EXP por derrotar jefes +15% por Lv
+10532	Los enemigos normales derrotados durante una racha de al menos 10 HIT dan más MILE y EXP por derrota (+15% por Lv). Mantén la racha mientras derrotas enemigos
+10533	Por cada 1km sin recibir daño, obtienes +3 MILE y EXP +150 (aumenta por Lv). Recibir daño reinicia el contador; bloquear con Shield no
+10534	Al derrotar a un jefe, obtienes +0.2 MILE y EXP +3 por cada enemigo normal derrotado desde el jefe anterior (aumenta por Lv, máx. 100 enemigos). Elimina enemigos antes de enfrentarte al jefe
+10535	Cada 10km, MILE por enemigos/jefes/BONUS y EXP obtenida aumentan +2% por Lv (máximo a 100km; +20% en Lv1). Cuanto más lejos llegues, mayor será el aumento
+10536	+{0} MILE cada 10 HIT
+10537	+{0} MILE por 10 enemigos normales derrotados
+10539	+{0} MILE cada 1km
+10540	+{0} MILE cada 30s
+10541	EXP +{0} cada 10 HIT
+10542	EXP +{0} por 10 enemigos normales derrotados
+10544	EXP +{0} cada 1km
+10545	EXP +{0} cada 30s
+10546	Prob. de enemigos de gran daño +{0}%
+10547	Enemigos aéreos +{0}% / grupos voladores ×{1}
+10548	Eventos de decisión desde {0}km / intervalo ×{1}
+10549	Daño recibido de jefes +{0}%
+10550	Derrotas con racha de 10+ HIT: MILE/EXP +{0}%
+10551	Cada 1km sin daño: +{0} MILE, EXP +{1}
+10552	Al derrotar jefe, por enemigo: +{0} MILE, EXP +{1} (máx. 100)
+10553	MILE/EXP +{0}% cada 10km (máx. +{1}% a 100km)
+10554	EXP por derrotar jefes
+10555	Alcanza {1}m en {0} y regresa
+10556	Desbloquear la última mazmorra
+10460	COMÚN
+10461	TIERRAS SALVAJES
+10462	CUEVA
+10463	CIELO
+10464	ÚLTIMA MAZMORRA
+10465	Elemento
+10466	Mapa
+10467	Orden de desbloqueo
+10468	Bloqueadas: {0}
+10469	Ninguna carta coincide con estos filtros

@@ -88,16 +88,17 @@ public partial class DeckEditUI
             if (c != null && c.gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(c.rect, p, null)) { index = i; return PressKind.Deck; }
         }
         if (ownedScrollRect != null && RectTransformUtility.RectangleContainsScreenPoint(ownedScrollRect.viewport, p, null))
-            for (int i = 0; i < ownedCards.Length && i < displayedStacks.Count; i++)
+            for (int i = 0; i < ownedCards.Length; i++)
             {
                 var c = ownedCards[i];
-                if (c != null && c.gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(c.rect, p, null)) { index = i; return PressKind.Owned; }
+                int d = OwnedDataOfSlot(i); // 2026-11-06: 枠 i が見せている束(仮想スクロール)。押した物は束の番号で持つ
+                if (d >= 0 && c != null && c.gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(c.rect, p, null)) { index = d; return PressKind.Owned; }
             }
         return PressKind.None;
     }
 
     RewardCardUI CardOf(PressKind k, int i) =>
-        k == PressKind.Owned ? (i >= 0 && i < ownedCards.Length ? ownedCards[i] : null) :
+        k == PressKind.Owned ? OwnedCardFor(i) :
         k == PressKind.Deck ? (i >= 0 && i < deckSlotCards.Length ? deckSlotCards[i] : null) :
         k == PressKind.Char ? (i >= 0 && i < characterSlotCards.Length ? characterSlotCards[i] : null) : null;
 
@@ -379,7 +380,8 @@ public partial class DeckEditUI
     static Vector2 ScreenCenter(RectTransform r) => r == null ? Vector2.zero : RectTransformUtility.WorldToScreenPoint(null, r.TransformPoint(r.rect.center));
     public Vector2 DebugDeckSlotPos(int i) => i >= 0 && i < deckSlotCards.Length ? ScreenCenter(deckSlotCards[i].rect) : Vector2.zero;
     public Vector2 DebugCharSlotPos(int i) => i >= 0 && i < characterSlotCards.Length ? ScreenCenter(characterSlotCards[i].rect) : Vector2.zero;
-    public Vector2 DebugOwnedPos(int i) => i >= 0 && i < ownedCards.Length ? ScreenCenter(ownedCards[i].rect) : Vector2.zero;
+    // 2026-11-06: 仮想スクロールなので、見える位置へ動かしてから枠の位置を返す
+    public Vector2 DebugOwnedPos(int i) { var c = DebugOwnedCardAt(i); return c != null ? ScreenCenter(c.rect) : Vector2.zero; }
     public Vector2 DebugOwnedAreaPos => ownedScrollRect != null ? ScreenCenter(ownedScrollRect.viewport) : Vector2.zero;
     public Vector2 DebugDeckAreaPos => panelDeck != null ? ScreenCenter(panelDeck) : Vector2.zero;
     public int DebugOwnedIndex(string key) { for (int i = 0; i < displayedStacks.Count; i++) if (displayedStacks[i].cardId == key) return i; return -1; }
@@ -407,24 +409,25 @@ public partial class DeckEditUI
     public void DebugLongPress(bool fromDeck, bool fromChar, int index) => OpenBigDetailFor(fromChar ? PressKind.Char : fromDeck ? PressKind.Deck : PressKind.Owned, index);
     // -qaDeckTap(2026-11-04): 指を離した時のタップと同じ処理(UpdatePointer の HandleTap)/一覧の位置/見えないカードが重なっているか
     public void DebugTapAt(Vector2 p) => HandleTap(p);
-    public void DebugSetOwnedScroll(float normalized) { if (ownedScrollRect != null) { ownedScrollRect.verticalNormalizedPosition = Mathf.Clamp01(normalized); Canvas.ForceUpdateCanvases(); } }
+    public void DebugSetOwnedScroll(float normalized) { if (ownedScrollRect != null) { ownedScrollRect.verticalNormalizedPosition = Mathf.Clamp01(normalized); Canvas.ForceUpdateCanvases(); UpdateVirtual(false); } }
     public bool DebugHiddenOwnedAt(Vector2 p)
     {
         if (InScrollView(ownedScrollRect, p)) return false;
-        for (int i = 0; i < ownedCards.Length && i < displayedStacks.Count; i++)
+        for (int i = 0; i < ownedCards.Length; i++)
         {
             var c = ownedCards[i];
-            if (c != null && c.gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(c.rect, p, null)) return true;
+            if (OwnedDataOfSlot(i) >= 0 && c != null && c.gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(c.rect, p, null)) return true;
         }
         return false;
     }
-    public int DebugOwnedShown => Mathf.Min(ownedCards.Length, displayedStacks.Count);
+    public int DebugOwnedShown => displayedStacks.Count;
     public CardInventory.Stack DebugOwnedStack(int i) => i >= 0 && i < displayedStacks.Count ? displayedStacks[i] : null;
     public bool DebugOwnedFullyVisible(int i)
     {
-        if (i < 0 || i >= ownedCards.Length || ownedCards[i] == null || ownedScrollRect == null || !ownedCards[i].gameObject.activeInHierarchy) return false;
-        var c = new Vector3[4]; ownedCards[i].rect.GetWorldCorners(c);
-        foreach (var w in c) if (!InScrollView(ownedScrollRect, RectTransformUtility.WorldToScreenPoint(null, w) + (Vector2)(ScreenCenter(ownedCards[i].rect) - RectTransformUtility.WorldToScreenPoint(null, w)) * 0.05f)) return false;
+        var card = OwnedCardFor(i); // 動かさない(今の位置で見えているか)
+        if (card == null || ownedScrollRect == null || !card.gameObject.activeInHierarchy) return false;
+        var c = new Vector3[4]; card.rect.GetWorldCorners(c);
+        foreach (var w in c) if (!InScrollView(ownedScrollRect, RectTransformUtility.WorldToScreenPoint(null, w) + (Vector2)(ScreenCenter(card.rect) - RectTransformUtility.WorldToScreenPoint(null, w)) * 0.05f)) return false;
         return true;
     }
 #endif
@@ -442,6 +445,16 @@ public partial class DeckEditUI
             if (up) confirmDialog.HandleTap(screenPos);
             return;
         }
+        // 絞り込みの選択肢の窓(2026-11-06): 離した時に窓だけが受ける(外を押すと閉じる)。ドラッグ・長押しはしない
+        if (FilterPopupOpen)
+        {
+            if (gesture == Gesture.Drag) EndDrag();
+            if (down) { pointerActive = true; pointerDownScreenPos = screenPos; draggedPastThreshold = false; gesture = Gesture.Pending; pressKind = PressKind.None; return; }
+            if (!pointerActive) return;
+            if (held) { if (Vector2.Distance(screenPos, pointerDownScreenPos) > SlopPx) draggedPastThreshold = true; return; }
+            if (up) { pointerActive = false; if (!draggedPastThreshold) HandlePopupTap(pointerDownScreenPos); }
+            return;
+        }
         // 大きな詳細: 窓だけが受ける(中の説明は指でスクロールできる)
         if (BigDetailOpen)
         {
@@ -453,6 +466,19 @@ public partial class DeckEditUI
             return;
         }
 
+        // 一覧の右のスクロールバー(2026-11-06): 押したらその位置へ、押したまま動かすと追いかける
+        if (barDragging)
+        {
+            if (held || down) { ScrollOwnedFromBar(screenPos); return; }
+            barDragging = false; pointerActive = false; gesture = Gesture.Pending;
+            return;
+        }
+        if (down && OwnedScrollbarHit(screenPos))
+        {
+            barDragging = true; pointerActive = false; pressKind = PressKind.None;
+            ScrollOwnedFromBar(screenPos);
+            return;
+        }
         if (down)
         {
             pointerActive = true;

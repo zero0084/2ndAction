@@ -1,0 +1,47 @@
+10518	Jedes Mal, wenn deine Treffserie (Anzeige „N HIT“) ein Vielfaches von 10 erreicht, erhältst du +1 MILE (+1 pro Lv). Auch bei 20, 30 usw. (bis 100 HIT pro Serie)
+10519	Erhalte +1 MILE (+1 pro Lv) für je 10 besiegte normale Gegner. Bosse zählen nicht
+10520	MILE für besiegte Bosse +12% pro Lv
+10521	Erhalte +2 MILE (+2 pro Lv) für jeden gelaufenen km. Durch Sprintstart oder CONTINUE übersprungene Strecken zählen nicht
+10522	Erhalte +1 MILE (+1 pro Lv) für je 30s Überleben im Lauf. Kartenauswahl und Pausen zählen nicht
+10523	Bei jedem Vielfachen von 10 in deiner Treffserie erhältst du EXP +20 (+20 pro Lv). Bis 100 HIT pro Serie
+10524	Erhalte EXP +30 (+30 pro Lv) für je 10 besiegte normale Gegner. Bosse zählen nicht
+10525	EXP für besiegte Bosse +15% pro Lv
+10526	Erhalte EXP +100 (+100 pro Lv) für jeden gelaufenen km. Durch Sprintstart oder CONTINUE übersprungene Strecken zählen nicht
+10527	Erhalte EXP +30 (+30 pro Lv) für je 30s Überleben im Lauf. Kartenauswahl und Pausen zählen nicht
+10528	Einige Gegner werden zu besonders starken Gegnern (magenta Aura, +1 Herz Schaden): +3% pro Lv, max. 30%, ab 0km. Dafür: Gegner-/BONUS-MILE +15% pro Lv, EXP für besiegte Gegner +10% pro Lv. Gegner ändern sich nur solo auf normalen Karten
+10529	Fliegende Gegner (Sturzflieger, Querflieger usw.) belegen häufiger Luftplätze (+5% pro Lv). Gruppen mit fliegenden Gegnern erscheinen häufiger (+10% pro Lv). Dafür: EXP für besiegte Gegner +15% pro Lv, Gegner-/BONUS-MILE +8% pro Lv
+10530	Entscheidungsereignisse unterwegs (Spurwarnungen, Sperren, starke Gegner usw.) beginnen früher (normal 50km, 4km früher pro Lv, frühestens 10km) und treten häufiger auf (Abstand -5% pro Lv, max. -50%). Dafür: Gegner-/BONUS-MILE +12% pro Lv, erhaltene EXP +8% pro Lv. Nur solo auf normalen Karten
+10531	Schaden durch Bosse +10% pro Lv (in Herzen; Bruchteile können 1 zusätzliches Herz verursachen). Dafür: MILE für besiegte Bosse +35% pro Lv, EXP für besiegte Bosse +15% pro Lv
+10532	Normale Gegner, die während einer Treffserie von mindestens 10 HIT besiegt werden, geben mehr MILE und EXP (+15% pro Lv). Halte die Serie beim Besiegen aufrecht
+10533	Für jeden km ohne Schaden erhältst du +3 MILE und EXP +150 (steigt pro Lv). Schaden setzt den Zähler zurück, ein Block mit Shield nicht
+10534	Beim Besiegen eines Bosses erhältst du +0.2 MILE und EXP +3 je normalem Gegner seit dem vorherigen Boss (steigt pro Lv, max. 100 Gegner). Besiege vorher möglichst viele Gegner
+10535	Alle 10km steigen Gegner-/Boss-/BONUS-MILE und erhaltene EXP um +2% pro Lv (Maximum bei 100km; +20% auf Lv1). Je weiter du läufst, desto größer der Bonus
+10536	+{0} MILE je 10 HIT
+10537	+{0} MILE je 10 besiegte normale Gegner
+10539	+{0} MILE je 1km
+10540	+{0} MILE je 30s
+10541	EXP +{0} je 10 HIT
+10542	EXP +{0} je 10 besiegte normale Gegner
+10544	EXP +{0} je 1km
+10545	EXP +{0} je 30s
+10546	Chance auf besonders starke Gegner +{0}%
+10547	Fliegende Gegner +{0}% / Gruppen mit Fliegern ×{1}
+10548	Entscheidungsereignisse ab {0}km / Abstand ×{1}
+10549	Schaden durch Bosse +{0}%
+10550	Besiegte Gegner bei 10+ HIT: MILE/EXP +{0}%
+10551	Je 1km ohne Schaden: +{0} MILE, EXP +{1}
+10552	Bei Boss-Sieg je Gegner: +{0} MILE, EXP +{1} (max. 100)
+10553	MILE/EXP +{0}% je 10km (max. +{1}% bei 100km)
+10554	EXP für besiegte Bosse
+10555	Erreiche {1}m auf {0} und kehre zurück
+10556	Letzten Dungeon freischalten
+10460	ALLGEMEIN
+10461	WILDNIS
+10462	HÖHLE
+10463	HIMMEL
+10464	LETZTER DUNGEON
+10465	Element
+10466	Karte
+10467	Freischaltreihenfolge
+10468	Gesperrt: {0}
+10469	Keine Karten entsprechen diesen Filtern

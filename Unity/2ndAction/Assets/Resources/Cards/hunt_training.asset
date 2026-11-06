@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: hunt_training
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: hunt_training
+  cardName: HUNT TRAINING
+  icon: {fileID: 2800000, guid: 7e9a5663c6378a54e82247c2b9f74a8c, type: 3}
+  description: "\u96D1\u9B5A\u309210\u4F53\u5012\u3059\u305F\u3073\u306BEXP+30(1Lv\u3054\u3068\u306B+30)\u3002\u30DC\u30B9\u306F\u6570\u3048\u306A\u3044"
+  category: 3
+  sortOrder: 202
+  recommendPriority: 5
+  effects:
+  - type: 139
+    value: 1
+    scaling: 0
+  rarity: 1
+  unlockDistance: 0
+  gachaStage: 1
+  element: 0

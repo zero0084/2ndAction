@@ -1,0 +1,47 @@
+10518	Setiap kali rentetan pukulan anda (pengira "N HIT") mencapai gandaan 10, dapat +1 MILE (+1 setiap Lv). Ganjaran berulang pada 20, 30 dan seterusnya (hingga 100 HIT setiap rentetan)
+10519	Dapat +1 MILE (+1 setiap Lv) bagi setiap 10 musuh biasa yang ditewaskan. Bos tidak dikira
+10520	MILE kerana menewaskan bos +12% setiap Lv
+10521	Dapat +2 MILE (+2 setiap Lv) bagi setiap 1km berlari. Jarak yang dilangkau dengan Mula Pantas atau CONTINUE tidak dikira
+10522	Dapat +1 MILE (+1 setiap Lv) bagi setiap 30s bertahan dalam larian. Masa memilih kad dan jeda tidak dikira
+10523	Setiap kali rentetan pukulan mencapai gandaan 10, dapat EXP +20 (+20 setiap Lv). Hingga 100 HIT setiap rentetan
+10524	Dapat EXP +30 (+30 setiap Lv) bagi setiap 10 musuh biasa yang ditewaskan. Bos tidak dikira
+10525	EXP kerana menewaskan bos +15% setiap Lv
+10526	Dapat EXP +100 (+100 setiap Lv) bagi setiap 1km berlari. Jarak yang dilangkau dengan Mula Pantas atau CONTINUE tidak dikira
+10527	Dapat EXP +30 (+30 setiap Lv) bagi setiap 30s bertahan dalam larian. Masa memilih kad dan jeda tidak dikira
+10528	Sesetengah musuh menjadi musuh berkuasa serangan tinggi (aura magenta, +1 hati kerosakan): +3% setiap Lv, maks. 30%, dari 0km. Sebagai ganjaran: MILE daripada musuh/BONUS +15% setiap Lv, EXP daripada menewaskan musuh +10% setiap Lv. Musuh hanya berubah dalam larian solo di peta biasa
+10529	Musuh udara (menjunam, melintas dan sebagainya) lebih kerap memenuhi ruang udara (+5% setiap Lv), dan kumpulan dengan musuh terbang lebih kerap muncul (+10% setiap Lv). Sebagai ganjaran: EXP daripada menewaskan musuh +15% setiap Lv, MILE daripada musuh/BONUS +8% setiap Lv
+10530	Peristiwa keputusan di laluan (amaran lorong, sekatan, musuh berkuasa serangan tinggi dan sebagainya) bermula lebih awal (biasanya 50km; 4km lebih awal setiap Lv, paling awal 10km) dan lebih kerap berlaku (selang -5% setiap Lv, maks. -50%). Sebagai ganjaran: MILE daripada musuh/BONUS +12% setiap Lv, EXP diperoleh +8% setiap Lv. Peristiwa hanya berlaku dalam larian solo di peta biasa
+10531	Kerosakan diterima daripada bos +10% setiap Lv (dalam unit hati; pecahan mungkin menambah 1 hati kerosakan). Sebagai ganjaran: MILE kerana menewaskan bos +35% setiap Lv, EXP kerana menewaskan bos +15% setiap Lv
+10532	Musuh biasa yang ditewaskan semasa rentetan sekurang-kurangnya 10 HIT memberikan lebih banyak MILE dan EXP daripada tewaskan musuh (+15% setiap Lv). Terus tewaskan musuh tanpa memutuskan rentetan
+10533	Setiap 1km berlari tanpa menerima kerosakan memberi +3 MILE dan EXP +150 (meningkat setiap Lv). Menerima kerosakan menetapkan semula kiraan, tetapi sekatan dengan Shield tidak
+10534	Menewaskan bos memberikan +0.2 MILE dan EXP +3 bagi setiap musuh biasa yang ditewaskan sejak bos sebelumnya (meningkat setiap Lv, maks. 100 musuh). Tewaskan musuh sebelum menghadapi bos
+10535	Setiap 10km, MILE daripada musuh/bos/BONUS dan EXP diperoleh meningkat +2% setiap Lv (maksimum pada 100km; +20% pada Lv1). Semakin jauh berlari, semakin besar bonus
+10536	+{0} MILE setiap 10 HIT
+10537	+{0} MILE bagi 10 musuh biasa ditewaskan
+10539	+{0} MILE setiap 1km
+10540	+{0} MILE setiap 30s
+10541	EXP +{0} setiap 10 HIT
+10542	EXP +{0} bagi 10 musuh biasa ditewaskan
+10544	EXP +{0} setiap 1km
+10545	EXP +{0} setiap 30s
+10546	Peluang musuh menjadi penyerang kuat +{0}%
+10547	Musuh udara +{0}% / kumpulan terbang ×{1}
+10548	Peristiwa keputusan dari {0}km / selang ×{1}
+10549	Kerosakan diterima daripada bos +{0}%
+10550	Musuh ditewaskan semasa rentetan 10+ HIT: MILE/EXP +{0}%
+10551	Setiap 1km tanpa kerosakan: +{0} MILE, EXP +{1}
+10552	Apabila bos ditewaskan, setiap musuh: +{0} MILE, EXP +{1} (maks. 100)
+10553	MILE/EXP +{0}% setiap 10km (maks. +{1}% pada 100km)
+10554	EXP kerana menewaskan bos
+10555	Capai {1}m di {0} dan kembali
+10556	Buka Dungeon Terakhir
+10460	UMUM
+10461	BELANTARA
+10462	GUA
+10463	LANGIT
+10464	DUNGEON TERAKHIR
+10465	Elemen
+10466	Peta
+10467	Urutan buka kunci
+10468	Terkunci: {0}
+10469	Tiada kad sepadan dengan penapis ini

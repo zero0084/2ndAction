@@ -1,0 +1,165 @@
+[cl] card types 280 (fake 150), owned stacks 1064
+[ok] the test inventory has 250+ card types and 600+ stacks (280 types, 1064 stacks)
+[cl] window 1280x720
+[cl] warm-up: open breakdown pre 453 / refresh 217 (list 134, deck 12 / char 6 / count 58) / layout 142 / preset 0
+[cl] warm-up: opened after 1111 ms (transition incl.), list rebuild 133.6 ms (entries 46.3 ms), worst frame after opening 966.5 ms, entries 1064, slots 160
+[cl] ls: open breakdown pre 64 / refresh 79 (list 22, deck 2 / char 0 / count 54) / layout 7 / preset 0
+[cl] ls: opened after 446 ms (transition incl.), list rebuild 22.3 ms (entries 18.6 ms), worst frame after opening 150.0 ms, entries 1064, slots 160
+[ok] ls: no long hitch when opening the card edit screen (worst frame 150.0 ms, list rebuild 22.3 ms)
+[ok] ls A: 'ALL' lists every owned stack (1064/1064)
+[ok] ls A: card parts are only made for the visible rows (160 parts for 1064 entries)
+[ok] ls B: scrolled to the end, the last entry is fully visible (v2|qa_fake_150|3|5|qa_fake_150*3 ★5)
+[ok] ls B: the last entry in the default order is a ★5 (v2|qa_fake_150|3|5|qa_fake_150*3)
+[ok] ls B2: the scrollbar is shown and its thumb is at the bottom at the end (thumb 27 / track 446)
+[ok] ls B2: the scrollbar can be grabbed (a little wider than it looks)
+[ok] ls B2: dragging the thumb to the middle scrolls to the middle (0.50)
+[ok] ls B2: at the top the thumb is at the top (0.0)
+[cl] ls: map tab 97x32px, chooser 97x31px, list rows visible 1.93
+[ok] ls B: every owned ★5 (real and test) can be scrolled into view
+[ok] ls C: every entry was fully visible at some scroll position (1064/1064, rows 119, cols 9, slots 160, worst scroll step 59.2 ms)
+[ok] ls D: map filter all lists 1064 stacks (1064); tab 'すべて 277/280', locked kinds 3; count line '所持カード (1064)  MAX 130/280  AWAKENED 0/280'
+[ok] ls D: map filter common lists 317 stacks (317); tab '共通 73/73', locked kinds 0; count line '所持カード (317/1064)  MAX 130/280  AWAKENED 0/280'
+[ok] ls D: common: the last entry is visible at the end
+[ok] ls D: map filter wilderness lists 254 stacks (254); tab '荒野 62/62', locked kinds 0; count line '所持カード (254/1064)  MAX 130/280  AWAKENED 0/280'
+[ok] ls D: wilderness: the last entry is visible at the end
+[ok] ls D: map filter cave lists 215 stacks (215); tab '洞窟 55/55', locked kinds 0; count line '所持カード (215/1064)  MAX 130/280  AWAKENED 0/280'
+[ok] ls D: cave: the last entry is visible at the end
+[ok] ls D: map filter sky lists 199 stacks (199); tab '天空 55/55', locked kinds 0; count line '所持カード (199/1064)  MAX 130/280  AWAKENED 0/280'
+[ok] ls D: sky: the last entry is visible at the end
+[ok] ls D: map filter lastdungeon lists 79 stacks (79); tab 'ラスダン 32/35', locked kinds 3; count line '所持カード (79/1064)  MAX 130/280  AWAKENED 0/280  未解放 3'
+[ok] ls D: LAST DUNGEON counts the 3 test cards that are not unlocked yet (3)
+[ok] ls D: the count line says how many cards of lastdungeon are still locked
+[ok] ls D: lastdungeon: the last entry is visible at the end
+[ok] ls E: WILDERNESS + ★1 lists 0 (0)
+[ok] ls E: WILDERNESS + ★2 lists 103 (103)
+[ok] ls E: WILDERNESS + ★3 lists 74 (74)
+[ok] ls E: WILDERNESS + ★4 lists 75 (75)
+[ok] ls E: WILDERNESS + ★5 lists 2 (2)
+[ok] ls E: WILDERNESS + element Fire lists 40 (40)
+[ok] ls E: WILDERNESS + element Ice lists 10 (10)
+[ok] ls E: WILDERNESS + element Thunder lists 10 (10)
+[ok] ls E: WILDERNESS + element Wind lists 10 (10)
+[ok] ls E: WILDERNESS + element Blood lists 10 (10)
+[ok] ls E: WILDERNESS + element None lists 174 (174)
+[ok] ls E: WILDERNESS + category Attack lists 156 (156)
+[ok] ls E: an empty result shows the 'no cards match' message
+[ok] ls F: the rarity chooser opens
+[ok] ls F: picking ★4 closes it and filters (274)
+[ok] ls G: sort Standard asc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Standard desc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Rarity asc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Rarity desc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Level asc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Level desc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Element asc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Element desc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Name asc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Name desc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Owned asc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Owned desc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Map asc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Map desc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Unlock asc is in order (1064 entries, 0 out of order)
+[ok] ls G: sort Unlock desc is in order (1064 entries, 0 out of order)
+[ok] ls H: dragging from the WILDERNESS-filtered list puts the card in the deck (berserker, Owned->DeckSlot#0:Add)
+[ok] ls H: 12 cards added from the filtered list (12)
+[ok] ls H: all 12 deck slots stay on screen while the list is filtered
+[ok] ls H: dragging a deck card onto the filtered list removes it (Deck->OwnedArea#-1:Remove)
+[ok] ls H: and it can be added back from the list
+[ok] ls I: a long press on the last filtered entry opens its large detail (v2|qa_fake_147|3|5|qa_fake_147*3 Lv3)
+[ok] ls I2: the close button is on screen and not under the settings button (close (x:1084.00, y:634.00, width:48.00, height:48.00), gear (x:1204.80, y:646.80, width:61.20, height:61.20))
+[ok] ls I2: the close button closes the large detail
+[ok] ls I2: there is a background area outside the window ((x:140.00, y:30.00, width:1000.00, height:660.00))
+[ok] ls I2: tapping the background closes the large detail
+[ok] ls I2: the large detail does not open while a filter choice window is open
+[ok] ls J: dismantling one of two copies in the filtered list works (brake_attack 2->1, list 254->254)
+[ok] ls J: dismantling the last copy removes that entry (253)
+[cl] fusion list refresh 37.5 ms, visible rows 2, cells 20
+[ok] ls K: the fusion list refreshes quickly with 1064+ stacks (37.5 ms, cells 20)
+[ok] ls K: fusing two copies of speed_up makes a card (v2|speed_up|2|1|speed_up*2)
+[cl] ls after fusion: open breakdown pre 127 / refresh 117 (list 26, deck 4 / char 0 / count 87) / layout 21 / preset 0
+[cl] ls after fusion: opened after 566 ms (transition incl.), list rebuild 26.0 ms (entries 20.0 ms), worst frame after opening 266.7 ms, entries 1062, slots 160
+[FAIL] ls after fusion: no long hitch when opening the card edit screen (worst frame 266.7 ms, list rebuild 26.0 ms)
+[ok] ls K: the fused card is in the card edit list (v2|speed_up|2|1|speed_up*2)
+[ok] ls L: after saving and reloading, the deck and the 1062 stacks are unchanged
+[cl] window 576x1024
+[cl] pt first after rotating: open breakdown pre 57 / refresh 153 (list 40, deck 1 / char 1 / count 110) / layout 114 / preset 0
+[cl] pt first after rotating: opened after 612 ms (transition incl.), list rebuild 39.6 ms (entries 26.9 ms), worst frame after opening 366.6 ms, entries 1062, slots 160
+[cl] pt: open breakdown pre 48 / refresh 83 (list 25, deck 0 / char 0 / count 58) / layout 6 / preset 0
+[cl] pt: opened after 435 ms (transition incl.), list rebuild 24.7 ms (entries 21.9 ms), worst frame after opening 166.7 ms, entries 1062, slots 160
+[ok] pt: no long hitch when opening the card edit screen (worst frame 166.7 ms, list rebuild 24.7 ms)
+[ok] pt A: 'ALL' lists every owned stack (1062/1062)
+[ok] pt A: card parts are only made for the visible rows (160 parts for 1062 entries)
+[ok] pt B: scrolled to the end, the last entry is fully visible (v2|qa_fake_150|3|5|qa_fake_150*3 ★5)
+[ok] pt B: the last entry in the default order is a ★5 (v2|qa_fake_150|3|5|qa_fake_150*3)
+[ok] pt B2: the scrollbar is shown and its thumb is at the bottom at the end (thumb 37 / track 625)
+[ok] pt B2: the scrollbar can be grabbed (a little wider than it looks)
+[ok] pt B2: dragging the thumb to the middle scrolls to the middle (0.50)
+[ok] pt B2: at the top the thumb is at the top (0.0)
+[ok] pt B3: the list shows at least 2 card rows (2.15 rows, cols 5)
+[cl] pt: map tab 87x41px, chooser 81x35px, list rows visible 2.15
+[ok] pt B3: map tabs and the rarity/element/sort buttons are tall enough to tap (41/35px >= 35)
+[ok] pt B: every owned ★5 (real and test) can be scrolled into view
+[ok] pt D: map filter all lists 1062 stacks (1062); tab 'すべて 277/280', locked kinds 3; count line '所持カード (1062)  MAX 130/280  AWAKENED 0/280'
+[ok] pt D: map filter common lists 316 stacks (316); tab '共通 73/73', locked kinds 0; count line '所持カード (316/1062)  MAX 130/280  AWAKENED 0/280'
+[ok] pt D: common: the last entry is visible at the end
+[ok] pt D: map filter wilderness lists 253 stacks (253); tab '荒野 62/62', locked kinds 0; count line '所持カード (253/1062)  MAX 130/280  AWAKENED 0/280'
+[ok] pt D: wilderness: the last entry is visible at the end
+[ok] pt D: map filter cave lists 215 stacks (215); tab '洞窟 55/55', locked kinds 0; count line '所持カード (215/1062)  MAX 130/280  AWAKENED 0/280'
+[ok] pt D: cave: the last entry is visible at the end
+[ok] pt D: map filter sky lists 199 stacks (199); tab '天空 55/55', locked kinds 0; count line '所持カード (199/1062)  MAX 130/280  AWAKENED 0/280'
+[ok] pt D: sky: the last entry is visible at the end
+[ok] pt D: map filter lastdungeon lists 79 stacks (79); tab 'ラスダン 32/35', locked kinds 3; count line '所持カード (79/1062)  MAX 130/280  AWAKENED 0/280  未解放 3'
+[ok] pt D: LAST DUNGEON counts the 3 test cards that are not unlocked yet (3)
+[ok] pt D: the count line says how many cards of lastdungeon are still locked
+[ok] pt D: lastdungeon: the last entry is visible at the end
+[ok] pt E: WILDERNESS + ★1 lists 0 (0)
+[ok] pt E: WILDERNESS + ★2 lists 102 (102)
+[ok] pt E: WILDERNESS + ★3 lists 74 (74)
+[ok] pt E: WILDERNESS + ★4 lists 75 (75)
+[ok] pt E: WILDERNESS + ★5 lists 2 (2)
+[ok] pt E: WILDERNESS + element Fire lists 40 (40)
+[ok] pt E: WILDERNESS + element Ice lists 10 (10)
+[ok] pt E: WILDERNESS + element Thunder lists 10 (10)
+[ok] pt E: WILDERNESS + element Wind lists 10 (10)
+[ok] pt E: WILDERNESS + element Blood lists 10 (10)
+[ok] pt E: WILDERNESS + element None lists 173 (173)
+[ok] pt E: WILDERNESS + category Attack lists 155 (155)
+[ok] pt E: an empty result shows the 'no cards match' message
+[ok] pt F: the rarity chooser opens
+[ok] pt F: picking ★4 closes it and filters (274)
+[ok] pt G: sort Standard asc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Standard desc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Rarity asc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Rarity desc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Level asc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Level desc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Element asc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Element desc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Name asc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Name desc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Owned asc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Owned desc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Map asc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Map desc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Unlock asc is in order (1062 entries, 0 out of order)
+[ok] pt G: sort Unlock desc is in order (1062 entries, 0 out of order)
+[ok] pt H: dragging from the WILDERNESS-filtered list puts the card in the deck (berserker, Owned->DeckSlot#0:Add)
+[ok] pt H: 12 cards added from the filtered list (12)
+[ok] pt H: all 12 deck slots stay on screen while the list is filtered
+[ok] pt H: dragging a deck card onto the filtered list removes it (Deck->OwnedArea#-1:Remove)
+[ok] pt H: and it can be added back from the list
+[ok] pt I: a long press on the last filtered entry opens its large detail (v2|qa_fake_147|3|5|qa_fake_147*3 Lv3)
+[ok] pt I2: the close button is on screen and not under the settings button (close (x:520.53, y:875.89, width:38.40, height:38.40), gear (x:474.96, y:924.96, width:87.04, height:87.04))
+[ok] pt I2: the close button closes the large detail
+[ok] pt I2: there is a background area outside the window ((x:10.67, y:58.67, width:554.67, height:862.03))
+[ok] pt I2: tapping the background closes the large detail
+[ok] pt I2: the large detail does not open while a filter choice window is open
+[ok] pt J: dismantling one of two copies in the filtered list works (first_strike 2->1, list 253->253)
+[ok] pt J: dismantling the last copy removes that entry (252)
+[ok] pt L: after saving and reloading, the deck and the 1061 stacks are unchanged
+[cl] window 1280x720
+
+failures=1 warnings=0
+1 CHECK(S) FAILED
+NO EXCEPTIONS LOGGED

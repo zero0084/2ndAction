@@ -157,6 +157,7 @@ public static class SaveSystem
         Validate(r.repairs);
         log.Append(TutorialProgress.EnsureInitialized());
         log.Append(UnlockRules.EnsureInitialized()); // 解放条件(2026-10-07): 既存データは今使える物をそのまま解放済みに // 初回チュートリアル(2026-10-07): 既存のデータには初回の案内を出さない
+        log.Append(CardMapUnlock.EnsureInitialized()); // カードのマップ分類の解禁(2026-11-06): 既存データは今まで使えたカードを解禁済みのままに
         if (r.repairs.Count > 0) log.Append("repairs: " + string.Join(" / ", r.repairs) + "; ");
 
         SaveStore.Save();
@@ -672,6 +673,7 @@ public static class SaveSystem
         CardInventory.ReloadFromPrefs();
         CardMastery.ReloadFromPrefs();
         UnlockRules.Reload();
+        CardMapUnlock.Reload();
         RunCheckpoint.Reload();
         ProgressStats.Reload();
         AdRewards.Reload(); // 広告/パスの報酬の記録(テスト用データと通常のデータで別、2026-10-10)

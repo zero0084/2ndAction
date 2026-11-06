@@ -1,0 +1,47 @@
+10518	Setiap kali kombo seranganmu (penghitung "N HIT") mencapai kelipatan 10, dapatkan +1 MILE (+1 per Lv). Hadiah berulang pada 20, 30, dan seterusnya (hingga 100 HIT per kombo)
+10519	Dapatkan +1 MILE (+1 per Lv) untuk setiap 10 musuh biasa yang dikalahkan. Bos tidak dihitung
+10520	MILE dari mengalahkan bos +12% per Lv
+10521	Dapatkan +2 MILE (+2 per Lv) setiap berlari 1km. Jarak yang dilewati dengan Start Cepat atau CONTINUE tidak dihitung
+10522	Dapatkan +1 MILE (+1 per Lv) setiap bertahan hidup selama 30s dalam satu lari. Waktu memilih kartu dan jeda tidak dihitung
+10523	Setiap kali kombo serangan mencapai kelipatan 10, dapatkan EXP +20 (+20 per Lv). Hingga 100 HIT per kombo
+10524	Dapatkan EXP +30 (+30 per Lv) untuk setiap 10 musuh biasa yang dikalahkan. Bos tidak dihitung
+10525	EXP dari mengalahkan bos +15% per Lv
+10526	Dapatkan EXP +100 (+100 per Lv) setiap berlari 1km. Jarak yang dilewati dengan Start Cepat atau CONTINUE tidak dihitung
+10527	Dapatkan EXP +30 (+30 per Lv) setiap bertahan hidup selama 30s dalam satu lari. Waktu memilih kartu dan jeda tidak dihitung
+10528	Beberapa musuh menjadi musuh berdaya serang tinggi (aura magenta, +1 hati kerusakan): +3% per Lv, maks. 30%, mulai 0km. Sebagai imbalan: MILE dari musuh/BONUS +15% per Lv, EXP dari mengalahkan musuh +10% per Lv. Musuh hanya berubah dalam lari solo di peta normal
+10529	Musuh udara (menukik, melintas, dll.) lebih sering mengisi posisi udara (+5% per Lv), dan kelompok dengan musuh terbang lebih sering muncul (+10% per Lv). Sebagai imbalan: EXP dari mengalahkan musuh +15% per Lv, MILE dari musuh/BONUS +8% per Lv
+10530	Event keputusan di jalan (peringatan jalur, penghalang, musuh berdaya serang tinggi, dll.) dimulai lebih awal (biasanya 50km; 4km lebih awal per Lv, paling awal 10km) dan lebih sering muncul (interval -5% per Lv, maks. -50%). Sebagai imbalan: MILE dari musuh/BONUS +12% per Lv, EXP yang diperoleh +8% per Lv. Event hanya muncul dalam lari solo di peta normal
+10531	Kerusakan yang diterima dari bos +10% per Lv (dalam satuan hati; pecahan dapat menambah 1 hati kerusakan). Sebagai imbalan: MILE dari mengalahkan bos +35% per Lv, EXP dari mengalahkan bos +15% per Lv
+10532	Musuh biasa yang dikalahkan saat kombo mencapai 10 HIT atau lebih memberikan lebih banyak MILE dan EXP dari kekalahan musuh (+15% per Lv). Terus kalahkan musuh tanpa memutus kombo
+10533	Setiap berlari 1km tanpa terkena kerusakan, dapatkan +3 MILE dan EXP +150 (meningkat per Lv). Terkena kerusakan mengulang hitungan, tetapi menangkis dengan Shield tidak
+10534	Mengalahkan bos memberikan +0.2 MILE dan EXP +3 untuk setiap musuh biasa yang dikalahkan sejak bos sebelumnya (meningkat per Lv, maks. 100 musuh). Kalahkan musuh sebelum menghadapi bos
+10535	Setiap 10km, MILE dari musuh/bos/BONUS dan EXP yang diperoleh meningkat +2% per Lv (maksimum pada 100km; +20% di Lv1). Semakin jauh berlari, semakin besar bonusnya
+10536	+{0} MILE setiap 10 HIT
+10537	+{0} MILE per 10 musuh biasa dikalahkan
+10539	+{0} MILE setiap 1km
+10540	+{0} MILE setiap 30s
+10541	EXP +{0} setiap 10 HIT
+10542	EXP +{0} per 10 musuh biasa dikalahkan
+10544	EXP +{0} setiap 1km
+10545	EXP +{0} setiap 30s
+10546	Peluang musuh menjadi penyerang kuat +{0}%
+10547	Musuh udara +{0}% / kelompok terbang ×{1}
+10548	Event keputusan mulai {0}km / interval ×{1}
+10549	Kerusakan diterima dari bos +{0}%
+10550	Musuh dikalahkan saat kombo 10+ HIT: MILE/EXP +{0}%
+10551	Setiap 1km tanpa kerusakan: +{0} MILE, EXP +{1}
+10552	Saat bos dikalahkan, per musuh: +{0} MILE, EXP +{1} (maks. 100)
+10553	MILE/EXP +{0}% setiap 10km (maks. +{1}% pada 100km)
+10554	EXP dari mengalahkan bos
+10555	Capai {1}m di {0} lalu kembali
+10556	Buka Dungeon Terakhir
+10460	UMUM
+10461	PADANG BELANTARA
+10462	GUA
+10463	LANGIT
+10464	DUNGEON TERAKHIR
+10465	Elemen
+10466	Peta
+10467	Urutan buka
+10468	Terkunci: {0}
+10469	Tidak ada kartu yang cocok dengan filter ini

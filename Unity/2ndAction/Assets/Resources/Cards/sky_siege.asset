@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: sky_siege
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: sky_siege
+  cardName: SKY SIEGE
+  icon: {fileID: 2800000, guid: 7405d674f54983b4bbafe2f7cf7abd8c, type: 3}
+  description: "\u7A7A\u4E2D\u306E\u6575\u306E\u67A0\u306B\u7A7A\u4E2D\u96D1\u9B5A(\u6025\u964D\u4E0B\u30FB\u6A2A\u5207\u308A\u306A\u3069)\u304C\u51FA\u3084\u3059\u304F\u306A\u308A(+5%/Lv)\u3001\u7A7A\u306E\u6575\u304C\u3044\u308B\u7D44\u3082\u51FA\u3084\u3059\u304F\u306A\u308B(+10%/Lv)\u3002\u4EE3\u308F\u308A\u306B\u6575\u6483\u7834EXP+15%/Lv\u3001\u6575\u6483\u7834\u30FBBONUS\u306EMILE+8%/Lv"
+  category: 6
+  sortOrder: 207
+  recommendPriority: 2
+  effects:
+  - type: 144
+    value: 1
+    scaling: 0
+  - type: 107
+    value: 0.15
+    scaling: 0
+  - type: 22
+    value: 0.08
+    scaling: 0
+  rarity: 3
+  unlockDistance: 5000
+  gachaStage: 2
+  element: 0

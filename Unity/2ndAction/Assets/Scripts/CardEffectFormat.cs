@@ -39,6 +39,7 @@ public static class CardEffectFormat
             case EffectType.BurnChance: case EffectType.ChillChance: case EffectType.ChillSlow: case EffectType.LightningChance:
             case EffectType.WindBladeChance: case EffectType.BleedChance: case EffectType.BleedLifesteal:
             case EffectType.HitLifestealPct: case EffectType.IceBreakPct:
+            case EffectType.BossExpPct: // 2026-11-06
                 return true;
         }
         return false;
@@ -61,6 +62,11 @@ public static class CardEffectFormat
             case EffectType.ScorchLevel: case EffectType.FireWhirlLevel: case EffectType.CombustionLevel: case EffectType.PermafrostLevel:
             case EffectType.GlacierGuardLevel: case EffectType.ShatterStrikeLevel: case EffectType.ConductorLevel: case EffectType.VoltSurgeLevel:
             case EffectType.JudgmentLevel: case EffectType.SlipstreamLevel: case EffectType.UpdraftLevel: case EffectType.TempestLevel:
+            // 2026-11-06 共通カードの追加(CardRewards)
+            case EffectType.ComboPayLevel: case EffectType.HuntPayLevel: case EffectType.RoadPayLevel: case EffectType.SurvivalPayLevel:
+            case EffectType.ComboTrainingLevel: case EffectType.HuntTrainingLevel: case EffectType.RoadTrainingLevel: case EffectType.SurvivalTrainingLevel:
+            case EffectType.DangerBountyLevel: case EffectType.SkySiegeLevel: case EffectType.CrossroadsLevel: case EffectType.HighStakesLevel:
+            case EffectType.ChainBountyLevel: case EffectType.IronMarathonLevel: case EffectType.TrophyHuntLevel: case EffectType.HorizonLevel:
                 return true;
         }
         return false;

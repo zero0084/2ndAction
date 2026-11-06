@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: road_pay
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: road_pay
+  cardName: ROAD PAY
+  icon: {fileID: 2800000, guid: 77129df19472c224a9d4c49e993e283d, type: 3}
+  description: "1km\u8D70\u308B\u305F\u3073\u306BMILE+2(1Lv\u3054\u3068\u306B+2)\u3002\u75BE\u8D70\u51FA\u767A\u3084CONTINUE\u3067\u98DB\u3070\u3057\u305F\u533A\u9593\u306F\u6570\u3048\u306A\u3044"
+  category: 3
+  sortOrder: 199
+  recommendPriority: 5
+  effects:
+  - type: 136
+    value: 1
+    scaling: 0
+  rarity: 1
+  unlockDistance: 0
+  gachaStage: 1
+  element: 0

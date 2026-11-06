@@ -36,7 +36,16 @@ public static class CardCatalogExport
 
         var sb = new StringBuilder();
         sb.Append("no\tid\tname\trarity\tcategory\telement\tsortOrder\trecommendPriority\tunlockDistance\tgachaStage\tmaxLv\tdescription\tlv1\tlv9\teffects\t" +
-                  "elementEffects\tlv1Element\tlv9Element\tcombos\tfeTitle\tfeDesc\tfeModule\tfeKind\tfeDuration\tfeAmplify\tfeBonuses\tsacrificeLv1\tsacrificeLv9\tbehaviorLevel\n");
+                  "elementEffects\tlv1Element\tlv9Element\tcombos\tfeTitle\tfeDesc\tfeModule\tfeKind\tfeDuration\tfeAmplify\tfeBonuses\tsacrificeLv1\tsacrificeLv9\tbehaviorLevel" +
+                  "\tmapCategory\tmapReason\tmapMeters\tstarter\tnameJa\tenName\tenDesc\tlv1En\tlv9En\n");
+        // 2026-11-06: マップ分類 / 初期デッキ / 新カードの日本語名 / 英語の文(資料 Docs/Cards_2026-11-06)
+        var starter = new HashSet<string>(DefaultSave.StartingDeck(GameManager.DeckCapacity));
+        // 効果の行の英語(表示と同じく Loc.Auto の型で訳す。英語の表へ一時的に切り替える。保存はしない)
+        var en1 = new Dictionary<string, string>(); var en9 = new Dictionary<string, string>();
+        string curLang = Loc.Current;
+        Loc.Set("en", false);
+        foreach (var c in cards) { en1[c.cardId] = Loc.Auto(CardVariant.AbilityEffectTextAt(c.cardId, 1)); en9[c.cardId] = Loc.Auto(CardVariant.AbilityEffectTextAt(c.cardId, 9)); }
+        Loc.Set(curLang, false);
         int no = 0;
         foreach (var c in cards)
         {
@@ -57,7 +66,11 @@ public static class CardCatalogExport
               .Append('\t').Append(eff).Append('\t').Append(elemEff).Append('\t').Append(ElementAlone(c, 1)).Append('\t').Append(ElementAlone(c, 9))
               .Append('\t').Append(inCombos).Append('\t').Append(Clean(f?.title)).Append('\t').Append(Clean(f?.description)).Append('\t').Append(f != null ? f.module.ToString() : "")
               .Append('\t').Append(f != null ? f.kind.ToString() : "").Append('\t').Append(feDur).Append('\t').Append(f != null ? f.amplify.ToString("0.##") : "")
-              .Append('\t').Append(feB).Append('\t').Append(s1).Append('\t').Append(s9).Append('\t').Append(behavior ? 1 : 0).Append('\n');
+              .Append('\t').Append(feB).Append('\t').Append(s1).Append('\t').Append(s9).Append('\t').Append(behavior ? 1 : 0)
+              .Append('\t').Append(CardMapCategories.Of(c)).Append('\t').Append(Clean(CardMapCategoryTable.ReasonOf(c.cardId))).Append('\t').Append(CardMapUnlock.RequiredMeters(c))
+              .Append('\t').Append(starter.Contains(c.cardId) ? 1 : 0).Append('\t').Append(Clean(LocCardCommon.Find(c.cardId).nameJa))
+              .Append('\t').Append(Clean(Loc.EnglishOf(c.cardName))).Append('\t').Append(Clean(Loc.EnglishOf(c.description)))
+              .Append('\t').Append(Clean(en1[c.cardId])).Append('\t').Append(Clean(en9[c.cardId])).Append('\n');
         }
         File.WriteAllText(Path.Combine(dir, "cards.tsv"), sb.ToString(), new UTF8Encoding(false));
 

@@ -1,0 +1,19 @@
+id	name	nameJa	rarity	stage	unlock	category	map	lv1	lv9	lv1En	lv9En	primary
+combo_pay	COMBO PAY	コンボ手当	1	1	0	Growth	Common	10HITごとに +1 MILE	10HITごとに +9 MILE	+1 MILE every 10 HIT	+9 MILE every 10 HIT	
+hunt_pay	HUNT PAY	討伐手当	1	1	0	Growth	Common	雑魚10体撃破ごとに +1 MILE	雑魚10体撃破ごとに +9 MILE	+1 MILE per 10 enemies defeated	+9 MILE per 10 enemies defeated	
+boss_pay	BOSS PAY	ボス手当	1	1	0	Growth	Common	ボス撃破MILE +12%	ボス撃破MILE +108%	Boss MILE +12%	Boss MILE +108%	+12%
+road_pay	ROAD PAY	走行手当	1	1	0	Growth	Common	1kmごとに +2 MILE	1kmごとに +18 MILE	+2 MILE every 1km	+18 MILE every 1km	
+survival_pay	SURVIVAL PAY	生存手当	1	1	0	Growth	Common	30秒ごとに +1 MILE	30秒ごとに +9 MILE	+1 MILE every 30s	+9 MILE every 30s	
+combo_training	COMBO TRAINING	コンボ修行	1	1	0	Growth	Common	10HITごとに EXP+20	10HITごとに EXP+180	EXP +20 every 10 HIT	EXP +180 every 10 HIT	
+hunt_training	HUNT TRAINING	討伐修行	1	1	0	Growth	Common	雑魚10体撃破ごとに EXP+30	雑魚10体撃破ごとに EXP+270	EXP +30 per 10 enemies defeated	EXP +270 per 10 enemies defeated	
+boss_training	BOSS TRAINING	ボス修行	1	1	0	Growth	Common	ボス撃破EXP +15%	ボス撃破EXP +135%	Boss defeat EXP +15%	Boss defeat EXP +135%	+15%
+road_training	ROAD TRAINING	走行修行	1	1	0	Growth	Common	1kmごとに EXP+100	1kmごとに EXP+900	EXP +100 every 1km	EXP +900 every 1km	
+survival_training	SURVIVAL TRAINING	生存修行	1	1	0	Growth	Common	30秒ごとに EXP+30	30秒ごとに EXP+270	EXP +30 every 30s	EXP +270 every 30s	
+danger_bounty	DANGER BOUNTY	危険報酬	3	2	5000	Risk	Common	雑魚が高火力敵になる確率 +3% / 敵撃破・BONUSのMILE +15% / 敵撃破EXP +10%	雑魚が高火力敵になる確率 +27% / 敵撃破・BONUSのMILE +135% / 敵撃破EXP +90%	Chance enemies become Heavy Hitters +3% / Kill & BONUS MILE +15% / Kill EXP +10%	Chance enemies become Heavy Hitters +27% / Kill & BONUS MILE +135% / Kill EXP +90%	
+sky_siege	SKY SIEGE	空襲	3	2	5000	Risk	Common	空中雑魚の出現 +5%・空の敵がいる組 ×1.1 / 敵撃破EXP +15% / 敵撃破・BONUSのMILE +8%	空中雑魚の出現 +45%・空の敵がいる組 ×1.9 / 敵撃破EXP +135% / 敵撃破・BONUSのMILE +72%	Air enemies +5% / groups with flyers ×1.1 / Kill EXP +15% / Kill & BONUS MILE +8%	Air enemies +45% / groups with flyers ×1.9 / Kill EXP +135% / Kill & BONUS MILE +72%	
+crossroads	CROSSROADS	分かれ道	3	2	5000	Risk	Common	判断イベントが46kmから・間隔×0.95 / 敵撃破・BONUSのMILE +12% / 獲得EXP +8%	判断イベントが14kmから・間隔×0.55 / 敵撃破・BONUSのMILE +108% / 獲得EXP +72%	Decision events from 46km / gap ×0.95 / Kill & BONUS MILE +12% / EXP Gain +8%	Decision events from 14km / gap ×0.55 / Kill & BONUS MILE +108% / EXP Gain +72%	
+high_stakes	HIGH STAKES	大勝負	3	2	5000	Risk	Common	ボスから受けるダメージ +10% / ボス撃破MILE +35% / ボス撃破EXP +15%	ボスから受けるダメージ +90% / ボス撃破MILE +315% / ボス撃破EXP +135%	Damage taken from bosses +10% / Boss MILE +35% / Boss defeat EXP +15%	Damage taken from bosses +90% / Boss MILE +315% / Boss defeat EXP +135%	
+chain_bounty	CHAIN BOUNTY	連撃の賞金	4	3	20000	Growth	Common	10HIT以上の連続ヒット中の撃破 MILE・EXP +15%	10HIT以上の連続ヒット中の撃破 MILE・EXP +135%	Defeats during a 10+ HIT streak: MILE/EXP +15%	Defeats during a 10+ HIT streak: MILE/EXP +135%	
+iron_marathon	IRON MARATHON	鉄人マラソン	4	3	20000	Growth	Common	被弾せずに1kmごとに +3 MILE・EXP+150	被弾せずに1kmごとに +27 MILE・EXP+1350	Every 1km without damage: +3 MILE, EXP +150	Every 1km without damage: +27 MILE, EXP +1350	
+trophy_hunt	TROPHY HUNT	戦利品狩り	4	3	20000	Growth	Common	ボス撃破で 雑魚1体につき +0.2 MILE・EXP+3(最大100体)	ボス撃破で 雑魚1体につき +1.8 MILE・EXP+27(最大100体)	On boss defeat, per enemy: +0.2 MILE, EXP +3 (up to 100)	On boss defeat, per enemy: +1.8 MILE, EXP +27 (up to 100)	
+horizon	HORIZON	地平線	4	3	20000	Growth	Common	10kmごとに MILE・EXP +2%(100kmで最大+20%)	10kmごとに MILE・EXP +18%(100kmで最大+180%)	MILE/EXP +2% per 10km (max +20% at 100km)	MILE/EXP +18% per 10km (max +180% at 100km)	

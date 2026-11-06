@@ -1968,6 +1968,19 @@ public partial class GameManager : MonoBehaviour
 
         Rect r = V(GetSpeedPanelRect());
         UiBackdrop.Draw(r, 0.6f);
+        // 2026-11-06: 高速時の事故ダメージの段階(100km/h 以上 = 2、130 以上 = 3 ハート)を、速度の欄の細い縁で軽く知らせる(AUTO の水色の文字とは別)
+        if (AccidentDamage.Enabled)
+        {
+            int at = AccidentDamage.TierAt(kmh);
+            if (at > 0)
+            {
+                Color ec = at >= 2 ? new Color(1f, 0.38f, 0.22f, 0.9f) : new Color(1f, 0.7f, 0.25f, 0.75f);
+                if (at >= 2) ec.a *= 0.75f + 0.25f * Mathf.PingPong(Time.unscaledTime * 1.5f, 1f);
+                float bw = at >= 2 ? 2f : 1.5f;
+                UiKit.Fill(new Rect(r.x, r.y, r.width, bw), ec); UiKit.Fill(new Rect(r.x, r.yMax - bw, r.width, bw), ec);
+                UiKit.Fill(new Rect(r.x, r.y, bw, r.height), ec); UiKit.Fill(new Rect(r.xMax - bw, r.y, bw, r.height), ec);
+            }
+        }
         var labelStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
         labelStyle.normal.textColor = HudLabelColor;
         // 2026-11-03(テスター「途中から勝手にジャンプしていた」): オートモードが働いている間は SPEED の代わりに AUTO(水色)。
@@ -3523,7 +3536,9 @@ public partial class GameManager : MonoBehaviour
 
         // ボス戦の強化(2026-10-01): 重い一撃は複数ハート。ただしハートが満タンの時に1発で倒れることはない。
         int dmg = Mathf.Max(1, amount);
-        dmg = DifficultyTuning.Adjust(dmg, reason, MaxDistance); // 2026-11-03: 通常マップは距離の帯と攻撃の種類で被ダメージを決める(旧仕様: -diffLegacy 1)
+        dmg = DifficultyTuning.Adjust(dmg, reason, MaxDistance);
+        dmg = CardRewards.ApplyBossRisk(dmg, reason); // 2026-11-06 HIGH STAKES: ボスから受けるダメージ(ハート単位)
+        dmg = AccidentDamage.Apply(dmg, reason); // 2026-11-06: 高速時の事故(接触/障害物/壁/落下)は走行速度で 1/2/3 ハート // 2026-11-03: 通常マップは距離の帯と攻撃の種類で被ダメージを決める(旧仕様: -diffLegacy 1)
         // HEAVY ARMOR(v3): 強い一撃(ハート2つ以上)をハート1つ軽くする
         // 2026-10-28: 説明どおり「ハート2つ以上」から(以前はハート1つを少しでも超えれば = 再戦の倍率で 13 などでも 10 へ切り下げていた)
         if (dmg >= 2 * CombatScale.HpPerHeart && Card.Get(EffectType.HeavyArmorLevel) > 0f) { dmg = Mathf.Max(CombatScale.PlayerHit, dmg - CombatScale.HpPerHeart); HeavyArmorSaves++; }
@@ -3818,7 +3833,8 @@ public partial class GameManager : MonoBehaviour
     }
 
     // 10〜12人目(2026-09-28) - 吸血鬼の吸血回復用の公開入口(回復量と頻度の上限は吸血鬼側で管理)。
-    public void KitHeal(int amount) { if (amount > 0 && !IsGameOver) AddLife(amount); }
+    public void KitHeal(int amount) { amount = HealScaled(amount); if (amount > 0 && !IsGameOver) AddLife(amount); }
+    public void KitHealFull(int amount) { if (amount > 0 && !IsGameOver) AddLife(amount); } // 最大 HP が増えた分(終盤の回復の倍率を掛けない)
 
     void AddLife(int amount = 1)
     {

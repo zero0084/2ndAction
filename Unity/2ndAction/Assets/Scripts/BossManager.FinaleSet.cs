@@ -24,7 +24,7 @@ public partial class BossManager
     public static float SetKillHealFrac = 0.05f; // 2026-11-06(F2): 0.08 → 0.05(組の撃破の回復が終盤の被弾の4割を戻していた)
     // マップ別(F2 の測定: 荒野は強デッキの放置でも余裕、天空は中デッキの人でも 98.5km で倒れた)
     //  荒野 = 組のボスの攻撃の頻度を上げる / 天空 = 組のボスの HP を少し下げる
-    public static float WastelandSetFreqMul = 1.3f, WastelandSetWaitMul = 0.85f, SkySetHpMul = 0.88f;
+    public static float WastelandSetFreqMul = 1.6f, WastelandSetWaitMul = 0.7f, WastelandSetHpMul = 1.12f, SkySetHpMul = 0.72f, SkySetDamageMul = 0.6f, WastelandSetDamageMul = 1.2f, WastelandFinalHpMul = 1.15f, CaveSetDamageMul = 0.7f; // R(人の操作): 洞窟/天空は強デッキの人でも 97km 前後で倒れた → 0.85→0.7 / 0.7→0.6 // F4: 天空は強デッキの人でも 97km で倒れた(マジンの光の柱など)// F3: 荒野はまだ放置で余裕、天空は人でも倒れた
     static readonly string[] FinalBossFallback = { "Wild/BlackKnight", "Cave/AncientDemon", "Sky/Guardian" };
 
     public bool SetRushActive => CurrentBossEncounter != null && CurrentBossEncounter.continuous && CurrentBossEncounter.setRush;
@@ -297,10 +297,13 @@ public partial class BossManager
         currentTier = tn.TierAt(d);
         float distMul = tn.distanceHp ? Mathf.Max(1f, BossHpPlan.MilestoneHpAt(d) / Mathf.Max(1f, BossHpPlan.MilestoneHpAt(FirstDistanceOf(f, kind)))) : 1f;
         float mul = cls >= 3 ? FinalHpMul : SetHpMul[Mathf.Clamp(cls, 0, 2)];
-        if (cls < 3 && GameManager.Instance != null && GameManager.Instance.ActiveRunStageId == "sky_corridor") mul *= SkySetHpMul;
+        string stg = GameManager.Instance != null ? GameManager.Instance.ActiveRunStageId : "";
+        if (cls < 3 && stg == "sky_corridor") mul *= SkySetHpMul;
+        if (cls < 3 && stg == "wasteland_road") mul *= WastelandSetHpMul;
+        if (cls >= 3 && stg == "wasteland_road") mul *= WastelandFinalHpMul;
         CurrentRematchHpMul = distMul * Mathf.Max(0.1f, currentTier.hpMul) * Mathf.Max(0.05f, mul);
         CurrentRematchTier = cls >= 3 ? "FINAL" : currentTier.label;
-        DamageMul = Mathf.Max(0.1f, currentTier.damageMul);
+        DamageMul = Mathf.Max(0.1f, currentTier.damageMul) * (cls >= 3 ? 1f : stg == "sky_corridor" ? SkySetDamageMul : stg == "natural_cave" ? CaveSetDamageMul : stg == "wasteland_road" ? WastelandSetDamageMul : 1f);
         CurrentEncounterIsRematch = true;
         Debug.Log($"[SetRush] strength {s.key} C{cls + 1} at {d:F0}m: HP x{CurrentRematchHpMul:0.00} dmg x{DamageMul:0.0}");
     }

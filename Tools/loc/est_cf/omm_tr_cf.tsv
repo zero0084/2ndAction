@@ -1,0 +1,290 @@
+en	10460	COMMON
+en	10461	WILDERNESS
+en	10462	CAVE
+en	10463	SKY
+en	10464	LAST DUNGEON
+en	10465	Element
+en	10466	Map
+en	10467	Unlock order
+en	10468	Locked: {0}
+en	10469	No cards match these filters
+zh-Hans	10460	通用
+zh-Hans	10461	荒野
+zh-Hans	10462	洞窟
+zh-Hans	10463	天空
+zh-Hans	10464	最终迷宫
+zh-Hans	10465	属性
+zh-Hans	10466	地图
+zh-Hans	10467	解锁顺序
+zh-Hans	10468	未解锁 {0}
+zh-Hans	10469	没有符合条件的卡牌
+zh-Hant	10460	通用
+zh-Hant	10461	荒野
+zh-Hant	10462	洞窟
+zh-Hant	10463	天空
+zh-Hant	10464	最終迷宮
+zh-Hant	10465	屬性
+zh-Hant	10466	地圖
+zh-Hant	10467	解鎖順序
+zh-Hant	10468	未解鎖 {0}
+zh-Hant	10469	沒有符合條件的卡牌
+ko	10460	공통
+ko	10461	황야
+ko	10462	동굴
+ko	10463	천공
+ko	10464	라스트 던전
+ko	10465	속성
+ko	10466	맵
+ko	10467	해금순
+ko	10468	미해금 {0}
+ko	10469	조건에 맞는 카드가 없습니다
+id	10460	UMUM
+id	10461	TANDUS
+id	10462	GUA
+id	10463	LANGIT
+id	10464	DUNGEON AKHIR
+id	10465	Elemen
+id	10466	Peta
+id	10467	Urutan buka
+id	10468	Terkunci: {0}
+id	10469	Tidak ada kartu yang cocok
+ms	10460	UMUM
+ms	10461	GERSANG
+ms	10462	GUA
+ms	10463	LANGIT
+ms	10464	DUNGEON AKHIR
+ms	10465	Elemen
+ms	10466	Peta
+ms	10467	Urutan buka kunci
+ms	10468	Terkunci: {0}
+ms	10469	Tiada kad yang sepadan
+vi	10460	CHUNG
+vi	10461	HOANG ĐỊA
+vi	10462	HANG ĐỘNG
+vi	10463	BẦU TRỜI
+vi	10464	HẦM NGỤC CUỐI
+vi	10465	Nguyên tố
+vi	10466	Bản đồ
+vi	10467	Thứ tự mở khóa
+vi	10468	Chưa mở: {0}
+vi	10469	Không có thẻ nào phù hợp
+th	10460	ทั่วไป
+th	10461	แดนรกร้าง
+th	10462	ถ้ำ
+th	10463	ฟ้า
+th	10464	ดันเจี้ยนสุดท้าย
+th	10465	ธาตุ
+th	10466	แผนที่
+th	10467	ลำดับปลดล็อก
+th	10468	ยังล็อก {0}
+th	10469	ไม่มีการ์ดที่ตรงเงื่อนไข
+fil	10460	KARANIWAN
+fil	10461	ILANG
+fil	10462	KUWEBA
+fil	10463	LANGIT
+fil	10464	HULING DUNGEON
+fil	10465	Elemento
+fil	10466	Mapa
+fil	10467	Ayos ng pag-unlock
+fil	10468	Naka-lock: {0}
+fil	10469	Walang kard na tugma
+my	10460	အထွေထွေ
+my	10461	မြေရိုင်း
+my	10462	ဂူ
+my	10463	ကောင်းကင်
+my	10464	နောက်ဆုံးဒန်ဂျွန်
+my	10465	ဓာတ်
+my	10466	မြေပုံ
+my	10467	ဖွင့်သည့်အစဉ်
+my	10468	မဖွင့်ရသေး {0}
+my	10469	ကိုက်ညီသောကတ် မရှိပါ
+km	10460	ទូទៅ
+km	10461	វាលរហោស្ថាន
+km	10462	រូងភ្នំ
+km	10463	មេឃ
+km	10464	ឌុងហ្គឺនចុងក្រោយ
+km	10465	ធាតុ
+km	10466	ផែនទី
+km	10467	លំដាប់ដោះសោ
+km	10468	មិនទាន់ដោះសោ {0}
+km	10469	គ្មានកាតត្រូវលក្ខខណ្ឌ
+lo	10460	ທົ່ວໄປ
+lo	10461	ທົ່ງຮ້າງ
+lo	10462	ຖ້ຳ
+lo	10463	ທ້ອງຟ້າ
+lo	10464	ດັນເຈີນສຸດທ້າຍ
+lo	10465	ທາດ
+lo	10466	ແຜນທີ່
+lo	10467	ລຳດັບປົດລັອກ
+lo	10468	ຍັງລັອກ {0}
+lo	10469	ບໍ່ມີບັດທີ່ກົງເງື່ອນໄຂ
+hi	10460	सामान्य
+hi	10461	बंजर
+hi	10462	गुफा
+hi	10463	आकाश
+hi	10464	अंतिम कालकोठरी
+hi	10465	तत्व
+hi	10466	नक्शा
+hi	10467	अनलॉक क्रम
+hi	10468	लॉक: {0}
+hi	10469	इन फ़िल्टरों से मेल खाता कोई कार्ड नहीं
+bn	10460	সাধারণ
+bn	10461	বিরান
+bn	10462	গুহা
+bn	10463	আকাশ
+bn	10464	শেষ ডানজন
+bn	10465	উপাদান
+bn	10466	মানচিত্র
+bn	10467	আনলকের ক্রম
+bn	10468	লক: {0}
+bn	10469	মিলে যাওয়া কোনো কার্ড নেই
+ta	10460	பொது
+ta	10461	பாழ்நிலம்
+ta	10462	குகை
+ta	10463	வானம்
+ta	10464	இறுதி நிலவறை
+ta	10465	தனிமம்
+ta	10466	வரைபடம்
+ta	10467	திறப்பு வரிசை
+ta	10468	பூட்டியவை: {0}
+ta	10469	பொருந்தும் அட்டைகள் இல்லை
+fr	10460	COMMUN
+fr	10461	LANDES
+fr	10462	GROTTE
+fr	10463	CIEL
+fr	10464	DONJON FINAL
+fr	10465	Élément
+fr	10466	Carte
+fr	10467	Ordre de déblocage
+fr	10468	Verrouillées : {0}
+fr	10469	Aucune carte ne correspond
+de	10460	ALLGEMEIN
+de	10461	ÖDLAND
+de	10462	HÖHLE
+de	10463	HIMMEL
+de	10464	LETZTER DUNGEON
+de	10465	Element
+de	10466	Karte
+de	10467	Freischaltreihenfolge
+de	10468	Gesperrt: {0}
+de	10469	Keine passenden Karten
+es	10460	COMÚN
+es	10461	PÁRAMO
+es	10462	CUEVA
+es	10463	CIELO
+es	10464	MAZMORRA FINAL
+es	10465	Elemento
+es	10466	Mapa
+es	10467	Orden de desbloqueo
+es	10468	Bloqueadas: {0}
+es	10469	Ninguna carta coincide
+pt-BR	10460	COMUM
+pt-BR	10461	ERMO
+pt-BR	10462	CAVERNA
+pt-BR	10463	CÉU
+pt-BR	10464	MASMORRA FINAL
+pt-BR	10465	Elemento
+pt-BR	10466	Mapa
+pt-BR	10467	Ordem de desbloqueio
+pt-BR	10468	Bloqueadas: {0}
+pt-BR	10469	Nenhuma carta corresponde
+it	10460	COMUNI
+it	10461	DESOLATA
+it	10462	CAVERNA
+it	10463	CIELO
+it	10464	DUNGEON FINALE
+it	10465	Elemento
+it	10466	Mappa
+it	10467	Ordine di sblocco
+it	10468	Bloccate: {0}
+it	10469	Nessuna carta corrisponde
+pl	10460	WSPÓLNE
+pl	10461	PUSTKOWIE
+pl	10462	JASKINIA
+pl	10463	NIEBO
+pl	10464	OSTATNI LOCH
+pl	10465	Żywioł
+pl	10466	Mapa
+pl	10467	Kolejność odblokowania
+pl	10468	Zablokowane: {0}
+pl	10469	Brak pasujących kart
+uk	10460	СПІЛЬНІ
+uk	10461	ПУСТКИ
+uk	10462	ПЕЧЕРА
+uk	10463	НЕБО
+uk	10464	ОСТАННЄ ПІДЗЕМЕЛЛЯ
+uk	10465	Стихія
+uk	10466	Мапа
+uk	10467	Порядок розблокування
+uk	10468	Заблоковано: {0}
+uk	10469	Немає відповідних карт
+ru	10460	ОБЩИЕ
+ru	10461	ПУСТОШИ
+ru	10462	ПЕЩЕРА
+ru	10463	НЕБО
+ru	10464	ПОСЛЕДНЕЕ ПОДЗЕМЕЛЬЕ
+ru	10465	Стихия
+ru	10466	Карта
+ru	10467	Порядок разблокировки
+ru	10468	Заблокировано: {0}
+ru	10469	Нет подходящих карт
+tr	10460	ORTAK
+tr	10461	ÇORAK
+tr	10462	MAĞARA
+tr	10463	GÖK
+tr	10464	SON ZİNDAN
+tr	10465	Element
+tr	10466	Harita
+tr	10467	Kilit açma sırası
+tr	10468	Kilitli: {0}
+tr	10469	Eşleşen kart yok
+cs	10460	SPOLEČNÉ
+cs	10461	PUSTINA
+cs	10462	JESKYNĚ
+cs	10463	NEBE
+cs	10464	POSLEDNÍ KOBKA
+cs	10465	Živel
+cs	10466	Mapa
+cs	10467	Pořadí odemčení
+cs	10468	Zamčeno: {0}
+cs	10469	Žádné odpovídající karty
+ro	10460	COMUNE
+ro	10461	PUSTIU
+ro	10462	PEȘTERĂ
+ro	10463	CER
+ro	10464	TEMNIȚA FINALĂ
+ro	10465	Element
+ro	10466	Hartă
+ro	10467	Ordinea deblocării
+ro	10468	Blocate: {0}
+ro	10469	Nicio carte nu se potrivește
+ar	10460	عام
+ar	10461	البراري
+ar	10462	الكهف
+ar	10463	السماء
+ar	10464	الزنزانة الأخيرة
+ar	10465	العنصر
+ar	10466	الخريطة
+ar	10467	ترتيب الفتح
+ar	10468	مقفلة: {0}
+ar	10469	لا توجد بطاقات مطابقة
+fa	10460	عمومی
+fa	10461	بیابان
+fa	10462	غار
+fa	10463	آسمان
+fa	10464	سیاه‌چال آخر
+fa	10465	عنصر
+fa	10466	نقشه
+fa	10467	ترتیب باز شدن
+fa	10468	قفل: {0}
+fa	10469	کارتی مطابق نیست
+sw	10460	ZA KAWAIDA
+sw	10461	NYIKA
+sw	10462	PANGO
+sw	10463	ANGA
+sw	10464	SHIMO LA MWISHO
+sw	10465	Elementi
+sw	10466	Ramani
+sw	10467	Mpangilio wa kufungua
+sw	10468	Imefungwa: {0}
+sw	10469	Hakuna kadi zinazolingana

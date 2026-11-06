@@ -1,0 +1,47 @@
+10518	De fiecare dată când seria de lovituri (contorul „N HIT”) atinge un multiplu de 10, primești +1 MILE (+1 per Lv). Recompensa se repetă la 20, 30 etc. (până la 100 HIT pe serie)
+10519	Primești +1 MILE (+1 per Lv) pentru fiecare 10 inamici obișnuiți învinși. Șefii nu se iau în calcul
+10520	MILE pentru înfrângerea șefilor +12% per Lv
+10521	Primești +2 MILE (+2 per Lv) pentru fiecare 1km alergat. Porțiunile sărite prin Start rapid sau CONTINUE nu se iau în calcul
+10522	Primești +1 MILE (+1 per Lv) pentru fiecare 30s de supraviețuire în timpul unei curse. Alegerea cărților și pauzele nu se iau în calcul
+10523	De fiecare dată când seria de lovituri atinge un multiplu de 10, primești EXP +20 (+20 per Lv). Până la 100 HIT pe serie
+10524	Primești EXP +30 (+30 per Lv) pentru fiecare 10 inamici obișnuiți învinși. Șefii nu se iau în calcul
+10525	EXP pentru înfrângerea șefilor +15% per Lv
+10526	Primești EXP +100 (+100 per Lv) pentru fiecare 1km alergat. Porțiunile sărite prin Start rapid sau CONTINUE nu se iau în calcul
+10527	Primești EXP +30 (+30 per Lv) pentru fiecare 30s de supraviețuire în timpul unei curse. Alegerea cărților și pauzele nu se iau în calcul
+10528	Unii inamici devin inamici cu atacuri puternice (aură magenta, +1 inimă daune): +3% per Lv, max. 30%, de la 0km. În schimb: MILE de la inamici/BONUS +15% per Lv, EXP pentru inamici învinși +10% per Lv. Inamicii se schimbă doar în curse solo pe hărți normale
+10529	Inamicii aerieni (cei care plonjează, traversează etc.) ocupă mai des pozițiile aeriene (+5% per Lv), iar grupurile cu inamici zburători apar mai des (+10% per Lv). În schimb: EXP pentru inamici învinși +15% per Lv, MILE de la inamici/BONUS +8% per Lv
+10530	Evenimentele de decizie de pe traseu (avertizări de bandă, blocaje, inamici cu atacuri puternice etc.) încep mai devreme (normal la 50km, cu 4km mai devreme per Lv, cel mai devreme la 10km) și apar mai des (interval -5% per Lv, max. -50%). În schimb: MILE de la inamici/BONUS +12% per Lv, EXP obținut +8% per Lv. Evenimente doar în curse solo pe hărți normale
+10531	Daune primite de la șefi +10% per Lv (în inimi; partea fracționară poate adăuga 1 inimă). În schimb: MILE pentru înfrângerea șefilor +35% per Lv, EXP pentru înfrângerea șefilor +15% per Lv
+10532	Inamicii obișnuiți învinși în timpul unei serii de cel puțin 10 HIT oferă mai mult MILE și EXP pentru înfrângere (+15% per Lv). Menține seria în timp ce învingi inamici
+10533	Pentru fiecare 1km alergat fără a primi daune, primești +3 MILE și EXP +150 (cresc per Lv). Primirea daunelor resetează contorul, dar blocarea cu Shield nu
+10534	Înfrângerea unui șef oferă +0.2 MILE și EXP +3 pentru fiecare inamic obișnuit învins de la șeful precedent (cresc per Lv, max. 100 inamici). Învinge inamici înainte de a înfrunta șeful
+10535	La fiecare 10km, MILE de la inamici/șefi/BONUS și EXP obținut cresc cu +2% per Lv (maxim la 100km; +20% la Lv1). Cu cât alergi mai departe, cu atât crește bonusul
+10536	+{0} MILE la fiecare 10 HIT
+10537	+{0} MILE pentru 10 inamici obișnuiți învinși
+10539	+{0} MILE la fiecare 1km
+10540	+{0} MILE la fiecare 30s
+10541	EXP +{0} la fiecare 10 HIT
+10542	EXP +{0} pentru 10 inamici obișnuiți învinși
+10544	EXP +{0} la fiecare 1km
+10545	EXP +{0} la fiecare 30s
+10546	Șansă de inamici cu atacuri puternice +{0}%
+10547	Inamici aerieni +{0}% / grupuri cu zburători ×{1}
+10548	Evenimente de decizie de la {0}km / interval ×{1}
+10549	Daune primite de la șefi +{0}%
+10550	Inamici învinși în serie de 10+ HIT: MILE/EXP +{0}%
+10551	La fiecare 1km fără daune: +{0} MILE, EXP +{1}
+10552	La înfrângerea șefului, per inamic: +{0} MILE, EXP +{1} (max. 100)
+10553	MILE/EXP +{0}% la fiecare 10km (max. +{1}% la 100km)
+10554	EXP pentru înfrângerea șefilor
+10555	Atinge {1}m pe {0} și întoarce-te
+10556	Deblochează ultimul temniță
+10460	COMUNE
+10461	SĂLBĂTICIE
+10462	PEȘTERĂ
+10463	CER
+10464	TEMNIȚA FINALĂ
+10465	Element
+10466	Hartă
+10467	Ordinea deblocării
+10468	Blocate: {0}
+10469	Nicio carte nu corespunde acestor filtre

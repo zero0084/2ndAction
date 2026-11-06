@@ -136,5 +136,7 @@ public static class LocPendingReview
     // 2026-10-30: 10196〜10203 はエステルのレビュー後に30言語へ反映済み(Tools/loc/keys_extra33)→ 外した
     // 2026-10-31: 10223〜10298(デッキのプリセット 15件・カード拡張 60件。10232 は欠番)はエステルのレビュー後に30言語へ反映済み(Tools/loc/keys_extra34)→ 外した
     // 2026-11-05: 10374〜10384(マルチのルール)はエステルのレビュー後に30言語へ反映済み(Tools/loc/keys_extra38・Docs/LocReview_2026-11-05)→ 外した
-    public static readonly (string id, string key)[] Pending = { };
+    // 2026-11-06: 共通カードの追加 18 枚(ID 10500〜10556、LocCardCommon)とカード編集の絞り込み(10460〜10469)は、エステルの訳を 28 言語へ反映済み
+    //  (Tools/loc/est39・keys_extra39all.tsv、merge_add.py 39)→ 外した。カード名(10500〜10517)は既存のカードと同じく全言語で英字のまま
+    public static readonly (string id, string key)[] Pending = new (string id, string key)[0];
 }

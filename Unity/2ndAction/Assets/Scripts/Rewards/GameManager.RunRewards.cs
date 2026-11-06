@@ -50,15 +50,18 @@ public partial class GameManager
     public void RegisterEnemyKill(float mileBase = 1f, float expMul = 1f, bool grantExp = true)
     {
         if (EscapeFrozen) return; // 脱出の成功の確定後は報酬を増やさない(2026-10-24)
+        float chain = CardRewards.ChainBonusNow(this); // 2026-11-06 CHAIN BOUNTY: 10HIT 以上の連続ヒット中の撃破は MILE と撃破の EXP(枠に足して曲線)
         if (grantExp)
         {
             EnemyKillCount++;
-            GainExp(enemyKillExp * KillExpScale * Mathf.Max(0f, expMul)); // v3: 精鋭は EXP×2
+            GainExp(enemyKillExp * (chain > 0f ? CardRules.ExpMultiplier(ExpBucketKill + chain) : KillExpScale) * Mathf.Max(0f, expMul)); // v3: 精鋭は EXP×2
+            CardRewards.OnEnemyKilled(this); // 2026-11-06 HUNT PAY / HUNT TRAINING / TROPHY HUNT の数え
             UltimateArt.OnEnemyKilled(expMul > 1.5f); // #100 ULTIMATE の Gauge(発動中は溜まらない)
             TryLifesteal();
         }
         // Card Expansion/Gacha Evolution Ver.1 - Tough/Fast/Elite Enemies, Treasure Hunter, Mob Killer, Executioner, Hell Mode, etc.
         float exact = Share(Mathf.Max(0f, mileBase)) * MileGainMultiplier * FinalEvolution.MileMul; // FINAL EVOLUTION(GREED)
+        exact *= (1f + chain) * CardRewards.HorizonMileMul(this); // 2026-11-06 CHAIN BOUNTY / HORIZON
         Track(1, Mathf.Max(0f, mileBase), exact);
         RunEnemyMile += TakeWhole(ref mileCarry, exact);
     }
@@ -73,6 +76,7 @@ public partial class GameManager
         bool versus = NetRunLauncher.IsMultiplayerRun && NetMatch.Mode != MultiplayerGameMode.Coop;
         float baseAmount = versus ? amount : Share(amount);
         float exact = baseAmount * MileGainMultiplier * FinalEvolution.MileMul * Mathf.Max(0f, 1f + Card.Get(EffectType.TreasureMilePct));
+        exact *= CardRewards.HorizonMileMul(this); // 2026-11-06 HORIZON
         Track(3, amount, exact);
         int add = TakeWhole(ref mileCarry, exact);
         RunBonusMile += add;
@@ -88,13 +92,16 @@ public partial class GameManager
             BossKillCount++;
             CpuParty.OnBossDefeated(); // CPU サポート: 仲間も1枚取る(報酬はランに1回だけ。仲間の分は増やさない)
             float exp = Mathf.Max(RunRewards.BossExpMin, ExpToNext * Mathf.Max(0f, expFraction));
-            LastBossExpGranted = exp * KillExpScale * expGainMultiplier;
-            GainBossExp(exp * KillExpScale);
+            float bossScale = CardRules.ExpMultiplier(ExpBucketKill + Card.Get(EffectType.BossExpPct)); // 2026-11-06 BOSS TRAINING / HIGH STAKES: ボス撃破の EXP も撃破の枠に足して曲線
+            LastBossExpGranted = exp * bossScale * expGainMultiplier;
+            GainBossExp(exp * bossScale);
+            CardRewards.OnBossKilled(this); // 2026-11-06 TROPHY HUNT
             UltimateArt.OnBossKilled(); // #100 ULTIMATE の Gauge
             TryLifesteal();
         }
         // Card Expansion/Gacha Evolution Ver.1 - Boss Challenge/Rush, One More Mile, Pandemonium, etc.
         float exact = Share(Mathf.Max(0f, mileBase)) * BossMileGainMultiplier * FinalEvolution.MileMul;
+        exact *= CardRewards.HorizonMileMul(this); // 2026-11-06 HORIZON
         Track(2, Mathf.Max(0f, mileBase), exact);
         int add = TakeWhole(ref mileCarry, exact);
         RunBossMile += add;
@@ -121,6 +128,25 @@ public partial class GameManager
         if (heldBossExp <= 0f || levelUpPending || IsGameOver) return;
         float a = heldBossExp; heldBossExp = 0f;
         GainExp(a);
+    }
+
+    // 2026-11-06 共通カードの固定の報酬(CardRewards: COMBO PAY 等)。BONUS と同じ経路(分配の人数で割る。対戦は割らない)。
+    // MILE の倍率のカードは掛けない。実際に整数として入った量を返す
+    public int AddCardRewardMile(float amount)
+    {
+        if (amount <= 0f || IsGameOver || EscapeFrozen) return 0;
+        bool versus = NetRunLauncher.IsMultiplayerRun && NetMatch.Mode != MultiplayerGameMode.Coop;
+        float exact = versus ? amount : Share(amount);
+        Track(3, amount, exact);
+        int add = TakeWhole(ref mileCarry, exact);
+        RunBonusMile += add;
+        return add;
+    }
+    // 固定の EXP(カードを選んでいる最中はボスの EXP と同じく預かる)
+    public void AddCardRewardExp(float amount)
+    {
+        if (amount <= 0f || IsGameOver || EscapeFrozen) return;
+        GainBossExp(amount);
     }
 
     // 疾走のリングの代わりの MILE(全カードが Lv9 の時)

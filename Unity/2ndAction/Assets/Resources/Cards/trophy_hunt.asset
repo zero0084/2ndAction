@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: trophy_hunt
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: trophy_hunt
+  cardName: TROPHY HUNT
+  icon: {fileID: 2800000, guid: a0908fae3766881499b5ea66a4f7f453, type: 3}
+  description: "\u30DC\u30B9\u3092\u5012\u3059\u3068\u3001\u524D\u306E\u30DC\u30B9\u304B\u3089\u5012\u3057\u305F\u96D1\u9B5A1\u4F53\u306B\u3064\u304DMILE+0.2\u3068EXP+3(1Lv\u3054\u3068\u306B\u5897\u52A0\u3001\u6700\u5927100\u4F53\u5206)\u3002\u96D1\u9B5A\u3092\u5012\u3057\u3066\u304B\u3089\u30DC\u30B9\u3078\u6311\u3080\u307B\u3069\u5F97"
+  category: 3
+  sortOrder: 212
+  recommendPriority: 5
+  effects:
+  - type: 149
+    value: 1
+    scaling: 0
+  rarity: 4
+  unlockDistance: 20000
+  gachaStage: 3
+  element: 0

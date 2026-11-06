@@ -14,6 +14,8 @@ public static class CardBehaviorText
     static string Pct(float v) => Mathf.RoundToInt(v * 100f).ToString();
     // カード拡張の効果の行(LocCardExpansion の文。訳のレビューが済むまで、その言語では日本語の文を出す)
     static string Exp(string id, params string[] args) => Loc.Src(LocCardExpansion.Find(id).behavior, args);
+    // 2026-11-06 共通カードの追加(LocCardCommon の文。訳のレビューが済むまで、その言語では英語の文)
+    static string Com(string id, params string[] args) => Loc.Src(LocCardCommon.Find(id).behavior, args);
 
     // 2026-10-29: 日本語の元の文(数値は差し込み済み)を返す。訳は表示の時に Loc.Auto が型(各キー)で行う
     //  (合成カードの説明は作り置きなので、作った時の言語で固まらないように。並べ替えも表示の時に1回だけ)
@@ -67,6 +69,23 @@ public static class CardBehaviorText
             case EffectType.SlipstreamLevel: return Exp("slipstream", Pct(ElementSystem.SlipstreamDmg(lv)), (ElementSystem.SlipstreamChance(lv) * 100f).ToString("0.#"));
             case EffectType.UpdraftLevel: return Exp("updraft", Pct(ElementSystem.UpdraftPct(lv)), M(ElementSystem.UpdraftPower(lv)));
             case EffectType.TempestLevel: return Exp("tempest", (1 + ElementSystem.TempestExtra(lv)).ToString(), Pct(ElementSystem.TempestMul(lv)));
+            // 2026-11-06 共通カードの追加(数値は CardRewards と同じ式)
+            case EffectType.ComboPayLevel: return Com("combo_pay", M(CardRewards.ComboPayMile(lv)));
+            case EffectType.HuntPayLevel: return Com("hunt_pay", M(CardRewards.HuntPayMile(lv)));
+            case EffectType.RoadPayLevel: return Com("road_pay", M(CardRewards.RoadPayMile(lv)));
+            case EffectType.SurvivalPayLevel: return Com("survival_pay", M(CardRewards.SurvivalPayMile(lv)));
+            case EffectType.ComboTrainingLevel: return Com("combo_training", M(CardRewards.ComboTrainingExp(lv)));
+            case EffectType.HuntTrainingLevel: return Com("hunt_training", M(CardRewards.HuntTrainingExp(lv)));
+            case EffectType.RoadTrainingLevel: return Com("road_training", M(CardRewards.RoadTrainingExp(lv)));
+            case EffectType.SurvivalTrainingLevel: return Com("survival_training", M(CardRewards.SurvivalTrainingExp(lv)));
+            case EffectType.DangerBountyLevel: return Com("danger_bounty", Pct(CardRewards.DangerHeavyChance(lv)));
+            case EffectType.SkySiegeLevel: return Com("sky_siege", Pct(CardRewards.SkySiegeAirChance(lv)), CardRewards.SkySiegeFormationMul(lv).ToString("0.0#"));
+            case EffectType.CrossroadsLevel: return Com("crossroads", M(CardRewards.CrossroadsFromKm(lv)), CardRewards.CrossroadsGapMul(lv).ToString("0.0#"));
+            case EffectType.HighStakesLevel: return Com("high_stakes", Pct(CardRewards.HighStakesPct(lv)));
+            case EffectType.ChainBountyLevel: return Com("chain_bounty", Pct(CardRewards.ChainBountyPct(lv)));
+            case EffectType.IronMarathonLevel: return Com("iron_marathon", M(CardRewards.IronMarathonMile(lv)), M(CardRewards.IronMarathonExp(lv)));
+            case EffectType.TrophyHuntLevel: return Com("trophy_hunt", M(CardRewards.TrophyMilePerKill(lv)), M(CardRewards.TrophyExpPerKill(lv)));
+            case EffectType.HorizonLevel: return Com("horizon", Pct(CardRewards.HorizonPerStep(lv)), Pct(CardRewards.HorizonPerStep(lv) * CardRewards.HorizonMaxSteps));
             case EffectType.ShieldGuard: return Loc.Src("このカードだけでも Shield を1つ持てる");
             case EffectType.UltimateLevel:
             {

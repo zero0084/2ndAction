@@ -1064,6 +1064,39 @@ public static class CardDatabaseBuilder
         // --- #101〜#112 カード拡張(2026-10-31、属性 12 枚)。名前/説明は LocCardExpansion、効果・レア度・解放は Editor/CardBalanceV3.cs が入れる。
         //     アイコンは Assets/Art/Icons/CardIcons/<id>.png(エステルと制作)。無い間は手続き生成の仮のアイコン --- //
         foreach (var x in ExpansionSpecs()) { var sp = x; sp.sortOrder = so++; yield return sp; }
+
+        // --- 2026-11-06 共通カードの追加(18 枚)。名前/説明は LocCardCommon、効果・レア度・解放は Editor/CardBalanceV3.cs(CommonTable)が入れる。
+        //     アイコンは Assets/Art/Icons/CardIcons/<id>.png(エステルと制作予定)。無い間は手続き生成の仮のアイコン(MILE = 金の硬貨 / EXP = 上向きの矢印 等) --- //
+        foreach (var x in CommonSpecs()) { var sp = x; sp.sortOrder = so++; yield return sp; }
+    }
+
+    static IEnumerable<Spec> CommonSpecs()
+    {
+        Spec X(string id, CardCategory cat, IconGlyph g, Color col, EffectType t, int rar, int rec)
+        {
+            var c = LocCardCommon.Find(id);
+            return new Spec { id = id, name = c.name, category = cat, description = c.desc, glyph = g, glyphColor = col, effects = new[] { (t, 1f) }, recommendPriority = rec,
+                rarity = rar, unlockDistance = rar >= 4 ? 20000f : rar == 3 ? 5000f : 0f, gachaStage = rar >= 4 ? 3 : rar == 3 ? 2 : 1 };
+        }
+        Color gold = new Color(1f, 0.82f, 0.25f), blue = new Color(0.45f, 0.8f, 1f), red = new Color(1f, 0.4f, 0.35f), violet = new Color(0.8f, 0.6f, 1f);
+        yield return X("combo_pay", CardCategory.Growth, IconGlyph.Coin, gold, EffectType.ComboPayLevel, 1, 5);
+        yield return X("hunt_pay", CardCategory.Growth, IconGlyph.Coin, gold, EffectType.HuntPayLevel, 1, 5);
+        yield return X("boss_pay", CardCategory.Growth, IconGlyph.Coin, gold, EffectType.BossMileGainMultiplier, 1, 5);
+        yield return X("road_pay", CardCategory.Growth, IconGlyph.Coin, gold, EffectType.RoadPayLevel, 1, 5);
+        yield return X("survival_pay", CardCategory.Growth, IconGlyph.Coin, gold, EffectType.SurvivalPayLevel, 1, 5);
+        yield return X("combo_training", CardCategory.Growth, IconGlyph.ArrowUp, blue, EffectType.ComboTrainingLevel, 1, 5);
+        yield return X("hunt_training", CardCategory.Growth, IconGlyph.ArrowUp, blue, EffectType.HuntTrainingLevel, 1, 5);
+        yield return X("boss_training", CardCategory.Growth, IconGlyph.ArrowUp, blue, EffectType.BossExpPct, 1, 5);
+        yield return X("road_training", CardCategory.Growth, IconGlyph.ArrowUp, blue, EffectType.RoadTrainingLevel, 1, 5);
+        yield return X("survival_training", CardCategory.Growth, IconGlyph.ArrowUp, blue, EffectType.SurvivalTrainingLevel, 1, 5);
+        yield return X("danger_bounty", CardCategory.Risk, IconGlyph.CrossSwords, red, EffectType.DangerBountyLevel, 3, 2);
+        yield return X("sky_siege", CardCategory.Risk, IconGlyph.WingSword, red, EffectType.SkySiegeLevel, 3, 2);
+        yield return X("crossroads", CardCategory.Risk, IconGlyph.SpeedLines, red, EffectType.CrossroadsLevel, 3, 2);
+        yield return X("high_stakes", CardCategory.Risk, IconGlyph.Shield, red, EffectType.HighStakesLevel, 3, 2);
+        yield return X("chain_bounty", CardCategory.Growth, IconGlyph.Ring, violet, EffectType.ChainBountyLevel, 4, 5);
+        yield return X("iron_marathon", CardCategory.Growth, IconGlyph.ArmorPlate, violet, EffectType.IronMarathonLevel, 4, 5);
+        yield return X("trophy_hunt", CardCategory.Growth, IconGlyph.Coin, violet, EffectType.TrophyHuntLevel, 4, 5);
+        yield return X("horizon", CardCategory.Growth, IconGlyph.SpeedLines, violet, EffectType.HorizonLevel, 4, 5);
     }
 
     static IEnumerable<Spec> ExpansionSpecs()

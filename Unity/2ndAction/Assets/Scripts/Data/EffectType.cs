@@ -196,5 +196,24 @@ public enum EffectType
     JudgmentLevel,          // 落雷を溜めて大落雷
     SlipstreamLevel,        // 走る速さで風刃が強く
     UpdraftLevel,        // 空中の敵への攻撃力 / 空中での風の追撃
-    TempestLevel            // 風刃が連続で飛ぶ
+    TempestLevel,           // 風刃が連続で飛ぶ
+    // 2026-11-06 共通カードの追加(MILE/EXP の条件つき報酬・リスク・複合 18 枚)。数値は CardRewards(Cards/CardRewards.cs)、表示は CardBehaviorText。
+    // アセットには数(int)で入るので、必ず末尾へ足す(途中に入れない)
+    ComboPayLevel,          // 連続ヒット10回ごとに MILE
+    HuntPayLevel,           // 雑魚10体撃破ごとに MILE
+    RoadPayLevel,           // 1km ごとに MILE
+    SurvivalPayLevel,       // 30秒ごとに MILE
+    ComboTrainingLevel,     // 連続ヒット10回ごとに EXP
+    HuntTrainingLevel,      // 雑魚10体撃破ごとに EXP
+    RoadTrainingLevel,      // 1km ごとに EXP
+    SurvivalTrainingLevel,  // 30秒ごとに EXP
+    BossExpPct,             // ボス撃破の EXP(撃破の EXP の枠に足して曲線を通す)
+    DangerBountyLevel,      // 雑魚が高火力敵になる確率(リスク)
+    SkySiegeLevel,          // 空中雑魚が出やすい(リスク)
+    CrossroadsLevel,        // 判断イベントが早く・多く(リスク)
+    HighStakesLevel,        // ボスから受けるダメージ(リスク)
+    ChainBountyLevel,       // 10HIT 以上の連続ヒット中の撃破の MILE/EXP
+    IronMarathonLevel,      // 被弾せずに 1km ごとに MILE/EXP
+    TrophyHuntLevel,        // ボス撃破で、前のボスからの撃破数に応じた MILE/EXP
+    HorizonLevel            // 走行 10km ごとに MILE/EXP の割合
 }

@@ -336,6 +336,7 @@ public sealed class CardVariant
             case EffectType.DistanceMilePct: return "走行距離MILE";
             case EffectType.DistanceExpPct: return "走行距離EXP";
             case EffectType.KillExpPct: return "敵撃破EXP";
+            case EffectType.BossExpPct: return LocCardCommon.LabelBossExp; // 2026-11-06
             case EffectType.BurnPowerPct: return "炎上の基礎威力";
             case EffectType.FreezeThresholdReduce: return "凍結に必要な回数の減少";
             case EffectType.LightningDamagePct: return "落雷ダメージ倍率";

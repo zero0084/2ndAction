@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: combo_pay
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: combo_pay
+  cardName: COMBO PAY
+  icon: {fileID: 2800000, guid: 39c44d5d4167fea44a1b90e52deba28b, type: 3}
+  description: "\u9023\u7D9A\u30D2\u30C3\u30C8(\u753B\u9762\u306E\u300CN HIT\u300D)\u304C10\u56DE\u306B\u5C4A\u304F\u305F\u3073\u306BMILE+1(1Lv\u3054\u3068\u306B+1)\u300220\u56DE\u30FB30\u56DE\u2026\u3068\u7D9A\u3051\u308B\u307B\u3069\u4F55\u5EA6\u3082\u3082\u3089\u3048\u308B(1\u56DE\u306E\u9023\u7D9A\u30D2\u30C3\u30C8\u3067100HIT\u307E\u3067)"
+  category: 3
+  sortOrder: 196
+  recommendPriority: 5
+  effects:
+  - type: 134
+    value: 1
+    scaling: 0
+  rarity: 1
+  unlockDistance: 0
+  gachaStage: 1
+  element: 0

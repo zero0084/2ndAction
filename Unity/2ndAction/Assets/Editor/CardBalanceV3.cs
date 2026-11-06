@@ -193,6 +193,9 @@ public static class CardBalanceV3
         // ---- カード拡張(2026-10-31、属性 12 枚 #101〜#112)。名前・説明は LocCardExpansion。各属性 入口 ★2(最初から)→ 発展 ★3(5km)→ 完成 ★4(20km)
         foreach (var c in ExpansionTable()) yield return c;
 
+        // ---- 2026-11-06 共通カードの追加(18 枚)。名前・説明は LocCardCommon、数値の式は CardRewards。★1 = 最初から / ★3 = 5km / ★4 = 20km
+        foreach (var c in CommonTable()) yield return c;
+
         // ---- #100 ULTIMATE(2026-10-04): 新しい cardId。数値は UltimateTuning(Lv1/5/9 の前進・威力・BUFF・Gauge の溜まりやすさ)
         yield return Named(Card(UltimateCardId, "Gaugeが100%で発動(左下のボタン)。キャラ固有の必殺技で画面内の通常の敵を一撃で倒し、ボスには最大HPの20〜40%のダメージ(Lvで上がる)。そのまま大きく前進し(Lv1 300m → Lv9 1000m。ボス関門などの手前で止まり、ボス戦中は前進しない)、しばらく強化が続く(Lv1 5秒 → Lv9 12秒)。Gaugeは距離・撃破・ボスへのダメージで溜まる",
             new E(EffectType.UltimateLevel, 1f)), "ULTIMATE");
@@ -224,6 +227,42 @@ public static class CardBalanceV3
         yield return X("updraft", ElementType.Wind, 3, With(wind, new E(EffectType.UpdraftLevel, 1f)));
         yield return X("tempest", ElementType.Wind, 4, With(wind, new E(EffectType.TempestLevel, 1f)));
     }
+
+    static IEnumerable<C> CommonTable()
+    {
+        C X(string id, int rar, int rec, params E[] fx)
+        {
+            var t = LocCardCommon.Find(id);
+            var c = Rar(Named(Card(id, t.desc, ElementType.None, fx), t.name), rar, rar >= 4 ? 3 : rar == 3 ? 2 : 1, rar >= 4 ? 20000f : rar == 3 ? 5000f : 0f);
+            c.rec = rec;
+            return c;
+        }
+        // ★1 MILE / EXP(単一条件)。挙動の Lv(1Lvごとに1)→ 値は CardRewards
+        yield return X("combo_pay", 1, 5, new E(EffectType.ComboPayLevel, 1f));
+        yield return X("hunt_pay", 1, 5, new E(EffectType.HuntPayLevel, 1f));
+        yield return X("boss_pay", 1, 5, new E(EffectType.BossMileGainMultiplier, 0.12f));
+        yield return X("road_pay", 1, 5, new E(EffectType.RoadPayLevel, 1f));
+        yield return X("survival_pay", 1, 5, new E(EffectType.SurvivalPayLevel, 1f));
+        yield return X("combo_training", 1, 5, new E(EffectType.ComboTrainingLevel, 1f));
+        yield return X("hunt_training", 1, 5, new E(EffectType.HuntTrainingLevel, 1f));
+        yield return X("boss_training", 1, 5, new E(EffectType.BossExpPct, 0.15f));
+        yield return X("road_training", 1, 5, new E(EffectType.RoadTrainingLevel, 1f));
+        yield return X("survival_training", 1, 5, new E(EffectType.SurvivalTrainingLevel, 1f));
+        // ★3 リスク付き(敵の側が忙しくなる / ボスが痛い 代わりに報酬)
+        yield return X("danger_bounty", 3, 2, new E(EffectType.DangerBountyLevel, 1f), new E(EffectType.MileGainMultiplier, 0.15f), new E(EffectType.KillExpPct, 0.10f));
+        yield return X("sky_siege", 3, 2, new E(EffectType.SkySiegeLevel, 1f), new E(EffectType.KillExpPct, 0.15f), new E(EffectType.MileGainMultiplier, 0.08f));
+        yield return X("crossroads", 3, 2, new E(EffectType.CrossroadsLevel, 1f), new E(EffectType.MileGainMultiplier, 0.12f), new E(EffectType.ExpGain, 0.08f));
+        yield return X("high_stakes", 3, 2, new E(EffectType.HighStakesLevel, 1f), new E(EffectType.BossMileGainMultiplier, 0.35f), new E(EffectType.BossExpPct, 0.15f));
+        // ★4 複合(デメリットなし)
+        yield return X("chain_bounty", 4, 5, new E(EffectType.ChainBountyLevel, 1f));
+        yield return X("iron_marathon", 4, 5, new E(EffectType.IronMarathonLevel, 1f));
+        yield return X("trophy_hunt", 4, 5, new E(EffectType.TrophyHuntLevel, 1f));
+        yield return X("horizon", 4, 5, new E(EffectType.HorizonLevel, 1f));
+    }
+
+    // 2026-11-06 共通カードの追加(18 枚): アセットを作り(CardDatabaseBuilder.Build)、この表の値を入れる。batchmode: -executeMethod CardBalanceV3.ApplyCommon
+    [MenuItem("Tools/OneMoreMile/Apply common cards (2026-11-06, 18 cards)")]
+    public static void ApplyCommon() => ApplyFiltered(new HashSet<string>(LocCardCommon.Ids));
 
     public static readonly string[] ExpansionIds = { "scorch", "fire_whirl", "combustion", "permafrost", "glacier_guard", "shatter_strike", "conductor", "volt_surge", "judgment_bolt", "slipstream", "updraft", "tempest" };
     [MenuItem("Tools/OneMoreMile/Apply card expansion (2026-10-31, 12 element cards)")]

@@ -281,25 +281,37 @@ public partial class DeckEditUI : MonoBehaviour
     public string CharHeaderText => charHeader != null ? charHeader.text : "";
     public void DebugCycleCharacter(int dir) => CycleCharacterCardOwner(dir);
 
+    bool masteryCountsDirty = true; int cachedTotalCards, cachedMaxCount, cachedAwakenedCount;
+    public static string LastOpenTimes { get; private set; } = "";    // 確認用: 開く処理の内訳(ms)
+    public static string LastRefreshParts { get; private set; } = ""; // 確認用: 一覧の後の部分(デッキ枠/キャラ枠/枚数の行)
     public void Open()
     {
+        var openWatch = System.Diagnostics.Stopwatch.StartNew();
+        masteryCountsDirty = true;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.DeckEdit);
         if (root != null) root.SetActive(true);
         ResetDetail();
         EnsureCategoryTabs();
         activeFilter = "ALL";
+        ResetFiltersForOpen(); // 2026-11-06: マップ/レア度/属性も「すべて」へ(並び替えはそのまま)
         pendingEquipSlot = -1;
         RefreshFilterHighlight();
-        Refresh();
         // Both grids must always open scrolled to the very top - forced
         // again here (not just once at scene-build time in
         // SceneBuilder.BuildDeckPanel) since a previous visit to this
         // screen may have left either one scrolled partway down.
+        // 2026-11-06: 一覧を作る前に先頭へ(仮想スクロールの枠を前の位置で作って、すぐ作り直さないように)
         if (ownedScrollRect != null) ownedScrollRect.verticalNormalizedPosition = 1f;
         if (deckScrollRect != null) deckScrollRect.verticalNormalizedPosition = 1f;
+        float t0 = (float)openWatch.Elapsed.TotalMilliseconds;
+        Refresh();
+        float t1 = (float)openWatch.Elapsed.TotalMilliseconds;
         ApplyOrientationLayout();
+        float t2 = (float)openWatch.Elapsed.TotalMilliseconds;
         if (presetUi == null) presetUi = gameObject.AddComponent<DeckPresetUi>(); // 2026-10-31: デッキのプリセット
         presetUi.Bind(this);
+        LastOpenTimes = $"pre {t0:F0} / refresh {t1 - t0:F0} (list {LastRefreshMs:F0}, {LastRefreshParts}) / layout {t2 - t1:F0} / preset {openWatch.Elapsed.TotalMilliseconds - t2:F0}";
+        Debug.Log($"[DeckEdit] open {LastOpenTimes} ms, entries {displayedStacks.Count}, slots {ownedCards.Length}");
         if (rootGroup != null)
         {
             rootGroup.alpha = 0f;
@@ -463,6 +475,7 @@ public partial class DeckEditUI : MonoBehaviour
     public void HandleBack()
     {
         if (presetUi != null && presetUi.HandleBack()) return; // 2026-10-31: プリセットの一覧が開いていれば、それだけを閉じる
+        if (FilterPopupOpen) { CloseFilterPopup(); return; }   // 2026-11-06: 絞り込みの選択肢の窓
         if (confirmDialog != null && confirmDialog.IsOpen) { confirmDialog.Cancel(); return; }
         if (BigDetailOpen) { CloseBigDetail(); return; } // 2026-10-31: 大きな詳細だけを閉じる
         Close();
@@ -571,37 +584,31 @@ public partial class DeckEditUI : MonoBehaviour
     //  レア度・種類・解放の条件は付けない(★5 / #100 ULTIMATE も他と同じ)
     public static List<CardInventory.Stack> OwnedStacksSorted()
     {
-        var list = new List<CardInventory.Stack>();
-        foreach (var st in CardInventory.Stacks) if (st.count > 0 && CardDatabase.FindById(st.cardId) != null) list.Add(st);
-        list.Sort((a, b) =>
+        // 2026-11-06: 比べるたびに FindById(カードの数だけ探す)をしていた → 先に1回だけ引いておく(束が 600 を超えても軽く)
+        var pairs = new List<(CardInventory.Stack st, CardDefinition def)>();
+        foreach (var st in CardInventory.Stacks) { if (st.count <= 0) continue; var d = CardDatabase.FindById(st.cardId); if (d != null) pairs.Add((st, d)); }
+        pairs.Sort((a, b) =>
         {
-            CardDefinition ca = CardDatabase.FindById(a.cardId);
-            CardDefinition cb = CardDatabase.FindById(b.cardId);
-            int byOrder = ca.sortOrder.CompareTo(cb.sortOrder);
-            return byOrder != 0 ? byOrder : a.level.CompareTo(b.level);
+            int byOrder = a.def.sortOrder.CompareTo(b.def.sortOrder);
+            return byOrder != 0 ? byOrder : a.st.level.CompareTo(b.st.level);
         });
+        var list = new List<CardInventory.Stack>(pairs.Count);
+        foreach (var x in pairs) list.Add(x.st);
         return list;
     }
     int ownedStackTotal;
 
-    // 一覧の枠が足りなければ、同じ枠を複製して足す(グリッドの中なのでそのまま並ぶ)
-    void EnsureOwnedPool(int need)
-    {
-        if (ownedCards == null || ownedCards.Length == 0 || ownedCards.Length >= need) return;
-        var src = ownedCards[0];
-        var list = new List<RewardCardUI>(ownedCards);
-        while (list.Count < need)
-        {
-            var go = Instantiate(src.gameObject, src.transform.parent);
-            go.name = "OwnedCard_" + list.Count;
-            list.Add(go.GetComponent<RewardCardUI>());
-        }
-        ownedCards = list.ToArray();
-        Debug.Log($"[DeckEdit] owned card slots grown to {ownedCards.Length}");
-    }
+    // 枠の数は DeckEditUI.Virtual(見えている段の分だけ。上限なし)
     public int DebugOwnedShownCount => displayedStacks.Count;
     public int DebugOwnedSlotCount => ownedCards.Length;
-    public bool DebugOwnedShows(string key) { int i = displayedStacks.FindIndex(st => st.cardId == key); return i >= 0 && i < ownedCards.Length && ownedCards[i].gameObject.activeSelf; }
+    // そのキーの束が一覧にあり、見える位置へ動かすと枠に出るか(2026-11-06: 仮想スクロールなので、動かしてから調べる)
+    public bool DebugOwnedShows(string key)
+    {
+        int i = displayedStacks.FindIndex(st => st.cardId == key);
+        if (i < 0) return false;
+        var c = DebugOwnedCardAt(i);
+        return c != null && c.gameObject.activeInHierarchy;
+    }
     public void DebugSetFilter(string f) { activeFilter = f; RefreshFilterHighlight(); Refresh(); }
 
     void Refresh()
@@ -617,42 +624,23 @@ public partial class DeckEditUI : MonoBehaviour
         // card in the database with an unlock flag". Sorted for a stable/
         // predictable layout (CardDatabase's own sortOrder, then ascending
         // level) - same convention CardFusionUI's owned list uses.
-        bool focusFound = false;
         // 2026-11-01(★5が出ない不具合): 一覧の枠はシーンに 160 枠しか無く、所持の束(Lv違い・合成の違いは別の束)を並び順の先頭から
-        // 入れていた。カードが 112 種になって束が 160 を超え、並び順の最後(★5 = sortOrder が大きい)が枠からあふれて出ていなかった
-        // (種類の絞り込みも枠を隠すだけだったので、絞っても出なかった)。→ 所持の束を作る → 絞り込む → 足りない枠は増やす、の順に
-        displayedStacks.Clear();
-        displayedStacks.AddRange(OwnedStacksSorted());
-        ownedStackTotal = displayedStacks.Count;                      // 「所持カード (n)」は絞り込みに関係なく全部の数
-        displayedStacks.RemoveAll(st => !MatchesFilter(CardDatabase.FindById(st.cardId).category, activeFilter));
-        EnsureOwnedPool(displayedStacks.Count);
-
-        for (int i = 0; i < ownedCards.Length; i++)
-        {
-            if (i >= displayedStacks.Count)
-            {
-                ownedCards[i].gameObject.SetActive(false);
-                continue;
-            }
-            CardInventory.Stack stack = displayedStacks[i];
-            CardDefinition card = CardDatabase.FindById(stack.cardId);
-
-            ownedCards[i].gameObject.SetActive(true);
-            ownedCards[i].ShowFrontImmediate(gm.MakeOwnedCardData(card, stack.level, stack.count));
-            bool inDeck = false;
-            for (int d = 0; d < deck.Count; d++)
-            {
-                if (deck[d] == stack.cardId) { inDeck = true; break; }
-            }
-            // カードUI最終デザイン改修(2026-09-26) - 「デッキに入っている」は小さなチェック印、
-            // 「いま見ている(タップした)カード」は発光+拡大の選択状態、と役割を分けた
-            // (以前はどちらも同じ金色の枠で、選択状態との差が分かりにくかった)。
-            // 2026-10-30: 同じカードの別のLv/合成の物がデッキにある時は灰色のチェック(このカードは追加できない)
-            ownedCards[i].SetInDeckMark(inDeck, !inDeck && gm.DeckHasKind(stack.cardId));
-            bool isFocus = !focusFound && focusCardId != null && stack.cardId == focusCardId && (focusLevel < 0 || stack.level == focusLevel);
-            if (isFocus) focusFound = true;
-            ownedCards[i].SetFocused(isFocus);
-        }
+        // 入れていた。カードが 112 種になって束が 160 を超え、並び順の最後(★5 = sortOrder が大きい)が枠からあふれて出ていなかった。
+        // 2026-11-06: 所持の束を作る → 絞り込む(種類・マップ・レア度・属性)→ 並び替える → 見えている段だけ枠に入れる(仮想スクロール、DeckEditUI.Virtual)。
+        //  一覧の高さは束の数から計算するので、束がいくつあっても最後まで届く
+        var refreshWatch = System.Diagnostics.Stopwatch.StartNew();
+        EnsureVirtual();
+        BuildOwnedEntries();                                          // 「所持カード (n)」の n は絞り込みに関係なく全部の数(ownedStackTotal)
+        LastEntriesMs = (float)refreshWatch.Elapsed.TotalMilliseconds;
+        deckKeySet = new HashSet<string>(deck);
+        focusIndex = -1;
+        if (focusCardId != null)
+            for (int i = 0; i < displayedStacks.Count; i++)
+                if (displayedStacks[i].cardId == focusCardId && (focusLevel < 0 || displayedStacks[i].level == focusLevel)) { focusIndex = i; break; }
+        ownedDirty = true;
+        UpdateVirtual(true);
+        UpdateOwnedScrollbar();
+        LastRefreshMs = (float)refreshWatch.Elapsed.TotalMilliseconds;
 
         for (int i = 0; i < deckSlotCards.Length; i++)
         {
@@ -677,6 +665,7 @@ public partial class DeckEditUI : MonoBehaviour
             }
         }
 
+        float tDeck = (float)refreshWatch.Elapsed.TotalMilliseconds;
         // Item 7 - Character Card slots.
         RefreshCharHeader();
         RefreshCharSlotHints();
@@ -707,6 +696,7 @@ public partial class DeckEditUI : MonoBehaviour
             }
         }
 
+        float tChar = (float)refreshWatch.Elapsed.TotalMilliseconds;
         if (countText != null)
         {
             countText.text = Loc.T("デッキ") + $"  {deck.Count} / {GameManager.DeckCapacity}"; // 2026-10-22: 見出しは訳のある「デッキ」
@@ -714,14 +704,21 @@ public partial class DeckEditUI : MonoBehaviour
         if (collectionCountText != null)
         {
             // カード長期育成(2026-10-04): 育てた証(MAX / AWAKENED の総数。カードの総数は CardDatabase から)
-            int total = CardMastery.TotalCards;
+            // 2026-11-06: MAX / AWAKENED の数は、カードの数 × 束の数 を調べるので重い(束 1000 で 1回 50ms)→ 開いた時と、分解/変換の後だけ数え直す
+            if (masteryCountsDirty) { cachedTotalCards = CardMastery.TotalCards; cachedMaxCount = CardMastery.MaxCount; cachedAwakenedCount = CardMastery.AwakenedCount; masteryCountsDirty = false; }
+            int total = cachedTotalCards;
             collectionCountText.horizontalOverflow = HorizontalWrapMode.Overflow;
             collectionCountText.supportRichText = true;
-            collectionCountText.text = CollectionLabel + $" ({ownedStackTotal})  <size=17><color=#ffe6a0>MAX {CardMastery.MaxCount}/{total}  AWAKENED {CardMastery.AwakenedCount}/{total}</color></size>";
+            // 2026-11-06: 絞り込んでいる時は「(表示 / 全部)」、マップを選んでいる時は「未解放 n」も
+            string shown = AnyFilterActive ? $"{displayedStacks.Count}/{ownedStackTotal}" : ownedStackTotal.ToString();
+            collectionCountText.text = CollectionLabel + $" ({shown})  <size=17><color=#ffe6a0>MAX {cachedMaxCount}/{total}  AWAKENED {cachedAwakenedCount}/{total}</color></size>" + LockedSuffix();
         }
+        float tCount = (float)refreshWatch.Elapsed.TotalMilliseconds;
+        LastRefreshParts = $"deck {tDeck - LastRefreshMs:F0} / char {tChar - tDeck:F0} / count {tCount - tChar:F0}";
         RefreshHeadings();
         RefreshEmptyState();
         RefreshCategoryRow();
+        RefreshFilterBar();
 
         RefreshConvertButton();
     }
@@ -1080,8 +1077,9 @@ public partial class DeckEditUI : MonoBehaviour
         for (int i = 0; i < displayedStacks.Count; i++) if (displayedStacks[i].cardId == key) { OnOwnedCardTapped(i); return true; }
         return false;
     }
-    public int DebugMutedMarks() => ownedCards.Count(c => c != null && c.gameObject.activeInHierarchy && c.DeckMarkMuted);
-    public int DebugGreenMarks() => ownedCards.Count(c => c != null && c.gameObject.activeInHierarchy && c.InDeckMarked && !c.DeckMarkMuted);
+    // 2026-11-06: 仮想スクロールなので、枠ではなく一覧の全部の束で数える(枠に出す時と同じ条件)
+    public int DebugMutedMarks() { var gm = GameManager.Instance; return gm == null ? 0 : displayedStacks.Count(st => !gm.DeckCards.Contains(st.cardId) && gm.DeckHasKind(st.cardId)); }
+    public int DebugGreenMarks() { var gm = GameManager.Instance; return gm == null ? 0 : displayedStacks.Count(st => gm.DeckCards.Contains(st.cardId)); }
 
     public int DebugIndexOfOwned(string cardIdPrefix)
     {
@@ -1116,7 +1114,7 @@ public partial class DeckEditUI : MonoBehaviour
         {
             bool equipped = gm.EquipCharacterCard(pendingEquipSlot, stack.cardId, stack.level);
             pendingEquipSlot = -1;
-            StartCoroutine(ownedCards[index].PulseSelect());
+            var pc0 = OwnedCardFor(index); if (pc0 != null) StartCoroutine(pc0.PulseSelect());
             if (!equipped)
             {
                 // Owned copies were all already spent elsewhere (Deck/
@@ -1134,8 +1132,9 @@ public partial class DeckEditUI : MonoBehaviour
         // settles at the card's ACTUAL resulting state either way, rather
         // than assuming it always succeeded.
         bool added = gm.AddToDeck(stack.cardId);
-        StartCoroutine(ownedCards[index].PulseSelect());
-        if (added && deckScrollRect != null) StartCoroutine(PlayCardFly(ownedCards[index].rect, deckScrollRect.viewport, tapped.icon));
+        var pc1 = OwnedCardFor(index);
+        if (pc1 != null) StartCoroutine(pc1.PulseSelect());
+        if (added && deckScrollRect != null && pc1 != null) StartCoroutine(PlayCardFly(pc1.rect, deckScrollRect.viewport, tapped.icon));
         Refresh();
         if (!added && gm.LastDeckAddResult == GameManager.DeckAddResult.SameCardInDeck) ShowAlreadyInDeck(stack.cardId);
     }
@@ -1225,6 +1224,7 @@ public partial class DeckEditUI : MonoBehaviour
 
     void DoConvert(string cardId, int level)
     {
+        masteryCountsDirty = true;
         if (!CardInventory.RemoveCard(cardId, level, 1))
         {
             if (detailText != null) detailText.text = Loc.Auto("カードが不足しています");
@@ -1386,6 +1386,7 @@ public partial class DeckEditUI : MonoBehaviour
         // パッド操作中: 押せる枠を集める(手前の窓だけ)
         if (confirmDialog != null && confirmDialog.IsOpen) UiHit.Probe(p => confirmDialog.HandleTap(p), 5);
         else if (BigDetailOpen) UiHit.Probe(HandleBigTap, 4);
+        else if (FilterPopupOpen) UiHit.Probe(HandlePopupTap, 4);
         else UiHit.Probe(HandleTap);
         if (!OverlayOpen) PadScroll();
         // タッチ/マウス + ゲームパッドの決定(フォーカスの中心を叩く)。2026-10-31: タップ/長押し/ドラッグ/スクロールを見分ける(DeckEditUI.Drag.cs)
@@ -1474,6 +1475,9 @@ public partial class DeckEditUI : MonoBehaviour
             }
         }
 
+        if (FilterPopupOpen) { HandlePopupTap(screenPos); return; }
+        if (HandleFilterTap(screenPos)) return; // 2026-11-06: マップのタブ / レア度・属性・並び替えのボタン
+
         for (int i = 0; i < filterButtonRects.Length; i++)
         {
             RectTransform tabRect = filterButtonRects[i];
@@ -1484,7 +1488,7 @@ public partial class DeckEditUI : MonoBehaviour
                 {
                     activeFilter = FilterNames[i];
                     RefreshFilterHighlight();
-                    Refresh();
+                    AfterFilterChange();
                 }
                 return;
             }
@@ -1501,7 +1505,7 @@ public partial class DeckEditUI : MonoBehaviour
             if (!UiHit.Probing && !inOwnedView && !QaTapLegacy) break;
             if (UiHit.Hit(card.rect, screenPos))
             {
-                OnOwnedCardTapped(i);
+                OnOwnedCardTapped(OwnedDataOfSlot(i)); // 枠 i が見せている束(仮想スクロール)
                 return;
             }
         }

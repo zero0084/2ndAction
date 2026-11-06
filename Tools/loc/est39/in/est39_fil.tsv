@@ -1,0 +1,47 @@
+10518	Tuwing umabot sa multiple ng 10 ang sunod-sunod mong tama ("N HIT" counter), makakuha ng +1 MILE (+1 bawat Lv). Paulit-ulit sa 20, 30, at iba pa (hanggang 100 HIT bawat serye)
+10519	Makakuha ng +1 MILE (+1 bawat Lv) sa bawat 10 karaniwang kalabang natalo. Hindi kasama ang mga boss
+10520	MILE sa pagtalo ng boss +12% bawat Lv
+10521	Makakuha ng +2 MILE (+2 bawat Lv) sa bawat 1km na tinakbo. Hindi kasama ang distansyang nilaktawan sa Mabilis na Simula o CONTINUE
+10522	Makakuha ng +1 MILE (+1 bawat Lv) sa bawat 30s na nabuhay sa isang takbo. Hindi kasama ang pagpili ng card at pag-pause
+10523	Tuwing umabot sa multiple ng 10 ang sunod-sunod mong tama, makakuha ng EXP +20 (+20 bawat Lv). Hanggang 100 HIT bawat serye
+10524	Makakuha ng EXP +30 (+30 bawat Lv) sa bawat 10 karaniwang kalabang natalo. Hindi kasama ang mga boss
+10525	EXP sa pagtalo ng boss +15% bawat Lv
+10526	Makakuha ng EXP +100 (+100 bawat Lv) sa bawat 1km na tinakbo. Hindi kasama ang distansyang nilaktawan sa Mabilis na Simula o CONTINUE
+10527	Makakuha ng EXP +30 (+30 bawat Lv) sa bawat 30s na nabuhay sa isang takbo. Hindi kasama ang pagpili ng card at pag-pause
+10528	May ilang kalabang nagiging malalakas umatake (magenta na aura, +1 pusong damage): +3% bawat Lv, max 30%, mula 0km. Kapalit: MILE mula sa kalaban/BONUS +15% bawat Lv, EXP sa pagtalo ng kalaban +10% bawat Lv. Nagbabago lang ang mga kalaban sa solo run sa normal na mapa
+10529	Mas madalas lumabas sa air slots ang mga kalabang lumilipad (sumisisid, tumatawid, atbp.) (+5% bawat Lv), at mas madalas ang grupong may lumilipad na kalaban (+10% bawat Lv). Kapalit: EXP sa pagtalo ng kalaban +15% bawat Lv, MILE mula sa kalaban/BONUS +8% bawat Lv
+10530	Mas maagang nagsisimula ang mga event na kailangang magpasya (babala sa lane, harang, malalakas na kalaban, atbp.): karaniwang 50km, 4km na mas maaga bawat Lv, pinakamaaga 10km. Mas madalas din (agwat -5% bawat Lv, max -50%). Kapalit: MILE mula sa kalaban/BONUS +12% bawat Lv, nakuhang EXP +8% bawat Lv. Sa solo run lang sa normal na mapa
+10531	Damage mula sa boss +10% bawat Lv (sa puso; puwedeng magdagdag ng 1 puso ang fractional na bahagi). Kapalit: MILE sa pagtalo ng boss +35% bawat Lv, EXP sa pagtalo ng boss +15% bawat Lv
+10532	Mas maraming MILE at EXP ang makukuha sa karaniwang kalabang natalo habang may seryeng 10 HIT pataas (+15% bawat Lv). Patuloy na talunin ang mga kalaban nang hindi napuputol ang serye
+10533	Sa bawat 1km na tinakbo nang walang damage, makakuha ng +3 MILE at EXP +150 (tumataas bawat Lv). Mare-reset ang bilang kapag nasaktan, pero hindi kapag naharang ng Shield
+10534	Sa pagtalo ng boss, makakuha ng +0.2 MILE at EXP +3 bawat karaniwang kalabang natalo mula noong nakaraang boss (tumataas bawat Lv, hanggang 100 kalaban). Talunin muna ang mga kalaban bago harapin ang boss
+10535	Bawat 10km, tumataas ang MILE mula sa kalaban/boss/BONUS at nakuhang EXP ng +2% bawat Lv (maximum sa 100km; +20% sa Lv1). Habang lumalayo, mas lumalaki ang bonus
+10536	+{0} MILE bawat 10 HIT
+10537	+{0} MILE bawat 10 karaniwang kalabang natalo
+10539	+{0} MILE bawat 1km
+10540	+{0} MILE bawat 30s
+10541	EXP +{0} bawat 10 HIT
+10542	EXP +{0} bawat 10 karaniwang kalabang natalo
+10544	EXP +{0} bawat 1km
+10545	EXP +{0} bawat 30s
+10546	Tsansang maging malakas umatake ang kalaban +{0}%
+10547	Kalabang lumilipad +{0}% / grupong may lumilipad ×{1}
+10548	Mga event ng pagpili mula {0}km / agwat ×{1}
+10549	Damage mula sa boss +{0}%
+10550	Pagtalo habang may 10+ HIT na serye: MILE/EXP +{0}%
+10551	Bawat 1km na walang damage: +{0} MILE, EXP +{1}
+10552	Sa pagtalo ng boss, bawat kalaban: +{0} MILE, EXP +{1} (max 100)
+10553	MILE/EXP +{0}% bawat 10km (max +{1}% sa 100km)
+10554	EXP sa pagtalo ng boss
+10555	Umabot sa {1}m sa {0} at bumalik
+10556	I-unlock ang Huling Dungeon
+10460	PANGKALAHATAN
+10461	ILANG
+10462	KUWEBA
+10463	LANGIT
+10464	HULING DUNGEON
+10465	Elemento
+10466	Mapa
+10467	Pagkakasunod ng unlock
+10468	Naka-lock: {0}
+10469	Walang card na tugma sa mga filter

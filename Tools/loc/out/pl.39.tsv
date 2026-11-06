@@ -1,0 +1,47 @@
+10518	Gdy seria trafień (licznik „N HIT”) osiągnie wielokrotność 10, otrzymasz +1 MILE (+1 za każdy Lv). Nagroda powtarza się przy 20, 30 itd. (do 100 HIT na serię)
+10519	Otrzymujesz +1 MILE (+1 za każdy Lv) za każdych 10 pokonanych zwykłych wrogów. Bossowie się nie liczą
+10520	MILE za pokonanie bossa +12% za Lv
+10521	Otrzymujesz +2 MILE (+2 za każdy Lv) za każdy przebiegnięty 1km. Odcinki pominięte przez Szybki start lub CONTINUE się nie liczą
+10522	Otrzymujesz +1 MILE (+1 za każdy Lv) za każde 30s przetrwania podczas biegu. Wybór kart i pauzy się nie liczą
+10523	Gdy seria trafień osiągnie wielokrotność 10, otrzymasz EXP +20 (+20 za każdy Lv). Do 100 HIT na serię
+10524	Otrzymujesz EXP +30 (+30 za każdy Lv) za każdych 10 pokonanych zwykłych wrogów. Bossowie się nie liczą
+10525	EXP za pokonanie bossa +15% za Lv
+10526	Otrzymujesz EXP +100 (+100 za każdy Lv) za każdy przebiegnięty 1km. Odcinki pominięte przez Szybki start lub CONTINUE się nie liczą
+10527	Otrzymujesz EXP +30 (+30 za każdy Lv) za każde 30s przetrwania podczas biegu. Wybór kart i pauzy się nie liczą
+10528	Część wrogów staje się silnymi przeciwnikami (purpurowa aura, +1 serce obrażeń): +3% za Lv, maks. 30%, od 0km. W zamian: MILE za wrogów/BONUS +15% za Lv, EXP za pokonanych wrogów +10% za Lv. Wrogowie zmieniają się tylko w trybie solo na zwykłych mapach
+10529	Wrogowie powietrzni (nurkujący, przelatujący itd.) częściej zajmują miejsca w powietrzu (+5% za Lv), a grupy z latającymi wrogami pojawiają się częściej (+10% za Lv). W zamian: EXP za pokonanych wrogów +15% za Lv, MILE za wrogów/BONUS +8% za Lv
+10530	Zdarzenia wymagające decyzji (ostrzeżenia o pasach, blokady, silni wrogowie itd.) zaczynają się wcześniej (zwykle od 50km, o 4km wcześniej za Lv, najwcześniej od 10km) i występują częściej (odstęp -5% za Lv, maks. -50%). W zamian: MILE za wrogów/BONUS +12% za Lv, zdobywane EXP +8% za Lv. Tylko solo na zwykłych mapach
+10531	Obrażenia otrzymywane od bossów +10% za Lv (w sercach; część ułamkowa może dodać 1 serce). W zamian: MILE za pokonanie bossa +35% za Lv, EXP za pokonanie bossa +15% za Lv
+10532	Zwykli wrogowie pokonani podczas serii co najmniej 10 HIT dają więcej MILE i EXP za pokonanie (+15% za Lv). Pokonuj kolejnych wrogów bez przerywania serii
+10533	Za każdy 1km bez otrzymania obrażeń dostajesz +3 MILE i EXP +150 (więcej za każdy Lv). Otrzymanie obrażeń zeruje licznik, ale blokada przez Shield nie
+10534	Pokonanie bossa daje +0.2 MILE i EXP +3 za każdego zwykłego wroga pokonanego od poprzedniego bossa (więcej za każdy Lv, maks. 100 wrogów). Pokonuj wrogów przed walką z bossem
+10535	Co 10km MILE za wrogów/bossów/BONUS i zdobywane EXP rosną o +2% za Lv (maksimum przy 100km; +20% na Lv1). Im dalej biegniesz, tym większa premia
+10536	+{0} MILE co 10 HIT
+10537	+{0} MILE za 10 pokonanych zwykłych wrogów
+10539	+{0} MILE co 1km
+10540	+{0} MILE co 30s
+10541	EXP +{0} co 10 HIT
+10542	EXP +{0} za 10 pokonanych zwykłych wrogów
+10544	EXP +{0} co 1km
+10545	EXP +{0} co 30s
+10546	Szansa na silnych wrogów +{0}%
+10547	Wrogowie powietrzni +{0}% / grupy z latającymi ×{1}
+10548	Zdarzenia decyzyjne od {0}km / odstęp ×{1}
+10549	Obrażenia od bossów +{0}%
+10550	Pokonania podczas serii 10+ HIT: MILE/EXP +{0}%
+10551	Co 1km bez obrażeń: +{0} MILE, EXP +{1}
+10552	Po pokonaniu bossa, za wroga: +{0} MILE, EXP +{1} (maks. 100)
+10553	MILE/EXP +{0}% co 10km (maks. +{1}% przy 100km)
+10554	EXP za pokonanie bossa
+10555	Osiągnij {1}m na mapie {0} i wróć
+10556	Odblokuj ostatni loch
+10460	WSPÓLNE
+10461	PUSTKOWIE
+10462	JASKINIA
+10463	NIEBO
+10464	OSTATNI LOCH
+10465	Żywioł
+10466	Mapa
+10467	Kolejność odblokowania
+10468	Zablokowane: {0}
+10469	Brak kart pasujących do filtrów

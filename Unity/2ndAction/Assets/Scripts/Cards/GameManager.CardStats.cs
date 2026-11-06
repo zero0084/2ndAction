@@ -293,8 +293,23 @@ public partial class GameManager
     public static int PhoenixRevives, SecondWinds, LastChances, ShieldBlocks, OverhealShields, HeavyArmorSaves; // 確認用
 
     // 吸収/SECOND WIND など、まとまった回復(OVERHEAL: 満タンで溢れた分は Shield 1 へ)
+    // 2026-11-06: 終盤の回復の効き(DifficultyTuning.LateHealMul)。端数は持ち越す
+    float lateHealCarry;
+    public int HealScaled(int amount)
+    {
+        float m = DifficultyTuning.LateHealMul(MaxDistance);
+        if (m >= 0.999f || amount <= 0) return amount;
+        lateHealCarry += amount * m;
+        int n = Mathf.FloorToInt(lateHealCarry);
+        lateHealCarry -= n;
+        LateHealCut += amount - n;
+        return n;
+    }
+    public static int LateHealCut; // 確認用(削った回復の合計 HP)
+
     public void CardHeal(int amount)
     {
+        amount = HealScaled(amount);
         if (amount <= 0 || IsGameOver) return;
         int before = Lives;
         AddLife(amount);
@@ -419,8 +434,8 @@ public partial class GameManager
     //   距離の EXP  = 全体(EXP UP / LEVEL BREAK / LONG HAUL / THE LONG ROAD / ONE MORE MILE / MONSTER RUSH / EXP CONVERTER)+ 距離(PATHFINDER)
     //   撃破の EXP  = 全体 + 撃破/ボス/BONUS(EXPERIENCE BURST / TOUGH ENEMIES / FAST ENEMIES / HORDE)
     //   以前は「全体」と「距離/撃破」を掛け合わせていた(2枚目以降が掛け算で伸びた)。今は足し算 → 曲線で、取得順でも変わらない
-    public float ExpBucketDistance => Card.Get(EffectType.ExpGain) + Card.Get(EffectType.DistanceExpPct) + FinalEvolution.ExpBucketBonus; // FINAL EVOLUTION(EXP UP)も同じ枠 → 曲線
-    public float ExpBucketKill => Card.Get(EffectType.ExpGain) + Card.Get(EffectType.KillExpPct) + FinalEvolution.ExpBucketBonus;
+    public float ExpBucketDistance => Card.Get(EffectType.ExpGain) + Card.Get(EffectType.DistanceExpPct) + FinalEvolution.ExpBucketBonus + CardRewards.HorizonBonus(this); // FINAL EVOLUTION(EXP UP)も同じ枠 → 曲線。2026-11-06 HORIZON も
+    public float ExpBucketKill => Card.Get(EffectType.ExpGain) + Card.Get(EffectType.KillExpPct) + FinalEvolution.ExpBucketBonus + CardRewards.HorizonBonus(this);
     public float ExpMultDistance => CardRules.ExpMultiplier(ExpBucketDistance);
     public float ExpMultKill => CardRules.ExpMultiplier(ExpBucketKill);
     float KillExpScale => ExpMultKill;

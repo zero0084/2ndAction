@@ -240,7 +240,16 @@ public partial class QaSweep
         var deck = FindFirstObjectByType<DeckEditUI>(FindObjectsInactive.Include);
         string ct = deck != null && deck.collectionCountText != null ? deck.collectionCountText.text : "";
         Check(ct.Contains("MAX") && ct.Contains("AWAKENED") && ct.Contains("/" + CardMastery.TotalCards), $"N: the collection header shows MAX / AWAKENED totals ({ct})");
-        var awakenedCard = deck != null ? deck.ownedCards.FirstOrDefault(c => c != null && c.gameObject.activeInHierarchy && c.Data.Awakened) : null;
+        // 2026-11-06: 一覧は仮想スクロール → AWAKENED の束を探して、見える位置へ動かしてから枠を見る
+        RewardCardUI awakenedCard = null;
+        if (deck != null)
+            for (int i = 0; i < deck.DebugOwnedShownCount && awakenedCard == null; i++)
+            {
+                var st = deck.DebugOwnedStack(i);
+                if (st == null || !CardMastery.IsAwakened(CardMastery.BaseIdOf(st.cardId))) continue;
+                var c = deck.DebugOwnedCardAt(i);
+                if (c != null && c.gameObject.activeInHierarchy && c.Data.Awakened) awakenedCard = c;
+            }
         Check(awakenedCard != null, "N: an AWAKENED card is drawn with the AWAKENED visual in the collection");
         if (Arg("-qaMasteryShots", "0") == "1") { ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(outDir, "mastery_collection.png")); yield return new WaitForSecondsRealtime(0.5f); }
         gm.CloseDeckEdit();

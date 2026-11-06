@@ -1,0 +1,12 @@
+[A] cards=130 map categories: Common=43 Wilderness=32 Cave=25 Sky=25 LastDungeon=5
+[D] new player gacha pool: 30 cards (old rule 40). removed: heart_up,air_attack_up,shield,vampire,thunder_strike,frost_edge,wind_cutter,permafrost,conductor,slipstream
+[D] new player gacha pool: speed_up,speed_down,attack_up,jump_power_up,jump_count_up,attack_range_up,attack_speed_up,exp_up,more_enemies,brake_attack,first_strike,executioner,treasure_hunter,combo_plus,mob_killer,ground_fighter,tough_enemies,fast_enemies,flame_blade,scorch,combo_pay,hunt_pay,boss_pay,road_pay,survival_pay,combo_training,hunt_training,boss_training,road_training,survival_training
+[D] condition text: shield='自然洞窟で1,000m到達して帰還' / ultimate='ラストダンジョンの解放' / burning_soul='荒野街道で5,000m到達して帰還'
+[C] enemies spawned by the director: 110
+[C] 100s each (3000 -> 4854 -> 6603m): heavy hitters 0 -> 13; air minions placed 3 (roll-off 5, 38%) -> 6 (roll-off 1, 86%)
+[C] CROSSROADS Lv9 at 16000 -> 17620m: decision events rolled 4, started 2
+[newcards] test machine save restored
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

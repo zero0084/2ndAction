@@ -76,7 +76,7 @@ public partial class GameManager
 
     // 非表示モードの HP: 被弾の直後と、残りが少ない間だけ短く見せる(どのくらい危ないかが全く分からなくならないように)
     float hpPeekUntil;
-    public void NoteHudDamage() { hpPeekUntil = Time.unscaledTime + 2.5f; }
+    public void NoteHudDamage() { hpPeekUntil = Time.unscaledTime + 2.5f; CardRewards.OnPlayerHit(); } // 2026-11-06: IRON MARATHON は被弾で数え直し
     bool HpLow => maxLives > 0 && Lives <= maxLives / 4;
     bool HpVisibleNow => HudPrefs.Show(HudPrefs.Item.Hp) || (HudPrefs.HiddenMode && (Time.unscaledTime < hpPeekUntil || HpLow));
     float HpPeekAlpha => HudPrefs.Show(HudPrefs.Item.Hp) ? 1f : HpLow ? 0.85f : Mathf.Clamp01((hpPeekUntil - Time.unscaledTime) / 0.5f);

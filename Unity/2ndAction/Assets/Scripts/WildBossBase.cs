@@ -2418,7 +2418,7 @@ public static class BossAttackGate
     public static float Interval = 0.8f; // 調整用: 次の体が予備動作を始めるまでの最短間隔(秒)
     // 2026-11-06(通常マップ 95〜98km の3体同時): 強攻撃(溜め HeavyWindup 秒以上)は同時に MaxHeavy 体まで。通常攻撃は制限しない
     public static int MaxHeavy = 2;
-    public static float HeavyWindup = 0.8f, HeavyTail = 1.2f, HeavyMaxWait = 4f;
+    public static float HeavyWindup = 0.8f, HeavyTail = 1.2f, HeavyMaxWait = 8f; // 4秒では待ち切れず3体重なることがあった(T11)
     static readonly System.Collections.Generic.List<float> heavyEnds = new System.Collections.Generic.List<float>();
     public static int HeavyDeferred, HeavyPeak;
     public static int ActiveHeavy(float now) { heavyEnds.RemoveAll(x => x < now); return heavyEnds.Count; }

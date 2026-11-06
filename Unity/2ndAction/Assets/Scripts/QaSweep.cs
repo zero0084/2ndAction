@@ -135,7 +135,9 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaDeckV2") { mode = "deckv2"; dir = a[i + 1]; } // 2026-10-31 デッキ編集の配置/ドラッグ/長押し/分解
             if (a[i] == "-qaTitle") { mode = "title"; dir = a[i + 1]; } // 2026-10-31 タイトル画面(-titleScreen 1 と一緒に)
             if (a[i] == "-qaExit") { mode = "exit"; dir = a[i + 1]; } // 2026-10-31 終了・中断の入口/画面設定/文字の大きさ
+            if (a[i] == "-qaNewCards") { mode = "newcards"; dir = a[i + 1]; } // 2026-11-06 共通カードの追加 18 枚とマップ分類の解禁
             if (a[i] == "-qaRare5") { mode = "rare5"; dir = a[i + 1]; } // 2026-11-01 デッキ編集で★5が出ない不具合
+            if (a[i] == "-qaCardList") { mode = "cardlist"; dir = a[i + 1]; } // 2026-11-06 カード編集画面の枚数増加(仮想スクロール/絞り込み/並び替え)
             if (a[i] == "-qaBgTone") { mode = "bgtone"; dir = a[i + 1]; } // 2026-11-01 背景を控えめにして敵を見やすく(前後比較)
             if (a[i] == "-qaElemVis") { mode = "elemvis"; dir = a[i + 1]; }
             if (a[i] == "-qaUnlock") { mode = "unlock"; dir = a[i + 1]; }
@@ -365,6 +367,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "title") yield return TitleModeQa();
         else if (mode == "exit") yield return ExitModeQa();
         else if (mode == "rare5") yield return Rare5Mode();
+        else if (mode == "cardlist") yield return CardListMode();
+        else if (mode == "newcards") yield return NewCardsMode();
         else if (mode == "bgtone") yield return BgToneMode();
         else if (mode == "elemvis") yield return ElemVisMode();
         else if (mode == "unlock") yield return UnlockModeQa();
