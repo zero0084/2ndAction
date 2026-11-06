@@ -138,6 +138,15 @@ public partial class GameManager
         if (!HomePortrait && AdGachaAvailable) gachaY = machineRect.yMax + 6f + 54f * GachaUiScale + 6f;
         if (!roomDup && machineRect.width > 1f && !gachaResultOpen && DrawHomeSign(3, new Vector2(machineRect.center.x, gachaY), true, HomeSignLabels[3], interactable, fade, 3f, icon: UiIcons.Home(HomeSignIcons[3]), minW: homeSignUnifiedW, minH: homeSignUnifiedH))
         { deskHotspotFlashTimer = roomHotspotFlashDuration; OnGachaMachineTapped(); }
+        // 2026-11-06: ガチャに入っている土地の列(横画面は札の下、縦画面は台の下)
+        if (machineRect.width > 1f && !gachaResultOpen)
+        {
+            Rect gs = LastHomeSignRects[3];
+            if (HomePortrait) LastGachaLandRowRect = Rect.zero; // エステル: 縦画面は台が小さいので列は出さない(結果の画面で土地を示す)
+            else if (gs.width > 0f) DrawGachaLandRow(new Vector2(gs.center.x, gs.yMax + HomeSignFont * 0.35f), HomeSignFont * 1.05f, fade);
+            else DrawGachaLandRow(new Vector2(machineRect.center.x, machineRect.yMax + 2f), Mathf.Max(18f, machineRect.width * 0.17f), fade);
+        }
+        else LastGachaLandRowRect = Rect.zero;
         if (HomeShowsContinueChoice)
         {
             // 続きから(主): 扉の下。2行目に再開の地点。押すと扉と同じ再開

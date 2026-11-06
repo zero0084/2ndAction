@@ -1,0 +1,9 @@
+{"src": "C:/GameProject/ArtSource_gacha/gs_ld_v1.png", "bg": "green", "key": "lastdungeon",
+ "out_dir": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Resources/UI/GachaSkin",
+ "machine_dir": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Resources/UI/GachaMachine",
+ "preview": "C:/Users/0084k/AppData/Local/Temp/claude/1962f1340ffd9df2/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/gacha/prev_ld.png",
+ "parts": [
+  {"pick": [30, 100, 775, 850], "erase": [[745, 520, 775, 850]], "layer": "back", "box": [-30, -40, 610, 600], "anchor": "center"},
+  {"pick": [735, 180, 1120, 795], "layer": "front", "box": [35, 15, 245, 370], "anchor": "top"},
+  {"pick": [1150, 180, 1500, 770], "layer": "front", "box": [385, 25, 560, 355], "anchor": "top", "mirror": true}
+ ]}

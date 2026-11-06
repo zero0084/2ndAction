@@ -37,8 +37,17 @@ public class DifficultyTuning : ScriptableObject
     [Tooltip("対象: 障害物")] public bool accidentObstacle = true;
     [Tooltip("対象: 地形の壁")] public bool accidentWall = true;
     [Tooltip("対象: 穴/落下")] public bool accidentFall = true;
-    [Tooltip("この距離(km)までは速度の段階を掛けない(序盤の最大HPが少ない間。0 = 最初から。比較用: 開発版 -accidentFromKm 15)")] public float accidentFromKm = 0f;
+    [Tooltip("この距離(km)までは速度の段階を掛けず事故は1ハート(序盤の最大HPが少ない間。2026-11-06 マスター決定 15km。0 = 最初から。開発版 -accidentFromKm N で上書き)")] public float accidentFromKm = 15f;
     public float largeHpMultiplier = 1.75f;
+    [Header("ボス撃破の回復(2026-11-06 初期デッキから HP/SHIELD/VAMPIRE を外した後の検討。既定 0 = なし)")]
+    [Tooltip("通常マップでボス(関門のボス)を倒した時に回復するハートの数。0 = しない")] public int bossDefeatHealHearts = 0;
+    [Tooltip("この距離(km)まで")] public float bossDefeatHealUntilKm = 40f;
+    public static int BossHealOverride = -1; // 開発版 -bossHeal N
+    public static int BossDefeatHealHearts(float distance)
+    {
+        int h = BossHealOverride >= 0 ? BossHealOverride : I.bossDefeatHealHearts;
+        return h > 0 && distance < I.bossDefeatHealUntilKm * 1000f ? h : 0;
+    }
 
     [Header("雑魚の HP(今の距離の HP に掛ける倍率。x = km)")]
     public Vector2[] smallHpScale = { new Vector2(0, 1f), new Vector2(20, 1f), new Vector2(40, 0.8f), new Vector2(65, 0.65f), new Vector2(90, 0.6f) };
@@ -236,6 +245,7 @@ public class DifficultyTuning : ScriptableObject
         };
         if (curve == null) { Unchanged++; return amount; }
         float hv = Eval(curve, km);
+        if (kind == Hit.Boss || kind == Hit.BossHeavy) hv *= BossManager.SetRushHeartMul; // 終盤 95〜98km の組のボス(マップ別)
         int hearts = Mathf.Max(1, t.stochasticHearts && !HeartsV1 ? StochasticRound(hv) : Mathf.RoundToInt(hv));
         int extra = NextAttackerExtraHearts; nextExtraFrame = -1;
         if (extra > 0 && (kind == Hit.Contact || kind == Hit.Normal || kind == Hit.Large)) hearts += extra; // 高火力敵(2026-11-05)

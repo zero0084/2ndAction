@@ -35,9 +35,12 @@ public static class CardMapUnlock
     public static bool QaDisable; // 確認用(今までの条件だけで比べる)
 
     // 解禁に要るマップの到達距離(Common は 0、ラスダンは -1 = 距離ではなく解放)
+    // カードごとの到達距離(分類の入口より奥で解禁したいカード)。2026-11-06 マスター決定: VAMPIRE は洞窟の中盤〜後半
+    public static readonly Dictionary<string, float> ReachOverride = new Dictionary<string, float> { { "vampire", 30000f } };
     public static float RequiredMeters(CardDefinition c)
     {
         var k = CardMapCategories.Of(c);
+        if (c != null && k != CardMapCategory.Common && k != CardMapCategory.LastDungeon && ReachOverride.TryGetValue(c.cardId, out float ov)) return Mathf.Max(ov, c.unlockDistance);
         switch (k)
         {
             case CardMapCategory.Wilderness: return Mathf.Max(0f, c.unlockDistance);

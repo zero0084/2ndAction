@@ -51,11 +51,12 @@ public partial class QaSweep
         return "other";
     }
 
+    static bool TierLegacyA => Arg("-tiLegacyA", "0") == "1"; // 2026-11-06 前の初期デッキ(HEART UP/SHIELD/VAMPIRE 入り)で比べる
     List<string> TierDeckKeys(string tier, string build)
     {
         var keys = new List<string>();
         // A: 新規のプレイヤーの初期デッキ(解放の距離 0 のカードを並び順に 12 枚。テスト用データは走行距離があり vampire 等が解放済みのため、名前で固定)
-        if (tier == "A") { keys.AddRange(new[] { "speed_up", "speed_down", "attack_up", "jump_power_up", "jump_count_up", "heart_up", "attack_range_up", "attack_speed_up", "air_attack_up", "shield", "exp_up", "more_enemies" }); foreach (var id in keys) CardInventory.AddCard(id, 1, 1); return keys; }
+        if (tier == "A") { keys.AddRange(TierLegacyA ? new[] { "speed_up", "speed_down", "attack_up", "jump_power_up", "jump_count_up", "heart_up", "attack_range_up", "attack_speed_up", "air_attack_up", "shield", "exp_up", "more_enemies" } : DefaultSave.StarterIds); foreach (var id in keys) CardInventory.AddCard(id, 1, 1); return keys; }
         string k = tier == "B" ? "B" : "C:" + build;
         if (!TierDecks.TryGetValue(k, out var cards)) cards = TierDecks["C:attack"];
         foreach (var (id, lv) in cards)

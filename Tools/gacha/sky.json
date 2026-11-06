@@ -1,0 +1,9 @@
+{"src": "C:/GameProject/ArtSource_gacha/gs_sky_v1.png", "bg": "green", "key": "sky",
+ "out_dir": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Resources/UI/GachaSkin",
+ "machine_dir": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Resources/UI/GachaMachine",
+ "preview": "C:/Users/0084k/AppData/Local/Temp/claude/1962f1340ffd9df2/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/gacha/prev_sky.png",
+ "parts": [
+  {"pick": [100, 190, 1440, 705], "layer": "back", "box": [-70, 160, 670, 445], "anchor": "center"},
+  {"pick": [540, 45, 985, 230], "layer": "back", "box": [195, -78, 445, 22], "anchor": "bottom"},
+  {"pick": [320, 765, 1230, 920], "layer": "front", "box": [80, 625, 530, 725], "anchor": "bottom"}
+ ]}

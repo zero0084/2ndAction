@@ -26,6 +26,8 @@ public partial class GameManager
     public int GachaRefusedNoMile { get; private set; }
     public int GachaPendingReveals => gachaRevealQueue.Count;
     public bool GachaResultOpen => gachaResultOpen;
+    public Rect LastGachaLandBadgeRect { get; private set; } // 確認用
+    public bool LastGachaLandHeader { get; private set; }
     public string GachaResultCardId => gachaResultCard != null ? gachaResultCard.cardId : "";
 
     // 1回ぶん: 支払いと獲得を同時に(どちらかだけ起きることは無い)
@@ -62,7 +64,7 @@ public partial class GameManager
     }
 
     // ランへ出る時: 見せる分だけ捨てる(カードは所持済み)
-    void ClearGachaPresentation() { gachaRevealQueue.Clear(); gachaRevealNewQ.Clear(); gachaResultOpen = false; gachaCloseArmed = false; gachaMachineShakeTimer = 0f; StopGachaHold(); }
+    void ClearGachaPresentation() { gachaSkinFx.ResetFx(); gachaRevealQueue.Clear(); gachaRevealNewQ.Clear(); gachaResultOpen = false; gachaCloseArmed = false; gachaMachineShakeTimer = 0f; StopGachaHold(); }
 
     // 2026-10-28: 長押しで結果を連続で送る(実機で1枚ずつのタップが大変だった)。
     //  ・短いタップは今までどおり1枚送る(離した時に閉じる → 次の1枚)。
@@ -128,6 +130,7 @@ public partial class GameManager
             return;
         }
         UpdateGachaHold();
+        GachaSkinTick(); // 2026-11-06: マップ別の見た目(予兆/粒子)
         if (gachaMachineShakeTimer > 0f) gachaMachineShakeTimer -= Time.unscaledDeltaTime;
         if (!gachaResultOpen && gachaMachineShakeTimer <= 0f && gachaRevealQueue.Count > 0) RevealNextGachaCard();
         if (gachaResultRevealTimer > 0f) gachaResultRevealTimer -= Time.unscaledDeltaTime;
@@ -144,6 +147,8 @@ public partial class GameManager
             gachaResultCard = c;
             gachaResultOwnedCount = CardInventory.GetTotalCountByName(c.cardId); // 同名(合成済みも含む)
             gachaResultRevealTimer = c.rarity >= 4 ? GachaResultRevealDuration : 0f;
+            gachaSkinFx.OnReveal(CardMapCategories.Of(c), c.rarity); // 2026-11-06: 台がカードの土地の見た目へ + 排出の粒子
+            gachaLandCountsAt = -99f;
             gachaResultOpenedAt = Time.unscaledTime;
             gachaCloseArmed = false;
         }
@@ -197,6 +202,7 @@ public partial class GameManager
         float revealT = GachaResultRevealDuration > 0f ? Mathf.Clamp01(gachaResultRevealTimer / GachaResultRevealDuration) : 0f;
 
         UiKit.Fill(new Rect(0f, 0f, Screen.width, Screen.height), new Color(0f, 0f, 0f, 0.6f));
+        var cardLand = CardMapCategories.Of(card);
 
         // 板は本体の左側(本体を隠さない)。入らなければ画面の中央
         float margin = 16f * s;
@@ -207,6 +213,7 @@ public partial class GameManager
         if (pw >= 380f * s) panel = new Rect(margin + (availRight - margin - pw) * 0.5f, (Screen.height - ph) * 0.5f, pw, ph);
         else { pw = Mathf.Min(Screen.width - margin * 2f, 760f * s); panel = new Rect((Screen.width - pw) * 0.5f, (Screen.height - ph) * 0.5f, pw, ph); }
 
+        gachaSkinFx.DrawPanelBehind(panel, 1f); // 2026-11-06: 土地の粒子は板の後ろだけ(カード・★を隠さない)。★4以上は控えめ
         if (highRarity && revealT > 0f)
         {
             Color glow = card.rarity >= 5 ? UiTheme.Rarity(5) : new Color(0.6f, 0.75f, 1f);
@@ -233,9 +240,28 @@ public partial class GameManager
         //  下の案内の上に、名前/★/説明/所持/段階の行が必ず入る大きさ(入らない時はカードを小さく)
         float textBlock = 8f * s + 38f * s + 30f * s + dh + 6f * s + 26f * s + 24f * s + 6f * s;
         float chFit = Mathf.Max(90f * s, hintTop - y - textBlock);
-        float ch = Mathf.Min(Mathf.Min(panel.height * 0.47f, panel.width * 0.62f), chFit) * (highRarity ? 1f + 0.06f * revealT : 1f);
+        // 2026-11-06(エステル): カードの土地の見出しはカードの真上(カードが小さくならない時だけ。入らなければカードの左)
+        float landHeadH = 24f * s;
+        float chCap = Mathf.Min(panel.height * 0.47f, panel.width * 0.62f);
+        // 置き方は画面ごとに1つ(カードごとに説明の長さで変わらないよう、説明が最も長い時で決める)
+        float chFitLongest = Mathf.Max(90f * s, hintTop - y - (textBlock - dh + 90f * s));
+        bool landHead = GachaSkinFx.Enabled && chFitLongest - landHeadH >= chCap;
+        if (landHead)
+        {
+            LastGachaLandBadgeRect = new Rect(panel.x, y - 6f * s, panel.width, landHeadH);
+            GachaSkinFx.DrawLandHeader(LastGachaLandBadgeRect, cardLand, s);
+            y += landHeadH - 4f * s;
+            chFit -= landHeadH - 4f * s;
+        }
+        float ch = Mathf.Min(chCap, chFit) * (highRarity ? 1f + 0.06f * revealT : 1f);
         var cardRect = new Rect(panel.center.x - ch / 3f, y, ch * 2f / 3f, ch);
         CardFaceRenderer.Draw(cardRect, card, 1);
+        // 2026-11-06: カードの土地の札(カードの左。カードの面・★には重ねない)
+        float side = cardRect.x - panel.x - 14f * s;
+        if (landHead) { }
+        else if (GachaSkinFx.Enabled && side >= 40f * s) { LastGachaLandBadgeRect = new Rect(panel.x + 12f * s, cardRect.y + 6f * s, side, Mathf.Min(cardRect.height * 0.5f, 110f * s)); GachaSkinFx.DrawLandBadgeV(LastGachaLandBadgeRect, cardLand, s); }
+        else LastGachaLandBadgeRect = Rect.zero;
+        LastGachaLandHeader = landHead;
         y = cardRect.yMax + 8f * s;
 
         LocGUI.Label(new Rect(panel.x, y, panel.width, 40f * s), card.cardName, UiKit.Label(30f * s, TextAnchor.MiddleCenter, true, Color.white));
@@ -269,9 +295,11 @@ public partial class GameManager
         {
             float pulse = 0.75f + 0.25f * Mathf.Sin(Time.unscaledTime * 4f);
             Color keep = GUI.color;
+            gachaSkinFx.DrawBehind(lastGachaMachineRect, 1f);
             GUI.color = new Color(1f, 0.95f, 0.8f, 1f);
             GUI.DrawTexture(lastGachaMachineRect, GachaMachineArt, ScaleMode.ScaleToFit);
             GUI.color = keep;
+            gachaSkinFx.DrawFront(lastGachaMachineRect, 1f);
             float lw = Mathf.Max(lastGachaMachineRect.width + 60f * s, 170f * s);
             float lx = Mathf.Clamp(lastGachaMachineRect.center.x - lw * 0.5f, 4f, Screen.width - lw - 4f); // 画面の端で切れない(縦画面、2026-10-08)
             // 2026-10-28: 板の右に本体がある時は、案内を板の上に重ねない(細い縦画面で板の右の枠にかかっていた)。入らない幅は2行に折り返す

@@ -119,6 +119,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaTap") { mode = "tap"; dir = a[i + 1]; } // 2026-10-23 タップ攻撃
             if (a[i] == "-qaTapVideo") { mode = "tapvideo"; dir = a[i + 1]; } // 2026-10-23 タップ攻撃の動画
             if (a[i] == "-qaHomeLayout") { mode = "homelayout"; dir = a[i + 1]; } // 2026-10-23 ホームの重なり
+            if (a[i] == "-qaGachaSkin") { mode = "gachaskin"; dir = a[i + 1]; } // 2026-11-06 ガチャのマップ別の見た目
             if (a[i] == "-qaTutorial") { mode = "tutorial"; dir = a[i + 1]; }
             if (a[i] == "-qaGacha") { mode = "gacha"; dir = a[i + 1]; }
             if (a[i] == "-qaDeck") { mode = "deck"; dir = a[i + 1]; }
@@ -291,6 +292,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "tap") yield return TapMode();
         else if (mode == "tapvideo") yield return TapVideoMode();
         else if (mode == "homelayout") yield return HomeLayoutMode();
+        else if (mode == "gachaskin") yield return GachaSkinMode();
         else if (mode == "pauseloc") yield return PauseLocMode();
         else if (mode == "cardfix") yield return CardFixMode();
         else if (mode == "hitaudit") yield return HitAuditMode();

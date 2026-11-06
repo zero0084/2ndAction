@@ -4844,7 +4844,11 @@ public partial class GameManager : MonoBehaviour
                     Matrix4x4 gachaPrevMatrix = GUI.matrix;
                     float gachaAngle = idleGacha.GachaAngle();
                     if (Mathf.Abs(gachaAngle) > 0.0001f) GUIUtility.RotateAroundPivot(gachaAngle, new Vector2(machineRect.center.x, machineRect.yMax));
+                    Color machineTint = GUI.color;
+                    gachaSkinFx.DrawBehind(machineRect, roomFadeAlpha); // 2026-11-06: マップ別の見た目(後ろの光・飾り)
+                    GUI.color = machineTint;
                     GUI.DrawTexture(machineRect, GachaMachineArt, ScaleMode.ScaleToFit);
+                    gachaSkinFx.DrawFront(machineRect, roomFadeAlpha); // 前の飾り・窓の光・予兆・粒子
                     GUI.matrix = gachaPrevMatrix;
                     GUI.color = prevMachine;
                     // 揺れに合わせたコイン(装飾のみ。所持金・報酬処理とは無関係)。

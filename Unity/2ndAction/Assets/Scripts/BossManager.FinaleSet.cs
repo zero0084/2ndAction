@@ -51,6 +51,7 @@ public partial class BossManager
             if (a[i] == "-setMode") SetRefill = a[i + 1] != "stack";
             if (a[i] == "-setHp") { var p = a[i + 1].Split(','); for (int j = 0; j < p.Length && j < 3; j++) if (float.TryParse(p[j], System.Globalization.NumberStyles.Float, inv, out float v)) SetHpMul[j] = v; }
             if (a[i] == "-finalHp" && float.TryParse(a[i + 1], System.Globalization.NumberStyles.Float, inv, out float fh)) FinalHpMul = fh;
+            if (a[i] == "-setHeart") { var p = a[i + 1].Split(','); if (p.Length >= 3 && float.TryParse(p[0], System.Globalization.NumberStyles.Float, inv, out float hw) && float.TryParse(p[1], System.Globalization.NumberStyles.Float, inv, out float hc) && float.TryParse(p[2], System.Globalization.NumberStyles.Float, inv, out float hs)) { WastelandSetHeartMul = hw; CaveSetHeartMul = hc; SkySetHeartMul = hs; } } // 荒野,洞窟,天空
             if (a[i] == "-heavyMax" && int.TryParse(a[i + 1], out int hm)) BossAttackGate.MaxHeavy = hm;
             if (a[i] == "-finalBossOld") FinalBossOld = a[i + 1] == "1";
         }
@@ -306,6 +307,22 @@ public partial class BossManager
         DamageMul = Mathf.Max(0.1f, currentTier.damageMul) * (cls >= 3 ? 1f : stg == "sky_corridor" ? SkySetDamageMul : stg == "natural_cave" ? CaveSetDamageMul : stg == "wasteland_road" ? WastelandSetDamageMul : 1f);
         CurrentEncounterIsRematch = true;
         Debug.Log($"[SetRush] strength {s.key} C{cls + 1} at {d:F0}m: HP x{CurrentRematchHpMul:0.00} dmg x{DamageMul:0.0}");
+    }
+
+    // 2026-11-06(再測定): 組のボスの被ダメージの倍率は、ハートの数へ直接掛ける。
+    //  通常マップの被ダメージは DifficultyTuning.Adjust が「攻撃の種類と距離の帯」でハートの数を決め直すので、元のダメージに掛ける DamageMul は
+    //  重い一撃かどうかの判定にしか効いていなかった(洞窟 0.7 / 天空 0.6 が効かず、強デッキの人の操作で 95〜97km で倒れていた)。
+    //  ラスボス(98km)には掛けない。荒野は前の測定(強デッキの人 100km)のまま 1.0
+    public static float CaveSetHeartMul = 0.7f, SkySetHeartMul = 0.6f, WastelandSetHeartMul = 1f;
+    public static float SetRushHeartMul
+    {
+        get
+        {
+            var bm = Instance; var enc = bm != null ? bm.CurrentBossEncounter : null;
+            if (enc == null || !enc.setRush || enc.finalSpawned) return 1f;
+            var gm = GameManager.Instance; string st = gm != null ? gm.ActiveRunStageId : "";
+            return st == "natural_cave" ? CaveSetHeartMul : st == "sky_corridor" ? SkySetHeartMul : st == "wasteland_road" ? WastelandSetHeartMul : 1f;
+        }
     }
 
     // 撃破の時(OnWildBossDefeated から): 組のボスは小さな回復

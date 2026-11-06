@@ -73,9 +73,9 @@ public partial class QaSweep
         var counts = CardDatabase.AllCards.GroupBy(c => CardMapCategories.Of(c)).OrderBy(g => g.Key).Select(g => $"{g.Key}={g.Count()}");
         L($"[A] cards={CardDatabase.AllCards.Count} map categories: {string.Join(" ", counts)}");
         // 初期デッキ(新規データ = BEST 0m)は分類の前と同じ 12 枚
-        string[] want = { "speed_up", "speed_down", "attack_up", "jump_power_up", "jump_count_up", "heart_up", "attack_range_up", "attack_speed_up", "air_attack_up", "shield", "exp_up", "vampire" };
+        string[] want = DefaultSave.StarterIds; // 2026-11-06: HEART UP/SHIELD/VAMPIRE を外して新しい★1 3枚
         var deck = DefaultSave.StartingDeck(GameManager.DeckCapacity);
-        Check(deck.SequenceEqual(want), $"[A] initial deck unchanged: {string.Join(",", deck)}");
+        Check(deck.SequenceEqual(want), $"[A] initial deck = fixed starter set: {string.Join(",", deck)}");
         Check(LocPendingReview.Pending.Length == 0 && Loc.Ready("連続ヒット(画面の「N HIT」)が10回に届くたびにMILE+1(1Lvごとに+1)。20回・30回…と続けるほど何度ももらえる(1回の連続ヒットで100HITまで)") , $"[A] new strings translated (pending {LocPendingReview.Pending.Length})"); // 2026-11-06: 28 言語へ反映済み
     }
 

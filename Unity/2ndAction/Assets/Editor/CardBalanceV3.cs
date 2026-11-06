@@ -95,7 +95,7 @@ public static class CardBalanceV3
         yield return Card("hunter", "ボス戦中、攻撃時の前後への踏み込み距離+4%/Lv。6mより遠いボスへ近づく時の移動速度も+3%/Lv", new E(EffectType.HunterLevel, 1f));
 
         // ---- HP / 防御
-        yield return Card("heart_up", "最大HPがハート1つ/Lv増える(上限ハート20)。取得するとHPが全回復する", new E(EffectType.MaxHpHearts, 1f));
+        yield return Rar(Card("heart_up", "最大HPがハート1つ/Lv増える(上限ハート20)。取得するとHPが全回復する", new E(EffectType.MaxHpHearts, 1f)), 3, 2, 5000f); // 2026-11-06 ★1→★3(★4 FORTRESS と同じ伸びを代償なしで持つため)
         yield return Rec(Card("fortress", "最大HPが増え(1Lvごとにハート+1)、被弾ののけぞりが減る(+5%/Lv)が、移動速度が下がる(1Lvごとに-3%)", new E(EffectType.MaxHpHearts, 1f), new E(EffectType.HurtKnockbackReduce, 0.05f), new E(EffectType.SpeedPct, -0.03f)), 2);
         yield return Rec(Card("heavy_armor", "ハート2つ以上のダメージを受けた時、ハート1つ分減らす。最大HPも増える(Lv1〜2でハート+1、以降2Lvごとに+1)。ジャンプ力-3%/Lv", new E(EffectType.MaxHpHearts, 1f, E2), new E(EffectType.HeavyArmorLevel, 1f, Once), new E(EffectType.JumpPct, -0.03f)), 2);
         yield return Card("iron_will", "HPが満タンの間、攻撃力が上がる(1Lvごとに+5%)。最大HPも増える(3Lvごとにハート+1)", new E(EffectType.FullHpPct, 0.05f), new E(EffectType.MaxHpHearts, 1f, E3));

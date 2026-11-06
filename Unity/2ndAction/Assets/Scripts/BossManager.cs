@@ -1645,12 +1645,25 @@ public partial class BossManager : MonoBehaviour
     }
 #endif
 
+    public static int BossDefeatHeals; // 確認用
+    void BossDefeatHeal()
+    {
+        var gm = GameManager.Instance;
+        if (gm == null || ArenaMode.Active) return;
+        string st = gm.ActiveRunStageId;
+        if (!(st == "wasteland_road" || st == "natural_cave" || st == "sky_corridor")) return;
+        int h = DifficultyTuning.BossDefeatHealHearts(gm.MaxDistance);
+        if (h <= 0) return;
+        gm.KitHeal(h * CombatScale.HpPerHeart); BossDefeatHeals++;
+    }
+
     public void OnWildBossDefeated(WildBossBase who = null)
     {
         BossesDefeated++;
         aliveWildThisEncounter--;
         EncounterOnDefeated(who);
         SetOnBossDefeated(who);
+        BossDefeatHeal();
         var enc = CurrentBossEncounter;
         if (RushGateK > 0) Debug.Log($"[BossRush] Boss Defeated {(who != null ? who.bossName : "?")} (gate {RushGateK * 1000}m, remaining {aliveWildThisEncounter}, waiting {(enc != null ? enc.waiting.Count : 0)})");
         // ボスラッシュ: 撃破で次(OnKill)/誰も居なくなったら待っているボスを出す。待っているボスも残り数に入っているので関門は終わらない

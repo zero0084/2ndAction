@@ -6,6 +6,7 @@ using UnityEngine;
 //   ・障害物(Obstacle:)・地形の壁(TerrainWall:)・穴/落下(DeathY)
 //  対象外: 雑魚の攻撃(EnemyMelee/Fireball)・ボスの攻撃/接触・光の柱/落石/天井・判断イベントの攻撃・死神。
 //  段階(DifficultyTuning の設定値、Inspector で変更可): 100km/h 未満 = 1 / 100〜129 = 2 / 130 以上 = 3 ハート(上限)。
+//  2026-11-06 マスター決定: 最初の 15km(accidentFromKm)は速度に関係なく 1 ハート。
 //  距離の帯で決まった被ダメージ(DifficultyTuning.Adjust)と比べて大きい方。速度は HUD の表示と同じ「能力としての走行速度」。
 public static class AccidentDamage
 {
@@ -46,6 +47,7 @@ public static class AccidentDamage
         }
     }
     public static bool Off; // 開発版 -accident 0(比較用)
+    public static bool QaNoTerrain; public static int QaTerrainSkipped; // 開発版 -qaNoTerrain 1: 障害物/壁/落下のダメージを受けない(操作AIの地形の事故を除いて測る)
     public static float FromKmOverride = -1f; // 開発版 -accidentFromKm N
 
     public static float CurrentKmh => PlayerController.Instance != null ? PlayerController.Instance.CurrentRunKmh : 0f;
@@ -62,6 +64,7 @@ public static class AccidentDamage
     {
         if (!Enabled) return dmg;
         var kind = Classify(reason);
+        if (QaNoTerrain && (kind == Kind.Obstacle || kind == Kind.Wall || kind == Kind.Fall)) { QaTerrainSkipped++; return 0; } // 確認用: 地形の事故を受けない(人が避ける前提の目安)
         if (kind == Kind.None) return dmg;
         var t = DifficultyTuning.I;
         if (!KindEnabled(t, kind)) return dmg;
@@ -84,6 +87,10 @@ public static class AccidentDamage
         var a = System.Environment.GetCommandLineArgs();
         int i = System.Array.IndexOf(a, "-accident");
         if (i >= 0 && i + 1 < a.Length && a[i + 1] == "0") Off = true;
+        i = System.Array.IndexOf(a, "-qaNoTerrain");
+        if (i >= 0 && i + 1 < a.Length && a[i + 1] == "1") QaNoTerrain = true;
+        i = System.Array.IndexOf(a, "-bossHeal");
+        if (i >= 0 && i + 1 < a.Length && int.TryParse(a[i + 1], out int bh)) DifficultyTuning.BossHealOverride = bh;
         i = System.Array.IndexOf(a, "-accidentFromKm");
         if (i >= 0 && i + 1 < a.Length && float.TryParse(a[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float fk)) FromKmOverride = fk;
     }

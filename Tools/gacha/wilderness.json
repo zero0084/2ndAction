@@ -1,0 +1,9 @@
+{"src": "C:/GameProject/ArtSource_gacha/gs_wild_v1.png", "bg": "blue", "key": "wilderness",
+ "out_dir": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Resources/UI/GachaSkin",
+ "machine_dir": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Resources/UI/GachaMachine",
+ "preview": "C:/Users/0084k/AppData/Local/Temp/claude/1962f1340ffd9df2/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/gacha/prev_wild.png",
+ "parts": [
+  {"pick": [100, 260, 370, 920], "layer": "front", "box": [58, 150, 182, 495], "anchor": "top"},
+  {"pick": [440, 100, 1380, 470], "layer": "front", "box": [110, -80, 530, 90], "anchor": "top"},
+  {"pick": [490, 720, 1370, 885], "layer": "front", "box": [90, 610, 520, 720], "anchor": "bottom"}
+ ]}

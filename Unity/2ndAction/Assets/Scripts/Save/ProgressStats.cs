@@ -199,9 +199,21 @@ public static class DefaultSave
 
     // 初期デッキ(=初期所持カード)。解放済みのカードの先頭から capacity 枚
     // 2026-11-06: マップ分類(CardMapUnlock)では変えない = 今までの条件(BEST の距離とガチャの段階)で選ぶ。新規データは BEST 0m
+    // 2026-11-06 マスター決定: 初期デッキは「走る・倒す・育つための基礎セット」。HEART UP / SHIELD / VAMPIRE(生存の完成セット)を外し、
+    //  分かりやすい新しい★1 共通カード 3 枚(撃破でEXP・走行距離でMILE・生存時間でEXP)を入れた固定の 12 枚。
+    //  既存のデータのデッキ/所持は変えない(初期デッキを作るのは新規データ/進行の初期化の時だけ)。
+    public static readonly string[] StarterIds = { "speed_up", "speed_down", "attack_up", "jump_power_up", "jump_count_up", "hunt_training",
+        "attack_range_up", "attack_speed_up", "air_attack_up", "road_pay", "exp_up", "survival_training" };
     public static System.Collections.Generic.List<string> StartingDeck(int capacity)
     {
         var list = new System.Collections.Generic.List<string>();
+        foreach (var id in StarterIds)
+        {
+            if (list.Count >= capacity) break;
+            if (CardDatabase.FindBaseById(id) != null) list.Add(id);
+        }
+        if (list.Count == System.Math.Min(capacity, StarterIds.Length)) return list;
+        list.Clear(); // 固定の一覧のカードが無い(データの作り直し中など)時だけ、今までの選び方
         float best = GameManager.Instance != null ? GameManager.Instance.BestDistance : 0f;
         int stage = GachaStage.StageForDistance(best);
         foreach (CardDefinition card in CardDatabase.AllCards)

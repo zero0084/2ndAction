@@ -1,0 +1,9 @@
+{"src": "C:/GameProject/ArtSource_gacha/gs_cave_v1.png", "bg": "blue", "key": "cave",
+ "out_dir": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Resources/UI/GachaSkin",
+ "machine_dir": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Resources/UI/GachaMachine",
+ "preview": "C:/Users/0084k/AppData/Local/Temp/claude/1962f1340ffd9df2/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/gacha/prev_cave.png",
+ "parts": [
+  {"pick": [120, 30, 600, 650], "layer": "front", "box": [118, -105, 338, 180], "anchor": "center"},
+  {"pick": [1010, 145, 1320, 530], "layer": "front", "box": [352, -55, 500, 140], "anchor": "center"},
+  {"pick": [480, 705, 1320, 890], "layer": "front", "box": [90, 600, 520, 718], "anchor": "bottom"}
+ ]}

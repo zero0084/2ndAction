@@ -224,7 +224,7 @@ public static class CardDatabaseBuilder
             id = "heart_up", name = "HEART UP", sortOrder = 6, category = CardCategory.Defense,
             description = "ハート上限が増え、HPが回復する",
             effects = new[] { (EffectType.MaxHp, 10f) },
-            rarity = 1, gachaStage = 1
+            rarity = 3, unlockDistance = 5000f, gachaStage = 2 // 2026-11-06 ★3(CardBalanceV3 と同じ)
         };
         yield return new Spec
         {
