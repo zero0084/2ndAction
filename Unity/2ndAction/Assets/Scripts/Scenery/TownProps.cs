@@ -11,7 +11,7 @@ using UnityEngine;
 public class TownProps : MonoBehaviour
 {
     public static TownProps Instance { get; private set; }
-    public static bool Enabled = false; // TEMP-APK444: 調整中のため一時的に無効。確認用(-townProps 0/1)
+    public static bool Enabled = true; // 確認用(-townProps 0 で家なし)
     public const int SortOrder = -41;   // 内部(-44)/門(-42)より手前、地面/敵(0〜)より奥
 
     // 調整値

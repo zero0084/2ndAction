@@ -55,6 +55,7 @@ public partial class BossManager
         return t[Mathf.Clamp(cls, 0, 2)];
     }
 
+    static string DevTrioForce; static bool DevSetAllowNoRush, DevRushGuardOff; // 確認用(製品版では既定のまま)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void FinaleDevArgs()
@@ -64,6 +65,9 @@ public partial class BossManager
         for (int i = 0; i < a.Length - 1; i++)
         {
             if (a[i] == "-mapFinale") MapFinaleEnabled = a[i + 1] != "0";
+            if (a[i] == "-trioForce") DevTrioForce = a[i + 1];               // 2026-11-07 確認用: その鍵が格のプールにあれば必ず選ぶ(例 Wild/Dragon)
+            if (a[i] == "-setAllowNoRush") DevSetAllowNoRush = a[i + 1] == "1"; // 2026-11-07 確認用: 組の抽選で竜/魔人を外さない(安全装置の試験)
+            if (a[i] == "-rushGuardOff") DevRushGuardOff = a[i + 1] == "1";     // 2026-11-07 確認用: 出せない種類の差し替えをしない(修正前の見た目の再現)
             if (a[i] == "-trioHp") { var p = a[i + 1].Split(','); for (int j = 0; j < p.Length && j < 3; j++) if (float.TryParse(p[j], System.Globalization.NumberStyles.Float, inv, out float v)) TrioHpMul[j] = v; }
         }
     }
@@ -165,6 +169,9 @@ public partial class BossManager
         {
             var all = new List<string>();
             foreach (var key in FinaleClassPool(stage, c)) if (ParseKey(key, out _, out _)) all.Add(key);
+            // 2026-11-07(実機: 97km の組で黒騎士が画面を覆うほど大きく出た): 3体同時の組(SetRushActive)は SpawnRushBoss で出すが、
+            //  竜/魔人(NoRush = DragonController/MajinController)はそこでは作れない → 組の抽選から外す。1体ずつの3連戦(FinaleTrio)は今までどおり
+            if (SetRushActive && !DevSetAllowNoRush) all.RemoveAll(x => (LastDungeonBossTuning.I.TagsOf(x) & LastDungeonBossTuning.Tag.NoRush) != 0);
             // 会ったボス(このランで倒した / 今までに会った)を優先。どちらも無い時は全部から
             var seen = all.FindAll(x => defeatedPool.Contains(x) || ProgressStats.HasSeenBoss(x));
             var cands = seen.Count > 0 ? seen : all;
@@ -177,6 +184,7 @@ public partial class BossManager
                 var ok = cands.FindAll(Ok);
                 if (ok.Count == 0 && cands != all) ok = all.FindAll(Ok);
                 if (ok.Count > 0) pick = ok[Random.Range(0, ok.Count)]; // HOST/シングルだけが呼ぶ
+                if (!string.IsNullOrEmpty(DevTrioForce) && all.Contains(DevTrioForce) && !plan.Contains(DevTrioForce)) pick = DevTrioForce; // 確認用(-trioForce)
             }
             if (pick == null) { var free = all.FindAll(x => !plan.Contains(x) && (avoid == null || !avoid.Contains(x))); pick = free.Count > 0 ? free[Random.Range(0, free.Count)] : all[Random.Range(0, all.Count)]; }
             plan.Add(pick);

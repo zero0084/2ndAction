@@ -1,0 +1,6 @@
+[profile] phase persist2  screen 1280x720  lang ja
+[P2] boot: 
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

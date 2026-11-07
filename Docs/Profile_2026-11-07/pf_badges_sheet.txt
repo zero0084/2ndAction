@@ -1,0 +1,26 @@
+0	dist_10k	TRAILBLAZER
+1	dist_50k	LONG ROAD
+2	dist_100k	HORIZON WALKER
+3	dist_total	MILLION MILER
+4	nodmg_10k	IRON GUARD
+5	nodmg_30k	AEGIS
+6	nodmg_boss	FLAWLESS
+7	combo_100	TWIN SLASH
+8	combo_500	TRIPLE SLASH
+9	combo_1000	ENDLESS BLADE
+10	speed_130	SWIFT WING
+11	speed_150	GALE WING
+12	speed_170	SONIC WING
+13	air_kill	FEATHER
+14	air_kill_100	SKY HUNTER
+15	air_stay	CLOUD DANCER
+16	break_run5	CHAIN BREAKER
+17	break_total50	SHACKLE CRUSHER
+18	boss_garmud	BEAST CROWN
+19	boss_noctaris	ABYSS CROWN
+20	boss_seraphiel	HALO CROWN
+21	boss_rush	TRIAD CROWN
+22	reaper_meet	REAPER'S MARK
+23	reaper_escape	SCYTHE EVADER
+24	sp_starter	ORIGIN STAR
+25	sp_noauto	CREST OF RESOLVE

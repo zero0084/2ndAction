@@ -258,6 +258,8 @@ public partial class DeckEditUI
         if (!any) sb.Append("・").Append(Loc.T(LocDeckEdit.StateFree)).Append('\n');
         CardDefinition baseDef = CardDatabase.FindBaseById(mainId) ?? card;
         sb.Append('\n').Append(head).Append(Loc.T(LocDeckEdit.UnlockHead)).Append(headEnd).Append('\n');
+        // 2026-11-07(マスター「所属がどこにも無いように見える」): 所属のマップを必ず1行で出す(共通のカードも「共通」と出す。以前は解禁の条件の文だけで、共通/解禁済みのカードは所属が分からなかった)
+        sb.Append("・").Append(Loc.T(LocCardFilter.Map)).Append(": ").Append(Loc.T(CardMapCategories.LabelSrc(CardMapCategories.Of(baseDef)))).Append('\n');
         sb.Append("・").Append(Loc.F(LocDeckEdit.UnlockLine, Mathf.RoundToInt(baseDef.unlockDistance).ToString("N0"), Mathf.Max(1, baseDef.gachaStage))).Append('\n');
         string mapCond = CardMapUnlock.ConditionSrc(baseDef); // マップ分類のカード(そのマップの到達距離 / ラスダンの解放)
         if (!string.IsNullOrEmpty(mapCond)) sb.Append("・").Append(Loc.Auto(mapCond)).Append('\n');

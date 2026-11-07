@@ -313,7 +313,7 @@ public partial class BossManager
     //  通常マップの被ダメージは DifficultyTuning.Adjust が「攻撃の種類と距離の帯」でハートの数を決め直すので、元のダメージに掛ける DamageMul は
     //  重い一撃かどうかの判定にしか効いていなかった(洞窟 0.7 / 天空 0.6 が効かず、強デッキの人の操作で 95〜97km で倒れていた)。
     //  ラスボス(98km)には掛けない。荒野は前の測定(強デッキの人 100km)のまま 1.0
-    public static float CaveSetHeartMul = 0.6f, SkySetHeartMul = 0.6f, WastelandSetHeartMul = 1f; // TEMP-APK444: 帯と一緒に調整中(0.5/0.5/0.9 案)。 // 2026-11-07: 組の間の帯(見れば避けられる)を足した分、ボスの攻撃を少し軽く(0.6/0.6/1.0 → 0.5/0.5/0.9)
+    public static float CaveSetHeartMul = 0.5f, SkySetHeartMul = 0.5f, WastelandSetHeartMul = 0.9f; // 2026-11-07: 組の間の帯(見れば避けられる)を足した分、ボスの攻撃を少し軽く(0.6/0.6/1.0 → 0.5/0.5/0.9) // 2026-11-07: 組の間の帯(見れば避けられる)を足した分、ボスの攻撃を少し軽く(0.6/0.6/1.0 → 0.5/0.5/0.9)
     public static float SetRushHeartMul
     {
         get

@@ -369,15 +369,31 @@ public partial class BossManager
         }
     }
 
+    // 2026-11-07(実機: 97km の組で巨大な黒騎士): 竜/魔人は DragonController/MajinController で、ここ(SpawnWild/SpawnSkyBoss)では作れない。
+    //  以前は SpawnWild の既定の分岐で「竜の名前の黒騎士」が出て、竜の1枚絵が無いため 1m の仮の四角を縮尺の基準にして約7倍の大きさだった
+    //  (当たり判定/HP の帯は普通の大きさ = 見た目だけ巨大)。天空の竜/魔人も既定の守護者 + 小さな白い仮の絵になっていた
+    static bool RushSpawnable(GateFamily f, int kind) =>
+        !(f == GateFamily.Wild && kind == (int)WildBossKind.Dragon) && !(f == GateFamily.Sky && (kind == (int)SkyBossKind.Dragon || kind == (int)SkyBossKind.Majin));
+    public static int RushSubstituted { get; private set; } // 確認用: 出せない種類を差し替えた回数
+
     void SpawnRushBossImpl(BossEncounter enc, LastDungeonBossTuning.Slot s)
     {
         ParseKey(s.key, out GateFamily fam, out int kind);
+        string key = s.key;
+        if (!RushSpawnable(fam, kind) && !DevRushGuardOff)
+        {
+            // 抽選では外してある(念のための安全装置)。同じマップの強いボスへ差し替える
+            key = fam == GateFamily.Sky ? "Sky/Guardian" : "Wild/BlackKnight";
+            Debug.LogWarning($"[BossRush] {s.key} cannot be spawned in a rush (dragon/majin are a different controller) -> {key}");
+            ParseKey(key, out fam, out kind);
+            RushSubstituted++;
+        }
         // 同時に並ぶ間合いの枠(出ているボスが使っていない一番小さい番号)
         int slot = 0;
         for (; slot < 4; slot++) { bool used = false; foreach (var b in enc.activeBosses) if (b != null && !b.IsDead && b.slotIndex == slot) used = true; if (!used) break; }
         if (enc.setRush) SetSetStrength(s);
-        else if (enc.mapRush) SetMapRushStrength(s.key, s.value * gateIntervalMeters); // 2026-10-15: 各マップのラッシュ = その節目の距離の再戦の強さ × 倍率
-        else SetLastDungeonStrength(s.key, (enc.continuous ? s.value : enc.gateK) * gateIntervalMeters, true, enc.continuous); // 走りながら: その節目の距離の強さ
+        else if (enc.mapRush) SetMapRushStrength(key, s.value * gateIntervalMeters); // 2026-10-15: 各マップのラッシュ = その節目の距離の再戦の強さ × 倍率
+        else SetLastDungeonStrength(key, (enc.continuous ? s.value : enc.gateK) * gateIntervalMeters, true, enc.continuous); // 走りながら: その節目の距離の強さ
         lastSpawnedWild = null;
         if (fam == GateFamily.Cave)
         {
@@ -388,15 +404,15 @@ public partial class BossManager
         else if (fam == GateFamily.Sky) SpawnSkyBoss((SkyBossKind)kind, slot);
         else SpawnWild((WildBossKind)kind, slot);
         var boss = lastSpawnedWild;
-        if (boss != null) bossKeys[boss] = s.key;
+        if (boss != null) bossKeys[boss] = key;
         enc.spawned++;
         RushSpawnedThisGate = enc.spawned;
-        enc.spawnedKeys.Add(s.key);
-        ProgressStats.MarkBossSeen(s.key);
+        enc.spawnedKeys.Add(key);
+        ProgressStats.MarkBossSeen(key);
         int alive = ActiveCount(enc);
         RushMaxSimultaneous = Mathf.Max(RushMaxSimultaneous, alive);
         enc.lastSpawnAt = Time.time;
-        Debug.Log($"[BossRush] Boss {enc.spawned}/{enc.total} Spawn {s.key}{(enc.continuous ? $" (milestone {s.value:F0}km, queue {enc.Queued}, d={(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f):F0})" : "")} ({s.trigger}{(s.trigger == LastDungeonBossTuning.Trigger.Time ? $" {s.value:F0}s" : s.trigger == LastDungeonBossTuning.Trigger.HpBelow ? $" {s.value * 100f:F0}%" : "")}) gate {enc.gateK * 1000}m alive={alive} hp={(boss != null ? boss.maxHp : 0)} t={Time.time - enc.startedAt:F1}s");
+        Debug.Log($"[BossRush] Boss {enc.spawned}/{enc.total} Spawn {key}{(enc.continuous ? $" (milestone {s.value:F0}km, queue {enc.Queued}, d={(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f):F0})" : "")} ({s.trigger}{(s.trigger == LastDungeonBossTuning.Trigger.Time ? $" {s.value:F0}s" : s.trigger == LastDungeonBossTuning.Trigger.HpBelow ? $" {s.value * 100f:F0}%" : "")}) gate {enc.gateK * 1000}m alive={alive} hp={(boss != null ? boss.maxHp : 0)} t={Time.time - enc.startedAt:F1}s");
     }
     bool encounterHasCave;
 

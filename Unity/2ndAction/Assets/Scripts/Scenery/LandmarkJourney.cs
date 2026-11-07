@@ -339,7 +339,7 @@ public class LandmarkJourney : MonoBehaviour
         state += "milestone ";
     }
 
-    public static bool MilestoneGrounded = false; // TEMP-APK444: 調整中のため一時的に今までどおり(-mileGround 1 で有効)
+    public static bool MilestoneGrounded = true; // 確認用(-mileGround 0 で今までどおり画面の高さ)
     // 見張り塔の根元: 絵の高さに対する沈め量(岩の土台の下の方が道に埋まる)
     const float milestoneSink = 0.06f;
     float milestoneFootY = float.NaN; int milestoneFootFrame = -1;

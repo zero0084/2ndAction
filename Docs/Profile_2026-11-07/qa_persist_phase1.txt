@@ -1,0 +1,6 @@
+[profile] phase persist1  screen 1280x720  lang ja
+[P1] saved: done 3, MILE 0 -> 80, reason 11, slots air_kill,,combo_100
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

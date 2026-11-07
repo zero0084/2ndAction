@@ -37,6 +37,10 @@ public static class BuildAndroid
         // to reach that UI at all. Switch back to BuildOptions.None for an
         // actual release build later - this is a real behavior change
         // (larger build, profiler/debugger connectable), not just a flag.
+        // 2026-11-07: 開発用は必ず APK で出す。クローズドテストの AAB のビルドが途中で止まると EditorUserBuildSettings.buildAppBundle が
+        //  true のまま残り、ここで「中身が AAB の 2ndAction.apk」ができていた(端末に入れると AndroidManifest の解析で失敗する)
+        //  (開発用の既定は APK・分けない。そのまま戻さない)
+        EditorUserBuildSettings.buildAppBundle = false; PlayerSettings.Android.splitApplicationBinary = false;
         BuildReport report;
         using (new BrandSplashSetup.AndroidScope()) // 起動ロゴは BootSplash(Unity の起動画面は背景色だけ、2026-10-26)
             report = BuildPipeline.BuildPlayer(

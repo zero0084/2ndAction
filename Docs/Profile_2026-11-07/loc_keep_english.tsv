@@ -1,0 +1,64 @@
+﻿ID	表示場所	文(全言語で英字のまま)
+10811	プロフィールの「走る理由」の定型文 ID 12(大きめの1行。選ぶ画面のボタンにも出る。短く自然に)	ONE MORE MILE
+10869	プロフィール/バッヂ画面 ChallengeComplete (全言語で英字のまま。マスター指定の見出し)	CHALLENGE COMPLETE
+10900	常設チャレンジ dist_10k の名前(英字のまま。全言語同じ)	REACH 10 KM
+10901	常設チャレンジ dist_50k の名前(英字のまま。全言語同じ)	REACH 50 KM
+10902	常設チャレンジ dist_100k の名前(英字のまま。全言語同じ)	REACH 100 KM
+10903	常設チャレンジ dist_total の名前(英字のまま。全言語同じ)	1,000,000 M
+10904	常設チャレンジ nodmg_10k の名前(英字のまま。全言語同じ)	UNTOUCHED 10 KM
+10905	常設チャレンジ nodmg_30k の名前(英字のまま。全言語同じ)	UNTOUCHED 30 KM
+10906	常設チャレンジ nodmg_boss の名前(英字のまま。全言語同じ)	FLAWLESS BOSS
+10907	常設チャレンジ combo_100 の名前(英字のまま。全言語同じ)	100 HIT
+10908	常設チャレンジ combo_500 の名前(英字のまま。全言語同じ)	500 HIT
+10909	常設チャレンジ combo_1000 の名前(英字のまま。全言語同じ)	1000 HIT
+10910	常設チャレンジ speed_130 の名前(英字のまま。全言語同じ)	130 KM/H
+10911	常設チャレンジ speed_150 の名前(英字のまま。全言語同じ)	150 KM/H
+10912	常設チャレンジ speed_170 の名前(英字のまま。全言語同じ)	170 KM/H
+10913	常設チャレンジ air_kill の名前(英字のまま。全言語同じ)	AERIAL KILL
+10914	常設チャレンジ air_kill_100 の名前(英字のまま。全言語同じ)	100 AERIAL KILLS
+10915	常設チャレンジ air_stay の名前(英字のまま。全言語同じ)	6 SEC AIRBORNE
+10916	常設チャレンジ break_run5 の名前(英字のまま。全言語同じ)	5 BREAKS
+10917	常設チャレンジ break_total50 の名前(英字のまま。全言語同じ)	50 BREAKS TOTAL
+10918	常設チャレンジ boss_garmud の名前(英字のまま。全言語同じ)	WASTELAND KING
+10919	常設チャレンジ boss_noctaris の名前(英字のまま。全言語同じ)	ABYSS SOVEREIGN
+10920	常設チャレンジ boss_seraphiel の名前(英字のまま。全言語同じ)	SKY EMPEROR
+10921	常設チャレンジ boss_rush の名前(英字のまま。全言語同じ)	FINAL TRIAD
+10922	常設チャレンジ reaper_meet の名前(英字のまま。全言語同じ)	REAPER SIGHTED
+10923	常設チャレンジ reaper_escape の名前(英字のまま。全言語同じ)	REAPER ESCAPE
+10924	常設チャレンジ sp_starter の名前(英字のまま。全言語同じ)	STARTER'S ROAD
+10925	常設チャレンジ sp_noauto の名前(英字のまま。全言語同じ)	ON MY OWN FEET
+10930	バッヂ dist_10k の名前(英字のまま。全言語同じ)	TRAILBLAZER
+10931	バッヂ dist_50k の名前(英字のまま。全言語同じ)	LONG ROAD
+10932	バッヂ dist_100k の名前(英字のまま。全言語同じ)	HORIZON WALKER
+10933	バッヂ dist_total の名前(英字のまま。全言語同じ)	MILLION MILER
+10934	バッヂ nodmg_10k の名前(英字のまま。全言語同じ)	IRON GUARD
+10935	バッヂ nodmg_30k の名前(英字のまま。全言語同じ)	AEGIS
+10936	バッヂ nodmg_boss の名前(英字のまま。全言語同じ)	FLAWLESS
+10937	バッヂ combo_100 の名前(英字のまま。全言語同じ)	TWIN SLASH
+10938	バッヂ combo_500 の名前(英字のまま。全言語同じ)	TRIPLE SLASH
+10939	バッヂ combo_1000 の名前(英字のまま。全言語同じ)	ENDLESS BLADE
+10940	バッヂ speed_130 の名前(英字のまま。全言語同じ)	SWIFT WING
+10941	バッヂ speed_150 の名前(英字のまま。全言語同じ)	GALE WING
+10942	バッヂ speed_170 の名前(英字のまま。全言語同じ)	SONIC WING
+10943	バッヂ air_kill の名前(英字のまま。全言語同じ)	FEATHER
+10944	バッヂ air_kill_100 の名前(英字のまま。全言語同じ)	SKY HUNTER
+10945	バッヂ air_stay の名前(英字のまま。全言語同じ)	CLOUD DANCER
+10946	バッヂ break_run5 の名前(英字のまま。全言語同じ)	CHAIN BREAKER
+10947	バッヂ break_total50 の名前(英字のまま。全言語同じ)	SHACKLE CRUSHER
+10948	バッヂ boss_garmud の名前(英字のまま。全言語同じ)	BEAST CROWN
+10949	バッヂ boss_noctaris の名前(英字のまま。全言語同じ)	ABYSS CROWN
+10950	バッヂ boss_seraphiel の名前(英字のまま。全言語同じ)	HALO CROWN
+10951	バッヂ boss_rush の名前(英字のまま。全言語同じ)	TRIAD CROWN
+10952	バッヂ reaper_meet の名前(英字のまま。全言語同じ)	REAPER'S MARK
+10953	バッヂ reaper_escape の名前(英字のまま。全言語同じ)	SCYTHE EVADER
+10954	バッヂ sp_starter の名前(英字のまま。全言語同じ)	ORIGIN STAR
+10955	バッヂ sp_noauto の名前(英字のまま。全言語同じ)	CREST OF RESOLVE
+10960	チャレンジのカテゴリ名(英字のまま。全言語同じ)	DISTANCE
+10961	チャレンジのカテゴリ名(英字のまま。全言語同じ)	NO DAMAGE
+10962	チャレンジのカテゴリ名(英字のまま。全言語同じ)	COMBO
+10963	チャレンジのカテゴリ名(英字のまま。全言語同じ)	SPEED
+10964	チャレンジのカテゴリ名(英字のまま。全言語同じ)	AIR
+10965	チャレンジのカテゴリ名(英字のまま。全言語同じ)	BREAK
+10966	チャレンジのカテゴリ名(英字のまま。全言語同じ)	BOSS
+10967	チャレンジのカテゴリ名(英字のまま。全言語同じ)	REAPER
+10968	チャレンジのカテゴリ名(英字のまま。全言語同じ)	SPECIAL

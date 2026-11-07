@@ -40,6 +40,8 @@ public static class RunLedger
         // speedSettingMax = このランで使った一番大きい値(中断中に設定を変えて CONTINUE した時も分かるように)
         public int speedSettingPercent = 100;
         public int speedSettingMax = 100;
+        // 2026-11-07 プロフィール: 常設チャレンジのラン内の数え(被弾/オート/初期デッキ/BREAK)。この仕組みより前の中断データは v = 0(分からない物は達成させない)
+        public ChallengeRunStats ch = new ChallengeRunStats();
     }
 
     public static Run Current { get; private set; }
@@ -59,6 +61,7 @@ public static class RunLedger
             officialStage = stageId == BossManager.LastStageId ? ProgressStats.FinalDungeonUnlocked : UnlockRules.OfficialStageUnlocked(stageId),
             startedUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             speedSettingPercent = SpeedSettingNow, speedSettingMax = SpeedSettingNow,
+            ch = ChallengeRunStats.Fresh(), // 2026-11-07 プロフィール
         };
         Debug.Log($"[RunLedger] begin {Current.runId.Substring(0, 8)} stage={stageId} char={characterId}{(multiplayer ? " multi" : "")} speed {Current.speedSettingPercent}%");
     }
@@ -78,6 +81,7 @@ public static class RunLedger
             BeginNew(stageId, characterId, false);
             Current.legacy = true;
             Current.maxReached = reached;
+            Current.ch = new ChallengeRunStats(); // 2026-11-07 プロフィール: 古い中断データ = ラン内の数えは分からない(v = 0)
         }
         Debug.Log($"[RunLedger] resume {Current.runId.Substring(0, 8)} reached={Current.maxReached:F0} walked={Current.walked:F0}{(Current.legacy ? " legacy" : "")}{(Current.debugUsed ? " debug:" + Current.debugWhat : "")}");
     }
@@ -99,6 +103,7 @@ public static class RunLedger
             playSeconds = prev.playSeconds, startedUtc = prev.startedUtc,
             partySize = prev.partySize, supportIds = prev.supportIds, officialParty = prev.officialParty, // CPU サポート
             speedSettingPercent = prev.speedSettingPercent, speedSettingMax = prev.speedSettingMax, // 最高速度の設定(2026-10-24)
+            ch = prev.ch, // 2026-11-07 プロフィール: 常設チャレンジのラン内の数えは同じランの続き
         };
         Debug.Log($"[RunLedger] continuation {Current.runId.Substring(0, 8)} of {(prev.runId.Length >= 8 ? prev.runId.Substring(0, 8) : prev.runId)} from {reached:F0}m");
     }
@@ -165,6 +170,7 @@ public static class RunLedger
         else Debug.Log("[RunLedger] not for ranking: " + why);
         RankingDiag.Note("COMMIT", $"{stage} {r.maxReached:F1}m ranking={(res.rankingEligible ? "yes" : "NO: " + why)} joined={Leaderboard.Joined} pending={Leaderboard.PendingCount}");
 
+        ChallengeTracker.OnRunCommitted(r); // 2026-11-07 プロフィール: 死神から逃げ切る/累計距離(この後の保存と一緒に書く)
         ProgressStats.Flush(false);
         SaveStore.Save();
         res.committed = true;

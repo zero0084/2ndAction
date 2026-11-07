@@ -137,6 +137,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaDeckV2") { mode = "deckv2"; dir = a[i + 1]; } // 2026-10-31 デッキ編集の配置/ドラッグ/長押し/分解
             if (a[i] == "-qaTitle") { mode = "title"; dir = a[i + 1]; } // 2026-10-31 タイトル画面(-titleScreen 1 と一緒に)
             if (a[i] == "-qaExit") { mode = "exit"; dir = a[i + 1]; } // 2026-10-31 終了・中断の入口/画面設定/文字の大きさ
+            if (a[i] == "-qaProfile") { mode = "profile"; dir = a[i + 1]; } // 2026-11-07 プロフィール/常設チャレンジ/バッヂ
             if (a[i] == "-qaNewCards") { mode = "newcards"; dir = a[i + 1]; } // 2026-11-06 共通カードの追加 18 枚とマップ分類の解禁
             if (a[i] == "-qaMapCards") { mode = "mapcards"; dir = a[i + 1]; } // 2026-11-06 マップ専用カード 20 枚(map_cards_v2.md)
             if (a[i] == "-qaRunOnce") { mode = "runonce"; dir = a[i + 1]; } // 2026-11-06 1ランに1回のカード / レベルの最大HP と CONTINUE
@@ -430,6 +431,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "licenses") yield return LicensesModeQa();
         else if (mode == "touchflick") yield return TouchFlickMode();
         else if (mode == "touchprobe") yield return TouchProbeMode();
+        else if (mode == "profile") yield return ProfileMode(); // 2026-11-07 プロフィール
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

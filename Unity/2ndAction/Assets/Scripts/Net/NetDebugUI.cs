@@ -552,6 +552,7 @@ public class NetDebugUI : MonoBehaviour
         GUILayout.Label(L(host
             ? "そろったら「閉じる(部屋はそのまま)」→ 扉 → STAGE SELECTで「出発」すると、全員が同じステージで同時にスタートします。"
             : "HOSTが出発すると自動でスタートします。そのままお待ちください。"), smallStyle);
+        GUILayout.Space(6f); QuickChat.DrawRoomButtons(buttonStyle, smallStyle); // 2026-11-07 プロフィール: 定型メッセージ
         GUILayout.FlexibleSpace();
         GUI.enabled = !OnlineServices.Busy;
         if (PadNav.LayoutButton(GUILayout.Button(L(host ? "部屋を閉じる" : "退出する"), buttonStyle, GUILayout.Height(52f))))

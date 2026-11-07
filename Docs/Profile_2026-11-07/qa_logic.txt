@@ -1,0 +1,11 @@
+[profile] phase logic  screen 1280x720  lang ja
+[L2] speed 140.0 km/h (base 100.0, scale 1.40)
+[L2] speed 185.0 km/h (scale 1.85)
+[L2] done 23/26, toasts shown 4 + pending 19
+[L4] after CONTINUE breaks 2 walked 3000
+[L5] challenges: initialized (restored 4, +220 MILE); 
+[L6] card {"version":1,"name":"","characterId":"swordsman","reasonId":9,"badges":["","",""],"badgeCount":4,"bestMeters":52000.0,"totalMeters":1000500.0,"topSpeedKmh":185.0,"wasteland100":false,"cave100":false,"sky100":false,"lastReached":false,"lastCleared":false}
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

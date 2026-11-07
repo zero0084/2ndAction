@@ -903,8 +903,8 @@ public class DecisionEvents : MonoBehaviour
     //  帯の間はボスの強攻撃の枠を1つ使う(BossAttackGate: 強攻撃は同時に2つまで → 帯 + ボス1体まで)= 予兆が重なりすぎない。
     //  オートの回避そのものは変えない(ボス戦のオートはボスの攻撃を見て避ける。帯を見て高さを選ぶのは人の判断)。98km のラスボスは対象外
     // ===================================================================== //
-    public static bool SetLanesOn = false; // TEMP-APK444: 調整中のため一時的に無効(試験済みだけの APK/AAB)。-setLanes 1 で有効
-    public static Vector2 SetLaneGap = new Vector2(7.5f, 10.5f); // 2026-11-07 Y: 9〜13秒では放置が 3/6 到達(目安 20〜40%) → 少し短く
+    public static bool SetLanesOn = true; // -setLanes 0 で無効(APK 444/AAB 445 では無効にして出した)
+    public static Vector2 SetLaneGap = new Vector2(8f, 12f); // 2026-11-07: 9〜13秒 = 放置 3/6・人 4/6、7.5〜10.5秒 = 放置 1/6・人 3/6 → 間の 8〜12秒(合わせて 放置 4/12・人 7/12)
     public static float SetLaneFirstDelay = 7f, SetLaneStepGap = 0.55f;
     public static float[] SetLaneStepWeights = { 0.35f, 0.45f, 0.2f }; // 1回 / 2回で切り替わる / 3回で切り替わる
     public static int SetLanesStarted, SetLaneSteps;

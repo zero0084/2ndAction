@@ -130,6 +130,11 @@ public static class LocPendingReview
     public const string ResultBaseMile = "脱落までのMILE";                                            // ID 10383(前: MILE)
     public const string VersusTakeHomeNote = "VERSUSは試合が終わった時に、脱落までに稼いだMILEとボーナスを持ち帰ります(途中で抜けると失います)。"; // ID 10384(訳が無い言語では出さない)
 
+    // 2026-11-07 プロフィール/走る理由/常設チャレンジ/バッヂ/定型メッセージ(ID 10800〜10898、LocProfile)。訳はアイリーンの下書きを 30 言語の表へ入れた(画面の確認用)。
+    //  エステルのレビュー(Docs/Profile_2026-11-07/loc_review_profile.tsv)が済むまで製品版のビルドを止める(Editor/ReleaseBuildGuard)。反映したら false に
+    //  2026-11-07 夜: エステルのレビュー(30言語・直し190件)を表と json へ反映済み → false
+    public static readonly bool ProfileDraftsUnreviewed = false;
+
     // 訳が無い言語では null(その行を出さない)
     public static string Pend(string key) => Loc.Ready(key) ? key : null;
 

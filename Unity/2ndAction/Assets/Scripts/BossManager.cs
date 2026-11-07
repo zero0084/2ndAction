@@ -923,6 +923,7 @@ public partial class BossManager : MonoBehaviour
     // continues.
     public void OnDragonDefeated()
     {
+        ChallengeTracker.OnBossDefeated("Dragon"); // 2026-11-07 プロフィール
         BossesDefeated++;
         aliveDragonsThisEncounter--;
         CheckEncounterComplete();
@@ -930,6 +931,7 @@ public partial class BossManager : MonoBehaviour
 
     public void OnMajinDefeated()
     {
+        ChallengeTracker.OnBossDefeated("Majin"); // 2026-11-07 プロフィール
         BossesDefeated++;
         aliveMajinsThisEncounter--;
         CheckEncounterComplete();
@@ -1659,6 +1661,7 @@ public partial class BossManager : MonoBehaviour
 
     public void OnWildBossDefeated(WildBossBase who = null)
     {
+        ChallengeTracker.OnBossDefeated(who != null ? who.DeathKey : null); // 2026-11-07 プロフィール: ラスボス/ノーダメージのボス撃破(ボス戦が終わる前に見る)
         BossesDefeated++;
         aliveWildThisEncounter--;
         EncounterOnDefeated(who);

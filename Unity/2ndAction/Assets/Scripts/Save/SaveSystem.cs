@@ -169,6 +169,9 @@ public static class SaveSystem
         // 2026-10-13 第3弾: 成功の確定の書きかけ(落ちた等)が残っていればやり直す(欠けも二重もなく)
         try { if (CommitJournal.Pending) { CommitJournal.RecoverIfPending(); ReloadCaches(); } }
         catch (Exception e) { Debug.LogError("[Save] commit journal recovery failed: " + e); }
+        // 2026-11-07 プロフィール: 常設チャレンジを既存の記録(到達距離/累計距離/死神との遭遇)から1回だけ達成済みにする(通知はお知らせ1件)
+        try { string ch = ChallengeStore.EnsureInitialized(); if (ch != "") { SaveStore.Save(); r.report += ch; } }
+        catch (Exception e) { Debug.LogError("[Save] challenge init failed: " + e); }
         UnlockRules.RequeuePending(); // 解放したのに確認していないお知らせ(アプリが落ちても失わない)
         try { int purged = Leaderboard.PurgeSupportEntries(); if (purged > 0) log.Append($"ranking: removed {purged} CPU-support record(s); "); } // 2026-10-14: ランキングはソロだけ
         catch (Exception e) { Debug.LogWarning("[Save] ranking purge failed: " + e.Message); }
@@ -678,6 +681,7 @@ public static class SaveSystem
         ProgressStats.Reload();
         AdRewards.Reload(); // 広告/パスの報酬の記録(テスト用データと通常のデータで別、2026-10-10)
         GameSettings.Reload(); HudPrefs.Reload();
+        ChallengeStore.Reload(); ProfileStore.Reload(); // 2026-11-07 プロフィール/常設チャレンジ
         if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.ReloadPrefs();
     }
 

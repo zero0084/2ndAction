@@ -1,0 +1,9 @@
+[profile] phase langs  screen 1280x720  lang ja
+[res] 1280x720
+[res] 540x960
+[langs] 30 languages, text fit issues 271 (overflow 1) -> pf_textfit.tsv
+[WARN] 1 text(s) still overflow after shrinking/wrapping (see pf_textfit.tsv)
+
+failures=0 warnings=1
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

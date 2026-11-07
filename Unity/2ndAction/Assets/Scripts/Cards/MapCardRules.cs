@@ -142,6 +142,7 @@ public static class MapCardRules
     // BREAK した瞬間(各ボスの BreakCount++ の所)→ BREAK FEAST
     public static void OnBossBreak()
     {
+        ChallengeTracker.OnBossBreak(); // 2026-11-07 プロフィール: BREAK の回数(常設チャレンジ)
         BossBreaksSeen++;
         var gm = GameManager.Instance;
         if (gm != null) gm.MapOnEnemyBreak();

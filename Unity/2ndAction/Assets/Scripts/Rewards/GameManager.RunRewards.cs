@@ -59,6 +59,7 @@ public partial class GameManager
             MapOnKill(); // 2026-11-06 ENDLESS GROWTH(撃破の数。マルチはラストヒットの人)
             UltimateArt.OnEnemyKilled(expMul > 1.5f); // #100 ULTIMATE の Gauge(発動中は溜まらない)
             TryLifesteal();
+            ChallengeTracker.OnEnemyKilled(); // 2026-11-07 プロフィール: 空中で倒した(常設チャレンジ。最後の一撃の人だけ)
         }
         // Card Expansion/Gacha Evolution Ver.1 - Tough/Fast/Elite Enemies, Treasure Hunter, Mob Killer, Executioner, Hell Mode, etc.
         float exact = Share(Mathf.Max(0f, mileBase)) * MileGainMultiplier * FinalEvolution.MileMul; // FINAL EVOLUTION(GREED)

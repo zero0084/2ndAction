@@ -97,6 +97,13 @@ public static class SaveKeys
         new Entry(TutorialProgress.MileGuideKey, SaveCategory.Progress, SaveType.Int, "MILEの使い道の案内 0=まだ/1=初めて脱出した(ホームで出す)/2=出した"),
         new Entry(AdRewards.Key, SaveCategory.Progress, SaveType.String, "広告/パスの報酬の記録(JSON: MILE 2倍にしたランの ID/広告ガチャの日付と回数/追加した MILE の合計。走行の記録とは別、2026-10-10)"),
         new Entry(AdRewards.RunsFinishedKey, SaveCategory.Progress, SaveType.Int, "終わったランの数(チュートリアル/練習/闘技場/DEBUG RUN を除く。初回ランの後に広告を出さない判定)"),
+        // ---- 2026-11-07 プロフィール/常設チャレンジ(進行: 引き継ぎで移る・製品版の初期化で消える)
+        new Entry(ChallengeStore.DoneKey, SaveCategory.Progress, SaveType.String, "常設チャレンジの達成 = 獲得したバッヂ(id@達成時刻[@r = 既存の記録から復元] をセミコロン区切り)"),
+        new Entry(ChallengeStore.CountersKey, SaveCategory.Progress, SaveType.String, "常設チャレンジの累計の数え(air_kills=空中撃破 / breaks=BREAK。key=値 をセミコロン区切り)"),
+        new Entry(ChallengeStore.InitKey, SaveCategory.Progress, SaveType.Int, "既存の記録からのチャレンジの復元を済ませた印(1回だけ)"),
+        new Entry(ProfileStore.ReasonKey, SaveCategory.Progress, SaveType.Int, "プロフィールの走る理由(定型文の ID。0 = 未選択。文ではなく ID)"),
+        new Entry(ProfileStore.BadgesKey, SaveCategory.Progress, SaveType.String, "プロフィールに装備したバッヂ3枠(チャレンジの ID をカンマ区切り。空き = 空文字)"),
+        new Entry(ProfileStore.TopSpeedKey, SaveCategory.Progress, SaveType.String, "プロフィールの最高速度 km/h(2026-11-07 から測る。記録対象外のランは数えない)"),
 
         // ---- 設定 ----
         new Entry(ArenaConfig, SaveCategory.Settings, SaveType.String, "闘技場の最後の構成(キャラ/試用のビルド/相手/速度/操作アシスト/無敵)。進行ではない"),

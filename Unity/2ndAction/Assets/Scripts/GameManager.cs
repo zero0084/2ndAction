@@ -2028,10 +2028,14 @@ public partial class GameManager : MonoBehaviour
     Rect HomeChromeColumn(int kind)
     {
         int idx = 0;
-        if (kind >= 1) idx++;                                                   // 設定の下
+        if (kind == HomeProfileKind) idx = 1;                                   // 2026-11-07 プロフィール(設定の下)
+        else
+        {
+        if (kind >= 1) idx += 2;                                                // 設定・プロフィールの下
         if (kind >= 2 && Platform.Online.LanMultiplayer) idx++;                 // マルチ
         if (kind >= 3 && !NetSession.IsActive) idx++;                           // ランキング
         if (kind >= 4 && UnlockRules.IsArenaUnlocked && !NetSession.IsActive) idx++; // 闘技場(2026-10-31: その下に終了/端末のホームへ)
+        }
         float h = HomeButtonHeight, w = h * 1.9f, gap = 8f;
         float right = Screen.width - SafeRight() - UiMargin;
         // ガチャ機械(押せる範囲)の右端より右に収める。足りない画面(4:3 など)では、ボタンの幅だけ少し狭める(字は列で1つの大きさに縮む)
@@ -2040,7 +2044,7 @@ public partial class GameManager : MonoBehaviour
         float x = right - w;
         float y0 = GetHomeMileRect().yMax + 10f;
         // 2026-10-31: 列の下端が、下にある札(ガチャ など)や画面の下に重ならないよう、ボタンの高さを詰める(5つ並ぶ時)
-        int n = 2 + (Platform.Online.LanMultiplayer ? 1 : 0) + (!NetSession.IsActive ? 1 : 0) + (UnlockRules.IsArenaUnlocked && !NetSession.IsActive ? 1 : 0) - (AppExit.HasExitButton ? 0 : 1);
+        int n = 3 + (Platform.Online.LanMultiplayer ? 1 : 0) + (!NetSession.IsActive ? 1 : 0) + (UnlockRules.IsArenaUnlocked && !NetSession.IsActive ? 1 : 0) - (AppExit.HasExitButton ? 0 : 1);
         float limit = Screen.height - SafeBottom() - UiMargin;
         foreach (var sr in prevHomeSignHitRects) if (sr.width > 0f && sr.xMax > x && sr.x < x + w && sr.y > y0 + h) limit = Mathf.Min(limit, sr.y - gap);
         float fitH = (limit - y0 - gap * (n - 1)) / Mathf.Max(1, n);
@@ -2048,6 +2052,10 @@ public partial class GameManager : MonoBehaviour
         return new Rect(x, y0 + idx * (h + gap), w, h);
     }
     Rect GetHomeSettingsButtonRect() => HomePortrait ? PortraitChromeSlot(0) : HomeChromeColumn(0);
+    // 2026-11-07 プロフィール: 設定の次(横画面は右の列の2番目、縦画面は下の行の2番目)。番号は既存の物と重ならない 5
+    const int HomeProfileKind = 5;
+    Rect GetHomeProfileButtonRect() => HomePortrait ? PortraitChromeSlot(HomeProfileKind) : HomeChromeColumn(HomeProfileKind);
+    public Rect DebugHomeProfileButtonRect => GetHomeProfileButtonRect(); // 確認用(画面の画素)
     Rect GetHomeMultiButtonRect() => HomePortrait ? PortraitChromeSlot(1) : HomeChromeColumn(1);
     Rect GetHomeRankingButtonRect() => HomePortrait ? PortraitChromeSlot(2) : HomeChromeColumn(2);
     Rect GetHomeArenaButtonRect() => HomePortrait ? PortraitChromeSlot(3) : HomeChromeColumn(3);
@@ -2100,8 +2108,10 @@ public partial class GameManager : MonoBehaviour
     {
         var pl = PortraitHome();
         int n = 0, idx = -1;
-        bool[] shown = { true, Platform.Online.LanMultiplayer, !NetSession.IsActive, UnlockRules.IsArenaUnlocked && !NetSession.IsActive, AppExit.HasExitButton };
-        for (int i = 0; i < shown.Length; i++) { if (i == slot) idx = n; if (shown[i]) n++; }
+        // 2026-11-07 プロフィール: 並びは 設定 / プロフィール / マルチ / ランキング / 闘技場 / 終了(slot の番号は今までどおり。プロフィールは HomeProfileKind = 5)
+        bool[] shown = { true, Platform.Online.LanMultiplayer, !NetSession.IsActive, UnlockRules.IsArenaUnlocked && !NetSession.IsActive, AppExit.HasExitButton, true };
+        int[] order = { 0, HomeProfileKind, 1, 2, 3, 4 };
+        foreach (int i in order) { if (i == slot) idx = n; if (shown[i]) n++; }
         if (idx < 0 || !shown[slot]) idx = n; // 出ていない物の場所(呼ばれても画面内のどこか)
         n = Mathf.Max(1, n);
         float gap = 8f, w = (pl.chrome.width - gap * (n - 1)) / n;
@@ -3553,6 +3563,7 @@ public partial class GameManager : MonoBehaviour
         FreezeDiagnostics.LogEvent($"[Damage] Hit reason={reason} amount={dmg} pos=({dmgPos.x:F2},{dmgPos.y:F2}) livesBefore={Lives} timeScale={Time.timeScale:F2}");
         int livesBeforeHit = Lives;
         Lives = Mathf.Max(0, Lives - dmg);
+        ChallengeTracker.OnPlayerDamaged(reason, dmg); // 2026-11-07 プロフィール: ノーダメージのチャレンジは HP が減った瞬間に失敗
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         QaDamageEvent?.Invoke(reason, dmg, livesBeforeHit, Lives); // 検証の記録用(開発版だけ。挙動は変えない)
 #endif
@@ -6139,6 +6150,8 @@ public partial class GameManager : MonoBehaviour
         bool arenaOpen = UnlockRules.IsArenaUnlocked;
         bool showMulti = Platform.Online.LanMultiplayer, showArena = arenaOpen && !NetSession.IsActive, showRanking = !NetSession.IsActive;
         var chromeRow = new System.Collections.Generic.List<(Rect, string)> { (setRect, "設定") };
+        Rect profRect = GetHomeProfileButtonRect(); // 2026-11-07 プロフィール
+        chromeRow.Add((profRect, LocProfile.Title));
         if (showMulti) chromeRow.Add((GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel));
         if (showArena) chromeRow.Add((GetHomeArenaButtonRect(), "闘技場"));
         if (showRanking) chromeRow.Add((GetHomeRankingButtonRect(), "ランキング"));
@@ -6146,6 +6159,7 @@ public partial class GameManager : MonoBehaviour
         if (showExit) chromeRow.Add((GetHomeExitButtonRect(), AppExit.ButtonLabel));
         HomeIconPlan chromePlan = PlanHomeIconRow(chromeRow, fs);
         if (DrawHomeIconButton(setRect, UiIcons.Gear, "設定", chromePlan, primary: false)) SettingsPanel.OpenStatic();
+        if (DrawHomeIconButton(profRect, BadgeArt.ProfileIcon, LocProfile.Title, chromePlan, primary: false)) ProfilePanel.OpenStatic(); // 2026-11-07 プロフィール
         if (showMulti && DrawHomeIconButton(GetHomeMultiButtonRect(), UiIcons.Home("multi"), NetDebugUI.HomeButtonLabel, chromePlan, primary: NetSession.IsActive)) NetDebugUI.OpenPanel();
         // 闘技場(2026-10-06 正式版): キャラやカードを自由に試せる練習場。マルチの部屋にいる間は出さない(ソロ用)
         // 闘技場: 天空回廊で30,000m到達+帰還で解放。2026-10-08: 未解放の間はボタンごと出さない(存在を見せない)。解放直後は NEW
@@ -6794,6 +6808,7 @@ public partial class GameManager : MonoBehaviour
         if (SettingsPanel.LangListOpen) { SettingsPanel.CloseLangList(); return; } // 言語の一覧だけを閉じる(2026-10-09)
         if (SettingsPanel.HandleBack()) return; // キー設定の待ち受け/確認の窓/キー設定のページ/画面の確認(2026-10-25)
         if (SettingsPanel.IsVisible) { SettingsPanel.CloseStatic(); return; }
+        if (ProfilePanel.HandleBack()) return; // 2026-11-07 プロフィール: サブページ → プロフィール → 閉じる
         if (NetDebugUI.PanelOpen) { NetDebugUI.ClosePanel(); return; }
         if (!HasStarted)
         {
