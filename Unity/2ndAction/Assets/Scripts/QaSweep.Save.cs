@@ -271,7 +271,7 @@ public partial class QaSweep
         foreach (var kv in db)
         {
             if (kv.Key == SaveKeys.SchemaVersion || kv.Key == SaveKeys.ReleaseGeneration) continue;
-            if (!da.ContainsKey(kv.Key) && !(kv.Key.StartsWith(SaveKeys.ReaperMetPrefix) || kv.Key == SaveKeys.LifetimeDistance || kv.Key == SaveKeys.FinalDungeonUnlocked || kv.Key.StartsWith("Tutorial.") || kv.Key.StartsWith("Unlock") || kv.Key.StartsWith(UnlockRules.ReachPrefix))) bad.Add($"{kv.Key} added"); // Tutorial.*: 初回チュートリアルの印(既存データには「案内済み」で1回だけ足す、2026-10-07)
+            if (!da.ContainsKey(kv.Key) && !(kv.Key.StartsWith(SaveKeys.ReaperMetPrefix) || kv.Key == SaveKeys.LifetimeDistance || kv.Key == SaveKeys.FinalDungeonUnlocked || kv.Key.StartsWith("Tutorial.") || kv.Key.StartsWith("Unlock") || kv.Key.StartsWith(UnlockRules.ReachPrefix) || kv.Key == ProfileStore.BestCharKey)) bad.Add($"{kv.Key} added"); // Tutorial.*: 初回チュートリアルの印(既存データには「案内済み」で1回だけ足す、2026-10-07)
         }
         diff = bad.Count == 0 ? "" : "(" + string.Join(", ", bad) + ")";
         return bad.Count == 0;

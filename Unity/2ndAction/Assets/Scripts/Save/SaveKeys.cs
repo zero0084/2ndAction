@@ -104,6 +104,7 @@ public static class SaveKeys
         new Entry(ProfileStore.ReasonKey, SaveCategory.Progress, SaveType.Int, "プロフィールの走る理由(定型文の ID。0 = 未選択。文ではなく ID)"),
         new Entry(ProfileStore.BadgesKey, SaveCategory.Progress, SaveType.String, "プロフィールに装備したバッヂ3枠(チャレンジの ID をカンマ区切り。空き = 空文字)"),
         new Entry(ProfileStore.TopSpeedKey, SaveCategory.Progress, SaveType.String, "プロフィールの最高速度 km/h(2026-11-07 から測る。記録対象外のランは数えない)"),
+        new Entry(ProfileStore.BestCharKey, SaveCategory.Progress, SaveType.String, "プロフィールの代表キャラ = 全体の BEST を出したキャラ \"キャラID|距離m[|p]\"(p = 既存データの暫定。2026-11-08)"),
 
         // ---- 設定 ----
         new Entry(ArenaConfig, SaveCategory.Settings, SaveType.String, "闘技場の最後の構成(キャラ/試用のビルド/相手/速度/操作アシスト/無敵)。進行ではない"),

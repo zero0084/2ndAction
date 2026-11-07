@@ -3,7 +3,7 @@ using UnityEngine;
 
 // プロフィール画面(2026-11-07、IMGUI。ランキング/設定と同じ作り)。ホームの「プロフィール」から開く。
 //  SNS のように情報を増やさず「どんな走りをしている人か分かるプレイヤーカード」: キャラ → 戦績 → 走る理由(大きめ) → バッヂ。
-//   横画面: 左 = キャラ・名前 / 右 = 戦績(BEST・累計・最高速度・マップ別 100km・ラスダン) / 下の段 = 走る理由・装備バッヂ3個
+//   横画面: 左 = キャラ(全体の BEST を出したキャラ)・名前 / 右 = 戦績(BEST・累計・最高速度・マップ別の自己ベスト距離・ラスダン) / 下の段 = 走る理由・装備バッヂ3個
 //   縦画面: 上 = キャラ・名前・走る理由・バッヂ3個 / 下 = 戦績(収まらなければ縦にスクロール)
 //  ページ: プロフィール / 走る理由を選ぶ(定型文から1つ。自由入力なし)/ バッヂとチャレンジ(一覧・装備3枠)
 //  数値は保存された記録をそのまま読む(PlayerProfileCard.FromLocal。将来のランキングの表示と同じデータ)
@@ -172,21 +172,22 @@ public class ProfilePanel : MonoBehaviour
         Row(r.x, ref y, r.width, rowH, LocProfile.StatBest, Meters(card.bestMeters), UiTheme.Mile);
         Row(r.x, ref y, r.width, rowH, LocProfile.StatTotal, Meters(card.totalMeters), UiTheme.Text);
         Row(r.x, ref y, r.width, rowH, LocProfile.StatTopSpeed, card.topSpeedKmh > 0.05f ? card.topSpeedKmh.ToString("0.0", inv) + " km/h" : LocProfile.NoSpeedYet, UiTheme.Text);
-        MapRow(r.x, ref y, r.width, rowH, UnlockRules.Wasteland, card.wasteland100);
-        MapRow(r.x, ref y, r.width, rowH, UnlockRules.Cave, card.cave100);
-        MapRow(r.x, ref y, r.width, rowH, UnlockRules.Sky, card.sky100);
+        MapRow(r.x, ref y, r.width, rowH, UnlockRules.Wasteland, card.wastelandMeters);
+        MapRow(r.x, ref y, r.width, rowH, UnlockRules.Cave, card.caveMeters);
+        MapRow(r.x, ref y, r.width, rowH, UnlockRules.Sky, card.skyMeters);
         string ld = BossManager.LastStageId;
-        bool ldKnown = ProgressStats.FinalDungeonUnlocked || card.lastReached || card.lastCleared;
-        string ldVal = card.lastCleared ? LocProfile.Cleared : card.lastReached ? LocProfile.Reached : LocProfile.NotYet;
-        Row(r.x, ref y, r.width, rowH, ldKnown ? UnlockRules.StageName(ld) : LocProfile.Unknown, ldVal, card.lastCleared ? UiTheme.Mile : card.lastReached ? UiTheme.Text : UiTheme.Locked);
+        bool ldKnown = ProgressStats.FinalDungeonUnlocked || card.lastMeters > 0 || card.lastCleared;
+        MapRow(r.x, ref y, r.width, rowH, ld, card.lastMeters, ldKnown);
     }
-    void MapRow(float x, ref float y, float w, float h, string stage, bool reached)
+    // 2026-11-08: マップごとの自己ベスト距離をそのまま出す(「到達/未到達」の文字は出さない。100km を超えた記録も丸めない)。
+    //  100km 以上は距離の数字だけ金色、未満は本文の白。記録が無いマップは 0 m を灰色で。名前の横の「100km」は出さない
+    public const double GoldMeters = 100000.0;
+    void MapRow(float x, ref float y, float w, float h, string stage, double meters, bool? knownOverride = null)
     {
-        double reach = PlayerProfileCard.MapReach(stage);
-        bool known = UnlockRules.OfficialStageUnlocked(stage) || reach > 0;
-        string label = known ? Loc.Src("{0}  100km", Loc.Plain(UnlockRules.StageName(stage))) : LocProfile.Unknown;
-        string val = reached ? LocProfile.Reach100 : reach > 0 ? Meters(reach) : LocProfile.NotYet;
-        Row(x, ref y, w, h, label, val, reached ? UiTheme.Mile : reach > 0 ? UiTheme.TextSub : UiTheme.Locked, labelRaw: known);
+        bool known = knownOverride ?? (UnlockRules.OfficialStageUnlocked(stage) || meters > 0);
+        string label = known ? Loc.Plain(UnlockRules.StageName(stage)) : LocProfile.Unknown;
+        Color vc = meters >= GoldMeters ? UiTheme.Mile : meters > 0 ? UiTheme.Text : UiTheme.Locked;
+        Row(x, ref y, w, h, label, Meters(meters), vc, labelRaw: known);
     }
     static void Row(float x, ref float y, float w, float h, string label, string value, Color vc, bool labelRaw = false)
     {

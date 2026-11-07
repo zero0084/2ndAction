@@ -72,7 +72,9 @@ public static class CommitJournal
         if (d.commit)
         {
             if (!RunLedger.IsCommitted(d.runId)) { RunLedger.MarkCommitted(d.runId); log.Append("commit-mark "); }
+            double prevOverall = PlayerProfileCard.BestOverall(GameManager.Instance);
             if (d.reached > GameManager.ReadStageBest(d.stageId)) { GameManager.WriteStageBest(d.stageId, d.reached); log.Append("stage-best "); }
+            if (d.run != null && ProfileStore.NoteCommittedRun(d.run.characterId, d.reached, prevOverall)) log.Append("best-char ");
             if (d.lifeAdd)
             {
                 double cur = ProgressStats.LifetimeDistance;

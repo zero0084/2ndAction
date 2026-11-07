@@ -181,6 +181,7 @@ public static class ProfileStore
     public const string ReasonKey = "ProfileReasonV1";       // int: 走る理由の ID(0 = 未選択)
     public const string BadgesKey = "ProfileBadgesV1";       // "id,id,id"(3枠。空き = 空文字)
     public const string TopSpeedKey = "ProfileTopSpeedV1";   // 最高速度 km/h(float の文字列。この版から測る)
+    public const string BestCharKey = "ProfileBestCharV1";   // 全体の BEST を出したキャラ "キャラID|距離m[|p]"(p = 既存データの暫定。2026-11-08)
     public const int Slots = 3;
 
     static string[] slots;
@@ -242,6 +243,55 @@ public static class ProfileStore
         Debug.Log("[Profile] badges -> " + string.Join(",", EquippedSlots));
     }
 
+    // ---- 代表キャラ = 全体の BEST を出したキャラ(2026-11-08) ----
+    //  確定した成功のランで全体の BEST をはっきり超えた時だけ、距離とキャラ ID を一緒に書く(同じ距離なら前のキャラのまま)。
+    //  キャラを選び直しても変わらない。この項目より前のデータは、更新後の初回起動で「その時選んでいたキャラ」を暫定として1回だけ書く
+    public struct BestChar { public string id; public double meters; public bool provisional; }
+    public static BestChar ReadBestChar()
+    {
+        var b = new BestChar { id = "" };
+        var f = SaveStore.GetString(BestCharKey, "").Split('|');
+        if (f.Length < 2) return b;
+        string id = f[0].Trim();
+        if (id.Length == 0 || CharacterDatabase.FindById(id) == null) return b; // 知らないキャラ(壊れた値)は読まない
+        if (!double.TryParse(f[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double m) || double.IsNaN(m) || double.IsInfinity(m) || m < 0) return b;
+        b.id = id; b.meters = m; b.provisional = f.Length > 2 && f[2] == "p";
+        return b;
+    }
+    static void WriteBestChar(string id, double meters, bool provisional)
+    {
+        SaveStore.SetString(BestCharKey, id + "|" + meters.ToString("R", CultureInfo.InvariantCulture) + (provisional ? "|p" : ""));
+    }
+    // 確定(RunLedger.CommitSuccess / CommitJournal の復旧)から。prevOverall = 確定の前の全体の BEST。保存は呼び出し側の保存と一緒に
+    public static bool NoteCommittedRun(string characterId, double reached, double prevOverall)
+    {
+        if (string.IsNullOrEmpty(characterId) || CharacterDatabase.FindById(characterId) == null) return false;
+        if (DebugRun.BlocksSave("ProfileBestChar")) return false;
+        var cur = ReadBestChar();
+        if (!(reached > prevOverall) || (cur.id.Length > 0 && !(reached > cur.meters))) return false; // はっきり超えた時だけ
+        WriteBestChar(characterId, reached, false);
+        Debug.Log($"[Profile] best character -> {characterId} ({reached:F1}m, previous best {prevOverall:F1}m)");
+        return true;
+    }
+    // 起動時(SaveSystem.Boot)に1回: 記録があるのに代表キャラが無い既存データ = 今選んでいるキャラを暫定で書く
+    public static string EnsureBestChar()
+    {
+        if (ReadBestChar().id.Length > 0) return "";
+        double best = PlayerProfileCard.BestOverall(null);
+        if (best <= 0.0) return ""; // 記録が無い: 書かない(最初の BEST の時に書く)
+        string sel = SaveStore.GetString("SelectedCharacterId", "");
+        if (CharacterDatabase.FindById(sel) == null) sel = DefaultSave.StartingCharacterId();
+        if (string.IsNullOrEmpty(sel)) return "";
+        WriteBestChar(sel, best, true);
+        return $"profile: best character provisional = {sel} ({best:F0}m); ";
+    }
+    // プロフィールに出すキャラ: BEST のキャラ。まだ記録が無い時だけ今選んでいるキャラ
+    public static string DisplayCharacterId(string selected)
+    {
+        var b = ReadBestChar();
+        return b.id.Length > 0 ? b.id : selected ?? "";
+    }
+
     // ---- 最高速度(この版から測る。記録対象外のランは数えない) ----
     public static float TopSpeedKmh
     {
@@ -293,7 +343,7 @@ public class PlayerProfileCard
 {
     public int version = 1;
     public string name = "";            // コードネーム(空 = 未設定)
-    public string characterId = "";     // 選択中のキャラ
+    public string characterId = "";     // 代表キャラ = 全体の BEST を出したキャラ(2026-11-08。記録が無い時だけ選択中のキャラ)
     public int reasonId;                // 走る理由の ID(0 = 未選択)。文ではなく ID(受け取った側の言語で出す)
     public string[] badges = new string[ProfileStore.Slots]; // 装備中のバッヂ(チャレンジの ID、空き = "")
     public int badgeCount;              // 獲得したバッヂの数
@@ -302,6 +352,7 @@ public class PlayerProfileCard
     public float topSpeedKmh;           // 最高速度
     public bool wasteland100, cave100, sky100; // マップ別 100km 到達
     public bool lastReached, lastCleared;      // ラスダン 到達/クリア
+    public double wastelandMeters, caveMeters, skyMeters, lastMeters; // マップ別の自己ベスト距離(2026-11-08。プロフィールはこの実値を出す)
 
     public static PlayerProfileCard FromLocal()
     {
@@ -309,7 +360,7 @@ public class PlayerProfileCard
         var c = new PlayerProfileCard
         {
             name = Codename.Current ?? "",
-            characterId = gm != null ? gm.SelectedCharacterId ?? "" : SaveStore.GetString("SelectedCharacterId", ""),
+            characterId = ProfileStore.DisplayCharacterId(gm != null ? gm.SelectedCharacterId ?? "" : SaveStore.GetString("SelectedCharacterId", "")),
             reasonId = ProfileStore.ReasonId,
             badgeCount = ChallengeStore.DoneCount,
             bestMeters = BestOverall(gm),
@@ -320,6 +371,10 @@ public class PlayerProfileCard
             sky100 = MapReach(UnlockRules.Sky) >= 100000.0,
             lastReached = MapReach(BossManager.LastStageId) > 0.0,
             lastCleared = ProgressStats.GameCleared,
+            wastelandMeters = MapReach(UnlockRules.Wasteland),
+            caveMeters = MapReach(UnlockRules.Cave),
+            skyMeters = MapReach(UnlockRules.Sky),
+            lastMeters = MapReach(BossManager.LastStageId),
         };
         for (int i = 0; i < ProfileStore.Slots; i++) c.badges[i] = ProfileStore.Slot(i);
         return c;

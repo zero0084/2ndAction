@@ -172,6 +172,9 @@ public static class SaveSystem
         // 2026-11-07 プロフィール: 常設チャレンジを既存の記録(到達距離/累計距離/死神との遭遇)から1回だけ達成済みにする(通知はお知らせ1件)
         try { string ch = ChallengeStore.EnsureInitialized(); if (ch != "") { SaveStore.Save(); r.report += ch; } }
         catch (Exception e) { Debug.LogError("[Save] challenge init failed: " + e); }
+        // 2026-11-08 プロフィールの代表キャラ: 記録があるのに BEST のキャラが無い既存データは、今選んでいるキャラを暫定で1回だけ書く
+        try { string bc = ProfileStore.EnsureBestChar(); if (bc != "") { SaveStore.Save(); r.report += bc; } }
+        catch (Exception e) { Debug.LogError("[Save] best character init failed: " + e); }
         UnlockRules.RequeuePending(); // 解放したのに確認していないお知らせ(アプリが落ちても失わない)
         try { int purged = Leaderboard.PurgeSupportEntries(); if (purged > 0) log.Append($"ranking: removed {purged} CPU-support record(s); "); } // 2026-10-14: ランキングはソロだけ
         catch (Exception e) { Debug.LogWarning("[Save] ranking purge failed: " + e.Message); }

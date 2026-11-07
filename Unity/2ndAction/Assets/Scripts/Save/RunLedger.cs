@@ -158,10 +158,12 @@ public static class RunLedger
         MarkCommitted(r.runId);
 
         string stage = r.stageId;
+        double prevOverall = PlayerProfileCard.BestOverall(GameManager.Instance); // 2026-11-08: 代表キャラ(全体の BEST を出したキャラ)の判定用。書く前に読む
         double best = GameManager.ReadStageBest(stage);
         res.newBest = r.maxReached > best;
         res.best = Math.Max(best, r.maxReached);
         if (res.newBest) GameManager.WriteStageBest(stage, r.maxReached);
+        ProfileStore.NoteCommittedRun(r.characterId, r.maxReached, prevOverall);
         if (stage != BossManager.LastStageId) ProgressStats.AddCommittedDistance(r.walked); // ラスダンは累計に入れない(解放条件は通常3マップ)
         UnlockRules.CommitRun(stage, r.maxReached, res);
         res.unlockedOther.AddRange(UnlockManager.CommitRun(r.maxReached)); // 2026-10-13: 距離の解放(新しい敵)もここで一度だけ

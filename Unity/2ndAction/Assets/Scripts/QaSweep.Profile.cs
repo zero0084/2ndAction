@@ -253,8 +253,12 @@ public partial class QaSweep
         Check(back != null && back.reasonId == 9 && back.badgeCount == card.badgeCount && back.badges.Length == 3 && System.Math.Abs(back.totalMeters - ProgressStats.LifetimeDistance) < 0.01, "L6: the profile data survives JSON (for the future ranking view)");
         L("[L6] card " + card.ToJson());
         // 戦績が実データと一致
-        Check(card.bestMeters >= 52000 - 0.5 && System.Math.Abs(card.bestMeters - PlayerProfileCard.BestOverall(gm)) < 0.01 && card.characterId == gm.SelectedCharacterId, $"L6: BEST (best of the map BESTs) / character match the saved records ({card.bestMeters:F0})");
+        Check(card.bestMeters >= 52000 - 0.5 && System.Math.Abs(card.bestMeters - PlayerProfileCard.BestOverall(gm)) < 0.01 && card.characterId == ProfileStore.DisplayCharacterId(gm.SelectedCharacterId), $"L6: BEST (best of the map BESTs) / character match the saved records ({card.bestMeters:F0})");
         Check(card.cave100 == false && System.Math.Abs(PlayerProfileCard.MapReach("natural_cave") - 52000) < 0.5, "L6: map reach comes from the saved BEST");
+        Check(System.Math.Abs(card.caveMeters - 52000) < 0.5, $"L6: the cave row shows the real best distance ({card.caveMeters:F0})");
+
+        // ---- L8 代表キャラ = 全体の BEST を出したキャラ(2026-11-08)
+        yield return PfBestChar();
 
         // ---- L7 画面を開いて閉じる(例外なし)
         ProfilePanel.OpenStatic();
@@ -272,6 +276,61 @@ public partial class QaSweep
         QuickChat.DebugInject(2, 9);
         yield return new WaitForSecondsRealtime(0.3f);
         yield return ShotW("pf_quickchat");
+    }
+
+    // 確定した成功のラン(記録に書く本物の CommitSuccess。ランキングへは送らない印 legacy を付ける)
+    IEnumerator PfCommitRun(string ch, string stage, double meters, string tag)
+    {
+        yield return BeginRun(ch, stage);
+        yield return PfFrames(2);
+        RunLedger.DevClearDebug();
+        RunLedger.DevSet(x => { x.maxReached = meters; x.legacy = true; });
+        var res = RunLedger.CommitSuccess(meters);
+        L($"[{tag}] commit {ch} {stage} {meters:F1}m committed={res.committed} {res.skippedWhy} newBest={res.newBest} -> best char {SaveStore.GetString(ProfileStore.BestCharKey, "")}");
+        Check(res.committed, $"{tag}: the run was committed ({res.skippedWhy})");
+        yield return EndRun();
+    }
+
+    IEnumerator PfBestChar()
+    {
+        SaveStore.DeleteKey(ProfileStore.BestCharKey);
+        gm.SetSelectedCharacter("swordsman");
+        double best0 = PlayerProfileCard.BestOverall(gm);
+        string rep = ProfileStore.EnsureBestChar();
+        var b = ProfileStore.ReadBestChar();
+        L($"[L8] {rep} overall {best0:F1}");
+        Check(best0 > 0 && b.id == "swordsman" && b.provisional && System.Math.Abs(b.meters - best0) < 0.01, $"L8: an old save gets the selected character as a provisional BEST character ({b.id} {b.meters:F0} p={b.provisional})");
+        Check(ProfileStore.EnsureBestChar() == "", "L8: the provisional value is written only once");
+        gm.SetSelectedCharacter("archer");
+        Check(PlayerProfileCard.FromLocal().characterId == "swordsman", "L8: changing the selected character does not change the profile character");
+
+        double m1 = System.Math.Floor(best0) + 1234.5;
+        yield return PfCommitRun("dragon_lancer", "wasteland_road", m1, "L8a");
+        b = ProfileStore.ReadBestChar();
+        Check(b.id == "dragon_lancer" && !b.provisional && System.Math.Abs(b.meters - m1) < 0.01, $"L8: a new overall BEST sets the character and the distance together ({b.id} {b.meters:F1})");
+        Check(PlayerProfileCard.FromLocal().characterId == "dragon_lancer", "L8: the profile shows the BEST character");
+
+        yield return PfCommitRun("ninja", "natural_cave", m1, "L8b");
+        Check(ProfileStore.ReadBestChar().id == "dragon_lancer", "L8: the same distance keeps the old BEST character");
+        yield return PfCommitRun("mage", "sky_corridor", m1 - 500.0, "L8c");
+        Check(ProfileStore.ReadBestChar().id == "dragon_lancer", "L8: a shorter run does not change the BEST character");
+        yield return PfCommitRun("ninja", "sky_corridor", 100263.4, "L8d");
+        b = ProfileStore.ReadBestChar();
+        Check(b.id == "ninja" && System.Math.Abs(b.meters - 100263.4) < 0.01, $"L8: a clearly longer run changes the BEST character ({b.id} {b.meters:F1})");
+        var c8 = PlayerProfileCard.FromLocal();
+        Check(System.Math.Abs(c8.skyMeters - 100263.4) < 0.01 && System.Math.Abs(c8.bestMeters - 100263.4) < 0.01, $"L8: the map row keeps the real value over 100km (sky {c8.skyMeters:F1}, BEST {c8.bestMeters:F1})");
+        Check(c8.skyMeters >= ProfilePanel.GoldMeters && c8.caveMeters < ProfilePanel.GoldMeters, "L8: 100km+ is gold, under 100km is the normal color");
+        Check(System.Math.Abs(c8.wastelandMeters - m1) < 0.01, $"L8: the wasteland row is that map's own best ({c8.wastelandMeters:F1})");
+        string keep = SaveStore.GetString(ProfileStore.BestCharKey, "");
+        SaveStore.SetString(ProfileStore.BestCharKey, "no_such_char|999999");
+        Check(ProfileStore.ReadBestChar().id == "" && PlayerProfileCard.FromLocal().characterId == GameManager.Instance.SelectedCharacterId, "L8: a broken saved character is ignored (falls back to the selected one, no error)");
+        SaveStore.SetString(ProfileStore.BestCharKey, "ninja|abc");
+        Check(ProfileStore.ReadBestChar().id == "", "L8: a broken saved distance is ignored");
+        SaveStore.SetString(ProfileStore.BestCharKey, keep);
+        ProfilePanel.OpenStatic();
+        yield return new WaitForSecondsRealtime(0.4f);
+        yield return ShotW("pf_bestchar");
+        ProfilePanel.CloseStatic();
     }
 
     IEnumerator PfJump()
@@ -295,6 +354,9 @@ public partial class QaSweep
             ProfileStore.SetReason(11);
             ProfileStore.Equip(0, "air_kill"); ProfileStore.Equip(2, "combo_100");
             ChallengeStore.AddCounter("breaks", 7);
+            GameManager.WriteStageBest("natural_cave", 6120.5); // 10km 未満(到達のチャレンジを起こさない)
+            SaveStore.SetString(ProfileStore.BestCharKey, "dragon_lancer|6120.5");
+            GameManager.Instance.SetSelectedCharacter("archer");
             SaveStore.Save();
             System.IO.File.WriteAllText(mark, $"{PfMile()}\n{ChallengeStore.DoneCount}\n{m0}");
             L($"[P1] saved: done {ChallengeStore.DoneCount}, MILE {m0} -> {PfMile()}, reason 11, slots {string.Join(",", ProfileStore.EquippedSlots)}");
@@ -311,6 +373,10 @@ public partial class QaSweep
         Check(ChallengeStore.Counter("breaks") == 7, "P2: lifetime counters survive a restart");
         Check(PfMile() == mile1, $"P2: no reward is granted again on restart (MILE {mile1} -> {PfMile()})");
         Check(ChallengeToast.ShownCount == 0, "P2: no completion notice on boot");
+        var bc = ProfileStore.ReadBestChar();
+        var pc2 = PlayerProfileCard.FromLocal();
+        Check(bc.id == "dragon_lancer" && !bc.provisional && System.Math.Abs(bc.meters - 6120.5) < 0.01 && pc2.characterId == "dragon_lancer", $"P2: the BEST character survives a restart, not replaced by the selected one ({bc.id} {bc.meters:F1}, selected {GameManager.Instance.SelectedCharacterId})");
+        Check(System.Math.Abs(pc2.caveMeters - 6120.5) < 0.01, $"P2: the map best survives a restart ({pc2.caveMeters:F1})");
         ProfilePanel.OpenStatic();
         yield return new WaitForSecondsRealtime(0.6f);
         yield return ShotW("pf_persist_profile");
@@ -327,7 +393,10 @@ public partial class QaSweep
         ProfileStore.Equip(0, "boss_garmud"); ProfileStore.Equip(1, "reaper_meet"); ProfileStore.Equip(2, "dist_50k");
         if (string.IsNullOrEmpty(Codename.Current)) Codename.Set("MILE RUNNER");
         ProgressStats.DevSetLifetime(1234567);
-        GameManager.WriteStageBest("wasteland_road", 100350); GameManager.WriteStageBest("natural_cave", 61200);
+        GameManager.WriteStageBest("wasteland_road", 100263); GameManager.WriteStageBest("natural_cave", 10137); // マスターの例の値(2026-11-08)
+        GameManager.WriteStageBest("sky_corridor", 20000); GameManager.WriteStageBest(BossManager.LastStageId, 84520);
+        SaveStore.SetString(ProfileStore.BestCharKey, "dragon_lancer|100263"); // 代表キャラ ≠ 選択中のキャラ
+        if (GameManager.Instance != null) GameManager.Instance.SetSelectedCharacter("swordsman");
         ChallengeStore.DevSetCounter("air_kills", 37); ChallengeStore.DevSetCounter("breaks", 18);
         SaveStore.SetString(ProfileStore.TopSpeedKey, "142.6"); ProfileStore.Reload();
         ChallengeToast.ClearAll();
@@ -347,7 +416,8 @@ public partial class QaSweep
         PfShotData();
         // 戦績の値がゲームの持つ値と同じか(撮影のデータで)
         var card = PlayerProfileCard.FromLocal();
-        Check(card.wasteland100 && !card.cave100 && card.topSpeedKmh > 142f && card.badgeCount == 14 && card.reasonId == 9 && System.Math.Abs(card.bestMeters - 100350) < 0.5, $"S: profile values from the saved records ({card.ToJson()})");
+        Check(card.wasteland100 && !card.cave100 && card.topSpeedKmh > 142f && card.badgeCount == 14 && card.reasonId == 9 && System.Math.Abs(card.bestMeters - 100263) < 0.5, $"S: profile values from the saved records ({card.ToJson()})");
+        Check(card.characterId == "dragon_lancer" && System.Math.Abs(card.lastMeters - 84520) < 0.5 && System.Math.Abs(card.skyMeters - 20000) < 0.5, $"S: BEST character and map bests ({card.characterId})");
         foreach (bool land in new[] { true, false })
         {
             string o = land ? "land" : "port";
