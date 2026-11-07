@@ -1492,7 +1492,7 @@ public partial class PlayerController : MonoBehaviour
         float effectiveKnockback = knockbackVelocityX * knockbackFrac;
         // ボス戦(2026-10-01): 攻撃の前進/後退を大きくする(ボスが離れているほど前進を伸ばす。近いと伸ばしすぎない)
         lungeScaleNow = Mathf.Approximately(lungeVelocityX, 0f) ? 1f : BossBattle.LungeScale(lungeVelocityX, transform.position.x) * CardHunterLungeScale;
-        if (lungeVelocityX > 0f && !IsAlly) lungeScaleNow *= BossHalt.ForwardLungeLimit(transform.position.x); // 2026-11-07: 止まって戦うボス戦で戦闘範囲より前へ踏み込みで出ない(BossHalt.ForwardLungeLimit)
+        if (lungeVelocityX > 0f && !IsAlly && !NinjaHaltReachOk()) lungeScaleNow *= BossHalt.ForwardLungeLimit(transform.position.x); // 2026-11-07: 止まって戦うボス戦で戦闘範囲より前へ踏み込みで出ない(BossHalt.ForwardLungeLimit)。第2: 忍者の瞬身がボスの中心で止まる時は除く
         if (!ArenaMode.FixedSpeed) autoSpeed *= CardAutoSpeedScale * CardHunterApproachScale(transform.position.x) * UltimateArt.BuffRunSpeedMul; // 闘技場の「実効速度固定」では補正を掛けない // v3: BRAKE ATTACK / HUNTER / #100 ULTIMATE の BUFF(勢い)
         float newX = transform.position.x + (autoSpeed + EffectiveLungeX * lungeScaleNow + effectiveKnockback) * dt; // タップ攻撃は前への踏み込み無し(EffectiveLungeX)
         float prevX = transform.position.x;
@@ -1507,6 +1507,16 @@ public partial class PlayerController : MonoBehaviour
                 float withoutLunge = prevX + (autoSpeed + effectiveKnockback) * dt;
                 if (lungeDir > 0f && newX > stop.Value) { float c = Mathf.Max(withoutLunge, stop.Value); if (c < newX) { newX = c; LungeStops++; } }
                 else if (lungeDir < 0f && newX < stop.Value) { float c = Mathf.Min(withoutLunge, stop.Value); if (c > newX) { newX = c; LungeStops++; } }
+            }
+        }
+        // 2026-11-07 第2(BalanceTuning.NinjaBossStop): 忍者のボス戦の瞬身は、前にいたボスの体の中心で止まる(通り抜けて背中側へ出ない)
+        if (lungeVelocityX > 0f && kit == CharacterKit.Ninja)
+        {
+            float? ns = NinjaBossStopX();
+            if (ns.HasValue && newX > ns.Value)
+            {
+                float c = Mathf.Max(prevX + (autoSpeed + effectiveKnockback) * dt, ns.Value);
+                if (c < newX) { newX = c; NinjaBossStops++; }
             }
         }
         // ラストダンジョンのエンディング: 通り抜けられない物(THANK YOU FOR PLAYINGの石板、YES/NOの石)の手前で止まる

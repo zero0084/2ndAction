@@ -63,6 +63,26 @@ public partial class PlayerController
         }
     }
 
+    // 2026-11-07 第2(初期デッキで 5km のゴブリンライダーで毎回倒れる件、BalanceTuning.CloudBossStep): のびーるパンチ(1・2段目)は
+    // 踏み込みが 0m で、ボスが寄ってくる顔の前 1.7m(棍棒の届く所)から動けず、棍棒 → 下がって魔法弾 の繰り返しで1戦 4〜6ハート失っていた
+    // (黒剣士は小さな踏み込みを重ねてボスの体の中へ入り、棍棒の外側にいる)。ボス戦だけ 0.9m 踏み込む(ボス戦の伸び ×1.4〜2.6 が掛かる)。
+    // 腕の届く長さ・威力・溜めと戻りの長さは同じ。道中(雑魚)は今までどおり踏み込まない
+    public float CloudComboLunge(int stage)
+    {
+        float v = ArcherPick(kitDef.cloud.comboLunge, stage - 1, 0f);
+        return BalanceTuning.CloudBossStep && stage < 3 && BossBattle.AnyBossFighting ? Mathf.Max(v, BalanceTuning.CloudBossStepDistance) : v;
+    }
+
+    // 2026-11-07 第2(BalanceTuning.CloudPawOneShot): のびーるパンチ(1・2段目)の威力 0.85 → 1.0(序盤の小型の雑魚を1発で = 黒剣士の1段目と同じ)、
+    // その分 ぽかぽか(3段目)を 1.6 → 1.3 に(3段の合計 3.3 は同じ)。以前は 1発 17 で序盤の雑魚(HP 19)が残り、殴った雑魚がそのまま体当たりしていた
+    // (道中の自動の前攻撃: 当たった 85% / 倒した 22%。黒剣士は 99% / 32%。0〜11.5km の雑魚の体当たり 16〜32ハート)。ルカの lo と同じ
+    public float CloudComboDamageScale(int stage)
+    {
+        float v = ArcherPick(kitDef.cloud.comboDamageScale, stage - 1, 1f);
+        if (!BalanceTuning.CloudPawOneShot) return v;
+        return stage < 3 ? Mathf.Max(v, BalanceTuning.CloudPawDamage) : Mathf.Min(v, BalanceTuning.CloudPokaDamage);
+    }
+
     IEnumerator CloudCombo()
     {
         var p = kitDef.cloud;
@@ -91,8 +111,8 @@ public partial class PlayerController
             float reach = ArcherPick(p.comboReach, stage - 1, 2f) * AttackRangeMultiplier;
             float thick = p.hitThickness + (poka ? 0.35f : 0f);
             ArmKitBox(new Vector2(0.3f + reach * 0.5f, p.hitHeight), new Vector2(reach, thick), 0f, PlayerAttackKind.Normal,
-                ArcherPick(p.comboDamageScale, stage - 1, 1f), ArcherPick(p.comboKnockbackScale, stage - 1, 1f), ArcherPick(p.comboHitStop, stage - 1, 0.04f));
-            lungeVelocityX = ArcherPick(p.comboLunge, stage - 1, 0f) / Mathf.Max(0.01f, active);
+                CloudComboDamageScale(stage), ArcherPick(p.comboKnockbackScale, stage - 1, 1f), ArcherPick(p.comboHitStop, stage - 1, 0.04f)); // 2026-11-07 第2: 1・2段目で序盤の雑魚を1発で(BalanceTuning.CloudPawOneShot)
+            lungeVelocityX = CloudComboLunge(stage) / Mathf.Max(0.01f, active); // 2026-11-07 第2: ボス戦の1・2段目は少し踏み込む(BalanceTuning.CloudBossStep)
             Vector3 fist = KitWorld(new Vector2(0.3f + reach * 0.95f, p.hitHeight));
             if (poka) OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, fist, new Color(0.92f, 0.97f, 1f, 0.9f), duration: 0.18f, startScale: 0.3f, endScale: 0.9f, sortingOrder: RenderOrder.SlashFx);
             else OneShotSpriteEffect.CreateTweened(KitProjectile.Burst, fist, new Color(0.9f, 0.96f, 1f, 0.8f), duration: 0.12f, startScale: 0.2f, endScale: 0.5f, sortingOrder: RenderOrder.SlashFx);

@@ -50,6 +50,42 @@ public partial class HighSpeedAssist
         return true;
     }
 
+    // 2026-11-07 第2: 物ごとの、プレイヤーへ迫る速さ(m/秒、正 = 近づく)と縦の速さ。前のフレームとの位置の差から測る(初めて見たフレームは 0)
+    public static int FireballThreats; // 確認用
+    // 試験用(QaSweep -tiMode human): 「予兆を見ている人」は回避が近い間は攻撃を控える秒数。0 = オートの既定(0.6秒)のまま
+    public static float QaEvadeLead;
+    // 試験用: 今見えている予兆の一覧(被弾の記録 tier_hits.tsv へ)。what:到達まで秒/有効な秒/必要な高さ(C = 天井側)
+    public string QaThreatText()
+    {
+        var pc = PlayerController.Instance;
+        if (pc == null) return "-";
+        CollectThreats(pc);
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"h={pc.transform.position.y - GroundYUnder(pc):F1}");
+        foreach (var t in threats) sb.Append($" {t.what}:{t.tc:F2}/{t.td:F2}/{(t.ceiling ? "C" : t.needY.ToString("F1"))}");
+        return sb.ToString();
+    }
+    struct Track { public float rel, y, t, closing, vy; }
+    readonly Dictionary<Object, Track> tracks = new Dictionary<Object, Track>();
+    float tracksPruneAt;
+    float ClosingSpeed(Component o, float rel)
+    {
+        float now = Time.time, y = o.transform.position.y;
+        Track tr;
+        if (tracks.TryGetValue(o, out var prev) && now > prev.t && now - prev.t < 0.25f)
+        {
+            float dt = now - prev.t;
+            float c = -(Mathf.Abs(rel) - Mathf.Abs(prev.rel)) / dt;
+            tr = new Track { rel = rel, y = y, t = now, closing = c, vy = (y - prev.y) / dt };
+        }
+        else if (tracks.TryGetValue(o, out prev) && now <= prev.t) return prev.closing; // 同じフレームに2回
+        else tr = new Track { rel = rel, y = y, t = now };
+        tracks[o] = tr;
+        if (now > tracksPruneAt) { tracksPruneAt = now + 2f; var dead = new List<Object>(); foreach (var kv in tracks) if (kv.Key == null || now - kv.Value.t > 1f) dead.Add(kv.Key); foreach (var k in dead) tracks.Remove(k); }
+        return tr.closing;
+    }
+    float VerticalSpeed(Component o) => tracks.TryGetValue(o, out var tr) ? tr.vy : 0f;
+
     void CollectThreats(PlayerController pc)
     {
         threats.Clear();
@@ -114,6 +150,31 @@ public partial class HighSpeedAssist
             float dd = Mathf.Abs(rel) - b.extents.x - pad;
             threats.Add(new Threat { tc = Mathf.Max(0f, dd / Mathf.Max(0.5f, Mathf.Abs(vx))), td = (b.size.x + pad * 2f) / Mathf.Max(0.5f, Mathf.Abs(vx)), needY = b.max.y - gy + 0.15f, what = "shot" });
         }
+        // ---- 迫ってくる火球(2026-11-07 第2、BalanceTuning.AssistFireball): ゴブリンライダーの魔法弾などは FireballController で、
+        //  上の BossProjectile の見張りに入っておらず、ボス戦の補助は火球を一度も避けていなかった。
+        //  火球はまっすぐ飛ぶ(狙いはプレイヤーの体)ので、届く時刻の高さを動きから見積もり、体の高さに来る物を跳んで避ける ----
+        if (BalanceTuning.AssistFireball)
+        {
+            foreach (var fb in FindObjectsByType<FireballController>(FindObjectsSortMode.None))
+            {
+                if (fb == null || fb.reflected) continue;
+                var c = fb.GetComponent<Collider2D>();
+                if (c == null || !c.enabled) continue;
+                Bounds b = c.bounds;
+                float rel = b.center.x - px;
+                float closing = ClosingSpeed(fb, rel);
+                if (closing < 0.5f) continue; // 離れていく/止まっている(輪の待機など)
+                float dd = Mathf.Abs(rel) - b.extents.x - pad;
+                if (dd > closing * 1.6f) continue;
+                float tc = Mathf.Max(0f, dd / closing);
+                float gy = pc.transform.position.y;
+                float yAt = b.center.y + VerticalSpeed(fb) * tc; // 届く時の高さ
+                if (yAt - b.extents.y > gy + bodyH + 0.1f) continue;  // 頭の上を通る
+                if (yAt + b.extents.y < gy - 0.1f) continue;          // 足の下(地面へ)
+                FireballThreats++;
+                threats.Add(new Threat { tc = tc, td = (b.size.x + pad * 2f) / closing, needY = yAt + b.extents.y - gy + 0.15f, what = "fireball" });
+            }
+        }
         // ---- 有効になったボス本体の判定(突進/薙ぎ払い): 体の近くで低い物は跳ぶ ----
         foreach (var lb in BossBattle.Living)
         {
@@ -126,9 +187,13 @@ public partial class HighSpeedAssist
                 Bounds b = c.bounds;
                 float gy = pc.transform.position.y;
                 float dd = Mathf.Max(0f, Mathf.Abs(b.center.x - px) - b.extents.x - pad);
-                if (dd > 3.5f) continue;
+                // 2026-11-07 第2(BalanceTuning.AssistBodySpeed): 迫る速さを実際の動きから測る(騎乗突撃 18m/秒 などは 12m/秒 の決め打ちより速く、
+                //  跳ぶのが遅れて当たっていた)。速い物は遠くから見る(0.4秒で届く距離まで)
+                float closing = BalanceTuning.AssistBodySpeed ? ClosingSpeed(hb, b.center.x - px) : 0f;
+                float speed = Mathf.Max(12f, closing);
+                if (dd > Mathf.Max(3.5f, speed * 0.4f)) continue;
                 if (b.min.y > gy + 1.9f) { threats.Add(new Threat { ceiling = true, tc = 0f, td = 0.3f, what = "bodyHigh" }); continue; }
-                threats.Add(new Threat { tc = dd / 12f, td = 0.4f, needY = b.max.y - gy + 0.15f, what = "body" });
+                threats.Add(new Threat { tc = dd / speed, td = 0.4f, needY = b.max.y - gy + 0.15f, what = "body" });
             }
         }
     }
@@ -137,7 +202,7 @@ public partial class HighSpeedAssist
     // 穴の上で選ぶとそのまま落ちる(お嬢様の天空回廊のクラゲ戦で 1戦あたりの落下 0.6 → 2.6回)。
     // 今の位置から、落ち切るまでの前進ぶん(0.45秒)+ 0.6m 先まで、どこかが穴/足場なしなら急降下しない(穴を跳び越えてから使う)。
     public static int BossDiveSkippedOverPit { get; private set; } // 確認用
-    bool DiveLandsSafely(PlayerController pc)
+    public bool DiveLandsSafely(PlayerController pc)
     {
         var tm = TerrainManager.Instance;
         if (tm == null) return true;
@@ -215,7 +280,7 @@ public partial class HighSpeedAssist
                     return PlayerController.FlickDirection.Up;
                 }
             }
-            if (t.tc < 0.6f) return null; // 回避の準備中は攻撃を出さない(踏み切りが遅れないように)
+            if (t.tc < Mathf.Max(0.6f, QaEvadeLead)) return null; // 回避の準備中は攻撃を出さない(踏み切りが遅れないように)
         }
         // ---- 接近と攻撃 ----
         return BossAttack(pc, grounded, stayLow);
@@ -237,7 +302,7 @@ public partial class HighSpeedAssist
         //  後ろにいる間は待っていた = 止まる形で倒すまでが倍ほど長くなっていた)
         if (behind)
         {
-            float backReach = pc.AssistForwardIsProjectile ? 12f : BackAttackReach;
+            float backReach = pc.AssistForwardIsProjectile ? 12f : pc.AssistBackReach(BackAttackReach); // 2026-11-07 第2: 忍者の後ろ攻撃は手裏剣(飛び道具)
             if (bestD > backReach) { BossPlan = $"{bestName} は後ろ {bestD:F1}m(届くのを待つ)"; return null; }
             if (!pc.AssistCanStartForwardAttack) return null;
             float f0 = p.y, t0 = p.y + bodyH;

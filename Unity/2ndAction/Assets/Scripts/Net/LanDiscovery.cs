@@ -30,7 +30,7 @@ public class LanRoom
 
 public class LanDiscovery : MonoBehaviour
 {
-    public const int MultiplayerProtocolVersion = 12;  // 2026-11-05: 12 = CO-OP の長押し復活(FRONT から HP)・脱出の報告・VERSUS の死神の乱入時間(Run 開始の通知/表の見出し/部屋の設定)と順位ボーナス(結果の行)。 2026-10-28: 11 = ボスの技ごとの1枚絵(BossPose)を JOIN へ(竜/魔人は FramesSet 10〜、天空は SpriteIdx。旧版は絵の番号を知らないので混ぜない)。 2026-10-27: 10 = 13・14人目(ルカ/ペンタトゥットゥルー星人。旧版は知らないキャラを表示できないので、版の違う端末と部屋を混ぜない)。2026-10-19: 9 = LOCAL の通信を DTLS で暗号化(LanSecurity)・部屋の案内に HOST の証明書・部屋の名前は汎用(ROOM xxxx)。2026-10-16: 8 = 協力のラッシュの完走報酬を参加者全員へ(SyncRushReward)。2026-10-15: 7 = WANTED の Lv(NetPlayer)と賞金首の印(OpWanted)・協力のボスラッシュ。6 = 撃破の知らせに WANTED の賞金
+    public const int MultiplayerProtocolVersion = 13;  // 2026-11-07: 13 = 攻撃の申告に空中の印(KindAir 0x40)・参加者のキャラの崩しの倍率を HOST で掛ける(双剣士)・マップ専用カード(JOIN の血の盾/1ラン1回)。旧版は 0x40 を種類と読むので混ぜない。 2026-11-05: 12 = CO-OP の長押し復活(FRONT から HP)・脱出の報告・VERSUS の死神の乱入時間(Run 開始の通知/表の見出し/部屋の設定)と順位ボーナス(結果の行)。 2026-10-28: 11 = ボスの技ごとの1枚絵(BossPose)を JOIN へ(竜/魔人は FramesSet 10〜、天空は SpriteIdx。旧版は絵の番号を知らないので混ぜない)。 2026-10-27: 10 = 13・14人目(ルカ/ペンタトゥットゥルー星人。旧版は知らないキャラを表示できないので、版の違う端末と部屋を混ぜない)。2026-10-19: 9 = LOCAL の通信を DTLS で暗号化(LanSecurity)・部屋の案内に HOST の証明書・部屋の名前は汎用(ROOM xxxx)。2026-10-16: 8 = 協力のラッシュの完走報酬を参加者全員へ(SyncRushReward)。2026-10-15: 7 = WANTED の Lv(NetPlayer)と賞金首の印(OpWanted)・協力のボスラッシュ。6 = 撃破の知らせに WANTED の賞金
     public const int PreviousProtocolVersion = 8;   // 2026-10-12: 4 = 位置/敵の状態を詰めた形・位置の中継を送り先ごとに1件へまとめる(3: 中継を HOST が送り先ごとに行う)
     //   // 2026-10-08: 2 = コードネーム(NetPlayer.CodenameVar)を追加   // 部屋の知らせ+ゲームの同期の版(違えば一覧で VERSION MISMATCH、接続も断る)
     // 知らせに載せる版(開発ビルドだけ -lanProtocol N で変えて、版違いの表示を確かめられる)

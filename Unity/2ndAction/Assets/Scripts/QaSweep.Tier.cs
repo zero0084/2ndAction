@@ -69,6 +69,23 @@ public partial class QaSweep
         tiBoss.reach = pc.AssistForwardReach;
         if (bestGap >= 0f && bestGap <= tiBoss.reach) tiBoss.reachF++;
         if (pc.AssistJumpsUsed > 0) tiBoss.airF++;
+        TiBossTrace(pc, a, bestGap);
+    }
+    // 2026-11-07(忍者/ペンタの 5km ボス調査): -tiBossTrace 1 = ボス戦の様子を 0.05秒ごとに tier_btrace.tsv へ
+    //  (ボスの行動/顔までの距離/プレイヤーの攻撃中・無敵・踏み込みの倍率/補助の判断/有効なボスの判定)
+    float tiTraceNext;
+    void TiBossTrace(PlayerController pc, HighSpeedAssist a, float bestGap)
+    {
+        if (Arg("-tiBossTrace", "0") != "1" || Time.time < tiTraceNext) return;
+        tiTraceNext = Time.time + 0.05f;
+        string p = System.IO.Path.Combine(outDir, "tier_btrace.tsv");
+        if (!System.IO.File.Exists(p)) System.IO.File.WriteAllText(p, "char\tkm\tt\tboss\tact\tfront\tgap\tbossHp\tfacing\tlives\tatk\tinv\tground\tlunge\tlungeV\thb\tplan\tlast\tjumpUnsafe\townBuf\tahead\n");
+        WildBossBase w = null;
+        foreach (var lb in BossBattle.Living) if (lb is WildBossBase ww && ww != null && !ww.IsDead) { w = ww; break; }
+        if (w == null) return;
+        string hb = string.Join(",", w.GetComponentsInChildren<BossHitbox>().Where(h => h != null && h.IsActive).Select(h => h.name.Replace("Hitbox_", "")));
+        int bp = FindObjectsByType<BossProjectile>(FindObjectsSortMode.None).Length;
+        System.IO.File.AppendAllText(p, $"{tiChar}\t{gm.MaxDistance / 1000f:F2}\t{Time.time - tiBoss.t0:F2}\t{w.bossName}\t{w.DebugAct}\t{w.DebugFrontDist:F2}\t{bestGap:F2}\t{w.Hp}\t{(w.transform.position.x > pc.transform.position.x ? "F" : "B")}\t{gm.Lives}\t{(pc.IsAttacking ? 1 : 0)}\t{(pc.IsKitInvincible ? 1 : 0)}\t{(pc.IsGrounded ? 1 : 0)}\t{pc.LungeScaleNow:F2}\t{pc.MotionVelocity.x:F1}\t{hb}{(bp > 0 ? "+P" + bp : "")}\t{(a != null ? a.BossPlan : "-")}\t{(a != null ? a.LastAction + "(" + (Time.time - a.LastActionTime).ToString("F2") + ")" : "-")}\t{(a != null ? a.BossJumpUnsafe + ":" + a.LastBossJumpUnsafe : "-")}\t{PlayerController.OwnBufferFrames}/{PlayerController.OwnBufferJumps}\t{BossHalt.AheadOfAnchor(pc.transform.position.x):F1}\n");
     }
     void TiBossEnd(string ch, string modeArg, bool died, HighSpeedAssist a)
     {
@@ -128,6 +145,7 @@ public partial class QaSweep
     {
         var inv = System.Globalization.CultureInfo.InvariantCulture;
         string stage = Arg("-tiStage", "wasteland_road"), ch = Arg("-tiChar", "swordsman"), tier = Arg("-tiTier", "A"), build = Arg("-tiBuild", "attack"), modeArg = Arg("-tiMode", "idle");
+        HighSpeedAssist.QaEvadeLead = modeArg == "human" ? float.Parse(Arg("-tiEvadeLead", "1.1"), System.Globalization.CultureInfo.InvariantCulture) : 0f;
         float startKm = float.Parse(Arg("-tiStartKm", "4"), inv), endKm = float.Parse(Arg("-tiEndKm", "100"), inv), ts = float.Parse(Arg("-tiTimeScale", "2"), inv);
         int runs = int.Parse(Arg("-tiRuns", "1"));
         var rng = new System.Random(int.Parse(Arg("-tiSeed", System.Environment.TickCount.ToString())));
@@ -251,6 +269,7 @@ public partial class QaSweep
             var fatal = died && tiHits.Count > 0 ? tiHits[tiHits.Count - 1] : null;
             // 2026-11-06: 高速時の事故ダメージ(段階ごとの回数と、種類ごとの HP)
             Debug.Log($"[QA] [accident] {ch} {tier} {modeArg} tiers(<{DifficultyTuning.I.accidentKmh1:0}/{DifficultyTuning.I.accidentKmh1:0}+/{DifficultyTuning.I.accidentKmh2:0}+)={AccidentDamage.HitsTier1}/{AccidentDamage.HitsTier2}/{AccidentDamage.HitsTier3} hpAdded={AccidentDamage.HpAdded} contact={AccidentDamage.HitsByKind[1]}x/{AccidentDamage.HpByKind[1]}hp obstacle={AccidentDamage.HitsByKind[2]}x/{AccidentDamage.HpByKind[2]}hp wall={AccidentDamage.HitsByKind[3]}x/{AccidentDamage.HpByKind[3]}hp fall={AccidentDamage.HitsByKind[4]}x/{AccidentDamage.HpByKind[4]}hp off={AccidentDamage.Off}");
+            Debug.Log($"[QA] [charFix2] {ch} {modeArg} ownBufferFrames={PlayerController.OwnBufferFrames} ownBufferJumps={PlayerController.OwnBufferJumps} ninjaBossStops={PlayerController.NinjaBossStops} fireballThreats={HighSpeedAssist.FireballThreats} bossJumpUnsafe={(a != null ? a.BossJumpUnsafe : -1)}");
             // 2026-11-06: 終盤 95〜100km(3体同時の組 → ラスボス → 静かな道)のまとめ
             {
                 var bmF = BossManager.Instance;
@@ -305,7 +324,7 @@ public partial class QaSweep
     public static string TiHitsPath;
     void TiHitDiag(TiHit h)
     {
-        if (string.IsNullOrEmpty(TiHitsPath) || h.cat == "boss") return;
+        if (string.IsNullOrEmpty(TiHitsPath)) return; // 2026-11-07 洞窟の調査: ボス戦の被弾も記録する(予兆の一覧つき)
         var pc = PlayerController.Instance; var a = HighSpeedAssist.Instance;
         if (pc == null) return;
         string en = "-";
@@ -325,8 +344,8 @@ public partial class QaSweep
                 en = $"{(best.Definition != null ? best.Definition.name : best.name)} hp={best.CurrentHpForUltimate}/{best.maxHp} dx={best.transform.position.x - pc.transform.position.x:F2} y={dy:F2}..{top:F2} dying={best.IsDying}";
             }
         }
-        if (!System.IO.File.Exists(TiHitsPath)) System.IO.File.WriteAllText(TiHitsPath, "char\tkm\tcat\tsrc\thearts\tkmh\tgrounded\tjumps\treacting\tattacking\tlastAction\tplan\tenemy\tlastWhy\n");
-        System.IO.File.AppendAllText(TiHitsPath, $"{tiChar}\t{h.km:F2}\t{h.cat}\t{h.src}\t{h.hearts}\t{pc.AbilityRunSpeed * GameManager.KmhPerMps:F0}\t{pc.IsGrounded}\t{pc.AssistJumpsUsed}\t{pc.IsReacting}\t{pc.IsAttacking}\t{(a != null ? a.LastAction + "(" + (Time.time - a.LastActionTime).ToString("F2") + "s)" : "-")}\t{(a != null ? a.PlanText : "-")}\t{en}\t{(a != null ? a.LastActionReason : "-")}\n");
+        if (!System.IO.File.Exists(TiHitsPath)) System.IO.File.WriteAllText(TiHitsPath, "char\tkm\tcat\tsrc\thearts\tkmh\tgrounded\tjumps\treacting\tattacking\tlastAction\tplan\tenemy\tlastWhy\tmanualAgo\tthreats\n");
+        System.IO.File.AppendAllText(TiHitsPath, $"{tiChar}\t{h.km:F2}\t{h.cat}\t{h.src}\t{h.hearts}\t{pc.AbilityRunSpeed * GameManager.KmhPerMps:F0}\t{pc.IsGrounded}\t{pc.AssistJumpsUsed}\t{pc.IsReacting}\t{pc.IsAttacking}\t{(a != null ? a.LastAction + "(" + (Time.time - a.LastActionTime).ToString("F2") + "s)" : "-")}\t{(a != null ? a.PlanText : "-")}\t{en}\t{(a != null ? a.LastActionReason : "-")}\t{Time.unscaledTime - pc.LastManualInputTime:F2}\t{(a != null ? a.QaThreatText() : "-")}\n");
     }
     string tiChar = "";
 }

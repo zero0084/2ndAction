@@ -26,7 +26,7 @@ MonoBehaviour:
   challengeFlag: 0
   sortOrder: 12
   baseLives: 30
-  baseMaxLives: 40
+  baseMaxLives: 45
   attackPower: 20
   attackComboCount: 3
   attackSpeedMultiplier: 1

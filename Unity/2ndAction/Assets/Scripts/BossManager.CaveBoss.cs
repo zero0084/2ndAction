@@ -11,11 +11,14 @@ public partial class BossManager
 
     void CaveBossTick()
     {
-        if (!(IsCaveStage || (IsLastStage && encounterHasCave)) || NetRunLauncher.IsMultiplayerRun || !IsBossPhase || AliveWildCount <= 0 || player == null) return;
+        // 2026-11-07: 95〜98km の 3体連戦は、次のボスまでの間も同じ戦いとして扱う(以前は間で範囲を外し、その間に針が置かれていた)
+        if (!(IsCaveStage || (IsLastStage && encounterHasCave)) || NetRunLauncher.IsMultiplayerRun || !IsBossPhase || (AliveWildCount <= 0 && !TrioActive) || player == null) return;
         if (Time.time < caveZoneNextUpdate) return;
         caveZoneNextUpdate = Time.time + 0.25f;
         var tm = TerrainManager.Instance;
-        if (tm != null && tm.cave != null) tm.cave.SetBossClearZone(player.position.x + 25f, 50f);
+        // 2026-11-07: 範囲は地形を先に作る距離(高速時は 100m 以上)の先まで。以前は +75m までで、それより先で作られた天井の針/低い天井が
+        //  そのままボス戦の場所に来ていた(跳んで正しく避けても針に当たる)。後ろは 25m
+        if (tm != null && tm.cave != null) { float ahead = Mathf.Max(75f, tm.EffectiveGenerateAhead + 15f); tm.cave.SetBossClearZone(player.position.x + (ahead - 25f) * 0.5f, (ahead + 25f) * 0.5f); }
     }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD

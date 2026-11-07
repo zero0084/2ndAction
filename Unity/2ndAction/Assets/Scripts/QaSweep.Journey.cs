@@ -55,6 +55,7 @@ public partial class QaSweep
         if (a != null) { a.SetEnabled(true); a.SetAutoInBoss(true); a.SetAutoAttack(true); a.SetAutoAvoid(true); }
         float killAt = float.Parse(Arg("-jnKillAt", "4"), System.Globalization.CultureInfo.InvariantCulture); // ボス戦が始まってから倒すまでの秒(撃破が遅い場合の確認)
         GameManager.BlockExpGain = Arg("-jnNoExp", "1") == "1"; // 撮影中にカードの選択画面を出さない
+        PlayerController.DebugSpeedScale = float.Parse(Arg("-jnSpeedScale", "1"), System.Globalization.CultureInfo.InvariantCulture); // 2026-11-07 城下町: 通常速度/高速の確認
         float gate = gateKm * 1000f;
         WarpTo(gate - lead); yield return new WaitForSeconds(1.5f);
         Time.captureDeltaTime = 1f / 30f;
@@ -63,14 +64,17 @@ public partial class QaSweep
         {
             yield return null; t += 1f / 30f;
             bool boss = Bm != null && Bm.IsBossPhase;
+            // 2026-11-07: ボス戦ごとに数える(11km のボスは城下町の中で始まる = 街中のボス戦も撮る)
             if (boss) { bossT += 1f / 30f; if (bossT > killAt && bossT < killAt + 0.1f) { L($"[jn] killing the gate boss at {gm.MaxDistance:F0}m"); KillAllBosses(); } }
+            else bossT = 0f;
             if (clearedD < 0f && gm.MaxDistance > gate + 60f && !boss) clearedD = gm.MaxDistance;
             if ((f++ % every) == 0) Shot($"jg_{st}_{f:00000}");
-            if ((logT += 1f / 30f) >= 1f) { logT = 0f; L($"[jn] t={t:F0}s d={gm.MaxDistance:F0} boss={boss} scenery={(SceneryCycle.Active ? SceneryCycle.CurrentName : "-")} journey={LandmarkJourney.Describe()}"); }
+            if ((logT += 1f / 30f) >= 1f) { logT = 0f; L($"[jn] t={t:F0}s d={gm.MaxDistance:F0} boss={boss} scenery={(SceneryCycle.Active ? SceneryCycle.CurrentName : "-")} journey={LandmarkJourney.Describe()} town={TownProps.Describe()} lights={LandmarkJourney.TownInside}"); }
             if (clearedD > 0f && gm.MaxDistance > clearedD + 1200f + after) break;
         }
         Time.captureDeltaTime = 0f;
         GameManager.BlockExpGain = false;
+        PlayerController.DebugSpeedScale = 1f;
         Check(clearedD > 0f, $"journey gate {gateKm}km: passed (cleared at {clearedD:F0}m)");
         yield return EndRun();
     }

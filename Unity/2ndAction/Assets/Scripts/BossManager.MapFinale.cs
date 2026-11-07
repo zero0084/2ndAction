@@ -240,7 +240,7 @@ public partial class BossManager
         if (t == null || !IsBossPhase || t.idx >= t.plan.Count - 1) return false;
         t.killSeconds.Add(Time.time - t.spawnedAt);
         RegisterEncounterDefeated(); // 再戦プールへ
-        if (TerrainManager.Instance != null && TerrainManager.Instance.cave != null) TerrainManager.Instance.cave.ClearBossClearZone();
+        // 2026-11-07: 洞窟の針を消す範囲は次のボスまで続ける(CaveBossTick が動かす。連戦が終わる時に BossManager が外す)
         t.idx++;
         t.waiting = true; t.telegraph = false;
         t.readyAt = Time.time + Mathf.Max(0f, TrioGapSeconds);

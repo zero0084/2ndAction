@@ -29,6 +29,11 @@ public class LandmarkJourney : MonoBehaviour
     //  門が出るのは突破の確定(関門 + clearMargin)の後なので、その手前の「突破待ち」も含める。90km の関門(終盤の演出)は含めない
     public static bool GateVisible { get; private set; }
     bool gateWasOn;
+    // 2026-11-07 城下町の道沿いの家(TownProps): 城下町の内部にいる間だけ。門が画面を抜けたか / 内部の残り m / 内部の光
+    public static bool TownInside { get; private set; }
+    public static bool TownGateGone { get; private set; }
+    public static float TownRemainMeters { get; private set; }
+    public static Color TownLight { get; private set; } = Color.white;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot()
@@ -78,10 +83,10 @@ public class LandmarkJourney : MonoBehaviour
     {
         profile = null; stage = "";
         foreach (Transform c in transform) Destroy(c.gameObject);
-        dest = gate = milestone = null; for (int i = 0; i < interior.Length; i++) interior[i] = null;
+        dest = gate = milestone = milestoneBase = null; for (int i = 0; i < interior.Length; i++) interior[i] = null;
         foreach (var kv in sprites) if (kv.Value != null) Resources.UnloadAsset(kv.Value.texture);
         sprites.Clear(); clearedAt.Clear(); milestoneAt.Clear();
-        lastD = -1f; State = "-"; InteriorAlpha = 0f; GateVisible = false;
+        lastD = -1f; State = "-"; InteriorAlpha = 0f; GateVisible = false; TownInside = false;
         BackgroundFollower.JourneyZoom = 1f;
     }
 
@@ -115,8 +120,9 @@ public class LandmarkJourney : MonoBehaviour
         if (dest != null) dest.enabled = false;
         if (gate != null) gate.enabled = false;
         if (milestone != null) milestone.enabled = false;
+        if (milestoneBase != null) milestoneBase.enabled = false;
         foreach (var r in interior) if (r != null) r.enabled = false;
-        BackgroundFollower.JourneyZoom = 1f; InteriorAlpha = 0f; GateVisible = false;
+        BackgroundFollower.JourneyZoom = 1f; InteriorAlpha = 0f; GateVisible = false; TownInside = false;
     }
 
     void Tick(GameManager gm, Camera cam)
@@ -149,6 +155,7 @@ public class LandmarkJourney : MonoBehaviour
         float sinceClear = !holding && ch >= 1 ? d - Cleared(ch - 1) : -1f;
         bool endGate = ch >= 1 && GateD(ch - 1) >= profile.endMeters - 1f; // 90km の関門の先は終盤の演出(門も内部もなし)
         float interiorA = 0f;
+        TownInside = false;
         if (prev != null && sinceClear >= 0f && !endGate)
         {
             Sprite gs = Get(prev.gate);
@@ -173,6 +180,11 @@ public class LandmarkJourney : MonoBehaviour
             Sprite isp = Get(prev.interior);
             interiorA = isp != null ? InteriorAlphaAt(sinceClear - enterAt, profile.interiorMeters - enterAt) : 0f;
             DrawInterior(isp, prev.interiorTint * LightAt(d), interiorA, d, cp, screenW, screenH);
+            if (isp != null && prev.interior == "town_interior" && sinceClear < profile.interiorMeters)
+            {
+                TownInside = true; TownGateGone = gate == null || !gate.enabled; TownRemainMeters = profile.interiorMeters - sinceClear;
+                TownLight = prev.interiorTint * LightAt(d);
+            }
             if (interiorA > 0f) state += $"interior {interiorA:F2} ";
         }
         else { if (gate != null) gate.enabled = false; DrawInterior(null, Color.white, 0f, d, cp, screenW, screenH); }
@@ -305,6 +317,7 @@ public class LandmarkJourney : MonoBehaviour
     {
         var cur = Ch(ch);
         Sprite s = cur != null ? Get(cur.milestone) : null;
+        if (milestoneBase != null) milestoneBase.enabled = false;
         if (s == null || milestone == null) { if (milestone != null) milestone.enabled = false; return; }
         float mark = ch * profile.chapterMeters + profile.chapterMeters * 0.5f;
         if (!milestoneAt.ContainsKey(ch) && d >= mark && !boss) milestoneAt[ch] = d;
@@ -313,9 +326,54 @@ public class LandmarkJourney : MonoBehaviour
         float x = screenW * 0.5f + w * 0.5f - (d - at) * profile.milestoneParallax;
         if (x < -screenW * 0.5f - w * 0.5f) { milestone.enabled = false; return; }
         milestone.sprite = s; milestone.color = cur.milestoneTint * LightAt(d); milestone.enabled = true;
-        milestone.transform.position = new Vector3(cp.x + x, cp.y + (profile.milestoneBaseY - 0.5f) * screenH + h * 0.5f, 0f);
+        // 2026-11-07(マスター「柱が浮いて見える」): 以前は足もとを画面の決まった高さ(milestoneBaseY)に置いていた → 道の高さと連動せず、
+        //  穴の隙間から岩の土台が宙に浮いて見えた/坂で浮く・埋まる。今: 塔の幅の下の道の高さ(穴は除く)に、根元を少し沈めて立てる。
+        //  道の高さが急に変わる所(段差/穴の向こう)でも跳ばないよう、なめらかに追う。下には地面の中まで続く土台(mile_*_base)を置く
+        float fixedFoot = cp.y + (profile.milestoneBaseY - 0.5f) * screenH;
+        bool floating = !MilestoneGrounded || stage == "sky_corridor"; // 天空回廊の塔は浮島ごと浮いている絵 = 今までどおり画面の高さ
+        float footY = floating ? fixedFoot + milestoneSink * h : MilestoneFootY(cp.x + x, w, fixedFoot);
+        float pivotOff = (s.bounds.center.y - s.bounds.min.y) * sc; // 絵の中心から下端まで
+        milestone.transform.position = new Vector3(cp.x + x, footY - milestoneSink * h + pivotOff, 0f);
         milestone.transform.localScale = new Vector3(sc, sc, 1f);
+        if (!floating) DrawMilestoneBase(cur, s, sc, cp.x + x, footY - milestoneSink * h, milestone.color, screenH, cp.y);
         state += "milestone ";
+    }
+
+    public static bool MilestoneGrounded = false; // TEMP-APK444: 調整中のため一時的に今までどおり(-mileGround 1 で有効)
+    // 見張り塔の根元: 絵の高さに対する沈め量(岩の土台の下の方が道に埋まる)
+    const float milestoneSink = 0.06f;
+    float milestoneFootY = float.NaN; int milestoneFootFrame = -1;
+    SpriteRenderer milestoneBase;
+    float MilestoneFootY(float x, float w, float fallback)
+    {
+        var tm = TerrainManager.Instance;
+        float best = float.NegativeInfinity;
+        if (tm != null)
+            for (float fx = x - w * 0.3f; fx <= x + w * 0.3f; fx += Mathf.Max(0.25f, w * 0.1f))
+            {
+                var hgt = tm.GetHeightAt(fx);
+                if (hgt.HasValue && !tm.IsNearPit(fx, 0.2f)) best = Mathf.Max(best, hgt.Value);
+            }
+        bool fresh = milestoneFootFrame < 0 || Time.frameCount - milestoneFootFrame > 2 || float.IsNaN(milestoneFootY);
+        milestoneFootFrame = Time.frameCount;
+        if (float.IsNegativeInfinity(best)) { if (fresh) milestoneFootY = fallback; return milestoneFootY; } // 足もとが全部穴: 前の高さのまま
+        if (fresh) milestoneFootY = best;
+        else milestoneFootY = Mathf.MoveTowards(milestoneFootY, best, Mathf.Max(3f, Mathf.Abs(best - milestoneFootY) * 6f) * Time.deltaTime);
+        return milestoneFootY;
+    }
+
+    // 塔の下の土台(地面の中まで続く岩と土。下へいくほど暗く背景になじむ)。絵が無ければ出さない
+    void DrawMilestoneBase(JourneyProfile.Chapter cur, Sprite tower, float sc, float x, float footY, Color tint, float screenH, float camY)
+    {
+        Sprite b = Get(cur.milestone + "_base");
+        if (b == null) { if (milestoneBase != null) milestoneBase.enabled = false; return; }
+        if (milestoneBase == null) milestoneBase = MakeRenderer("JourneyMilestoneBase", milestone.sortingLayerID, MilestoneOrder - 1, true);
+        float bw = tower.bounds.size.x * sc, bsc = bw / b.bounds.size.x;
+        float topOff = (b.bounds.max.y - b.bounds.center.y) * bsc;
+        milestoneBase.sprite = b; milestoneBase.color = tint; milestoneBase.enabled = true;
+        // 土台の上端を塔の根元の少し上(岩の土台に重ねる)に。下は画面の下より下まで届く大きさ(絵の比率のまま)
+        milestoneBase.transform.position = new Vector3(x, footY + tower.bounds.size.y * sc * 0.04f - topOff, 0f);
+        milestoneBase.transform.localScale = new Vector3(bsc, bsc, 1f);
     }
 
     // SceneryCycle 用: 景色が変わる章の終わりは、内部が画面を覆うまで前の景色のまま(変わり目を内部の間に隠す)

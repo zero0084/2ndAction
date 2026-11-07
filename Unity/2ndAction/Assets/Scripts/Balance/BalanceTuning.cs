@@ -113,7 +113,10 @@ public static class BalanceTuning
     //     BREAK の間はボスが攻撃せず、ダメージも 1.35倍(ボス側の値は変えない。この端末のプレイヤーの攻撃だけ)
     public static bool DualBladeStagger = true;
     public static float DualBladeStaggerMul = 1.5f;
-    public static float CharBossStaggerScale(PlayerController pc) => DualBladeStagger && pc != null && pc.CharId == "dual_blade" ? DualBladeStaggerMul : 1f;
+    public static float CharBossStaggerScale(PlayerController pc) => pc != null ? CharStaggerScaleFor(pc.CharId) : 1f;
+    // マルチ(2026-11-07): HOST が JOIN の攻撃を受け取った時も、その参加者のキャラで同じ倍率を掛ける(NetCombat → NetApplyRemoteHit)。
+    //  JOIN 側は自分で崩しを足さない(パペットは HOST へ申告するだけ)= 二重にならない。最終の BREAK の値は HOST が決めて同期する
+    public static float CharStaggerScaleFor(string charId) => DualBladeStagger && charId == "dual_blade" ? DualBladeStaggerMul : 1f;
     // --- 全キャラ(自動の補助/止まって戦うボス戦。手数の多い・速いキャラほど効く) ---
     // la: 自動の補助が空中で前攻撃してよいかの予測に、攻撃の踏み込みを入れる(以前は当たった時の滞空だけ)
     public static bool AssistAirAttackLunge = true;
@@ -121,6 +124,43 @@ public static class BalanceTuning
     public static bool AssistJumpDecay = true;
     // hl: 止まって戦うボス戦で、止まった所から 22〜30m より前へ攻撃の踏み込みで出ない(BossHalt.ForwardLungeLimit)
     public static bool HaltLungeLimit = true;
+
+    // ===== 忍者/ペンタトゥットゥルー星人の 5km の関門(2026-11-07 第2、初期デッキで 5km のゴブリンライダーで毎回倒れる件) =====
+    // ゴブリンライダー(HP/攻撃/AI)は変えない。開発版は -charFix2 base で全部切った状態(比較用)、-charFix2 ns,cs,co,bv,fb,ob,nj,nh,nb,hj で個別
+    // 調査(tier_btrace、0.05秒ごとのボス戦の様子): 黒剣士は小さな踏み込みを重ねてボスの体の中に入り(半分以上の時間)、棍棒(顔の前 -0.8〜+1.8m)の
+    //  外側にいるので 1戦の被弾 0。忍者は瞬身(3m × ボス戦の伸び 1.4〜2.6)でボスを通り抜けて背中側へ出る → ボスが振り向いて棍棒 /
+    //  通り抜けを重ねて止まった所から 20m 以上前へ出て、止まって戦う間の踏み込みの上限(hl)で瞬身が動かなくなり空振り。
+    //  ペンタは前の1・2段目に踏み込みが無く(0m)、ボスが寄ってくる顔の前 1.7m(棍棒の届く所)で殴り合い、棍棒 → 下がって魔法弾 の繰り返しで 2ハートずつ失っていた
+    // ns: 忍者のボス戦の瞬身は、前にいるボスの体の中心で止まる(すり抜けない。斬撃・無敵・踏み込みの速さは同じ。雑魚は今までどおりすり抜け)
+    public static bool NinjaBossStop = true;
+    // cs: ペンタののびーるパンチ(1・2段目)はボス戦だけ少し踏み込む(0 → 0.9m。ボス戦の伸びが掛かる)。腕の届く長さ・威力は同じ。部分試験(4→5.6km 各3回、-charCloudStep): 0.6m 失うハート 2.7 / 0.9m 1.7 / 1.2m 1.7(棍棒 2.0→1.0→1.3回)
+    public static bool CloudBossStep = true;
+    public static float CloudBossStepDistance = 0.9f;
+    // co: ペンタののびーるパンチ(1・2段目)の威力 0.85 → 1.0(序盤の小型の雑魚を1発で)、ぽかぽか(3段目)1.6 → 1.3(3段の合計は同じ)。ルカの lo と同じ考え方
+    public static bool CloudPawOneShot = true;
+    public static float CloudPawDamage = 1.0f, CloudPokaDamage = 1.3f;
+    // --- 全キャラ(自動の補助の予測の抜け) ---
+    // bv: 有効になったボス本体の判定(騎乗突撃 18m/秒 等)の迫る速さを実際の動きから測る(以前は 12m/秒 と決め打ちで、速い突進は跳ぶのが遅れて当たっていた)
+    public static bool AssistBodySpeed = true;
+    // fb: ボス戦で迫ってくる火球(FireballController。ゴブリンライダーの魔法弾など)を回避の対象に入れる(以前は BossProjectile だけを見ていて、火球は素通り)
+    public static bool AssistFireball = true;
+    // ob: 補助自身の入力が技の最中に先行入力として覚えられて後で出る間、補助の判断を止めない(以前は手動の操作と同じ扱いで最大 0.9秒止まり、
+    //     その間は回避の跳躍も出なかった)。補助の判断が「跳ぶ」ならそちらを優先(PlayerController.ApplyHighSpeedAssist)
+    public static bool AssistOwnBuffer = true;
+    // nj: 自動の補助の跳びの予測に、忍者の跳躍斬りの前への跳び込み(0.18秒で 1.6m)を入れる(ルカの lj と同じ。以前は忍者だけ入っていなかった)
+    public static bool AssistNinjaJumpLunge = true;
+    // nh: 止まって戦うボス戦の踏み込みの上限(hl)で、忍者の瞬身がボスへ届かなくならない。瞬身がボスの体の中心で止まる時(ns)は、
+    //     その止まる所が止まった所から LungeAheadMax + NinjaHaltExtra m 以内なら踏み込みを弱めない(忍者は瞬身そのものが間合いで、
+    //     踏み込みが 0 になると斬撃が体の前 0.65m までしか届かず、8km のオオカミの戦いで1発も当たらないまま 4 回噛まれていた)
+    public static bool NinjaHaltReach = true;
+    public static float NinjaHaltExtra = 10f;
+    // nb: 自動の補助がボス戦で後ろのボスへ後ろ攻撃する距離を、忍者は手裏剣の届く距離(最大 8m)に(以前は近接と同じ 3.2m)
+    public static bool AssistNinjaBack = true;
+    // hj: 止まって戦うボス戦の回避の跳躍の安全確認(BossJumpSafe)を、実際の前進(止まっている = ほぼ 0)と、着地までの長さの先読みで行う。
+    //     以前は走る速さで予測し先読みが約 0.4秒しかなく、回避の跳躍の大半が「着地が先読み範囲外」で取りやめ(全キャラ)
+    public static bool AssistHaltJump = true;
+    // 人が操作しても自動の補助の強さを落とさない(2026-11-07、HighSpeedAssist.Strength)。開発版 -assistGraded 1 で以前(操作の後 4 秒は 100〜130km/h で段階的)
+    public static bool AssistKeepStrength = true;
 
     public static string Describe => $"lateEnemyHp={(LateEnemyHp ? $"on(from {LateHpFrom:F0}m every {LateHpEvery:F0}m)" : "off")} attackUpHighLevel={(AttackUpHighLevel ? "on" : "off")} bossFrontReturn={(BossFrontReturn ? "on" : "off")} assistFlyingBosses={(AssistFlyingBosses ? "on" : "off")} assistFighterCombo={(AssistFighterCombo ? "on" : "off")} assistKitJumpModel={(AssistKitJumpModel ? "on" : "off")} noble={(NobleAwaken ? "awaken " : "")}{(NobleArmor ? "armor " : "")}{(NobleHeavy ? "heavy " : "")}{(NobleReach ? "reach" : "")} fighterFullJump={(FighterFullJump ? "on" : "off")}";
 
@@ -192,6 +232,14 @@ public static class BalanceTuning
         }
         for (int i = 0; i < a.Length - 1; i++)
         {
+            if (a[i] != "-charFix2") continue; // 2026-11-07 第2 忍者/ペンタ: base = 調整前 / ns,cs,co,bv,fb,ob,nj,nh,nb,hj を個別に
+            string v = a[i + 1];
+            NinjaBossStop = v.Contains("ns"); CloudBossStep = v.Contains("cs"); AssistBodySpeed = v.Contains("bv"); AssistFireball = v.Contains("fb"); AssistOwnBuffer = v.Contains("ob"); AssistNinjaJumpLunge = v.Contains("nj"); NinjaHaltReach = v.Contains("nh"); AssistNinjaBack = v.Contains("nb"); AssistHaltJump = v.Contains("hj"); CloudPawOneShot = v.Contains("co");
+            Debug.Log($"[BalanceTuning] charFix2 {v}: ninjaBossStop={NinjaBossStop} cloudBossStep={CloudBossStep} assistBodySpeed={AssistBodySpeed} assistFireball={AssistFireball} assistOwnBuffer={AssistOwnBuffer} ninjaJumpLunge={AssistNinjaJumpLunge} ninjaHaltReach={NinjaHaltReach} ninjaBack={AssistNinjaBack} haltJump={AssistHaltJump} cloudPawOneShot={CloudPawOneShot}");
+        }
+        for (int i = 0; i < a.Length - 1; i++)
+        {
+            if (a[i] == "-assistGraded") { AssistKeepStrength = a[i + 1] == "0"; Debug.Log($"[BalanceTuning] assistKeepStrength={AssistKeepStrength}"); continue; }
             if (a[i] != "-mageFix") continue;
             string v = a[i + 1];
             AssistMageAltitude = v.Contains("assist"); MageHoverSafety = v.Contains("safety");
@@ -206,6 +254,7 @@ public static class BalanceTuning
             else if (a[i] == "-charFighterFin") FighterFinisherDamage = float.Parse(a[i + 1], inv);
             else if (a[i] == "-charNobleJump") { NobleJump = true; NobleJumpForce = float.Parse(a[i + 1], inv); }
             else if (a[i] == "-charNobleJumps") { NobleJump = true; NobleJumpCount = int.Parse(a[i + 1]); }
+            else if (a[i] == "-charCloudStep") { CloudBossStepDistance = float.Parse(a[i + 1], inv); Debug.Log($"[BalanceTuning] cloudBossStep={CloudBossStepDistance}"); } // 2026-11-07 第2: ペンタのボス戦の踏み込み(比較用)
             else continue;
             Debug.Log($"[BalanceTuning] {a[i]} {a[i + 1]}: nobleDmg={NobleGreatswordDamage} fighterAtk={(FighterAtk ? FighterAtkMul : 1f)} fighterFin={FighterFinisherDamage}");
         }

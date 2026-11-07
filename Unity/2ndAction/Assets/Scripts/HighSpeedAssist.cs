@@ -50,7 +50,9 @@ public partial class HighSpeedAssist : MonoBehaviour
     //  弱い = 「間に合う最後の踏み切り」だけ(自分で跳ばなかった時の救済)、強い = 従来どおり頂点が危険の真上に来る踏み切り。
     [Tooltip("補助が最大になる速度(km/h)。engageKmh〜この間は段階的に強くなる")]
     public float fullAssistKmh = 130f;
-    public float Strength => !Engaged ? 0f : HandsOff ? 1f : Mathf.Clamp01(Mathf.InverseLerp(engageKmh, Mathf.Max(engageKmh + 1f, fullAssistKmh), JudgedKmh));
+    // 2026-11-07: 人が操作しても補助を弱めない(BalanceTuning.AssistKeepStrength、既定 ON)。以前は操作の後 handsOffSeconds 秒は段階的な弱い補助に戻り、
+    //  少し操作した人のほうが完全放置より穴/段差に多く当たっていた(中デッキ 60→100km: 人の操作 地形+穴 124 ハート / 放置 17)。手動の入力はその瞬間だけ優先(下の manual*Suppress)
+    public float Strength => !Engaged ? 0f : HandsOff || BalanceTuning.AssistKeepStrength ? 1f : Mathf.Clamp01(Mathf.InverseLerp(engageKmh, Mathf.Max(engageKmh + 1f, fullAssistKmh), JudgedKmh));
     // 2026-11-05: しばらく(handsOffSeconds 秒)人の操作が無い = オートに任せている。補助の強さを最大に(踏み切りを危険の真ん中に合わせ、余裕を持って越える)。
     //  以前は 100km/h(自然な最高速度)で強さ 0 = 「間に合う最後の踏み切り」寄りで、放置では穴/壁に当たりやすかった。操作している人は今までどおり段階的
     [Tooltip("この秒数、人の操作が無ければ補助の強さを最大にする")]
@@ -935,6 +937,19 @@ public partial class HighSpeedAssist : MonoBehaviour
         var start = new SimState { x = p.x, y = p.y, vy = pc.AssistVelocityY, grounded = pc.IsGrounded, onSky = pc.AssistOnSky, jumpsLeft = pc.AssistMaxJumps - pc.AssistJumpsUsed, maxJumps = pc.AssistMaxJumps, offset = pc.AssistGroundOffset };
         if (start.jumpsLeft <= 0) return false;
         float horizonT = LookAheadMeters(pc.CurrentAutoRunSpeed) / Mathf.Max(0.5f, vx);
+        // 2026-11-07 第2(BalanceTuning.AssistHaltJump): 止まって戦うボス戦では、実際の前進は 0 なのに予測は走る速さ(約 28m/秒)で進め、
+        //  先読みの長さは止まった速さ(最小 12m)から決めていたため、先読みが約 0.4秒しかなく、ほとんどの回避の跳躍が
+        //  「着地が先読み範囲外」で取りやめになっていた(忍者の 12km までの1ランで 約190回)。止まっている間は実際の前進の速さで予測し、
+        //  先読みは跳んで着地するまで(二段ジャンプ込み)の長さを必ず含める
+        float keepVx = vx;
+        if (BalanceTuning.AssistHaltJump)
+        {
+            bool halted = pc.HaltFactor < 0.999f;
+            if (halted) vx = Mathf.Max(0.5f, Mathf.Min(vx, pc.CurrentAutoRunSpeed));
+            float air = 2f * Mathf.Max(jumpForce, airJumpForce) / Mathf.Max(1f, gravity) * 2f + 0.3f; // 二段ジャンプまでの滞空 + 着地後の余裕
+            horizonT = halted ? air : Mathf.Max(horizonT, air);
+        }
+        try {
         SimResult r = Simulate(start, 0f, -1f, horizonT, false);
         if (r.safe) return true;
         string why = r.reason;
@@ -951,6 +966,7 @@ public partial class HighSpeedAssist : MonoBehaviour
         LastBossJumpUnsafe = $"{what}: {why}";
         FreezeDiagnostics.LogEvent($"[Assist] ボスの理由の跳躍を取りやめ({what}): 着地が危険 {why}");
         return false;
+        } finally { vx = keepVx; }
     }
     struct SimResult
     {

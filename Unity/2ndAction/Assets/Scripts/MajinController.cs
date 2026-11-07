@@ -804,14 +804,15 @@ public partial class MajinController : MonoBehaviour
     }
 
     // HOST: JOINのプレイヤーの攻撃を、この端末の攻撃と同じ被弾処理へ流す。
-    public void NetApplyRemoteHit(int attacker, int damage, PlayerAttackKind kind = PlayerAttackKind.Normal, bool manual = true)
+    public void NetApplyRemoteHit(int attacker, int damage, PlayerAttackKind kind = PlayerAttackKind.Normal, bool manual = true, bool air = false, float charStagger = 1f)
     {
         if (state == State.Dead || NetPuppet) return;
         netAttacker = attacker;
         pendingKind = kind;
         pendingManual = manual && PlayerController.AllyContext <= 0; // 2026-10-21: 人の手動の攻撃だけ BREAK のコンボへ
         // 2026-10-18: 他の参加者/仲間の攻撃でも崩しが溜まる(以前は溜まらなかった)。CPU の仲間は通常の量
-        pendingStagger = PlayerController.AllyContext > 0 ? BossBattleTuning.I.staggerNormal : BossBattleTuning.I.StaggerFor(kind, false);
+        // 2026-11-07: 参加者の攻撃も、HOST 自身の攻撃と同じく空中の上乗せとキャラの倍率(双剣士)を掛ける(以前は空中でも地上の量)
+        pendingStagger = PlayerController.AllyContext > 0 ? BossBattleTuning.I.staggerNormal : BossBattleTuning.I.StaggerFor(kind, air) * charStagger;
         try { TakeDamage(damage); }
         finally { netAttacker = 0; }
     }
@@ -836,7 +837,7 @@ public partial class MajinController : MonoBehaviour
         var info = other.GetComponent<PlayerAttackInfo>();
         if (info != null) kind = info.kind;
         bool manual = info == null || (!info.elementProc && !info.suppressHitStop);
-        NetCombat.RequestHit(NetId, damage, kind, transform.position, manual);
+        NetCombat.RequestHit(NetId, damage, kind, transform.position, manual, PlayerController.Instance != null && !PlayerController.Instance.IsGrounded);
         if (manual && juggle != null) juggle.NoteReplicaLocalHit(); // 2026-10-21: 空中の補助の相手として覚える
         var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         if (camFollow != null) camFollow.Shake(0.08f, 0.1f);
@@ -871,7 +872,9 @@ public partial class MajinController : MonoBehaviour
         if (flashOverlay != null && flashOverlay.enabled) { s.Flags |= NetCombat.FlagFlash; s.Flash = NetPlayerSnapshot.PackColor(flashOverlay.color); }
         if (hitFlashOverlay != null && hitFlashOverlay.enabled) s.Flags |= NetCombat.FlagHitFlash;
         s.Combo = juggle != null ? juggle.NetPack() : (byte)0; // 2026-10-21: BREAK コンボの状態(JOIN の空中の補助)
+        if (battle != null && battle.staggerMax > 0f) s.Stagger = NetCombat.PackStagger(StaggerFraction, Broken); // 2026-11-07: 崩しのゲージは HOST の値
     }
+    bool netStaggerSeen;
 
     bool netHpRevealed;
     public void NetApplyVisual(NetCombat.State s)
@@ -890,6 +893,7 @@ public partial class MajinController : MonoBehaviour
             }
         }
         if (sr != null) sr.color = NetPlayerSnapshot.UnpackColor(s.Color);
+        if (s.Stagger != 0 || netStaggerSeen) { netStaggerSeen = true; float sf = NetCombat.UnpackStagger(s.Stagger, out bool sb); if (hpBar != null) hpBar.SetSub(sf, sb); } // 2026-11-07: HOST の崩しのゲージ
         if (flashOverlay != null)
         {
             bool on = (s.Flags & NetCombat.FlagFlash) != 0;

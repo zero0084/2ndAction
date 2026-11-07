@@ -29,8 +29,14 @@ public partial class PlayerController
     }
     // 2026-11-07(ルカの道中の段差/穴): ジャンプの瞬間に出る技の前への跳び込み(前進に上乗せする速さ m/秒 と、その長さ 秒)。
     // ルカの飛びつき(CatLeap: leapDistanceX を leapTime で)。他のキャラは 0(今までどおり)
-    public float AssistJumpLungeSpeed => BalanceTuning.AssistJumpLunge && kit == CharacterKit.Cat && kitDef != null ? kitDef.cat.leapDistanceX / Mathf.Max(0.01f, kitDef.cat.leapTime) : 0f;
-    public float AssistJumpLungeTime => BalanceTuning.AssistJumpLunge && kit == CharacterKit.Cat && kitDef != null ? kitDef.cat.leapTime : 0f;
+    // 2026-11-07 第2(BalanceTuning.AssistNinjaJumpLunge): 忍者の跳躍斬り(NinjaUpDash: upDashDistanceX を upDashTime で)も同じ。
+    //  以前は入っておらず、忍者は予測より 1.6m 先に着地して段差の壁/穴に当たっていた
+    public float AssistJumpLungeSpeed => kitDef == null ? 0f
+        : BalanceTuning.AssistJumpLunge && kit == CharacterKit.Cat ? kitDef.cat.leapDistanceX / Mathf.Max(0.01f, kitDef.cat.leapTime)
+        : BalanceTuning.AssistNinjaJumpLunge && kit == CharacterKit.Ninja ? kitDef.ninja.upDashDistanceX / Mathf.Max(0.01f, kitDef.ninja.upDashTime) : 0f;
+    public float AssistJumpLungeTime => kitDef == null ? 0f
+        : BalanceTuning.AssistJumpLunge && kit == CharacterKit.Cat ? kitDef.cat.leapTime
+        : BalanceTuning.AssistNinjaJumpLunge && kit == CharacterKit.Ninja ? kitDef.ninja.upDashTime : 0f;
     // 2026-11-07: 前攻撃1回の前への踏み込み(前進に上乗せする速さ m/秒 と長さ 秒)。補助が空中で攻撃してよいかの予測に使う。
     // 剣の連撃(黒剣士/双剣士): lungeDistance を攻撃の判定の時間で / ルカ: 猫パンチの踏み込み。他の技のキャラは 0(今までどおり)
     bool AssistSwordLunge => !HasKit && !isRangedCharacter && !isLancerCharacter && !IsNoble;
@@ -198,13 +204,17 @@ public partial class PlayerController
                 case CharacterKit.Vampire: return ArcherPick(kitDef.vampire.comboDamageScale, 0, 1f);
                 case CharacterKit.Dragonkin: return ArcherPick(kitDef.dragonkin.comboDamageScale, 0, 1f);
                 case CharacterKit.Cat: return CatComboDamageScale(1);
-                case CharacterKit.Cloud: return ArcherPick(kitDef.cloud.comboDamageScale, 0, 1f);
+                case CharacterKit.Cloud: return CloudComboDamageScale(1); // 2026-11-07 第2: 1段目の威力(BalanceTuning.CloudPawOneShot)
                 case CharacterKit.Ninja: return kitDef.ninja.slashDamageScale;
                 case CharacterKit.Miko: return kitDef.miko.ofudaDamageScale;
             }
             return 1f;
         }
     }
+    // 2026-11-07 第2(BalanceTuning.AssistNinjaBack): 後ろ攻撃が届く距離。忍者の後ろ攻撃は手裏剣(17m/秒 × 0.9秒)なのに、
+    //  補助は近接と同じ 3.2m で「届くのを待つ」にしていた(ボスを通り抜けた後、後ろ 3.5m のボスに何秒も攻撃しなかった)
+    public float AssistBackReach(float meleeReach) => BalanceTuning.AssistNinjaBack && kit == CharacterKit.Ninja && kitDef != null
+        ? Mathf.Max(meleeReach, Mathf.Min(8f, kitDef.ninja.shurikenSpeed * kitDef.ninja.shurikenLifetime * 0.6f)) : meleeReach;
     // 前攻撃で体ごと前へ跳び込む距離(忍者の瞬身)。壊し切れない障害物へ跳び込まないために使う。
     public float AssistForwardLunge => kit == CharacterKit.Ninja ? kitDef.ninja.dashDistance : 0f;
     // 次の前攻撃を始められるまでの秒数(攻撃中は-1=不明)
@@ -226,6 +236,7 @@ public partial class PlayerController
     // 無ければ補助の判断を1つだけ requestedFlick に入れる。予約はしない(毎フレームその場で判断する)。
     public bool LastFlickWasAssist { get; private set; }
     public static int AssistJumpCount, AssistAttackCount;
+    public static int OwnBufferFrames, OwnBufferJumps; // 確認用(2026-11-07 第2): 補助自身の先行入力が出たフレーム / その間に補助が跳んだ回数
 
     void ApplyHighSpeedAssist()
     {
@@ -234,6 +245,16 @@ public partial class PlayerController
         if (assist == null) return;
         if (requestedFlick.HasValue)
         {
+            // 2026-11-07 第2(BalanceTuning.AssistOwnBuffer): 補助自身の入力が技の最中に先行入力として覚えられ、後のフレームで出る間は
+            //  手動の操作として扱わない。以前はその間(最大 0.9秒)補助の判断がまるごと止まり(手動の後の攻撃の控えも付く)、
+            //  迫ってくる火球/突進を跳んで避ける判断が出なかった(ペンタの 5km のゴブリンライダー)。補助の判断が「跳ぶ」なら跳ぶを優先する
+            if (BalanceTuning.AssistOwnBuffer && flickFromBuffer && bufferedFlickId == 0)
+            {
+                OwnBufferFrames++;
+                FlickDirection? d = assist.Decide(this);
+                if (d == FlickDirection.Up) { requestedFlick = d; LastFlickWasAssist = true; AssistJumpCount++; OwnBufferJumps++; RunLedger.MarkAuto(); }
+                return;
+            }
             assist.NotifyManualInput(requestedFlick.Value);
             return;
         }

@@ -112,7 +112,10 @@ public class NetCombat : MonoBehaviour
         public uint Flash;
         public byte Target;           // Phase 2.5: このエンティティが狙っているプレイヤー番号(0=なし)
         public byte Combo;            // 2026-10-21: ボスの BREAK コンボの状態(BossJuggle.NetPack: 基準の人/受付/締めの合図/浮き/膝つき)
+        public byte Stagger;          // 2026-11-07(同期の版 13): ボスの崩しのゲージ(HOST が決めた値。0〜254 = 割合 / 255 = BREAK 中)。JOIN の HP バーの下のゲージに出す
     }
+    public static byte PackStagger(float fraction, bool broken) => broken ? (byte)255 : (byte)Mathf.Clamp(Mathf.RoundToInt(Mathf.Clamp01(fraction) * 254f), 0, 254);
+    public static float UnpackStagger(byte b, out bool broken) { broken = b == 255; return broken ? 1f : b / 254f; }
     public const byte FlagReacting = 1, FlagHpBar = 2, FlagHurtbox = 4, FlagVisible = 8, FlagFlash = 16, FlagHitFlash = 32;
 
     readonly Dictionary<int, Entity> entities = new Dictionary<int, Entity>();
@@ -704,7 +707,7 @@ public class NetCombat : MonoBehaviour
             h = h * 31 + (int)s.Color + (int)s.BaseColor + (int)s.Flash;
             h = h * 31 + Mathf.RoundToInt(s.VisScaleX * 100f) + Mathf.RoundToInt(s.VisScaleY * 1000f) + Mathf.RoundToInt(s.VisRotZ * 10f) + Mathf.RoundToInt(s.VisPosY * 100f);
             h = h * 31 + Mathf.RoundToInt(s.ExtraX * 100f) + Mathf.RoundToInt(s.ExtraY * 1000f) + s.Order;
-            h = h * 31 + s.Target + s.Combo * 257;
+            h = h * 31 + s.Target + s.Combo * 257 + s.Stagger * 65537;
             return h;
         }
     }
@@ -751,7 +754,7 @@ public class NetCombat : MonoBehaviour
 
     // 2026-10-12(同期の版 4): 1体 78B → 多くの雑魚で 20B 前後。値のある欄だけ送る(どの欄があるかを ushort の印で知らせる)。
     //  X = mm(int) / Y = cm(short) / 傾き・大きさ・見た目の姿勢 = 半精度 / 色は白・0 の時は送らない
-    const ushort MVis = 1, MColor = 2, MPose = 4, MBase = 8, MExtra = 16, MOrder = 32, MFrames = 64, MFlash = 128, MScale = 256, MRot = 512, MCombo = 1024;
+    const ushort MVis = 1, MColor = 2, MPose = 4, MBase = 8, MExtra = 16, MOrder = 32, MFrames = 64, MFlash = 128, MScale = 256, MRot = 512, MCombo = 1024, MStagger = 2048;
     static ushort H(float v) => Mathf.FloatToHalf(v);
     static float F(ushort v) => Mathf.HalfToFloat(v);
 
@@ -769,6 +772,7 @@ public class NetCombat : MonoBehaviour
         if (s.ScaleX != 1f || s.ScaleY != 1f) m |= MScale;
         if (s.RotZ != 0f) m |= MRot;
         if (s.Combo != 0) m |= MCombo;
+        if (s.Stagger != 0) m |= MStagger;
         w.WriteValueSafe(m);
         w.WriteValueSafe(s.Id);
         w.WriteValueSafe((int)System.Math.Round(System.Math.Max(-2.1e6, System.Math.Min(2.1e6, s.X)) * 1000.0));
@@ -785,6 +789,7 @@ public class NetCombat : MonoBehaviour
         if ((m & MFrames) != 0) w.WriteValueSafe(s.FramesSet);
         if ((m & MFlash) != 0) w.WriteValueSafe(s.Flash);
         if ((m & MCombo) != 0) w.WriteValueSafe(s.Combo);
+        if ((m & MStagger) != 0) w.WriteValueSafe(s.Stagger);
     }
 
     static State ReadState(FastBufferReader r)
@@ -811,6 +816,7 @@ public class NetCombat : MonoBehaviour
         if ((m & MFrames) != 0) r.ReadValueSafe(out s.FramesSet);
         if ((m & MFlash) != 0) r.ReadValueSafe(out s.Flash);
         if ((m & MCombo) != 0) r.ReadValueSafe(out s.Combo);
+        if ((m & MStagger) != 0) r.ReadValueSafe(out s.Stagger);
         return s;
     }
 
@@ -957,11 +963,15 @@ public class NetCombat : MonoBehaviour
         }
         damage = Mathf.Clamp(damage, 1, 999999); // 2026-10-02: 10倍スケール+Lv9の大きな値
         bool manual = (attackKind & KindNotManual) == 0;
-        var hk = (PlayerAttackKind)(attackKind & 0x7F);
+        var hk = (PlayerAttackKind)(attackKind & 0x3F);
+        bool air = (attackKind & KindAir) != 0;
+        // 2026-11-07: 参加者のキャラの崩しの倍率(双剣士 ×1.5)は HOST がここで掛ける(JOIN は足さない)
+        float charStagger = e.Enemy != null ? 1f : BalanceTuning.CharStaggerScaleFor(CharIdOfClient(senderClientId));
+        if (charStagger != 1f) StatRemoteCharStagger++;
         if (e.Enemy != null) e.Enemy.NetApplyRemoteHit(attacker, damage, hk, contact);
-        else if (e.Wild != null) e.Wild.NetApplyRemoteHit(attacker, damage, contact, hk, manual);
-        else if (e.Dragon != null) e.Dragon.NetApplyRemoteHit(attacker, damage, hk, manual);
-        else if (e.Majin != null) e.Majin.NetApplyRemoteHit(attacker, damage, hk, manual);
+        else if (e.Wild != null) e.Wild.NetApplyRemoteHit(attacker, damage, contact, hk, manual, air, charStagger);
+        else if (e.Dragon != null) e.Dragon.NetApplyRemoteHit(attacker, damage, hk, manual, air, charStagger);
+        else if (e.Majin != null) e.Majin.NetApplyRemoteHit(attacker, damage, hk, manual, air, charStagger);
     }
 
     public static int PlayerNumberOfClient(ulong clientId)
@@ -1507,8 +1517,18 @@ public class NetCombat : MonoBehaviour
 
     // manual = false: カードの追加攻撃/結界/燃える地面など(手動の攻撃ではない)。種類の上位ビットで送る(2026-10-21: HOST が JOIN の打ち上げ/追撃をボスの BREAK コンボに使う)
     public const byte KindNotManual = 0x80;
-    public static void RequestHit(int netId, int damage, PlayerAttackKind kind, Vector3 contactScene, bool manual = true)
-        => SendHitRequest(HitDamage, netId, damage, (byte)((byte)kind | (manual ? 0 : KindNotManual)), contactScene, Vector2.zero, 0f);
+    // 2026-11-07: 空中の攻撃(HOST の自分の攻撃と同じく、崩しの空中の上乗せを掛けるため)。種類は下位 6 ビット
+    public const byte KindAir = 0x40;
+    public static int StatRemoteCharStagger; // 確認用: JOIN の攻撃にキャラの崩しの倍率(双剣士など)を掛けた回数
+    public static void RequestHit(int netId, int damage, PlayerAttackKind kind, Vector3 contactScene, bool manual = true, bool air = false)
+        => SendHitRequest(HitDamage, netId, damage, (byte)((byte)kind | (manual ? 0 : KindNotManual) | (air ? KindAir : 0)), contactScene, Vector2.zero, 0f);
+
+    // HOST: 接続ごとのキャラ(NetPlayer.CharacterId)。不明なら空
+    public static string CharIdOfClient(ulong clientId)
+    {
+        foreach (NetPlayer p in NetPlayer.All) if (p != null && p.OwnerClientId == clientId) return p.CharacterId.Value.ToString();
+        return "";
+    }
 
     public static void RequestVacuum(int netId, Vector2 offset, float duration)
         => SendHitRequest(HitVacuum, netId, 0, 0, Vector3.zero, offset, duration);

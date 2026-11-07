@@ -243,7 +243,8 @@ public class LaneSweeper : MonoBehaviour
         group.hit = true;
         float hpMul = def != null ? def.hpMultiplier : 1f;
         var gm = GameManager.Instance;
-        if (gm != null && gm.MaxDistance >= DecisionEventTuning.I.sweepHeavyFromKm * 1000f) hpMul = Mathf.Max(hpMul, DifficultyTuning.I.largeHpMultiplier); // 群れの体当たりは重い(1回 2〜3 ハート)
+        bool setRush = BossManager.Instance != null && BossManager.Instance.SetRushActive; // 2026-11-07: 終盤の組の間の帯は普通の重さ(ボスの攻撃と重なるので、1回で大きく削らない)
+        if (!setRush && gm != null && gm.MaxDistance >= DecisionEventTuning.I.sweepHeavyFromKm * 1000f) hpMul = Mathf.Max(hpMul, DifficultyTuning.I.largeHpMultiplier); // 群れの体当たりは重い(1回 2〜3 ハート)
         DifficultyTuning.NextAttackerHpMul = hpMul;
         PlayerController.Instance.TakeDamage(source: "Enemy:LaneSweep");
     }

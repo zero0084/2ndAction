@@ -1478,6 +1478,19 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         }
     }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 2026-11-07 確認用(-netAutoStaggerTest): この端末のプレイヤーの攻撃が当たった時と同じ崩しの計算でダメージ 1
+    public static readonly float[] QaStaggerBy = new float[9];
+    int rawAmountForQa;
+    public void QaScriptedLocalHit(PlayerAttackKind kind, bool air)
+    {
+        if (dead || invulnerable || NetPuppet) return;
+        pendingStagger = BossBattleTuning.I.StaggerFor(kind, air) * BalanceTuning.CharBossStaggerScale(PlayerController.Instance);
+        pendingKind = kind; pendingManual = true;
+        TakeDamage(1, CenterWorld);
+    }
+#endif
+
     // 死神三姉妹(2026-10-20): プレイヤーが弾き返した弾が当たった(ReaperBullet)。ダメージ + 崩し(怯み/BREAK)。
     //  弾き返しはプレイヤーの手動の操作なので、BREAK 中のコンボ/命中の数にも数える
     public void TakeReflectedHit(int amount, float staggerMul, Vector3 at)
@@ -1502,11 +1515,17 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     public void TakeDamage(int amount, Vector3 hitPos)
     {
         if (dead || NetPuppet) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        rawAmountForQa = amount;
+#endif
         if (!quietHit && AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
         // ボス戦の強化(2026-10-01): BREAK中/必殺技の後の隙は大きく入る
         float dmgScale = (Broken ? BossBattleTuning.I.breakDamageScale : 1f) * vulnerableScale;
         if (dmgScale > 1.001f) amount = Mathf.CeilToInt(amount * dmgScale);
         float stg = pendingStagger; pendingStagger = 0f;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (amount == 1 || (rawAmountForQa == 1)) QaStaggerBy[Mathf.Clamp(netAttacker, 0, QaStaggerBy.Length - 1)] += stg; // 2026-11-07 確認用: 試験の当て(ダメージ 1)だけ、攻撃した人ごとの崩しの合計(-netAutoStaggerTest)
+#endif
         PlayerAttackKind hitKind = pendingKind; bool manualHit = pendingManual && netAttacker <= 0 && !quietHit;
         bool remoteManual = !ComboRevision.Legacy && pendingManual && netAttacker > 0 && !quietHit; // 2026-10-21: 協力の相手(人)の手動の攻撃(HOST の端末)。改修前は HOST だけ
         pendingKind = PlayerAttackKind.Normal; pendingManual = false;
@@ -2107,14 +2126,15 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     float netHitCooldown;
 
     // HOST: JOINのプレイヤーの攻撃を、この端末の攻撃と同じ被弾処理へ流す。
-    public void NetApplyRemoteHit(int attacker, int damage, Vector3 hitPos, PlayerAttackKind kind = PlayerAttackKind.Normal, bool manual = true)
+    public void NetApplyRemoteHit(int attacker, int damage, Vector3 hitPos, PlayerAttackKind kind = PlayerAttackKind.Normal, bool manual = true, bool air = false, float charStagger = 1f)
     {
         if (dead || invulnerable || NetPuppet) return;
         netAttacker = attacker;
         pendingKind = kind;
         pendingManual = manual && PlayerController.AllyContext <= 0; // 2026-10-21: 人の手動の攻撃だけ BREAK のコンボへ(CPU の仲間はダメージと崩しだけ)
         // 2026-10-18: 協力の相手の攻撃は種類で崩しが溜まる(上/下攻撃は多め)。CPU の仲間は今までどおり通常の量
-        pendingStagger = PlayerController.AllyContext > 0 ? BossBattleTuning.I.staggerNormal : BossBattleTuning.I.StaggerFor(kind, false);
+        // 2026-11-07: 参加者の攻撃も、HOST 自身の攻撃と同じく空中の上乗せとキャラの倍率(双剣士)を掛ける(以前は空中でも地上の量)
+        pendingStagger = PlayerController.AllyContext > 0 ? BossBattleTuning.I.staggerNormal : BossBattleTuning.I.StaggerFor(kind, air) * charStagger;
         try { TakeDamage(damage, hitPos); }
         finally { netAttacker = 0; }
     }
@@ -2157,7 +2177,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (info != null) kind = info.kind;
         Vector3 hitPos = other.bounds.center;
         bool manual = info == null || (!info.elementProc && !info.suppressHitStop);
-        NetCombat.RequestHit(NetId, dmg, kind, hitPos, manual);
+        NetCombat.RequestHit(NetId, dmg, kind, hitPos, manual, PlayerController.Instance != null && !PlayerController.Instance.IsGrounded);
         if (manual && juggle != null) juggle.NoteReplicaLocalHit(); // 2026-10-21: 空中の補助(再上昇/狙い)の相手として覚える
         if (PlayerController.Instance != null) PlayerController.Instance.NotifyAerialHit();
         if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
@@ -2219,7 +2239,10 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (hurtCol != null && hurtCol.enabled) s.Flags |= NetCombat.FlagHurtbox;
         s.Combo = juggle != null ? juggle.NetPack() : (byte)0; // 2026-10-21: BREAK コンボの状態(JOIN の空中の補助/膝つきの見た目)
         s.SpriteIdx = NetPoseArtIndex(); // 2026-10-28(同期の版 11): 技ごとの1枚絵(天空のボス。0 = なし)
+        if (tune != null && tune.staggerMax > 0f) s.Stagger = NetCombat.PackStagger(StaggerFraction, Broken); // 2026-11-07: 崩しのゲージは HOST の値
     }
+    // JOIN: HOST から届いた崩しのゲージ(確認用にも読む)
+    [System.NonSerialized] public float NetStaggerFraction; [System.NonSerialized] public bool NetBrokenShown; bool netStaggerSeen;
     protected virtual byte NetPoseArtIndex() => 0;
     protected virtual void NetApplyPoseArt(byte idx) { }
 
@@ -2242,6 +2265,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         }
         if (hurtCol != null) hurtCol.enabled = (s.Flags & NetCombat.FlagHurtbox) != 0;
         NetApplyPoseArt(s.SpriteIdx);
+        if (s.Stagger != 0 || netStaggerSeen)
+        {
+            netStaggerSeen = true;
+            NetStaggerFraction = NetCombat.UnpackStagger(s.Stagger, out NetBrokenShown);
+            if (hpBar != null) hpBar.SetSub(NetStaggerFraction, NetBrokenShown);
+        }
         if (s.Combo != 0 || (juggle != null && juggle.Open))
         {
             var st = (s.Combo & 128) != 0 ? BossJuggle.Style.Kneel : BossJuggle.Style.Launch;

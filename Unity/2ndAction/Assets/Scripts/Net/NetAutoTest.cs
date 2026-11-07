@@ -351,7 +351,7 @@ public partial class NetAutoTest : MonoBehaviour
         {
             string a = args[i];
             string next = i + 1 < args.Length ? args[i + 1] : "";
-            if (ParseWorldArg(a, next) || ParseAuraArg(a, next) || ParseRulesArg(a, next) || ParseMapCardsArg(a, next)) { } // 2026-11-06 マップ専用カード
+            if (ParseWorldArg(a, next) || ParseAuraArg(a, next) || ParseRulesArg(a, next) || ParseMapCardsArg(a, next) || ParseStaggerArg(a, next)) { } // 2026-11-06 マップ専用カード / 2026-11-07 崩しの倍率
             else if (a == "-netAutoHost") role = "HOST";
             else if (a == "-netAutoJoin") { role = "JOIN"; joinIp = next; }
             else if (a == "-netAutoRoom") onlineRoom = next; // ONLINE: HOST が作る部屋の名前 / JOIN が一覧から探す名前
@@ -491,6 +491,7 @@ public partial class NetAutoTest : MonoBehaviour
         stepTime += Time.unscaledDeltaTime;
         ScanEnemySprites();
         GameManager gm = GameManager.Instance;
+        StaggerPreTick(gm); // 2026-11-07 -netAutoChar
         switch (step)
         {
             case Step.Connect:
@@ -607,6 +608,7 @@ public partial class NetAutoTest : MonoBehaviour
                 ResultConflictTest(gm);
                 Phase3Test(gm);
                 MapCardsTick(gm); // 2026-11-06 マップ専用カード(-netAutoMapCards)
+                StaggerTick(gm); // 2026-11-07 崩しの倍率(-netAutoStaggerTest)
                 if (step == Step.Done) break;
                 if (role == "HOST" && bossAt > 0f && !bossSpawned && runTime >= bossAt) SpawnTestBoss();
                 RewardKillTick(runTime);

@@ -65,7 +65,8 @@ public class CaveHazard : MonoBehaviour
     public float ActiveLeft => Mathf.Max(0f, warn + active - Mathf.Max(timer, warn));
     public string Source => src;
     // 「天井から」(地面にいれば当たらない)か
-    public bool CeilingType => kind == CaveHazardKind.Ceiling || (kind == CaveHazardKind.Band && yLow >= 1.9f);
+    // 2026-11-07: 高い所を流れる波(ECHO HUNT の紫 = 地面にいる)も天井側。以前は補助が「高さ3.8を跳んで越える」と読み、波の中へ何度も跳んでいた
+    public bool CeilingType => kind == CaveHazardKind.Ceiling || ((kind == CaveHazardKind.Band || kind == CaveHazardKind.Wave) && yLow >= 1.9f);
 
     public static Color WarnColorFor(bool ceiling, bool tall) => ceiling ? WildBossBase.HighLaneColor : tall ? WildBossBase.TallLaneColor : WildBossBase.LowLaneColor;
 

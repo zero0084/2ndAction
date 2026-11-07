@@ -81,6 +81,7 @@ public class DecisionEvents : MonoBehaviour
     void ResetRun()
     {
         StopAllCoroutines();
+        setLaneRunning = false; setLaneNext = -1f;
         ClearTransient();
         reserved.Clear();
         nextCandidateAt = -1f; restUntil = 0f; lastBossSeen = -99f; lastEventD = -99999f; lastKind = RoadEventKind.None;
@@ -102,6 +103,7 @@ public class DecisionEvents : MonoBehaviour
         { AbortedByBoss++; Abort(boss ? "boss gate" : "bonus zone"); }
         if (CurrentCue != Cue.None && Time.time > CueUntil) CurrentCue = Cue.None;
         PruneReserved();
+        if (Usable || (DifficultyTuning.Active && !NetRunLauncher.IsMultiplayerRun)) SetLaneTick(bm, gm.MaxDistance); // 2026-11-07 終盤 95〜98km の組の間の帯
         if (!Usable) return;
         float d = gm.MaxDistance;
         if (!InRange(d)) return;
@@ -262,6 +264,7 @@ public class DecisionEvents : MonoBehaviour
         Debug.Log($"[Decision] ABORT {Running} ({why})");
         eventToken++;
         StopAllCoroutines();
+        if (setLaneRunning) { setLaneRunning = false; setLaneNext = Time.time + 4f; } // 組の間の帯も止まる(次は少し空けて)
         ClearTransient();
         Running = RoadEventKind.None; CurrentCue = Cue.None;
         RoadEvents.EndExternal(why);
@@ -893,4 +896,65 @@ public class DecisionEvents : MonoBehaviour
     }
 
     public static string Describe() => Running == RoadEventKind.None ? "-" : $"{Running} cue {CurrentCue}";
+
+    // ===================================================================== //
+    // 2026-11-07 終盤 95〜98km の3体同時ボス(組)の間の危険帯(マスター: 見れば簡単・放置すると少しずつ削られる)
+    //  道中の判断型イベントと同じ帯と群れ(LaneSweep)。地上の帯 = 跳ぶ / 空の帯 = 地上にいる / 2〜3回で安全な高さが切り替わる。
+    //  帯の間はボスの強攻撃の枠を1つ使う(BossAttackGate: 強攻撃は同時に2つまで → 帯 + ボス1体まで)= 予兆が重なりすぎない。
+    //  オートの回避そのものは変えない(ボス戦のオートはボスの攻撃を見て避ける。帯を見て高さを選ぶのは人の判断)。98km のラスボスは対象外
+    // ===================================================================== //
+    public static bool SetLanesOn = false; // TEMP-APK444: 調整中のため一時的に無効(試験済みだけの APK/AAB)。-setLanes 1 で有効
+    public static Vector2 SetLaneGap = new Vector2(7.5f, 10.5f); // 2026-11-07 Y: 9〜13秒では放置が 3/6 到達(目安 20〜40%) → 少し短く
+    public static float SetLaneFirstDelay = 7f, SetLaneStepGap = 0.55f;
+    public static float[] SetLaneStepWeights = { 0.35f, 0.45f, 0.2f }; // 1回 / 2回で切り替わる / 3回で切り替わる
+    public static int SetLanesStarted, SetLaneSteps;
+    float setLaneNext = -1f; bool setLaneRunning;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void SetLaneDevArgs()
+    {
+        var a = System.Environment.GetCommandLineArgs(); var inv = System.Globalization.CultureInfo.InvariantCulture;
+        for (int i = 0; i < a.Length - 1; i++)
+        {
+            if (a[i] == "-setLanes") SetLanesOn = a[i + 1] != "0";
+            if (a[i] == "-setLaneGap") { var q = a[i + 1].Split(','); if (q.Length >= 2 && float.TryParse(q[0], System.Globalization.NumberStyles.Float, inv, out float g0) && float.TryParse(q[1], System.Globalization.NumberStyles.Float, inv, out float g1)) SetLaneGap = new Vector2(g0, g1); }
+        }
+    }
+#endif
+
+    void SetLaneTick(BossManager bm, float d)
+    {
+        if (!SetLanesOn || bm == null || !bm.SetRushActive || d >= BossManager.SetFinalK * 1000f || (BonusZone.Instance != null && BonusZone.Instance.State != BonusZone.Phase.Idle))
+        { if (!setLaneRunning) setLaneNext = -1f; return; }
+        if (setLaneRunning) return;
+        if (setLaneNext < 0f) { setLaneNext = Time.time + SetLaneFirstDelay; return; }
+        if (Time.time < setLaneNext) return;
+        if (BossAttackGate.MaxHeavy > 0 && BossAttackGate.ActiveHeavy(Time.time) >= BossAttackGate.MaxHeavy) { setLaneNext = Time.time + 0.4f; return; } // ボスの強攻撃が2つ重なっている間は待つ
+        StartCoroutine(SetLaneRun(d));
+    }
+
+    IEnumerator SetLaneRun(float d)
+    {
+        setLaneRunning = true; SetLanesStarted++;
+        int token = eventToken;
+        var b = BandNow(d / 1000f);
+        float w = R01(); int steps = 1;
+        float w0 = SetLaneStepWeights[0], w1 = w0 + SetLaneStepWeights[1];
+        steps = w < w0 ? 1 : w < w1 ? 2 : 3;
+        float one = WarnFor(b) + T.sweepSeconds + T.sweepSpreadSeconds + 0.2f;
+        BossAttackGate.AddHeavy(Mathf.Max(BossAttackGate.HeavyWindup, one * steps + SetLaneStepGap * (steps - 1)), Time.time); // 帯の間は強攻撃の枠を1つ使う
+        Lane lane = PickLane(b);
+        Log(RoadEventKind.Alternate, d, $"setLane steps {steps} first {lane}");
+        for (int i = 0; i < steps; i++)
+        {
+            if (token != eventToken) break;
+            SetLaneSteps++;
+            yield return LaneSweep(token, b, lane, i == 0 ? 1f : 0.85f, logIt: false);
+            if (i < steps - 1) yield return new WaitForSeconds(SetLaneStepGap);
+            lane = lane == Lane.Ground ? Lane.Air : Lane.Ground;
+            if (lane == Lane.Air && !AirLaneSafe(WarnFor(b) * 0.85f + T.sweepSeconds + 0.4f)) lane = Lane.Ground; // 天井が低い/上に道がある所は地上の帯のまま
+        }
+        setLaneRunning = false;
+        setLaneNext = Time.time + Range(SetLaneGap);
+    }
 }

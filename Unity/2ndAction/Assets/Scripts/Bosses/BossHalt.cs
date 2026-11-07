@@ -31,6 +31,7 @@ public static class BossHalt
     // 戦いの最中に穴/段差の壁に当たっていた(双剣士だけ、ボス戦の地形の被弾 1ラン平均 1〜2ハート)。
     // 止まった所から LungeAheadSoft m 先で踏み込みを弱め始め、LungeAheadMax m 先で前への踏み込みを 0 にする(後ろへの踏み込み/ノックバックはそのまま)
     public static float LungeAheadSoft = 22f, LungeAheadMax = 30f;
+    public static double AheadOfAnchor(float x) => Holding ? x + FloatingOrigin.Offset - AnchorLX : 0.0; // 2026-11-07 第2: 止まった所からの前の距離(止めていない時は 0)
     public static float ForwardLungeLimit(float playerX)
     {
         if (!BalanceTuning.HaltLungeLimit || !Holding) return 1f;

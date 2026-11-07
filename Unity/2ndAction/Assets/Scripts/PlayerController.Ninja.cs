@@ -37,6 +37,41 @@ public partial class PlayerController
 
     static readonly Color NinjaCrimson = new Color(1f, 0.45f, 0.45f, 0.9f);
 
+    // ---- 2026-11-07 第2(初期デッキで 5km のゴブリンライダーで毎回倒れる件、BalanceTuning.NinjaBossStop) ----
+    // ボス戦の瞬身(3m × ボス戦の伸び 1.4〜2.6)はボスの体を通り抜けて背中側へ出ていた → ボスが振り向いて棍棒が当たる /
+    // 通り抜けを重ねて止まった所から 20m 以上前へ出て、止まって戦う間の踏み込みの上限で瞬身が動かなくなる。
+    // ボス戦では、瞬身の始めに前にいた(体が重なっている)ボスの体の中心で止まる。斬撃・無敵・速さは同じ。雑魚は今までどおりすり抜け
+    WildBossBase ninjaDashBoss;
+    public static int NinjaBossStops; // 確認用
+    void NinjaPickDashBoss(float range)
+    {
+        ninjaDashBoss = null;
+        if (!BalanceTuning.NinjaBossStop || !BossBattle.AnyBossFighting || KitFacing < 0f) return;
+        float px = transform.position.x, best = float.MaxValue;
+        foreach (var lb in BossBattle.Living)
+        {
+            if (!(lb is WildBossBase w) || w == null || w.IsDead || !w.AssistTargetable) continue;
+            var b = w.AssistBounds;
+            if (b.center.x < px - 0.6f) continue; // 体の中心がもう後ろ(通り抜けた後): 止めない。中心の近く(0.6m)はその場で斬る(行ったり来たりしない)
+            float d = b.min.x - px;
+            if (d > range || d >= best) continue;
+            best = d; ninjaDashBoss = w;
+        }
+    }
+    // 2026-11-07 第2(BalanceTuning.NinjaHaltReach): 瞬身がボスの体の中心で止まり、その所が戦闘範囲の内側なら、止まって戦う間の踏み込みの上限を掛けない
+    bool NinjaHaltReachOk()
+    {
+        if (!BalanceTuning.NinjaHaltReach || kit != CharacterKit.Ninja) return false;
+        float? s = NinjaBossStopX();
+        return s.HasValue && BossHalt.AheadOfAnchor(s.Value) <= BossHalt.LungeAheadMax + BalanceTuning.NinjaHaltExtra;
+    }
+    float? NinjaBossStopX()
+    {
+        var w = ninjaDashBoss;
+        if (w == null || w.IsDead || !w.AssistTargetable || !BossBattle.AnyBossFighting) return null;
+        return w.AssistBounds.center.x;
+    }
+
     // 残像(今の絵を半透明で置いていく)。
     void NinjaAfterImage(float alpha)
     {
@@ -67,6 +102,7 @@ public partial class PlayerController
             if (!isGrounded) kitVerticalVelocity = 0f; // 空中の瞬身は水平に
             float dist = p.dashDistance;
             lungeVelocityX = dist / Mathf.Max(0.01f, p.dashTime);
+            NinjaPickDashBoss(dist * BossBattleTuning.I.lungeForwardFar + 1f); // 2026-11-07 第2: ボス戦はボスの体の中心で止まる
             OneShotSpriteEffect.CreateTweened(KitProjectile.Puff, transform.position + new Vector3(0f, 0.5f, 0f), new Color(0.35f, 0.35f, 0.42f, 0.6f), duration: 0.3f, startScale: 0.35f, endScale: 0.8f, sortingOrder: RenderOrder.CombatFx);
             // 体の後ろ〜前をまとめて覆う判定(踏み込みながら通り抜けた敵を斬る)
             ArmKitBox(new Vector2(-0.3f, p.slashHeight), new Vector2(1.9f, p.slashThickness), 0f, PlayerAttackKind.Normal, p.slashDamageScale, p.slashKnockbackScale, p.slashHitStop);
@@ -99,7 +135,7 @@ public partial class PlayerController
                 t += Time.deltaTime; yield return null;
             }
         }
-        finally { EndKitMove(token); }
+        finally { ninjaDashBoss = null; EndKitMove(token); }
     }
 
     IEnumerator NinjaShuriken()

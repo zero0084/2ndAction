@@ -152,7 +152,8 @@ public partial class QaSweep
         // 空中雑魚の予兆(急降下/横切り)は一瞬なので、オートの回避は止めない(止めると穴/壁に当たる)。空中なら急降下で降りるだけ
         bool holdAvoid = stayLow && !DecisionEvents.CueFromAir;
         if (a != null && holdAvoid != deHeldAvoid) { a.SetAutoAvoid(!holdAvoid); deHeldAvoid = holdAvoid; }
-        if (stayLow && !pc.IsGrounded && pc.AssistVelocityY > -1f && now > DecisionEvents.CueDangerAt - 0.9f) pc.debugInjectOnce = PlayerController.FlickDirection.Down;
+        // 2026-11-07: 降りた先が穴/段差の時は降りない(人は穴へ急降下しない。以前は 94km の雑魚の群れで穴へ落ちていた)
+        if (stayLow && !pc.IsGrounded && pc.AssistVelocityY > -1f && now > DecisionEvents.CueDangerAt - 0.9f && (a == null || a.DiveLandsSafely(pc))) pc.debugInjectOnce = PlayerController.FlickDirection.Down;
         // 地上の帯/地上封鎖: 危険が来る少し前に跳ぶ(地上封鎖は背が高いので頂点で二段)
         if (cue == DecisionEvents.Cue.JumpOver && deJumpAt < 0f && now < DecisionEvents.CueDangerEnd)
         {

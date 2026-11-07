@@ -807,7 +807,7 @@ public static class CharacterDatabaseBuilder
         luka.lifeRating = 2; luka.powerRating = 3; luka.speedRating = 5; luka.comboRating = 4;
         luka.sortOrder = 12;
         luka.belongings = new CharacterDefinition.BelongingItem[0];
-        luka.baseLives = 30; luka.baseMaxLives = 40;
+        luka.baseLives = 30; luka.baseMaxLives = 45; // 2026-11-07 マスター指定 40→45(他の50との差は残す。5kmの大きな一撃で決まりすぎていた)
         luka.attackPower = 20; luka.attackComboCount = 3;
         luka.jumpForceMultiplier = 1.05f;
         luka.groundMobilityMultiplier = 1.08f;
