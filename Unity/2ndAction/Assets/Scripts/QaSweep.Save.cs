@@ -7,6 +7,17 @@ using UnityEngine;
 // テストの前に今のセーブを丸ごと控え、最後に必ず元へ戻す(バックアップの書き出し先もテスト用の別フォルダ)。
 public partial class QaSweep
 {
+    // 2026-11-08: 本物の起動では SaveSystem が場面の読み込みより前に動く(GameManager がまだ無い)。この試験は GameManager が居る中で
+    // 起動の処理をやり直すので、先に GameManager の MILE を保存の値へそろえる(チャレンジの復元の MILE が古い値に足されないように)
+    static SaveSystem.BootResult QaBoot()
+    {
+        var g = GameManager.Instance;
+        if (g != null) typeof(GameManager).GetMethod("LoadMile", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(g, null);
+        return SaveSystem.Boot(0);
+    }
+    // 既存の記録から復元したチャレンジの MILE の合計(移行で正しく増える分)
+    static int RestoredChallengeMile() { int m = 0; foreach (var d in ChallengeDefs.All) if (ChallengeStore.WasRestored(d.id)) m += d.mile; return m; }
+
     static void ClearRegistered()
     {
         SaveSystem.ForgetBackupsForIntentionalReset("qa_clear"); // 2026-10-13: 意図した初期化(起動時の消失からの復旧で戻さない)
@@ -51,7 +62,7 @@ public partial class QaSweep
         {
             // ---- A: 新規インストール
             ClearRegistered();
-            var r = SaveSystem.Boot(0);
+            var r = QaBoot();
             Check(r.kind == SaveSystem.BootKind.NewGame, $"A: new install detected ({r.kind})");
             Check(PlayerPrefs.GetInt(SaveKeys.SchemaVersion, -1) == SaveSystem.CurrentSchemaVersion && PlayerPrefs.GetInt(SaveKeys.ReleaseGeneration, -1) == 0, "A: schema/generation written");
             Check(PlayerPrefs.GetInt("TotalOwnedMile", -1) == DefaultSave.StartingMile && ProgressStats.LifetimeDistance == 0.0, "A: MILE and lifetime distance start at 0");
@@ -70,12 +81,12 @@ public partial class QaSweep
             // ---- B: 開発中のセーブで通常のアップデート(この仕組みの導入)→ 何も消えない
             SeedDevSave();
             var before = SaveSystem.Capture();
-            r = SaveSystem.Boot(0);
+            r = QaBoot();
             Check(r.kind == SaveSystem.BootKind.Existing && r.generationBefore == 0, $"B: existing dev save, generation 0 ({r.kind})");
             Check(SameValues(before, SaveSystem.Capture(), out string diffB), "B: every existing value kept " + diffB);
             bool playedB = ProgressStats.ReadDouble(SaveKeys.LifetimeDistance) > 0.0 || SaveStore.GetFloat("BestDistance", 0f) > 0f;
             Check(!playedB || (TutorialProgress.Offered && TutorialProgress.PracticeDone && TutorialProgress.EscapeGuideShown && TutorialProgress.MileGuide == 2), "B: an existing player gets no first-time tutorial offers/guides (marked as shown)");
-            r = SaveSystem.Boot(0); // 2回目(次のアップデート)
+            r = QaBoot(); // 2回目(次のアップデート)
             Check(r.kind == SaveSystem.BootKind.Existing && r.schemaBefore == SaveSystem.CurrentSchemaVersion && SameValues(before, SaveSystem.Capture(), out diffB), "B: a second update changes nothing " + diffB);
 
             // ---- C: 古い形式 → 移行後も進行が残る
@@ -87,7 +98,7 @@ public partial class QaSweep
             // 2026-10-02: 1->2(戦闘数値10倍化)も続けて通る。旧スケールの中断中ラン(ハート3/5)と調整パネルの候補値
             PlayerPrefs.SetString(RunCheckpoint.Key, "{\"active\":true,\"characterId\":\"swordsman\",\"lives\":3,\"maxLives\":5,\"level\":4}");
             PlayerPrefs.SetFloat("CardTest.attack.1", 3f);
-            r = SaveSystem.Boot(0);
+            r = QaBoot();
             Check(r.schemaBefore == 0 && r.schemaAfter == SaveSystem.CurrentSchemaVersion && !r.migrationFailed, $"C: migrated 0->{SaveSystem.CurrentSchemaVersion} ({r.report})");
             var cp = JsonUtility.FromJson<RunCheckpoint.Data>(PlayerPrefs.GetString(RunCheckpoint.Key, "{}"));
             Check(cp.lives == 30 && cp.maxLives == 50 && cp.level == 4 && cp.characterId == "swordsman", $"C: 1->2 converts a suspended run's hearts to the x10 HP (lives {cp.lives}/{cp.maxLives}, level {cp.level})");
@@ -95,25 +106,26 @@ public partial class QaSweep
             PlayerPrefs.DeleteKey(RunCheckpoint.Key); PlayerPrefs.DeleteKey("CardTest.attack.1");
             Check(Mathf.Abs(PlayerPrefs.GetFloat("BgmVolume", -1f) - 0.5f) < 0.001f && Mathf.Abs(PlayerPrefs.GetFloat("SfxVolume", -1f) - 0.25f) < 0.001f, "C: old volume levels converted (2/4 -> 0.5, 1/4 -> 0.25)");
             Check(!PlayerPrefs.HasKey("BgmVolumeLevel") && !PlayerPrefs.HasKey("SfxVolumeLevel"), "C: old duplicate volume keys removed");
-            Check(PlayerPrefs.GetInt("TotalOwnedMile", 0) == 12345 && PlayerPrefs.GetString("OwnedCardsV1", "").Contains("\"level\":5") && PlayerPrefs.GetString("BestDistance_v2_wasteland_road", "") == "45678.5", "C: progress kept through the migration");
+            Check(PlayerPrefs.GetInt("TotalOwnedMile", 0) == 12345 + RestoredChallengeMile() && PlayerPrefs.GetString("OwnedCardsV1", "").Contains("\"level\":5") && PlayerPrefs.GetString("BestDistance_v2_wasteland_road", "") == "45678.5", "C: progress kept through the migration");
             // 将来の多段の移行(現行の版 → +1 → +2。2026-10-04: 3 はカード長期育成の実際の移行になったので、仮の手順はその先)
             int cur = SaveSystem.CurrentSchemaVersion;
+            int mileC = PlayerPrefs.GetInt("TotalOwnedMile", 0);
             SaveSystem.TestSchemaTarget = cur + 2;
             SaveSystem.TestStep = from => { if (from == cur) PlayerPrefs.SetInt("TotalOwnedMile", PlayerPrefs.GetInt("TotalOwnedMile", 0) + 1); if (from == cur + 1) PlayerPrefs.SetString("DeckCardIds", PlayerPrefs.GetString("DeckCardIds", "") + ",x"); return true; };
-            r = SaveSystem.Boot(0);
-            Check(r.schemaAfter == cur + 2 && PlayerPrefs.GetInt("TotalOwnedMile", 0) == 12346 && PlayerPrefs.GetString("DeckCardIds", "").EndsWith(",x"), $"C: chained migration {cur}->{cur + 1}->{cur + 2} applied step by step ({r.report})");
+            r = QaBoot();
+            Check(r.schemaAfter == cur + 2 && PlayerPrefs.GetInt("TotalOwnedMile", 0) == mileC + 1 && PlayerPrefs.GetString("DeckCardIds", "").EndsWith(",x"), $"C: chained migration {cur}->{cur + 1}->{cur + 2} applied step by step ({r.report})");
             // 移行の失敗 → 移行前へ戻して旧い形式のまま起動
             PlayerPrefs.SetInt(SaveKeys.SchemaVersion, cur);
             var beforeFail = SaveSystem.Capture();
             SaveSystem.TestStep = from => { if (from == cur) { PlayerPrefs.SetInt("TotalOwnedMile", 1); return true; } return false; };
-            r = SaveSystem.Boot(0);
+            r = QaBoot();
             bool sameF = SameValues(beforeFail, SaveSystem.Capture(), out string diffF);
             Check(r.migrationFailed && r.schemaAfter == cur && sameF, $"C: a failed migration restores the pre-migration data and keeps the old format {diffF}");
             SaveSystem.TestSchemaTarget = 0; SaveSystem.TestStep = null;
 
             // ---- D: 将来の製品版(releaseGeneration 0→1)
             SeedDevSave();
-            SaveSystem.Boot(0);
+            QaBoot();
             r = SaveSystem.Boot(1);
             Check(r.kind == SaveSystem.BootKind.ReleaseReset && r.generationAfter == 1, $"D: release reset ran once ({r.kind}, {r.report})");
             Check(PlayerPrefs.GetInt("TotalOwnedMile", -1) == 0 && !PlayerPrefs.HasKey("OwnedCardsV1") && !PlayerPrefs.HasKey("DeckCardIds") && !PlayerPrefs.HasKey("BestDistance_v2_wasteland_road")
@@ -126,11 +138,11 @@ public partial class QaSweep
             PlayerPrefs.SetInt("TotalOwnedMile", 500); PlayerPrefs.Save();
             r = SaveSystem.Boot(1);
             Check(r.kind == SaveSystem.BootKind.Existing && PlayerPrefs.GetInt("TotalOwnedMile", 0) == 500, "D: the second launch does not reset again");
-            r = SaveSystem.Boot(0); // 古いビルドで開いても(世代が下がる)何も消さない
+            r = QaBoot(); // 古いビルドで開いても(世代が下がる)何も消さない
             Check(r.kind == SaveSystem.BootKind.Existing && PlayerPrefs.GetInt("TotalOwnedMile", 0) == 500 && PlayerPrefs.GetInt(SaveKeys.ReleaseGeneration, 0) == 1, "D: an older build never resets or lowers the generation");
 
             // ---- E〜H: 三姉妹/累計距離/ラスダン
-            ClearRegistered(); SaveSystem.Boot(0);
+            ClearRegistered(); QaBoot();
             ProgressStats.MarkReaperMet(ReaperSister.Second);
             Check(!ProgressStats.HasMet(ReaperSister.Eldest) && ProgressStats.HasMet(ReaperSister.Second) && !ProgressStats.HasMet(ReaperSister.Youngest) && PlayerPrefs.GetInt("ReaperMet_Second", 0) == 1, "E: meeting one sister sets only her flag");
             ProgressStats.MarkReaperMet(ReaperSister.Eldest); ProgressStats.MarkReaperMet(ReaperSister.Youngest);
@@ -148,13 +160,13 @@ public partial class QaSweep
             ProgressStats.Flush(true);
             Check(ProgressStats.FinalDungeonUnlocked && PlayerPrefs.GetInt(SaveKeys.FinalDungeonUnlocked, 0) == 1, "G: reaching 1,000,000m unlocks it and the flag is saved");
             Check(StageDatabase.IsAvailable(lc), "G: LAST CORRIDOR selectable");
-            SaveSystem.Boot(0); // 再起動
+            QaBoot(); // 再起動
             ProgressStats.DevSetLifetime(0); // 条件の値が変わっても
             Check(ProgressStats.FinalDungeonUnlocked && StageDatabase.IsAvailable(lc), "H: stays unlocked after a restart (not recalculated into a lock)");
             ProgressStats.DevAlwaysOpen = true;
 
             // ---- 破損: 直近の正常なバックアップから戻す / 無ければその項目だけ初期値
-            SeedDevSave(); SaveSystem.Boot(0); // lastgood を作る
+            SeedDevSave(); QaBoot(); // lastgood を作る
             string goodCards = PlayerPrefs.GetString("OwnedCardsV1", "");
             PlayerPrefs.SetString("OwnedCardsV1", "{\"stacks\":[{\"cardId\":");
             PlayerPrefs.SetInt("TotalOwnedMile", -50);
@@ -162,19 +174,19 @@ public partial class QaSweep
             PlayerPrefs.SetString("BestDistance_v2_wasteland_road", "abc");
             PlayerPrefs.SetString(SaveKeys.LifetimeDistance, "xyz");
             PlayerPrefs.SetString("ActiveRunCheckpointV1", "not json");
-            r = SaveSystem.Boot(0);
+            r = QaBoot();
             Check(PlayerPrefs.GetString("OwnedCardsV1", "") == goodCards, $"corrupt: cards restored from the last good backup ({string.Join(" / ", r.repairs)})");
             Check(PlayerPrefs.GetInt("TotalOwnedMile", -1) == 0 && PlayerPrefs.GetFloat("BestDistance", -1f) == 0f, "corrupt: negative MILE / NaN BEST fixed");
             Check(PlayerPrefs.GetString("BestDistance_v2_wasteland_road", "") == "45678.5", "corrupt: broken stage BEST restored from backup");
             Check(System.IO.Directory.GetFiles(backupDir, "corrupt_*").Length > 0, "corrupt: the broken text is kept in a file");
             try { System.IO.File.Delete(System.IO.Path.Combine(backupDir, "lastgood.json")); System.IO.File.Delete(System.IO.Path.Combine(backupDir, "lastgood_prev.json")); } catch { }
             PlayerPrefs.SetString("OwnedCardsV1", "garbage");
-            r = SaveSystem.Boot(0);
+            r = QaBoot();
             Check(!PlayerPrefs.HasKey("OwnedCardsV1"), $"corrupt without a backup: only that item goes back to default, the game still starts ({string.Join(" / ", r.repairs)})");
             Check(PlayerPrefs.GetInt("TotalOwnedMile", -1) >= 0 && PlayerPrefs.GetString("DeckCardIds", "") == "attack_up,attack_up", "corrupt without a backup: other items untouched");
 
             // ---- I: 実際のラン(2026-10-08 仕様変更): 累計距離はラン中/一時停止/死亡/途中帰還では書かず、正規の帰還(成功)で確定する。遭遇は出現の時点で保存
-            ClearRegistered(); SaveSystem.Boot(0);
+            ClearRegistered(); QaBoot();
             yield return ReloadSceneForSave();
             yield return BeginRun("swordsman", "wasteland_road");
             typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
@@ -266,12 +278,12 @@ public partial class QaSweep
         {
             if (kv.Key == SaveKeys.SchemaVersion || kv.Key == SaveKeys.ReleaseGeneration) continue;
             if (!db.TryGetValue(kv.Key, out string v)) bad.Add($"{kv.Key} missing");
-            else if (v != kv.Value) bad.Add($"{kv.Key} {kv.Value}->{v}");
+            else if (v != kv.Value && !(kv.Key == GameManager.TotalMileKey && int.TryParse(kv.Value, out int m0) && int.TryParse(v, out int m1) && m1 == m0 + RestoredChallengeMile())) bad.Add($"{kv.Key} {kv.Value}->{v}"); // 2026-11-08: チャレンジの復元の MILE は正しい増え方
         }
         foreach (var kv in db)
         {
             if (kv.Key == SaveKeys.SchemaVersion || kv.Key == SaveKeys.ReleaseGeneration) continue;
-            if (!da.ContainsKey(kv.Key) && !(kv.Key.StartsWith(SaveKeys.ReaperMetPrefix) || kv.Key == SaveKeys.LifetimeDistance || kv.Key == SaveKeys.FinalDungeonUnlocked || kv.Key.StartsWith("Tutorial.") || kv.Key.StartsWith("Unlock") || kv.Key.StartsWith(UnlockRules.ReachPrefix) || kv.Key == ProfileStore.BestCharKey)) bad.Add($"{kv.Key} added"); // Tutorial.*: 初回チュートリアルの印(既存データには「案内済み」で1回だけ足す、2026-10-07)
+            if (!da.ContainsKey(kv.Key) && !(kv.Key.StartsWith(SaveKeys.ReaperMetPrefix) || kv.Key == SaveKeys.LifetimeDistance || kv.Key == SaveKeys.FinalDungeonUnlocked || kv.Key.StartsWith("Tutorial.") || kv.Key.StartsWith("Unlock") || kv.Key.StartsWith(UnlockRules.ReachPrefix) || kv.Key == ProfileStore.BestCharKey || kv.Key == CardMapUnlock.InitKey || kv.Key == CardMapUnlock.GrandfatherKey || kv.Key == ChallengeStore.DoneKey || kv.Key == ChallengeStore.InitKey)) bad.Add($"{kv.Key} added"); // Tutorial.*: 初回チュートリアルの印(既存データには「案内済み」で1回だけ足す、2026-10-07)
         }
         diff = bad.Count == 0 ? "" : "(" + string.Join(", ", bad) + ")";
         return bad.Count == 0;
