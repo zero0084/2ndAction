@@ -7,7 +7,11 @@ using UnityEngine;
 //  受け取った端末は自分の言語で文を出す(訳は ID から)。名前は送らない(送った人の番号 P1〜P8 とコードネームは NetPlayer から)。
 //  通信: 既存のカスタムメッセージ(NetStats.SendNamed / Counted)に乗せる。名前 "OMM.QuickChat"(Reliable)。
 //   JOIN → HOST: [byte 文の ID]   HOST → 全員(送った人を含む): [byte 送った人の番号][byte 文の ID]
-//   HOST が送る時はそのまま全員へ。連打は 1 人 1.0 秒に 1 回まで(HOST が確かめる。届かなかった分は黙って捨てる)
+//   HOST が送る時はそのまま全員へ。連打は 1 人 1.0 秒に 1 回まで(送る端末のボタンで止める)
+//  2026-11-08 2台確認での修正:
+//   ・HOST は送った本人へは返さない(以前は返して「自分の番号なら出さない」で消していたが、番号が決まる前だと本人の画面に2回出た)
+//   ・HOST 側の連打の見張りは、通信の遅れで 2〜3 通がまとめて届いても捨てない数え方(4 秒に 5 通まで)。改造した端末の連投だけを止める
+//     (以前の「前の通から 0.8 秒」だと、遅れてまとめて届いた正規の文を捨て、送った本人の画面にだけ出ることがあった)
 //  通信の版: この文を知らない古い版は受け取っても処理しない(受け取り口が無いだけで同期は壊れない)。2026-11-07 の版 13 と同じ時期に入れたので版は上げていない
 //  画面: マルチの部屋(NetDebugUI の部屋の画面)に文のボタン。受け取った文は画面の左下に小さな吹き出しで 4 秒(ラン中も。ゲームは止めない)
 public class QuickChat : MonoBehaviour
@@ -26,7 +30,10 @@ public class QuickChat : MonoBehaviour
 
     bool registered; NetworkManager registeredManager;
     float lastSendAt = -99f;
-    readonly Dictionary<ulong, float> lastFrom = new Dictionary<ulong, float>();
+    readonly Dictionary<ulong, Queue<float>> recentFrom = new Dictionary<ulong, Queue<float>>(); // HOST: 送った人ごとの、受け付けた時刻
+    public const float GuardWindow = 4f;
+    public const int GuardMax = 5;
+    public static int DroppedBySpamGuard { get; private set; } // 確認用
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot()
@@ -46,7 +53,7 @@ public class QuickChat : MonoBehaviour
             nm.CustomMessagingManager.RegisterNamedMessageHandler(Msg, NetStats.Counted(Msg, OnMessage));
             registered = true; registeredManager = nm;
         }
-        else if (!active && registered) { registered = false; registeredManager = null; lastFrom.Clear(); }
+        else if (!active && registered) { registered = false; registeredManager = null; recentFrom.Clear(); }
         for (int i = lines.Count - 1; i >= 0; i--) if (lines[i].until < Time.unscaledTime) lines.RemoveAt(i);
     }
 
@@ -61,22 +68,27 @@ public class QuickChat : MonoBehaviour
         var nm = NetSession.Manager;
         int me = NetPlayer.Local != null ? NetPlayer.Local.PlayerNumber : 1;
         if (!NetSession.IsActive || nm == null) { Show(me, id); return true; }
-        if (nm.IsServer) { Broadcast(me, id); Show(me, id); return true; }
+        if (nm.IsServer) { Broadcast(me, id, NetworkManager.ServerClientId); Show(me, id); return true; }
+        SendToHost(nm, id);
+        Show(me, id); // 自分の画面にはすぐ出す(HOST は本人へ返さない)
+        return true;
+    }
+
+    static void SendToHost(NetworkManager nm, byte id)
+    {
         using (var w = new FastBufferWriter(4, Allocator.Temp))
         {
             w.WriteValueSafe((byte)0); w.WriteValueSafe(id);
             NetStats.SendNamed(nm.CustomMessagingManager, Msg, NetworkManager.ServerClientId, w, NetworkDelivery.ReliableSequenced);
         }
-        Show(me, id); // 自分の画面にはすぐ出す(HOST からの返しは自分の分を出さない)
-        return true;
     }
 
-    static void Broadcast(int player, byte id)
+    static void Broadcast(int player, byte id, ulong except)
     {
         var nm = NetSession.Manager; if (nm == null) return;
         foreach (ulong c in nm.ConnectedClientsIds)
         {
-            if (c == NetworkManager.ServerClientId) continue;
+            if (c == NetworkManager.ServerClientId || c == except) continue;
             using (var w = new FastBufferWriter(4, Allocator.Temp))
             {
                 w.WriteValueSafe((byte)1); w.WriteValueSafe((byte)Mathf.Clamp(player, 0, 255)); w.WriteValueSafe(id);
@@ -100,11 +112,14 @@ public class QuickChat : MonoBehaviour
         {
             if (!nm.IsServer) return;
             if (LocProfile.ChatText(id) == null) return;
-            if (lastFrom.TryGetValue(sender, out float t) && Time.unscaledTime - t < SendInterval * 0.8f) return; // 連打は捨てる
-            lastFrom[sender] = Time.unscaledTime;
+            if (!recentFrom.TryGetValue(sender, out var q)) recentFrom[sender] = q = new Queue<float>();
+            float now = Time.unscaledTime;
+            while (q.Count > 0 && now - q.Peek() > GuardWindow) q.Dequeue();
+            if (q.Count >= GuardMax) { DroppedBySpamGuard++; Debug.Log($"[QuickChat] dropped (too many from client {sender})"); return; } // 改造した端末の連投
+            q.Enqueue(now);
             int from = PlayerNumberOf(sender);
             Show(from, id);
-            Broadcast(from, id); // 送った人へも返る(送った人は自分の番号の分を出さない)
+            Broadcast(from, id, sender); // 送った本人へは返さない(本人は送った時に出している)
         }
         else // HOST → JOIN
         {
@@ -131,6 +146,13 @@ public class QuickChat : MonoBehaviour
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public static void DebugInject(int player, byte id) => Show(player, id); // 自動テスト: 受け取った扱い
+    // 自動テスト: ボタンの連打止めを通さずに HOST へ n 通まとめて送る(改造した端末の連投の再現。自分の画面には出さない)
+    public static void DebugSendRaw(byte id, int n)
+    {
+        var nm = NetSession.Manager;
+        if (!NetSession.IsActive || nm == null || nm.IsServer) return;
+        for (int i = 0; i < n; i++) SendToHost(nm, id);
+    }
 #endif
 
     // 受け取った文の吹き出し(左下。入力は取らない)

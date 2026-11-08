@@ -48,11 +48,13 @@ public partial class NetAutoTest
         var m = NetSession.Manager;
         if (m != null && (m.IsClient || m.ShutdownInProgress)) return;
         lobbyRejoined = true;
+        // 2026-11-08: ONLINE は FIND GAME → JOIN と同じ経路で入り直す(以前は LAN の経路だけだった)
+        if (OnlineMode) { L("[AURA] lobby rejoin (online: find the room again)"); onlineDone = false; onlineOk = false; OnlineJoin(); return; }
         L("[AURA] lobby rejoin");
         NetSession.Instance.StartClient(joinIp, NetSession.DefaultPort);
     }
 
-    bool HostMayDepart(float stepTime) => role != "HOST" || stepTime >= startDelay;
+    bool HostMayDepart(float stepTime) => role != "HOST" || stepTime >= startDelay && ChatHostReady; // 2026-11-08: 定型メッセージの確認は部屋の分が終わってから
 
     void AuraLogTick(float runTime)
     {

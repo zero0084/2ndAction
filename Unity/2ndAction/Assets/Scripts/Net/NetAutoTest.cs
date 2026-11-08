@@ -351,7 +351,7 @@ public partial class NetAutoTest : MonoBehaviour
         {
             string a = args[i];
             string next = i + 1 < args.Length ? args[i + 1] : "";
-            if (ParseWorldArg(a, next) || ParseAuraArg(a, next) || ParseRulesArg(a, next) || ParseMapCardsArg(a, next) || ParseStaggerArg(a, next)) { } // 2026-11-06 マップ専用カード / 2026-11-07 崩しの倍率
+            if (ParseWorldArg(a, next) || ParseAuraArg(a, next) || ParseRulesArg(a, next) || ParseMapCardsArg(a, next) || ParseStaggerArg(a, next) || ParseChatArg(a, next)) { } // 2026-11-06 マップ専用カード / 2026-11-07 崩しの倍率
             else if (a == "-netAutoHost") role = "HOST";
             else if (a == "-netAutoJoin") { role = "JOIN"; joinIp = next; }
             else if (a == "-netAutoRoom") onlineRoom = next; // ONLINE: HOST が作る部屋の名前 / JOIN が一覧から探す名前
@@ -530,6 +530,7 @@ public partial class NetAutoTest : MonoBehaviour
                 break;
             case Step.WaitPlayers:
                 LobbyRejoinTick(stepTime);
+                ChatTick(gm); // 2026-11-08 定型メッセージの2台確認(-netAutoChat)
                 // 2026-11-05: 同じ PC で 8 プロセスを起動すると、部屋の案内(証明書)の受け取りが落ちることがある → JOIN をやり直す(試験だけ)
                 if (role == "JOIN" && !OnlineMode && joinIp != "lan" && !NetSession.IsActive && !NetSession.JoinPending && stepTime > joinRetryAt)
                 {
@@ -552,6 +553,7 @@ public partial class NetAutoTest : MonoBehaviour
                 else if (stepTime > (OnlineMode ? 120f : waitPlayersSec)) Finish("TIMEOUT waiting for players");
                 break;
             case Step.WaitRun:
+                ChatTick(gm); // 2026-11-08: JOIN は入り直した直後にここへ来る(出発前の部屋の確認を続ける)
                 PreGoCheck(gm);
                 if (gm != null && gm.HasStarted && NetRunLauncher.IsMultiplayerRun && !gm.CountdownActive)
                 {
@@ -608,6 +610,7 @@ public partial class NetAutoTest : MonoBehaviour
                 ResultConflictTest(gm);
                 Phase3Test(gm);
                 MapCardsTick(gm); // 2026-11-06 マップ専用カード(-netAutoMapCards)
+                ChatTick(gm); // 2026-11-08 定型メッセージ(-netAutoChat)
                 StaggerTick(gm); // 2026-11-07 崩しの倍率(-netAutoStaggerTest)
                 if (step == Step.Done) break;
                 if (role == "HOST" && bossAt > 0f && !bossSpawned && runTime >= bossAt) SpawnTestBoss();
@@ -1342,6 +1345,7 @@ public partial class NetAutoTest : MonoBehaviour
     {
         if (step == Step.Done) return;
         step = Step.Done;
+        ChatSummary(); // 2026-11-08 定型メッセージ(-netAutoChat)
         MapCardsSummary(GameManager.Instance); // 2026-11-06 マップ専用カード(-netAutoMapCards)
         if (NetCombat.Instance != null)
         {
