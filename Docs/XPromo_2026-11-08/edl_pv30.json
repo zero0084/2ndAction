@@ -1,0 +1,326 @@
+{
+ "raw": "C:/GameProject/SteamCaptureArchive/2026-11-08_XPromo",
+ "logo": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Art/UI/TitleLogoV2.png",
+ "loudness": -14,
+ "tp": -2.0,
+ "se_gain": 1.0,
+ "bgm": [
+  {
+   "file": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Audio/Placeholder/Bgm/bgm_boss_strong_n.wav",
+   "loop": true,
+   "at": 0,
+   "from": 0,
+   "dur": 29.63,
+   "gain": 0.42,
+   "fade_in": 0.02,
+   "fade_out": 2.2
+  }
+ ],
+ "captions": [
+  {
+   "text": "走り出したら、止まらない。",
+   "at": 0.12,
+   "to": 2.85,
+   "style": "hero"
+  },
+  {
+   "text": "走れ。戦え。突き進め。",
+   "at": 3.05,
+   "to": 8.75,
+   "style": "hero"
+  },
+  {
+   "text": "その先には、何が待つ？",
+   "at": 9.0,
+   "to": 14.75,
+   "style": "main"
+  },
+  {
+   "text": "どこまで走り、\nどこで引き返すのか。",
+   "at": 23.113,
+   "to": 25.913,
+   "style": "main"
+  }
+ ],
+ "cuts": [
+  {
+   "shot": "play/raw/aerial",
+   "in": 0.62,
+   "dur": 1.4815,
+   "cx": 0.5,
+   "cy": 0.34,
+   "x45": {
+    "zoom": 1.6
+   },
+   "x169": {
+    "zoom": 1.75
+   },
+   "scene": "黒剣士: 斬り抜けて敵をまとめて打ち上げる(荒野街道)"
+  },
+  {
+   "shot": "play/raw/pv_luka",
+   "in": 7.5,
+   "dur": 1.4815,
+   "cx": 0.42,
+   "cy": 0.4,
+   "x45": {
+    "zoom": 1.25
+   },
+   "x169": {
+    "zoom": 1.45
+   },
+   "scene": "ルカ: 108km/h で敵の群れを突き抜ける(荒野街道)"
+  },
+  {
+   "shot": "play/raw/aerial_dual",
+   "in": 0.7,
+   "dur": 1.1111,
+   "cx": 0.4,
+   "cy": 0.5,
+   "x45": {
+    "zoom": 1.4
+   },
+   "x169": {
+    "zoom": 1.55
+   },
+   "scene": "双剣士: 斬り上げ → 雷"
+  },
+  {
+   "shot": "play/raw/aerial",
+   "in": 1.6,
+   "dur": 0.7407,
+   "cx": 0.42,
+   "cy": 0.36,
+   "x45": {
+    "zoom": 1.6
+   },
+   "x169": {
+    "zoom": 1.75
+   },
+   "scene": "黒剣士: 空中の斬撃"
+  },
+  {
+   "shot": "play/raw/gunslinger",
+   "in": 1.45,
+   "dur": 1.4815,
+   "cx": 0.36,
+   "cy": 0.42,
+   "x45": {
+    "zoom": 1.25
+   },
+   "x169": {
+    "zoom": 1.45
+   },
+   "scene": "二丁拳銃士: 撃ち抜いて吹き飛ばす(夕暮れの荒野)"
+  },
+  {
+   "shot": "play/raw/pv_luka",
+   "in": 9.65,
+   "dur": 1.4815,
+   "cx": 0.36,
+   "cy": 0.42,
+   "x45": {
+    "zoom": 1.25
+   },
+   "x169": {
+    "zoom": 1.45
+   },
+   "scene": "ルカ: 空中で捕まえて連撃(雷)"
+  },
+  {
+   "shot": "play/raw/gunslinger",
+   "in": 9.4,
+   "dur": 1.1111,
+   "cx": 0.4,
+   "cy": 0.45,
+   "x45": {
+    "zoom": 1.25
+   },
+   "x169": {
+    "zoom": 1.45
+   },
+   "scene": "二丁拳銃士: 空の敵の光線の下を駆け抜ける"
+  },
+  {
+   "shot": "boss2/raw/pv_road",
+   "in": 1.0,
+   "dur": 1.1111,
+   "cx": 0.45,
+   "cy": 0.45,
+   "x45": {
+    "zoom": 1.0
+   },
+   "x169": {
+    "zoom": 1.0
+   },
+   "scene": "荒野街道: 城の見える道"
+  },
+  {
+   "shot": "play/raw/pv_fighter",
+   "in": 4.55,
+   "dur": 1.4815,
+   "cx": 0.36,
+   "cy": 0.4,
+   "x45": {
+    "zoom": 1.2
+   },
+   "x169": {
+    "zoom": 1.35
+   },
+   "vf": "eq=gamma=1.08",
+   "scene": "格闘家: 自然洞窟で蜘蛛/蝙蝠をはじき飛ばす"
+  },
+  {
+   "shot": "play/raw/miko",
+   "in": 1.5,
+   "dur": 1.1111,
+   "cx": 0.4,
+   "cy": 0.48,
+   "x45": {
+    "zoom": 1.1
+   },
+   "x169": {
+    "zoom": 1.15
+   },
+   "scene": "巫女: 天空回廊で矢を放つ"
+  },
+  {
+   "shot": "play/raw/pv_road_sky",
+   "in": 1.0,
+   "dur": 1.1111,
+   "cx": 0.45,
+   "cy": 0.48,
+   "x45": {
+    "zoom": 1.1
+   },
+   "x169": {
+    "zoom": 1.15
+   },
+   "scene": "天空回廊: 浮島を駆ける"
+  },
+  {
+   "shot": "boss2/raw/pv_final_sky",
+   "in": 0.7,
+   "dur": 1.1111,
+   "cx": 0.5,
+   "cy": 0.35,
+   "x45": {
+    "zoom": 1.05
+   },
+   "x169": {
+    "zoom": 1.1
+   },
+   "scene": "天空回廊のボスが空から降りてくる"
+  },
+  {
+   "shot": "boss2/raw/pv_final_wild",
+   "in": 2.0,
+   "dur": 1.4815,
+   "cx": 0.62,
+   "cy": 0.45,
+   "x45": {
+    "zoom": 1.15
+   },
+   "x169": {
+    "zoom": 1.3
+   },
+   "scene": "荒野の巨獣が迫る"
+  },
+  {
+   "shot": "boss2/raw/pv_final_wild",
+   "in": 5.0,
+   "dur": 1.4815,
+   "cx": 0.55,
+   "cy": 0.45,
+   "x45": {
+    "zoom": 1.1
+   },
+   "x169": {
+    "zoom": 1.25
+   },
+   "scene": "必殺技「荒野の終焉」(炎)"
+  },
+  {
+   "shot": "boss2/raw/pv_boss_hydra",
+   "in": 9.7,
+   "dur": 1.1111,
+   "cx": 0.35,
+   "cy": 0.48,
+   "x45": {
+    "zoom": 1.15
+   },
+   "x169": {
+    "zoom": 1.3
+   },
+   "scene": "ヒュドラの炎の息を跳んでかわす"
+  },
+  {
+   "shot": "boss2/raw/pv_final_sky",
+   "in": 6.5,
+   "dur": 1.1111,
+   "cx": 0.5,
+   "cy": 0.45,
+   "x45": {
+    "zoom": 1.15
+   },
+   "x169": {
+    "zoom": 1.3
+   },
+   "scene": "天空のボスに BREAK!"
+  },
+  {
+   "shot": "boss2/raw/pv_final_wild",
+   "in": 11.2,
+   "dur": 1.4815,
+   "cx": 0.48,
+   "cy": 0.47,
+   "x45": {
+    "zoom": 1.15
+   },
+   "x169": {
+    "zoom": 1.3
+   },
+   "scene": "「王が膝をついた！」BREAK 中の反撃"
+  },
+  {
+   "shot": "boss2/raw/pv_final_wild",
+   "in": 17.4,
+   "dur": 1.4815,
+   "cx": 0.5,
+   "cy": 0.55,
+   "x45": {
+    "zoom": 1.15
+   },
+   "x169": {
+    "zoom": 1.3
+   },
+   "scene": "強烈な一撃 → 巨獣が倒れる"
+  }
+ ],
+ "end": {
+  "shot": "boss2/raw/pv_road",
+  "in": 2.5,
+  "dur": 6.6667,
+  "cx": 0.45,
+  "cy": 0.6,
+  "x45": {
+   "zoom": 1.2
+  },
+  "x169": {
+   "zoom": 1.2
+  },
+  "se": 0.5,
+  "logo_at": 3.05,
+  "lines": [
+   {
+    "text": "決めるのは、あなたです。",
+    "at": 3.95,
+    "gold": false,
+    "size": 72
+   }
+  ],
+  "dim": 0.32,
+  "dim_ramp": 2.6,
+  "scene": "締め: 遠くまで続く道を走り続ける"
+ }
+}

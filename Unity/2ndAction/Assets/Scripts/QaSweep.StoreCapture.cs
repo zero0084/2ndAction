@@ -106,7 +106,7 @@ public partial class QaSweep
                 "set_display" => ScSetDisplayShot(s),
                 "set_portrait" => ScSetPortraitShot(s),
                 "result" => ScBossShot(s, "swordsman", "wasteland_road", 0, (int)WildBossKind.Cyclops, 12150f, true, 25f), // 2026-10-23: 脱出 → RESULT(脱出成功！)の撮り直し用
-                _ => null,
+                _ => PvShot(s), // 2026-11-08 X の宣伝動画(QaSweep.PromoCapture.cs)
             };
             if (body == null) { L($"[capture] unknown shot {s}"); continue; }
             yield return body;
