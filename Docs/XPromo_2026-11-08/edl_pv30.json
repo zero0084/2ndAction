@@ -44,18 +44,18 @@
  ],
  "cuts": [
   {
-   "shot": "play/raw/aerial",
-   "in": 0.62,
+   "shot": "boss3/raw/aerial",
+   "in": 0.55,
    "dur": 1.4815,
-   "cx": 0.5,
-   "cy": 0.34,
+   "cx": 0.48,
+   "cy": 0.4,
    "x45": {
     "zoom": 1.6
    },
    "x169": {
     "zoom": 1.75
    },
-   "scene": "黒剣士: 斬り抜けて敵をまとめて打ち上げる(荒野街道)"
+   "scene": "黒剣士: 雷の一撃 → 斬り抜けて敵をまとめて吹き飛ばす(荒野街道)"
   },
   {
    "shot": "play/raw/pv_luka",
@@ -86,18 +86,18 @@
    "scene": "双剣士: 斬り上げ → 雷"
   },
   {
-   "shot": "play/raw/aerial",
-   "in": 1.6,
+   "shot": "boss3/raw/aerial",
+   "in": 1.7,
    "dur": 0.7407,
-   "cx": 0.42,
-   "cy": 0.36,
+   "cx": 0.45,
+   "cy": 0.42,
    "x45": {
     "zoom": 1.6
    },
    "x169": {
     "zoom": 1.75
    },
-   "scene": "黒剣士: 空中の斬撃"
+   "scene": "黒剣士: 走りながらの斬撃"
   },
   {
    "shot": "play/raw/gunslinger",
@@ -199,24 +199,24 @@
    "scene": "天空回廊: 浮島を駆ける"
   },
   {
-   "shot": "boss2/raw/pv_final_sky",
-   "in": 0.7,
+   "shot": "boss3/raw/pv_boss_griffin",
+   "in": 0.3,
    "dur": 1.1111,
-   "cx": 0.5,
-   "cy": 0.35,
+   "cx": 0.62,
+   "cy": 0.4,
    "x45": {
-    "zoom": 1.05
-   },
-   "x169": {
     "zoom": 1.1
    },
-   "scene": "天空回廊のボスが空から降りてくる"
+   "x169": {
+    "zoom": 1.2
+   },
+   "scene": "グリフォンが空から迫る(荒野街道)"
   },
   {
-   "shot": "boss2/raw/pv_final_wild",
-   "in": 2.0,
+   "shot": "boss3/raw/pv_boss_cyclops",
+   "in": 4.3,
    "dur": 1.4815,
-   "cx": 0.62,
+   "cx": 0.55,
    "cy": 0.45,
    "x45": {
     "zoom": 1.15
@@ -224,27 +224,13 @@
    "x169": {
     "zoom": 1.3
    },
-   "scene": "荒野の巨獣が迫る"
-  },
-  {
-   "shot": "boss2/raw/pv_final_wild",
-   "in": 5.0,
-   "dur": 1.4815,
-   "cx": 0.55,
-   "cy": 0.45,
-   "x45": {
-    "zoom": 1.1
-   },
-   "x169": {
-    "zoom": 1.25
-   },
-   "scene": "必殺技「荒野の終焉」(炎)"
+   "scene": "サイクロプス: 必殺技「天崩しの大棍棒」の溜め"
   },
   {
    "shot": "boss2/raw/pv_boss_hydra",
-   "in": 9.7,
-   "dur": 1.1111,
-   "cx": 0.35,
+   "in": 9.6,
+   "dur": 1.4815,
+   "cx": 0.45,
    "cy": 0.48,
    "x45": {
     "zoom": 1.15
@@ -252,13 +238,27 @@
    "x169": {
     "zoom": 1.3
    },
-   "scene": "ヒュドラの炎の息を跳んでかわす"
+   "scene": "ヒュドラ: 必殺技「三首の連撃」の炎を跳んでかわす"
   },
   {
-   "shot": "boss2/raw/pv_final_sky",
-   "in": 6.5,
+   "shot": "boss3/raw/pv_boss_cyclops",
+   "in": 7.0,
    "dur": 1.1111,
-   "cx": 0.5,
+   "cx": 0.52,
+   "cy": 0.48,
+   "x45": {
+    "zoom": 1.15
+   },
+   "x169": {
+    "zoom": 1.3
+   },
+   "scene": "サイクロプス: 大棍棒で地面を砕く"
+  },
+  {
+   "shot": "boss3/raw/pv_boss_demon",
+   "in": 7.5,
+   "dur": 1.1111,
+   "cx": 0.55,
    "cy": 0.45,
    "x45": {
     "zoom": 1.15
@@ -266,27 +266,27 @@
    "x169": {
     "zoom": 1.3
    },
-   "scene": "天空のボスに BREAK!"
+   "scene": "デーモン: 必殺技「冥界の魔柱陣」"
   },
   {
-   "shot": "boss2/raw/pv_final_wild",
-   "in": 11.2,
+   "shot": "boss3/raw/pv_boss_cyclops",
+   "in": 11.0,
    "dur": 1.4815,
-   "cx": 0.48,
-   "cy": 0.47,
+   "cx": 0.6,
+   "cy": 0.5,
    "x45": {
     "zoom": 1.15
    },
    "x169": {
     "zoom": 1.3
    },
-   "scene": "「王が膝をついた！」BREAK 中の反撃"
+   "scene": "サイクロプスに BREAK! → 最終段階"
   },
   {
-   "shot": "boss2/raw/pv_final_wild",
-   "in": 17.4,
+   "shot": "boss2/raw/pv_boss_knight",
+   "in": 18.1,
    "dur": 1.4815,
-   "cx": 0.5,
+   "cx": 0.45,
    "cy": 0.55,
    "x45": {
     "zoom": 1.15
@@ -294,7 +294,7 @@
    "x169": {
     "zoom": 1.3
    },
-   "scene": "強烈な一撃 → 巨獣が倒れる"
+   "scene": "黒騎士: 強烈な一撃 → 撃破"
   }
  ],
  "end": {

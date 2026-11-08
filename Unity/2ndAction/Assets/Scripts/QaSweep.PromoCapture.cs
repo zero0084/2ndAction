@@ -22,6 +22,12 @@ public partial class QaSweep
         "pv_vampire" => ScRunShot(s, "vampire", "sky_corridor", 9000f, 8, 12f),
         "pv_crowd_dual" => ScCrowdShot(s, "dual_blade"),
         "pv_boss_knight" => PvFinalShot(s, Arg("-pvCharK", "dual_blade"), "wasteland_road", 0, (int)WildBossKind.BlackKnight, 12150f),
+        // 2026-11-08 第2版: ネタバレを避けて通常ボス(関門のボス)で見せ場を撮る
+        "pv_boss_griffin" => PvFinalShot(s, Arg("-pvCharG", "dragon_lancer"), "wasteland_road", 0, (int)WildBossKind.Griffin, 12150f),
+        "pv_boss_demon" => PvFinalShot(s, Arg("-pvCharD", "vampire"), "wasteland_road", 0, (int)WildBossKind.Demon, 12150f),
+        "pv_boss_cyclops" => PvFinalShot(s, Arg("-pvCharY", "fighter"), "wasteland_road", 0, (int)WildBossKind.Cyclops, 12150f),
+        "pv_boss_golem" => PvFinalShot(s, Arg("-pvCharO", "swordsman"), "natural_cave", 1, (int)CaveBossKind.CrystalGolem, 16150f),
+        "pv_boss_behemoth" => PvFinalShot(s, Arg("-pvCharB", "archer"), "sky_corridor", 2, (int)SkyBossKind.Behemoth, 16150f),
         "pv_boss_hydra" => PvFinalShot(s, Arg("-pvCharH", "ninja"), "wasteland_road", 0, (int)WildBossKind.Hydra, 12150f),
         "pv_road" => PvRoadShot(s, Arg("-pvCharR", "swordsman"), "wasteland_road", float.Parse(Arg("-pvRoadAt", "6150"), System.Globalization.CultureInfo.InvariantCulture)),
         "pv_road_sky" => PvRoadShot(s, Arg("-pvCharR", "swordsman"), "sky_corridor", float.Parse(Arg("-pvRoadAt", "6150"), System.Globalization.CultureInfo.InvariantCulture)),

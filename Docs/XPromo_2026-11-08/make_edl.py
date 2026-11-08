@@ -7,11 +7,11 @@ def cut(shot, inn, beats, cx=.5, cy=.45, z45=1.25, z169=1.45, **kw):
     c.update(kw); return c
 cuts = [
     # A 0〜3秒: 強烈な導入(高速で走りながら斬り倒す)
-    cut("play/raw/aerial", 0.62, 4, cx=.50, cy=.34, z45=1.6, z169=1.75, scene="黒剣士: 斬り抜けて敵をまとめて打ち上げる(荒野街道)"),
+    cut("boss3/raw/aerial", 0.55, 4, cx=.48, cy=.40, z45=1.6, z169=1.75, scene="黒剣士: 雷の一撃 → 斬り抜けて敵をまとめて吹き飛ばす(荒野街道)"),
     cut("play/raw/pv_luka", 7.50, 4, cx=.42, cy=.40, scene="ルカ: 108km/h で敵の群れを突き抜ける(荒野街道)"),
     # B 3〜9秒: 爽快なアクション
     cut("play/raw/aerial_dual", 0.70, 3, cx=.40, cy=.50, z45=1.4, z169=1.55, scene="双剣士: 斬り上げ → 雷"),
-    cut("play/raw/aerial", 1.60, 2, cx=.42, cy=.36, z45=1.6, z169=1.75, scene="黒剣士: 空中の斬撃"),
+    cut("boss3/raw/aerial", 1.70, 2, cx=.45, cy=.42, z45=1.6, z169=1.75, scene="黒剣士: 走りながらの斬撃"),
     cut("play/raw/gunslinger", 1.45, 4, cx=.36, cy=.42, scene="二丁拳銃士: 撃ち抜いて吹き飛ばす(夕暮れの荒野)"),
     cut("play/raw/pv_luka", 9.65, 4, cx=.36, cy=.42, scene="ルカ: 空中で捕まえて連撃(雷)"),
     cut("play/raw/gunslinger", 9.40, 3, cx=.40, cy=.45, scene="二丁拳銃士: 空の敵の光線の下を駆け抜ける"),
@@ -20,14 +20,14 @@ cuts = [
     cut("play/raw/pv_fighter", 4.55, 4, cx=.36, cy=.40, z45=1.2, z169=1.35, vf="eq=gamma=1.08", scene="格闘家: 自然洞窟で蜘蛛/蝙蝠をはじき飛ばす"),
     cut("play/raw/miko", 1.50, 3, cx=.40, cy=.48, z45=1.1, z169=1.15, scene="巫女: 天空回廊で矢を放つ"),
     cut("play/raw/pv_road_sky", 1.00, 3, cx=.45, cy=.48, z45=1.1, z169=1.15, scene="天空回廊: 浮島を駆ける"),
-    cut("boss2/raw/pv_final_sky", 0.70, 3, cx=.50, cy=.35, z45=1.05, z169=1.1, scene="天空回廊のボスが空から降りてくる"),
-    # D 15〜23秒: 巨大ボス
-    cut("boss2/raw/pv_final_wild", 2.00, 4, cx=.62, cy=.45, z45=1.15, z169=1.3, scene="荒野の巨獣が迫る"),
-    cut("boss2/raw/pv_final_wild", 5.00, 4, cx=.55, cy=.45, z45=1.1, z169=1.25, scene="必殺技「荒野の終焉」(炎)"),
-    cut("boss2/raw/pv_boss_hydra", 9.70, 3, cx=.35, cy=.48, z45=1.15, z169=1.3, scene="ヒュドラの炎の息を跳んでかわす"),
-    cut("boss2/raw/pv_final_sky", 6.50, 3, cx=.50, cy=.45, z45=1.15, z169=1.3, scene="天空のボスに BREAK!"),
-    cut("boss2/raw/pv_final_wild", 11.20, 4, cx=.48, cy=.47, z45=1.15, z169=1.3, scene="「王が膝をついた！」BREAK 中の反撃"),
-    cut("boss2/raw/pv_final_wild", 17.40, 4, cx=.50, cy=.55, z45=1.15, z169=1.3, scene="強烈な一撃 → 巨獣が倒れる"),
+    cut("boss3/raw/pv_boss_griffin", 0.30, 3, cx=.62, cy=.40, z45=1.1, z169=1.2, scene="グリフォンが空から迫る(荒野街道)"),
+    # D 15〜23秒: 巨大ボス(第2版: ネタバレを避けて通常ボスだけ。98km のラスボスは使わない)
+    cut("boss3/raw/pv_boss_cyclops", 4.30, 4, cx=.55, cy=.45, z45=1.15, z169=1.3, scene="サイクロプス: 必殺技「天崩しの大棍棒」の溜め"),
+    cut("boss2/raw/pv_boss_hydra", 9.60, 4, cx=.45, cy=.48, z45=1.15, z169=1.3, scene="ヒュドラ: 必殺技「三首の連撃」の炎を跳んでかわす"),
+    cut("boss3/raw/pv_boss_cyclops", 7.00, 3, cx=.52, cy=.48, z45=1.15, z169=1.3, scene="サイクロプス: 大棍棒で地面を砕く"),
+    cut("boss3/raw/pv_boss_demon", 7.50, 3, cx=.55, cy=.45, z45=1.15, z169=1.3, scene="デーモン: 必殺技「冥界の魔柱陣」"),
+    cut("boss3/raw/pv_boss_cyclops", 11.00, 4, cx=.60, cy=.50, z45=1.15, z169=1.3, scene="サイクロプスに BREAK! → 最終段階"),
+    cut("boss2/raw/pv_boss_knight", 18.10, 4, cx=.45, cy=.55, z45=1.15, z169=1.3, scene="黒騎士: 強烈な一撃 → 撃破"),
 ]
 t = sum(c["dur"] for c in cuts)
 end = {"shot": "boss2/raw/pv_road", "in": 2.5, "dur": round(18 * B, 4), "cx": .45, "cy": .60, "x45": {"zoom": 1.2}, "x169": {"zoom": 1.2}, "se": 0.5,
