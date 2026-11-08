@@ -12,6 +12,8 @@ public static class ChallengeStore
     public const string DoneKey = "ChallengesDoneV1";        // "id@unix秒[@r];..."(r = 既存の記録から復元した)
     public const string CountersKey = "ChallengeCountersV1"; // "air_kills=12;breaks=3"(累計の数え)
     public const string InitKey = "ChallengeInitV1";         // 1 = 既存の記録からの復元を済ませた
+    public const string RunMarkKey = "ChallengeRunMarkV1";   // "ランの印:空中:BREAK;..."(累計へ足し済みの、ラン内の通しの数。最新 RunMarkKeep 件)
+    public const int RunMarkKeep = 6;
 
     public struct Entry { public long at; public bool restored; }
     static Dictionary<string, Entry> done;
@@ -101,6 +103,59 @@ public static class ChallengeStore
         WriteCounters();
         return v;
     }
+    // 2026-11-08: ランの中の出来事(空中撃破/BREAK)を累計へ足す。CONTINUE はチェックポイントから走り直すので、同じ出来事がもう一度起きる。
+    //  ラン内の通しの数(runCount = このランで何回目か)のうち、累計へ足し済みの一番大きい数を、ランの印ごとに RunMarkKey へ残す。
+    //  通しの数がそれを超えた時だけ、超えた分を足す(中断→CONTINUE を何回くり返しても、走り直しの区間の分は増えない)。
+    //  印と累計は同じ SaveStore へ同時に書く(どちらか片方だけ保存されることがない)。戻り値 = 足した後の累計
+    public static int AddRunCounter(string key, string runTok, int runCount)
+    {
+        if (string.IsNullOrEmpty(runTok) || runCount <= 0) return Counter(key);
+        if (DebugRun.BlocksSave("ChallengeCounter_" + key)) return Counter(key);
+        var marks = ReadRunMarks();
+        int idx = marks.FindIndex(m => m.tok == runTok);
+        RunMark mk = idx >= 0 ? marks[idx] : new RunMark { tok = runTok };
+        int counted = key == "air_kills" ? mk.air : key == "breaks" ? mk.breaks : 0;
+        if (runCount <= counted) return Counter(key); // 走り直しの区間: 前の時間軸で数えた分
+        int add = runCount - counted;
+        if (key == "air_kills") mk.air = runCount; else if (key == "breaks") mk.breaks = runCount;
+        if (idx >= 0) marks.RemoveAt(idx);
+        marks.Add(mk); // 最新を最後へ
+        while (marks.Count > RunMarkKeep) marks.RemoveAt(0);
+        WriteRunMarks(marks);
+        return AddCounter(key, add);
+    }
+    // 印が無いラン(この仕組みより前の中断データ)の再開: 今の通しの数までは足し済みとして印を作る(この先の分だけ数える)
+    public static void SeedRunMark(string runTok, int air, int breaks)
+    {
+        if (string.IsNullOrEmpty(runTok) || DebugRun.BlocksSave("ChallengeRunMark")) return;
+        var marks = ReadRunMarks();
+        if (marks.Exists(m => m.tok == runTok)) return;
+        marks.Add(new RunMark { tok = runTok, air = Mathf.Max(0, air), breaks = Mathf.Max(0, breaks) });
+        while (marks.Count > RunMarkKeep) marks.RemoveAt(0);
+        WriteRunMarks(marks);
+    }
+    public struct RunMark { public string tok; public int air, breaks; }
+    public static RunMark GetRunMark(string runTok) { var m = ReadRunMarks().Find(x => x.tok == runTok); return m; }
+    static List<RunMark> ReadRunMarks()
+    {
+        var list = new List<RunMark>();
+        foreach (var part in SaveStore.GetString(RunMarkKey, "").Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var f = part.Split(':');
+            if (f.Length != 3 || f[0].Length == 0 || list.Exists(m => m.tok == f[0])) continue; // 壊れた値/重複は捨てる
+            if (!int.TryParse(f[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int a) || a < 0) continue;
+            if (!int.TryParse(f[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out int b) || b < 0) continue;
+            list.Add(new RunMark { tok = f[0], air = a, breaks = b });
+        }
+        return list;
+    }
+    static void WriteRunMarks(List<RunMark> marks)
+    {
+        var sb = new StringBuilder();
+        foreach (var m in marks) sb.Append(m.tok).Append(':').Append(m.air.ToString(CultureInfo.InvariantCulture)).Append(':').Append(m.breaks.ToString(CultureInfo.InvariantCulture)).Append(';');
+        SaveStore.SetString(RunMarkKey, sb.ToString());
+    }
+
     static void WriteCounters()
     {
         var sb = new StringBuilder();
@@ -168,7 +223,7 @@ public static class ChallengeStore
     // 開発用(自動テスト): 達成/数え/初期化の印を消す(MILE は戻さない)
     public static void DevResetAll()
     {
-        SaveStore.DeleteKey(DoneKey); SaveStore.DeleteKey(CountersKey); SaveStore.DeleteKey(InitKey);
+        SaveStore.DeleteKey(DoneKey); SaveStore.DeleteKey(CountersKey); SaveStore.DeleteKey(InitKey); SaveStore.DeleteKey(RunMarkKey);
         Reload(); SaveStore.Save();
     }
     public static void DevSetCounter(string key, int v) { Counters[key] = Mathf.Max(0, v); WriteCounters(); }
@@ -333,7 +388,12 @@ public class ChallengeRunStats
     public int breaks;          // このランで BREAK させた回数
     public float maxKmh;        // このランの最高速度
     public int maxCombo;        // このランの最大コンボ
-    public static ChallengeRunStats Fresh() => new ChallengeRunStats { v = 1 };
+    // 2026-11-08 CONTINUE の二重加算の修正: 再開はチェックポイント(直前のボス報酬)から走り直すので、走り直す区間の出来事の数えは
+    // チェックポイントの時点へ戻す(中断の保存はその時点の台帳を書くため、戻さないと同じ BREAK を2回数える)
+    public string tok = "";     // ランの印(累計へ足し済みの数を覚えるため。ONE MORE MILE の続きでも同じ)
+    public int airKills;        // このランの空中撃破の通しの数
+    public int cpBreaks = -1, cpAirKills = -1; // チェックポイントの時点の数(-1 = まだ/この修正より前のデータ)
+    public static ChallengeRunStats Fresh() => new ChallengeRunStats { v = 2, tok = Guid.NewGuid().ToString("N"), cpBreaks = 0, cpAirKills = 0 };
 }
 
 // プロフィールの情報(2026-11-07)。将来のランキング → プレイヤー → プロフィールの表示に使えるよう、画面とは別のデータとして持つ。

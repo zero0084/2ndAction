@@ -4206,6 +4206,7 @@ public partial class GameManager : MonoBehaviour
         data.finalEvolution = FinalEvolution.Export(); // FINAL EVOLUTION
         data.combo = ComboSystem.Export();             // COMBO(一時的な数え/通知済み)
         data.sprintSkippedMeters = SprintSkippedMeters; // 疾走出発(2026-10-05)
+        ChallengeTracker.OnCheckpoint(RunLedger.Current); // 2026-11-08: 走り直しの基準(BREAK/空中撃破の数え)
         data.ledger = RunLedger.Current; // 2026-10-08: 途中の数値(確定前)。使ったデバッグ機能も持ち越す
         data.ldBeyond = LdBeyond; data.ldBeyondFrom = LdBeyondFrom; data.mileDistanceBase = MileDistanceBase; // ラスダンの YES の後(2026-10-13 第3弾)
         data.party = CpuParty.Export(); // CPU サポート(2026-10-14): 仲間の編成と状態
@@ -4263,6 +4264,7 @@ public partial class GameManager : MonoBehaviour
         checkpointSnapshotThisRun = true; // 2026-10-15 第2弾: 読み込んだ状態 = チェックポイント(以前の形の保存も、ここからはチェックポイント扱い)
         runStartTime = Time.time;
         RunLedger.Resume(data.ledger, data.stageId, data.characterId, Mathf.Max(data.highestReachedDistance, data.checkpointDistance)); // 2026-10-08
+        ChallengeTracker.OnRunResumed(RunLedger.Current); // 2026-11-08: 走り直す区間の数えをチェックポイントの時点へ(二重加算の修正)
         // 2026-10-13: 中断前に満たした距離の条件は「仮」のまま作り直す(お知らせは出し直さない。確定は再開後の結果で)
         if (RunLedger.Current != null)
         {

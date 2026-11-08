@@ -9,6 +9,7 @@ using UnityEngine;
 //  ・オート OFF: HighSpeedAssist の全体の設定(assistEnabled)をラン中ずっと見る。一度でも ON(または補助が一度でも動いた)なら、そのランは達成しない
 //  ・速さ: PlayerController.CurrentRunKmh(能力としての速さ。停止戦/踏み込みでは揺れない)。出発前のカウントダウン中は見ない
 //  ・空中: 敵を倒した瞬間にプレイヤーが接地していない(GameManager.RegisterEnemyKill の最後の一撃の人)/ 接地しない時間が続いた秒数(時間が止まっている間は進まない)
+//  ・CONTINUE: 走り直す区間の数え(BREAK/空中撃破)はチェックポイントの時点へ戻し、累計はラン内の通しの数で「足し済み」を覚えて二重に足さない(2026-11-08)
 //  ・BREAK: MapCardRules.OnBossBreak(ボスの BreakCount++ の所。JOIN はパペットの BREAK の開き)
 //  ・ボス: BossManager の撃破(OnWildBossDefeated の DeathKey)。ノーダメージのボス撃破 = ボス戦(IsBossPhase)が始まってから被弾していない
 //  ・ボスラッシュ: 95〜97km の組を抜けて 98km のラスボスが出た(BossManager.FinalSpawnedAt)。ラスボスを倒しても達成
@@ -45,7 +46,38 @@ public class ChallengeTracker : MonoBehaviour
             st.v = 1; st.hit = true; st.autoSeen = true; st.starterKnown = true; st.starterDeck = false;
             Debug.Log("[Challenge] resumed a run from before the challenge system - no-damage / auto-off / starter-deck are off for this run");
         }
+        if (st.v < 2)
+        {
+            // 2026-11-08 の修正より前の中断データ: チェックポイントの時点の数が分からない。今の数までは足し済みとして、この先の分だけ累計へ足す
+            st.v = 2;
+            if (string.IsNullOrEmpty(st.tok)) st.tok = System.Guid.NewGuid().ToString("N");
+            st.cpBreaks = -1; st.cpAirKills = -1;
+            ChallengeStore.SeedRunMark(st.tok, st.airKills, st.breaks);
+            Debug.Log($"[Challenge] run counters upgraded (breaks {st.breaks}, air kills {st.airKills}) - only new ones count from here");
+        }
         return st;
+    }
+
+    // ===================================================================== CONTINUE(2026-11-08 二重加算の修正)
+    // GameManager.FillCheckpointSnapshot: 中断データの「状態」を書く時(チェックポイント)。走り直しはここから
+    public static void OnCheckpoint(RunLedger.Run r)
+    {
+        if (r == null || r.ch == null) return;
+        var st = Stats(r);
+        st.cpBreaks = st.breaks; st.cpAirKills = st.airKills;
+    }
+
+    // GameManager.BeginContinuedRun(RunLedger.Resume の直後): 中断の保存は中断した時点の台帳を書くが、世界はチェックポイントから走り直す。
+    // 走り直す区間でもう一度起きる出来事の数えを、チェックポイントの時点へ戻す(累計のほうは ChallengeStore.AddRunCounter が足し済みを覚えている)
+    public static void OnRunResumed(RunLedger.Run r)
+    {
+        if (r == null || r.ch == null) return;
+        var st = Stats(r);
+        int b0 = st.breaks, a0 = st.airKills;
+        if (st.cpBreaks >= 0) st.breaks = Mathf.Min(st.breaks, st.cpBreaks);
+        if (st.cpAirKills >= 0) st.airKills = Mathf.Min(st.airKills, st.cpAirKills);
+        var mk = ChallengeStore.GetRunMark(st.tok);
+        Debug.Log($"[Challenge] resume: breaks {b0}->{st.breaks}, air kills {a0}->{st.airKills} (lifetime counted up to air {mk.air} / breaks {mk.breaks} for this run; totals air {ChallengeStore.Counter("air_kills")} breaks {ChallengeStore.Counter("breaks")})");
     }
 
     void Update()
@@ -154,8 +186,10 @@ public class ChallengeTracker : MonoBehaviour
         var r = LiveRun(); if (r == null) return;
         var pc = PlayerController.Instance;
         if (pc == null || pc.IsGrounded) return;
+        var st = Stats(r);
+        st.airKills++;
         Try("air_kill");
-        if (ChallengeStore.AddCounter("air_kills", 1) >= ChallengeDefs.AirKillsGoal) Try("air_kill_100");
+        if (ChallengeStore.AddRunCounter("air_kills", st.tok, st.airKills) >= ChallengeDefs.AirKillsGoal) Try("air_kill_100");
     }
 
     // MapCardRules.OnBossBreak: ボスを BREAK させた
@@ -165,7 +199,7 @@ public class ChallengeTracker : MonoBehaviour
         var st = Stats(r);
         st.breaks++;
         if (st.breaks >= ChallengeDefs.BreaksInRun) Try("break_run5");
-        if (ChallengeStore.AddCounter("breaks", 1) >= ChallengeDefs.BreaksTotal) Try("break_total50");
+        if (ChallengeStore.AddRunCounter("breaks", st.tok, st.breaks) >= ChallengeDefs.BreaksTotal) Try("break_total50");
     }
 
     // BossManager: ボスを倒した(key = DeathKey "Wild/Garmud" など。竜/魔人は "Dragon"/"Majin"、不明は null)

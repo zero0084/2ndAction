@@ -10,6 +10,8 @@ using UnityEngine;
 //              新しいランでラン内だけ戻る、CONTINUE で壊れない、既存の記録からの復元(通知なし・1回だけ)、装備の決まり、通知でゲームが止まらない
 //  persist1 / persist2 … -fileSave で2回起動: 1回目で達成・走る理由・装備 → 2回目で同じか、報酬を二重に受け取っていないか
 //  shots    … 横 1280x720 / 縦 540x960 の撮影(ホームのボタン/プロフィール/走る理由/バッヂとチャレンジ/装備の枠/鍵の案内/達成の通知)
+//  cont     … CONTINUE の二重加算(2026-11-08): 空中撃破/BREAK の累計・ラン内の BREAK・チャレンジの通知と報酬が、中断→再開を何度くり返しても増えない
+//  cont1 / cont2 … -fileSave で2回起動: 1回目でチェックポイントの後に数えてから終了 → 2回目で CONTINUE して同じ確認
 //  langs    … 全言語(-pfLangs ja,en,... で絞れる)×横/縦 のプロフィール/バッヂ/走る理由の撮影と、文字の見切れ(TextFit)の記録
 public partial class QaSweep
 {
@@ -27,6 +29,9 @@ public partial class QaSweep
         else if (ph == "persist2") yield return PfPersist(2);
         else if (ph == "shots") yield return PfShots();
         else if (ph == "langs") yield return PfLangs();
+        else if (ph == "cont") yield return PfContinue();
+        else if (ph == "cont1") yield return PfContPersist(1);
+        else if (ph == "cont2") yield return PfContPersist(2);
         else Check(false, "unknown -pfPhase " + ph);
     }
 
@@ -61,7 +66,7 @@ public partial class QaSweep
         yield return PfFrames(3);
         var r = RunLedger.Current;
         if (r != null && r.debugUsed) { L("[L2] run was marked debug at start (" + r.debugWhat + ") - cleared for the test"); RunLedger.DevClearDebug(); }
-        Check(r != null && r.ch != null && r.ch.v == 1 && !r.ch.hit && !r.ch.autoSeen, $"L2: a new run starts with fresh run counters (v {r?.ch?.v} hit {r?.ch?.hit} auto {r?.ch?.autoSeen})");
+        Check(r != null && r.ch != null && r.ch.v == 2 && !r.ch.hit && !r.ch.autoSeen, $"L2: a new run starts with fresh run counters (v {r?.ch?.v} hit {r?.ch?.hit} auto {r?.ch?.autoSeen})");
         Check(r != null && r.ch.starterDeck, $"L2: the test data deck counts as the starter deck ({string.Join(",", gm.DeckCards)})");
         Check(!ChallengeTracker.IsStarterDeck(new List<string> { "speed_up", "vampire" }), "L2: a deck with a non-starter card is not the starter deck");
         float ts0 = Time.timeScale;
@@ -212,7 +217,7 @@ public partial class QaSweep
         yield return ResumeContinue("pf");
         yield return PfFrames(3);
         r = RunLedger.Current;
-        Check(r != null && r.runId == runId && r.ch != null && r.ch.v == 1, "L4: CONTINUE keeps the same run and its counters");
+        Check(r != null && r.runId == runId && r.ch != null && r.ch.v == 2, "L4: CONTINUE keeps the same run and its counters");
         Check(r != null && r.ch.hit && r.ch.autoSeen, $"L4: after CONTINUE the hit / auto flags are kept (hit {r?.ch?.hit} auto {r?.ch?.autoSeen})");
         L($"[L4] after CONTINUE breaks {r?.ch?.breaks} walked {r?.walked:F0}");
         yield return EndRun();
@@ -331,6 +336,172 @@ public partial class QaSweep
         yield return new WaitForSecondsRealtime(0.4f);
         yield return ShotW("pf_bestchar");
         ProfilePanel.CloseStatic();
+    }
+
+    // ===================================================================== CONTINUE の二重加算(2026-11-08)
+    int PfAir => ChallengeStore.Counter("air_kills");
+    int PfBrk => ChallengeStore.Counter("breaks");
+    IEnumerator PfAirKills(int n)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (pc.IsGrounded) yield return PfJump();
+            gm.RegisterEnemyKill(1f, 1f, true);
+        }
+        yield return null;
+    }
+    void PfBreaks(int n) { for (int i = 0; i < n; i++) MapCardRules.OnBossBreak(); }
+    void PfNoAuto() { if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.assistEnabled = false; }
+    IEnumerator PfInterruptContinue(string tag)
+    {
+        string id = RunLedger.Current?.runId;
+        yield return ResumeGoHome();
+        yield return ResumeContinue(tag);
+        yield return PfFrames(3);
+        PfNoAuto();
+        var r = RunLedger.Current;
+        Check(gm.HasStarted && r != null && r.runId == id, $"{tag}: CONTINUE resumed the same run");
+    }
+    struct PfSnap { public int air, brk, mile, done, toasts; }
+    PfSnap PfTake() => new PfSnap { air = PfAir, brk = PfBrk, mile = PfMile(), done = ChallengeStore.DoneCount, toasts = ChallengeToast.ShownCount + ChallengeToast.Pending };
+    void PfSame(PfSnap a, string tag)
+    {
+        var b = PfTake();
+        Check(b.air == a.air && b.brk == a.brk, $"{tag}: lifetime counters unchanged (air {a.air}->{b.air}, breaks {a.brk}->{b.brk})");
+        Check(b.mile == a.mile && b.done == a.done && b.toasts == a.toasts, $"{tag}: no completion / reward / notice (MILE {a.mile}->{b.mile}, done {a.done}->{b.done}, notices {a.toasts}->{b.toasts})");
+    }
+    void PfCheckpointNow() => typeof(GameManager).GetMethod("SaveCheckpoint", NP).Invoke(gm, null);
+
+    IEnumerator PfContinue()
+    {
+        PfClean();
+        PfNoAuto();
+        yield return BeginRun("swordsman", "wasteland_road");
+        yield return PfFrames(3);
+        PfNoAuto();
+        if (RunLedger.Current.debugUsed) RunLedger.DevClearDebug();
+        var r = RunLedger.Current;
+        // 1回目の時間軸: チェックポイントの前に BREAK 2 / 空中撃破 3
+        PfBreaks(2); yield return PfAirKills(3);
+        Check(PfDone("air_kill") && PfAir == 3 && PfBrk == 2, $"C0: counted before the checkpoint (air {PfAir}, breaks {PfBrk})");
+        PfCheckpointNow();
+        Check(r.ch.cpBreaks == 2 && r.ch.cpAirKills == 3, $"C0: the checkpoint keeps the run counts ({r.ch.cpBreaks}/{r.ch.cpAirKills})");
+        // チェックポイントの後(走り直しで、もう一度起きる区間): BREAK 2 / 空中撃破 2
+        PfBreaks(2); yield return PfAirKills(2);
+        Check(PfAir == 5 && PfBrk == 4 && r.ch.breaks == 4 && !PfDone("break_run5"), $"C0: counted after the checkpoint (air {PfAir}, breaks {PfBrk}, run breaks {r.ch.breaks})");
+        var s0 = PfTake();
+
+        // ---- C1 中断 → CONTINUE: ラン内はチェックポイントの時点へ1回だけ戻る/累計は増えない
+        yield return PfInterruptContinue("C1");
+        r = RunLedger.Current;
+        Check(r.ch.breaks == 2 && r.ch.airKills == 3, $"C1: run counts are restored to the checkpoint once (breaks {r.ch.breaks}, air {r.ch.airKills})");
+        PfSame(s0, "C1 (just after CONTINUE)");
+        yield return new WaitForSecondsRealtime(1.0f);
+        PfSame(s0, "C1 (1s after CONTINUE)");
+        // 走り直しで同じ出来事: 足さない
+        PfBreaks(2); yield return PfAirKills(2);
+        PfSame(s0, "C1 (the replayed section)");
+        Check(r.ch.breaks == 4 && !PfDone("break_run5"), $"C1: the run's BREAK count is not doubled ({r.ch.breaks})");
+        // 新しい出来事: その分だけ足す/未達成だった BREAK 5 回はここで達成
+        int m1 = PfMile(), t1 = ChallengeToast.ShownCount + ChallengeToast.Pending;
+        PfBreaks(1); yield return PfAirKills(1);
+        Check(PfAir == 6 && PfBrk == 5, $"C1: new events after the replayed section count once (air {PfAir}, breaks {PfBrk})");
+        Check(PfDone("break_run5") && PfMile() - m1 == ChallengeDefs.Find("break_run5").mile && ChallengeToast.ShownCount + ChallengeToast.Pending == t1 + 1, $"C1: an unfinished challenge completes normally when really met (MILE +{PfMile() - m1})");
+        var s1 = PfTake();
+
+        // ---- C2/C3 チェックポイントを挟まずにもう一度 中断 → CONTINUE: また同じチェックポイントへ。何回くり返しても増えない
+        for (int k = 2; k <= 3; k++)
+        {
+            yield return PfInterruptContinue("C" + k);
+            r = RunLedger.Current;
+            Check(r.ch.breaks == 2 && r.ch.airKills == 3, $"C{k}: restored to the same checkpoint (breaks {r.ch.breaks}, air {r.ch.airKills})");
+            PfSame(s1, $"C{k} (just after CONTINUE)");
+            PfBreaks(3); yield return PfAirKills(3);
+            PfSame(s1, $"C{k} (the replayed section, incl. the 5th BREAK again)");
+            Check(r.ch.breaks == 5, $"C{k}: run BREAK count {r.ch.breaks}");
+        }
+
+        // ---- C4 累計の目標の直前: 達成は1回だけ
+        ChallengeStore.DevSetCounter("breaks", 49); ChallengeStore.DevSetCounter("air_kills", 99);
+        int m4 = PfMile();
+        PfBreaks(1); yield return PfAirKills(1);
+        Check(PfDone("break_total50") && PfDone("air_kill_100") && PfBrk == 50 && PfAir == 100, $"C4: 50 BREAKS / 100 AERIAL KILLS complete when really met (breaks {PfBrk}, air {PfAir})");
+        Check(PfMile() - m4 == ChallengeDefs.Find("break_total50").mile + ChallengeDefs.Find("air_kill_100").mile, $"C4: rewards once (+{PfMile() - m4})");
+        // ---- C5 新しいチェックポイント → その後の分を走り直しても、達成済みの通知/報酬は出直さない
+        PfCheckpointNow();
+        PfBreaks(2); yield return PfAirKills(2);
+        var s4 = PfTake();
+        yield return PfInterruptContinue("C5");
+        r = RunLedger.Current;
+        Check(r.ch.breaks == 6 && r.ch.airKills == 7, $"C5: restored to the newer checkpoint (breaks {r.ch.breaks}, air {r.ch.airKills})");
+        PfSame(s4, "C5 (just after CONTINUE)");
+        PfBreaks(2); yield return PfAirKills(2);
+        PfSame(s4, "C5 (the replayed section)");
+        PfBreaks(1); yield return PfAirKills(1);
+        Check(PfBrk == s4.brk + 1 && PfAir == s4.air + 1 && PfMile() == s4.mile && ChallengeStore.DoneCount == s4.done, $"C5: only the new ones count; completed challenges do not fire again (breaks {PfBrk}, air {PfAir})");
+        Check(!ChallengeStore.Complete("break_total50") && !ChallengeStore.Complete("break_run5"), "C5: completing again is refused");
+
+        // ---- C6 新しいラン: 前のランの印に引っぱられない
+        yield return EndRun();
+        yield return BeginRun("swordsman", "wasteland_road");
+        yield return PfFrames(3);
+        PfNoAuto();
+        if (RunLedger.Current.debugUsed) RunLedger.DevClearDebug();
+        var s6 = PfTake();
+        PfBreaks(1); yield return PfAirKills(1);
+        Check(PfBrk == s6.brk + 1 && PfAir == s6.air + 1 && RunLedger.Current.ch.breaks == 1, $"C6: a new run counts from its own first event (breaks {PfBrk}, air {PfAir})");
+        // 壊れた印は読み捨て(エラーにしない)
+        string tok = RunLedger.Current.ch.tok;
+        SaveStore.SetString(ChallengeStore.RunMarkKey, "x:1;bad;;" + tok + ":a:b;" + tok + ":1:1;");
+        PfBreaks(1);
+        Check(PfBrk == s6.brk + 2, $"C6: a broken saved mark is ignored ({PfBrk})");
+        yield return EndRun();
+        L($"[C] done {ChallengeStore.DoneCount}, air {PfAir}, breaks {PfBrk}, marks {SaveStore.GetString(ChallengeStore.RunMarkKey, "")}");
+    }
+
+    // 2回起動: 1回目 = チェックポイントの後に数えて、中断を保存して終了 / 2回目 = CONTINUE して同じ確認
+    IEnumerator PfContPersist(int phase)
+    {
+        string mark = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(outDir.TrimEnd('/', '\\')), "pf_cont_mark.txt");
+        if (phase == 1)
+        {
+            PfClean();
+            PfNoAuto();
+            yield return BeginRun("swordsman", "wasteland_road");
+            yield return PfFrames(3);
+            PfNoAuto();
+            if (RunLedger.Current.debugUsed) RunLedger.DevClearDebug();
+            PfBreaks(3); yield return PfAirKills(2);
+            PfCheckpointNow();
+            PfBreaks(1); yield return PfAirKills(2);
+            var s = PfTake();
+            gm.SaveForExit("qa cont1");
+            System.IO.File.WriteAllText(mark, string.Join("\n", s.air, s.brk, s.mile, s.done, RunLedger.Current.runId));
+            L($"[CP1] saved: air {s.air} breaks {s.brk} run breaks {RunLedger.Current.ch.breaks} MILE {s.mile} done {s.done}; marks {SaveStore.GetString(ChallengeStore.RunMarkKey, "")}");
+            Check(s.air == 4 && s.brk == 4 && PfDone("air_kill") && !PfDone("break_run5"), "CP1: counted");
+            yield break;
+        }
+        var ln = System.IO.File.Exists(mark) ? System.IO.File.ReadAllLines(mark) : new string[0];
+        Check(ln.Length >= 5, "CP2: phase 1 marker exists");
+        if (ln.Length < 5) yield break;
+        var s0 = new PfSnap { air = int.Parse(ln[0]), brk = int.Parse(ln[1]), mile = int.Parse(ln[2]), done = int.Parse(ln[3]), toasts = ChallengeToast.ShownCount + ChallengeToast.Pending };
+        Check(PfAir == s0.air && PfBrk == s0.brk && PfMile() == s0.mile && ChallengeStore.DoneCount == s0.done, $"CP2: the restart keeps the counters / rewards as they were (air {PfAir}, breaks {PfBrk}, MILE {PfMile()})");
+        Check(RunCheckpoint.HasActiveRun, "CP2: there is a run to CONTINUE");
+        PfNoAuto();
+        yield return ResumeContinue("CP2");
+        yield return PfFrames(3);
+        PfNoAuto();
+        var r = RunLedger.Current;
+        Check(r != null && r.runId == ln[4], "CP2: CONTINUE resumed the saved run");
+        Check(r != null && r.ch.breaks == 3 && r.ch.airKills == 2, $"CP2: run counts restored to the checkpoint once (breaks {r?.ch?.breaks}, air {r?.ch?.airKills})");
+        PfSame(s0, "CP2 (just after CONTINUE)");
+        PfBreaks(1); yield return PfAirKills(2);
+        PfSame(s0, "CP2 (the replayed section)");
+        int m = PfMile();
+        PfBreaks(1); yield return PfAirKills(1);
+        Check(PfBrk == s0.brk + 1 && PfAir == s0.air + 1, $"CP2: only the new ones count (air {PfAir}, breaks {PfBrk})");
+        Check(PfDone("break_run5") && PfMile() - m == ChallengeDefs.Find("break_run5").mile, "CP2: 5 BREAKS completes once, when really met");
+        yield return EndRun();
     }
 
     IEnumerator PfJump()

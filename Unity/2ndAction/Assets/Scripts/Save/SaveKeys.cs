@@ -100,7 +100,8 @@ public static class SaveKeys
         // ---- 2026-11-07 プロフィール/常設チャレンジ(進行: 引き継ぎで移る・製品版の初期化で消える)
         new Entry(ChallengeStore.DoneKey, SaveCategory.Progress, SaveType.String, "常設チャレンジの達成 = 獲得したバッヂ(id@達成時刻[@r = 既存の記録から復元] をセミコロン区切り)"),
         new Entry(ChallengeStore.CountersKey, SaveCategory.Progress, SaveType.String, "常設チャレンジの累計の数え(air_kills=空中撃破 / breaks=BREAK。key=値 をセミコロン区切り)"),
-        new Entry(ChallengeStore.InitKey, SaveCategory.Progress, SaveType.Int, "既存の記録からのチャレンジの復元を済ませた印(1回だけ)"),
+        new Entry(ChallengeStore.RunMarkKey, SaveCategory.Progress, SaveType.String, "累計の数えへ足し済みの、ラン内の通しの数(ランの印:空中撃破:BREAK をセミコロン区切り、最新6件。CONTINUE の走り直しで二重に足さない、2026-11-08)"),
+        new Entry(ChallengeStore.InitKey,SaveCategory.Progress, SaveType.Int, "既存の記録からのチャレンジの復元を済ませた印(1回だけ)"),
         new Entry(ProfileStore.ReasonKey, SaveCategory.Progress, SaveType.Int, "プロフィールの走る理由(定型文の ID。0 = 未選択。文ではなく ID)"),
         new Entry(ProfileStore.BadgesKey, SaveCategory.Progress, SaveType.String, "プロフィールに装備したバッヂ3枠(チャレンジの ID をカンマ区切り。空き = 空文字)"),
         new Entry(ProfileStore.TopSpeedKey, SaveCategory.Progress, SaveType.String, "プロフィールの最高速度 km/h(2026-11-07 から測る。記録対象外のランは数えない)"),
