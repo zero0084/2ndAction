@@ -177,6 +177,7 @@ def render_cut(job):
     raw = edl["raw"][lay]
     taps = load_taps(os.path.join(raw, "taps.tsv"))
     fix = {k: v for k, v in edl.get("tapfix", {}).get(lay, {}).items()}
+    masks = edl.get("masks", {}).get(lay, {})
     fw, fh = W, H - band
     c = dict(edl["cuts"][ci])
     c["in"] = c.get(lay, {}).get("in", c["in"])  # 4:5 と 16:9 で撮影の開始秒が違う場面(ガチャの抽選など)
@@ -195,7 +196,12 @@ def render_cut(job):
     for k, fr in enumerate(frames(src, c["in"], n, sw, sh)):
         u = k / max(1, n - 1)
         v, o = view_at(c, lay, u)
+        for m in masks.get(c["shot"], []):
+            if len(m) < 9 or c["in"] + k / FPS >= m[8]:  # 9番目 = 塗り始める素材の秒(その画面が出てから)
+                fr = apply_mask(fr, sw, sh, m)
         canvas = compose(fr, sw, sh, W, H, band, fw, fh, v, o)
+        if c.get("badge"):
+            draw_badge(canvas, c["badge"], band, W / 1080.0, min(1.0, k / 9.0))
         if ev:
             cw, ch, x0, y0, ox, oy, s = canvas.info["map"]
             to_out = lambda nx, ny: (ox + (nx * sw - x0) * s, oy + (ny * sh - y0) * s)
@@ -250,6 +256,30 @@ def render_video(edl_path, edl, lay, out_path, audio_path, preview=1.0, only=Non
     cmd += ["-c:v", "copy", "-movflags", "+faststart", out_path]
     if subprocess.run(cmd).returncode != 0:
         sys.exit("concat failed")
+
+
+def apply_mask(fr, sw, sh, m):
+    """ゲームの画面の一部(隠したい表示)を、すぐ下の背景の色で塗る。m = [x0,y0,x1,y1, 色を取る所 sx0,sy0,sx1,sy1](割合)"""
+    x0, y0, x1, y1 = int(m[0] * sw), int(m[1] * sh), int(m[2] * sw), int(m[3] * sh)
+    a = np.asarray(fr.crop((int(m[4] * sw), int(m[5] * sh), int(m[6] * sw), int(m[7] * sh))))
+    col = tuple(int(x) for x in np.median(a.reshape(-1, 3), axis=0))
+    fr = fr.copy()
+    ImageDraw.Draw(fr).rectangle([x0, y0, x1, y1], fill=col)
+    return fr
+
+
+def draw_badge(canvas, badge, band, scale, a=1.0):
+    """結果の場面に「成功例」「失敗例」の札(ゲームの画面の左上、編集で足した表示)"""
+    text, kind = badge if isinstance(badge, list) else (badge, "ok")
+    d = ImageDraw.Draw(canvas, "RGBA")
+    f = font(int(42 * scale), "Black")
+    bb = d.textbbox((0, 0), text, font=f, stroke_width=3)
+    pw, ph = 26 * scale, 12 * scale
+    x, y = 22 * scale, band + 20 * scale
+    fill = (196, 140, 36, int(235 * a)) if kind == "ok" else (70, 82, 110, int(235 * a))
+    d.rounded_rectangle([x, y, x + bb[2] - bb[0] + pw * 2, y + bb[3] - bb[1] + ph * 2], radius=int(14 * scale), fill=fill,
+                        outline=(255, 236, 180, int(255 * a)), width=max(2, int(3 * scale)))
+    d.text((x + pw - bb[0], y + ph - bb[1]), text, font=f, fill=(255, 255, 255, int(255 * a)), stroke_width=3, stroke_fill=(20, 16, 10, int(255 * a)))
 
 
 def compose(fr, sw, sh, W, H, band, fw, fh, v, o):

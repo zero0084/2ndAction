@@ -45,9 +45,9 @@ cuts = [
     cut("cp_fuse_same", 7.65, 8, v(1.1, .5, .45), v(1.0, .5, .5), "合成する → 演出 → 同名強化 完了! TEMPEST Lv.5"),
     cut("cp_fuse_cross", 3.95, 8, v(1.3, .5, .62, to={"zoom": 1.6, "cx": .31, "cy": .86}, move_from=.3, move_to=.75), v(1.25, .62, .50, to={"zoom": 1.55, "cx": .80, "cy": .62}, move_from=.3, move_to=.75),
         "異名: JUDGMENT BOLT + FIRE WHIRL → 説明欄をスクロール →【異名合成】結果は抽選 / メイン側 50% / 素材 25%", id="cross"),
-    cut("cp_fuse_cross", 8.25, 8, v(1.1, .5, .45), v(1.0, .5, .5), "合成する → メイン側/素材側 継承成功 → 合成大成功!(撮影では結果を指定。README の注)"),
-    cut("cp_fuse_fail", 11.15, 3, v(1.1, .5, .40), v(1.0, .5, .45), "異名の失敗の例: 両方とも継承失敗 → 2枚は消費、MILE を還元"),
-    cut("cp_mastery", 10.25, 4, v(1.1, .5, .40), v(1.0, .5, .45), "Lv.9 MAX の SHATTER STRIKE に同じカード → MASTERY +3(★★☆☆☆)", id="mastery"),
+    cut("cp_fuse_cross", 8.25, 8, v(1.1, .5, .45), v(1.0, .5, .5), "合成する → メイン側/素材側 継承成功 → 合成大成功!(撮影では結果を指定。README の注)", badge=["成功例", "ok"]),
+    cut("cp_fuse_fail", 11.05, 4, v(1.1, .5, .40), v(1.0, .5, .45), "異名の失敗の例: 両方とも継承失敗 → 2枚は消費、MILE を還元", badge=["失敗例", "ng"]),
+    cut("cp_mastery", 9.70, 6, v(1.2, .42, .40), v(1.15, .5, .45), "Lv.9 MAX の SHATTER STRIKE に同じカード → MASTERY +3(★★☆☆☆)", id="mastery"),
 ]
 battle = [
     cut(ARC + "/play/raw/pv_luka", 7.50, 4, v(1.4, .42, .40), v(1.4, .42, .40), "ルカ: 敵の群れを突き抜ける(雷の連鎖)", id="battle"),
@@ -83,6 +83,11 @@ edl = {
     "logo": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Art/UI/TitleLogoV2.png",
     "loudness": -14, "tp": -2.0, "se_gain": 1.0,
     # ホームの入口のタップ(撮影ではボタンの位置を記録できないので、画面の絵から決めた位置)
+    # 「ラスダン」のタブ(隠し要素の存在が分かる)は、その場所だけ近くの背景の色で塗る(ゲーム本体の UI は変えない)。
+    #   [x0, y0, x1, y1, 色を取る所 sx0, sy0, sx1, sy1](撮影の画面の割合)
+    #   9番目 = 塗り始める素材の秒(cp_deck はホームから開くので、デッキ編集が出る 1.22 秒から)
+    "masks": {"x45": {s: [[0.810, 0.598, 0.990, 0.666, 0.86, 0.590, 0.97, 0.597, t0]] for s, t0 in (("cp_cards", 0.0), ("cp_deck", 1.22))},
+              "x169": {s: [[0.406, 0.501, 0.490, 0.558, 0.489, 0.512, 0.501, 0.550, t0]] for s, t0 in (("cp_cards", 0.0), ("cp_deck", 1.22))}},
     "tapfix": {"x45": {"home_deck": [0.39, 0.87], "home_fusion": [0.62, 0.87]},
                "x169": {"home_deck": [0.14, 0.585], "home_fusion": [0.92, 0.756]}},
     "bgm": [{"file": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Audio/Placeholder/Bgm/bgm_sky_middle_n.wav",
