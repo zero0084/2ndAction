@@ -522,7 +522,7 @@ public partial class DeckEditUI : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, fadeDuration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, fadeDuration);
             rootGroup.alpha = Mathf.Lerp(start, target, Mathf.Clamp01(t));
             yield return null;
         }
@@ -1249,7 +1249,7 @@ public partial class DeckEditUI : MonoBehaviour
         const float dur = 0.35f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / dur;
+            t += StoreCapture.UiDelta / dur;
             float f = Mathf.Clamp01(t);
             magicCircleImage.color = new Color(tint.r, tint.g, tint.b, f);
             r.localScale = Vector3.one * Mathf.Lerp(0.6f, 1.15f, f);
@@ -1258,7 +1258,7 @@ public partial class DeckEditUI : MonoBehaviour
         t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / dur;
+            t += StoreCapture.UiDelta / dur;
             float f = Mathf.Clamp01(t);
             magicCircleImage.color = new Color(tint.r, tint.g, tint.b, 1f - f);
             yield return null;
@@ -1342,7 +1342,7 @@ public partial class DeckEditUI : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, cardFlyDuration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, cardFlyDuration);
             float f = Mathf.Clamp01(t);
             ghostRect.position = Vector3.Lerp(startPos, endPos, Mathf.SmoothStep(0f, 1f, f));
             ghostRect.localScale = Vector3.one * Mathf.Lerp(1f, 0.55f, f);

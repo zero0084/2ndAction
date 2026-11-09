@@ -298,7 +298,7 @@ public class RewardCardUI : MonoBehaviour
     void UpdateAwakened()
     {
         if (awakenRoot == null || !awakenRoot.activeSelf) return;
-        float t = Time.unscaledTime;
+        float t = StoreCapture.UiTime;
         var c = awakenGlow.color; c.a = 0.7f + 0.25f * Mathf.Sin(t * 2.4f); awakenGlow.color = c;
         Vector2 size = rect.rect.size;
         for (int i = 0; i < awakenSparks.Length; i++)
@@ -577,7 +577,7 @@ public class RewardCardUI : MonoBehaviour
         // 選択中のGlowだけ、ごくゆっくり呼吸させる(点滅はさせない)
         if (!focused || selectGlow == null || !selectGlow.gameObject.activeSelf) return;
         Color c = selectGlow.color;
-        c.a = GlowAlpha * (0.82f + 0.18f * Mathf.Sin(Time.unscaledTime * 2.2f));
+        c.a = GlowAlpha * (0.82f + 0.18f * Mathf.Sin(StoreCapture.UiTime * 2.2f));
         selectGlow.color = c;
     }
 
@@ -715,7 +715,7 @@ public class RewardCardUI : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, duration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, duration);
             float x = Mathf.Lerp(startX, targetX, Mathf.Clamp01(t));
             Vector3 s = rect.localScale;
             s.x = x;
@@ -730,7 +730,7 @@ public class RewardCardUI : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, duration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, duration);
             rect.anchoredPosition = Vector2.Lerp(start, targetAnchoredPos, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t)));
             yield return null;
         }
@@ -743,7 +743,7 @@ public class RewardCardUI : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, duration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, duration);
             rect.localScale = Vector3.Lerp(start, target, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t)));
             yield return null;
         }
@@ -755,7 +755,7 @@ public class RewardCardUI : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, duration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, duration);
             canvasGroup.alpha = Mathf.Lerp(start, targetAlpha, Mathf.Clamp01(t));
             yield return null;
         }
@@ -791,7 +791,7 @@ public class RewardCardUI : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, duration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, duration);
             float f = Mathf.Clamp01(t);
             // Fast up (first 30%), slower back down - a "flash", not a
             // symmetric pulse.
@@ -834,7 +834,7 @@ public class RewardCardUI : MonoBehaviour
         float t = 0f;
         while (true)
         {
-            t += Time.unscaledDeltaTime;
+            t += StoreCapture.UiDelta;
             float phase = Mathf.PingPong(t / Mathf.Max(0.001f, period), 1f);
             float intensity = Mathf.Lerp(minIntensity, maxIntensity, phase);
             frameImage.color = Color.Lerp(FrameNormalColor, FrameFlashColor, intensity);

@@ -133,6 +133,7 @@ public partial class QaSweep
     {
         string raw = System.IO.Path.Combine(outDir, "raw");
         Time.captureFramerate = 60;
+        StoreCapture.Recording = true; // 2026-11-09 画面の演出も動画の時間で進める(DevGate.cs の StoreCapture.UiDelta)
         int ch = ScChannels(AudioSettings.speakerMode), rate = AudioSettings.outputSampleRate;
         var pcm = new List<short>(rate * ch * 30);
         AudioRenderer.Start();
@@ -144,6 +145,7 @@ public partial class QaSweep
         while (!scRecStop)
         {
             ScApplyBgmMute();
+            StoreCapture.Tick();
             yield return new WaitForEndOfFrame();
             // 2026-11-01: -scVideoSuper N = 動画のコマも N 倍で撮る(縦の 608x1080 の窓 → 1216x2160。画面より高い窓は作れない)
             var tex = ScreenCapture.CaptureScreenshotAsTexture(Mathf.Max(1, int.Parse(Arg("-scVideoSuper", "1"))));
@@ -187,6 +189,7 @@ public partial class QaSweep
             scFrameNow = frames;
         }
         AudioRenderer.Stop();
+        StoreCapture.Recording = false;
         Time.captureFramerate = 0;
         if (ffIn != null) { ffIn.Flush(); ffIn.Close(); }
         if (ff != null) { ff.WaitForExit(120000); }

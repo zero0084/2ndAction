@@ -141,11 +141,11 @@ public partial class DeckEditUI
         toastRt.gameObject.SetActive(true);
         toastRt.SetAsLastSibling(); // 大きな詳細の上にも出す(確認の窓だけはさらに上)
         if (confirmDialog != null && confirmDialog.root != null) confirmDialog.root.transform.SetAsLastSibling();
-        toastUntil = Time.unscaledTime + seconds;
+        toastUntil = StoreCapture.UiTime + seconds;
     }
     void UpdateToast()
     {
-        if (toastRt != null && toastRt.gameObject.activeSelf && Time.unscaledTime > toastUntil) toastRt.gameObject.SetActive(false);
+        if (toastRt != null && toastRt.gameObject.activeSelf && StoreCapture.UiTime > toastUntil) toastRt.gameObject.SetActive(false);
     }
 
     // 一覧(GridLayoutGroup)を cols 列にして、見える幅いっぱいになる倍率で縮める。rowsToFit > 0 なら高さにも収める

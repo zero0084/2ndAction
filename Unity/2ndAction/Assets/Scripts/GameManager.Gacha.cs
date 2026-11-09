@@ -89,7 +89,7 @@ public partial class GameManager
         down |= DevGachaHoldDown; // 自動テスト(-qaGacha E): 押し続けている扱い
 #endif
         if (!down || !gachaResultOpen || gachaDragging) { if (!down) StopGachaHold(); return; }
-        float now = Time.unscaledTime;
+        float now = StoreCapture.UiTime;
         if (!gachaHoldRepeating)
         {
             if (now - gachaHoldStartedAt < GachaHoldStart) return;
@@ -131,9 +131,9 @@ public partial class GameManager
         }
         UpdateGachaHold();
         GachaSkinTick(); // 2026-11-06: マップ別の見た目(予兆/粒子)
-        if (gachaMachineShakeTimer > 0f) gachaMachineShakeTimer -= Time.unscaledDeltaTime;
+        if (gachaMachineShakeTimer > 0f) gachaMachineShakeTimer -= StoreCapture.UiDelta;
         if (!gachaResultOpen && gachaMachineShakeTimer <= 0f && gachaRevealQueue.Count > 0) RevealNextGachaCard();
-        if (gachaResultRevealTimer > 0f) gachaResultRevealTimer -= Time.unscaledDeltaTime;
+        if (gachaResultRevealTimer > 0f) gachaResultRevealTimer -= StoreCapture.UiDelta;
     }
 
     void RevealNextGachaCard()
@@ -149,7 +149,7 @@ public partial class GameManager
             gachaResultRevealTimer = c.rarity >= 4 ? GachaResultRevealDuration : 0f;
             gachaSkinFx.OnReveal(CardMapCategories.Of(c), c.rarity); // 2026-11-06: 台がカードの土地の見た目へ + 排出の粒子
             gachaLandCountsAt = -99f;
-            gachaResultOpenedAt = Time.unscaledTime;
+            gachaResultOpenedAt = StoreCapture.UiTime;
             gachaCloseArmed = false;
         }
     }
@@ -181,10 +181,10 @@ public partial class GameManager
         if (lastGachaMachineRect.width > 0f && lastGachaMachineRect.Contains(e.mousePosition)) return; // 本体のボタンが受け取る
         if (e.type == EventType.MouseDown)
         {
-            if (Time.unscaledTime - gachaResultOpenedAt > 0.12f)
+            if (StoreCapture.UiTime - gachaResultOpenedAt > 0.12f)
             {
                 gachaCloseArmed = true; // 確認を出した指(開いた瞬間に押していた)では閉じない
-                gachaHoldActive = true; gachaHoldRepeating = false; gachaHoldStartedAt = Time.unscaledTime; // 長押しの始まり
+                gachaHoldActive = true; gachaHoldRepeating = false; gachaHoldStartedAt = StoreCapture.UiTime; // 長押しの始まり
             }
         }
         else { StopGachaHold(); if (gachaCloseArmed) CloseGachaResult(); }
@@ -293,7 +293,7 @@ public partial class GameManager
         // 本体は確認の上にも見せて、押せることを示す(パッド/キーでも選べる)
         if (gachaMachineTexture != null && lastGachaMachineRect.width > 0f)
         {
-            float pulse = 0.75f + 0.25f * Mathf.Sin(Time.unscaledTime * 4f);
+            float pulse = 0.75f + 0.25f * Mathf.Sin(StoreCapture.UiTime * 4f);
             Color keep = GUI.color;
             gachaSkinFx.DrawBehind(lastGachaMachineRect, 1f);
             GUI.color = new Color(1f, 0.95f, 0.8f, 1f);

@@ -949,27 +949,27 @@ public class RewardCardSequence : MonoBehaviour
         // highlighted card (or the first one) after a long wait instead.
         LogStep("Waiting For Selection");
         waitingForSelection = true;
-        float waitStart = Time.unscaledTime;
+        float waitStart = StoreCapture.UiTime;
         // 1回目のタップ(選択)→2回目のタップ(確定)の2段階になった分、
         // 旧来の単純な1タップ選択より余裕を持たせる。
         const float selectionTimeoutSeconds = 30f;
         // 2026-11-06: 表示の確かめ(選べるようになった次のフレーム・0.25秒後・以後1秒ごと・選び直した次のフレーム)
-        int waitFrames = 0; float nextDisplayCheck = Time.unscaledTime + 0.25f;
+        int waitFrames = 0; float nextDisplayCheck = StoreCapture.UiTime + 0.25f;
         checkDisplayAtFrame = Time.frameCount + 1;
         while (selectedIndex < 0)
         {
-            if (Time.unscaledTime - waitStart > selectionTimeoutSeconds)
+            if (StoreCapture.UiTime - waitStart > selectionTimeoutSeconds)
             {
                 selectedIndex = highlightedIndex >= 0 ? highlightedIndex : 0;
                 break;
             }
             waitFrames++;
-            if (Time.frameCount >= checkDisplayAtFrame || Time.unscaledTime >= nextDisplayCheck)
+            if (Time.frameCount >= checkDisplayAtFrame || StoreCapture.UiTime >= nextDisplayCheck)
             {
                 try { CheckChoiceDisplay(waitFrames <= 2 ? "open" : "wait"); }
                 catch (System.Exception e) { Debug.LogWarning("[ChoiceText] check failed: " + e.Message); } // 確かめ自体が選択を止めることはしない
                 checkDisplayAtFrame = int.MaxValue;
-                nextDisplayCheck = Time.unscaledTime + 1f;
+                nextDisplayCheck = StoreCapture.UiTime + 1f;
             }
             yield return null;
         }
@@ -1074,7 +1074,7 @@ public class RewardCardSequence : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, popDuration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, popDuration);
             float f = Mathf.Clamp01(t);
             float scale = f < 0.7f ? Mathf.Lerp(0.8f, 1.05f, f / 0.7f) : Mathf.Lerp(1.05f, 1f, (f - 0.7f) / 0.3f);
             levelUpTextRect.localScale = Vector3.one * scale;
@@ -1090,7 +1090,7 @@ public class RewardCardSequence : MonoBehaviour
         t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, fade);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, fade);
             levelUpTextGroup.alpha = Mathf.Lerp(1f, 0f, Mathf.Clamp01(t));
             yield return null;
         }
@@ -1108,7 +1108,7 @@ public class RewardCardSequence : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, duration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, duration);
             rootGroup.alpha = Mathf.Lerp(start, target, Mathf.Clamp01(t));
             yield return null;
         }
@@ -1124,7 +1124,7 @@ public class RewardCardSequence : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, duration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, duration);
             group.alpha = Mathf.Lerp(start, target, Mathf.Clamp01(t));
             yield return null;
         }
@@ -1142,7 +1142,7 @@ public class RewardCardSequence : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, duration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, duration);
             c.a = Mathf.Lerp(start, target, Mathf.Clamp01(t));
             dimImage.color = c;
             yield return null;
@@ -1160,7 +1160,7 @@ public class RewardCardSequence : MonoBehaviour
         float growDuration = glowDuration * 0.4f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, growDuration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, growDuration);
             float f = Mathf.Clamp01(t);
             glowImage.color = new Color(1f, 0.82f, 0.35f, Mathf.Lerp(0f, 0.9f, f));
             glowImage.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.6f, 1.3f, f);
@@ -1171,7 +1171,7 @@ public class RewardCardSequence : MonoBehaviour
         float fadeDuration = glowDuration * 0.6f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, fadeDuration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, fadeDuration);
             float f = Mathf.Clamp01(t);
             glowImage.color = new Color(1f, 0.82f, 0.35f, Mathf.Lerp(0.9f, 0f, f));
             glowImage.rectTransform.localScale = Vector3.one * Mathf.Lerp(1.3f, 1.6f, f);
@@ -1192,8 +1192,8 @@ public class RewardCardSequence : MonoBehaviour
     public void OnCardClicked(int index)
     {
         if (!waitingForSelection || selectedIndex >= 0) return; // 未受付、または既に確定済み
-        if (Time.unscaledTime - lastCardClickTime < CardClickDebounceSeconds) return; // 同一タップの二重発火を無視
-        lastCardClickTime = Time.unscaledTime;
+        if (StoreCapture.UiTime - lastCardClickTime < CardClickDebounceSeconds) return; // 同一タップの二重発火を無視
+        lastCardClickTime = StoreCapture.UiTime;
         if (highlightedIndex == index)
         {
             selectedIndex = index; // 同じカードへの2回目のタップ - 確定

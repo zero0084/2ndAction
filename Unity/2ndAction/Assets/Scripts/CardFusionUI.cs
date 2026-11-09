@@ -135,7 +135,7 @@ public class CardFusionUI : MonoBehaviour
         float start = rootGroup.alpha, t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, fadeDuration);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, fadeDuration);
             rootGroup.alpha = Mathf.Lerp(start, target, Mathf.Clamp01(t));
             yield return null;
         }
@@ -258,6 +258,16 @@ public class CardFusionUI : MonoBehaviour
         r.pivot = new Vector2(0, 0.5f); r.sizeDelta = new Vector2(size, size); r.anchoredPosition = new Vector2(left, 0);
         var raw = r.gameObject.AddComponent<RawImage>();
         raw.texture = UiIcons.Mile; raw.raycastTarget = false;
+    }
+
+    // 2026-11-09: 説明/結果の欄が動かなかった不具合の修正。中身(Content)の高さが 0 のままで、文字(ContentSizeFitter で伸びる)だけが
+    //  はみ出していた → ScrollRect は中身の高さで動く範囲を決めるので、長い説明(異名合成の継承率など)の下の行まで送れなかった。
+    //  中身の高さを文字の高さにそろえる(短い時は欄の高さと同じ = 動かない。今までと同じ見た目)
+    static void SyncScrollContent(ScrollRect sr, Text body)
+    {
+        if (sr == null || body == null || sr.content == null) return;
+        float h = Mathf.Ceil(body.rectTransform.rect.height);
+        if (Mathf.Abs(sr.content.sizeDelta.y - h) > 0.5f) sr.content.sizeDelta = new Vector2(sr.content.sizeDelta.x, h);
     }
 
     ScrollRect MakeScroll(string name, Transform parent, Vector2 aMin, Vector2 aMax, Vector2 oMin, Vector2 oMax, out RectTransform content)
@@ -904,7 +914,7 @@ public class CardFusionUI : MonoBehaviour
     IEnumerator Wait(float seconds)
     {
         float t = 0f;
-        while (t < seconds && !skipRequested) { t += Time.unscaledDeltaTime; yield return null; }
+        while (t < seconds && !skipRequested) { t += StoreCapture.UiDelta; yield return null; }
     }
 
     IEnumerator Tween(float seconds, System.Action<float> step)
@@ -912,7 +922,7 @@ public class CardFusionUI : MonoBehaviour
         float t = 0f;
         while (t < seconds && !skipRequested)
         {
-            t += Time.unscaledDeltaTime;
+            t += StoreCapture.UiDelta;
             step(Mathf.Clamp01(t / seconds));
             yield return null;
         }
@@ -1145,7 +1155,7 @@ public class CardFusionUI : MonoBehaviour
 
     void UpdateParticles()
     {
-        float dt = Time.unscaledDeltaTime;
+        float dt = StoreCapture.UiDelta;
         for (int i = particles.Count - 1; i >= 0; i--)
         {
             var p = particles[i];
@@ -1322,7 +1332,7 @@ public class CardFusionUI : MonoBehaviour
         var cg = resultPanel.GetComponent<CanvasGroup>();
         if (cg == null) cg = resultPanel.gameObject.AddComponent<CanvasGroup>();
         float t = 0f;
-        while (t < 1f) { t += Time.unscaledDeltaTime / 0.2f; cg.alpha = Mathf.Clamp01(t); resultPanel.localScale = Vector3.one * Mathf.Lerp(0.96f, 1f, Mathf.Clamp01(t)); yield return null; }
+        while (t < 1f) { t += StoreCapture.UiDelta / 0.2f; cg.alpha = Mathf.Clamp01(t); resultPanel.localScale = Vector3.one * Mathf.Lerp(0.96f, 1f, Mathf.Clamp01(t)); yield return null; }
     }
 
     static string AbilityResultLine(CardVariant.Ability a, CardVariant baseline)
@@ -1344,6 +1354,8 @@ public class CardFusionUI : MonoBehaviour
     void Update()
     {
         if (root == null || !root.activeInHierarchy) return;
+        SyncScrollContent(detailScroll, detailText);
+        SyncScrollContent(resultScroll, resultBody);
         if (particles.Count > 0) UpdateParticles();
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)

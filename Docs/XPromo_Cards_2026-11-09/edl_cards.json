@@ -1,0 +1,566 @@
+{
+ "raw": {
+  "x45": "C:/GameProject/SteamCaptureArchive/2026-11-09_CardPromo/x45/raw",
+  "x169": "C:/GameProject/SteamCaptureArchive/2026-11-09_CardPromo/x169/raw"
+ },
+ "logo": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Art/UI/TitleLogoV2.png",
+ "loudness": -14,
+ "tp": -2.0,
+ "se_gain": 1.0,
+ "tapfix": {
+  "x45": {
+   "home_deck": [
+    0.39,
+    0.87
+   ],
+   "home_fusion": [
+    0.62,
+    0.87
+   ]
+  },
+  "x169": {
+   "home_deck": [
+    0.14,
+    0.585
+   ],
+   "home_fusion": [
+    0.92,
+    0.756
+   ]
+  }
+ },
+ "bgm": [
+  {
+   "file": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Audio/Placeholder/Bgm/bgm_sky_middle_n.wav",
+   "loop": true,
+   "at": 0,
+   "from": 0,
+   "dur": 53.182,
+   "gain": 0.5,
+   "fade_in": 0.02,
+   "fade_out": 2.4
+  }
+ ],
+ "captions": [
+  {
+   "text": "走るだけじゃない。",
+   "at": 0.1,
+   "to": 2.35,
+   "style": "hero"
+  },
+  {
+   "text": "カードで、戦い方が変わる。",
+   "at": 2.45,
+   "to": 4.88,
+   "style": "hero"
+  },
+  {
+   "text": "カードを集めて、能力を強化！",
+   "note": "ガチャでカードを入手",
+   "at": 5.1,
+   "to": 8.6364,
+   "fo": 0
+  },
+  {
+   "text": "カードを集めて、能力を強化！",
+   "note": "長押しで効果をチェック",
+   "at": 8.6364,
+   "to": 11.3637,
+   "fi": 0,
+   "fo": 0,
+   "rise": false
+  },
+  {
+   "text": "カードを集めて、能力を強化！",
+   "note": "ラン中はレベルアップで1枚を選ぶ",
+   "at": 11.3637,
+   "to": 14.5455,
+   "fi": 0,
+   "fo": 0,
+   "rise": false
+  },
+  {
+   "text": "カードを集めて、能力を強化！",
+   "note": "選んだ能力が戦闘で発動",
+   "at": 14.5455,
+   "to": 16.2437,
+   "fi": 0,
+   "rise": false
+  },
+  {
+   "text": "12枚のカードで、\n自分だけのデッキを！",
+   "at": 16.463700000000003,
+   "to": 27.1529,
+   "style": "main"
+  },
+  {
+   "text": "同じカードで確実に強化！",
+   "note": "同名合成は成功率100%",
+   "at": 27.3729,
+   "to": 35.3548
+  },
+  {
+   "text": "異なる能力の組み合わせにも挑戦！",
+   "note": "※異名合成は確率で能力を継承。失敗することもあります",
+   "at": 35.4548,
+   "to": 43.9912,
+   "style": "main"
+  },
+  {
+   "text": "Lv.9 MAX の先は、MASTERY で育成！",
+   "at": 44.0912,
+   "to": 45.7894,
+   "style": "main"
+  },
+  {
+   "text": "組み合わせは、あなた次第。",
+   "at": 46.0094,
+   "to": 54.18209999999999,
+   "style": "hero"
+  }
+ ],
+ "cuts": [
+  {
+   "shot": "cp_cards",
+   "in": 1.4,
+   "dur": 2.2727,
+   "x45": {
+    "zoom": 1.45,
+    "cx": 0.5,
+    "cy": 0.8,
+    "to": {
+     "cy": 0.84
+    }
+   },
+   "x169": {
+    "zoom": 1.3,
+    "cx": 0.38,
+    "cy": 0.72,
+    "to": {
+     "cy": 0.76
+    }
+   },
+   "scene": "所持カードを ★4 に絞ってレア度順に流す(デッキ編集の一覧)",
+   "at": 0.0
+  },
+  {
+   "shot": "cp_cards",
+   "in": 8.15,
+   "dur": 0.9091,
+   "x45": {
+    "zoom": 2.1,
+    "cx": 0.5,
+    "cy": 0.19
+   },
+   "x169": {
+    "zoom": 1.7,
+    "cx": 0.3,
+    "cy": 0.4
+   },
+   "scene": "PHOENIX ★5 の大きな詳細",
+   "at": 2.273
+  },
+  {
+   "shot": "cp_cards",
+   "in": 10.55,
+   "dur": 0.9091,
+   "x45": {
+    "zoom": 2.1,
+    "cx": 0.5,
+    "cy": 0.19
+   },
+   "x169": {
+    "zoom": 1.7,
+    "cx": 0.3,
+    "cy": 0.4
+   },
+   "scene": "INFERNO ★4",
+   "at": 3.182
+  },
+  {
+   "shot": "cp_cards",
+   "in": 16.55,
+   "dur": 0.9091,
+   "x45": {
+    "zoom": 2.1,
+    "cx": 0.5,
+    "cy": 0.19
+   },
+   "x169": {
+    "zoom": 1.7,
+    "cx": 0.3,
+    "cy": 0.4
+   },
+   "scene": "ABSOLUTE ZERO ★4",
+   "at": 4.091
+  },
+  {
+   "shot": "cp_gacha",
+   "in": 5.0,
+   "dur": 3.6364,
+   "x45": {
+    "zoom": 1.25,
+    "cx": 0.62,
+    "cy": 0.45,
+    "in": 25.9
+   },
+   "x169": {
+    "zoom": 1.15,
+    "cx": 0.55,
+    "cy": 0.45,
+    "in": 4.9
+   },
+   "scene": "ガチャ本体をタップ → 本物の抽選で NEW CARD",
+   "id": "gacha",
+   "at": 5.0
+  },
+  {
+   "shot": "cp_deck",
+   "in": 3.1,
+   "dur": 2.7273,
+   "x45": {
+    "zoom": 1.0,
+    "cx": 0.5,
+    "cy": 0.5,
+    "to": {
+     "zoom": 1.55,
+     "cx": 0.5,
+     "cy": 0.3
+    },
+    "move_from": 0.25,
+    "move_to": 0.85
+   },
+   "x169": {
+    "zoom": 1.0,
+    "cx": 0.5,
+    "cy": 0.5,
+    "to": {
+     "zoom": 1.5,
+     "cx": 0.45,
+     "cy": 0.4
+    },
+    "move_from": 0.25,
+    "move_to": 0.85
+   },
+   "scene": "一覧のカードを長押し → 大きな詳細で効果を確認(PHOENIX)",
+   "id": "check",
+   "at": 8.636
+  },
+  {
+   "shot": "cp_choice",
+   "in": 1.55,
+   "dur": 3.1818,
+   "x45": {
+    "zoom": 1.0,
+    "cx": 0.5,
+    "cy": 0.55,
+    "in": 1.55
+   },
+   "x169": {
+    "zoom": 1.1,
+    "cx": 0.5,
+    "cy": 0.45,
+    "in": 2.2
+   },
+   "scene": "ラン中のレベルアップ: デッキから出た3枚から1枚を選ぶ(4:5 は CHAIN LIGHTNING、16:9 は THUNDER STRIKE)",
+   "id": "choice",
+   "at": 11.364
+  },
+  {
+   "shot": "C:/GameProject/SteamCaptureArchive/2026-11-08_XPromo/boss3/raw/aerial",
+   "in": 0.4,
+   "dur": 1.8182,
+   "x45": {
+    "zoom": 1.5,
+    "cx": 0.48,
+    "cy": 0.4
+   },
+   "x169": {
+    "zoom": 1.6,
+    "cx": 0.48,
+    "cy": 0.42
+   },
+   "scene": "雷の能力の発動: 落雷の一撃 → 斬り抜けて敵を吹き飛ばす(雷のカードを入れたデッキで走った別の撮影)",
+   "id": "fire",
+   "at": 14.546
+  },
+  {
+   "shot": "cp_deck",
+   "in": 0.7,
+   "dur": 1.8182,
+   "x45": {
+    "zoom": 1.0,
+    "cx": 0.5,
+    "cy": 0.5
+   },
+   "x169": {
+    "zoom": 1.0,
+    "cx": 0.5,
+    "cy": 0.5
+   },
+   "scene": "ホームのデッキ編集を開く",
+   "id": "deck",
+   "at": 16.364
+  },
+  {
+   "shot": "cp_deck",
+   "in": 6.55,
+   "dur": 2.7273,
+   "x45": {
+    "zoom": 1.25,
+    "cx": 0.5,
+    "cy": 0.62
+   },
+   "x169": {
+    "zoom": 1.15,
+    "cx": 0.5,
+    "cy": 0.55
+   },
+   "scene": "一覧の PHOENIX をタップ → デッキへ(11 → 12/12)",
+   "at": 18.182
+  },
+  {
+   "shot": "cp_deck",
+   "in": 9.0,
+   "dur": 3.6364,
+   "x45": {
+    "zoom": 1.15,
+    "cx": 0.5,
+    "cy": 0.55
+   },
+   "x169": {
+    "zoom": 1.1,
+    "cx": 0.5,
+    "cy": 0.5
+   },
+   "scene": "COMBUSTION をデッキの枠へドラッグ → 確認 → 入れ替え",
+   "at": 20.909
+  },
+  {
+   "shot": "cp_deck",
+   "in": 12.4,
+   "dur": 2.7273,
+   "x45": {
+    "zoom": 1.45,
+    "cx": 0.5,
+    "cy": 0.26
+   },
+   "x169": {
+    "zoom": 1.35,
+    "cx": 0.5,
+    "cy": 0.3
+   },
+   "scene": "プリセットの ▶ で「2 風と氷」へ切り替え(12枚がまとめて替わる)",
+   "at": 24.546
+  },
+  {
+   "shot": "cp_fuse_same",
+   "in": 0.5,
+   "dur": 0.9091,
+   "x45": {
+    "zoom": 1.0,
+    "cx": 0.5,
+    "cy": 0.5
+   },
+   "x169": {
+    "zoom": 1.0,
+    "cx": 0.5,
+    "cy": 0.5
+   },
+   "scene": "ホームのカード合成を開く",
+   "id": "fuse",
+   "at": 27.273
+  },
+  {
+   "shot": "cp_fuse_same",
+   "in": 2.45,
+   "dur": 3.6364,
+   "x45": {
+    "zoom": 1.3,
+    "cx": 0.5,
+    "cy": 0.62,
+    "to": {
+     "zoom": 1.6,
+     "cx": 0.31,
+     "cy": 0.86
+    },
+    "move_from": 0.5,
+    "move_to": 0.95
+   },
+   "x169": {
+    "zoom": 1.25,
+    "cx": 0.62,
+    "cy": 0.5,
+    "to": {
+     "zoom": 1.55,
+     "cx": 0.8,
+     "cy": 0.62
+    },
+    "move_from": 0.5,
+    "move_to": 0.95
+   },
+   "scene": "メイン(TEMPEST Lv3)→ 素材(TEMPEST Lv2)→ 説明欄をスクロール →【同名強化】成功率 100% / Lv.3 + Lv.2 → Lv.5",
+   "at": 28.182
+  },
+  {
+   "shot": "cp_fuse_same",
+   "in": 7.65,
+   "dur": 3.6364,
+   "x45": {
+    "zoom": 1.1,
+    "cx": 0.5,
+    "cy": 0.45
+   },
+   "x169": {
+    "zoom": 1.0,
+    "cx": 0.5,
+    "cy": 0.5
+   },
+   "scene": "合成する → 演出 → 同名強化 完了! TEMPEST Lv.5",
+   "at": 31.818
+  },
+  {
+   "shot": "cp_fuse_cross",
+   "in": 3.95,
+   "dur": 3.6364,
+   "x45": {
+    "zoom": 1.3,
+    "cx": 0.5,
+    "cy": 0.62,
+    "to": {
+     "zoom": 1.6,
+     "cx": 0.31,
+     "cy": 0.86
+    },
+    "move_from": 0.3,
+    "move_to": 0.75
+   },
+   "x169": {
+    "zoom": 1.25,
+    "cx": 0.62,
+    "cy": 0.5,
+    "to": {
+     "zoom": 1.55,
+     "cx": 0.8,
+     "cy": 0.62
+    },
+    "move_from": 0.3,
+    "move_to": 0.75
+   },
+   "scene": "異名: JUDGMENT BOLT + FIRE WHIRL → 説明欄をスクロール →【異名合成】結果は抽選 / メイン側 50% / 素材 25%",
+   "id": "cross",
+   "at": 35.455
+  },
+  {
+   "shot": "cp_fuse_cross",
+   "in": 8.25,
+   "dur": 3.6364,
+   "x45": {
+    "zoom": 1.1,
+    "cx": 0.5,
+    "cy": 0.45
+   },
+   "x169": {
+    "zoom": 1.0,
+    "cx": 0.5,
+    "cy": 0.5
+   },
+   "scene": "合成する → メイン側/素材側 継承成功 → 合成大成功!(撮影では結果を指定。README の注)",
+   "at": 39.091
+  },
+  {
+   "shot": "cp_fuse_fail",
+   "in": 11.15,
+   "dur": 1.3636,
+   "x45": {
+    "zoom": 1.1,
+    "cx": 0.5,
+    "cy": 0.4
+   },
+   "x169": {
+    "zoom": 1.0,
+    "cx": 0.5,
+    "cy": 0.45
+   },
+   "scene": "異名の失敗の例: 両方とも継承失敗 → 2枚は消費、MILE を還元",
+   "at": 42.728
+  },
+  {
+   "shot": "cp_mastery",
+   "in": 10.25,
+   "dur": 1.8182,
+   "x45": {
+    "zoom": 1.1,
+    "cx": 0.5,
+    "cy": 0.4
+   },
+   "x169": {
+    "zoom": 1.0,
+    "cx": 0.5,
+    "cy": 0.45
+   },
+   "scene": "Lv.9 MAX の SHATTER STRIKE に同じカード → MASTERY +3(★★☆☆☆)",
+   "id": "mastery",
+   "at": 44.091
+  },
+  {
+   "shot": "C:/GameProject/SteamCaptureArchive/2026-11-08_XPromo/play/raw/pv_luka",
+   "in": 7.5,
+   "dur": 1.8182,
+   "x45": {
+    "zoom": 1.4,
+    "cx": 0.42,
+    "cy": 0.4
+   },
+   "x169": {
+    "zoom": 1.4,
+    "cx": 0.42,
+    "cy": 0.4
+   },
+   "scene": "ルカ: 敵の群れを突き抜ける(雷の連鎖)",
+   "id": "battle",
+   "at": 45.909
+  },
+  {
+   "shot": "C:/GameProject/SteamCaptureArchive/2026-11-08_XPromo/play/raw/pv_luka",
+   "in": 9.65,
+   "dur": 1.3636,
+   "x45": {
+    "zoom": 1.4,
+    "cx": 0.36,
+    "cy": 0.42
+   },
+   "x169": {
+    "zoom": 1.4,
+    "cx": 0.36,
+    "cy": 0.42
+   },
+   "scene": "ルカ: 空中で捕まえて連撃(雷)",
+   "at": 47.728
+  },
+  {
+   "shot": "C:/GameProject/SteamCaptureArchive/2026-11-08_XPromo/play/raw/gunslinger",
+   "in": 7.4,
+   "dur": 4.0909,
+   "x45": {
+    "zoom": 1.15,
+    "cx": 0.4,
+    "cy": 0.45
+   },
+   "x169": {
+    "zoom": 1.35,
+    "cx": 0.4,
+    "cy": 0.45
+   },
+   "scene": "締め: 二丁拳銃士の連続撃破を暗くしてロゴ",
+   "end": true,
+   "at": 49.091
+  }
+ ],
+ "end": {
+  "logo_at": 0.9,
+  "dim": 0.5,
+  "dim_at": 0.4,
+  "dim_ramp": 0.7
+ }
+}

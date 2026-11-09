@@ -243,7 +243,7 @@ public partial class DeckEditUI
             Color? c = null;
             if (kind == DropKind.DeckSlot && i == index)
                 c = state == DropState.Add ? HintAdd : state == DropState.Replace ? HintReplace : state == DropState.Swap || state == DropState.Move ? HintMove : state == DropState.Duplicate || state == DropState.Denied ? HintDenied : (Color?)null;
-            if (i == dupFlashSlot) c = new Color(1f, 0.22f, 0.18f, 0.35f + 0.35f * Mathf.PingPong(Time.unscaledTime * 4f, 1f));
+            if (i == dupFlashSlot) c = new Color(1f, 0.22f, 0.18f, 0.35f + 0.35f * Mathf.PingPong(StoreCapture.UiTime * 4f, 1f));
             if (c.HasValue) SetHint(deckDropHints[i], c.Value);
             else if (deckDropHints[i] != null && deckDropHints[i].gameObject.activeSelf) deckDropHints[i].gameObject.SetActive(false);
         }
@@ -397,12 +397,12 @@ public partial class DeckEditUI
     public IEnumerator DebugDrag(bool fromDeck, int index, Vector2 to, int steps = 8, float hold = 0f, System.Action whileHeld = null)
     {
         pressKind = fromDeck ? PressKind.Deck : PressKind.Owned; pressIndex = index;
-        pressTouch = false; pressTime = Time.unscaledTime; pointerActive = false;
+        pressTouch = false; pressTime = StoreCapture.UiTime; pointerActive = false;
         Vector2 from = fromDeck ? DebugDeckSlotPos(index) : DebugOwnedPos(index);
         BeginDrag(from);
         for (int s = 1; s <= steps; s++) { UpdateDrag(Vector2.Lerp(from, to, s / (float)steps)); yield return null; }
         whileHeld?.Invoke();
-        if (hold > 0f) { float t = 0f; while (t < hold) { UpdateDrag(to); yield return null; t += Time.unscaledDeltaTime; } }
+        if (hold > 0f) { float t = 0f; while (t < hold) { UpdateDrag(to); yield return null; t += StoreCapture.UiDelta; } }
         Drop(to);
         pressKind = PressKind.None;
     }
@@ -485,7 +485,7 @@ public partial class DeckEditUI
             pointerDownScreenPos = screenPos;
             draggedPastThreshold = false;
             gesture = Gesture.Pending;
-            pressTime = Time.unscaledTime;
+            pressTime = StoreCapture.UiTime;
             pressTouch = Input.touchCount > 0;
             pressKind = FindPressTarget(screenPos, out pressIndex);
             activeScrollRect = FindScrollRectContaining(screenPos);
@@ -496,7 +496,7 @@ public partial class DeckEditUI
 
         if (held)
         {
-            float t = Time.unscaledTime - pressTime;
+            float t = StoreCapture.UiTime - pressTime;
             bool moved = Vector2.Distance(screenPos, pointerDownScreenPos) > SlopPx;
             if (gesture == Gesture.Pending)
             {

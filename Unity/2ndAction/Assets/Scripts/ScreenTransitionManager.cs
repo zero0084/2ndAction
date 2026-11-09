@@ -173,7 +173,7 @@ public class ScreenTransitionManager : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, dur);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, dur);
             float p = Mathf.Clamp01(t);
             if (CurrentStyle == Style.Sweep) { sweepPos = EaseInOut(p); coverage = Mathf.Lerp(0f, sweepDarkness, EaseIn(p)); }
             else if (CurrentStyle == Style.Fade) coverage = Mathf.Lerp(0f, 0.94f, EaseOut(p));
@@ -194,7 +194,7 @@ public class ScreenTransitionManager : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, dur);
+            t += StoreCapture.UiDelta / Mathf.Max(0.001f, dur);
             coverage = start * (1f - EaseOut(Mathf.Clamp01(t)));
             yield return null;
         }

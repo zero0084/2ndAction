@@ -24,4 +24,20 @@ public static class DevGate
 public static class StoreCapture
 {
     public static bool Clean;
+
+    // 2026-11-09 画面の演出の時計: 1コマずつ撮る間(Recording、Time.captureFramerate)は、実時間ではなく動画の時間(1コマ = captureDeltaTime)で進める。
+    //  撮影は実時間より遅い(1コマに約 80ms)ので、実時間で数える演出(合成/ガチャ/3択/画面の切り替え)が動画の中で縮んでいた。
+    //  製品では Recording は誰も true にしない → UiDelta = Time.unscaledDeltaTime、UiTime = Time.unscaledTime(offset は 0 のまま)と同じ
+    public static bool Recording;
+    static double offset;
+    static int tickFrame = -1;
+    public static float UiDelta => Recording && Time.captureDeltaTime > 0f ? Time.captureDeltaTime : Time.unscaledDeltaTime;
+    public static float UiTime => (float)(Time.unscaledTime + offset);
+    // 撮影の書き出し(1コマに1回)から呼ぶ: 実時間との差を貯めて、UiTime を動画の時間で進める(途中で止めても続きの値になる)
+    public static void Tick()
+    {
+        if (tickFrame == Time.frameCount) return;
+        tickFrame = Time.frameCount;
+        if (Recording && Time.captureDeltaTime > 0f) offset += Time.captureDeltaTime - Time.unscaledDeltaTime;
+    }
 }

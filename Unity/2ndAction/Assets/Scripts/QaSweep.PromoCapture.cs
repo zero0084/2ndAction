@@ -31,7 +31,7 @@ public partial class QaSweep
         "pv_boss_hydra" => PvFinalShot(s, Arg("-pvCharH", "ninja"), "wasteland_road", 0, (int)WildBossKind.Hydra, 12150f),
         "pv_road" => PvRoadShot(s, Arg("-pvCharR", "swordsman"), "wasteland_road", float.Parse(Arg("-pvRoadAt", "6150"), System.Globalization.CultureInfo.InvariantCulture)),
         "pv_road_sky" => PvRoadShot(s, Arg("-pvCharR", "swordsman"), "sky_corridor", float.Parse(Arg("-pvRoadAt", "6150"), System.Globalization.CultureInfo.InvariantCulture)),
-        _ => null,
+        _ => CpShot(s), // 2026-11-09 カードシステムの紹介動画(QaSweep.CardPromo.cs)
     };
 
     // 見た目の分かる強化(属性/追加攻撃)を、終盤らしい強さで持たせる(QA の FinalBoss と同じ "mix" の組)
