@@ -26,6 +26,13 @@ public class TitleScreen : MonoBehaviour
     public static bool InputReady { get; private set; } // 確認用: ホームの準備ができて入力を受け付ける状態
 
     const float FadeIn = 0.45f, MinShow = 0.35f, FadeOut = 0.35f;
+    // 2026-11-14: 文字を大きく。エステルと相談して「横 = ロゴ 1.25 倍 + 案内 1.45 倍(D 案)/ 縦 = 案内 1.6 倍(C 案。ロゴは既に幅いっぱい近い)」。
+    //  LogoScale / PromptScale は比べる時の追加の倍率(開発版の -titleLogoScale / -titlePromptScale)。製品は 1
+    public const float LogoLand = 1.25f, PromptLand = 1.45f, LogoPort = 1f, PromptPort = 1.6f;
+    public static float LogoScale = 1f, PromptScale = 1f;
+    public static bool PromptBand; // 案内の後ろに薄い帯(地面の黒の上で読みやすく)
+    public static Rect LastLogoRect, LastPromptRect, LastNoticeRect; // 確認用
+    public static bool DevFreezePulse, DevTapText; // 比較の撮影用(明滅を止める / スマホの案内の文で撮る)。製品では false のまま
     static bool shownOnce;
     Texture2D bg;
 
@@ -62,6 +69,11 @@ public class TitleScreen : MonoBehaviour
         if (shownOnce) return;
         shownOnce = true;
         if (SkippedByArgs()) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        { var a = Args; int i = Array.IndexOf(a, "-titleLogoScale"); if (i >= 0 && i + 1 < a.Length) float.TryParse(a[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out LogoScale);
+          i = Array.IndexOf(a, "-titlePromptScale"); if (i >= 0 && i + 1 < a.Length) float.TryParse(a[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out PromptScale);
+          i = Array.IndexOf(a, "-titlePromptBand"); if (i >= 0 && i + 1 < a.Length) PromptBand = a[i + 1] == "1"; }
+#endif
         var go = new GameObject("[TitleScreen]");
         DontDestroyOnLoad(go);
         go.AddComponent<TitleScreen>();
@@ -82,7 +94,7 @@ public class TitleScreen : MonoBehaviour
     void Awake() { bg = Resources.Load<Texture2D>(BgResource); }
 
     // 案内の文: タッチの機器(Android など)は「タップして開始」。PC は「キー / クリック / パッドで開始」
-    public static string PromptText => PlatformCaps.SupportsMouse || PlatformCaps.SupportsKeyRebind ? PressToStart : TapToStart;
+    public static string PromptText => !DevTapText && (PlatformCaps.SupportsMouse || PlatformCaps.SupportsKeyRebind) ? PressToStart : TapToStart;
 
     bool HomeReady()
     {
@@ -91,8 +103,12 @@ public class TitleScreen : MonoBehaviour
     }
 
     // 右下の「ゲーム終了 / 端末のホームへ」(GUI 座標)。ここを押した指/クリックは開始に使わない(2026-10-31)
-    Rect exitRect;
-    bool OnExitButton(Vector2 screenPos) => exitRect.width > 0f && exitRect.Contains(new Vector2(screenPos.x, Screen.height - screenPos.y));
+    Rect exitRect, noticeRect;
+    bool OnExitButton(Vector2 screenPos)
+    {
+        var g = new Vector2(screenPos.x, Screen.height - screenPos.y);
+        return (exitRect.width > 0f && exitRect.Contains(g)) || (noticeRect.width > 0f && noticeRect.Contains(g)); // 左上の「お知らせ」も開始に使わない(2026-11-14)
+    }
 
     string InputDown()
     {
@@ -100,7 +116,11 @@ public class TitleScreen : MonoBehaviour
         if (Input.touchCount == 0 && !OnExitButton(Input.mousePosition))
             for (int b = 0; b < 7; b++) if (Input.GetMouseButtonDown(b)) return "mouse" + b;
         bool alt = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.AltGr); // Alt+Enter(全画面)/ Alt+F4(終了)では始めない
-        if (Input.anyKeyDown && !Input.GetKeyDown(KeyCode.Escape) && !alt)
+        // 2026-11-14(エミュレーターで発見): Android のタップはマウスのボタン(Mouse0)としても anyKeyDown に入る →
+        //  左上の「お知らせ」/右下の終了ボタンを押した指が「キー」として開始になっていた。タッチ/クリックは上の位置で見る方だけで扱う
+        bool pointerDown = Input.touchCount > 0;
+        for (int b = 0; b < 7 && !pointerDown; b++) pointerDown = Input.GetMouseButtonDown(b);
+        if (Input.anyKeyDown && !pointerDown && !Input.GetKeyDown(KeyCode.Escape) && !alt)
         {
             for (int k = 0; k < 20; k++) if (Input.GetKeyDown(KeyCode.JoystickButton0 + k)) return "pad";
             return "key";
@@ -127,12 +147,14 @@ public class TitleScreen : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (DebugPress) { DebugPress = false; inp = "debug"; }
 #endif
-            if (AppExit.Open || UiInputGate.Latched) { inp = null; pending = null; } // 終了の確認の間/その窓を閉じた指が離れるまでは始めない
+            // 終了の確認/お知らせの間・その窓を閉じた指が離れるまでは始めない。お知らせを閉じた直後(0.4 秒)も、閉じたキー(Android の戻る等)を開始に数えない
+            if (AppExit.Open || PatchNotesUi.IsOpen || UiInputGate.Latched || Time.realtimeSinceStartup - PatchNotesUi.ClosedAt < 0.4f) { inp = null; pending = null; }
             if (inp != null) pending = inp;
             if (pending != null && ready && t >= MinShow)
             {
                 outT = 0f; outStart = Time.realtimeSinceStartup; LastStartInput = pending;
-                Debug.Log($"[Title] start by {pending} at {t:F2}s real={Time.realtimeSinceStartup:F2}s");
+                if (pending == "key") { foreach (KeyCode kc in System.Enum.GetValues(typeof(KeyCode))) if (Input.GetKey(kc)) { LastStartInput = "key:" + kc; break; } }
+                Debug.Log($"[Title] start by {LastStartInput} at {t:F2}s real={Time.realtimeSinceStartup:F2}s");
                 if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
                 UiInputGate.LatchUntilRelease(); GameInput.LatchHeld(); // 押した瞬間から、その指/キーをホームへ渡さない(消える間に決定にならないように)
             }
@@ -213,9 +235,11 @@ public class TitleScreen : MonoBehaviour
         float cy = H * 0.30f;
         if (logo != null)
         {
-            float lw = W * (portrait ? 0.86f : 0.40f), lh = lw * logo.height / Mathf.Max(1f, logo.width);
+            float lw = Mathf.Min(W * (portrait ? 0.86f : 0.40f) * LogoScale * (portrait ? LogoPort : LogoLand), W * (portrait ? 0.96f : 0.70f)), lh = lw * logo.height / Mathf.Max(1f, logo.width);
+            lh = Mathf.Min(lh, H * (portrait ? 0.22f : 0.40f)); lw = lh * logo.width / Mathf.Max(1f, logo.height); // 縦に大きくなりすぎない(キャラ/案内と重ならない)
             GUI.color = new Color(1f, 1f, 1f, a * fadeTitle);
-            GUI.DrawTexture(new Rect(W * 0.5f - lw * 0.5f, cy - lh * 0.5f, lw, lh), logo);
+            LastLogoRect = new Rect(W * 0.5f - lw * 0.5f, cy - lh * 0.5f, lw, lh);
+            GUI.DrawTexture(LastLogoRect, logo);
         }
         else
         {
@@ -224,16 +248,49 @@ public class TitleScreen : MonoBehaviour
             DrawGlyphs(Title, W * 0.5f, cy, capH, a * fadeTitle);
         }
         // 案内(ゆっくり明滅)。準備が終わるまでは薄く
-        float pulse = 0.55f + 0.45f * Mathf.Sin(t * 2.4f);
+        float pulse = DevFreezePulse ? 1f : 0.78f + 0.22f * Mathf.Sin(t * 2.4f); // 2026-11-14(エステル): 一番暗い瞬間でも読める明るさを残す(以前は 0.1 まで下がった)
         float pa = a * Smooth(Mathf.Clamp01((t - 0.35f) / 0.4f)) * (ready ? pulse : 0.25f);
         if (promptStyle == null) promptStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold, wordWrap = true };
         float k = UiScalePref.Menu(Mathf.Clamp(Mathf.Min(W, H) / 720f, 1f, 2.6f));
-        promptStyle.fontSize = Mathf.RoundToInt(26f * k);
-        Rect pr = new Rect(W * 0.1f, br.y + br.height * 0.80f - 30f * k, W * 0.8f, 60f * k); // 地面(黒)の上。キャラの足もとより下
+        float pk = k * PromptScale * (portrait ? PromptPort : PromptLand);
+        promptStyle.fontSize = Mathf.RoundToInt(26f * pk);
+        Rect pr = new Rect(W * 0.06f, br.y + br.height * 0.80f - 30f * pk, W * 0.88f, 60f * pk); // 地面(黒)の上。キャラの足もとより下
+        if (portrait) pr.y = Mathf.Min(pr.y, H - (Screen.height - StableSafeArea.Rect.yMax) - 54f * k - 18f * k - pr.height - 10f * k); // 右下の終了ボタンと重ならない
+        LastPromptRect = pr;
+        if (PromptBand && pa > 0.01f)
+        {
+            float tw = Mathf.Min(pr.width, promptStyle.CalcSize(new GUIContent(Loc.Auto(PromptText))).x + 60f * pk);
+            GUI.color = new Color(0f, 0f, 0f, 0.35f * a);
+            GUI.DrawTexture(new Rect(W * 0.5f - tw * 0.5f, pr.y + pr.height * 0.12f, tw, pr.height * 0.76f), Texture2D.whiteTexture);
+            GUI.color = keep;
+        }
         promptStyle.normal.textColor = new Color(0f, 0f, 0f, 0.7f * pa);
         LocGUI.Label(new Rect(pr.x + 2f, pr.y + 2f, pr.width, pr.height), PromptText, promptStyle);
         promptStyle.normal.textColor = new Color(1f, 0.92f, 0.72f, pa);
         LocGUI.Label(pr, PromptText, promptStyle);
+        // 左上: お知らせ(更新内容)。未読の版がある時だけ NEW(2026-11-14)
+        noticeRect = default;
+        if (ready && outT < 0f && !AppExit.Open && !PatchNotesUi.IsOpen)
+        {
+            Rect safe = StableSafeArea.Rect;
+            float nh = 54f * k, nw = Mathf.Min(W * 0.36f, 200f * k), m = 18f * k;
+            noticeRect = new Rect(safe.x + m, (Screen.height - safe.yMax) + m, nw, nh);
+            LastNoticeRect = noticeRect;
+            GUI.color = new Color(1f, 1f, 1f, a * Smooth(Mathf.Clamp01((t - 0.35f) / 0.4f)) * 0.9f);
+            var ns = new GUIStyle(GUI.skin.button) { fontSize = Mathf.RoundToInt(19f * k), fontStyle = FontStyle.Bold };
+            ns.normal.textColor = ns.hover.textColor = new Color(0.98f, 0.93f, 0.78f);
+            if (GUI.Button(noticeRect, Loc.T(LocNotes.Title), ns)) PatchNotesUi.Open();
+            if (PatchNotesUi.HasUnread)
+            {
+                var bs2 = new GUIStyle(GUI.skin.label) { fontSize = Mathf.RoundToInt(14f * k), fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+                bs2.normal.textColor = Color.white;
+                Rect nb = new Rect(noticeRect.xMax - 44f * k, noticeRect.y - 10f * k, 52f * k, 24f * k);
+                GUI.color = new Color(0.86f, 0.18f, 0.16f, GUI.color.a);
+                GUI.DrawTexture(nb, Texture2D.whiteTexture);
+                GUI.color = new Color(1f, 1f, 1f, GUI.color.a);
+                GUI.Label(nb, LocNotes.ButtonNew, bs2);
+            }
+        }
         // 右下: ゲーム終了(PC)/ 端末のホームへ(Android)。iOS には置かない(押してもアプリは閉じないため)
         exitRect = default;
         if (AppExit.HasExitButton && ready && outT < 0f && !AppExit.Open)

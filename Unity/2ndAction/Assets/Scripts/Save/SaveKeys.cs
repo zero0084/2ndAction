@@ -144,6 +144,8 @@ public static class SaveKeys
         new Entry(DisplaySettings.ModeKey, SaveCategory.Settings, SaveType.Int, "PC の表示モード 0=枠なし全画面(全画面のウィンドウ)/1=ウィンドウ/2=全画面(排他。対応する時だけ)(確定した時だけ保存。無ければ Unity の既定、2026-10-25 / 2026-10-31 注記を実際の値に合わせた)"),
         new Entry(DisplaySettings.WindowKey, SaveCategory.Settings, SaveType.String, "PC の最後のウィンドウの大きさ \"幅x高さ\"(全画面からウィンドウへ戻す時の大きさ。端のドラッグ/Alt+Enter でも保存、2026-10-31)"),
         new Entry(UiScalePref.Key, SaveCategory.Settings, SaveType.Int, "文字・UIの大きさ 0=標準/1=大きめ(2026-10-31)"),
+        new Entry(PatchNotesUi.ReadKey, SaveCategory.Settings, SaveType.Int, "お知らせ(更新内容)を読んだ一番新しい版の番号(2026-11-14。これより新しい版があればタイトルの「お知らせ」に NEW)"),
+        new Entry(GameManager.GachaCategoryKey, SaveCategory.Settings, SaveType.Int, "ガチャで引く分類 0=共通/1=荒野/2=洞窟/3=天空/4=ラスダン(2026-11-14。読み込み時に未解禁なら共通)"),
         new Entry(DisplaySettings.ResKey, SaveCategory.Settings, SaveType.String, "PC の解像度 \"幅x高さ\"(確定した時だけ保存、2026-10-25)"),
         new Entry(DisplaySettings.VSyncKey, SaveCategory.Settings, SaveType.Int, "PC の垂直同期 1/0(既定1、2026-10-25)"),
         new Entry(DisplaySettings.FpsKey, SaveCategory.Settings, SaveType.Int, "PC の FPS 上限(垂直同期 OFF の時。0=無制限、2026-10-25)"),

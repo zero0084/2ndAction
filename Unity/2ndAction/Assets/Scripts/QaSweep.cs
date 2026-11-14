@@ -123,6 +123,9 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaMapCardShots") { mode = "mapcardshots"; dir = a[i + 1]; } // 2026-11-06 マップ専用カードの見え方
             if (a[i] == "-qaTutorial") { mode = "tutorial"; dir = a[i + 1]; }
             if (a[i] == "-qaGacha") { mode = "gacha"; dir = a[i + 1]; }
+            if (a[i] == "-qaGachaCat") { mode = "gachacat"; dir = a[i + 1]; } // 2026-11-14 ガチャの分類を選ぶ
+            if (a[i] == "-qaTitleNotes") { mode = "titlenotes"; dir = a[i + 1]; } // 2026-11-14 タイトルのお知らせ/文字/更新の案内
+            if (a[i] == "-qaUpgradeRead") { mode = "upgraderead"; dir = a[i + 1]; } // 2026-11-14 前の版の保存を読む
             if (a[i] == "-qaDeck") { mode = "deck"; dir = a[i + 1]; }
             if (a[i] == "-qaDeckDup") { mode = "deckdup"; dir = a[i + 1]; }
             if (a[i] == "-qaDeckPreset") { mode = "deckpreset"; dir = a[i + 1]; } // 2026-10-31 デッキのプリセット
@@ -333,6 +336,9 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "skyboss") yield return SkyBossMode();
         else if (mode == "flyjitter") yield return FlyJitterMode();
         else if (mode == "monet") yield return MonetizationModeQa();
+        else if (mode == "gachacat") yield return GachaCatModeQa();
+        else if (mode == "titlenotes") yield return TitleNotesModeQa();
+        else if (mode == "upgraderead") yield return UpgradeReadModeQa();
         else if (mode == "monetnone") yield return MonetizationNoneQa();
         else if (mode == "monetshots") yield return MonetizationShotsQa();
         else if (mode == "adsdk") yield return AdSdkModeQa();

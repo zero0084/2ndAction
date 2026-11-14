@@ -32,8 +32,8 @@ public class ReleaseBuildGuard : IPreprocessBuildWithReport
         }
         if (defines.Contains("OMM_UNITY_IAP") && !defines.Contains("OMM_IAP_TANGLE"))
         {
-            if (prodAds) missing.Add("課金のレシート検証(Play Console のライセンスキーから GooglePlayTangle を作り、スクリプトの定義に OMM_IAP_TANGLE を足す)");
-            else Debug.Log("[ReleaseBuildGuard] no receipt validation (OMM_IAP_TANGLE) - the no-ads pass stays 'preparing' in this test-ads build");
+            // 2026-11-14: 検証が無い間は製品版でパスを出さない(SettingsPanel.PassRows)ので、本番広告の版も作れる
+            Debug.Log($"[ReleaseBuildGuard] no receipt validation (OMM_IAP_TANGLE) - the no-ads pass is hidden in this {(prodAds ? "production" : "test")}-ads build");
         }
         // 2026-10-15: 翻訳の反映待ち(LocPendingReview)。訳が無い言語では前の仕様の説明が出るので、公開版は止める
         foreach (var pr in LocPendingReview.Pending)

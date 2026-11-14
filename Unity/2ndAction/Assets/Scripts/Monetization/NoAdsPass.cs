@@ -52,14 +52,34 @@ public static class NoAdsPass
         st.Initialize(ok => AdManager.Post(() => { if (ok) Check("start"); else LastNote = "ストアに接続できませんでした。最後に確認した状態のままです"; }));
     }
 
+    // 2026-11-14: 確認(復元)の返事がストアから来ないと Busy のままで、以後の確認/復元のボタンが効かなかった → 一定時間で打ち切る
+    //  (打ち切った後に遅れて返事が来ても使わない。最後に確認した状態のまま。次の起動/復帰/復元で確かめ直す)
+    public const float CheckTimeoutSeconds = 20f;
+    static int checkSeq; static float checkStartedAt; static Action<RestoreResult> checkDone;
+    public static int CheckTimeouts { get; private set; } // 確認用
+    public static void TickTimeout()
+    {
+        if (!Busy || Purchasing || checkDone == null && checkSeq == 0) return;
+        if (Time.realtimeSinceStartup - checkStartedAt < CheckTimeoutSeconds) return;
+        if (Purchasing) return;
+        checkSeq++; Busy = false; CheckTimeouts++;
+        LastNote = "ストアに接続できませんでした。最後に確認した状態のままです";
+        Debug.LogWarning($"[NoAds] check timed out after {CheckTimeoutSeconds:F0}s - keep owned={S.owned}");
+        var d = checkDone; checkDone = null;
+        d?.Invoke(new RestoreResult { ok = false, message = LastNote });
+    }
+
     // 権利の確認(起動/復帰/「購入を復元」)
     public static void Check(string why, Action<RestoreResult> done = null)
     {
         var st = Monetization.Store;
         if (st == null || Busy) { done?.Invoke(new RestoreResult { ok = false, message = "ストアを利用できません" }); return; }
         Busy = true;
+        int seq = ++checkSeq; checkStartedAt = Time.realtimeSinceStartup; checkDone = done;
         st.Restore(MonetizationConfig.NoAdsProductId, r => AdManager.Post(() =>
         {
+            if (seq != checkSeq) { Debug.Log($"[NoAds] late reply for a timed-out check ({why}) ignored"); return; }
+            checkDone = null;
             Busy = false;
             if (!r.ok) { LastNote = "ストアに接続できませんでした。最後に確認した状態のままです"; Debug.Log($"[NoAds] check ({why}) offline: keep owned={S.owned}"); done?.Invoke(r); return; }
             if (r.owned) Grant(r.token, "restore " + why);

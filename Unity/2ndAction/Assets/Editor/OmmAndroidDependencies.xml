@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 2026-11-14 更新の確認(UpdateCheckBridge.java): Google Play のアプリ内アップデートの公式ライブラリ。External Dependency Manager が mainTemplate.gradle へ書く -->
+<dependencies>
+  <androidPackages>
+    <androidPackage spec="com.google.android.play:app-update:2.1.0">
+      <repositories><repository>https://maven.google.com/</repository></repositories>
+    </androidPackage>
+  </androidPackages>
+</dependencies>

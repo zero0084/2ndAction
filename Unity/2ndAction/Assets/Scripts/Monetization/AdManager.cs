@@ -8,7 +8,8 @@ using UnityEngine;
 //  ・広告の間: 音を止める(AudioListener.pause。設定の音量/消音は変えない)、画面の入力を止める(UiInputGate.AdShowing)。
 //    終わったら戻し、押しっぱなしの指は離すまで無視(LatchUntilRelease)
 //  ・報酬: SDK の正規の報酬通知だけで渡す(閉じただけでは渡さない)。1回の表示で報酬は1回だけ(通知が重なっても/遅れても)。
-//    報酬を「受け取った」記録を保存してから渡す(AdRewards が鍵ごとに付与済みを持つ)ので、途中でアプリが落ちても次の起動で回収できる
+//    報酬と「受け取った」記録は同じ1回の保存で書く(AdRewards が鍵ごとに付与済みを持つ)ので、半分だけ渡ることは無い・二重にも渡らない。
+//    (2026-11-14 訂正: SDK の報酬通知から主スレッドで処理するまでの一瞬にアプリが落ちた場合の回収の仕組みは無い。サーバー側の確認(SSV)は使っていない)
 //  ・SDK の通知は Unity の主スレッド以外から来ることがある → いったん貯めて Update で処理する
 public class AdManager : MonoBehaviour
 {
@@ -44,6 +45,7 @@ public class AdManager : MonoBehaviour
 
     void Update()
     {
+        NoAdsPass.TickTimeout();
         if (Showing)
         {
             if (Time.realtimeSinceStartup - showStartedAt > MaxShowSeconds) Force("timeout");
@@ -57,7 +59,7 @@ public class AdManager : MonoBehaviour
         if (Monetization.Ads != null && !Showing)
         {
             KeepLoaded(AdKind.Interstitial, !NoAdsPass.Owned);
-            KeepLoaded(AdKind.Rewarded, true);
+            KeepLoaded(AdKind.Rewarded, !NoAdsPass.Owned); // 2026-11-14: パスがあれば報酬広告も使わない(読み込まない)
         }
     }
 
@@ -119,7 +121,8 @@ public class AdManager : MonoBehaviour
         why = "";
         if (Monetization.Ads == null) { why = "広告を利用できません"; return false; }
         if (Showing) { why = "広告の表示中です"; return false; }
-        if (!Monetization.Ads.IsReady(AdKind.Rewarded)) { Monetization.Ads.Load(AdKind.Rewarded); why = "広告を準備中です。少し待ってからお試しください"; return false; }
+        // 2026-11-14: ここでは読み込みを要求しない(結果画面は毎フレーム呼ぶので、失敗のたびにすぐ次の要求が出ていた)。読み込みは KeepLoaded の段階的な間隔だけ
+        if (!Monetization.Ads.IsReady(AdKind.Rewarded)) { why = "広告を準備中です。少し待ってからお試しください"; return false; }
         return true;
     }
 

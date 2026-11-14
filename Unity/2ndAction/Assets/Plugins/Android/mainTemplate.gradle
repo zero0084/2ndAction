@@ -10,6 +10,7 @@ dependencies {
     implementation 'androidx.fragment:fragment:1.7.1' // Packages/com.google.ads.mobile/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:22
     implementation 'androidx.lifecycle:lifecycle-process:2.6.2' // Packages/com.google.ads.mobile/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:17
     implementation 'com.google.android.gms:play-services-ads:25.4.0' // Packages/com.google.ads.mobile/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:7
+    implementation 'com.google.android.play:app-update:2.1.0' // Assets/Editor/OmmAndroidDependencies.xml:7
     implementation 'com.google.android.ump:user-messaging-platform:4.0.0' // Packages/com.google.ads.mobile/GoogleMobileAds/Editor/GoogleUmpDependencies.xml:7
 // Android Resolver Dependencies End
 **DEPS**}

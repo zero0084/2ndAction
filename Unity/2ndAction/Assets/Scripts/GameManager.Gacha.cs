@@ -41,8 +41,10 @@ public partial class GameManager
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiDeny);
             return false;
         }
-        List<CardDefinition> pool = BuildGachaPool();
-        if (pool.Count == 0) return false;
+        // 2026-11-14: 選んでいる分類のカードだけ(タップの時点で確定)。対象が無ければ引かない(MILE を使わない・別の分類へ切り替えない)
+        CardMapCategory cat = GachaCategory;
+        List<CardDefinition> pool = BuildGachaPoolFor(cat);
+        if (pool.Count == 0) { RefuseEmptyCategory(cat); return false; }
         CardDefinition drawn = DrawFromGachaPool(pool);
         if (drawn == null) return false;
         if (!TrySpendMile(GachaCostMile)) { gachaInsufficientMessageTimer = gachaInsufficientMessageDuration; GachaRefusedNoMile++; return false; }

@@ -85,10 +85,28 @@ public static class BuildAndroid
     //  ・署名の設定はビルドの後に必ず元へ戻す(ProjectSettings に鍵の場所・パスワードを残さない)
     //  ・出力: Builds/ClosedTest/OneMoreMile_ct<番号>.aab / .apk と、使った設定の記録 OneMoreMile_ct<番号>_build.txt
     [MenuItem("Tools/2ndAction/Build Android Closed Test (release, test ads)")]
-    public static void BuildClosedTest()
+    public static void BuildClosedTest() => BuildRelease(false);
+
+    // 本番用(2026-11-14): 中身はクローズドテストと同じ製品版で、広告だけ本番の広告ユニット(OMM_ADS_PROD)。
+    //  ・OMM_ADS_PROD は PlayerSettings に書いたままにしない(このビルドの間だけ足して、終わったら必ず戻す)
+    //    → ふだんのビルド(開発版/クローズドテスト)は必ずテスト広告。切り替えはこのメニューを選ぶことだけ
+    //  ・アップロード鍵(環境変数)が無ければ作らない(本番の広告をデバッグ鍵の APK で配らない)
+    //  ・広告なしパスはレシートの検証(OMM_IAP_TANGLE)が無ければ「出さない」(購入できるように見せない)
+    //  ・出力: Builds/Production/OneMoreMile_v<番号>.aab / .apk / _build.txt。ストアへの上げ/公開はマスターが行う
+    [MenuItem("Tools/2ndAction/Build Android Production (release, PRODUCTION ads, upload key)")]
+    public static void BuildProduction()
+    {
+        string pks = System.Environment.GetEnvironmentVariable("OMM_UPLOAD_KEYSTORE");
+        if (string.IsNullOrEmpty(pks) || !File.Exists(pks)) { Debug.LogError("BuildAndroid: production build refused - upload key not given (OMM_UPLOAD_KEYSTORE etc.)"); return; }
+        BuildRelease(true);
+    }
+
+    static void BuildRelease(bool prodAds)
     {
         string defines = PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Android);
-        if (defines.Contains("OMM_ADS_PROD")) { Debug.LogError("BuildAndroid: closed test build refused - OMM_ADS_PROD (production ads) is defined"); return; }
+        if (defines.Contains("OMM_ADS_PROD")) { Debug.LogError("BuildAndroid: refused - OMM_ADS_PROD is written in PlayerSettings (it must only be added by BuildProduction for that build)"); return; }
+        string outDir = prodAds ? "Builds/Production" : "Builds/ClosedTest";
+        string prefix = prodAds ? "OneMoreMile_v" : "OneMoreMile_ct";
         // AdMob のアプリ ID を設定へ(テスト広告でも実際のアプリ ID)。2026-10-26: 同じ起動の中で ID を書き換えた直後のビルドには
         // 古い ID が入った(APK の AndroidManifest で確認)→ 書き換えた時はビルドせず、もう一度実行してもらう
         if (MonetizationSetup.ApplyAndReport()) { Debug.LogError("BuildAndroid: the AdMob app id was just updated - run BuildClosedTest again (a fresh editor session picks it up)"); return; }
@@ -98,7 +116,7 @@ public static class BuildAndroid
         int code = PlayerSettings.Android.bundleVersionCode;
         PlayerSettings.Android.forceInternetPermission = true;
         NetPrefabBuilder.Build();
-        Directory.CreateDirectory("Builds/ClosedTest");
+        Directory.CreateDirectory(outDir);
 
         string ks = System.Environment.GetEnvironmentVariable("OMM_UPLOAD_KEYSTORE");
         string ksPass = System.Environment.GetEnvironmentVariable("OMM_UPLOAD_KEYSTORE_PASS");
@@ -114,6 +132,7 @@ public static class BuildAndroid
         bool wasCustom = PlayerSettings.Android.useCustomKeystore, wasAab = EditorUserBuildSettings.buildAppBundle, wasSplit = PlayerSettings.Android.splitApplicationBinary;
         string wasKs = PlayerSettings.Android.keystoreName, wasAlias = PlayerSettings.Android.keyaliasName;
         var outputs = new System.Collections.Generic.List<string>();
+        if (prodAds) PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Android, defines + ";OMM_ADS_PROD");
         try
         {
             if (upload)
@@ -128,13 +147,13 @@ public static class BuildAndroid
                 if (upload)
                 {
                     EditorUserBuildSettings.buildAppBundle = true; PlayerSettings.Android.splitApplicationBinary = true; // base を 200MB 未満に(Play の上限)
-                    string aab = $"Builds/ClosedTest/OneMoreMile_ct{code}.aab";
+                    string aab = $"{outDir}/{prefix}{code}.aab";
                     var r1 = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, aab, BuildTarget.Android, BuildOptions.None);
                     Debug.Log("BuildAndroid: closed test aab result=" + r1.summary.result + " size=" + r1.summary.totalSize + " path=" + aab);
                     outputs.Add($"aab={aab} result={r1.summary.result}");
                 }
                 EditorUserBuildSettings.buildAppBundle = false; PlayerSettings.Android.splitApplicationBinary = false;
-                string apk = $"Builds/ClosedTest/OneMoreMile_ct{code}{(upload ? "" : "_debugsigned")}.apk";
+                string apk = $"{outDir}/{prefix}{code}{(upload ? "" : "_debugsigned")}.apk";
                 var r2 = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, apk, BuildTarget.Android, BuildOptions.None);
                 Debug.Log("BuildAndroid: closed test apk result=" + r2.summary.result + " size=" + r2.summary.totalSize + " path=" + apk);
                 outputs.Add($"apk={apk} result={r2.summary.result}");
@@ -142,6 +161,7 @@ public static class BuildAndroid
         }
         finally
         {
+            if (prodAds) PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Android, defines); // 本番広告の定義は必ず外す
             PlayerSettings.Android.useCustomKeystore = wasCustom;
             if (upload)
             {
@@ -157,14 +177,15 @@ public static class BuildAndroid
         var info = new System.Text.StringBuilder();
         info.AppendLine($"versionCode={code} versionName={stamp}");
         info.AppendLine($"developmentBuild=false debuggable=false");
-        info.AppendLine($"adsProfile={MonetizationConfig.AdsProfile} (test = Google test ad units; production units are NOT used)");
+        info.AppendLine(prodAds ? "adsProfile=PRODUCTION (real ad units)" : "adsProfile=test (Google test ad units; production units are NOT used)");
         info.AppendLine($"admobAppId={MonetizationSetup.ProdAndroidAppId}");
-        info.AppendLine($"interstitialUnit={MonetizationConfig.TestInterstitialUnit} rewardedUnit={MonetizationConfig.TestRewardedUnit}");
-        info.AppendLine($"defines={defines}");
-        info.AppendLine($"noAdsPass={(defines.Contains("OMM_IAP_TANGLE") ? "purchase enabled" : "preparing (no receipt validation)")}");
+        info.AppendLine(prodAds ? $"interstitialUnit={MonetizationConfig.ProdInterstitialUnit} rewardedUnit={MonetizationConfig.ProdRewardedUnit}"
+                                : $"interstitialUnit={MonetizationConfig.TestInterstitialUnit} rewardedUnit={MonetizationConfig.TestRewardedUnit}");
+        info.AppendLine($"defines={defines}{(prodAds ? ";OMM_ADS_PROD (this build only)" : "")}");
+        info.AppendLine($"noAdsPass={(defines.Contains("OMM_IAP_TANGLE") ? "purchase enabled" : "hidden in release (no receipt validation yet)")}");
         info.AppendLine($"signing={(upload ? "upload key (" + Path.GetFileName(ks) + ", alias set)" : "debug key - NOT uploadable")}");
         foreach (var o in outputs) info.AppendLine(o);
-        File.WriteAllText($"Builds/ClosedTest/OneMoreMile_ct{code}_build.txt", info.ToString());
+        File.WriteAllText($"{outDir}/{prefix}{code}_build.txt", info.ToString());
         Debug.Log("BuildAndroid: closed test build info: " + info.ToString().Replace(System.Environment.NewLine, " | "));
     }
 

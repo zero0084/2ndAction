@@ -2128,12 +2128,16 @@ public partial class GameManager : MonoBehaviour
         var rowPlan = new System.Collections.Generic.List<(Rect, string)>();
         for (int i = 0; i < 4; i++) rowPlan.Add((new Rect(pl.facility.x + i * (w + gap), pl.facility.y, w, pl.facility.height), labels[i]));
         HomeIconPlan plan = PlanHomeIconRow(rowPlan, fs);
+        // 2026-11-14 ガチャの分類(エステル): 下のガチャ/広告のボタンの上に、画面の幅いっぱいの帯
+        if (!gachaResultOpen && fade > 0.05f)
+            DrawGachaCategoryPanel(AdGachaAvailable ? pl.facility.y - 54f * GachaUiScale - 8f - 8f : pl.facility.y - 8f, fade, interactable);
         for (int i = 0; i < 4; i++)
         {
             Rect b = new Rect(pl.facility.x + i * (w + gap), pl.facility.y, w, pl.facility.height);
             bool ok = i == 3 ? (interactable || (gachaResultOpen && !showNewRunConfirm && !NetDebugUI.BlocksHomeInput && !UiInputGate.Blocked)) : interactable;
             if (i == 3 && gachaResultOpen) continue; // 確認中は本体を押す(下の窓と重ねない)
             bool hit = DrawHomeIconButton(b, UiIcons.Home(HomeSignIcons[i]), labels[i], plan, primary: i == 0); // 2026-10-22: 部屋の札と同じアイコン
+            if (i == 3) DimIfGachaEmpty(b, fade); // 対象のカードが無い分類: 「引けない」見た目(押しても引かず、何も使わない)
             if (!hit || !ok || fade <= 0.99f) continue;
             if (i == 0) OpenCharacterSelect();
             else if (i == 1) OpenDeckEdit();
@@ -6799,6 +6803,8 @@ public partial class GameManager : MonoBehaviour
     {
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (AppExit.Open) { AppExit.Cancel(); return; } // 2026-10-31: 終了の確認はキャンセル(1段だけ)
+        if (PatchNotesUi.IsOpen) { PatchNotesUi.Close(); return; } // 2026-11-14: お知らせを閉じてタイトルへ
+        if (UpdateCheck.PromptOpen) { UpdateCheck.Later(); return; } // 2026-11-14: 更新の案内は「あとで」と同じ
         if (TitleScreen.Showing) { AppExit.RequestFromTitle(); return; } // 2026-10-31: タイトルの戻る = 終了/端末のホームへの確認(後ろのホームへは通さない。iOS は何もしない)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (DebugPanel.Instance != null && DebugPanel.Instance.Back()) return;

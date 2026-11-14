@@ -29,6 +29,7 @@ public partial class GameManager
     float HomeSignFont => Mathf.Clamp(bgRoomRect.height * 0.03f, 13f, 30f);
 
     // 札を1枚描く。押されたら true(タップの範囲 = 札)
+    bool signDisabledOnce; // 次に描く札を「押せない」見た目に(1回だけ)
     bool DrawHomeSign(int idx, Vector2 anchor, bool below, string label, bool interactable, float fade, float phase, string sub = null, float scale = 1f, bool primary = false, Texture2D icon = null, float minW = 0f, float minH = 0f)
     {
         float fs = HomeSignFont * scale;
@@ -74,13 +75,16 @@ public partial class GameManager
         st.normal.textColor = new Color(1f, 0.93f, 0.7f, fade);
         GUI.color = Color.white;
         if (primary) st.normal.textColor = new Color(1f, 0.97f, 0.82f, fade);
+        // 2026-11-14(エステル): 押せない札は名前とアイコンを暗く、2行目の理由は明るい橙で読める
+        bool disabledLook = signDisabledOnce; signDisabledOnce = false;
+        if (disabledLook) st.normal.textColor = new Color(0.62f, 0.62f, 0.66f, 0.8f * fade);
         // アイコンがある時は「アイコン+文字」のまとまりを札の中央へ
         Rect tr = r;
         if (icon != null)
         {
             float blockW = iconS + iconGap + Mathf.Max(sz.x, subSz.x);
             float bx = r.center.x - blockW * 0.5f;
-            Color k2 = GUI.color; GUI.color = new Color(1f, 1f, 1f, fade);
+            Color k2 = GUI.color; GUI.color = new Color(1f, 1f, 1f, fade * (disabledLook ? 0.4f : 1f));
             UiIcons.Draw(new Rect(bx, r.center.y - iconS * 0.5f, iconS, iconS), icon);
             GUI.color = k2;
             tr = new Rect(bx + iconS + iconGap, r.y, Mathf.Max(sz.x, subSz.x), r.height);
@@ -90,7 +94,7 @@ public partial class GameManager
         {
             float top = r.y + (r.height - sz.y - subSz.y) * 0.5f;
             GUI.Label(new Rect(tr.x, top, tr.width, sz.y), shown, st);
-            subSt.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, 0.85f * fade);
+            subSt.normal.textColor = disabledLook ? new Color(1f, 0.74f, 0.6f, fade) : new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, 0.85f * fade);
             GUI.Label(new Rect(tr.x, top + sz.y - fs * 0.05f, tr.width, subSz.y), sub, subSt);
         }
         GUI.color = keep;
@@ -136,15 +140,33 @@ public partial class GameManager
         // ガチャ: 機械の下(上は横画面の設定/マルチのボタンと重なる)。横画面で「広告で1回引く」が機械の下にある時は、その下
         float gachaY = machineRect.yMax + 4f;
         if (!HomePortrait && AdGachaAvailable) gachaY = machineRect.yMax + 6f + 54f * GachaUiScale + 6f;
-        if (!roomDup && machineRect.width > 1f && !gachaResultOpen && DrawHomeSign(3, new Vector2(machineRect.center.x, gachaY), true, HomeSignLabels[3], interactable, fade, 3f, icon: UiIcons.Home(HomeSignIcons[3]), minW: homeSignUnifiedW, minH: homeSignUnifiedH))
+        if (!HomePortrait && machineRect.width > 1f && !gachaResultOpen) signDisabledOnce = GachaCategoryEmpty;
+        if (!roomDup && machineRect.width > 1f && !gachaResultOpen && DrawHomeSign(3, new Vector2(machineRect.center.x, gachaY), true, HomeSignLabels[3], interactable, fade, 3f, HomePortrait ? null : GachaSignSubLine(), icon: UiIcons.Home(HomeSignIcons[3]), minW: homeSignUnifiedW, minH: homeSignUnifiedH))
         { deskHotspotFlashTimer = roomHotspotFlashDuration; OnGachaMachineTapped(); }
         // 2026-11-06: ガチャに入っている土地の列(横画面は札の下、縦画面は台の下)
         if (machineRect.width > 1f && !gachaResultOpen)
         {
             Rect gs = LastHomeSignRects[3];
-            if (HomePortrait) LastGachaLandRowRect = Rect.zero; // エステル: 縦画面は台が小さいので列は出さない(結果の画面で土地を示す)
-            else if (gs.width > 0f) DrawGachaLandRow(new Vector2(gs.center.x, gs.yMax + HomeSignFont * 0.35f), HomeSignFont * 1.05f, fade);
-            else DrawGachaLandRow(new Vector2(machineRect.center.x, machineRect.yMax + 2f), Mathf.Max(18f, machineRect.width * 0.17f), fade);
+            // 2026-11-14: 分類を選ぶ機能になったので縦画面にも出す(台の下)
+            // 横画面: 札の左に並べる(札の下は「カード合成」の札に近い)。案内は札の2行目
+            if (!HomePortrait && gs.width > 0f)
+            {
+                float u = Mathf.Max(Dp(36f), HomeSignFont * 1.6f), rw = GachaLandRowWidth(u); // 押せる範囲(紋+名前+左右の余白)は 48dp 以上
+                float rh = u + Mathf.Max(16f, u * 0.4f) + u * 0.24f;
+                float rx = gs.x - HomeSignFont * 0.4f - rw, ry = gs.center.y - rh * 0.5f;
+                // 下の「出発 / 続きから / はじめから」の札にかからない(エステル): かかるなら札の上へ
+                for (int si = 4; si <= 5; si++)
+                {
+                    // 「出発」の札はこの後に描くので、今のフレームの位置はまだ無い → 前のフレームの位置
+                    Rect sr = SignRectNowOrPrev(si), sh = LastHomeSignHitRects[si];
+                    if (sh.width > 1f) sr = Rect.MinMaxRect(Mathf.Min(sr.xMin, sh.xMin), Mathf.Min(sr.yMin, sh.yMin) - HomeSignFont * 0.3f, Mathf.Max(sr.xMax, sh.xMax), Mathf.Max(sr.yMax, sh.yMax));
+                    else sr.yMin -= HomeSignFont * 0.3f; // 札の上の印(◆)と、大きい札の見た目の分
+                    if (sr.width > 1f && sr.xMax > rx && sr.x < rx + rw && sr.y < ry + rh + 6f && sr.yMax > ry) ry = Mathf.Min(ry, sr.y - 6f - rh);
+                }
+                DrawGachaLandRow(new Vector2(rx + rw * 0.5f, ry), u, fade, interactable, false);
+                // 対象のカードが無い分類: 札は「引けない」見た目(DrawHomeSign の signDisabledOnce)。理由の2行目は明るいまま
+            }
+            // 縦画面は下のボタンの上の帯(DrawPortraitFacilityButtons)
         }
         else LastGachaLandRowRect = Rect.zero;
         if (HomeShowsContinueChoice)

@@ -111,12 +111,19 @@ public class GachaSkinFx
         if (!Enabled) return;
         Reveals++;
         antT = -1f; antKey = null;
-        if (land != Skin) { prevSkin = Skin; Skin = land; blend = 0f; }
+        // 2026-11-14: 筐体の見た目は「選んでいる分類」(SetSkin)。引いたカードでは変えない(排出の光・板の色はカードの分類)
         disLand = land; disT = 0f; disHigh = rarity >= 4;
         if (lastMachine.width > 0f) SpawnDischarge(lastMachine, land, disHigh);
         panelBurstPending = true; panelLand = land; panelHigh = disHigh;
     }
     public void DebugSetSkin(CardMapCategory k) { Skin = k; prevSkin = k; blend = 1f; }
+    // 選んでいる分類に合わせる(2026-11-14)。instant = 読み込みの時(なめらかに切り替えない)
+    public void SetSkin(CardMapCategory k, bool instant)
+    {
+        if (instant) { Skin = k; prevSkin = k; blend = 1f; return; }
+        if (k == Skin) return;
+        prevSkin = Skin; Skin = k; blend = 0f;
+    }
     public void ResetFx() { ps.Clear(); antT = -1f; antKey = null; disT = -1f; panelBurstPending = false; }
 
     public void Update(float dt)

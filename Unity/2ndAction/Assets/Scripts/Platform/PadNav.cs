@@ -81,7 +81,7 @@ public class PadNav : MonoBehaviour
         ScrollRequest = 0;
         confirmPending = false;
         if (Suspended) { MenuActive = false; return; } // キー設定の待ち受け中(押したボタン/スティックを割り当てに使う。フォーカスを動かさない)
-        if (TitleScreen.BlocksInput && !AppExit.Open) { MenuActive = false; return; } // 2026-10-31: タイトルの間は後ろのホームの項目を選ばない/決定しない(タイトルを始めた Enter で「設定」が開いていた)
+        if (TitleScreen.BlocksInput && !AppExit.Open && !PatchNotesUi.IsOpen) { MenuActive = false; return; } // 2026-11-14: タイトルの上のお知らせはパッド/キーで操作できる // 2026-10-31: タイトルの間は後ろのホームの項目を選ばない/決定しない(タイトルを始めた Enter で「設定」が開いていた)
         int top = int.MinValue;
         foreach (var c in prev) if (c.layer > top) top = c.layer;
         TopLayer = top;
@@ -381,7 +381,7 @@ public class PadNav : MonoBehaviour
     static Texture2D tex;
     void OnGUI()
     {
-        GUI.depth = AppExit.Open ? -31999 : -3000; // 一番手前(どのイベントでも設定する)。2026-10-31: 終了の確認(-31995)の上にも出す
+        GUI.depth = AppExit.Open || PatchNotesUi.IsOpen ? -31999 : -3000; // 一番手前(どのイベントでも設定する)。2026-10-31: 終了の確認(-31995)の上にも出す
         // 2026-10-31: 文字の入力中か(キーの焦点が入力欄にある)。入力中はキーで項目を動かしたりゲームの操作をしない(GameInput.TextInputActive)。
         //  Enter で入力を終える(次の Enter から項目の決定)。入力欄が描かれなくなったら焦点を外す
         int kc = GUIUtility.keyboardControl;

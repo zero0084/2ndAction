@@ -701,10 +701,23 @@ public partial class SettingsPanel : MonoBehaviour
 
     // 広告なしパス/購入の復元/プライバシー(2026-10-10、依頼I)。Steam/PC(広告も課金も無い)では出さない
     static bool PrivacyRow => Monetization.Ads != null && Monetization.Ads.PrivacyOptionsRequired;
-    float MeasureNoAds() => Monetization.Mode == MonetizationMode.None ? 0f : 16f + HeadH + 4f + RowH * (PrivacyRow ? 3f : 2f) + 22f * 2f;
+    // 2026-11-14: 販売の準備(レシートの検証)ができていない製品版では、パスの欄を出さない(購入できるように見せない)。
+    //  持っている人(以前の確認で有効)と開発版(確かめるため)には出す。広告のプライバシーの行は必要な地域では今までどおり
+    static bool PassRows => Monetization.PurchaseSetupComplete || NoAdsPass.Owned || DevGate.On;
+    float MeasureNoAds() => Monetization.Mode == MonetizationMode.None ? 0f
+        : !PassRows ? (PrivacyRow ? 16f + HeadH + 4f + RowH : 0f)
+        : 16f + HeadH + 4f + RowH * (PrivacyRow ? 3f : 2f) + 22f * 2f;
     float DrawNoAds(float x, float y, float w, bool interactive)
     {
         if (Monetization.Mode == MonetizationMode.None) return y;
+        if (!PassRows)
+        {
+            if (!PrivacyRow) return y;
+            y = Head(x, y + 16f, w, "広告のプライバシー");
+            RowLabel(x, y, "広告のプライバシー");
+            if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), "プライバシーの設定", 19f, false, true) && interactive) Monetization.Ads.ShowPrivacyOptions();
+            return y + RowH;
+        }
         y = Head(x, y + 16f, w, "広告なしパス");
         RowLabel(x, y, "広告なしパス");
         bool owned = NoAdsPass.Owned;

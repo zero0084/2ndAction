@@ -165,10 +165,10 @@ public partial class GameManager
     bool adGachaBusy;
     public bool AdGachaAvailable => Monetization.Mode != MonetizationMode.None && !HasStarted;
 
-    // ガチャの抽選(MILE のガチャと同じ抽選/同じ重複の扱い。支払いだけ無い)
-    CardDefinition DrawGachaCardForAd()
+    // ガチャの抽選(MILE のガチャと同じ抽選/同じ重複の扱い。支払いだけ無い)。分類はタップの時点で確定した物(2026-11-14)
+    CardDefinition DrawGachaCardForAd(CardMapCategory cat)
     {
-        var pool = BuildGachaPool();
+        var pool = BuildGachaPoolFor(cat);
         var c = pool.Count == 0 ? null : DrawFromGachaPool(pool);
         adPullIsNew = c != null && CardInventory.GetTotalCountByName(c.cardId) == 0; // 加える前(ClaimGachaPull の中で加わる)
         return c;
@@ -190,10 +190,13 @@ public partial class GameManager
         if (!AdGachaAvailable || adGachaBusy || AdManager.Showing) return;
         string day = TrustedClock.DayKey;
         if (AdRewards.GachaRemaining(day) <= 0) { SetAdGachaNote(Loc.F("本日の分は引き終わりました(あと{0}で回復)", FormatUntilNextDay())); return; }
+        // 2026-11-14: 抽選する分類はここで確定(広告を見ている間に分類を変えても、この分類から引く)。対象が無ければ広告を出さない(回数も使わない)
+        CardMapCategory cat = GachaCategory;
+        if (BuildGachaPoolFor(cat).Count == 0) { RefuseEmptyCategory(cat); return; }
         if (NoAdsPass.Owned)
         {
             TrustedClock.NoteUse();
-            RevealAdGachaCard(AdRewards.ClaimGachaPull(day, "pass", DrawGachaCardForAd));
+            RevealAdGachaCard(AdRewards.ClaimGachaPull(day, "pass", () => DrawGachaCardForAd(cat)));
             return;
         }
         if (!AdManager.CanShowRewardedNow(out string why)) { SetAdGachaNote(Loc.Auto(why)); return; }
@@ -204,8 +207,10 @@ public partial class GameManager
             // 正規の報酬の通知の時に、抽選 + カード + 回数 を同じ保存で確定(再起動で引き直せない)
             string d = TrustedClock.DayKey;
             TrustedClock.NoteUse();
-            var card = AdRewards.ClaimGachaPull(d, "ad", DrawGachaCardForAd);
-            if (card != null) { got = true; RevealAdGachaCard(card); }
+            // 広告の間に画面が読み直されていても、今の GameManager で見せる(カードは ClaimGachaPull で所持済み)
+            var gmNow = Instance != null ? Instance : this;
+            var card = AdRewards.ClaimGachaPull(d, "ad", () => gmNow.DrawGachaCardForAd(cat));
+            if (card != null) { got = true; gmNow.RevealAdGachaCard(card); }
         }, ok =>
         {
             adGachaBusy = false;
@@ -237,7 +242,7 @@ public partial class GameManager
         r.x = Mathf.Clamp(r.x, SafeLeft() + 8f, Screen.width - SafeRight() - 8f - r.width);
         string title = pass ? Loc.T("無料で1回引く(パス)") : Loc.T("広告で1回引く");
         string sub = left > 0 ? Loc.F("本日あと{0}回", left) : Loc.F("回数リセットまで {0}", FormatUntilNextDay());
-        bool ok = interactable && left > 0 && !adGachaBusy && !AdManager.Showing;
+        bool ok = interactable && left > 0 && !adGachaBusy && !AdManager.Showing && !GachaCategoryEmpty; // 2026-11-14: 対象のカードが無い分類では引けない見た目
         Rect top = new Rect(r.x, r.y, r.width, h * 0.62f);
         if (UiKit.Button(r, "", 16f * s, false, false, ok) && interactable) OnAdGachaTapped();
         var st = UiKit.Label(15f * s, TextAnchor.MiddleCenter, true, ok ? new Color(1f, 0.9f, 0.6f) : new Color(0.7f, 0.72f, 0.78f));
