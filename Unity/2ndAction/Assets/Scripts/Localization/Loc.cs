@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -271,6 +271,9 @@ public static class Loc
 
     // 日本語(中国語は仮名)が残っているか
     static bool LeftJp(string s) => current != "ja" && (current.StartsWith("zh") ? Kana.IsMatch(s) : JpLeft.IsMatch(s));
+
+    // 2026-11-15: 型(Loc.F)に差し込む語の訳(並べ替え/字形の処理の前)。Auto/T の結果を差し込むと、右から左の言語・インドの文字で二重に処理されて崩れる
+    public static string AutoPlain(string s) { if (current == null) Init(); return PartRaw(s); }
 
     // 型に差し込む部分の訳(訳が無い語はそのまま。名前の表記(言語の名前)は訳さない)
     static string PartRaw(string v)

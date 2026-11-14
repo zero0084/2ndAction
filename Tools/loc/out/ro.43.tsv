@@ -1,0 +1,11 @@
+11040	Cărți ({0}) {1}% · COMUNE {2}%
+11041	Încă nu există cărți care pot fi obținute prin extragere pentru această hartă.
+11042	Condiție: {0}
+11043	Șanse
+11044	La fiecare extragere, se alege mai întâi aleatoriu categoria „Comune” sau „Hartă”, apoi se stabilește raritatea conform probabilităților nivelurilor de raritate din acea categorie. Se alege o carte dintre cele disponibile din categoria și raritatea selectate, toate având aceeași probabilitate de a fi alese. Extragerile normale și cele obținute prin vizionarea reclamelor au aceleași șanse.
+11045	Harta vizată: {0}. Când începi efectiv o partidă pe o hartă, aceasta devine harta vizată.
+11046	Categorie
+11047	Total
+11048	Cărți disponibile: {0}
+11049	Șanse per extragere, care includ deja ponderile categoriilor (afișate cu până la 2 zecimale).
+11050	În gacha, acum ai o șansă de 70% să obții o carte de pe ultima hartă pe care ai început o partidă și de 30% să obții o carte din categoria „Comune”. Poți verifica aceste probabilități în „Șanse”.

@@ -146,8 +146,18 @@ public partial class GameManager
         // 2026-11-14 夜: 分類を選ぶ列は外した(抽選の対象は最後に出発したマップ)。横画面は札の2行目、縦画面は台の下の1行で示す
         if (machineRect.width > 1f && !gachaResultOpen)
         {
-            if (HomePortrait && !PortraitCaptionAboveButtons) DrawGachaTargetCaption(machineRect, fade);
-            else LastGachaLandRowRect = Rect.zero;
+            if (!HomePortrait)
+            {
+                LastGachaLandRowRect = Rect.zero;
+                // 札の左に「提供割合」(2026-11-15)。札の縦の中央にそろえる
+                Rect gs = LastHomeSignRects[3];
+                if (gs.width > 0f)
+                {
+                    float fs = Mathf.Round(HomeSignFont * 0.62f), bh = Mathf.Max(Dp(36f), gs.height * 0.62f);
+                    float bw = Mathf.Max(bh * 2.4f, UiKit.Label(fs, TextAnchor.MiddleCenter, true, Color.white).CalcSize(new GUIContent(Loc.T(LocGacha.Odds))).x + fs * 2f);
+                    DrawGachaOddsButton(new Rect(gs.x - bw - HomeSignFont * 0.35f, gs.center.y - bh * 0.5f, bw, bh), fs, interactable);
+                }
+            }
         }
         else LastGachaLandRowRect = Rect.zero;
         if (HomeShowsContinueChoice)

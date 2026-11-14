@@ -1,0 +1,290 @@
+ar	11040	بطاقات {0} {1}٪ · مشترك {2}٪
+ar	11041	لا توجد بعد بطاقات من هذه الخريطة متاحة للسحب
+ar	11042	الشرط: {0}
+ar	11043	نسب الظهور
+ar	11044	في كل سحب، تُختار أولًا فئة «مشترك» أو «الخريطة» عشوائيًا، ثم تُحدَّد الندرة وفق نسبها داخل تلك الفئة. وتُختار بطاقة واحدة من البطاقات المؤهلة في الفئة والندرة المختارتين، بفرص متساوية. نسب الظهور متطابقة في السحب العادي والسحب بمشاهدة إعلان.
+ar	11045	الخريطة المستهدفة: {0}. عند الانطلاق فعليًا إلى خريطة، تصبح هي الخريطة المستهدفة.
+ar	11046	الفئة
+ar	11047	الإجمالي
+ar	11048	البطاقات المؤهلة: {0}
+ar	11049	نسب الظهور لكل سحب بعد احتساب نسب الفئات (تُعرض حتى منزلتين عشريتين).
+bn	11040	কার্ড ({0}) {1}% · সাধারণ {2}%
+bn	11041	এই ম্যাপের কোনো কার্ড এখনও ড্রয়ে পাওয়া যায় না
+bn	11042	শর্ত: {0}
+bn	11043	প্রাপ্তির হার
+bn	11044	প্রতি ড্রয়ে প্রথমে “সাধারণ” বা “ম্যাপ” বিভাগ দৈবভাবে বেছে নেওয়া হয়। তারপর সেই বিভাগের বিরলতাভিত্তিক হার অনুযায়ী বিরলতার স্তর নির্ধারণ করা হয়। নির্বাচিত বিভাগ ও বিরলতার স্তরের যোগ্য কার্ডগুলোর মধ্যে থেকে সমান সম্ভাবনায় একটি কার্ড বেছে নেওয়া হয়। নিয়মিত গাচা ও বিজ্ঞাপন দেখে করা গাচার প্রাপ্তির হার একই।
+bn	11045	লক্ষ্য ম্যাপ: {0}। কোনো ম্যাপে যাত্রা শুরু করলেই লক্ষ্য ম্যাপটি সেই ম্যাপে বদলে যায়।
+bn	11046	বিভাগ
+bn	11047	মোট
+bn	11048	যোগ্য কার্ড: {0}
+bn	11049	বিভাগের হার হিসাব করে প্রতি ড্রয়ের প্রাপ্তির হার দেখানো হয়েছে (দশমিকের পরে সর্বোচ্চ দুই ঘর)।
+cs	11040	Karty ({0}) {1} % · SPOLEČNÉ {2} %
+cs	11041	Pro tuto mapu zatím nejsou k dispozici žádné karty k losování.
+cs	11042	Podmínka: {0}
+cs	11043	Šance
+cs	11044	Při každém losování se nejprve náhodně vybere kategorie „Společné“ nebo „Mapa“ a poté se určí vzácnost podle šancí jednotlivých stupňů vzácnosti v této kategorii. Z dostupných karet vybrané kategorie a vzácnosti se náhodně vybere jedna karta, přičemž všechny mají stejnou šanci. Běžné losování i losování za zhlédnutí reklamy mají stejné šance.
+cs	11045	Mapa pro losování: {0}. Když se na některou mapu skutečně vydáte, losování se přepne na tuto mapu.
+cs	11046	Kategorie
+cs	11047	Celkem
+cs	11048	Dostupné karty: {0}
+cs	11049	Šance na jedno losování už zohledňují podíl dané kategorie (zobrazeno až na dvě desetinná místa).
+de	11040	Karten ({0}) {1} % · ALLGEMEIN {2} %
+de	11041	Für dieses Gebiet sind noch keine Karten zum Ziehen verfügbar.
+de	11042	Bedingung: {0}
+de	11043	Chancen
+de	11044	Bei jeder Ziehung wird zuerst zufällig die Kategorie „Allgemein“ oder „Gebiet“ gewählt. Anschließend wird die Seltenheit anhand der Wahrscheinlichkeiten der einzelnen Seltenheitsstufen in dieser Kategorie bestimmt. Aus den verfügbaren Karten der gewählten Kategorie und Seltenheit wird eine Karte gezogen; alle haben dabei dieselbe Chance. Normale Ziehungen und Ziehungen nach dem Ansehen von Werbung haben dieselben Chancen.
+de	11045	Zielgebiet: {0}. Sobald du tatsächlich in einem Gebiet startest, wird dieses zum Zielgebiet.
+de	11046	Kategorie
+de	11047	Gesamt
+de	11048	Verfügbare Karten: {0}
+de	11049	Chancen pro Ziehung, in denen die Kategorieanteile bereits berücksichtigt sind (Anzeige mit bis zu 2 Nachkommastellen).
+en	11040	{0} cards {1}% · COMMON {2}%
+en	11041	No cards are available to draw for this map yet.
+en	11042	Requirement: {0}
+en	11043	Drop Rates
+en	11044	Each draw first randomly selects either the “Common” or “Map” category, then determines the rarity using that category’s rarity rates. One card is selected with equal probability from the eligible cards in the chosen category and rarity. Standard draws and draws for watching ads have the same drop rates.
+en	11045	Target map: {0}. The target switches to a map when you actually set out on it.
+en	11046	Category
+en	11047	Total
+en	11048	Eligible cards: {0}
+en	11049	Per-draw drop rates with the category rates already applied (shown with up to 2 decimal places).
+es	11040	Cartas ({0}) {1} % · COMÚN {2} %
+es	11041	Todavía no hay cartas disponibles en el sorteo de este mapa.
+es	11042	Condición: {0}
+es	11043	Probabilidades
+es	11044	En cada sorteo se elige al azar la categoría «Común» o «Mapa» y después se determina la rareza según las probabilidades de cada nivel de rareza de esa categoría. Se elige una carta de entre las disponibles de la categoría y rareza elegidas, con la misma probabilidad para todas. Los sorteos normales y los sorteos por ver anuncios tienen las mismas probabilidades.
+es	11045	Mapa objetivo: {0}. Cuando inicies una partida en un mapa, el objetivo cambiará a ese mapa.
+es	11046	Categoría
+es	11047	Total
+es	11048	Cartas disponibles: {0}
+es	11049	Probabilidades por sorteo con las proporciones de las categorías ya aplicadas (se muestran hasta 2 decimales).
+fa	11040	کارت‌های {0} {1}٪ · مشترک {2}٪
+fa	11041	هنوز هیچ کارتی از این نقشه برای قرعه‌کشی در دسترس نیست
+fa	11042	شرط: {0}
+fa	11043	احتمال دریافت
+fa	11044	در هر بار قرعه‌کشی، ابتدا دستهٔ «مشترک» یا «نقشه» به‌صورت تصادفی انتخاب می‌شود، سپس درجهٔ کمیابی بر اساس احتمال‌های همان دسته تعیین می‌شود. از کارت‌های واجد شرایطِ دسته و درجهٔ کمیابی انتخاب‌شده، یک کارت با احتمال برابر انتخاب می‌شود. احتمال دریافت در قرعه‌کشی عادی و قرعه‌کشی با تماشای تبلیغ یکسان است.
+fa	11045	نقشهٔ هدف: {0}. وقتی واقعاً راهی یک نقشه شوید، نقشهٔ هدف به همان نقشه تغییر می‌کند.
+fa	11046	دسته
+fa	11047	مجموع
+fa	11048	کارت‌های واجد شرایط: {0}
+fa	11049	احتمال دریافت در هر بار قرعه‌کشی، با احتساب احتمال انتخاب دسته (نمایش تا دو رقم اعشار).
+fil	11040	Mga kard ng {0} {1}% · PANGKALAHATAN {2}%
+fil	11041	Wala pang makukuhang kard sa gacha para sa mapang ito
+fil	11042	Kondisyon: {0}
+fil	11043	Tsansa
+fil	11044	Sa bawat bunot, unang binubunot ang kategoryang “Pangkalahatan” o “Mapa”, saka tinutukoy ang antas ng pagkabihira ayon sa mga tsansa ng bawat antas sa kategoryang iyon. Mula sa mga kard na maaaring makuha sa napiling kategorya at antas ng pagkabihira, isang kard ang pinipili nang may pantay na tsansa para sa bawat isa. Pareho ang mga tsansa sa regular na gacha at sa gacha sa panonood ng ad.
+fil	11045	Target na mapa: {0}. Kapag aktuwal kang umalis patungo sa isang mapa, lilipat ang target sa mapang iyon.
+fil	11046	Kategorya
+fil	11047	Kabuuan
+fil	11048	Maaaring makuha: {0} kard
+fil	11049	Kasama na sa mga tsansang ito sa bawat bunot ang tsansa ng bawat kategorya (ipinapakita hanggang 2 decimal place).
+fr	11040	Cartes ({0}) {1} % · COMMUN {2} %
+fr	11041	Aucune carte n’est encore disponible pour le tirage de cette zone.
+fr	11042	Condition : {0}
+fr	11043	Taux d’obtention
+fr	11044	À chaque tirage, la catégorie « Commun » ou « Zone » est d’abord choisie au hasard, puis la rareté est déterminée selon les taux de rareté de cette catégorie. Une carte est ensuite choisie parmi les cartes disponibles de la catégorie et de la rareté retenues, chacune ayant la même probabilité d’être sélectionnée. Les tirages classiques et ceux obtenus en regardant une publicité ont les mêmes taux d’obtention.
+fr	11045	Zone ciblée : {0}. Lorsque vous partez effectivement pour une zone, celle-ci devient la zone ciblée.
+fr	11046	Catégorie
+fr	11047	Total
+fr	11048	Cartes disponibles : {0}
+fr	11049	Taux par tirage tenant déjà compte des proportions des catégories (affichage à 2 décimales maximum).
+hi	11040	{0} के कार्ड {1}% · साझा {2}%
+hi	11041	इस मैप के कोई कार्ड अभी ड्रॉ के लिए उपलब्ध नहीं हैं
+hi	11042	शर्त: {0}
+hi	11043	प्राप्ति दर
+hi	11044	हर ड्रॉ में पहले “साझा” या “मैप” श्रेणी रैंडम रूप से चुनी जाती है। फिर उस श्रेणी में दुर्लभता के प्रत्येक स्तर की दर के अनुसार दुर्लभता तय की जाती है। चुनी गई श्रेणी और दुर्लभता के पात्र कार्डों में से एक कार्ड समान संभावना से चुना जाता है। नियमित गाचा और विज्ञापन देखकर किए जाने वाले गाचा की प्राप्ति दर समान है।
+hi	11045	लक्षित मैप: {0}। जब आप किसी मैप के लिए वास्तव में रवाना होते हैं, तो वही लक्षित मैप बन जाता है।
+hi	11046	श्रेणी
+hi	11047	कुल
+hi	11048	पात्र कार्ड: {0}
+hi	11049	हर ड्रॉ की प्राप्ति दर, जिसमें श्रेणी चुने जाने की दर शामिल है (दशमलव के बाद अधिकतम 2 अंक)।
+id	11040	Kartu {0} {1}% · UMUM {2}%
+id	11041	Belum ada kartu yang bisa diperoleh dari gacha untuk peta ini
+id	11042	Syarat: {0}
+id	11043	Peluang
+id	11044	Pada setiap tarikan, kategori “Umum” atau “Peta” diundi terlebih dahulu, lalu tingkat kelangkaan ditentukan berdasarkan peluang tiap tingkat dalam kategori tersebut. Satu kartu dipilih dari kartu yang memenuhi syarat pada kategori dan tingkat kelangkaan terpilih, dengan peluang yang sama untuk setiap kartu. Peluang pada gacha biasa dan gacha iklan sama.
+id	11045	Peta target: {0}. Saat kamu benar-benar berangkat ke suatu peta, target beralih ke peta tersebut.
+id	11046	Kategori
+id	11047	Total
+id	11048	Tersedia: {0} kartu
+id	11049	Peluang per tarikan ini sudah memperhitungkan peluang tiap kategori (ditampilkan hingga 2 angka desimal).
+it	11040	Carte ({0}) {1}% · COMUNE {2}%
+it	11041	Non ci sono ancora carte ottenibili dall’estrazione di questa mappa.
+it	11042	Condizione: {0}
+it	11043	Probabilità
+it	11044	A ogni estrazione viene prima scelta casualmente la categoria «Comune» o «Mappa», poi la rarità in base alle probabilità delle singole rarità di quella categoria. Viene selezionata una carta tra quelle disponibili della categoria e della rarità scelte, tutte con la stessa probabilità. Le estrazioni normali e quelle ottenute guardando una pubblicità hanno le stesse probabilità.
+it	11045	Mappa delle estrazioni: {0}. Quando parti effettivamente per una mappa, le estrazioni passano a quella mappa.
+it	11046	Categoria
+it	11047	Totale
+it	11048	Carte disponibili: {0}
+it	11049	Probabilità per estrazione, con le percentuali delle categorie già applicate (visualizzate con un massimo di 2 decimali).
+km	11040	កាត {0} {1}% · រួម {2}%
+km	11041	មិនទាន់មានកាតដែលអាចចាប់ឆ្នោតបានសម្រាប់ផែនទីនេះទេ
+km	11042	លក្ខខណ្ឌ៖ {0}
+km	11043	អត្រាទទួលបាន
+km	11044	ក្នុងការចាប់ម្តងៗ ប្រភេទ «រួម» ឬ «ផែនទី» ត្រូវបានចាប់ឆ្នោតជាមុន រួចកម្រិតកម្រត្រូវបានកំណត់តាមអត្រានៃកម្រិតកម្រនីមួយៗក្នុងប្រភេទនោះ។ កាតមួយត្រូវបានជ្រើសរើសពីកាតដែលអាចចេញបានក្នុងប្រភេទ និងកម្រិតកម្រដែលបានជ្រើស ដោយកាតនីមួយៗមានឱកាសស្មើគ្នា។ ហ្គាចាធម្មតា និងហ្គាចាមើលផ្សាយពាណិជ្ជកម្មមានអត្រាទទួលបានដូចគ្នា។
+km	11045	ផែនទីគោលដៅ៖ {0}។ ពេលអ្នកចេញដំណើរទៅកាន់ផែនទីណាមួយពិតប្រាកដ គោលដៅនឹងប្តូរទៅផែនទីនោះ។
+km	11046	ប្រភេទ
+km	11047	សរុប
+km	11048	កាតអាចចេញ៖ {0} សន្លឹក
+km	11049	នេះជាអត្រាទទួលបានក្នុងការចាប់ម្តង ដែលបានគិតបញ្ចូលអត្រារបស់ប្រភេទរួចហើយ (បង្ហាញរហូតដល់ 2 ខ្ទង់ទសភាគ)។
+ko	11040	{0} 카드 {1}% · 공통 {2}%
+ko	11041	이 맵에서 뽑을 수 있는 카드가 아직 없습니다
+ko	11042	조건: {0}
+ko	11043	획득 확률
+ko	11044	뽑을 때마다 먼저 ‘공통’ 또는 ‘맵’ 분류를 추첨하고, 해당 분류의 등급별 확률에 따라 등급을 정합니다. 선택된 분류와 등급에 해당하는 대상 카드 중에서 동일한 확률로 1장을 뽑습니다. 일반 뽑기와 광고 뽑기의 획득 확률은 같습니다.
+ko	11045	대상 맵: {0}. 실제로 출발하면 출발한 맵으로 전환됩니다.
+ko	11046	분류
+ko	11047	합계
+ko	11048	대상: {0}장
+ko	11049	분류별 확률이 반영된 1회 뽑기당 획득 확률입니다(소수점 둘째 자리까지 표시).
+lo	11040	ກາດ {0} {1}% · ຮ່ວມ {2}%
+lo	11041	ຍັງບໍ່ມີກາດທີ່ສາມາດສຸ່ມໄດ້ສຳລັບແຜນທີ່ນີ້
+lo	11042	ເງື່ອນໄຂ: {0}
+lo	11043	ອັດຕາອອກ
+lo	11044	ໃນການສຸ່ມແຕ່ລະຄັ້ງ ຈະສຸ່ມໝວດ «ຮ່ວມ» ຫຼື «ແຜນທີ່» ກ່ອນ ແລ້ວກຳນົດລະດັບຄວາມຫາຍາກຕາມອັດຕາຂອງແຕ່ລະລະດັບໃນໝວດນັ້ນ. ຈາກນັ້ນຈະເລືອກກາດ 1 ໃບຈາກກາດທີ່ສາມາດອອກໄດ້ໃນໝວດແລະລະດັບທີ່ເລືອກ ໂດຍກາດແຕ່ລະໃບມີໂອກາດເທົ່າກັນ. ກາຊາປົກກະຕິແລະກາຊາຈາກການເບິ່ງໂຄສະນາມີອັດຕາອອກເທົ່າກັນ.
+lo	11045	ແຜນທີ່ເປົ້າໝາຍ: {0}. ເມື່ອທ່ານອອກເດີນທາງໄປແຜນທີ່ໃດໜຶ່ງແທ້ໆ ເປົ້າໝາຍຈະປ່ຽນເປັນແຜນທີ່ນັ້ນ.
+lo	11046	ໝວດ
+lo	11047	ລວມ
+lo	11048	ກາດທີ່ອອກໄດ້: {0} ໃບ
+lo	11049	ອັດຕາອອກຕໍ່ການສຸ່ມ 1 ຄັ້ງນີ້ ໄດ້ຄິດລວມອັດຕາຂອງໝວດແລ້ວ (ສະແດງເຖິງທົດສະນິຍົມ 2 ຕຳແໜ່ງ).
+ms	11040	Kad {0} {1}% · UMUM {2}%
+ms	11041	Belum ada kad yang boleh diperoleh melalui gacha untuk peta ini
+ms	11042	Syarat: {0}
+ms	11043	Kadar cabutan
+ms	11044	Bagi setiap cabutan, kategori “Umum” atau “Peta” dipilih secara rawak terlebih dahulu, kemudian tahap kelangkaan ditentukan mengikut kadar setiap tahap dalam kategori tersebut. Satu kad dipilih daripada kad yang layak dalam kategori dan tahap kelangkaan yang terpilih, dengan peluang yang sama bagi setiap kad. Kadar cabutan gacha biasa dan gacha iklan adalah sama.
+ms	11045	Peta sasaran: {0}. Apabila anda benar-benar bertolak ke sesuatu peta, sasaran akan bertukar kepada peta tersebut.
+ms	11046	Kategori
+ms	11047	Jumlah
+ms	11048	Kad yang layak: {0}
+ms	11049	Kadar bagi setiap cabutan ini sudah mengambil kira kadar kategori (dipaparkan sehingga 2 tempat perpuluhan).
+my	11040	{0} ကတ်များ {1}% · ဘုံ {2}%
+my	11041	ဤမြေပုံအတွက် ဂါချာမှ ရနိုင်သောကတ်များ မရှိသေးပါ
+my	11042	သတ်မှတ်ချက်: {0}
+my	11043	ရရှိနိုင်ခြေ
+my	11044	အကြိမ်တိုင်းတွင် ပထမဦးစွာ «ဘုံ» သို့မဟုတ် «မြေပုံ» အမျိုးအစားကို မဲနှိုက်ပြီး ထိုအမျိုးအစားရှိ ရှားပါးမှုအဆင့်အလိုက် နှုန်းများအတိုင်း ရှားပါးမှုအဆင့်ကို သတ်မှတ်ပါသည်။ ရွေးချယ်ထားသော အမျိုးအစားနှင့် ရှားပါးမှုအဆင့်တွင် ပါဝင်သည့် ရနိုင်သောကတ်များထဲမှ ကတ်တစ်ကတ်ကို ကတ်တိုင်း အခွင့်အရေးတူညီစွာဖြင့် ရွေးချယ်ပါသည်။ ပုံမှန်ဂါချာနှင့် ကြော်ငြာကြည့်ဂါချာတို့၏ ရရှိနိုင်ခြေများသည် တူညီပါသည်။
+my	11045	သက်ဆိုင်ရာမြေပုံ: {0}။ မြေပုံတစ်ခုသို့ အမှန်တကယ် ထွက်ခွာသည့်အခါ ထိုမြေပုံသို့ ပြောင်းလဲပါမည်။
+my	11046	အမျိုးအစား
+my	11047	စုစုပေါင်း
+my	11048	ပါဝင်သည့်ကတ်: {0} ကတ်
+my	11049	ဤသည်မှာ အမျိုးအစားအလိုက် နှုန်းများကို ထည့်တွက်ထားသော တစ်ကြိမ်လျှင် ရရှိနိုင်ခြေများဖြစ်သည် (ဒသမ 2 နေရာအထိ ဖော်ပြထားသည်)။
+pl	11040	Karty ({0}) {1}% · WSPÓLNE {2}%
+pl	11041	Dla tej mapy nie ma jeszcze kart dostępnych do wylosowania.
+pl	11042	Warunek: {0}
+pl	11043	Szanse
+pl	11044	Przy każdym losowaniu najpierw losowana jest kategoria „Wspólne” lub „Mapa”, a następnie rzadkość zgodnie z szansami poszczególnych poziomów rzadkości w tej kategorii. Spośród dostępnych kart wybranej kategorii i rzadkości losowana jest jedna karta, przy czym każda ma taką samą szansę. Zwykłe losowania i losowania za obejrzenie reklamy mają takie same szanse.
+pl	11045	Mapa losowania: {0}. Gdy faktycznie wyruszysz na daną mapę, stanie się ona mapą losowania.
+pl	11046	Kategoria
+pl	11047	Suma
+pl	11048	Dostępne karty: {0}
+pl	11049	Szanse na jedno losowanie, z uwzględnionym udziałem kategorii (wyświetlane z maksymalnie 2 miejscami po przecinku).
+pt-BR	11040	Cartas ({0}) {1}% · COMUM {2}%
+pt-BR	11041	Ainda não há cartas disponíveis para o sorteio deste mapa.
+pt-BR	11042	Condição: {0}
+pt-BR	11043	Chances
+pt-BR	11044	Em cada sorteio, primeiro é escolhida aleatoriamente a categoria “Comum” ou “Mapa”. Depois, a raridade é definida de acordo com as probabilidades de cada raridade nessa categoria. Uma carta é escolhida entre as disponíveis da categoria e raridade selecionadas, todas com a mesma chance. Os sorteios normais e os sorteios por assistir a anúncios têm as mesmas chances.
+pt-BR	11045	Mapa alvo: {0}. Quando você inicia uma partida em um mapa, ele passa a ser o mapa alvo.
+pt-BR	11046	Categoria
+pt-BR	11047	Total
+pt-BR	11048	Cartas disponíveis: {0}
+pt-BR	11049	Chances por sorteio, já considerando as proporções das categorias (exibidas com até 2 casas decimais).
+ro	11040	Cărți ({0}) {1}% · COMUNE {2}%
+ro	11041	Încă nu există cărți care pot fi obținute prin extragere pentru această hartă.
+ro	11042	Condiție: {0}
+ro	11043	Șanse
+ro	11044	La fiecare extragere, se alege mai întâi aleatoriu categoria „Comune” sau „Hartă”, apoi se stabilește raritatea conform probabilităților nivelurilor de raritate din acea categorie. Se alege o carte dintre cele disponibile din categoria și raritatea selectate, toate având aceeași probabilitate de a fi alese. Extragerile normale și cele obținute prin vizionarea reclamelor au aceleași șanse.
+ro	11045	Harta vizată: {0}. Când începi efectiv o partidă pe o hartă, aceasta devine harta vizată.
+ro	11046	Categorie
+ro	11047	Total
+ro	11048	Cărți disponibile: {0}
+ro	11049	Șanse per extragere, care includ deja ponderile categoriilor (afișate cu până la 2 zecimale).
+ru	11040	Карты ({0}) {1} % · ОБЩИЕ {2} %
+ru	11041	Для этой локации пока нет доступных карт для розыгрыша.
+ru	11042	Условие: {0}
+ru	11043	Шансы
+ru	11044	При каждом розыгрыше сначала случайно выбирается категория «Общие» или «Локация». Затем определяется редкость по шансам уровней редкости в этой категории. Из доступных карт выбранной категории и редкости с равной вероятностью выбирается одна карта. Обычные розыгрыши и розыгрыши за просмотр рекламы имеют одинаковые шансы.
+ru	11045	Целевая локация: {0}. Как только вы начинаете забег в локации, она становится целевой.
+ru	11046	Категория
+ru	11047	Итого
+ru	11048	Доступных карт: {0}
+ru	11049	Шансы за один розыгрыш с уже учтёнными долями категорий (до 2 знаков после запятой).
+sw	11040	Kadi za {0} {1}% · JUMLA {2}%
+sw	11041	Bado hakuna kadi zinazoweza kupatikana kwenye gacha kwa ramani hii
+sw	11042	Sharti: {0}
+sw	11043	Uwezekano
+sw	11044	Kwa kila droo, kwanza kategoria ya “Jumla” au “Ramani” huchaguliwa kwa nasibu, kisha kiwango cha uadimu huamuliwa kulingana na uwezekano wa kila kiwango ndani ya kategoria hiyo. Kadi moja huchaguliwa kati ya kadi zinazostahiki katika kategoria na kiwango cha uadimu kilichochaguliwa, huku kila kadi ikiwa na nafasi sawa. Uwezekano ni sawa katika gacha ya kawaida na gacha ya kutazama tangazo.
+sw	11045	Ramani lengwa: {0}. Unapoondoka kwenda kwenye ramani fulani, ramani lengwa hubadilika kuwa hiyo.
+sw	11046	Kategoria
+sw	11047	Jumla yote
+sw	11048	Kadi zinazostahiki: {0}
+sw	11049	Huu ni uwezekano kwa kila droo, ukiwa tayari umejumuisha uwezekano wa kategoria (unaonyeshwa hadi nafasi 2 za desimali).
+ta	11040	அட்டைகள் ({0}) {1}% · பொது {2}%
+ta	11041	இந்த வரைபடத்திலிருந்து பெறக்கூடிய அட்டைகள் இன்னும் இல்லை
+ta	11042	நிபந்தனை: {0}
+ta	11043	கிடைக்கும் விகிதம்
+ta	11044	ஒவ்வொரு குலுக்கலிலும் முதலில் “பொது” அல்லது “வரைபடம்” வகை சீரற்ற முறையில் தேர்ந்தெடுக்கப்படும். பிறகு அந்த வகைக்கான அரிதுநிலை வாரியான விகிதங்களின்படி அரிதுநிலை தீர்மானிக்கப்படும். தேர்ந்தெடுக்கப்பட்ட வகை மற்றும் அரிதுநிலையில் உள்ள தகுதியான அட்டைகளில் ஒன்று சம வாய்ப்புடன் தேர்ந்தெடுக்கப்படும். வழக்கமான குலுக்கலிலும் விளம்பரம் பார்த்துச் செய்யும் குலுக்கலிலும் கிடைக்கும் விகிதங்கள் ஒன்றே.
+ta	11045	இலக்கு வரைபடம்: {0}. ஒரு வரைபடத்திற்குப் புறப்பட்டதும், இலக்கு அந்த வரைபடத்திற்கு மாறும்.
+ta	11046	வகை
+ta	11047	மொத்தம்
+ta	11048	தகுதியான அட்டைகள்: {0}
+ta	11049	வகையின் விகிதத்தைக் கணக்கில் கொண்ட, ஒவ்வொரு குலுக்கலிலும் கிடைக்கும் விகிதங்கள் (இரண்டு தசம இடங்கள் வரை காட்டப்படும்).
+th	11040	การ์ด{0} {1}% · ทั่วไป {2}%
+th	11041	ยังไม่มีการ์ดที่สุ่มได้สำหรับแผนที่นี้
+th	11042	เงื่อนไข: {0}
+th	11043	อัตราออก
+th	11044	ในการสุ่มแต่ละครั้ง จะสุ่มหมวด “ทั่วไป” หรือ “แผนที่” ก่อน แล้วกำหนดระดับความหายากตามอัตราของแต่ละระดับในหมวดนั้น จากนั้นจะเลือกการ์ด 1 ใบจากการ์ดที่สุ่มได้ในหมวดและระดับความหายากที่เลือก โดยการ์ดแต่ละใบมีโอกาสเท่ากัน กาชาปกติและกาชาจากการดูโฆษณามีอัตราออกเท่ากัน
+th	11045	แผนที่เป้าหมาย: {0} เมื่อออกเดินทางไปยังแผนที่ใดจริง ๆ เป้าหมายจะเปลี่ยนเป็นแผนที่นั้น
+th	11046	หมวด
+th	11047	รวม
+th	11048	การ์ดที่สุ่มได้: {0} ใบ
+th	11049	เป็นอัตราออกต่อการสุ่ม 1 ครั้งที่คำนวณอัตราของหมวดรวมไว้แล้ว (แสดงทศนิยมสูงสุด 2 ตำแหน่ง)
+tr	11040	{0} kartları %{1} · ORTAK %{2}
+tr	11041	Bu harita için henüz çekilebilecek kart yok.
+tr	11042	Koşul: {0}
+tr	11043	Olasılıklar
+tr	11044	Her çekilişte önce “Ortak” veya “Harita” kategorisi rastgele seçilir, ardından o kategorinin nadirlik oranlarına göre nadirlik belirlenir. Seçilen kategori ve nadirlikteki uygun kartlar arasından bir kart eşit olasılıkla seçilir. Normal çekilişler ve reklam izleyerek yapılan çekilişler aynı kart çıkma oranlarına sahiptir.
+tr	11045	Hedef harita: {0}. Bir haritada koşuya başladığınızda, hedef o haritaya geçer.
+tr	11046	Kategori
+tr	11047	Toplam
+tr	11048	Çekilebilir kartlar: {0}
+tr	11049	Kategori oranları hesaba katılmış, çekiliş başına kart çıkma oranlarıdır (en fazla 2 ondalık basamak gösterilir).
+uk	11040	Карти ({0}) {1} % · СПІЛЬНІ {2} %
+uk	11041	Для цієї мапи ще немає карт, доступних для розіграшу.
+uk	11042	Умова: {0}
+uk	11043	Шанси
+uk	11044	Під час кожного розіграшу спочатку випадково вибирається категорія «Спільні» або «Мапа», а потім визначається рідкісність відповідно до шансів кожного рівня рідкісності в цій категорії. З доступних карт вибраної категорії та рідкісності з однаковою ймовірністю вибирається одна карта. Звичайні розіграші та розіграші за перегляд реклами мають однакові шанси.
+uk	11045	Цільова мапа: {0}. Щойно ви починаєте забіг на мапі, вона стає цільовою.
+uk	11046	Категорія
+uk	11047	Разом
+uk	11048	Доступні карти: {0}
+uk	11049	Шанси за один розіграш з уже врахованими частками категорій (до 2 знаків після коми).
+vi	11040	Thẻ {0} {1}% · CHUNG {2}%
+vi	11041	Chưa có thẻ nào có thể quay ra cho bản đồ này
+vi	11042	Điều kiện: {0}
+vi	11043	Tỷ lệ nhận
+vi	11044	Mỗi lượt quay sẽ chọn ngẫu nhiên nhóm “Chung” hoặc “Bản đồ” trước, rồi xác định độ hiếm theo tỷ lệ của từng độ hiếm trong nhóm đó. Một thẻ được chọn từ các thẻ đủ điều kiện thuộc nhóm và độ hiếm đã chọn, với cơ hội ngang nhau cho mỗi thẻ. Gacha thường và gacha xem quảng cáo có cùng tỷ lệ nhận.
+vi	11045	Bản đồ áp dụng: {0}. Khi bạn thực sự xuất phát ở một bản đồ, bản đồ áp dụng sẽ chuyển sang bản đồ đó.
+vi	11046	Nhóm
+vi	11047	Tổng
+vi	11048	Thẻ đủ điều kiện: {0}
+vi	11049	Đây là tỷ lệ nhận cho mỗi lượt quay, đã tính đến tỷ lệ của nhóm (hiển thị tối đa 2 chữ số thập phân).
+zh-Hans	11040	{0}卡牌 {1}% · 通用 {2}%
+zh-Hans	11041	此地图尚无可抽取的卡牌
+zh-Hans	11042	条件：{0}
+zh-Hans	11043	抽取概率
+zh-Hans	11044	每次抽取时，先随机选定“通用”或“地图”分类，再按该分类中各稀有度的概率确定稀有度。随后从所选分类和稀有度的可抽取卡牌中，等概率抽取1张。普通抽卡和广告抽卡的概率相同。
+zh-Hans	11045	对应地图：{0}。实际出发后，会切换为出发的地图。
+zh-Hans	11046	分类
+zh-Hans	11047	合计
+zh-Hans	11048	可抽取：{0}张
+zh-Hans	11049	此处为已计入分类概率的单次抽取概率（最多显示两位小数）。
+zh-Hant	11040	{0}卡牌 {1}% · 通用 {2}%
+zh-Hant	11041	此地圖尚無可抽取的卡牌
+zh-Hant	11042	條件：{0}
+zh-Hant	11043	抽取機率
+zh-Hant	11044	每次抽取時，先隨機選定「通用」或「地圖」分類，再依該分類中各稀有度的機率決定稀有度。接著從所選分類和稀有度的可抽取卡牌中，以相同機率抽出1張。一般抽卡與廣告抽卡的機率相同。
+zh-Hant	11045	對應地圖：{0}。實際出發後，會切換為出發的地圖。
+zh-Hant	11046	分類
+zh-Hant	11047	合計
+zh-Hant	11048	可抽取：{0}張
+zh-Hant	11049	此處為已計入分類機率的單次抽取機率（最多顯示兩位小數）。

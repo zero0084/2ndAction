@@ -1,0 +1,11 @@
+11040	Karten ({0}) {1} % · ALLGEMEIN {2} %
+11041	Für dieses Gebiet sind noch keine Karten zum Ziehen verfügbar.
+11042	Bedingung: {0}
+11043	Chancen
+11044	Bei jeder Ziehung wird zuerst zufällig die Kategorie „Allgemein“ oder „Gebiet“ gewählt. Anschließend wird die Seltenheit anhand der Wahrscheinlichkeiten der einzelnen Seltenheitsstufen in dieser Kategorie bestimmt. Aus den verfügbaren Karten der gewählten Kategorie und Seltenheit wird eine Karte gezogen; alle haben dabei dieselbe Chance. Normale Ziehungen und Ziehungen nach dem Ansehen von Werbung haben dieselben Chancen.
+11045	Zielgebiet: {0}. Sobald du tatsächlich in einem Gebiet startest, wird dieses zum Zielgebiet.
+11046	Kategorie
+11047	Gesamt
+11048	Verfügbare Karten: {0}
+11049	Chancen pro Ziehung, in denen die Kategorieanteile bereits berücksichtigt sind (Anzeige mit bis zu 2 Nachkommastellen).
+11050	Bei Ziehungen erhältst du jetzt mit 70 % Wahrscheinlichkeit eine Karte aus dem Gebiet, in dem du zuletzt einen Lauf gestartet hast, und mit 30 % eine Karte der Kategorie „Allgemein“. Die Wahrscheinlichkeiten findest du unter „Chancen“.

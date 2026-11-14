@@ -46,40 +46,100 @@ public partial class GameManager
     }
 
     // 2026-11-14 夜(マスターの訂正): 分類を選ぶ列/帯は外した。抽選の対象は最後に出発したマップ(GameManager.GachaCategory.cs)。
-    //  今どの分類のカードが出るかは、横画面は「ガチャ」の札の2行目(GachaSignSubLine)、縦画面は台のすぐ下の1行(DrawGachaTargetCaption)。
-    public Rect LastGachaLandRowRect { get; private set; } // 縦画面の台の下の1行(確認用)
+    //  今どの分類のカードが出るかは、横画面は「ガチャ」の札の2行目(GachaSignSubLine)+ 札の左の「提供割合」、
+    //  縦画面はガチャのボタンの列の上の帯(DrawGachaInfoStrip、2026-11-15 マスター決定の案B)。
+    public Rect LastGachaLandRowRect { get; private set; } // 縦画面の帯(確認用)
+    public Rect LastGachaOddsButtonRect { get; private set; } // 「提供割合」のボタン(確認用)
     Rect SignRectNowOrPrev(int i) => LastHomeSignRects[i].width > 0f ? LastHomeSignRects[i] : prevHomeSignHitRects[i];
     public static float Dp(float dp) => dp * (Screen.dpi > 1f ? Screen.dpi / 160f : 1.5f);
 
-    // 縦画面: 台のすぐ下に「(紋) 荒野のカードだけが出ます」。押せない(表示だけ)。下の札にかかる時は台の下端の内側へ寄せる
-    //  2026-11-14 案の比較: PortraitCaptionAboveButtons = true なら、下のガチャ/広告のボタンのすぐ上に右寄せ(bottomY = ボタンの上端)
-    public static bool PortraitCaptionAboveButtons;
-    void DrawGachaTargetCaption(Rect machine, float fade, float bottomY = -1f)
+    // 案内の色: 普段は金、引けない時/断った理由は明るい橙
+    Color GachaLineColor(bool warn, float fade) => warn ? new Color(1f, 0.74f, 0.6f, fade) : new Color(1f, 0.92f, 0.66f, fade);
+    string GachaLineNow(out bool warn)
     {
-        if (!GachaSkinFx.Enabled || fade < 0.05f || machine.width < 1f) { LastGachaLandRowRect = Rect.zero; return; }
         EnsureGachaCategory();
         bool noteOn = !string.IsNullOrEmpty(gachaCategoryNote) && Time.unscaledTime < gachaCategoryNoteUntil;
         bool empty = GachaCategoryEmpty;
-        string line = Loc.Auto(noteOn ? gachaCategoryNote : GachaTargetLine(gachaCategory, empty));
-        float fs = Mathf.Round(Mathf.Clamp(HomeSignFont * (bottomY > 0f ? 1.05f : 0.82f), 12f, 24f));
-        var st = UiKit.Label(fs, TextAnchor.MiddleLeft, true, noteOn || empty ? new Color(1f, 0.74f, 0.6f, fade) : new Color(1f, 0.92f, 0.66f, fade));
-        float maxW = Screen.width - SafeLeft() - SafeRight() - 24f;
-        float em = fs * 1.35f, pad = fs * 0.45f;
-        for (int g = 0; g < 10 && st.fontSize > 10 && st.CalcSize(new GUIContent(line)).x + em + pad * 3f > maxW; g++) st.fontSize = Mathf.Max(10, Mathf.FloorToInt(st.fontSize * 0.92f));
-        Vector2 sz = st.CalcSize(new GUIContent(line));
-        float w = em + pad * 3f + sz.x, h = Mathf.Max(em, sz.y) + pad * 0.8f;
-        float x = Mathf.Clamp(machine.center.x - w * 0.5f, SafeLeft() + 12f, Screen.width - SafeRight() - 12f - w);
-        float y = machine.yMax + 2f;
-        if (bottomY > 0f) { x = Screen.width - SafeRight() - 12f - w; y = bottomY - h - 6f; }
-        else for (int si = 4; si <= 5; si++) { var sr = SignRectNowOrPrev(si); if (sr.width > 1f && sr.xMax > x && sr.x < x + w && sr.y < y + h && sr.yMax > y) y = Mathf.Min(y, sr.y - h - 4f); }
-        var back = new Rect(x, y, w, h);
+        warn = noteOn || empty;
+        return Loc.Auto(noteOn ? gachaCategoryNote : GachaTargetLine(gachaCategory, empty));
+    }
+
+    // 「Aのカード 70%・共通 30%」を区切りの記号の所で2行に(記号は消す)。区切りが見つからない時はそのまま(折り返しに任せる)
+    static readonly string[] MixSeparators = { "・", " · ", "·", " / ", "／", "、", "，", ", ", " - ", " – " };
+    static string SplitMixLine(string line)
+    {
+        var p = SplitMixParts(line);
+        return p == null ? line : p[0] + "\n" + p[1];
+    }
+    static string[] SplitMixParts(string line)
+    {
+        foreach (var sep in MixSeparators)
+        {
+            int i = line.IndexOf(sep, System.StringComparison.Ordinal);
+            if (i > 0 && i + sep.Length < line.Length) return new[] { line.Substring(0, i).TrimEnd(), line.Substring(i + sep.Length).TrimStart() };
+        }
+        return null;
+    }
+
+    // 右から左の言語: 並べ替える前の文(元の順)を区切りで2つに分けてから、それぞれを並べ替えて2行に(エステル: 他の言語と同じ分け方)
+    string RtlMixLine(float width, GUIStyle st)
+    {
+        int cs = Mathf.RoundToInt(GachaCommonShare * 100f);
+        string raw = Loc.Src(Loc.Plain(LocGacha.MixLine), Loc.AutoPlain(CardMapCategories.LabelSrc(gachaCategory)), 100 - cs, cs);
+        var p = SplitMixParts(raw);
+        if (p == null) return null;
+        return LocGUI.RtlFix(Loc.Shape(p[0]), width, st) + "\n" + LocGUI.RtlFix(Loc.Shape(p[1]), width, st);
+    }
+
+    // 「提供割合」の小さなボタン(押すと GachaOddsPanel)
+    void DrawGachaOddsButton(Rect r, float fs, bool interactable)
+    {
+        LastGachaOddsButtonRect = r;
+        if (UiKit.Button(r, LocGacha.Odds, fs, false, false, true) && interactable) { GachaOddsPanel.Open(); if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide); }
+    }
+
+    // 縦画面(案B): ガチャのボタン(と、その上の「広告で1回引く」)と同じ幅・同じ右端の帯を、その真上に置く。
+    //  1行目 = マップの紋 + 「荒野のカード 70%・共通 30%」(引けない時は理由と条件)、2行目 = 「提供割合」。
+    //  下のボタンと同じ列にそろえて「ガチャのまとまり」として読めるようにする(帯の左に金の縦線)。広告の案内(adGachaNote)はこの帯の上に出す
+    void DrawGachaInfoStrip(Rect gachaBtn, float fade, bool interactable)
+    {
+        if (fade < 0.05f || gachaBtn.width < 1f) { LastGachaLandRowRect = Rect.zero; return; }
+        float s = GachaUiScale;
+        float w = Mathf.Max(gachaBtn.width, 190f * s);
+        float x = Mathf.Clamp(gachaBtn.xMax - w, SafeLeft() + 8f, Screen.width - SafeRight() - 8f - w);
+        float bottom = AdGachaAvailable ? gachaBtn.y - 54f * s - 8f - 5f : gachaBtn.y - 8f; // エステル: 広告ボタンとの間に 4〜6px
+        string line = GachaLineNow(out bool warn);
+        bool empty = GachaCategoryEmpty;
+        string hint = empty ? GachaMapUnlockHint(gachaCategory) : "";
+        if (empty) { line = Loc.T(LocGacha.NoCardsMap); if (!string.IsNullOrEmpty(hint)) line += "\n" + Loc.F(LocGacha.Condition, hint); warn = true; } // 引けない時はいつも理由と条件の2行
+        string condLine = empty && !string.IsNullOrEmpty(hint) ? Loc.F(LocGacha.Condition, hint) : null;
+        float fs = Mathf.Round(14f * s);
+        float em = fs * 1.5f, pad = fs * 0.5f;
+        var st = new GUIStyle(UiKit.Label(fs, TextAnchor.MiddleLeft, true, GachaLineColor(warn, fade))) { wordWrap = true };
+        float textW = w - pad * 3f - em;
+        // エステル: 1行に入らない時は「荒野のカード 70%」「共通 30%」のまとまりで改行(区切りの記号を行末に残さない)
+        // 右から左の言語: 表示用に並べ替えた文を分けると行の順番が入れ替わる → 元の順で幅に合わせて行に分けてから並べ替える(LocGUI.RtlFix)
+        if (Loc.IsRtl)
+        {
+            line = empty ? LocGUI.RtlFix(Loc.T(LocGacha.NoCardsMap), textW, st) + (condLine != null ? "\n" + LocGUI.RtlFix(condLine, textW, st) : "")
+                         : RtlMixLine(textW, st) ?? LocGUI.RtlFix(line, textW, st);
+        }
+        else if (!empty && !line.Contains("\n") && st.CalcSize(new GUIContent(line)).x > textW) line = SplitMixLine(line);
+        float lineH = Mathf.Max(em, st.CalcHeight(new GUIContent(line), textW));
+        float btnH = Mathf.Max(Dp(36f), fs * 2.1f);
+        float h = pad + lineH + pad * 0.6f + btnH + pad;
+        var back = new Rect(x, bottom - h, w, h);
         LastGachaLandRowRect = back;
         Color keep = GUI.color;
-        GUI.color = new Color(0.03f, 0.05f, 0.12f, 0.72f * fade);
+        GUI.color = new Color(0.03f, 0.05f, 0.12f, 0.82f * fade);
         GUI.DrawTexture(back, Texture2D.whiteTexture);
+        // 下のボタンの列と同じまとまりに見せる金の縦線(帯の左端から、ガチャのボタンの上端まで)
+        GUI.color = new Color(0.95f, 0.78f, 0.4f, 0.85f * fade);
+        GUI.DrawTexture(new Rect(back.x, back.y, Mathf.Max(2f, 3f * s), gachaBtn.y - back.y), Texture2D.whiteTexture);
         GUI.color = keep;
-        GachaSkinFx.DrawEmblem(new Rect(back.x + pad, back.center.y - em * 0.5f, em, em), gachaCategory, false, fade);
-        GUI.Label(new Rect(back.x + pad * 2f + em, back.y, sz.x + 2f, back.height), line, st);
+        GachaSkinFx.DrawEmblem(new Rect(back.x + pad, back.y + pad + (lineH - em) * 0.5f, em, em), gachaCategory, false, fade);
+        GUI.Label(new Rect(back.x + pad * 2f + em, back.y + pad, textW, lineH), line, st);
+        DrawGachaOddsButton(new Rect(back.x + pad * 2f + em, back.yMax - pad - btnH, w - pad * 3f - em, btnH), Mathf.Round(13f * s), interactable);
         GUI.color = keep;
     }
 

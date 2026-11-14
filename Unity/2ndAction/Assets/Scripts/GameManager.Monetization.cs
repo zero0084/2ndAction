@@ -175,8 +175,7 @@ public partial class GameManager
     // ガチャの抽選(MILE のガチャと同じ抽選/同じ重複の扱い。支払いだけ無い)。分類はタップの時点で確定した物(2026-11-14)
     CardDefinition DrawGachaCardForAd(CardMapCategory cat)
     {
-        var pool = BuildGachaPoolFor(cat);
-        var c = pool.Count == 0 ? null : DrawFromGachaPool(pool);
+        var c = DrawGachaForMap(cat); // 2026-11-15: 通常のガチャと同じ 共通 30% / マップ 70%
         adPullIsNew = c != null && CardInventory.GetTotalCountByName(c.cardId) == 0; // 加える前(ClaimGachaPull の中で加わる)
         return c;
     }
@@ -234,6 +233,7 @@ public partial class GameManager
         return h > 0 ? Loc.F("{0}時間{1}分", h, m) : Loc.F("{0}分", Mathf.Max(1, m));
     }
 
+    public Rect LastAdGachaButtonRect { get; private set; } // 確認用
     // ガチャ機の近くの小さなボタン(横画面: 機械の下 / 縦画面: 施設のボタンの上)
     void DrawAdGachaButton(Rect anchor, bool interactable, float fade)
     {
@@ -247,19 +247,29 @@ public partial class GameManager
             ? new Rect(anchor.xMax - w, anchor.y - h - 8f, w, h)
             : new Rect(anchor.center.x - w / 2f, anchor.yMax + 6f, w, h);
         r.x = Mathf.Clamp(r.x, SafeLeft() + 8f, Screen.width - SafeRight() - 8f - r.width);
+        // 2026-11-15(エステル): 横画面で右の列(ゲーム終了 等)に重なっていた → 列の左端から 10px 離す
+        if (!HomePortrait)
+        {
+            Rect col = GetHomeExitButtonRect();
+            if (col.width > 0f && r.xMax > col.x - 10f && r.y < col.yMax + 40f) r.x = Mathf.Max(SafeLeft() + 8f, col.x - 10f - r.width);
+        }
+        LastAdGachaButtonRect = r;
         string title = pass ? Loc.T("無料で1回引く(パス)") : Loc.T("広告で1回引く");
         string sub = left > 0 ? Loc.F("本日あと{0}回", left) : Loc.F("回数リセットまで {0}", FormatUntilNextDay());
         bool ok = interactable && left > 0 && !adGachaBusy && !AdManager.Showing && !GachaCategoryEmpty; // 2026-11-14: 対象のカードが無い分類では引けない見た目
         Rect top = new Rect(r.x, r.y, r.width, h * 0.62f);
         if (UiKit.Button(r, "", 16f * s, false, false, ok) && interactable) OnAdGachaTapped();
         var st = UiKit.Label(15f * s, TextAnchor.MiddleCenter, true, ok ? new Color(1f, 0.9f, 0.6f) : new Color(0.7f, 0.72f, 0.78f));
+        // 2026-11-15: 長い言語(タミル語など)で文字がボタンからはみ出していた → 入るまで字を小さく(下限は元の 65%)
+        for (int g = 0; g < 8 && st.fontSize > Mathf.RoundToInt(15f * s * 0.65f) && st.CalcSize(new GUIContent(title)).x > r.width - 10f; g++) st.fontSize = Mathf.Max(Mathf.RoundToInt(15f * s * 0.65f), Mathf.FloorToInt(st.fontSize * 0.92f));
         GUI.Label(top, title, st);
         GUI.Label(new Rect(r.x, r.y + h * 0.5f, r.width, h * 0.5f), sub, UiKit.Label(12f * s, TextAnchor.MiddleCenter, false, new Color(0.85f, 0.88f, 0.95f)));
         if (!string.IsNullOrEmpty(adGachaNote) && Time.unscaledTime < adGachaNoteUntil)
         {
             var ns = new GUIStyle(UiKit.Label(13f * s, TextAnchor.MiddleCenter, false, new Color(1f, 0.85f, 0.6f))) { wordWrap = true };
             float nw = Mathf.Max(r.width, 300f * s);
-            Rect nr = new Rect(Mathf.Clamp(r.center.x - nw / 2f, 8f, Screen.width - nw - 8f), HomePortrait ? r.y - 52f * s : r.yMax + 4f, nw, 48f * s);
+            float ny = HomePortrait ? (LastGachaLandRowRect.width > 0f ? LastGachaLandRowRect.y : r.y) - 52f * s : r.yMax + 4f; // 2026-11-15: 縦画面は対象の帯の上
+            Rect nr = new Rect(Mathf.Clamp(r.center.x - nw / 2f, 8f, Screen.width - nw - 8f), ny, nw, 48f * s);
             UiBackdrop.Draw(nr, 0.8f);
             GUI.Label(nr, adGachaNote, ns);
         }

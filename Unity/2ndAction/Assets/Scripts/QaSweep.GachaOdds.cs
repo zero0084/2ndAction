@@ -1,4 +1,4 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+﻿#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -127,6 +127,52 @@ public partial class QaSweep
             else Check(false, $"S: {kv.Key}: draw counts {string.Join("/", got)} vs table {string.Join("/", odds.Select(o => (o * N).ToString("0.#")))} (wrong {wrong})");
         }
         Check(sOk == checkedSets.Count, $"S: for all {checkedSets.Count} combinations the actual draw matches the table within ±1 of {N} (evenly spaced rolls) and only gives cards of the pool");
+
+        // ---- M: 共通 30% / マップ 70%(2026-11-15)。1回あたりの割合の表と、2段の抽選 = 表(等間隔の乱数)
+        L("== M: common 30% / map 70% ==");
+        md.AppendLine("## 共通 30% / マップ 70% の1回あたりの割合(2026-11-15)");
+        md.AppendLine();
+        md.AppendLine($"1回ごとに、まず共通({GameManager.GachaCommonShare * 100f:0}%)かマップ({(1f - GameManager.GachaCommonShare) * 100f:0}%)かを決め、次にその分類のレア度の割合(上の表の「変更後」)で選びます。");
+        md.AppendLine("下の表はマップでの到達がガチャLv の距離まである時です(到達が足りない時のマップ側は、上のマップの表の該当する行)。");
+        md.AppendLine("マップ側に対象が無い時は引けません(共通だけには切り替えない)。");
+        md.AppendLine();
+        md.AppendLine("| マップ | ガチャLv | マップ側(70%)★1/★2/★3/★4/★5 | 共通側(30%)★1/★2/★3/★4/★5 | 合計 ★1/★2/★3/★4/★5 |");
+        md.AppendLine("|---|---|---|---|---|");
+        int mOk = 0, mN = 0;
+        foreach (var k in GoCats.Where(c => c != CardMapCategory.Common))
+        {
+            foreach (float best in bests)
+            {
+                int stage = GachaStage.StageForDistance(best);
+                var mapPool = all.Where(c => CardMapCategories.Of(c) == k && GachaStage.IsCardEligibleByDistance(c, best, stage) && (k == CardMapCategory.LastDungeon || best >= CardMapUnlock.RequiredMeters(c) - 0.01f)).ToList();
+                var comPool = all.Where(c => CardMapCategories.Of(c) == CardMapCategory.Common && GachaStage.IsCardEligibleByDistance(c, best, stage)).ToList();
+                if (mapPool.Count == 0) { md.AppendLine($"| {GoName(k)} | Lv{stage}({best:N0}m) | 対象なし(引けない) | — | — |"); continue; }
+                var fin = GameManager.GachaFinalOdds(mapPool, comPool, W, out var cp, out var mp);
+                md.AppendLine($"| {GoName(k)} | Lv{stage}({best:N0}m) | {GoPct(mp)} | {GoPct(cp)} | **{GoPct(fin)}** |");
+                Check(Mathf.Abs(fin.Sum() - 1f) < 1e-4f && Mathf.Abs(cp.Sum() - GameManager.GachaCommonShare) < 1e-4f, $"M: {k} best {best:N0}: common part {cp.Sum():0.####}, total {fin.Sum():0.####}");
+                // 2段の抽選を等間隔の乱数で(分類 100 × レア度 1000)
+                const int NS = 100, NR = 1000;
+                var got = new int[5]; int wrongSide = 0;
+                for (int i = 0; i < NS; i++)
+                    for (int j = 0; j < NR; j++)
+                    {
+                        var c = GameManager.DrawTwoStage(mapPool, comPool, W, (i + 0.5f) / NS, (j + 0.5f) / NR, 0.5f, out bool common);
+                        var ck = CardMapCategories.Of(c);
+                        if (common ? ck != CardMapCategory.Common : ck != k) wrongSide++;
+                        got[GameManager.GachaRarityOf(c) - 1]++;
+                    }
+                bool ok = wrongSide == 0;
+                for (int r = 0; r < 5; r++) ok &= Mathf.Abs(got[r] - fin[r] * NS * NR) <= NS + 1;
+                mN++; if (ok) mOk++;
+                else L($"[M] {k} best {best:N0}: draw {string.Join("/", got)} vs table {string.Join("/", fin.Select(v => (v * NS * NR).ToString("0")))} wrongSide {wrongSide}");
+            }
+        }
+        Check(mOk == mN, $"M: two-stage draw = table for all {mN} map × Lv combinations (evenly spaced rolls, within ±{100 + 1} of 100,000)");
+        // マップ側に対象が無い時は引かない
+        Check(GameManager.DrawTwoStage(new List<CardDefinition>(), all.Where(c => CardMapCategories.Of(c) == CardMapCategory.Common).ToList(), W, 0.1f, 0.5f, 0.5f, out _) == null, "M: no map cards -> no draw even though Common cards exist");
+        md.AppendLine();
+        md.AppendLine("マップ側に無い星: ★1 はすべて共通のカードなので、どのマップでも ★1 は共通側の分だけです。荒野・洞窟には ★5、ラスダンには ★1・★2 がありません(天空の ★5 は BEST 100,000m から)。その星の1回あたりの割合は共通側の分だけです(例: 荒野の ★5 = 共通 30% × 1% = 0.3%)。");
+        md.AppendLine();
 
         // ---- R: 今のデータ(全部解禁)の対象 = 画面の抽選の対象、固定の種での参考値
         L("== R: live pools ==");

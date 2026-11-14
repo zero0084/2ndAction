@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
 
@@ -222,7 +222,7 @@ public static class UnlockRules
         SaveStore.Save();
         Debug.Log($"[Unlock] stage {id}");
         QueueNotice("s:" + id);
-        NoticeQueue.Toast("UNLOCKED: " + StageName(id));
+        NoticeQueue.Toast("UNLOCKED: " + Loc.AutoPlain(StageName(id))); // 2026-11-15: マップ名が日本語のまま出ていた(訳して差し込む。並べ替えは表示の時に1回)
         return true;
     }
 

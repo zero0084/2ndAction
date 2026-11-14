@@ -1,0 +1,11 @@
+11040	Thẻ {0} {1}% · CHUNG {2}%
+11041	Chưa có thẻ nào có thể quay ra cho bản đồ này
+11042	Điều kiện: {0}
+11043	Tỷ lệ nhận
+11044	Mỗi lượt quay sẽ chọn ngẫu nhiên nhóm “Chung” hoặc “Bản đồ” trước, rồi xác định độ hiếm theo tỷ lệ của từng độ hiếm trong nhóm đó. Một thẻ được chọn từ các thẻ đủ điều kiện thuộc nhóm và độ hiếm đã chọn, với cơ hội ngang nhau cho mỗi thẻ. Gacha thường và gacha xem quảng cáo có cùng tỷ lệ nhận.
+11045	Bản đồ áp dụng: {0}. Khi bạn thực sự xuất phát ở một bản đồ, bản đồ áp dụng sẽ chuyển sang bản đồ đó.
+11046	Nhóm
+11047	Tổng
+11048	Thẻ đủ điều kiện: {0}
+11049	Đây là tỷ lệ nhận cho mỗi lượt quay, đã tính đến tỷ lệ của nhóm (hiển thị tối đa 2 chữ số thập phân).
+11050	Trong gacha, tỷ lệ nhận thẻ từ bản đồ nơi bạn bắt đầu lượt chạy gần nhất hiện là 70%, còn thẻ “Chung” là 30%. Bạn có thể xem các tỷ lệ tại “Tỷ lệ nhận”.

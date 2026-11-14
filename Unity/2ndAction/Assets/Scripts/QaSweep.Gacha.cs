@@ -91,6 +91,7 @@ public partial class QaSweep
         L("== D: NEW / DUPLICATE ==");
         // 2026-11-14: 引ける対象 = 最後に出発したマップの分類(BuildGachaPoolFor)。全体の候補ではなく、その中から選ぶ
         var poolD = (List<CardDefinition>)typeof(GameManager).GetMethod("BuildGachaPoolFor", NP).Invoke(gm, new object[] { gm.GachaCategory });
+        poolD.AddRange((List<CardDefinition>)typeof(GameManager).GetMethod("BuildGachaPoolFor", NP).Invoke(gm, new object[] { CardMapCategory.Common })); // 2026-11-15: 共通 30% も引ける
         var fresh = poolD.Where(c => c != null && CardInventory.GetTotalCountByName(c.cardId) == 0).Take(2).ToList();
         Check(fresh.Count == 2, $"D: two cards not owned yet exist in the pool ({fresh.Count})");
         if (fresh.Count == 2)

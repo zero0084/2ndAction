@@ -8,7 +8,9 @@ using UnityEngine;
 //  ・記録は保存する(設定の扱い)。ホームへの帰還・再起動の後も同じマップのガチャ。まだ一度も出発していない時は荒野(最初のマップ)。
 //  ・抽選の対象はタップの時点で確定する(通常: GachaPullOnce / 広告: OnAdGachaTapped で受け取って広告の後もその分類)。
 //  ・対象のカードが無い時は引けない(MILE も広告の回数も使わない)。
-//  ・共通カードをこの仕組みでどう入手するかは未決定(マスター確認待ち)。それまでの間、共通カードはガチャの対象に入らない。
+//  ・共通カード(2026-11-15 マスター決定、案1): 1回ごとに「共通 30% / 最後に出発したマップ 70%」で分類を決め、その分類のレア度の確率で1枚。
+//    通常のガチャも広告ガチャも同じ。マップ側に対象のカードが無い時は、共通だけに切り替えず引けない(MILE/広告の回数を使わない)。
+//    割合は GachaCommonShare の1か所。提供割合の画面(GachaOddsPanel)・資料・試験は抽選と同じ関数(GachaShareOdds/GachaFinalOdds)を読む。
 //  ・レア度の確率は GachaRarityOdds(下): 無いレア度の分は対象の一番低いレア度へ回す(2026-11-14 マスター決定。★4/★5 は重みどおり)。
 public partial class GameManager
 {
@@ -63,17 +65,96 @@ public partial class GameManager
     }
     public int GachaPoolCount(CardMapCategory k) => BuildGachaPoolFor(k).Count;
 
+    // ---------------------------------------------------------------- 共通 30% / マップ 70%(2026-11-15)
+    public const float GachaCommonShare = 0.30f;
+    public static int LastDrawCommonSide; // 確認用: 直前の抽選が共通の枠だったか(1)/マップ(0)
+
+    // [0] = 共通の割合、[1] = マップの割合(マップに対象が無い時は引けないので両方 0)。共通に対象が無い時(起きない)はマップ 100%
+    public static float[] GachaShareOdds(int mapCount, int commonCount)
+    {
+        if (mapCount <= 0) return new float[2];
+        if (commonCount <= 0) return new[] { 0f, 1f };
+        return new[] { GachaCommonShare, 1f - GachaCommonShare };
+    }
+
+    // 1回あたりの ★1..★5 の確率(分類の割合 × その分類のレア度の確率)。commonPart/mapPart はそれぞれの分類の分([0..4])
+    public static float[] GachaFinalOdds(IList<CardDefinition> mapPool, IList<CardDefinition> commonPool, float[] weights, out float[] commonPart, out float[] mapPart)
+    {
+        var sh = GachaShareOdds(mapPool != null ? mapPool.Count : 0, commonPool != null ? commonPool.Count : 0);
+        var co = GachaRarityOdds(commonPool, weights); var mo = GachaRarityOdds(mapPool, weights);
+        commonPart = new float[5]; mapPart = new float[5]; var total = new float[5];
+        for (int i = 0; i < 5; i++) { commonPart[i] = sh[0] * co[i]; mapPart[i] = sh[1] * mo[i]; total[i] = commonPart[i] + mapPart[i]; }
+        return total;
+    }
+
+    // 2段の抽選の本体(乱数を外から渡せる = 試験で等間隔に並べられる)。マップに対象が無ければ null(引かない)
+    public static CardDefinition DrawTwoStage(List<CardDefinition> mapPool, List<CardDefinition> commonPool, float[] weights, float sideRoll, float rarityRoll, float cardRoll, out bool commonSide)
+    {
+        commonSide = false;
+        if (mapPool == null || mapPool.Count == 0) return null;
+        var sh = GachaShareOdds(mapPool.Count, commonPool != null ? commonPool.Count : 0);
+        commonSide = sideRoll < sh[0];
+        var pool = commonSide ? commonPool : mapPool;
+        int r = PickGachaRarity(GachaRarityOdds(pool, weights), rarityRoll);
+        var bucket = new List<CardDefinition>();
+        foreach (var c in pool) if (c != null && GachaRarityOf(c) == r) bucket.Add(c);
+        if (bucket.Count == 0) bucket = pool;
+        return bucket[Mathf.Clamp((int)(cardRoll * bucket.Count), 0, bucket.Count - 1)];
+    }
+
+    // ガチャ1回(通常/広告/パス共通)。map = タップの時点で確定した、最後に出発したマップの分類
+    CardDefinition DrawGachaForMap(CardMapCategory map)
+    {
+        var mapPool = BuildGachaPoolFor(map);
+        if (mapPool.Count == 0) return null;
+        var commonPool = BuildGachaPoolFor(CardMapCategory.Common);
+        if (Debug.isDebugBuild && !string.IsNullOrEmpty(DevForceGachaCard))
+        {
+            var f = mapPool.Find(c => c != null && c.cardId == DevForceGachaCard) ?? commonPool.Find(c => c != null && c.cardId == DevForceGachaCard);
+            if (f != null) return f;
+        }
+        var c2 = DrawTwoStage(mapPool, commonPool, gachaRarityWeights, Random.value, Random.value, Random.value, out bool common);
+        LastDrawCommonSide = common ? 1 : 0;
+        return c2;
+    }
+
+    // 今の条件の表(提供割合の画面・確認用)
+    public float[] GachaOddsNow(out float[] commonPart, out float[] mapPart, out int mapCount, out int commonCount)
+    {
+        var mp = BuildGachaPoolFor(GachaCategory); var cp = BuildGachaPoolFor(CardMapCategory.Common);
+        mapCount = mp.Count; commonCount = cp.Count;
+        return GachaFinalOdds(mp, cp, gachaRarityWeights, out commonPart, out mapPart);
+    }
+
+    // マップに対象が無い時の条件(分かる時だけ)。「自然洞窟で1,000m到達して帰還」/「ラストダンジョンの解放」
+    //  返すのは並べ替えの前の訳(Loc.F(LocGacha.Condition, …) に差し込んで表示する)
+    public string GachaMapUnlockHint(CardMapCategory map)
+    {
+        if (map == CardMapCategory.LastDungeon) return ProgressStats.FinalDungeonUnlocked ? "" : Loc.Plain(LocCardCommon.UnlockLastDungeon);
+        string stage = CardMapCategories.StageIdOf(map);
+        if (string.IsNullOrEmpty(stage)) return "";
+        float best = BestDistance; int st = CurrentGachaStage; float need = float.MaxValue;
+        foreach (var c in CardDatabase.AllCards)
+        {
+            if (c == null || CardMapCategories.Of(c) != map || !GachaStage.IsCardEligibleByDistance(c, best, st)) continue;
+            need = Mathf.Min(need, CardMapUnlock.RequiredMeters(c));
+        }
+        if (need == float.MaxValue || need <= 0f) return "";
+        return Loc.AutoPlain(Loc.Src(LocCardCommon.UnlockOnMap, UnlockRules.StageName(stage), need.ToString("N0", System.Globalization.CultureInfo.InvariantCulture))); // カードの解禁の条件と同じ組み立て(ConditionSrc)
+    }
+
     void RefuseEmptyCategory(CardMapCategory k)
     {
         GachaCategoryRefusedEmpty++;
-        SetGachaCategoryNote(Loc.T(LocGacha.NoCards));
+        string hint = GachaMapUnlockHint(k);
+        SetGachaCategoryNote(string.IsNullOrEmpty(hint) ? Loc.T(LocGacha.NoCardsMap) : Loc.F(LocGacha.Condition, hint));
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiDeny);
         Debug.Log($"[Gacha] refused: no cards in {k} (nothing spent)");
     }
 
     void SetGachaCategoryNote(string s) { gachaCategoryNote = s; gachaCategoryNoteUntil = Time.unscaledTime + 2.5f; }
 
-    // 案内の1行: 「天空のカードだけが出ます」/ 対象が無い時は「この分類には引けるカードがありません」
+    // 案内の1行: 「天空のカード 70%・共通 30%」/ 対象が無い時は「このマップで引けるカードがまだありません」
     // 横画面のガチャの札の2行目 / 縦画面の台の下: 断った理由が出ている間はそれ、普段は対象の案内
     string GachaSignSubLine()
     {
@@ -81,8 +162,12 @@ public partial class GameManager
         if (!string.IsNullOrEmpty(gachaCategoryNote) && Time.unscaledTime < gachaCategoryNoteUntil) return gachaCategoryNote;
         return GachaTargetLine(gachaCategory, GachaLandCount(gachaCategory) == 0);
     }
-    string GachaTargetLine(CardMapCategory k, bool empty) =>
-        empty ? Loc.T(LocGacha.NoCards) : Loc.F(LocGacha.WillDraw, Loc.T(CardMapCategories.LabelSrc(k)));
+    string GachaTargetLine(CardMapCategory k, bool empty)
+    {
+        if (empty) return Loc.T(LocGacha.NoCardsMap);
+        int cs = Mathf.RoundToInt(GachaCommonShare * 100f);
+        return Loc.F(LocGacha.MixLine, Loc.AutoPlain(CardMapCategories.LabelSrc(k)), 100 - cs, cs); // 差し込む名前は並べ替えの前(Loc.AutoPlain)
+    }
 
     // ---------------------------------------------------------------- レア度の確率(2026-11-14 マスター決定)
     //  ・対象(選んだ分類 × ガチャLv × 解禁)にあるレア度は、重み(50/30/15/4/1、合計100)どおりの確率。
@@ -145,6 +230,17 @@ public static class LocGacha
     public const string WillDraw = "{0}のカードだけが出ます";          // ID 11000
     public const string NoCards = "この分類には引けるカードがありません"; // ID 11001
     public const string Locked = "{0}はまだ解禁されていません";            // ID 11002({0}=押した未解禁の分類名。エステル: 選んでいる分類と取り違えない)
-    public const string Pick = "ガチャの分類";                          // ID 11003(縦画面の帯の見出し)
-    public static readonly string[] All = { WillDraw, NoCards, Locked, Pick };
+    public const string Pick = "ガチャの分類";                          // ID 11003(縦画面の帯の見出し。2026-11-14 夜から未使用)
+    // 2026-11-15(共通 30% / マップ 70%、提供割合)
+    public const string MixLine = "{0}のカード {1}%・共通 {2}%";         // ID 11040 {0}=マップの分類名 {1}=70 {2}=30
+    public const string NoCardsMap = "このマップで引けるカードがまだありません"; // ID 11041
+    public const string Condition = "条件：{0}";                        // ID 11042 {0}=解放の条件(「自然洞窟で1,000m到達して帰還」等)
+    public const string Odds = "提供割合";                                // ID 11043(ボタンと画面の見出し)
+    public const string OddsHow = "1回ごとに、まず「共通」か「マップ」を抽選し、その分類のレア度別の割合に従ってレア度を決めます。選ばれた分類・レア度の対象カードから、同じ確率で1枚を選びます。通常ガチャと広告ガチャの提供割合は同じです。"; // ID 11044
+    public const string OddsMapIs = "対象マップ：{0}。実際に出発すると、そのマップに切り替わります。"; // ID 11045
+    public const string OddsShare = "分類";                              // ID 11046(表の見出し: 分類とその割合)
+    public const string OddsTotal = "合計";                              // ID 11047
+    public const string OddsCards = "対象：{0}枚";                         // ID 11048
+    public const string OddsPerPull = "分類の割合を反映した、1回あたりの提供割合です（小数第2位まで表示）。"; // ID 11049
+    public static readonly string[] All = { WillDraw, NoCards, Locked, Pick, MixLine, NoCardsMap, Condition, Odds, OddsHow, OddsMapIs, OddsShare, OddsTotal, OddsCards, OddsPerPull };
 }

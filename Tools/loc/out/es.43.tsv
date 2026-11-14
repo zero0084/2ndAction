@@ -1,0 +1,11 @@
+11040	Cartas ({0}) {1} % · COMÚN {2} %
+11041	Todavía no hay cartas disponibles en el sorteo de este mapa.
+11042	Condición: {0}
+11043	Probabilidades
+11044	En cada sorteo se elige al azar la categoría «Común» o «Mapa» y después se determina la rareza según las probabilidades de cada nivel de rareza de esa categoría. Se elige una carta de entre las disponibles de la categoría y rareza elegidas, con la misma probabilidad para todas. Los sorteos normales y los sorteos por ver anuncios tienen las mismas probabilidades.
+11045	Mapa objetivo: {0}. Cuando inicies una partida en un mapa, el objetivo cambiará a ese mapa.
+11046	Categoría
+11047	Total
+11048	Cartas disponibles: {0}
+11049	Probabilidades por sorteo con las proporciones de las categorías ya aplicadas (se muestran hasta 2 decimales).
+11050	En el gacha, ahora hay un 70 % de probabilidad de obtener una carta del último mapa en el que iniciaste una partida y un 30 % de obtener una carta de la categoría «Común». Puedes consultar estas probabilidades en «Probabilidades».

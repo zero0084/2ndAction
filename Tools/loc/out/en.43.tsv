@@ -1,0 +1,11 @@
+11040	{0} cards {1}% · COMMON {2}%
+11041	No cards are available to draw for this map yet.
+11042	Requirement: {0}
+11043	Drop Rates
+11044	Each draw first randomly selects either the “Common” or “Map” category, then determines the rarity using that category’s rarity rates. One card is selected with equal probability from the eligible cards in the chosen category and rarity. Standard draws and draws for watching ads have the same drop rates.
+11045	Target map: {0}. The target switches to a map when you actually set out on it.
+11046	Category
+11047	Total
+11048	Eligible cards: {0}
+11049	Per-draw drop rates with the category rates already applied (shown with up to 2 decimal places).
+11050	Gacha draws now have a 70% chance of giving a card from the map you last set out on and a 30% chance of giving a “Common” card. You can check these rates under “Drop Rates”.

@@ -1,0 +1,11 @@
+11040	Cartes ({0}) {1} % · COMMUN {2} %
+11041	Aucune carte n’est encore disponible pour le tirage de cette zone.
+11042	Condition : {0}
+11043	Taux d’obtention
+11044	À chaque tirage, la catégorie « Commun » ou « Zone » est d’abord choisie au hasard, puis la rareté est déterminée selon les taux de rareté de cette catégorie. Une carte est ensuite choisie parmi les cartes disponibles de la catégorie et de la rareté retenues, chacune ayant la même probabilité d’être sélectionnée. Les tirages classiques et ceux obtenus en regardant une publicité ont les mêmes taux d’obtention.
+11045	Zone ciblée : {0}. Lorsque vous partez effectivement pour une zone, celle-ci devient la zone ciblée.
+11046	Catégorie
+11047	Total
+11048	Cartes disponibles : {0}
+11049	Taux par tirage tenant déjà compte des proportions des catégories (affichage à 2 décimales maximum).
+11050	Le gacha offre désormais 70 % de chances d’obtenir une carte de la dernière zone dans laquelle vous avez lancé une partie et 30 % de chances d’obtenir une carte de la catégorie « Commun ». Vous pouvez consulter ces taux dans « Taux d’obtention ».

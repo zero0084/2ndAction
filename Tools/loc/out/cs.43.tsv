@@ -1,0 +1,11 @@
+11040	Karty ({0}) {1} % · SPOLEČNÉ {2} %
+11041	Pro tuto mapu zatím nejsou k dispozici žádné karty k losování.
+11042	Podmínka: {0}
+11043	Šance
+11044	Při každém losování se nejprve náhodně vybere kategorie „Společné“ nebo „Mapa“ a poté se určí vzácnost podle šancí jednotlivých stupňů vzácnosti v této kategorii. Z dostupných karet vybrané kategorie a vzácnosti se náhodně vybere jedna karta, přičemž všechny mají stejnou šanci. Běžné losování i losování za zhlédnutí reklamy mají stejné šance.
+11045	Mapa pro losování: {0}. Když se na některou mapu skutečně vydáte, losování se přepne na tuto mapu.
+11046	Kategorie
+11047	Celkem
+11048	Dostupné karty: {0}
+11049	Šance na jedno losování už zohledňují podíl dané kategorie (zobrazeno až na dvě desetinná místa).
+11050	Při losování nyní získáte s pravděpodobností 70 % kartu z mapy, na kterou jste se naposledy vydali, a s pravděpodobností 30 % kartu z kategorie „Společné“. Pravděpodobnosti najdete pod položkou „Šance“.

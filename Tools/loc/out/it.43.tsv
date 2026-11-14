@@ -1,0 +1,11 @@
+11040	Carte ({0}) {1}% · COMUNE {2}%
+11041	Non ci sono ancora carte ottenibili dall’estrazione di questa mappa.
+11042	Condizione: {0}
+11043	Probabilità
+11044	A ogni estrazione viene prima scelta casualmente la categoria «Comune» o «Mappa», poi la rarità in base alle probabilità delle singole rarità di quella categoria. Viene selezionata una carta tra quelle disponibili della categoria e della rarità scelte, tutte con la stessa probabilità. Le estrazioni normali e quelle ottenute guardando una pubblicità hanno le stesse probabilità.
+11045	Mappa delle estrazioni: {0}. Quando parti effettivamente per una mappa, le estrazioni passano a quella mappa.
+11046	Categoria
+11047	Totale
+11048	Carte disponibili: {0}
+11049	Probabilità per estrazione, con le percentuali delle categorie già applicate (visualizzate con un massimo di 2 decimali).
+11050	Nel gacha, ora hai il 70% di probabilità di ottenere una carta dell’ultima mappa in cui hai avviato una partita e il 30% di ottenere una carta della categoria «Comune». Puoi consultare queste percentuali in «Probabilità».

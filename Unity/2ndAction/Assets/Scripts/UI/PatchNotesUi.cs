@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 // お知らせ(更新内容)の画面(2026-11-14)。タイトル画面の左上の「お知らせ」から開く。
@@ -22,8 +22,9 @@ public class PatchNotesUi : MonoBehaviour
     // 新しい順。code は Android の versionCode(Windows でも同じ番号で数える)
     public static readonly Note[] Notes =
     {
-        new Note { code = 451, date = "2026/11/14", changes = new[] {
-            LocNotes.N451a, LocNotes.N451b, LocNotes.N451c, LocNotes.N451d, LocNotes.N451e } },
+        // 2026-11-15: 451/452 は配っていない確認用の版 → 次に配る版(453)の項目にまとめ、ガチャの説明を確定版(最後に出発したマップ + 共通 30%)へ差し替え
+        new Note { code = 453, date = "2026/11/15", changes = new[] {
+            LocNotes.N453a, LocNotes.N451b, LocNotes.N451c, LocNotes.N451d, LocNotes.N451e } },
         new Note { code = 450, date = "2026/11/08", changes = new[] {
             LocNotes.N450a, LocNotes.N450b, LocNotes.N450c, LocNotes.N450d, LocNotes.N450e } },
     };
@@ -134,6 +135,7 @@ public static class LocNotes
     public const string Known = "既知の不具合";                       // ID 11013
     // 451 の文はエステルの差し替え案(2026-11-14)
     public const string N451a = "ガチャでカードの分類を選べるようになりました。選んだ分類のカードだけが出ます。"; // ID 11014
+    public const string N453a = "ガチャで、最後に出発したマップのカードが70%、共通のカードが30%の割合で出るようになりました。割合は「提供割合」で確認できます。"; // ID 11050(N451a の差し替え)
     public const string N451b = "タイトル画面の「お知らせ」から、更新内容を確認できるようになりました。"; // ID 11015
     public const string N451c = "新しいバージョンがあるときに、更新をご案内するようになりました。更新しなくても、そのまま遊べます。"; // ID 11016
     public const string N451d = "カード合成の説明と結果を、スクロールして最後まで読めるようにしました。"; // ID 11017
@@ -144,5 +146,5 @@ public static class LocNotes
     public const string N450d = "95km から先の連戦の難しさを調整しました。"; // ID 11022
     public const string N450e = "中断したプレイを再開すると、撃破や BREAK の報酬が二重に加算されることがある不具合を修正しました。"; // ID 11023
     public const string ButtonNew = "NEW";
-    public static readonly string[] All = { Title, VersionLine, Changes, Known, N451a, N451b, N451c, N451d, N451e, N450a, N450b, N450c, N450d, N450e };
+    public static readonly string[] All = { Title, VersionLine, Changes, Known, N453a, N451a, N451b, N451c, N451d, N451e, N450a, N450b, N450c, N450d, N450e };
 }

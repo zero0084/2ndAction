@@ -2113,9 +2113,9 @@ public partial class GameManager : MonoBehaviour
         var rowPlan = new System.Collections.Generic.List<(Rect, string)>();
         for (int i = 0; i < 4; i++) rowPlan.Add((new Rect(pl.facility.x + i * (w + gap), pl.facility.y, w, pl.facility.height), labels[i]));
         HomeIconPlan plan = PlanHomeIconRow(rowPlan, fs);
-        // 2026-11-14 案の比較: ガチャの対象の1行を、下のガチャ/広告のボタンのすぐ上に(PortraitCaptionAboveButtons)
-        if (PortraitCaptionAboveButtons && !gachaResultOpen && fade > 0.05f)
-            DrawGachaTargetCaption(lastGachaMachineRect, fade, AdGachaAvailable ? pl.facility.y - 54f * GachaUiScale - 8f : pl.facility.y);
+        // 2026-11-15 縦画面(案B): ガチャのボタンの列の上に、対象の帯 + 「提供割合」
+        if (!gachaResultOpen && fade > 0.05f)
+            DrawGachaInfoStrip(new Rect(pl.facility.x + 3f * (w + gap), pl.facility.y, w, pl.facility.height), fade, interactable);
         for (int i = 0; i < 4; i++)
         {
             Rect b = new Rect(pl.facility.x + i * (w + gap), pl.facility.y, w, pl.facility.height);
@@ -4837,6 +4837,12 @@ public partial class GameManager : MonoBehaviour
                         bgRoomRect.x + bgRoomRect.width * 0.83f - machineWidth / 2f + shakeOffset,
                         bgRoomRect.y + bgRoomRect.height * 0.26f,
                         machineWidth, machineHeight);
+                    // 2026-11-15(エステル): 縦画面では部屋の絵の右が切れて、台も右端で半分切れていた → 台の右端(飾りの分を含む)が画面に入るまで左へ
+                    if (HomePortrait)
+                    {
+                        float maxRight = Screen.width - SafeRight() - machineWidth * 0.18f;
+                        if (machineRect.xMax > maxRight) machineRect.x -= machineRect.xMax - maxRight;
+                    }
 
                     // Home画面改善依頼⑤(2026-09-16), item 3 - 「独立した
                     // スタンプのように見えないように」。単一の均一な影
@@ -6791,6 +6797,7 @@ public partial class GameManager : MonoBehaviour
         if (AppExit.Open) { AppExit.Cancel(); return; } // 2026-10-31: 終了の確認はキャンセル(1段だけ)
         if (PatchNotesUi.IsOpen) { PatchNotesUi.Close(); return; } // 2026-11-14: お知らせを閉じてタイトルへ
         if (UpdateCheck.PromptOpen) { UpdateCheck.Later(); return; } // 2026-11-14: 更新の案内は「あとで」と同じ
+        if (GachaOddsPanel.IsOpen) { GachaOddsPanel.Close(); return; } // 2026-11-15: 提供割合を閉じる
         if (TitleScreen.Showing) { AppExit.RequestFromTitle(); return; } // 2026-10-31: タイトルの戻る = 終了/端末のホームへの確認(後ろのホームへは通さない。iOS は何もしない)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (DebugPanel.Instance != null && DebugPanel.Instance.Back()) return;

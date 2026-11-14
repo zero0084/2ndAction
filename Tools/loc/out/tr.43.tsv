@@ -1,0 +1,11 @@
+11040	{0} kartları %{1} · ORTAK %{2}
+11041	Bu harita için henüz çekilebilecek kart yok.
+11042	Koşul: {0}
+11043	Olasılıklar
+11044	Her çekilişte önce “Ortak” veya “Harita” kategorisi rastgele seçilir, ardından o kategorinin nadirlik oranlarına göre nadirlik belirlenir. Seçilen kategori ve nadirlikteki uygun kartlar arasından bir kart eşit olasılıkla seçilir. Normal çekilişler ve reklam izleyerek yapılan çekilişler aynı kart çıkma oranlarına sahiptir.
+11045	Hedef harita: {0}. Bir haritada koşuya başladığınızda, hedef o haritaya geçer.
+11046	Kategori
+11047	Toplam
+11048	Çekilebilir kartlar: {0}
+11049	Kategori oranları hesaba katılmış, çekiliş başına kart çıkma oranlarıdır (en fazla 2 ondalık basamak gösterilir).
+11050	Gacha artık en son koşuya başladığınız haritadan %70, “Ortak” kategorisinden ise %30 olasılıkla kart veriyor. Oranları “Olasılıklar” bölümünden kontrol edebilirsiniz.

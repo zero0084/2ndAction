@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 // ガチャの連続操作(2026-10-07)。
@@ -41,11 +41,10 @@ public partial class GameManager
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiDeny);
             return false;
         }
-        // 2026-11-14: 選んでいる分類のカードだけ(タップの時点で確定)。対象が無ければ引かない(MILE を使わない・別の分類へ切り替えない)
+        // 2026-11-15: 最後に出発したマップ(タップの時点で確定)で 共通 30% / マップ 70%。マップに対象が無ければ引かない(MILE を使わない・共通だけに切り替えない)
         CardMapCategory cat = GachaCategory;
-        List<CardDefinition> pool = BuildGachaPoolFor(cat);
-        if (pool.Count == 0) { RefuseEmptyCategory(cat); return false; }
-        CardDefinition drawn = DrawFromGachaPool(pool);
+        if (BuildGachaPoolFor(cat).Count == 0) { RefuseEmptyCategory(cat); return false; }
+        CardDefinition drawn = DrawGachaForMap(cat);
         if (drawn == null) return false;
         if (!TrySpendMile(GachaCostMile)) { gachaInsufficientMessageTimer = gachaInsufficientMessageDuration; GachaRefusedNoMile++; return false; }
         bool isNew = CardInventory.GetTotalCountByName(drawn.cardId) == 0; // 2026-10-13: 加える前に判定(続けて引いた同じカードは最初の1枚だけ NEW)
