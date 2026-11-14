@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 // 広告/広告なしパスのゲーム側の入口(2026-10-10、依頼I)。Steam/PC(Monetization.Mode == None)では何も出さない・何もしない。
 //  ・結果画面(脱出/FINISH の成功): 「MILE 2倍」= 通常の持ち帰り MILE(保存済み)と同じ額を、報酬広告の正規の通知(パスは広告なし)で1回だけ追加
@@ -34,6 +34,7 @@ public partial class GameManager
         why = "";
         if (Monetization.Ads == null) why = "no ad service";
         else if (IsWin) why = "success (ads only after game over)";
+        else if (versusPaid) why = "versus match completed (rank result, not FAILED)"; // 2026-11-14: 順位の画面(金色)は FAILED ではない
         else if (resultAdTried) why = "already tried on this result";
         else if (NoAdsPass.Owned) why = "no-ads pass";
         else if (!CountsForAds) why = "tutorial/practice/arena/debug run";
@@ -45,6 +46,11 @@ public partial class GameManager
         return why.Length == 0;
     }
 
+    // 結果画面の種類(広告の判断と控え用)。強制広告を出してよいのは "failed"(見出しが FAILED の画面)だけ
+    public string ResultKindForAds => !IsGameOver ? "not-result" : IsWin ? "success" : versusPaid ? $"versus-complete#{VersusRank}/{VersusPlayers}" : "failed";
+    public bool ResultShowsFailed => IsGameOver && !IsWin && !versusPaid;
+    string RunModeForAds => NetRunLauncher.IsMultiplayerRun ? NetRunLauncher.ActiveMode.ToString().ToLowerInvariant() : TutorialMode.Active ? "tutorial" : ArenaMode.Active ? "arena" : "solo";
+
     // 結果画面のタップ(受け付けた)→ ホームへ。強制広告は条件がそろった時だけ、終わったら(失敗/閉じた/出なかった も)すぐホームへ
     void LeaveResult()
     {
@@ -53,6 +59,7 @@ public partial class GameManager
         {
             resultAdTried = true; leavingResult = true;
             DeathLog("Result -> interstitial ad before HOME");
+            AdTrace.Note($"result={ResultKindForAds} mode={RunModeForAds} forced-ad=show");
             AdManager.Show(AdKind.Interstitial, "gameover", null, ok =>
             {
                 if (ok) GameOverAdsShown++;
@@ -62,7 +69,7 @@ public partial class GameManager
             return;
         }
         LastGameOverAdSkip = why;
-        if (Monetization.Mode != MonetizationMode.None) Debug.Log($"[Ads] game over ad skipped: {why}");
+        if (Monetization.Mode != MonetizationMode.None) { Debug.Log($"[Ads] game over ad skipped: {why}"); AdTrace.Note($"result={ResultKindForAds} mode={RunModeForAds} forced-ad=skip ({why})"); }
         RetryWithTransition();
     }
 

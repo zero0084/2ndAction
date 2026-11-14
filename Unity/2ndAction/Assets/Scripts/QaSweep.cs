@@ -124,6 +124,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaTutorial") { mode = "tutorial"; dir = a[i + 1]; }
             if (a[i] == "-qaGacha") { mode = "gacha"; dir = a[i + 1]; }
             if (a[i] == "-qaGachaCat") { mode = "gachacat"; dir = a[i + 1]; } // 2026-11-14 ガチャの分類を選ぶ
+            if (a[i] == "-qaGachaOdds") { mode = "gachaodds"; dir = a[i + 1]; } // 2026-11-14 ガチャのレア度の確率表
             if (a[i] == "-qaTitleNotes") { mode = "titlenotes"; dir = a[i + 1]; } // 2026-11-14 タイトルのお知らせ/文字/更新の案内
             if (a[i] == "-qaUpgradeRead") { mode = "upgraderead"; dir = a[i + 1]; } // 2026-11-14 前の版の保存を読む
             if (a[i] == "-qaDeck") { mode = "deck"; dir = a[i + 1]; }
@@ -337,6 +338,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "flyjitter") yield return FlyJitterMode();
         else if (mode == "monet") yield return MonetizationModeQa();
         else if (mode == "gachacat") yield return GachaCatModeQa();
+        else if (mode == "gachaodds") yield return GachaOddsModeQa();
         else if (mode == "titlenotes") yield return TitleNotesModeQa();
         else if (mode == "upgraderead") yield return UpgradeReadModeQa();
         else if (mode == "monetnone") yield return MonetizationNoneQa();

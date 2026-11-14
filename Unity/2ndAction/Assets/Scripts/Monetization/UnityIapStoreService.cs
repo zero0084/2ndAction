@@ -1,4 +1,4 @@
-#if UNITY_ANDROID && OMM_UNITY_IAP
+﻿#if UNITY_ANDROID && OMM_UNITY_IAP
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +13,9 @@ using UnityEngine.Purchasing.Security;
 //   → 有効にしてから ConfirmPurchase(= Google への acknowledge。3日以内にしないと自動で返金される)
 // ・支払い待ち(OnPurchaseDeferred)は有効にしない。完了したら OnPurchasePending で届く → LatePurchase
 // ・持っているかの確認は FetchPurchases(Android の「復元」)。接続できない時は ok=false(持っていないとは扱わない)
+// ・2026-11-14: 「持っていない」と答えるのは、商品の情報が取れていて、かつレシートを検証できる時だけ。
+//   検証の準備が無い(GooglePlayTangle 未設定)/商品の情報が取れていない時に注文が見つからない・検証できない場合は ok=false(分からない)
+//   = 既にある権利を外す材料にしない
 public class UnityIapStoreService : IStoreService
 {
     public string Name => "unity-iap";
@@ -20,6 +23,7 @@ public class UnityIapStoreService : IStoreService
     public event Action<PurchaseResult> LatePurchase;
     StoreController store;
     readonly Dictionary<string, Product> products = new Dictionary<string, Product>();
+    bool ProductKnown => products.ContainsKey(MonetizationConfig.NoAdsProductId);
     Action<PurchaseResult> purchaseCallback;
     Action<RestoreResult> restoreCallback;
 
@@ -64,11 +68,21 @@ public class UnityIapStoreService : IStoreService
 
     void OnFetched(Orders orders)
     {
-        bool owned = false; string token = "";
+        bool owned = false, unverifiable = false; string token = "";
         foreach (var o in orders.ConfirmedOrders)
             foreach (var item in o.CartOrdered.Items())
-                if (item.Product.definition.id == MonetizationConfig.NoAdsProductId && Validate(o.Info.Receipt)) { owned = true; token = o.Info.TransactionID; }
-        restoreCallback?.Invoke(new RestoreResult { ok = true, owned = owned, token = token });
+            {
+                if (item.Product.definition.id != MonetizationConfig.NoAdsProductId) continue;
+                if (Validate(o.Info.Receipt)) { owned = true; token = o.Info.TransactionID; }
+                else if (!CanValidate) unverifiable = true;
+            }
+        RestoreResult r;
+        if (owned) r = new RestoreResult { ok = true, owned = true, token = token };
+        else if (unverifiable) r = new RestoreResult { ok = false, message = "an order exists but receipt validation is not set up - unknown (not treated as 'not owned')" };
+        else if (!ProductKnown) r = new RestoreResult { ok = false, message = "product not fetched from the store - unknown (not treated as 'not owned')" };
+        else r = new RestoreResult { ok = true, owned = false };
+        if (!r.ok) Debug.LogWarning("[IAP] restore: " + r.message);
+        restoreCallback?.Invoke(r);
         restoreCallback = null;
     }
 
@@ -96,6 +110,11 @@ public class UnityIapStoreService : IStoreService
 
     // レシートの検証。GooglePlayTangle(Play Console のライセンスキーから IAP の難読化ツールで作る)が入るまでは
     // OMM_IAP_TANGLE を付けない = 検証できない = 付与しない(確定もしないので、テスト購入は Google 側で自動返金される)
+#if OMM_IAP_TANGLE
+    const bool CanValidate = true;
+#else
+    const bool CanValidate = false;
+#endif
     static bool Validate(string receipt)
     {
 #if OMM_IAP_TANGLE

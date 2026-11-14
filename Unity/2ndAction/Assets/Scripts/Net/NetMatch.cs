@@ -119,7 +119,7 @@ public partial class NetMatch : MonoBehaviour
         Instance = this;
         UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => ResetForScene();
         string[] args = System.Environment.GetCommandLineArgs();
-        foreach (string a in args) if (a == "-netChoiceInvincible") ChoiceInvincible = true;
+        if (Debug.isDebugBuild) foreach (string a in args) if (a == "-netChoiceInvincible") ChoiceInvincible = true; // 2026-11-14 製品版では起動引数を読まない
     }
 
     void ResetForScene()

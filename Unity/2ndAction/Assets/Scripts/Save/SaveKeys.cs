@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 // セーブデータの全項目(2026-10-01)。保存先はすべて PlayerPrefs(Android=アプリ専用のXML / Windows=レジストリ)。
 // PlayerPrefs はキーの一覧を取れないので、ここに全キーを登録しておく(バックアップ/初期化/検査がこの表を使う)。
@@ -145,7 +145,7 @@ public static class SaveKeys
         new Entry(DisplaySettings.WindowKey, SaveCategory.Settings, SaveType.String, "PC の最後のウィンドウの大きさ \"幅x高さ\"(全画面からウィンドウへ戻す時の大きさ。端のドラッグ/Alt+Enter でも保存、2026-10-31)"),
         new Entry(UiScalePref.Key, SaveCategory.Settings, SaveType.Int, "文字・UIの大きさ 0=標準/1=大きめ(2026-10-31)"),
         new Entry(PatchNotesUi.ReadKey, SaveCategory.Settings, SaveType.Int, "お知らせ(更新内容)を読んだ一番新しい版の番号(2026-11-14。これより新しい版があればタイトルの「お知らせ」に NEW)"),
-        new Entry(GameManager.GachaCategoryKey, SaveCategory.Settings, SaveType.Int, "ガチャで引く分類 0=共通/1=荒野/2=洞窟/3=天空/4=ラスダン(2026-11-14。読み込み時に未解禁なら共通)"),
+        new Entry(GameManager.GachaLastMapKey, SaveCategory.Settings, SaveType.String, "ガチャの対象 = 最後に出発したマップのステージ ID(2026-11-14。出発の時に記録。無ければ荒野)"),
         new Entry(DisplaySettings.ResKey, SaveCategory.Settings, SaveType.String, "PC の解像度 \"幅x高さ\"(確定した時だけ保存、2026-10-25)"),
         new Entry(DisplaySettings.VSyncKey, SaveCategory.Settings, SaveType.Int, "PC の垂直同期 1/0(既定1、2026-10-25)"),
         new Entry(DisplaySettings.FpsKey, SaveCategory.Settings, SaveType.Int, "PC の FPS 上限(垂直同期 OFF の時。0=無制限、2026-10-25)"),

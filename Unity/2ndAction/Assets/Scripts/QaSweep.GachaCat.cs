@@ -1,14 +1,16 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+﻿#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-// ガチャの分類を選ぶ機能(2026-11-14)の自動試験: -qaGachaCat <dir> -monetizationMock 1(テスト用データの中だけ)
-//  A 未解禁の分類は選べない / B 対象が無い分類は引けない(MILE も広告の回数も使わない・自動で切り替えない)
-//  C 5分類それぞれ 120 回: 対象外のカードが出ない + レア度の内訳 / D 切り替え直後・連続(順番待ち)・筐体の見た目
-//  E 広告ガチャ: タップ時の分類で確定(広告の間に切り替えても変わらない)・パスでも同じ / F 所持(Lv/枚数)とデッキは増えるだけ
+// ガチャの対象 = 最後に出発したマップ(2026-11-14 夜、マスターの訂正)の自動試験: -qaGachaCat <dir> -monetizationMock 1(テスト用データの中だけ)
+//  A 新しいデータ: まだ出発していない → 荒野。分類を選ぶ欄は無い
+//  B マップを選んだだけでは変わらない / 出発した対象のカードが無い → 引けない(MILE も広告の回数も使わない)
+//  C 4マップそれぞれに出発 → 見た目と対象がそのマップ、120 回で対象外(共通を含む)が出ない
+//  D 出発で切り替わる前に引いた分は、そのまま / E 広告ガチャはタップ時の対象で確定・パスでも同じ
+//  F 所持(Lv/枚数)とデッキは増えるだけ / G ホームへの帰還(読み直し)の後も同じマップ / 見た目と言語ごとの見切れ(-gcLangs)
 public partial class QaSweep
 {
     static readonly FieldInfo GcQueue = typeof(GameManager).GetField("gachaRevealQueue", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -16,6 +18,10 @@ public partial class QaSweep
     static readonly MethodInfo GcClose = typeof(GameManager).GetMethod("ClearGachaPresentation", BindingFlags.NonPublic | BindingFlags.Instance);
 
     List<CardDefinition> GcQueued => (List<CardDefinition>)GcQueue.GetValue(gm);
+    static readonly (string stage, CardMapCategory cat)[] GcMaps =
+    {
+        ("wasteland_road", CardMapCategory.Wilderness), ("natural_cave", CardMapCategory.Cave), ("sky_corridor", CardMapCategory.Sky), ("last_corridor", CardMapCategory.LastDungeon),
+    };
 
     IEnumerator GachaCatModeQa()
     {
@@ -25,50 +31,47 @@ public partial class QaSweep
         SaveProfile.Switch(true, true);
         yield return ReloadHome();
         TutorialProgress.MarkOffered();
+        GameManager.PortraitCaptionAboveButtons = Arg("-gcCaptionB", "0") == "1"; // 縦画面の案の比較(下のボタンの上に1行)
         bool mock = Monetization.Mode == MonetizationMode.Mock;
         if (mock) { MockAdService.AdSeconds = 0.6f; MockAdService.AutoComplete = true; MockAdService.Mode = MockAdService.Behaviour.Normal; NoAdsPass.DevMockSet(false); AdManager.DevIgnoreTiming = true; AdRewards.DevResetGacha(); }
-        SaveStore.SetInt(GameManager.GachaCategoryKey, 0); SaveStore.Save();
+        SaveStore.DeleteKey(GameManager.GachaLastMapKey); SaveStore.Save();
+        UnlockRules.QaOverride = false;
+        if (UnlockRules.DevUnlockAll) UnlockRules.DevUnlockAll = false;
         yield return ReloadHome();
 
-        // ---- A: 新しいデータ。洞窟/天空/ラスダンは未解禁
-        L("== A: locked categories ==");
-        UnlockRules.QaOverride = false; // 自動試験は全マップを開いて始まる → 製品と同じ判定に戻す(新しいデータ = 洞窟/天空/ラスダンは未解放)
-        if (UnlockRules.DevUnlockAll) UnlockRules.DevUnlockAll = false;
-        L($"[A] cave unlocked={UnlockRules.IsStageUnlocked(UnlockRules.Cave)} sky={UnlockRules.IsStageUnlocked(UnlockRules.Sky)} devAll={UnlockRules.DevUnlockAll} qaOverride={UnlockRules.QaOverride} best={gm.BestDistance:F0} ld={ProgressStats.FinalDungeonUnlocked}");
-        foreach (var k in new[] { CardMapCategory.Cave, CardMapCategory.Sky, CardMapCategory.LastDungeon })
-        {
-            bool open = GameManager.GachaCategorySelectable(k);
-            bool ok = gm.SelectGachaCategory(k);
-            Check(!open && !ok && gm.GachaCategory == CardMapCategory.Common, $"A: {k} is locked on a new save and cannot be selected (now {gm.GachaCategory})");
-        }
-        Check(GameManager.GachaCategorySelectable(CardMapCategory.Common) && GameManager.GachaCategorySelectable(CardMapCategory.Wilderness), "A: Common and Wilderness are selectable from the start");
+        // ---- A: まだ出発していない
+        L("== A: no departure yet ==");
+        Check(GameManager.GachaLastMapStageId == "" && gm.GachaCategory == CardMapCategory.Wilderness && gm.GachaSkinState.Skin == CardMapCategory.Wilderness, $"A: before any departure the gacha is Wilderness ({gm.GachaCategory}, skin {gm.GachaSkinState.Skin})");
         yield return ShotW("gc_A_new_save");
 
-        // ---- B: 洞窟のマップだけ開けて、まだ到達していない(洞窟のカードの対象が無い)
-        L("== B: empty category ==");
-        UnlockRules.QaOverride = true;
-        Check(gm.SelectGachaCategory(CardMapCategory.Cave), "B: Cave becomes selectable once the map is open");
+        // ---- B: 選んだだけでは変わらない / 対象なし
+        L("== B: stage selection alone / empty pool ==");
+        UnlockRules.QaOverride = true; // 洞窟のマップを開ける(到達はまだ 0m)
+        SaveStore.SetString("SelectedStageId", "natural_cave"); SaveStore.Save();
+        yield return ReloadHome();
+        Check(gm.GachaCategory == CardMapCategory.Wilderness, $"B: choosing a map on the stage select does not change the gacha ({gm.GachaCategory})");
+        gm.DevNoteGachaDeparture("natural_cave");
+        Check(gm.GachaCategory == CardMapCategory.Cave && gm.GachaSkinState.Skin == CardMapCategory.Cave && GameManager.GachaLastMapStageId == "natural_cave", "B: departing to the cave switches the gacha to Cave (look and target)");
         int empty = gm.GachaPoolCount(CardMapCategory.Cave);
-        L($"[B] cave pool {empty}");
         if (empty == 0)
         {
             gm.AddMile(GameManager.GachaCostMile * 3);
             int mile0 = gm.TotalOwnedMile, owned0 = TotalOwned(), ref0 = GameManager.GachaCategoryRefusedEmpty;
             bool pulled = (bool)GcPull.Invoke(gm, null);
-            Check(!pulled && gm.TotalOwnedMile == mile0 && TotalOwned() == owned0 && GameManager.GachaCategoryRefusedEmpty == ref0 + 1, "B: no cards in the category -> refused, no MILE spent, no card");
-            Check(gm.GachaCategory == CardMapCategory.Cave, "B: not switched to another category automatically");
+            Check(!pulled && gm.TotalOwnedMile == mile0 && TotalOwned() == owned0 && GameManager.GachaCategoryRefusedEmpty == ref0 + 1, "B: no cards for the cave yet -> refused, no MILE spent, no card");
             if (mock)
             {
                 string day = TrustedClock.DayKey; int left0 = AdRewards.GachaRemaining(day), shows0 = AdManager.ShowsStarted;
                 gm.OnAdGachaTapped();
                 Check(AdRewards.GachaRemaining(day) == left0 && AdManager.ShowsStarted == shows0, "B: ad gacha refused before showing an ad (count unchanged)");
             }
+            yield return new WaitForSecondsRealtime(0.3f);
             yield return ShotW("gc_B_empty");
         }
         else Check(false, $"B: expected an empty Cave pool on a new save (got {empty})");
 
-        // ---- C: 全部を解禁して 5 分類それぞれ 120 回
-        L("== C: per category draws ==");
+        // ---- C: 全部を解禁して 4 マップそれぞれ 120 回
+        L("== C: per map draws ==");
         gm.DebugSetBestDistance(100500f);
         foreach (var st in UnlockRules.NormalMaps) { GameManager.WriteStageBest(st, 100500); UnlockRules.CommitRun(st, 100500, null); }
         ProgressStats.DevSetFinalDungeonUnlocked(true);
@@ -77,10 +80,10 @@ public partial class QaSweep
         var before = CardInventory.Stacks.Select(s => (s.cardId, s.level, s.count)).ToList();
         var deck0 = gm.DeckCards.ToList();
         var report = new System.Text.StringBuilder();
-        foreach (var k in new[] { CardMapCategory.Common, CardMapCategory.Wilderness, CardMapCategory.Cave, CardMapCategory.Sky, CardMapCategory.LastDungeon })
+        foreach (var (stage, k) in GcMaps)
         {
-            Check(gm.SelectGachaCategory(k) && gm.GachaCategory == k, $"C: select {k}");
-            Check(gm.GachaSkinState.Skin == k, $"C: machine skin follows the selection ({gm.GachaSkinState.Skin})");
+            gm.DevNoteGachaDeparture(stage);
+            Check(gm.GachaCategory == k && gm.GachaSkinState.Skin == k, $"C: departed {stage} -> gacha {k} (now {gm.GachaCategory}, skin {gm.GachaSkinState.Skin})");
             int pool = gm.GachaPoolCount(k);
             GcClose.Invoke(gm, null);
             gm.AddMile(GameManager.GachaCostMile * 120);
@@ -94,29 +97,22 @@ public partial class QaSweep
             }
             string line = $"{k}: pool {pool} cards, 120 pulls -> ★1 {rar[1]} / ★2 {rar[2]} / ★3 {rar[3]} / ★4 {rar[4]} / ★5 {rar[5]}, distinct {ids.Count}";
             L("[C] " + line); report.AppendLine(line);
-            Check(bad == 0, $"C: {k}: no card outside the category in 120 pulls ({bad})");
+            Check(bad == 0, $"C: {k}: no card outside the map's category (incl. Common) in 120 pulls ({bad})");
             GcClose.Invoke(gm, null);
             yield return null;
         }
         System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, "gc_rarity.txt"), report.ToString());
 
-        // ---- D: 切り替え直後・連続(順番待ちに残っている間に切り替え)
-        L("== D: switch while cards are queued ==");
-        gm.SelectGachaCategory(CardMapCategory.Sky);
+        // ---- D: 出発で切り替わる前に引いた分
+        L("== D: departure while cards are queued ==");
+        gm.DevNoteGachaDeparture("sky_corridor");
         gm.AddMile(GameManager.GachaCostMile * 6);
         for (int i = 0; i < 3; i++) GcPull.Invoke(gm, null);
-        gm.SelectGachaCategory(CardMapCategory.Common);
+        gm.DevNoteGachaDeparture("wasteland_road");
         for (int i = 0; i < 3; i++) GcPull.Invoke(gm, null);
         var q = GcQueued.ToList();
-        Check(q.Count == 6 && q.Take(3).All(c => CardMapCategories.Of(c) == CardMapCategory.Sky) && q.Skip(3).All(c => CardMapCategories.Of(c) == CardMapCategory.Common),
-            $"D: the 3 cards drawn before the switch stay Sky, the 3 after are Common ({string.Join(",", q.Select(c => CardMapCategories.Of(c)))})");
-        Check(gm.GachaSkinState.Skin == CardMapCategory.Common, "D: the machine shows the selected category right after switching");
-        // 見せる時の分類の表示はカード自身(Sky のカードを見せている間も「天空」)
-        w = 0f;
-        while (!gm.GachaResultOpen && w < 4f) { yield return null; w += Time.unscaledDeltaTime; }
-        yield return new WaitForSecondsRealtime(0.5f);
-        Shot("gc_D_reveal_sky_after_switch");
-        L($"[D] revealing {gm.GachaResultCardId} while Common is selected");
+        Check(q.Count == 6 && q.Take(3).All(c => CardMapCategories.Of(c) == CardMapCategory.Sky) && q.Skip(3).All(c => CardMapCategories.Of(c) == CardMapCategory.Wilderness),
+            $"D: the 3 cards drawn before stay Sky, the 3 after are Wilderness ({string.Join(",", q.Select(c => CardMapCategories.Of(c)))})");
         GcClose.Invoke(gm, null);
         yield return null;
 
@@ -125,21 +121,21 @@ public partial class QaSweep
         {
             L("== E: ad gacha ==");
             AdRewards.DevResetGacha();
-            gm.SelectGachaCategory(CardMapCategory.Sky);
+            gm.DevNoteGachaDeparture("sky_corridor");
             int n0 = gm.AdGachaPulls;
             gm.OnAdGachaTapped();
             yield return null;
-            gm.SelectGachaCategory(CardMapCategory.Common); // 広告の間に切り替える
+            gm.DevNoteGachaDeparture("wasteland_road"); // 広告の間に対象が変わっても
             w = 0f;
             while ((AdManager.Showing || gm.AdGachaPulls == n0) && w < 6f) { yield return null; w += Time.unscaledDeltaTime; }
             var last = GcQueued.LastOrDefault();
-            Check(gm.AdGachaPulls == n0 + 1 && last != null && CardMapCategories.Of(last) == CardMapCategory.Sky, $"E: ad gacha draws from the category chosen when tapped (Sky) even if switched during the ad ({(last != null ? last.cardId + " " + CardMapCategories.Of(last) : "none")})");
+            Check(gm.AdGachaPulls == n0 + 1 && last != null && CardMapCategories.Of(last) == CardMapCategory.Sky, $"E: ad gacha draws from the target fixed when tapped (Sky) ({(last != null ? last.cardId + " " + CardMapCategories.Of(last) : "none")})");
             GcClose.Invoke(gm, null);
             NoAdsPass.DevMockSet(true);
-            gm.SelectGachaCategory(CardMapCategory.Wilderness);
+            gm.DevNoteGachaDeparture("natural_cave");
             gm.OnAdGachaTapped();
             last = GcQueued.LastOrDefault();
-            Check(last != null && CardMapCategories.Of(last) == CardMapCategory.Wilderness, "E: pass pull uses the selected category");
+            Check(last != null && CardMapCategories.Of(last) == CardMapCategory.Cave, "E: pass pull uses the same target as the normal gacha");
             NoAdsPass.DevMockSet(false);
             GcClose.Invoke(gm, null);
         }
@@ -151,33 +147,51 @@ public partial class QaSweep
         Check(kept && onlyLv1New, "F: existing cards keep their level and count (draws only add Lv1 copies)");
         Check(gm.DeckCards.SequenceEqual(deck0), "F: deck unchanged");
 
-        // ---- G: 見た目(縦/横は起動の窓で)。選んでいる分類の案内
-        gm.SelectGachaCategory(CardMapCategory.Sky);
+        // ---- G: 帰還/再起動(読み直し)の後も同じマップ。見た目
+        gm.DevNoteGachaDeparture("sky_corridor");
+        yield return ReloadHome();
+        Check(gm.GachaCategory == CardMapCategory.Sky && gm.GachaSkinState.Skin == CardMapCategory.Sky, $"G: after returning home (scene reload) the gacha is still Sky ({gm.GachaCategory})");
         yield return new WaitForSecondsRealtime(0.6f);
-        yield return ShotW("gc_G_sky_selected");
-        gm.SelectGachaCategory(CardMapCategory.LastDungeon);
-        yield return new WaitForSecondsRealtime(0.6f);
-        yield return ShotW("gc_G_ld_selected");
-        Rect row = gm.LastGachaLandRowRect;
-        Check(row.width > 0f && row.xMin >= 0f && row.xMax <= Screen.width && row.yMax <= Screen.height, $"G: the category row and its line are inside the screen ({row}, screen {Screen.width}x{Screen.height})");
-        Rect st0 = gm.LastHomeSignRects[4];
-        Check(st0.width <= 0f || !row.Overlaps(st0), $"G: the category row does not overlap the Depart sign (row {row}, sign {st0})");
+        yield return ShotW("gc_G_sky");
+        foreach (var (stage, k) in GcMaps)
+        {
+            gm.DevNoteGachaDeparture(stage);
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return ShotW($"gc_G_{k}");
+            GcCheckLayout($"G {k}");
+        }
 
         // 言語ごとの見切れ(-gcLangs en,de,ru,ar 等)
         foreach (var lang in Arg("-gcLangs", "").Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries))
         {
             Loc.Set(lang, false);
-            gm.SelectGachaCategory(CardMapCategory.LastDungeon);
+            gm.DevNoteGachaDeparture("last_corridor");
             yield return new WaitForSecondsRealtime(0.6f);
             yield return ShotW($"gc_L_{lang}");
-            Rect rr = gm.LastGachaLandRowRect, st = gm.LastHomeSignRects[4];
-            Check(rr.width > 0f && rr.xMin >= 0f && rr.xMax <= Screen.width, $"L {lang}: the category row is inside the screen ({rr})");
-            Check(st.width <= 0f || !rr.Overlaps(st), $"L {lang}: the category row does not overlap the Depart sign (row {rr}, sign {st})");
+            GcCheckLayout($"L {lang}");
         }
         Loc.Set("ja", false);
         ProgressStats.DevSetFinalDungeonUnlocked(false);
         SaveProfile.Switch(false, true);
         yield return ReloadHome();
+    }
+
+    // 縦画面: 台の下の1行が画面の中で「出発」の札に重ならない。横画面: 札の2行目(札は画面の中)
+    void GcCheckLayout(string tag)
+    {
+        Rect st = gm.LastHomeSignRects[4];
+        if (Screen.height > Screen.width)
+        {
+            Rect r = gm.LastGachaLandRowRect;
+            Check(r.width > 0f && r.xMin >= 0f && r.xMax <= Screen.width && r.yMax <= Screen.height, $"{tag}: the target line under the machine is inside the screen ({r})");
+            Check(st.width <= 0f || !r.Overlaps(st), $"{tag}: the target line does not overlap the Depart sign (line {r}, sign {st})");
+        }
+        else
+        {
+            Rect g = gm.LastHomeSignRects[3];
+            Check(g.width > 0f && g.xMin >= 0f && g.xMax <= Screen.width, $"{tag}: the gacha sign (with the target line) is inside the screen ({g})");
+            Check(st.width <= 0f || !g.Overlaps(st), $"{tag}: the gacha sign does not overlap the Depart sign ({g} / {st})");
+        }
     }
 }
 #endif

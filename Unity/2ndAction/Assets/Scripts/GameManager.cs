@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -1180,38 +1180,22 @@ public partial class GameManager : MonoBehaviour
         return pool;
     }
 
-    // Item 17 - "UnlockされていないRarity/Cardは抽選対象に入れない". Picks
-    // a Rarity bucket first (weighted by gachaRarityWeights, but ONLY
-    // among rarities actually present in `pool` - an unreached Rarity
-    // simply never gets a bucket), then a uniform pick within that bucket.
+    // Item 17 - "UnlockされていないRarity/Cardは抽選対象に入れない": 対象に無いレア度は引かない。
+    // 2026-11-14 マスター決定: レア度の確率は GachaRarityOdds(GameManager.GachaCategory.cs)の表で決める
+    //  (無いレア度の分はその対象の一番低いレア度へ。他のレア度は重みどおり)。表示/資料/試験も同じ表を読む。
+    //  レア度を表で選んでから、そのレア度の中で等しい確率で1枚
     public static string DevForceGachaCard; // 確認用(開発版の自動テストだけ): 次に引くカードを決める
-    CardDefinition DrawFromGachaPool(List<CardDefinition> pool)
+    CardDefinition DrawFromGachaPool(List<CardDefinition> pool) => DrawFromGachaPool(pool, Random.value, Random.value);
+    CardDefinition DrawFromGachaPool(List<CardDefinition> pool, float rarityRoll, float cardRoll)
     {
         if (Debug.isDebugBuild && !string.IsNullOrEmpty(DevForceGachaCard)) { var f = pool.Find(c => c != null && c.cardId == DevForceGachaCard); if (f != null) return f; }
-        var buckets = new Dictionary<int, List<CardDefinition>>();
-        foreach (CardDefinition card in pool)
-        {
-            int r = Mathf.Clamp(card.rarity, 1, gachaRarityWeights.Length);
-            if (!buckets.TryGetValue(r, out List<CardDefinition> list)) { list = new List<CardDefinition>(); buckets[r] = list; }
-            list.Add(card);
-        }
-        if (buckets.Count == 0) return null;
-
-        float totalWeight = 0f;
-        foreach (KeyValuePair<int, List<CardDefinition>> kv in buckets) totalWeight += Mathf.Max(0f, gachaRarityWeights[kv.Key - 1]);
-        if (totalWeight <= 0f) return pool[Random.Range(0, pool.Count)]; // every eligible Rarity has a zero/negative weight - fall back to a uniform pick
-
-        float roll = Random.value * totalWeight;
-        List<CardDefinition> chosenBucket = null;
-        foreach (KeyValuePair<int, List<CardDefinition>> kv in buckets)
-        {
-            float w = Mathf.Max(0f, gachaRarityWeights[kv.Key - 1]);
-            if (roll < w) { chosenBucket = kv.Value; break; }
-            roll -= w;
-        }
-        if (chosenBucket == null) foreach (KeyValuePair<int, List<CardDefinition>> kv in buckets) chosenBucket = kv.Value; // floating-point edge case fallback
-
-        return chosenBucket[Random.Range(0, chosenBucket.Count)];
+        if (pool == null || pool.Count == 0) return null;
+        float[] odds = GachaRarityOdds(pool, gachaRarityWeights);
+        int r = PickGachaRarity(odds, rarityRoll);
+        var bucket = new List<CardDefinition>();
+        foreach (CardDefinition card in pool) if (card != null && GachaRarityOf(card) == r) bucket.Add(card);
+        if (bucket.Count == 0) return pool[Mathf.Clamp((int)(cardRoll * pool.Count), 0, pool.Count - 1)]; // 表が組めない時(起きない)だけ
+        return bucket[Mathf.Clamp((int)(cardRoll * bucket.Count), 0, bucket.Count - 1)];
     }
 
     // ガチャ本体のタップ: GameManager.Gacha.cs(2026-10-07 連続操作)
@@ -1644,6 +1628,7 @@ public partial class GameManager : MonoBehaviour
         runStartTime = Time.time;
         activeRunCharacterId = SelectedCharacterId;
         activeRunStageId = stageIdOverride ?? SelectedStageId;
+        NoteGachaDeparture(activeRunStageId); // 2026-11-14: ガチャの対象 = 最後に出発したマップ(成功/敗北に関係なく出発の時点で)
         // 2026-10-08: このランの途中の数値(確定は成功の時だけ)。闘技場/練習も作るが確定はしない(WritesBlocked)
         RunLedger.BeginNew(activeRunStageId, activeRunCharacterId, NetRunLauncher.IsMultiplayerRun);
         UnlockManager.ClearRun(); // 2026-10-13: 前のランの仮の解放を持ち越さない
@@ -2128,9 +2113,9 @@ public partial class GameManager : MonoBehaviour
         var rowPlan = new System.Collections.Generic.List<(Rect, string)>();
         for (int i = 0; i < 4; i++) rowPlan.Add((new Rect(pl.facility.x + i * (w + gap), pl.facility.y, w, pl.facility.height), labels[i]));
         HomeIconPlan plan = PlanHomeIconRow(rowPlan, fs);
-        // 2026-11-14 ガチャの分類(エステル): 下のガチャ/広告のボタンの上に、画面の幅いっぱいの帯
-        if (!gachaResultOpen && fade > 0.05f)
-            DrawGachaCategoryPanel(AdGachaAvailable ? pl.facility.y - 54f * GachaUiScale - 8f - 8f : pl.facility.y - 8f, fade, interactable);
+        // 2026-11-14 案の比較: ガチャの対象の1行を、下のガチャ/広告のボタンのすぐ上に(PortraitCaptionAboveButtons)
+        if (PortraitCaptionAboveButtons && !gachaResultOpen && fade > 0.05f)
+            DrawGachaTargetCaption(lastGachaMachineRect, fade, AdGachaAvailable ? pl.facility.y - 54f * GachaUiScale - 8f : pl.facility.y);
         for (int i = 0; i < 4; i++)
         {
             Rect b = new Rect(pl.facility.x + i * (w + gap), pl.facility.y, w, pl.facility.height);
@@ -4514,7 +4499,8 @@ public partial class GameManager : MonoBehaviour
         buildStyle.normal.textColor = new Color(1f, 1f, 1f, 0.6f);
         string buildText = "build " + Application.version;
         Rect buildRect = new Rect(Screen.width * 0.66f, Screen.height - 26f, 240f, 22f);
-        if (!StoreCapture.Clean) // ストア素材の撮影中は出さない(2026-10-23)
+        // 2026-11-14: 製品版では出さない(本番設定の点検: 開発用の表示。版は設定の「このゲームについて」と問い合わせのメールにある)
+        if (!StoreCapture.Clean && DevGate.On) // ストア素材の撮影中は出さない(2026-10-23)
         {
             UiBackdrop.Draw(buildRect, 0.35f);
             LocGUI.Label(buildRect, buildText, buildStyle);

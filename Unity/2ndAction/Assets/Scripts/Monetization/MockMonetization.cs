@@ -1,4 +1,4 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+﻿#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System;
 using System.Collections;
 using UnityEngine;
@@ -88,6 +88,7 @@ public class MockStoreService : IStoreService
     public enum Behaviour { Success, PendingThenComplete, Cancel, Fail, Offline }
     public static Behaviour Mode = Behaviour.Success;
     public static bool Refunded; // 返金/取消の模擬(次の確認で「持っていない」)
+    public static float RestoreDelay; // 確認の返事を遅らせる(秒。打ち切りの後に届く返事の試験)
     static MockStoreService inst;
     public static MockStoreService Instance => inst ?? (inst = new MockStoreService());
     public string Name => "mock";
@@ -124,10 +125,14 @@ public class MockStoreService : IStoreService
 
     public void Restore(string id, Action<RestoreResult> done)
     {
-        if (Mode == Behaviour.Offline) { done(new RestoreResult { ok = false, message = "offline (mock)" }); return; }
-        bool owned = SaveStore.GetInt(OwnedKey, 0) == 1 && !Refunded;
-        done(new RestoreResult { ok = true, owned = owned, token = owned ? "mock-token" : "" });
+        RestoreResult r;
+        if (Mode == Behaviour.Offline) r = new RestoreResult { ok = false, message = "offline (mock)" };
+        else { bool owned = SaveStore.GetInt(OwnedKey, 0) == 1 && !Refunded; r = new RestoreResult { ok = true, owned = owned, token = owned ? "mock-token" : "" }; }
+        if (RestoreDelay > 0f) { MockAdService.Instance.StartCoroutine(Later(RestoreDelay, () => done(r))); return; }
+        done(r);
     }
+
+    static IEnumerator Later(float s, Action a) { yield return new WaitForSecondsRealtime(s); a(); }
 
     public static void DevClearAccount() { SaveStore.SetInt(OwnedKey, 0); SaveStore.Save(); Refunded = false; }
 }

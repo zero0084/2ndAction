@@ -1,59 +1,58 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-// ガチャの分類を選ぶ機能(2026-11-14、マスターの仕様変更。混入の不具合の修正ではなく機能の追加)。
-//  ・筐体は1台のまま。引く前に「共通/荒野/洞窟/天空/ラスダン」の分類を選び、選んだ分類に所属するカードだけを抽選する。
-//    マップの分類に共通カードは混ぜない(共通は共通を選んだ時だけ)。
-//  ・未解禁の分類(マップが未解放 / ラスダン未解放)は選べない。ガチャLv・カードごとの解禁条件(GachaStage.IsCardEligible)はそのまま。
-//  ・抽選する分類はタップの時点で確定する(通常: GachaPullOnce / 広告: OnAdGachaTapped で受け取って広告の後もその分類)。
-//    広告の待機中・結果の演出中に分類を変えても、すでに確定した抽選は変わらない。
-//  ・対象のカードが無い分類では引けない(MILE も広告の回数も使わない)。別の分類へ自動で切り替えない。
-//  ・レア度の重み(gachaRarityWeights)は今までどおり「その中にあるレア度の間で」配る。
-//  ・筐体のスキン = 選んでいる分類(直前に引いたカードではない)。
-//  ・選んだ分類は保存する(設定の扱い。読み込んだ時に未解禁なら共通)。
+// ガチャの抽選の対象 = 最後に出発したマップ(2026-11-14 夜、マスターの訂正。同じ日に入れた「分類を選ぶ欄」は外した)。
+//  ・筐体は1台のまま。最後に実際に出発したマップ(荒野/洞窟/天空/ラスダン)の見た目と、そのマップの分類のカードを抽選の対象にする。
+//  ・マップ選択の画面で選んだだけでは変えない。出発した時点(ApplyGameStart)で記録する。成功/敗北のどちらでも、その記録のまま。
+//    チュートリアル/闘技場/DEBUG RUN は出発に数えない。マルチ(CO-OP/VERSUS)は数える。
+//  ・記録は保存する(設定の扱い)。ホームへの帰還・再起動の後も同じマップのガチャ。まだ一度も出発していない時は荒野(最初のマップ)。
+//  ・抽選の対象はタップの時点で確定する(通常: GachaPullOnce / 広告: OnAdGachaTapped で受け取って広告の後もその分類)。
+//  ・対象のカードが無い時は引けない(MILE も広告の回数も使わない)。
+//  ・共通カードをこの仕組みでどう入手するかは未決定(マスター確認待ち)。それまでの間、共通カードはガチャの対象に入らない。
+//  ・レア度の確率は GachaRarityOdds(下): 無いレア度の分は対象の一番低いレア度へ回す(2026-11-14 マスター決定。★4/★5 は重みどおり)。
 public partial class GameManager
 {
-    public const string GachaCategoryKey = "GachaCategoryV1";
-    CardMapCategory gachaCategory = CardMapCategory.Common;
+    public const string GachaLastMapKey = "GachaLastMapV1"; // 最後に出発したマップのステージ ID
+    CardMapCategory gachaCategory = CardMapCategory.Wilderness;
     bool gachaCategoryLoaded;
     string gachaCategoryNote = ""; float gachaCategoryNoteUntil;
     public static int GachaCategoryRefusedEmpty; // 確認用: 対象のカードが無くて断った回数
 
     public CardMapCategory GachaCategory { get { EnsureGachaCategory(); return gachaCategory; } }
+    public static string GachaLastMapStageId => SaveStore.GetString(GachaLastMapKey, "");
+
+    // ステージ ID → カードの分類(マップでないステージは null)
+    public static CardMapCategory? GachaCategoryOfStage(string stageId)
+    {
+        if (string.IsNullOrEmpty(stageId)) return null;
+        for (int i = 1; i <= 4; i++) if (CardMapCategories.StageIdOf((CardMapCategory)i) == stageId) return (CardMapCategory)i;
+        return null;
+    }
 
     void EnsureGachaCategory()
     {
         if (gachaCategoryLoaded) return;
         gachaCategoryLoaded = true;
-        int v = SaveStore.GetInt(GachaCategoryKey, (int)CardMapCategory.Common);
-        var k = (CardMapCategory)Mathf.Clamp(v, 0, 4);
-        if (!GachaLandMapOpen(k)) k = CardMapCategory.Common;
-        gachaCategory = k;
-        gachaSkinFx.SetSkin(k, true);
+        gachaCategory = GachaCategoryOfStage(GachaLastMapStageId) ?? CardMapCategory.Wilderness;
+        gachaSkinFx.SetSkin(gachaCategory, true);
     }
 
-    public static bool GachaCategorySelectable(CardMapCategory k) => GachaLandMapOpen(k);
-
-    // 分類を選ぶ(台の下の列のタップ)。未解禁は選べない。選んだ分類を保存して、筐体の見た目を合わせる
-    public bool SelectGachaCategory(CardMapCategory k)
+    // 出発した時(ApplyGameStart)。そのマップを記録して、ガチャの見た目と対象を合わせる
+    void NoteGachaDeparture(string stageId)
     {
-        EnsureGachaCategory();
-        if (!GachaCategorySelectable(k))
-        {
-            SetGachaCategoryNote(Loc.F(LocGacha.Locked, Loc.T(CardMapCategories.LabelSrc(k))));
-            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiDeny);
-            return false;
-        }
-        if (k == gachaCategory) return true;
-        gachaCategory = k;
-        SaveStore.SetInt(GachaCategoryKey, (int)k);
-        SaveStore.Save();
-        gachaSkinFx.SetSkin(k, false);
-        gachaCategoryNoteUntil = 0f;
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
-        Debug.Log($"[Gacha] category -> {k} ({BuildGachaPoolFor(k).Count} cards)");
-        return true;
+        if (TutorialMode.Active || ArenaMode.Active || DebugRun.WritesBlocked) return;
+        var k = GachaCategoryOfStage(stageId);
+        if (k == null) return;
+        if (SaveStore.GetString(GachaLastMapKey, "") != stageId) { SaveStore.SetString(GachaLastMapKey, stageId); SaveStore.Save(); }
+        gachaCategoryLoaded = true;
+        if (gachaCategory != k.Value) { gachaCategory = k.Value; gachaSkinFx.SetSkin(gachaCategory, true); }
+        Debug.Log($"[Gacha] departed {stageId} -> gacha draws {gachaCategory}");
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 確認用(自動試験): 出発したことにする
+    public void DevNoteGachaDeparture(string stageId) => NoteGachaDeparture(stageId);
+#endif
 
     // 選んだ分類の抽選の対象(今までの解禁条件 + 分類)。共通は共通の分類のカードだけ
     List<CardDefinition> BuildGachaPoolFor(CardMapCategory k)
@@ -74,8 +73,8 @@ public partial class GameManager
 
     void SetGachaCategoryNote(string s) { gachaCategoryNote = s; gachaCategoryNoteUntil = Time.unscaledTime + 2.5f; }
 
-    // 案内の1行: 「天空のカードが出ます」/ 対象が無い時は「このガチャで引けるカードがまだありません」
-    // 横画面のガチャの札の2行目: 断った理由が出ている間はそれ、普段は対象の案内
+    // 案内の1行: 「天空のカードだけが出ます」/ 対象が無い時は「この分類には引けるカードがありません」
+    // 横画面のガチャの札の2行目 / 縦画面の台の下: 断った理由が出ている間はそれ、普段は対象の案内
     string GachaSignSubLine()
     {
         EnsureGachaCategory();
@@ -84,6 +83,59 @@ public partial class GameManager
     }
     string GachaTargetLine(CardMapCategory k, bool empty) =>
         empty ? Loc.T(LocGacha.NoCards) : Loc.F(LocGacha.WillDraw, Loc.T(CardMapCategories.LabelSrc(k)));
+
+    // ---------------------------------------------------------------- レア度の確率(2026-11-14 マスター決定)
+    //  ・対象(選んだ分類 × ガチャLv × 解禁)にあるレア度は、重み(50/30/15/4/1、合計100)どおりの確率。
+    //  ・対象に無いレア度の分は、すべて「対象にある一番低いレア度」へ回す(★4/★5 は対象にある限り 4% / 1% のまま)。
+    //  ・一番低いレア度が ★4 / ★5 になる対象では、そのレア度は重みどおりにならない(GachaOddsIssue が理由を返す。今のカードの表では起きない)。
+    //  抽選(DrawFromGachaPool)・資料・試験はすべてこの表を読む(別の計算を持たない)
+    public static int GachaRarityOf(CardDefinition c) => c == null ? 1 : Mathf.Clamp(c.rarity, 1, 5);
+
+    // [0..4] = ★1..★5 の確率(合計 1)。対象が空なら全部 0
+    public static float[] GachaRarityOdds(IList<CardDefinition> pool, float[] weights)
+    {
+        var odds = new float[5];
+        var present = new bool[5];
+        int n = 0;
+        if (pool != null) foreach (var c in pool) if (c != null) { present[GachaRarityOf(c) - 1] = true; n++; }
+        if (n == 0) return odds;
+        int lowest = 0; while (!present[lowest]) lowest++;
+        float total = 0f;
+        for (int i = 0; i < 5; i++) total += Mathf.Max(0f, i < weights.Length ? weights[i] : 0f);
+        if (total <= 0f) { int k = 0; for (int i = 0; i < 5; i++) if (present[i]) k++; for (int i = 0; i < 5; i++) odds[i] = present[i] ? 1f / k : 0f; return odds; }
+        float others = 0f;
+        for (int i = lowest + 1; i < 5; i++) if (present[i]) { odds[i] = Mathf.Max(0f, weights[i]) / total; others += odds[i]; }
+        odds[lowest] = Mathf.Max(0f, 1f - others);
+        return odds;
+    }
+
+    // 表どおりにならない条件の説明(資料・試験・ログ用。無ければ "")
+    public static string GachaOddsIssue(IList<CardDefinition> pool, float[] weights)
+    {
+        var odds = GachaRarityOdds(pool, weights);
+        float total = 0f; foreach (var w in weights) total += Mathf.Max(0f, w);
+        int lowest = -1; for (int i = 0; i < 5; i++) if (odds[i] > 0f) { lowest = i; break; }
+        if (lowest < 0) return "";
+        if (lowest >= 3 && total > 0f && Mathf.Abs(odds[lowest] - weights[lowest] / total) > 1e-6f)
+            return $"★{lowest + 1} が対象の一番低いレア度のため、無いレア度の分を受けて {odds[lowest] * 100f:0.##}%(重みどおりなら {weights[lowest] / total * 100f:0.##}%)";
+        return "";
+    }
+
+    // 表と 0..1 の乱数からレア度(1..5)を選ぶ(確率 0 のレア度は選ばない)
+    public static int PickGachaRarity(float[] odds, float roll)
+    {
+        float acc = 0f; int last = 0;
+        for (int i = 0; i < 5; i++)
+        {
+            if (odds[i] <= 0f) continue;
+            last = i + 1; acc += odds[i];
+            if (roll < acc) return i + 1;
+        }
+        return last > 0 ? last : 1; // 誤差で 1 を超えなかった時は一番上の対象のレア度
+    }
+
+    // 選んでいる分類の今の確率(確認用・資料用)
+    public float[] GachaOddsFor(CardMapCategory k) => GachaRarityOdds(BuildGachaPoolFor(k), gachaRarityWeights);
 }
 
 // ガチャの分類の文言(2026-11-14)。訳は Tools/loc の keys_extra42(エステルの確認待ちの間は英語の表/日本語)

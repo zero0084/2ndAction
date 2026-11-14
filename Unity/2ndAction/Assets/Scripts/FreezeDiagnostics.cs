@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -301,6 +301,7 @@ public static class DiagnosticsWriter
 
     public static int Pending { get { lock (gate) return queue.Count + (running ? 1 : 0); } }
     public static int Written;
+    public const long MaxFileBytes = 2L * 1024 * 1024;
 
     public static void Enqueue(string fileName, Func<string> buildText)
     {
@@ -324,7 +325,13 @@ public static class DiagnosticsWriter
         }
         System.Threading.ThreadPool.QueueUserWorkItem(_ =>
         {
-            try { File.AppendAllText(job.path, job.build()); System.Threading.Interlocked.Increment(ref Written); }
+            try
+            {
+                // 2026-11-14: 製品版でも書く(画面には出さない)ので、端末の容量を使い続けないように 2MB で古い分(.old)へ回す
+                var fi = new FileInfo(job.path);
+                if (fi.Exists && fi.Length > MaxFileBytes) { File.Copy(job.path, job.path + ".old", true); File.Delete(job.path); }
+                File.AppendAllText(job.path, job.build()); System.Threading.Interlocked.Increment(ref Written);
+            }
             catch (Exception) { /* 書けなくてもゲームには影響させない */ }
             finally { lock (gate) running = false; }
         });

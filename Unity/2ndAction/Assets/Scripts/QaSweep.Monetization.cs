@@ -1,4 +1,4 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+﻿#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System.Collections;
 using System.Reflection;
 using UnityEngine;
@@ -138,6 +138,18 @@ public partial class QaSweep
         NoAdsPass.DevMockSet(false);
         typeof(GameManager).GetField("resultAdTried", NP).SetValue(gm, true);
         Check(AdSkip().StartsWith("already"), "C7: at most once per result screen");
+        // 2026-11-14: VERSUS の順位の画面(FAILED ではない)では出さない。呼ぶ側の条件が崩れても AdManager が止めて控えに残す
+        typeof(GameManager).GetField("resultAdTried", NP).SetValue(gm, false);
+        var vsPaid = typeof(GameManager).GetField("versusPaid", NP);
+        vsPaid.SetValue(gm, true);
+        Check(AdSkip().StartsWith("versus") && !gm.ResultShowsFailed && gm.ResultKindForAds.StartsWith("versus-complete"), $"C8: no forced ad on a VERSUS rank result ('{AdSkip()}', {gm.ResultKindForAds})");
+        int bl0 = AdManager.BlockedInterstitials, sh8 = AdManager.ShowsStarted;
+        AdManager.Show(AdKind.Interstitial, "qa direct", null, null);
+        Check(AdManager.BlockedInterstitials == bl0 + 1 && AdManager.ShowsStarted == sh8 && !AdManager.Showing, "C8: AdManager refuses an interstitial when the result is not FAILED");
+        vsPaid.SetValue(gm, false);
+        Check(gm.ResultShowsFailed && gm.ResultKindForAds == "failed", "C8: a normal game over is 'failed'");
+        Check(AdTrace.Lines.Count > 0 && AdTrace.Tail(10).Contains("BLOCKED interstitial") && AdTrace.Tail(20).Contains("result=failed"), "C9: the ad trace records the result kind and the reason");
+        Check(AppInfo.ContactBody.Contains("Ad log"), "C9: the contact mail draft carries the recent ad trace");
         yield return EndRun();
         yield return ReloadHome();
 
@@ -152,6 +164,10 @@ public partial class QaSweep
         Check(SaveStore.GetInt("TotalOwnedMile", -1) == m0, "A1: the normal MILE is saved before any ad");
         Check(gm.DoubleOffered && !gm.DoubleClaimed, "A1: MILE x2 is offered after a success (no cooldown for a chosen ad)");
         Check(AdSkip().StartsWith("success"), "A1: no forced ad after a success");
+        int bl1 = AdManager.BlockedInterstitials, sh1 = AdManager.ShowsStarted;
+        AdManager.Show(AdKind.Interstitial, "qa direct on success", null, null);
+        Check(AdManager.BlockedInterstitials == bl1 + 1 && AdManager.ShowsStarted == sh1, "A1: even a direct interstitial request is refused on the success result");
+        Check(AdTrace.Tail(3).Contains("result=success"), "A1: the refusal is in the ad trace with result=success");
         Shot("monet_double_offer");
         MockAdService.Mode = MockAdService.Behaviour.CloseEarly;
         Claim(false); yield return WaitAdDone();
@@ -289,6 +305,28 @@ public partial class QaSweep
         yield return new WaitForSecondsRealtime(0.3f);
         Check(after1 && !NoAdsPass.Owned, "E5: refund -> removed after 2 confirmed 'not owned' answers");
         MockStoreService.Refunded = false;
+        // 2026-11-14: 確認の打ち切り(20秒。試験は 0.6 秒)の後に返事が届く
+        NoAdsPass.DevTimeoutOverride = 0.6f; MockStoreService.RestoreDelay = 1.5f; MockStoreService.Mode = MockStoreService.Behaviour.Success;
+        MockStoreService.DevClearAccount(); SaveStore.SetInt(MockStoreService.OwnedKey, 1); SaveStore.Save(); // ストアのアカウントには購入がある
+        NoAdsPass.DevMockSet(false);                                                                          // 端末の控えは無い(再インストール)
+        int g0 = NoAdsPass.Grants, late0 = NoAdsPass.LateOwnedReplies, to0 = NoAdsPass.CheckTimeouts;
+        NoAdsPass.Check("qa slow store");
+        yield return new WaitForSecondsRealtime(1.0f);
+        Check(NoAdsPass.CheckTimeouts == to0 + 1 && !NoAdsPass.Busy && !NoAdsPass.Owned, "E7: the check timed out (wait cleared, not granted yet)");
+        NoAdsPass.Check("qa retry after timeout"); // 打ち切りの後にもう一度押した(これも遅れて届く)
+        yield return new WaitForSecondsRealtime(2.2f);
+        Check(NoAdsPass.Owned && NoAdsPass.LateOwnedReplies >= late0 + 1, $"E7: the late 'owned' reply after the timeout still grants the pass (late {NoAdsPass.LateOwnedReplies - late0})");
+        Check(NoAdsPass.Grants == g0 + 1, $"E7: granted exactly once although two replies arrived (grants +{NoAdsPass.Grants - g0})");
+        // 打ち切った後に「持っていない」が届いても外さない
+        MockStoreService.Refunded = true;
+        int ign0 = NoAdsPass.LateIgnoredReplies;
+        NoAdsPass.Check("qa slow not-owned");
+        yield return new WaitForSecondsRealtime(2.4f);
+        Check(NoAdsPass.Owned && NoAdsPass.LateIgnoredReplies == ign0 + 1, "E8: a late 'not owned' reply after the timeout does not remove the pass");
+        MockStoreService.Mode = MockStoreService.Behaviour.Offline; MockStoreService.RestoreDelay = 0f;
+        for (int i = 0; i < 3; i++) { NoAdsPass.Check("qa offline " + i); yield return new WaitForSecondsRealtime(0.2f); }
+        Check(NoAdsPass.Owned, "E8: repeated connection failures never remove the pass");
+        MockStoreService.Refunded = false; MockStoreService.Mode = MockStoreService.Behaviour.Success; NoAdsPass.DevTimeoutOverride = 0f;
         Check(Platform.Save.HasKey(NoAdsPass.Key) == realKey0, "E6: the real entitlement key was never written by the mock");
 
         // ================================================================ G

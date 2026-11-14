@@ -1,4 +1,4 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+﻿#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,7 +89,8 @@ public partial class QaSweep
         Check(TotalOwned() == o1 + 3, "C: still owned after reload");
         // ---- D NEW の判定(2026-10-13): 引いた時点で同名(通常/合成済み)を持っていないか。続けて引いた同じカードは最初の1枚だけ NEW
         L("== D: NEW / DUPLICATE ==");
-        var poolD = (List<CardDefinition>)typeof(GameManager).GetMethod("BuildGachaPool", NP).Invoke(gm, null);
+        // 2026-11-14: 引ける対象 = 最後に出発したマップの分類(BuildGachaPoolFor)。全体の候補ではなく、その中から選ぶ
+        var poolD = (List<CardDefinition>)typeof(GameManager).GetMethod("BuildGachaPoolFor", NP).Invoke(gm, new object[] { gm.GachaCategory });
         var fresh = poolD.Where(c => c != null && CardInventory.GetTotalCountByName(c.cardId) == 0).Take(2).ToList();
         Check(fresh.Count == 2, $"D: two cards not owned yet exist in the pool ({fresh.Count})");
         if (fresh.Count == 2)

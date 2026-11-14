@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,6 +30,7 @@ public class AdManager : MonoBehaviour
     public static int RewardsDelivered { get; private set; }
     public static int DuplicateRewardsIgnored { get; private set; }
     public static string LastNote { get; private set; } = "";
+    public static int BlockedInterstitials { get; private set; } // 確認用: FAILED 以外で強制広告を求められて止めた回数
 
     // 主スレッドへ渡す箱
     static readonly List<Action> queue = new List<Action>();
@@ -141,7 +142,18 @@ public class AdManager : MonoBehaviour
     {
         Ensure();
         if (Monetization.Ads == null || Showing) { onDone?.Invoke(false); return false; }
-        if (!Monetization.Ads.IsReady(kind)) { Monetization.Ads.Load(kind); LastNote = $"{tag}: not ready"; onDone?.Invoke(false); return false; }
+        // 2026-11-14: 強制広告は FAILED の結果画面からだけ(成功/順位の画面では出さない)。呼ぶ側の条件が崩れても、ここで止めて控えに残す
+        var gmNow = GameManager.Instance;
+        string resultKind = gmNow != null ? gmNow.ResultKindForAds : "no-game";
+        if (kind == AdKind.Interstitial && (gmNow == null || !gmNow.ResultShowsFailed))
+        {
+            BlockedInterstitials++;
+            AdTrace.Note($"BLOCKED interstitial ({tag}) result={resultKind}");
+            Debug.LogWarning($"[Ads] interstitial refused: the result is not FAILED ({resultKind})");
+            onDone?.Invoke(false); return false;
+        }
+        if (!Monetization.Ads.IsReady(kind)) { Monetization.Ads.Load(kind); LastNote = $"{tag}: not ready"; AdTrace.Note($"{kind} ({tag}) not ready - not shown, no wait"); onDone?.Invoke(false); return false; }
+        AdTrace.Note($"show {kind} ({tag}) result={resultKind}");
         Showing = true; ShowsStarted++; showStartedAt = Time.realtimeSinceStartup; resumeCheckAt = -1f;
         bool rewarded = false, finished = false, prevPause = AudioListener.pause;
         AudioListener.pause = true;
@@ -162,6 +174,7 @@ public class AdManager : MonoBehaviour
             if (PlayerController.Instance != null) PlayerController.Instance.ClearPointerState();
             LastNote = $"{tag}: {o}{(string.IsNullOrEmpty(msg) ? "" : " " + msg)}{(rewarded ? " +reward" : "")}";
             Debug.Log($"[Ads] finished {kind} ({tag}) {o} {msg} rewarded={rewarded}");
+            AdTrace.Note($"end {kind} ({tag}) {o}{(rewarded ? " +reward" : "")}");
             // 2026-10-14: 報酬の通知は「閉じた」の後に届くことがある(SDK の順番は決まっていない)。報酬広告を最後まで出したのに
             // まだ報酬が来ていない時は少し待ってから終わりを知らせる(「最後まで見なかった」と出した直後に報酬が付く、を防ぐ)
             if (o == AdOutcome.Shown && kind == AdKind.Rewarded && !rewarded && inst != null)

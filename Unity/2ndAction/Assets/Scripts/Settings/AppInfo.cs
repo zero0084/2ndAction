@@ -45,7 +45,17 @@ public static class AppInfo
         "ゲームのバージョン / Game version: " + VersionLabel + "\n" +
         "利用環境 / Device & OS: " + Environment + "\n" +
         "(違っていたら直してください / Please correct if wrong)\n\n" +
-        "お問い合わせ内容 / Your message:\n";
+        "お問い合わせ内容 / Your message:\n" + AdLogForMail;
+
+    // 2026-11-14: 広告の控え(AdTrace)の直近の数行を本文の最後に(調査用。本人が見てから送る)
+    static string AdLogForMail
+    {
+        get
+        {
+            string t = AdTrace.Tail(6);
+            return string.IsNullOrEmpty(t) ? "" : "\n\n\n---\n広告の記録(調査用) / Ad log (for troubleshooting):\n" + t + "\n";
+        }
+    }
 
     public static string LastError { get; private set; } = "";
     public static int MailOpened { get; private set; } // 確認用

@@ -153,7 +153,7 @@ public class NetCombat : MonoBehaviour
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         string[] args = System.Environment.GetCommandLineArgs();
-        for (int i = 0; i + 1 < args.Length; i++)
+        for (int i = 0; Debug.isDebugBuild && i + 1 < args.Length; i++) // 2026-11-14 製品版では起動引数を読まない
             if (args[i] == "-netEnemyDelay" && double.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double d)) InterpDelay = d;
         UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
     }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 // 広告なしパス(買い切り・非消費型、2026-10-10、依頼I)。
@@ -53,18 +53,24 @@ public static class NoAdsPass
     }
 
     // 2026-11-14: 確認(復元)の返事がストアから来ないと Busy のままで、以後の確認/復元のボタンが効かなかった → 一定時間で打ち切る
-    //  (打ち切った後に遅れて返事が来ても使わない。最後に確認した状態のまま。次の起動/復帰/復元で確かめ直す)
+    //  打ち切った後に遅れて届いた返事: 「持っている」(検証済み)なら有効にする(正規の購入を無視しない。有効にするのは1回だけ = Grant は何度呼んでも同じ)。
+    //  「持っていない」/接続の失敗は何も変えない(打ち切った確認では外さない。外すのは打ち切っていない確認で2回続けて「持っていない」の時だけ)
     public const float CheckTimeoutSeconds = 20f;
+    public static float DevTimeoutOverride; // 開発版の試験だけ(打ち切りまでを短くする)
+    static float TimeoutSeconds => DevTimeoutOverride > 0f ? DevTimeoutOverride : CheckTimeoutSeconds;
+    public static int Grants { get; private set; }            // 確認用: 「持っていない → 持っている」に変わった回数
+    public static int LateOwnedReplies { get; private set; }  // 確認用: 打ち切った後に届いた「持っている」
+    public static int LateIgnoredReplies { get; private set; } // 確認用: 打ち切った後に届いた「持っていない」/失敗(何も変えない)
     static int checkSeq; static float checkStartedAt; static Action<RestoreResult> checkDone;
     public static int CheckTimeouts { get; private set; } // 確認用
     public static void TickTimeout()
     {
         if (!Busy || Purchasing || checkDone == null && checkSeq == 0) return;
-        if (Time.realtimeSinceStartup - checkStartedAt < CheckTimeoutSeconds) return;
+        if (Time.realtimeSinceStartup - checkStartedAt < TimeoutSeconds) return;
         if (Purchasing) return;
         checkSeq++; Busy = false; CheckTimeouts++;
         LastNote = "ストアに接続できませんでした。最後に確認した状態のままです";
-        Debug.LogWarning($"[NoAds] check timed out after {CheckTimeoutSeconds:F0}s - keep owned={S.owned}");
+        Debug.LogWarning($"[NoAds] check timed out after {TimeoutSeconds:F0}s - keep owned={S.owned}");
         var d = checkDone; checkDone = null;
         d?.Invoke(new RestoreResult { ok = false, message = LastNote });
     }
@@ -78,7 +84,19 @@ public static class NoAdsPass
         int seq = ++checkSeq; checkStartedAt = Time.realtimeSinceStartup; checkDone = done;
         st.Restore(MonetizationConfig.NoAdsProductId, r => AdManager.Post(() =>
         {
-            if (seq != checkSeq) { Debug.Log($"[NoAds] late reply for a timed-out check ({why}) ignored"); return; }
+            if (seq != checkSeq)
+            {
+                if (r.ok && r.owned)
+                {
+                    LateOwnedReplies++;
+                    bool was = S.owned;
+                    Grant(r.token, "late reply " + why);
+                    if (!was) LastNote = "広告なしパスが有効になりました";
+                    Debug.Log($"[NoAds] late reply for a timed-out check ({why}): owned -> {(was ? "already owned (nothing doubled)" : "granted")}");
+                }
+                else { LateIgnoredReplies++; Debug.Log($"[NoAds] late reply for a timed-out check ({why}) ok={r.ok} owned={r.owned}: nothing changed (owned={S.owned})"); }
+                return;
+            }
             checkDone = null;
             Busy = false;
             if (!r.ok) { LastNote = "ストアに接続できませんでした。最後に確認した状態のままです"; Debug.Log($"[NoAds] check ({why}) offline: keep owned={S.owned}"); done?.Invoke(r); return; }
@@ -126,7 +144,7 @@ public static class NoAdsPass
         if (!was) S.grantedUtc = DateTime.UtcNow.Ticks;
         if (!string.IsNullOrEmpty(token)) S.tokenHash = Hash(token);
         Write();
-        if (!was) Debug.Log($"[NoAds] granted via {via}");
+        if (!was) { Grants++; Debug.Log($"[NoAds] granted via {via}"); }
     }
 
     static string Hash(string s)

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 // ホームの各入口の名前の札(2026-10-11、実機の要望「初めての人にも、どこを押すと何ができるか分かるように」)。
 //  ・部屋の押せる物の近くに、行き先の名前を小さな札で常に出す(暗い下地 + 金の縁 + 明るい文字。既存の金の飾りと同じ色)。
@@ -143,30 +143,11 @@ public partial class GameManager
         if (!HomePortrait && machineRect.width > 1f && !gachaResultOpen) signDisabledOnce = GachaCategoryEmpty;
         if (!roomDup && machineRect.width > 1f && !gachaResultOpen && DrawHomeSign(3, new Vector2(machineRect.center.x, gachaY), true, HomeSignLabels[3], interactable, fade, 3f, HomePortrait ? null : GachaSignSubLine(), icon: UiIcons.Home(HomeSignIcons[3]), minW: homeSignUnifiedW, minH: homeSignUnifiedH))
         { deskHotspotFlashTimer = roomHotspotFlashDuration; OnGachaMachineTapped(); }
-        // 2026-11-06: ガチャに入っている土地の列(横画面は札の下、縦画面は台の下)
+        // 2026-11-14 夜: 分類を選ぶ列は外した(抽選の対象は最後に出発したマップ)。横画面は札の2行目、縦画面は台の下の1行で示す
         if (machineRect.width > 1f && !gachaResultOpen)
         {
-            Rect gs = LastHomeSignRects[3];
-            // 2026-11-14: 分類を選ぶ機能になったので縦画面にも出す(台の下)
-            // 横画面: 札の左に並べる(札の下は「カード合成」の札に近い)。案内は札の2行目
-            if (!HomePortrait && gs.width > 0f)
-            {
-                float u = Mathf.Max(Dp(36f), HomeSignFont * 1.6f), rw = GachaLandRowWidth(u); // 押せる範囲(紋+名前+左右の余白)は 48dp 以上
-                float rh = u + Mathf.Max(16f, u * 0.4f) + u * 0.24f;
-                float rx = gs.x - HomeSignFont * 0.4f - rw, ry = gs.center.y - rh * 0.5f;
-                // 下の「出発 / 続きから / はじめから」の札にかからない(エステル): かかるなら札の上へ
-                for (int si = 4; si <= 5; si++)
-                {
-                    // 「出発」の札はこの後に描くので、今のフレームの位置はまだ無い → 前のフレームの位置
-                    Rect sr = SignRectNowOrPrev(si), sh = LastHomeSignHitRects[si];
-                    if (sh.width > 1f) sr = Rect.MinMaxRect(Mathf.Min(sr.xMin, sh.xMin), Mathf.Min(sr.yMin, sh.yMin) - HomeSignFont * 0.3f, Mathf.Max(sr.xMax, sh.xMax), Mathf.Max(sr.yMax, sh.yMax));
-                    else sr.yMin -= HomeSignFont * 0.3f; // 札の上の印(◆)と、大きい札の見た目の分
-                    if (sr.width > 1f && sr.xMax > rx && sr.x < rx + rw && sr.y < ry + rh + 6f && sr.yMax > ry) ry = Mathf.Min(ry, sr.y - 6f - rh);
-                }
-                DrawGachaLandRow(new Vector2(rx + rw * 0.5f, ry), u, fade, interactable, false);
-                // 対象のカードが無い分類: 札は「引けない」見た目(DrawHomeSign の signDisabledOnce)。理由の2行目は明るいまま
-            }
-            // 縦画面は下のボタンの上の帯(DrawPortraitFacilityButtons)
+            if (HomePortrait && !PortraitCaptionAboveButtons) DrawGachaTargetCaption(machineRect, fade);
+            else LastGachaLandRowRect = Rect.zero;
         }
         else LastGachaLandRowRect = Rect.zero;
         if (HomeShowsContinueChoice)
