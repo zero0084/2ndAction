@@ -59,6 +59,10 @@ public static class ProductionConfigAudit
         Row("広告", "AdMob アプリ ID(本番・テスト広告の版も同じ)", !string.IsNullOrEmpty(MonetizationSetup.ProdAndroidAppId) ? "OK" : "NG", MonetizationSetup.ProdAndroidAppId);
         string gmaId = ReadGmaAppId();
         Row("広告", "GoogleMobileAdsSettings のアプリ ID", gmaId == MonetizationSetup.ProdAndroidAppId ? "OK" : "NG", gmaId ?? "(読めない)");
+        string gmaIos = ReadGmaSetting("adMobIOSAppId:");
+        Row("広告", "GoogleMobileAdsSettings の iOS アプリ ID",
+            string.IsNullOrEmpty(gmaIos) || gmaIos.StartsWith("ca-app-pub-3940256099942544~") ? "NG" : "OK",
+            (string.IsNullOrEmpty(gmaIos) ? "(空)" : gmaIos) + (gmaIos == MonetizationSetup.TestIosAppId ? "(Google 公式のテスト用。iOS の正式公開の前にマスターの iOS 用 AdMob アプリ ID へ切り替える。Android だけの公開なら影響なし)" : ""));
         Row("広告", "本番の広告ユニット", !string.IsNullOrEmpty(MonetizationConfig.ProdInterstitialUnit) && !string.IsNullOrEmpty(MonetizationConfig.ProdRewardedUnit) ? "OK" : "NG",
             $"強制 {MonetizationConfig.ProdInterstitialUnit} / 報酬 {MonetizationConfig.ProdRewardedUnit}");
         Row("広告", "テストの広告ユニット", MonetizationConfig.TestInterstitialUnit.StartsWith("ca-app-pub-3940256099942544/") && MonetizationConfig.TestRewardedUnit.StartsWith("ca-app-pub-3940256099942544/") ? "OK" : "NG", "Google 公式のテスト用ユニット");
@@ -153,11 +157,12 @@ public static class ProductionConfigAudit
         try { ts = a.GetTypes(); } catch (ReflectionTypeLoadException e) { ts = e.Types.Where(t => t != null).ToArray(); }
         return new HashSet<string>(ts.Where(t => !t.IsNested && !t.Name.StartsWith("<")).Select(t => t.Name));
     }
-    static string ReadGmaAppId()
+    static string ReadGmaAppId() => ReadGmaSetting("adMobAndroidAppId:");
+    static string ReadGmaSetting(string key)
     {
         const string p = "Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset";
         if (!File.Exists(p)) return null;
-        foreach (var l in File.ReadAllLines(p)) { var t = l.Trim(); if (t.StartsWith("adMobAndroidAppId:")) return t.Substring("adMobAndroidAppId:".Length).Trim(); }
+        foreach (var l in File.ReadAllLines(p)) { var t = l.Trim(); if (t.StartsWith(key)) return t.Substring(key.Length).Trim(); }
         return null;
     }
     static string Arg(string name)

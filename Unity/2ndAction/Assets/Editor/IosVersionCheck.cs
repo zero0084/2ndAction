@@ -18,16 +18,28 @@ public static class IosVersionCheck
         Debug.Log($"[IosVersionCheck] before: bundleVersion='{before}' (valid for iOS: {IosVersion.IsValid(before)}) iOS buildNumber={buildNo}");
         var r = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, outPath, BuildTarget.iOS, BuildOptions.None);
         string plist = Path.Combine(outPath, "Info.plist");
-        string shortVer = "(none)", bundleVer = "(none)";
+        string shortVer = "(none)", bundleVer = "(none)", gadId = "(none)";
         if (File.Exists(plist))
         {
             string t = File.ReadAllText(plist);
             var m = Regex.Match(t, @"<key>CFBundleShortVersionString</key>\s*<string>([^<]*)</string>"); if (m.Success) shortVer = m.Groups[1].Value;
             var b = Regex.Match(t, @"<key>CFBundleVersion</key>\s*<string>([^<]*)</string>"); if (b.Success) bundleVer = b.Groups[1].Value;
+            // 2026-11-15: GoogleMobileAdsSettings の iOS アプリ ID(今は Google 公式のテスト用)が Info.plist へ入ったか
+            var g = Regex.Match(t, @"<key>GADApplicationIdentifier</key>\s*<string>([^<]*)</string>"); if (g.Success) gadId = g.Groups[1].Value;
         }
         string after = PlayerSettings.bundleVersion;
-        bool ok = r.summary.result == BuildResult.Succeeded && shortVer == IosVersion.MarketingVersion && after == before && PlayerSettings.iOS.buildNumber == buildNo;
-        Debug.Log($"[IosVersionCheck] result={r.summary.result} errors={r.summary.totalErrors} Info.plist CFBundleShortVersionString='{shortVer}' CFBundleVersion='{bundleVer}' | after: bundleVersion='{after}' (restored={after == before}) buildNumber={PlayerSettings.iOS.buildNumber} -> {(ok ? "OK" : "NG")}");
+        bool ok = r.summary.result == BuildResult.Succeeded && shortVer == IosVersion.MarketingVersion && after == before && PlayerSettings.iOS.buildNumber == buildNo
+                  && !string.IsNullOrEmpty(GmaIosAppId()) && gadId == GmaIosAppId();
+        Debug.Log($"[IosVersionCheck] result={r.summary.result} errors={r.summary.totalErrors} Info.plist CFBundleShortVersionString='{shortVer}' CFBundleVersion='{bundleVer}' GADApplicationIdentifier='{gadId}' | after: bundleVersion='{after}' (restored={after == before}) buildNumber={PlayerSettings.iOS.buildNumber} -> {(ok ? "OK" : "NG")}");
         if (Application.isBatchMode) EditorApplication.Exit(ok ? 0 : 3);
+    }
+
+    // GoogleMobileAdsSettings の iOS 欄(Info.plist の GADApplicationIdentifier になる値)
+    static string GmaIosAppId()
+    {
+        const string p = "Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset";
+        if (!File.Exists(p)) return null;
+        foreach (var l in File.ReadAllLines(p)) { var t = l.Trim(); if (t.StartsWith("adMobIOSAppId:")) return t.Substring("adMobIOSAppId:".Length).Trim(); }
+        return null;
     }
 }

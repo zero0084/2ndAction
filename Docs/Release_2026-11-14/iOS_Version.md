@@ -45,3 +45,29 @@
 
 ### クラウドでの確認
 - まだしていません(有料枠のため、マスターが実行)。
+
+## iOS 用 AdMob アプリ ID(2026-11-15、マスターの決定: 案 b)
+- Google Mobile Ads の正式な設定欄(`Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset` の iOS 欄 = エディターの Google Mobile Ads > Settings)に、
+  Google 公式の **iOS テスト用アプリ ID** `ca-app-pub-3940256099942544~1458002511` を入れました。
+  - Android の ID(`ca-app-pub-2863190967263764~2717237567`)と Android の広告の動作は変えていません。
+  - iOS の広告機能は有効にしていません(定義 OMM_ADMOB は Android だけ。iOS のゲームは広告のコードを使わない)。
+  - SDK の確認を止める・エラーを隠す方法は使っていません。
+  - 値は `MonetizationSetup.TestIosAppId` にも記録しました。
+- 手元での確認(2026-11-15、`IosVersionCheck.Run`。GADApplicationIdentifier が設定の値と同じことも確かめるようにしました)の結果は、**OK**(終了コード 0)でした。
+  - 確かめる前の版は `2026-11-15 0159`(iOS では使えない形)でした。
+  - 結果は、ビルド成功・エラー 0 件でした。
+  - 書き出した Info.plist:
+    - CFBundleShortVersionString = **1.0.0**
+    - CFBundleVersion = 4
+    - GADApplicationIdentifier = **ca-app-pub-3940256099942544~1458002511**
+  - 「iOS Google Mobile Ads app ID is empty」は、ログに 0 件(前回は 1 件)でした。
+  - ビルドの後、版は `2026-11-15 0159` に戻りました。ビルド番号は 4 のままでした。
+  - Android のアプリ ID は変わっていません。
+- クラウドでの確認はまだです(マスターが次回のビルドで行います)。
+
+## 公開前チェック(iOS)
+- [ ] **iOS の AdMob アプリ ID を、マスターの iOS 用 AdMob アプリ ID へ切り替える**(今は Google 公式のテスト用 `ca-app-pub-3940256099942544~1458002511`)。
+  - 変える場所は GoogleMobileAdsSettings の iOS 欄で、`MonetizationSetup.TestIosAppId` のコメントもあわせて直します。
+  - `ProductionConfigAudit` は、テスト用の ID か空の間は「GoogleMobileAdsSettings の iOS アプリ ID」を **NG** と出します。
+  - iOS で広告を出す時は、iOS 用の広告ユニット・同意(ATT/UMP)・定義 OMM_ADMOB の iOS 追加も別に必要です(今は未対応)。
+- [ ] App Store に出す版を上げる時は、`IosVersion.MarketingVersion` を変えます(今は 1.0.0)。

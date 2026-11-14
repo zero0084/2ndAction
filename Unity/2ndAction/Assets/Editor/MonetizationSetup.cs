@@ -13,6 +13,10 @@ public static class MonetizationSetup
     public const string TestAndroidAppId = "ca-app-pub-3940256099942544~3347511713"; // Google のサンプル(テスト用)
     // 本番のアプリ ID(2026-10-26 マスターが AdMob で登録: OneMoreMile / Android)。テスト広告の版もこの ID + Google のテスト用広告ユニットで動かす
     public const string ProdAndroidAppId = "ca-app-pub-2863190967263764~2717237567";
+    // iOS(2026-11-15 マスター指示): iOS 用の AdMob アプリをまだ作っていないので、Google 公式の iOS テスト用アプリ ID を
+    //  GoogleMobileAdsSettings(Assets/Google Mobile Ads/Settings の iOS 欄)に入れている。iOS の広告機能は有効にしていない(OMM_ADMOB は Android だけ)。
+    //  ※ 正式公開の前に、マスターの iOS 用 AdMob アプリ ID へ切り替えること(ProductionConfigAudit が NG で知らせる)
+    public const string TestIosAppId = "ca-app-pub-3940256099942544~1458002511";
 
     [MenuItem("Tools/OneMoreMile/Monetization: Apply SDK Settings")]
     public static void Apply() => ApplyAndReport();
