@@ -22,8 +22,9 @@ public class PatchNotesUi : MonoBehaviour
     // 新しい順。code は Android の versionCode(Windows でも同じ番号で数える)
     public static readonly Note[] Notes =
     {
-        // 2026-11-15: 451/452 は配っていない確認用の版 → 次に配る版(453)の項目にまとめ、ガチャの説明を確定版(最後に出発したマップ + 共通 30%)へ差し替え
-        new Note { code = 453, date = "2026/11/15", changes = new[] {
+        // 2026-11-15: 451〜454 は配っていない確認用の版 → Play で配る版(455)の項目にまとめ、ガチャの説明を確定版(最後に出発したマップ + 共通 30%)へ差し替え。
+        //  番号は本番用の AAB の versionCode と同じにする(BuildAndroid.BuildProduction が違うと止める)
+        new Note { code = 455, date = "2026/11/15", changes = new[] {
             LocNotes.N453a, LocNotes.N451b, LocNotes.N451c, LocNotes.N451d, LocNotes.N451e } },
         new Note { code = 450, date = "2026/11/08", changes = new[] {
             LocNotes.N450a, LocNotes.N450b, LocNotes.N450c, LocNotes.N450d, LocNotes.N450e } },

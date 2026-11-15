@@ -10,6 +10,7 @@ param(
     [string]$Keystore,
     [string]$Alias = 'upload',
     [string]$Dir,
+    [string]$Prefix = 'OneMoreMile_ct', # 2026-11-15: Play 配信用は -Dir (Builds の Production) -Prefix OneMoreMile_v
     [int]$TargetApi = 36
 )
 $ErrorActionPreference = 'Continue'
@@ -23,8 +24,8 @@ $bt = Join-Path $and 'SDK\build-tools\36.0.0'
 $bundletool = Join-Path $and 'Tools\bundletool-all-1.17.2.jar'
 $env:JAVA_HOME = Join-Path $and 'OpenJDK'
 
-$aab = Join-Path $Dir "OneMoreMile_ct$VersionCode.aab"
-$apk = Join-Path $Dir "OneMoreMile_ct$VersionCode.apk"
+$aab = Join-Path $Dir "$Prefix$VersionCode.aab"
+$apk = Join-Path $Dir "$Prefix$VersionCode.apk"
 $fail = 0
 function Pass([string]$m) { Write-Host "  OK   $m" -ForegroundColor Green }
 function Fail([string]$m) { Write-Host "  NG   $m" -ForegroundColor Red; $script:fail++ }
@@ -82,6 +83,24 @@ foreach ($f in @($aab, $apk)) {
     if ($vc -eq $VersionCode) { Pass "versionCode $vc (versionName $vn)" } else { Fail "versionCode が $vc(期待 $VersionCode)" }
     if ($ts -eq "$TargetApi") { Pass "Target API $ts (minSdk $ms)" } else { Fail "Target API が $ts(期待 $TargetApi)" }
     if (-not $dbg) { Pass 'debuggable なし' } else { Fail 'debuggable が付いています' }
+    # AdMob のアプリ ID(本番。テスト広告の版も同じ ID)
+    $manAll = if ($isAab) { $man } else { $man + "`n" + ((& (Join-Path $bt 'aapt2.exe') dump xmltree $f --file AndroidManifest.xml 2>&1 | ForEach-Object { "$_" }) -join "`n") } # badging には meta-data が出ない
+    if ($manAll -match 'ca-app-pub-2863190967263764~2717237567') { Pass 'AdMob のアプリ ID(本番の ID)が入っている' } else { Fail 'AdMob のアプリ ID(本番の ID)が見つかりません' }
+    if ($manAll -match 'ca-app-pub-3940256099942544~') { Fail 'Google のテスト用アプリ ID が入っています' }
+}
+# 2026-11-15: Play 配信用(OneMoreMile_v)は、ビルドの記録で本番広告・パスの欄・署名を確かめる
+if ($Prefix -eq 'OneMoreMile_v') {
+    $bt2 = Join-Path $Dir "$Prefix${VersionCode}_build.txt"
+    Write-Host "`n== $(Split-Path $bt2 -Leaf)"
+    if (-not (Test-Path $bt2)) { Fail 'ビルドの記録がありません' }
+    else {
+        $t = Get-Content $bt2 -Raw
+        if ($t -match 'adsProfile=PRODUCTION') { Pass '本番広告の版(OMM_ADS_PROD はこのビルドの間だけ)' } else { Fail '本番広告の版ではありません' }
+        if ($t -match 'interstitialUnit=ca-app-pub-2863190967263764/\d+ rewardedUnit=ca-app-pub-2863190967263764/\d+') { Pass '広告ユニットは本番の ID' } else { Fail '広告ユニットが本番の ID ではありません' }
+        if ($t -match 'noAdsPass=hidden') { Pass '広告なしパスの購入欄は出さない(既存の権利は保つ)' } else { Fail '広告なしパスの購入欄の設定が想定と違います' }
+        if ($t -match 'signing=upload key') { Pass 'アップロード鍵で署名' } else { Fail 'アップロード鍵の署名ではありません' }
+        if ($t -match 'developmentBuild=false debuggable=false') { Pass '開発版ではない' } else { Fail '開発版の設定です' }
+    }
 }
 Write-Host ''
 if ($fail -eq 0) { Write-Host 'すべて OK' -ForegroundColor Green; exit 0 } else { Write-Host "NG が $fail 件あります" -ForegroundColor Red; exit 1 }

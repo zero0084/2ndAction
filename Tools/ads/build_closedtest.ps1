@@ -15,9 +15,15 @@
 # 2026-11-02: 後片付けが長いパスの Gradle の出力で止まり、ProjectSettings を直せなかった → 1段ずつたどり、1つ失敗しても続ける。
 #  未処理があれば最後に一覧を出して終了コード 2(成果物の確認の結果とは別)
 #  また、パスワードは Unity のビルドの計画(Library\Bee)と Gradle の翻訳済みスクリプト(~\.gradle\caches)にも写るので、それも消す
+# 2026-11-15: -Production で Play 配信用(製品版・本番広告。BuildAndroid.BuildProduction)。手順と後片付けは同じ
+#   powershell -ExecutionPolicy Bypass -File Tools\ads\build_closedtest.ps1 -Keystore "…\onemoremile-upload.jks" -Alias upload -Production
+#   出力: Unity\2ndAction\Builds\Production\OneMoreMile_v<番号>.aab(Play へ上げる)/ .apk / _build.txt
+#   ・お知らせの版(PatchNotesUi)と今回の versionCode が違う時、ビルドが失敗した時は、番号を進めずに止まる
+#   ・.apk も本番広告なので、端末で広告を何度も出す確認には使わない
 param(
     [Parameter(Mandatory = $true)][string]$Keystore,
-    [Parameter(Mandatory = $true)][string]$Alias
+    [Parameter(Mandatory = $true)][string]$Alias,
+    [switch]$Production
 )
 $ErrorActionPreference = 'Stop'
 if (-not (Test-Path $Keystore)) { Write-Host "鍵のファイルが見つかりません: $Keystore"; exit 1 }
@@ -34,7 +40,11 @@ $project = Join-Path $root 'Unity\2ndAction'
 $editorDir = 'C:\Program Files\Unity\Hub\Editor\6000.5.6f1\Editor'
 $unity = Join-Path $editorDir 'Unity.exe'
 $keytool = Join-Path $editorDir 'Data\PlaybackEngines\AndroidPlayer\OpenJDK\bin\keytool.exe'
-$log = Join-Path $env:TEMP 'omm_closedtest_build.log'
+$log = Join-Path $env:TEMP $(if ($Production) { 'omm_production_build.log' } else { 'omm_closedtest_build.log' })
+$buildMethod = if ($Production) { 'BuildAndroid.BuildProduction' } else { 'BuildAndroid.BuildClosedTest' }
+$outDir = Join-Path $project $(if ($Production) { 'Builds\Production' } else { 'Builds\ClosedTest' })
+$outPrefix = if ($Production) { 'OneMoreMile_v' } else { 'OneMoreMile_ct' }
+if ($Production) { Write-Host 'Play 配信用(製品版・本番広告)を作ります。' -ForegroundColor Cyan }
 $secretNames = 'OMM_UPLOAD_KEYSTORE_PASS', 'OMM_UPLOAD_KEY_PASS'
 
 # keytool で鍵を開けるか(パスワードは環境変数から読ませる。出力は捨てる)
@@ -228,7 +238,8 @@ try {
     if (-not $ok) { Write-Host '3回とも鍵を開けなかったので、ビルドしません。鍵を作った時のパスワードを確かめてください。'; exit 1 }
 
     Write-Host 'ビルド中です(30分ほどかかります)...'
-    $p = Start-Process -FilePath $unity -ArgumentList @('-batchmode', '-projectPath', "`"$project`"", '-executeMethod', 'BuildAndroid.BuildClosedTest', '-quit', '-logFile', "`"$log`"") -Wait -PassThru
+    $buildStart = Get-Date
+    $p = Start-Process -FilePath $unity -ArgumentList @('-batchmode', '-projectPath', "`"$project`"", '-executeMethod', $buildMethod, '-quit', '-logFile', "`"$log`"") -Wait -PassThru
     Write-Host "Unity の終了コード: $($p.ExitCode)"
 }
 finally {
@@ -242,17 +253,19 @@ finally {
 }
 $ErrorActionPreference = 'Continue'
 if (Test-Path -LiteralPath $log) {
-    Select-String -Path $log -Pattern 'BuildAndroid: (closed test|no upload|the AdMob|cleared|could not)|ReleaseBuildGuard\]|error CS' | ForEach-Object { $_.Line }
+    Select-String -Path $log -Pattern 'BuildAndroid: (closed test|production|no upload|the AdMob|cleared|could not)|ReleaseBuildGuard\]|error CS' | ForEach-Object { $_.Line }
     # Gradle が失敗した時は、最初の原因の行を見せる
     $gradle = Select-String -Path $log -Pattern '^\* What went wrong:' -Context 0, 4 | Select-Object -First 1
     if ($gradle) { Write-Host "`n--- Gradle の失敗 ---"; $gradle.Context.PostContext | ForEach-Object { Write-Host $_ } }
 }
-$info = Get-ChildItem (Join-Path $project 'Builds\ClosedTest\*_build.txt') -ErrorAction SilentlyContinue | Sort-Object LastWriteTime | Select-Object -Last 1
+# 今回のビルドで書かれた記録だけを見る(止まって記録が無い時に、前の版を確かめてしまわない)
+$info = Get-ChildItem (Join-Path $outDir ($outPrefix + '*_build.txt')) -ErrorAction SilentlyContinue | Where-Object { $buildStart -and $_.LastWriteTime -ge $buildStart } | Sort-Object LastWriteTime | Select-Object -Last 1
 if ($info) { Write-Host "`n--- $($info.Name) ---"; Get-Content $info.FullName }
+else { Write-Host "`n今回のビルドの記録がありません(ビルドの前に止まりました。上のログを確認してください)" -ForegroundColor Red }
 $verified = 1
 if ($info) {
     $code = [regex]::Match((Get-Content $info.FullName -Raw), 'versionCode=(\d+)').Groups[1].Value
-    & (Join-Path $PSScriptRoot 'verify_closedtest.ps1') -VersionCode $code -Keystore $Keystore -Alias $Alias
+    & (Join-Path $PSScriptRoot 'verify_closedtest.ps1') -VersionCode $code -Keystore $Keystore -Alias $Alias -Dir $outDir -Prefix $outPrefix
     $verified = $LASTEXITCODE
 }
 if ($cleanupIssues.Count -gt 0) { exit 2 }

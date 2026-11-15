@@ -110,6 +110,13 @@ public static class BuildAndroid
         // AdMob のアプリ ID を設定へ(テスト広告でも実際のアプリ ID)。2026-10-26: 同じ起動の中で ID を書き換えた直後のビルドには
         // 古い ID が入った(APK の AndroidManifest で確認)→ 書き換えた時はビルドせず、もう一度実行してもらう
         if (MonetizationSetup.ApplyAndReport()) { Debug.LogError("BuildAndroid: the AdMob app id was just updated - run BuildClosedTest again (a fresh editor session picks it up)"); return; }
+        // 2026-11-15(マスター): 本番用は、お知らせの一番新しい版(PatchNotesUi.Latest)= 今回の versionCode でなければ作らない
+        if (prodAds && PatchNotesUi.Latest != PlayerSettings.Android.bundleVersionCode + 1)
+        {
+            Debug.LogError($"BuildAndroid: production build refused - the patch notes version ({PatchNotesUi.Latest}) does not match the next versionCode ({PlayerSettings.Android.bundleVersionCode + 1}). Update PatchNotesUi.Notes first.");
+            return;
+        }
+        string oldStamp = PlayerSettings.bundleVersion; int oldCode = PlayerSettings.Android.bundleVersionCode;
         string stamp = System.DateTime.Now.ToString("yyyy-MM-dd HHmm");
         PlayerSettings.bundleVersion = stamp;
         PlayerSettings.Android.bundleVersionCode += 1;
@@ -149,13 +156,13 @@ public static class BuildAndroid
                     EditorUserBuildSettings.buildAppBundle = true; PlayerSettings.Android.splitApplicationBinary = true; // base を 200MB 未満に(Play の上限)
                     string aab = $"{outDir}/{prefix}{code}.aab";
                     var r1 = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, aab, BuildTarget.Android, BuildOptions.None);
-                    Debug.Log("BuildAndroid: closed test aab result=" + r1.summary.result + " size=" + r1.summary.totalSize + " path=" + aab);
+                    Debug.Log("BuildAndroid: " + (prodAds ? "production" : "closed test") + " aab result=" + r1.summary.result + " size=" + r1.summary.totalSize + " path=" + aab);
                     outputs.Add($"aab={aab} result={r1.summary.result}");
                 }
                 EditorUserBuildSettings.buildAppBundle = false; PlayerSettings.Android.splitApplicationBinary = false;
                 string apk = $"{outDir}/{prefix}{code}{(upload ? "" : "_debugsigned")}.apk";
                 var r2 = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, apk, BuildTarget.Android, BuildOptions.None);
-                Debug.Log("BuildAndroid: closed test apk result=" + r2.summary.result + " size=" + r2.summary.totalSize + " path=" + apk);
+                Debug.Log("BuildAndroid: " + (prodAds ? "production" : "closed test") + " apk result=" + r2.summary.result + " size=" + r2.summary.totalSize + " path=" + apk);
                 outputs.Add($"apk={apk} result={r2.summary.result}");
             }
         }
@@ -171,6 +178,12 @@ public static class BuildAndroid
                 ScrubGradleSigningPasswords();
             }
             EditorUserBuildSettings.buildAppBundle = wasAab; PlayerSettings.Android.splitApplicationBinary = wasSplit;
+            // 2026-11-15: 本番用が失敗した時は番号を使わない(作り直しても、お知らせの版と同じ番号のまま)
+            if (prodAds && (outputs.Count == 0 || outputs.Exists(o => !o.EndsWith("result=Succeeded"))))
+            {
+                PlayerSettings.Android.bundleVersionCode = oldCode; PlayerSettings.bundleVersion = oldStamp;
+                Debug.LogError($"BuildAndroid: production build did not succeed - versionCode restored to {oldCode} (the next try uses {oldCode + 1} again)");
+            }
             AssetDatabase.SaveAssets();
         }
         // 使った設定の記録(パスワードは書かない)
@@ -186,7 +199,7 @@ public static class BuildAndroid
         info.AppendLine($"signing={(upload ? "upload key (" + Path.GetFileName(ks) + ", alias set)" : "debug key - NOT uploadable")}");
         foreach (var o in outputs) info.AppendLine(o);
         File.WriteAllText($"{outDir}/{prefix}{code}_build.txt", info.ToString());
-        Debug.Log("BuildAndroid: closed test build info: " + info.ToString().Replace(System.Environment.NewLine, " | "));
+        Debug.Log("BuildAndroid: " + (prodAds ? "production" : "closed test") + " build info: " + info.ToString().Replace(System.Environment.NewLine, " | "));
     }
 
     // 製品版と同じ中身の確認用 APK(2026-11-03): クローズドテストの製品版と同じ設定(Development なし、テスト広告、同じ定義)に

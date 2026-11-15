@@ -15,9 +15,8 @@ public static class BuildIOS
         // iOS の版(CFBundleShortVersionString)は IosVersion(ビルドの直前に MarketingVersion = App Store の形へ差し替え、後で戻す)が決める。
         // 2026-11-15: 以前はここで日付の版(yyyyMMdd.HHmm)を PlayerSettings.bundleVersion へ書いていた
         //  (Android/Windows と共通の値を書き換える・App Store の版として不自然)→ やめた。ビルド番号を進めるのは今までどおり
-        int buildNumber = int.Parse(PlayerSettings.iOS.buildNumber == "" ? "0" : PlayerSettings.iOS.buildNumber) + 1;
-        PlayerSettings.iOS.buildNumber = buildNumber.ToString();
-        Debug.Log("BuildIOS: version " + IosVersion.MarketingVersion + " (IosVersion) buildNumber " + buildNumber);
+        // 2026-11-15 夜: ビルド番号も IosVersion.BuildNumber が決める(ProjectSettings の値はビルドの間だけ差し替えて戻す)。ここでは +1 しない
+        Debug.Log("BuildIOS: version " + IosVersion.MarketingVersion + " buildNumber " + IosVersion.BuildNumber + " (IosVersion)");
 
         // On Windows this only emits the Xcode project source (source files,
         // no compiled/signed app) - actually compiling and signing into an

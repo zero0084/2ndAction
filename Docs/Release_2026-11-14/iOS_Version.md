@@ -71,3 +71,31 @@
   - `ProductionConfigAudit` は、テスト用の ID か空の間は「GoogleMobileAdsSettings の iOS アプリ ID」を **NG** と出します。
   - iOS で広告を出す時は、iOS 用の広告ユニット・同意(ATT/UMP)・定義 OMM_ADMOB の iOS 追加も別に必要です(今は未対応)。
 - [ ] App Store に出す版を上げる時は、`IosVersion.MarketingVersion` を変えます(今は 1.0.0)。
+
+## TestFlight 用の再ビルド: Build 5(2026-11-15 夜、マスター依頼)
+- 前回 Unity Build Automation の iOS #2 で作った IPA は、Version 1.0.0 / Build 4 / Bundle ID com.zero0084.action2nd でした。
+- 今回は Version 1.0.0 のまま、**Build 5** にします。Bundle ID は変えません。
+- やり方:
+  - `IosVersion.BuildNumber = "5"` を足しました。iOS のビルドの直前に、PlayerSettings.iOS.buildNumber を 5 へ差し替えて、ビルドの後に戻します(Version と同じ仕組み)。
+  - ProjectSettings.asset はリポジトリへ入れない決まりなので、ProjectSettings の値(4)ではなく、このコードの値が使われます。Unity Cloud がリポジトリから取った時も、必ず 5 になります。
+  - `BuildIOS`(手元の Xcode 書き出しのメニュー)は、ビルド番号を +1 しなくなりました(番号は IosVersion が決める)。
+  - Android の versionCode と、Windows・Android の版(PlayerSettings.bundleVersion)は変えていません。
+- **次に TestFlight へ上げる時**は、`IosVersion.BuildNumber` を 6 にしてコミットします(同じ Version で同じ番号は上げられません)。
+- 注意: Unity Cloud のビルドの設定で、ビルド番号を自動で付ける設定が有効な場合のことです。
+  - 前回の Build 4 がリポジトリの値どおりだったので、今は使っていないと考えています。
+  - 有効だった場合も、Unity のビルドの直前にこのコードが 5 に差し替えます。
+- 手元での確認(2026-11-15 夜、Windows の Unity 6000.5.6f1、`IosVersionCheck.Run`、iOS の Xcode プロジェクトの書き出し)の結果は **OK** でした。
+  - ビルドは成功し、エラーは 0 件でした。
+  - 書き出した Info.plist と Xcode の設定:
+    - CFBundleShortVersionString = **1.0.0**
+    - CFBundleVersion = **5**
+    - GADApplicationIdentifier = Google 公式の iOS テスト用 ID
+    - アプリの PRODUCT_BUNDLE_IDENTIFIER = com.zero0084.action2nd(ほかは Unity の試験用・フレームワークの標準の物)
+  - ビルドの後、共通の Version は `2026-11-15 1830` に戻り、ProjectSettings の iOS ビルド番号は 4 に戻りました。
+  - Android の versionCode は 454 のままで、ProjectSettings は書き出しの前と1行も変わっていません。
+  - 警告は 170 件でした。どれも今回の iOS ビルドを止める物ではありません。
+    - ほとんどは古い API の警告(FindObjectsByType の並べ方の引数。試験用のコードが中心で、Android でも同じ)です。
+    - アプリのアイコンの圧縮の警告が 19 件。見た目の注意だけです。
+    - SizeGuard の画像の圧縮の注意。
+    - 「CocoaPods の pod install が要る」: Windows では pod install を動かせないための表示です。Unity Cloud(Mac)では前回 #2 で IPA まで作れているので、同じ扱いです。
+- クラウドでの確認は、まだしていません(マスターが Unity Cloud で実行)。
