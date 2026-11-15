@@ -155,7 +155,7 @@ public partial class GameManager
     void SetGachaCategoryNote(string s) { gachaCategoryNote = s; gachaCategoryNoteUntil = Time.unscaledTime + 2.5f; }
 
     // 案内の1行: 「天空のカード 70%・共通 30%」/ 対象が無い時は「このマップで引けるカードがまだありません」
-    // 横画面のガチャの札の2行目 / 縦画面の台の下: 断った理由が出ている間はそれ、普段は対象の案内
+    // 2026-11-15 午前からホームには出さない(確認用の記録だけ)。断った理由が出ている間はそれ、普段は対象の案内
     string GachaSignSubLine()
     {
         EnsureGachaCategory();

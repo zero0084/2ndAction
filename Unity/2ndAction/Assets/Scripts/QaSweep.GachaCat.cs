@@ -71,8 +71,12 @@ public partial class QaSweep
                 gm.OnAdGachaTapped();
                 Check(AdRewards.GachaRemaining(day) == left0 && AdManager.ShowsStarted == shows0, "B: ad gacha refused before showing an ad (count unchanged)");
             }
+            else GcPull.Invoke(gm, null); // 断った理由をもう一度出す(下の撮影用)
             yield return new WaitForSecondsRealtime(0.3f);
             yield return ShotW("gc_B_empty");
+            // 2026-11-15 午前: ホームの説明文は外したが、引けなかった時の理由と条件は短い間だけ出す
+            Rect nr = gm.LastGachaRefusalNoteRect;
+            Check(nr.width > 0f && nr.xMin >= 0f && nr.xMax <= Screen.width && nr.yMin >= 0f && nr.yMax <= Screen.height, $"B: the refusal reason is shown briefly inside the screen ({nr})");
         }
         else Check(false, $"B: expected an empty Cave pool on a new save (got {empty})");
 
@@ -216,21 +220,31 @@ public partial class QaSweep
     void GcCheckLayout(string tag)
     {
         Rect st = gm.LastHomeSignRects[4];
+        Rect odds = gm.LastGachaOddsButtonRect, ad = gm.LastAdGachaButtonRect;
+        Check(odds.width > 0f && odds.xMin >= 0f && odds.xMax <= Screen.width && odds.yMin >= 0f && odds.yMax <= Screen.height, $"{tag}: the odds button is inside the screen ({odds})");
+        Check(ad.width <= 0f || !odds.Overlaps(ad), $"{tag}: the odds button does not overlap the ad gacha button (odds {odds}, ad {ad})");
+        Check(st.width <= 0f || !odds.Overlaps(st), $"{tag}: the odds button does not overlap the Depart sign (odds {odds}, sign {st})");
         if (Screen.height > Screen.width)
         {
-            Rect r = gm.LastGachaLandRowRect;
-            Check(r.width > 0f && r.xMin >= 0f && r.xMax <= Screen.width && r.yMax <= Screen.height, $"{tag}: the target line under the machine is inside the screen ({r})");
-            Check(st.width <= 0f || !r.Overlaps(st), $"{tag}: the target line does not overlap the Depart sign (line {r}, sign {st})");
+            // 2026-11-15 午前: 縦画面は説明の帯を外し、「提供割合」だけをガチャのボタンの列の上で右寄せ
             Rect m = gm.DebugGachaMachineRectNow;
             Check(m.width <= 0f || m.xMax <= Screen.width + 1f, $"{tag}: the gacha machine is not cut at the right edge ({m}, screen {Screen.width})");
+            Rect fac = ad.width > 0f ? ad : default;
+            Check(fac.width <= 0f || Mathf.Abs(odds.xMax - fac.xMax) <= 1.5f, $"{tag}: the odds button is right-aligned with the gacha column (odds {odds}, ad {fac})");
         }
         else
         {
-            Rect g = gm.LastHomeSignRects[3];
-            Check(g.width > 0f && g.xMin >= 0f && g.xMax <= Screen.width, $"{tag}: the gacha sign (with the target line) is inside the screen ({g})");
+            // 2026-11-15 午前: 札は「ガチャ」+アイコンだけ(2行目なし)、「提供割合」は札の右。右の列とカード合成に重ならない
+            Rect g = gm.LastHomeSignRects[3], fusion = gm.LastHomeSignRects[2];
+            Check(g.width > 0f && g.xMin >= 0f && g.xMax <= Screen.width, $"{tag}: the gacha sign is inside the screen ({g})");
             Check(st.width <= 0f || !g.Overlaps(st), $"{tag}: the gacha sign does not overlap the Depart sign ({g} / {st})");
+            Check(odds.xMin >= g.xMax - 0.5f && odds.center.y > g.y && odds.center.y < g.yMax, $"{tag}: the odds button is to the right of the gacha sign (odds {odds}, sign {g})");
+            Check(fusion.width <= 0f || (!odds.Overlaps(fusion) && !g.Overlaps(fusion)), $"{tag}: the gacha sign / odds button do not overlap the Card Fusion sign (fusion {fusion})");
+            Check(fusion.width <= 0f || Mathf.Abs(g.height - fusion.height) <= 1f, $"{tag}: the gacha sign has no second line (same height as Card Fusion: {g.height} / {fusion.height})");
             var exit = (Rect)typeof(GameManager).GetMethod("GetHomeExitButtonRect", NP).Invoke(gm, null);
-            Rect ad = gm.LastAdGachaButtonRect;
+            var col0 = (Rect)typeof(GameManager).GetMethod("HomeChromeColumn", NP).Invoke(gm, new object[] { 0 });
+            float colX = Mathf.Min(exit.width > 0f ? exit.x : Screen.width, col0.width > 0f ? col0.x : Screen.width);
+            Check(odds.xMax <= colX, $"{tag}: the odds button stays left of the right column (odds {odds}, column x {colX})");
             Check(ad.width <= 0f || exit.width <= 0f || !ad.Overlaps(exit), $"{tag}: the ad gacha button does not overlap the right column (ad {ad}, exit {exit})");
         }
     }

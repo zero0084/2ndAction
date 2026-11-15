@@ -30,7 +30,7 @@ public partial class QaSweep
         Shot($"gs_C_new_{res}"); yield return null; yield return null;
         L($"[C] new data: land counts " + string.Join(" ", lands.Select(k => $"{k}={gm.GachaLandCount(k)}")) + $" open " + string.Join(" ", lands.Select(k => $"{k}={GameManager.GachaLandMapOpen(k)}")));
         Check(!GameManager.GachaLandMapOpen(CardMapCategory.LastDungeon) && gm.GachaLandCount(CardMapCategory.LastDungeon) == 0, "[C] new data: Last Dungeon locked and has no cards in the pool");
-        Check(Screen.height > Screen.width ? gm.LastGachaLandRowRect.width == 0f : gm.LastGachaLandRowRect.width > 0f, $"[C] land row drawn in landscape only ({gm.LastGachaLandRowRect})");
+        Check(gm.LastGachaOddsButtonRect.width > 0f, $"[C] the odds entry is drawn ({gm.LastGachaOddsButtonRect})"); // 2026-11-15 午前: 説明の帯/2行目は外した
 
         UnlockRules.DevUnlockAll = true; GachaStage.DevAllCardsOpen = true;
         yield return new WaitForSecondsRealtime(2.5f);
@@ -44,7 +44,7 @@ public partial class QaSweep
         }
         Rect m = gm.DebugGachaMachineRectNow, row = gm.LastGachaLandRowRect;
         L($"[A] machine {m} land row {row}");
-        Check(Screen.height > Screen.width || (row.width > 0f && row.yMin >= m.yMax - 1f), "[A] land row sits below the machine (does not cover it)");
+        Check(Screen.height > Screen.width || row.width == 0f, "[A] no info strip in landscape");
         Check(row.width == 0f || row.xMin >= -1f && row.xMax <= Screen.width + 1f && row.yMax <= Screen.height + 1f, "[A] land row inside the screen");
 
         // ---- B
@@ -64,7 +64,7 @@ public partial class QaSweep
                 Shot($"gs_B1_spin_{tag}"); yield return null; yield return null;
                 float t = 0f; while (!gm.GachaResultOpen && t < 3f) { yield return null; t += Time.unscaledDeltaTime; }
                 Check(gm.GachaResultOpen, $"[B] {c.cardId}: result opened");
-                Check(gm.GachaSkinState.Skin == k, $"[B] {c.cardId}: machine took the card's land look ({gm.GachaSkinState.Skin} / {k})");
+                Check(gm.GachaSkinState.Skin == CardMapCategory.Common, $"[B] {c.cardId}: machine keeps the target map look, not the drawn card's land ({gm.GachaSkinState.Skin} / card {k})"); // 2026-11-14 から台は最後に出発したマップの見た目(引いたカードでは変えない)
                 yield return new WaitForSecondsRealtime(0.12f);
                 Shot($"gs_B2_reveal_{tag}"); yield return null; yield return null;
                 peak = Mathf.Max(peak, gm.GachaSkinState.ParticleCount);

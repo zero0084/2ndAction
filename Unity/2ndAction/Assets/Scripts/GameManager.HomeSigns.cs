@@ -141,25 +141,44 @@ public partial class GameManager
         float gachaY = machineRect.yMax + 4f;
         if (!HomePortrait && AdGachaAvailable) gachaY = machineRect.yMax + 6f + 54f * GachaUiScale + 6f;
         if (!HomePortrait && machineRect.width > 1f && !gachaResultOpen) signDisabledOnce = GachaCategoryEmpty;
-        if (!roomDup && machineRect.width > 1f && !gachaResultOpen && DrawHomeSign(3, new Vector2(machineRect.center.x, gachaY), true, HomeSignLabels[3], interactable, fade, 3f, HomePortrait ? null : GachaSignSubLine(), icon: UiIcons.Home(HomeSignIcons[3]), minW: homeSignUnifiedW, minH: homeSignUnifiedH))
-        { deskHotspotFlashTimer = roomHotspotFlashDuration; OnGachaMachineTapped(); }
-        // 2026-11-14 夜: 分類を選ぶ列は外した(抽選の対象は最後に出発したマップ)。横画面は札の2行目、縦画面は台の下の1行で示す
-        if (machineRect.width > 1f && !gachaResultOpen)
+        // 2026-11-15 午前(マスター): 札は「ガチャ」とアイコンだけ(分類・割合の2行目は外し、高さは他の1行の札と同じ)。
+        //  「提供割合」は札の右に小さく。右の列(設定〜終了)に重なる時は、札ごと左へ寄せる(前のフレームの札の幅で計算)
+        //  寄せても「出発」(続きから)の札に重なる長い言語(タミル語など)は、ガチャの札だけ幅をそろえるのをやめて文字の幅まで細くする
+        float gachaX = machineRect.center.x, gachaMinW = homeSignUnifiedW;
+        bool landOdds = !HomePortrait && machineRect.width > 1f && !gachaResultOpen;
+        float oddsFs = Mathf.Round(HomeSignFont * 0.55f), oddsGap = HomeSignFont * 0.3f, oddsW = 0f;
+        if (landOdds)
         {
-            if (!HomePortrait)
+            oddsW = GachaOddsButtonWidth(oddsFs);
+            Rect prevSign = SignRectNowOrPrev(3);
+            float signW = homeSignUnifiedW > 0f ? homeSignUnifiedW : prevSign.width; // そろえた幅(どの札の文字よりも広い)
+            float limit = Mathf.Min(GetHomeExitButtonRect().x, HomeChromeColumn(0).x, Screen.width - SafeRight()) - oddsGap * 1.5f;
+            float right = limit - oddsGap - oddsW; // 札の右端の上限
+            if (signW > 0f && gachaX + signW * 0.5f > right)
             {
-                LastGachaLandRowRect = Rect.zero;
-                // 札の左に「提供割合」(2026-11-15)。札の縦の中央にそろえる
-                Rect gs = LastHomeSignRects[3];
-                if (gs.width > 0f)
-                {
-                    float fs = Mathf.Round(HomeSignFont * 0.62f), bh = Mathf.Max(Dp(36f), gs.height * 0.62f);
-                    float bw = Mathf.Max(bh * 2.4f, UiKit.Label(fs, TextAnchor.MiddleCenter, true, Color.white).CalcSize(new GUIContent(Loc.T(LocGacha.Odds))).x + fs * 2f);
-                    DrawGachaOddsButton(new Rect(gs.x - bw - HomeSignFont * 0.35f, gs.center.y - bh * 0.5f, bw, bh), fs, interactable);
-                }
+                float leftLimit = SafeLeft() + 4f;
+                Rect dep = SignRectNowOrPrev(4); // 出発/続きから(前のフレーム)。縦に重なる時だけ避ける
+                float signH = homeSignUnifiedH > 0f ? homeSignUnifiedH : prevSign.height;
+                if (dep.width > 0f && dep.yMin < gachaY + signH && dep.yMax > gachaY) leftLimit = Mathf.Max(leftLimit, dep.xMax + oddsGap);
+                float left = Mathf.Max(leftLimit, right - signW);
+                gachaMinW = Mathf.Max(0f, right - left);
+                gachaX = right - gachaMinW * 0.5f;
             }
         }
-        else LastGachaLandRowRect = Rect.zero;
+        if (!roomDup && machineRect.width > 1f && !gachaResultOpen && DrawHomeSign(3, new Vector2(gachaX, gachaY), true, HomeSignLabels[3], interactable, fade, 3f, null, icon: UiIcons.Home(HomeSignIcons[3]), minW: gachaMinW, minH: homeSignUnifiedH))
+        { deskHotspotFlashTimer = roomHotspotFlashDuration; OnGachaMachineTapped(); }
+        if (landOdds)
+        {
+            LastGachaLandRowRect = Rect.zero;
+            Rect gs = LastHomeSignRects[3];
+            if (gs.width > 0f)
+            {
+                float bh = Mathf.Max(oddsFs * 2.2f, gs.height * 0.6f);
+                DrawGachaOddsButton(new Rect(gs.xMax + oddsGap, gs.center.y - bh * 0.5f, oddsW, bh), oddsFs, interactable);
+                DrawGachaRefusalNote(gs, false, fade); // 引けなかった時の理由と条件(短い間だけ、札の下)
+            }
+        }
+        else if (!HomePortrait || machineRect.width <= 1f || gachaResultOpen) LastGachaLandRowRect = Rect.zero;
         if (HomeShowsContinueChoice)
         {
             // 続きから(主): 扉の下。2行目に再開の地点。押すと扉と同じ再開
