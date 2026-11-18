@@ -683,6 +683,7 @@ public static class SaveSystem
         RunCheckpoint.Reload();
         ProgressStats.Reload();
         AdRewards.Reload(); // 広告/パスの報酬の記録(テスト用データと通常のデータで別、2026-10-10)
+        DailyLoginBonus.Reload(); // ログイン特典の受け取りの記録(2026-11-18)
         GameSettings.Reload(); HudPrefs.Reload();
         ChallengeStore.Reload(); ProfileStore.Reload(); // 2026-11-07 プロフィール/常設チャレンジ
         if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.ReloadPrefs();

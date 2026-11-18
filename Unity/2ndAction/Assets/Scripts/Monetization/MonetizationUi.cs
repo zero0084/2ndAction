@@ -6,6 +6,11 @@ using UnityEngine;
 public class MonetizationUi : MonoBehaviour
 {
     public static bool Open { get; private set; }
+    static float lastNeededH, fontK = 1f; // fontK: 画面に入らない時だけ本文の字を少し小さく(最小 0.78。2026-11-18 ミャンマー語の横画面 720 で下のボタンがはみ出した)
+    public static Rect LastPanelRect { get; private set; }               // 確認用(GUI.matrix 後の座標)
+    public static float LastContentBottom { get; private set; }
+    public static float LastButtonsTop { get; private set; }
+    public static float LastButtonsBottom { get; private set; }
     public static void OpenPass() { if (Monetization.Mode == MonetizationMode.None) return; AdManager.Ensure(); Open = true; }
     public static void Close() { Open = false; UiInputGate.LatchUntilRelease(); }
 
@@ -21,18 +26,22 @@ public class MonetizationUi : MonoBehaviour
         GUI.matrix = Matrix4x4.Scale(new Vector3(s, s, 1f));
         float w = Screen.width / s, h = Screen.height / s;
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.02f, 0.03f, 0.08f, 0.7f));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(640f, h - 24f);
+        // 2026-11-18: 特典を4つにした(ログイン特典)ので、長い言語では本文が下のボタンに届くことがある → 前のフレームで測った本文の高さに合わせて高くする(画面に入る範囲で)
+        float avail = h - 24f;
+        if (lastNeededH > avail + 0.5f) fontK = Mathf.Max(0.78f, fontK * avail / lastNeededH);
+        else if (fontK < 1f && lastNeededH < avail * 0.9f) fontK = Mathf.Min(1f, fontK * 1.05f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(Mathf.Max(640f, lastNeededH), h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f, pw, ph);
         OrnateUi.DrawPanel(p, 0.96f);
         LocGUI.Label(new Rect(p.x + 24f, p.y + 12f, p.width - 100f, 44f), "広告なしパス(買い切り)", UiKit.Label(26f, TextAnchor.MiddleLeft, true, new Color(1f, 0.86f, 0.45f)));
         if (UiIcons.CloseButton(new Rect(p.xMax - 66f, p.y + 12f, 48f, 42f))) Close();
 
         float x = p.x + 28f, y = p.y + 66f, full = p.width - 56f;
-        var body = new GUIStyle(UiKit.Label(16f, TextAnchor.UpperLeft, false, Color.white)) { wordWrap = true };
-        var small = new GUIStyle(UiKit.Label(13f, TextAnchor.UpperLeft, false, new Color(0.78f, 0.82f, 0.9f))) { wordWrap = true };
-        float Line(string text, GUIStyle st, float gap = 6f)
+        var body = new GUIStyle(UiKit.Label(16f * fontK, TextAnchor.UpperLeft, false, Color.white)) { wordWrap = true };
+        var small = new GUIStyle(UiKit.Label(Mathf.Max(11f, 13f * fontK), TextAnchor.UpperLeft, false, new Color(0.78f, 0.82f, 0.9f))) { wordWrap = true };
+        float Line(string text, GUIStyle st, float gap = 6f, bool localized = false)
         {
-            string t = Loc.Auto(text);
+            string t = localized ? text : Loc.Auto(text); // localized: Loc.F で訳した文(もう一度 Auto に通すと右から左の文字が二重に並べ替わる)
             float hh = st.CalcHeight(new GUIContent(t), full);
             GUI.Label(new Rect(x, y, full, hh), t, st);
             return hh + gap;
@@ -43,6 +52,8 @@ public class MonetizationUi : MonoBehaviour
         y += Line("1. ゲームオーバー後の広告が出なくなります", body);
         y += Line("2. 脱出に成功したランの MILE 2倍を、広告を見ずに受け取れます(1ランにつき1回)", body);
         y += Line("3. 1日3回、カードを無料で引けます(広告で引く回数と共通。日本時間 0時に回復)", body);
+        // 2026-11-18 ログイン特典(DailyLoginBonus): 文の数字は {0} に入れる(額を変えた時に訳を作り直さなくてよい)
+        y += Line(Loc.F(DailyLoginBonus.PassBenefitText, DailyLoginBonus.AmountText), body, 6f, true);
         y += 4f;
         y += Line("買い切りです(1回の購入。定期的な支払いはありません)", body);
         y += Line("・MILE 2倍の額や、1日に引ける回数は広告で受け取る場合と同じです(増えません)", small, 3f);
@@ -55,6 +66,7 @@ public class MonetizationUi : MonoBehaviour
         else if (NoAdsPass.PendingPayment) y += Line("お支払いの完了待ちです。完了すると自動で有効になります", new GUIStyle(body) { normal = { textColor = new Color(1f, 0.85f, 0.5f) } });
 
         float bh = 52f, bw = (full - 12f) / 2f;
+        lastNeededH = (y - p.y) + 6f + bh + 34f + 24f; // 本文 + ボタン + 下の注記 + 余白(次のフレームの板の高さ)
         float by = Mathf.Max(y + 6f, p.yMax - 24f - bh - 34f);
         bool busy = NoAdsPass.Busy;
         bool setup = Monetization.PurchaseSetupComplete;
@@ -63,6 +75,7 @@ public class MonetizationUi : MonoBehaviour
         if (UiKit.Button(new Rect(x, by, bw, bh), buyLabel, 18f, true, false, canBuy) && canBuy) NoAdsPass.Purchase(null);
         if (UiKit.Button(new Rect(x + bw + 12f, by, bw, bh), busy ? Loc.T("確認中…") : Loc.T("購入を復元"), 18f, false, false, !busy) && !busy) NoAdsPass.Check("restore button");
         if (!string.IsNullOrEmpty(NoAdsPass.LastNote)) GUI.Label(new Rect(x, by + bh + 4f, full, 30f), Loc.Auto(NoAdsPass.LastNote), new GUIStyle(small) { alignment = TextAnchor.MiddleCenter });
+        LastPanelRect = p; LastContentBottom = y; LastButtonsTop = by; LastButtonsBottom = by + bh + 30f; // 確認用
 
         GUI.matrix = keep;
         GUI.Button(new Rect(0f, 0f, Screen.width, Screen.height), GUIContent.none, GUIStyle.none); // 背後へ通さない

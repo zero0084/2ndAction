@@ -85,10 +85,11 @@ public class MockAdService : MonoBehaviour, IAdService
 
 public class MockStoreService : IStoreService
 {
-    public enum Behaviour { Success, PendingThenComplete, Cancel, Fail, Offline }
+    public enum Behaviour { Success, PendingThenComplete, Cancel, Fail, Offline, PendingThenDecline } // PendingThenDecline(2026-11-18): 支払い待ちのまま取り消された(届かない)
     public static Behaviour Mode = Behaviour.Success;
     public static bool Refunded; // 返金/取消の模擬(次の確認で「持っていない」)
     public static float RestoreDelay; // 確認の返事を遅らせる(秒。打ち切りの後に届く返事の試験)
+    public static bool Deferred; // 模擬のストアに「支払いの完了待ち」の注文がある(2026-11-18)
     static MockStoreService inst;
     public static MockStoreService Instance => inst ?? (inst = new MockStoreService());
     public string Name => "mock";
@@ -110,6 +111,11 @@ public class MockStoreService : IStoreService
                 done(new PurchaseResult { status = PurchaseStatus.Pending, productId = id });
                 MockAdService.Instance.StartCoroutine(CompleteLater(id));
                 return;
+            case Behaviour.PendingThenDecline:
+                Deferred = true;
+                done(new PurchaseResult { status = PurchaseStatus.Pending, productId = id });
+                MockAdService.Instance.StartCoroutine(Later(2f, () => Deferred = false)); // 支払いが取り消された(購入の通知は来ない)
+                return;
         }
         if (SaveStore.GetInt(OwnedKey, 0) == 1 && !Refunded) { done(new PurchaseResult { status = PurchaseStatus.AlreadyOwned, productId = id, token = "mock-token" }); return; }
         SaveStore.SetInt(OwnedKey, 1); SaveStore.Save(); Refunded = false;
@@ -127,7 +133,7 @@ public class MockStoreService : IStoreService
     {
         RestoreResult r;
         if (Mode == Behaviour.Offline) r = new RestoreResult { ok = false, message = "offline (mock)" };
-        else { bool owned = SaveStore.GetInt(OwnedKey, 0) == 1 && !Refunded; r = new RestoreResult { ok = true, owned = owned, token = owned ? "mock-token" : "" }; }
+        else { bool owned = SaveStore.GetInt(OwnedKey, 0) == 1 && !Refunded; r = new RestoreResult { ok = true, owned = owned, pending = !owned && Deferred, token = owned ? "mock-token" : "" }; }
         if (RestoreDelay > 0f) { MockAdService.Instance.StartCoroutine(Later(RestoreDelay, () => done(r))); return; }
         done(r);
     }

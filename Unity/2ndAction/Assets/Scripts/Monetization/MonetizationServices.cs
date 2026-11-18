@@ -26,7 +26,8 @@ public interface IAdService
 
 public enum PurchaseStatus { Purchased, Pending, Cancelled, Failed, AlreadyOwned, NotReady }
 public struct PurchaseResult { public PurchaseStatus status; public string productId; public string token; public string message; }
-public struct RestoreResult { public bool ok; public bool owned; public string token; public string message; }
+// pending(2026-11-18): ストアに「支払いの完了待ち」の注文がある(持っているとは扱わない)。ok かつ !owned かつ !pending なら、完了待ちの印は外してよい
+public struct RestoreResult { public bool ok; public bool owned; public bool pending; public string token; public string message; }
 
 public interface IStoreService
 {

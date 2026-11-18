@@ -1,0 +1,6 @@
+# PLAYTESTERS (credits: settings > About > Credits, and the ending roll)
+# One name per line, in the order shown. Lines starting with # are ignored.
+Nari
+Moka
+Soushi
+Itsuki

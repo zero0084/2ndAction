@@ -282,12 +282,31 @@ public partial class QaSweep
             yield return new WaitForSecondsRealtime(0.3f);
             Check(!NoAdsPass.Owned, $"E1: {mode} -> not granted ('{NoAdsPass.LastNote}')");
         }
+        // 2026-11-18 E9: 支払い待ちのまま取り消された → 次の確認で完了待ちの印が外れる(購入ボタンが押せないまま残らない)。権利は付かない
+        MockStoreService.Mode = MockStoreService.Behaviour.PendingThenDecline;
+        NoAdsPass.Purchase(null);
+        yield return new WaitForSecondsRealtime(0.4f);
+        Check(!NoAdsPass.Owned && NoAdsPass.PendingPayment, "E9: pending -> not granted, marked as waiting for payment");
+        NoAdsPass.Check("qa pending still at store");
+        yield return new WaitForSecondsRealtime(0.3f);
+        Check(!NoAdsPass.Owned && NoAdsPass.PendingPayment, "E9: while the store still has the pending order, the mark stays");
+        yield return new WaitForSecondsRealtime(2.2f); // 模擬: 支払いが取り消された
+        NoAdsPass.Check("qa pending declined");
+        yield return new WaitForSecondsRealtime(0.3f);
+        Check(!NoAdsPass.Owned && !NoAdsPass.PendingPayment, $"E9: declined payment -> pending mark cleared, still not owned ('{NoAdsPass.LastNote}')");
         MockStoreService.Mode = MockStoreService.Behaviour.PendingThenComplete;
         NoAdsPass.Purchase(null);
         yield return new WaitForSecondsRealtime(0.4f);
         Check(!NoAdsPass.Owned && NoAdsPass.PendingPayment, "E2: pending -> not granted yet");
         yield return new WaitForSecondsRealtime(4.5f);
         Check(NoAdsPass.Owned && !NoAdsPass.PendingPayment, "E2: payment completed later -> granted");
+        // 2026-11-18 E10: 「もう持っている」の返事では直接有効にせず、ストアで確かめ直してから有効にする
+        MockStoreService.Mode = MockStoreService.Behaviour.Success;
+        NoAdsPass.DevMockSet(false);
+        int gE10 = NoAdsPass.Grants, rE10 = NoAdsPass.AlreadyOwnedRechecks;
+        NoAdsPass.Purchase(null);
+        yield return new WaitForSecondsRealtime(0.4f);
+        Check(NoAdsPass.AlreadyOwnedRechecks == rE10 + 1 && NoAdsPass.Owned && NoAdsPass.Grants == gE10 + 1, $"E10: 'already owned' is re-checked with the store before granting (rechecks +{NoAdsPass.AlreadyOwnedRechecks - rE10}, grants +{NoAdsPass.Grants - gE10})");
         MockStoreService.Mode = MockStoreService.Behaviour.Success;
         NoAdsPass.DevMockSet(false); // 再インストール/機種変更(端末の控えが無い)
         NoAdsPass.Check("qa restore");

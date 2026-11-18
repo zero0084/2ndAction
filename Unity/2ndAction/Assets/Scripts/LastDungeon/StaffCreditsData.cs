@@ -22,6 +22,7 @@ public class StaffCreditsData : ScriptableObject
         [Tooltip("役職(小さめの文字で宙に浮く)。空なら出さない")] public string role = "";
         [Tooltip("役職の下に添える日本語の説明(足場の文字とは別の、ゲーム世界の中の文字)。空なら出さない(2026-10-13 第3弾)")] public string subtitle = "";
         [Tooltip("名前(大きな文字)。複数可。英数字以外(日本語など)を含む名前は、乗れる銘板+刻んだ文字で表記どおりに出す")] public string[] names = new string[0];
+        [Tooltip("名前の一覧のテキスト(Resources の中のパス、拡張子なし。1行1名、# で始まる行は無視)。指定した時は names の代わりにこれを使う(2026-11-18 PLAYTESTERS: Resources/Credits/Playtesters.txt)")] public string namesFile = "";
         public Layout layout = Layout.Standing;
         [Tooltip("名前の文字の高さ(m)")] public float nameHeight = 1.7f;
         [Tooltip("攻撃で砕ける(false=揺れて光るだけ)")] public bool breakable;
@@ -40,10 +41,33 @@ public class StaffCreditsData : ScriptableObject
     public string noText = "NO";
     [Tooltip("YES/NOの耐久(攻撃の回数。攻撃力は関係なし。最後の一撃を入れた方が答え)")] public int choiceHp = 8;
 
+    // 2026-11-18: 名前の一覧のテキスト(namesFile)を読み込んだ写しを返す(元のアセットは書き換えない)。設定のクレジットは毎フレーム呼ぶので1回だけ作る
+    static StaffCreditsData cachedResolved;
     public static StaffCreditsData LoadOrDefault()
     {
-        var d = Resources.Load<StaffCreditsData>("LastDungeon/StaffCredits");
-        return d != null ? d : CreateDefault();
+        if (cachedResolved != null) return cachedResolved;
+        var src = Resources.Load<StaffCreditsData>("LastDungeon/StaffCredits");
+        var d = src != null ? Instantiate(src) : CreateDefault();
+        d.hideFlags = HideFlags.DontSave;
+        foreach (var e in d.entries)
+            if (e != null && !string.IsNullOrEmpty(e.namesFile)) e.names = ReadNames(e.namesFile);
+        cachedResolved = d;
+        return d;
+    }
+    public static void ReloadForTests() { cachedResolved = null; }
+
+    public static string[] ReadNames(string resourcePath)
+    {
+        var ta = Resources.Load<TextAsset>(resourcePath);
+        if (ta == null) { Debug.LogWarning("[Credits] names file not found: Resources/" + resourcePath); return new string[0]; }
+        var list = new List<string>();
+        foreach (var raw in ta.text.Split('\n'))
+        {
+            string s = raw.Trim().Trim('﻿');
+            if (s.Length == 0 || s.StartsWith("#")) continue;
+            list.Add(s);
+        }
+        return list.ToArray();
     }
 
     public static StaffCreditsData CreateDefault()
@@ -52,13 +76,14 @@ public class StaffCreditsData : ScriptableObject
         d.entries = new List<Entry>
         {
             new Entry { role = "", names = new[] { "ONE MORE MILE" }, layout = Layout.Title, nameHeight = 1.5f, gapAfter = 34f },
-            new Entry { role = "CREATED BY", subtitle = "制作", names = new[] { "マジル旅人" }, layout = Layout.Standing, nameHeight = 1.1f, gapAfter = 30f },
-            new Entry { role = "AI PROGRAMMING", subtitle = "AIアシスタント(プログラム)", names = new[] { "IRENE" }, layout = Layout.Standing, nameHeight = 1.45f, gapAfter = 30f },
-            new Entry { role = "AI GAME DESIGN", subtitle = "AIアシスタント(ゲームデザイン)", names = new[] { "ESTELLE" }, layout = Layout.Arch, nameHeight = 1.3f, gapAfter = 30f },
-            new Entry { role = "AI ART / DESIGN", subtitle = "AIアシスタント(アート・デザイン)", names = new[] { "ALICIA" }, layout = Layout.Stairs, nameHeight = 1.2f, gapAfter = 32f },
-            new Entry { role = "SOUNDFONT", subtitle = "BGMの音源(MuseScore, MIT ライセンス)", names = new[] { "MS BASIC" }, layout = Layout.Standing, nameHeight = 1.1f, gapAfter = 28f }, // 2026-10-23: MS Basic の謝辞(全文は設定の「ライセンス」)
-            new Entry { role = "SPECIAL THANKS", names = new[] { "ペンタトゥットゥルー", "ルカ" }, layout = Layout.Standing, nameHeight = 1.0f, gapAfter = 26f },
-            new Entry { role = "SPECIAL THANKS", names = new[] { "YOU" }, layout = Layout.Standing, nameHeight = 1.5f, breakable = true, gapAfter = 30f },
+            new Entry { role = "CREATED BY", names = new[] { "Majiru Tabibito" }, layout = Layout.Standing, nameHeight = 1.1f, gapAfter = 30f },
+            new Entry { role = "AI PROGRAMMING", subtitle = "AI assistant (programming)", names = new[] { "Irene" }, layout = Layout.Standing, nameHeight = 1.45f, gapAfter = 30f },
+            new Entry { role = "AI GAME DESIGN", subtitle = "AI assistant (game design)", names = new[] { "Estelle" }, layout = Layout.Arch, nameHeight = 1.3f, gapAfter = 30f },
+            new Entry { role = "AI ART / DESIGN", subtitle = "AI assistant (art and design)", names = new[] { "Alicia" }, layout = Layout.Stairs, nameHeight = 1.2f, gapAfter = 32f },
+            new Entry { role = "SOUNDFONT", subtitle = "Music soundfont (MuseScore, MIT License)", names = new[] { "MS Basic" }, layout = Layout.Standing, nameHeight = 1.1f, gapAfter = 28f }, // 2026-10-23: MS Basic の謝辞(全文は設定の「ライセンス」)
+            new Entry { role = "PLAYTESTERS", namesFile = "Credits/Playtesters", layout = Layout.Standing, nameHeight = 1.0f, gapAfter = 28f }, // 2026-11-18
+            new Entry { role = "SPECIAL THANKS", names = new[] { "Pentatuttulu", "Luka" }, layout = Layout.Standing, nameHeight = 1.0f, gapAfter = 26f },
+            new Entry { role = "SPECIAL THANKS", names = new[] { "You" }, layout = Layout.Standing, nameHeight = 1.5f, breakable = true, gapAfter = 30f },
         };
         return d;
     }

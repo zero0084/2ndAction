@@ -43,6 +43,9 @@ public static class LanCertBuilder
         }
     }
 
+    // 2026-11-18: RSA 公開鍵の DER(X.509 SubjectPublicKeyInfo)。広告なしパスのレシートの検証の自己試験(IapValidateSelfTest)が使う
+    public static byte[] RsaPublicKeyDer(RSAParameters k) => Seq(Seq(Oid("1.2.840.113549.1.1.1"), Null()), BitString(Seq(Int(k.Modulus), Int(k.Exponent))));
+
     // ---- DER(X.690)の最小限の組み立て ----
     static byte[] Tlv(byte tag, byte[] v)
     {

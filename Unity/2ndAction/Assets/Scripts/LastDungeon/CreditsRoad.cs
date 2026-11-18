@@ -73,6 +73,7 @@ public class CreditsRoad : MonoBehaviour
         float x = startSceneX;
         foreach (var e in Data.entries)
         {
+            if (e == null || e.names == null || e.names.Length == 0) continue; // 2026-11-18: 名前の一覧が空(PLAYTESTERS を空にした等)の項目は出さない
             string label = string.IsNullOrEmpty(e.role) ? (e.names.Length > 0 ? e.names[0] : "") : e.role;
             float nameCap = Mathf.Max(0.6f, e.nameHeight);
             float roleCap = Mathf.Max(0.45f, nameCap * 0.36f);
@@ -98,7 +99,7 @@ public class CreditsRoad : MonoBehaviour
                 right = px;
                 float roleY = topY + 1.8f;
                 if (!string.IsNullOrEmpty(e.role)) PlaceLine(e.role, x, roleY, roleCap, 0f, 0f, false, false, false, 0.06f, label + " (role)");
-                if (!string.IsNullOrEmpty(e.subtitle)) Subtitles.Add(CreditText.Create(transform, Loc.T(e.subtitle), new Vector3(x + GlyphFont.Measure(e.role) * roleCap * 0.5f, roleY - 0.12f - SubH(roleCap) * 0.6f, 0f), SubH(roleCap), new Color(0.9f, 0.86f, 0.78f), LetterOrder + 1, true));
+                if (!string.IsNullOrEmpty(e.subtitle)) Subtitles.Add(CreditText.Create(transform, e.subtitle, new Vector3(x + GlyphFont.Measure(e.role) * roleCap * 0.5f, roleY - 0.12f - SubH(roleCap) * 0.6f, 0f), SubH(roleCap), new Color(0.9f, 0.86f, 0.78f), LetterOrder + 1, true));
                 x = right + Mathf.Max(6f, e.gapAfter);
                 continue;
             }
@@ -129,7 +130,15 @@ public class CreditsRoad : MonoBehaviour
                 default:
                 {
                     // 名前が道の上に立つ(上に乗る/飛び越える/手前を横切る)
-                    foreach (var n in e.names) right = Mathf.Max(right, PlaceLine(n, x, g, nameCap, nameCap * 0.28f, 0f, true, e.breakable, true, 0f, label));
+                    // 2026-11-18: 名前が複数の時は道に沿って順に並べる(以前は全部同じ位置に重なっていた。複数の名前は日本語の銘板だけだったので表に出なかった)
+                    float px = x;
+                    foreach (var n in e.names)
+                    {
+                        float nw = GlyphFont.Measure(n) * nameCap;
+                        float r = PlaceLine(n, px, Ground(px + nw * 0.5f), nameCap, nameCap * 0.28f, 0f, true, e.breakable, true, 0f, label);
+                        right = Mathf.Max(right, r);
+                        px = r + Mathf.Max(2.5f, nameCap * 2.2f);
+                    }
                     if (!string.IsNullOrEmpty(e.role)) PlaceLine(e.role, x, g + nameCap * 1.3f + 1.8f, roleCap, 0f, 0f, false, false, false, 0.06f, label + " (role)");
                     break;
                 }
@@ -143,7 +152,7 @@ public class CreditsRoad : MonoBehaviour
                     : g + nameCap * 1.3f + 1.8f;
                 // 階段は役職のすぐ下まで文字が上がってくるので、説明は役職の上に置く
                 float subY = e.layout == StaffCreditsData.Layout.Stairs ? roleY + roleCap * 1.15f + SubH(roleCap) * 0.5f : roleY - 0.12f - SubH(roleCap) * 0.6f;
-                Subtitles.Add(CreditText.Create(transform, Loc.T(e.subtitle), new Vector3(x + GlyphFont.Measure(e.role) * roleCap * 0.5f, subY, 0f), SubH(roleCap), new Color(0.9f, 0.86f, 0.78f), LetterOrder + 1, true));
+                Subtitles.Add(CreditText.Create(transform, e.subtitle, new Vector3(x + GlyphFont.Measure(e.role) * roleCap * 0.5f, subY, 0f), SubH(roleCap), new Color(0.9f, 0.86f, 0.78f), LetterOrder + 1, true));
             }
             x = right + Mathf.Max(6f, e.gapAfter);
         }

@@ -27,30 +27,39 @@ public class UnityIapStoreService : IStoreService
     Action<PurchaseResult> purchaseCallback;
     Action<RestoreResult> restoreCallback;
 
+    // 2026-11-18: 起動時に繋がらなかった/途中で切れた時は、次の確認(復帰・「購入を復元」)で繋ぎ直す。通知の登録は1回だけ(繋ぎ直しで二重にしない)
+    bool hooked, connecting;
     public async void Initialize(Action<bool> done)
     {
+        if (connecting) { done(false); return; }
+        connecting = true;
         try
         {
-            store = UnityIAPServices.StoreController();
-            store.OnPurchasePending += OnPending;
-            store.OnPurchaseConfirmed += OnConfirmed;
-            store.OnPurchaseFailed += OnFailed;
-            store.OnPurchaseDeferred += OnDeferred;
-            store.OnProductsFetched += ps => { foreach (var p in ps) products[p.definition.id] = p; };
-            store.OnStoreConnected += () => Debug.Log("[IAP] store connected");
-            store.OnStoreDisconnected += d => { Ready = false; Debug.LogWarning($"[IAP] store disconnected: {d?.Message}"); };
-            store.OnProductsFetchFailed += f => Debug.LogWarning($"[IAP] products fetch failed: {f?.FailureReason} ({f?.FailedFetchProducts?.Count} products) - the product must exist in Play Console");
-            store.OnPurchasesFetched += OnFetched;
-            store.OnPurchasesFetchFailed += f => { restoreCallback?.Invoke(new RestoreResult { ok = false, message = f.FailureReason.ToString() }); restoreCallback = null; };
+            if (store == null) store = UnityIAPServices.StoreController();
+            if (!hooked)
+            {
+                hooked = true;
+                store.OnPurchasePending += OnPending;
+                store.OnPurchaseConfirmed += OnConfirmed;
+                store.OnPurchaseFailed += OnFailed;
+                store.OnPurchaseDeferred += OnDeferred;
+                store.OnProductsFetched += ps => { foreach (var p in ps) products[p.definition.id] = p; Debug.Log($"[IAP] products fetched: {string.Join(",", ps.Select(p => p.definition.id + "=" + (p.metadata != null ? p.metadata.localizedPriceString : "?")))}"); };
+                store.OnStoreConnected += () => Debug.Log("[IAP] store connected");
+                store.OnStoreDisconnected += d => { Ready = false; Debug.LogWarning($"[IAP] store disconnected: {d?.Message}"); };
+                store.OnProductsFetchFailed += f => Debug.LogWarning($"[IAP] products fetch failed: {f?.FailureReason} ({f?.FailedFetchProducts?.Count} products) - the product must exist (and be active) in Play Console");
+                store.OnPurchasesFetched += OnFetched;
+                store.OnPurchasesFetchFailed += f => { restoreCallback?.Invoke(new RestoreResult { ok = false, message = f.FailureReason.ToString() }); restoreCallback = null; };
+            }
             await store.Connect();
             store.FetchProducts(new List<ProductDefinition> { new ProductDefinition(MonetizationConfig.NoAdsProductId, ProductType.NonConsumable) });
             Ready = true;
+            connecting = false;
             done(true);
         }
-        catch (Exception e) { Debug.LogWarning($"[IAP] init failed: {e.Message}"); done(false); }
+        catch (Exception e) { connecting = false; Debug.LogWarning($"[IAP] init failed: {e.Message}"); done(false); }
     }
 
-    public string LocalizedPrice(string id) => products.TryGetValue(id, out var p) && p.metadata != null ? p.metadata.localizedPriceString : null;
+    public string LocalizedPrice(string id) => products.TryGetValue(id, out var p) && p.metadata != null && !string.IsNullOrEmpty(p.metadata.localizedPriceString) ? p.metadata.localizedPriceString : null;
 
     public void Purchase(string id, Action<PurchaseResult> done)
     {
@@ -61,14 +70,24 @@ public class UnityIapStoreService : IStoreService
 
     public void Restore(string id, Action<RestoreResult> done)
     {
-        if (!Ready) { done(new RestoreResult { ok = false, message = "store not ready" }); return; }
+        if (!Ready)
+        {
+            // 2026-11-18: 繋ぎ直してから確かめる(以前は起動時に繋がらないと、アプリを再起動するまで「繋がらない」のままだった)
+            Initialize(ok =>
+            {
+                if (!ok) { done(new RestoreResult { ok = false, message = "store not ready" }); return; }
+                restoreCallback = done;
+                store.FetchPurchases();
+            });
+            return;
+        }
         restoreCallback = done;
         store.FetchPurchases();
     }
 
     void OnFetched(Orders orders)
     {
-        bool owned = false, unverifiable = false; string token = "";
+        bool owned = false, unverifiable = false, deferred = false; string token = "";
         foreach (var o in orders.ConfirmedOrders)
             foreach (var item in o.CartOrdered.Items())
             {
@@ -76,11 +95,16 @@ public class UnityIapStoreService : IStoreService
                 if (Validate(o.Info.Receipt)) { owned = true; token = o.Info.TransactionID; }
                 else if (!CanValidate) unverifiable = true;
             }
+        // 支払いの完了待ち(コンビニ払い等): 持っているとは扱わない。完了すると OnPurchasePending で届く。
+        //  支払った後で確定(acknowledge)前の注文(PendingOrders)は、IAP が OnPurchasePending へ回す(検証 → 確定 → 有効)
+        foreach (var o in orders.DeferredOrders)
+            foreach (var item in o.CartOrdered.Items())
+                if (item.Product.definition.id == MonetizationConfig.NoAdsProductId) deferred = true;
         RestoreResult r;
         if (owned) r = new RestoreResult { ok = true, owned = true, token = token };
         else if (unverifiable) r = new RestoreResult { ok = false, message = "an order exists but receipt validation is not set up - unknown (not treated as 'not owned')" };
         else if (!ProductKnown) r = new RestoreResult { ok = false, message = "product not fetched from the store - unknown (not treated as 'not owned')" };
-        else r = new RestoreResult { ok = true, owned = false };
+        else r = new RestoreResult { ok = true, owned = false, pending = deferred };
         if (!r.ok) Debug.LogWarning("[IAP] restore: " + r.message);
         restoreCallback?.Invoke(r);
         restoreCallback = null;
@@ -99,7 +123,17 @@ public class UnityIapStoreService : IStoreService
         else if (order is FailedOrder f) Finish(new PurchaseResult { status = f.FailureReason == PurchaseFailureReason.DuplicateTransaction ? PurchaseStatus.AlreadyOwned : PurchaseStatus.Failed, message = f.Details });
     }
 
-    void OnFailed(FailedOrder f) => Finish(new PurchaseResult { status = f.FailureReason == PurchaseFailureReason.UserCancelled ? PurchaseStatus.Cancelled : PurchaseStatus.Failed, message = f.Details });
+    // 2026-11-18: 「もう持っている」(DuplicateTransaction)は AlreadyOwned → NoAdsPass がストアで確かめ直す(検証してから有効に。ここでは有効にしない)。
+    //  「前の支払いが完了待ち」(ExistingPurchasePending)は Pending
+    void OnFailed(FailedOrder f)
+    {
+        var st = f.FailureReason == PurchaseFailureReason.UserCancelled ? PurchaseStatus.Cancelled
+               : f.FailureReason == PurchaseFailureReason.DuplicateTransaction ? PurchaseStatus.AlreadyOwned
+               : f.FailureReason == PurchaseFailureReason.ExistingPurchasePending ? PurchaseStatus.Pending
+               : PurchaseStatus.Failed;
+        Debug.Log($"[IAP] purchase failed: {f.FailureReason} -> {st} ({f.Details})");
+        Finish(new PurchaseResult { status = st, message = f.Details });
+    }
     void OnDeferred(DeferredOrder d) => Finish(new PurchaseResult { status = PurchaseStatus.Pending });
 
     void Finish(PurchaseResult r)
@@ -118,17 +152,36 @@ public class UnityIapStoreService : IStoreService
     static bool Validate(string receipt)
     {
 #if OMM_IAP_TANGLE
-        try
-        {
-            var v = new CrossPlatformValidator(GooglePlayTangle.Data(), null, Application.identifier);
-            v.Validate(receipt);
-            return true;
-        }
-        catch (Exception e) { Debug.LogWarning($"[IAP] invalid receipt: {e.Message}"); return false; }
+        bool ok = ValidateWith(GooglePlayTangle.Data(), receipt, out string why);
+        if (!ok) Debug.LogWarning("[IAP] receipt not accepted: " + why);
+        return ok;
 #else
         Debug.LogWarning("[IAP] receipt validation is not set up (GooglePlayTangle / OMM_IAP_TANGLE missing) - not granting");
         return false;
 #endif
+    }
+
+    // 2026-11-18: 検証の本体(公開鍵を外から渡す = 開発版の自己試験 IapValidateSelfTest が、その場で作った試験用の鍵で同じ処理を通せる)。
+    //  Google の署名(SHA1withRSA)・パッケージ名(Application.identifier)を Unity IAP が確かめ、さらに
+    //  「商品 ID が広告なしパス」「購入の状態が Purchased(取り消し/完了待ちではない)」を確かめる
+    public static bool ValidateWith(byte[] googlePublicKey, string receipt, out string why)
+    {
+        try
+        {
+            var v = new CrossPlatformValidator(googlePublicKey, Application.identifier);
+            var receipts = v.Validate(receipt);
+            foreach (var pr in receipts)
+            {
+                if (!(pr is GooglePlayReceipt g)) continue;
+                if (g.productID != MonetizationConfig.NoAdsProductId) { why = "other product " + g.productID; continue; }
+                if (g.purchaseState != GooglePurchaseState.Purchased) { why = "purchase state " + g.purchaseState; return false; }
+                why = "";
+                return true;
+            }
+            why = "no receipt for " + MonetizationConfig.NoAdsProductId;
+            return false;
+        }
+        catch (Exception e) { why = e.GetType().Name + ": " + e.Message; return false; }
     }
 }
 #endif

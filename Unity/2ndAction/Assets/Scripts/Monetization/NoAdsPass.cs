@@ -46,7 +46,9 @@ public static class NoAdsPass
         if (st == null) return;
         st.LatePurchase += r => AdManager.Post(() =>
         {
-            if (r.status == PurchaseStatus.Purchased || r.status == PurchaseStatus.AlreadyOwned) { Grant(r.token, "late " + r.status); LastNote = "広告なしパスが有効になりました"; }
+            // 検証・確定(acknowledge)の済んだ購入だけが Purchased で届く(支払い待ちの完了/前回の起動で確定まで行かなかった購入)
+            if (r.status == PurchaseStatus.Purchased) { Grant(r.token, "late " + r.status); LastNote = "広告なしパスが有効になりました"; DailyLoginBonus.OnPassConfirmed("late purchase"); }
+            else if (r.status == PurchaseStatus.AlreadyOwned) Check("late already-owned"); // 2026-11-18: 検証していない「持っている」では有効にしない → ストアで確かめ直す
             else if (r.status == PurchaseStatus.Pending) { S.pending = true; Write(); }
         });
         st.Initialize(ok => AdManager.Post(() => { if (ok) Check("start"); else LastNote = "ストアに接続できませんでした。最後に確認した状態のままです"; }));
@@ -63,6 +65,7 @@ public static class NoAdsPass
     public static int LateIgnoredReplies { get; private set; } // 確認用: 打ち切った後に届いた「持っていない」/失敗(何も変えない)
     static int checkSeq; static float checkStartedAt; static Action<RestoreResult> checkDone;
     public static int CheckTimeouts { get; private set; } // 確認用
+    public static int AlreadyOwnedRechecks { get; private set; } // 確認用(2026-11-18): 「もう持っている」をストアで確かめ直した回数
     public static void TickTimeout()
     {
         if (!Busy || Purchasing || checkDone == null && checkSeq == 0) return;
@@ -100,7 +103,18 @@ public static class NoAdsPass
             checkDone = null;
             Busy = false;
             if (!r.ok) { LastNote = "ストアに接続できませんでした。最後に確認した状態のままです"; Debug.Log($"[NoAds] check ({why}) offline: keep owned={S.owned}"); done?.Invoke(r); return; }
-            if (r.owned) Grant(r.token, "restore " + why);
+            if (r.owned)
+            {
+                Grant(r.token, "restore " + why);
+                // 2026-11-18 ログイン特典: 「購入を復元」等で持っていると確かめた時は、その日の分をすぐ(起動/復帰の自動の確認はホームに入った時に)
+                if (why != "start" && why != "resume") DailyLoginBonus.OnPassConfirmed("restore " + why);
+            }
+            else if (r.pending)
+            {
+                // 2026-11-18: ストアに支払いの完了待ちの注文がある(持っているとは扱わない)
+                if (!S.pending) { S.pending = true; Write(); }
+                LastNote = "お支払いの完了待ちです。完了すると自動で有効になります";
+            }
             else if (S.owned)
             {
                 S.absentChecks++;
@@ -108,7 +122,12 @@ public static class NoAdsPass
                 else LastNote = "購入を確認できませんでした。パスは有効のまま、後でもう一度確認します";
                 Write();
             }
-            else { LastNote = "購入の記録はありませんでした"; }
+            else
+            {
+                // 2026-11-18: 完了待ちだった支払いが取り消された/失敗した → 完了待ちの印を外す(以前は外れず、購入ボタンが押せないままになった)
+                if (S.pending) { S.pending = false; Write(); Debug.Log("[NoAds] pending payment no longer at the store - pending mark cleared"); }
+                LastNote = "購入の記録はありませんでした";
+            }
             done?.Invoke(r);
         }));
     }
@@ -125,8 +144,9 @@ public static class NoAdsPass
             Busy = false; Purchasing = false;
             switch (r.status)
             {
-                case PurchaseStatus.Purchased:
-                case PurchaseStatus.AlreadyOwned: Grant(r.token, r.status.ToString()); S.pending = false; Write(); LastNote = "広告なしパスが有効になりました"; break;
+                case PurchaseStatus.Purchased: Grant(r.token, r.status.ToString()); S.pending = false; Write(); LastNote = "広告なしパスが有効になりました"; DailyLoginBonus.OnPassConfirmed("purchase"); break;
+                // 2026-11-18: 「もう持っている」はストアで確かめ直してから有効に(検証していない返事では有効にしない)。確かめた後のログイン特典も Check の中で
+                case PurchaseStatus.AlreadyOwned: AlreadyOwnedRechecks++; Debug.Log("[NoAds] purchase says already owned - checking with the store"); AdManager.Post(() => Check("restore already-owned")); break;
                 case PurchaseStatus.Pending: S.pending = true; Write(); LastNote = "お支払いの完了待ちです。完了すると自動で有効になります"; break;
                 case PurchaseStatus.Cancelled: LastNote = "購入をキャンセルしました"; break;
                 default: LastNote = "購入できませんでした。時間をおいてお試しください"; break;

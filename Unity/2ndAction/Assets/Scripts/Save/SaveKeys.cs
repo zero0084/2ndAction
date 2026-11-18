@@ -97,6 +97,7 @@ public static class SaveKeys
         new Entry(TutorialProgress.MileGuideKey, SaveCategory.Progress, SaveType.Int, "MILEの使い道の案内 0=まだ/1=初めて脱出した(ホームで出す)/2=出した"),
         new Entry(AdRewards.Key, SaveCategory.Progress, SaveType.String, "広告/パスの報酬の記録(JSON: MILE 2倍にしたランの ID/広告ガチャの日付と回数/追加した MILE の合計。走行の記録とは別、2026-10-10)"),
         new Entry(AdRewards.RunsFinishedKey, SaveCategory.Progress, SaveType.Int, "終わったランの数(チュートリアル/練習/闘技場/DEBUG RUN を除く。初回ランの後に広告を出さない判定)"),
+        new Entry(DailyLoginBonus.Key, SaveCategory.Progress, SaveType.String, "ログイン特典(Windows 版/広告なしパス、1日 5,000 MILE)の受け取りの記録(JSON: 最後に受け取った日(日本時間)/回数/合計/直近の記録)。MILE と同じ1回の保存で書く(2026-11-18)"),
         // ---- 2026-11-07 プロフィール/常設チャレンジ(進行: 引き継ぎで移る・製品版の初期化で消える)
         new Entry(ChallengeStore.DoneKey, SaveCategory.Progress, SaveType.String, "常設チャレンジの達成 = 獲得したバッヂ(id@達成時刻[@r = 既存の記録から復元] をセミコロン区切り)"),
         new Entry(ChallengeStore.CountersKey, SaveCategory.Progress, SaveType.String, "常設チャレンジの累計の数え(air_kills=空中撃破 / breaks=BREAK。key=値 をセミコロン区切り)"),
@@ -136,6 +137,7 @@ public static class SaveKeys
         new Entry(NoAdsPass.Key, SaveCategory.Settings, SaveType.String, "広告なしパス: ストアで持っていると最後に確認した控え(JSON。権利はストアのアカウントの物。初期化でも消さない、2026-10-10)"),
         new Entry(AdManager.LastAdEndUtcKey, SaveCategory.Settings, SaveType.String, "最後に広告が終わった時刻(UTC ticks。次の広告までの間隔)"),
         new Entry(TrustedClock.LastSeenKey, SaveCategory.Settings, SaveType.String, "見た一番新しい時刻(UTC ticks。時計を戻して広告ガチャの回数を復活させない)"),
+        new Entry(DailyLoginBonus.SharedDayKey, SaveCategory.Settings, SaveType.String, "ログイン特典を最後に受け取った日(日本時間 \"yyyy-MM-dd\")。セーブの初期化/はじめからでも残し、同じ日に2回受け取らない(2026-11-18)"),
         new Entry("net.roomName", SaveCategory.Settings, SaveType.String, "マルチ: LAN の部屋の名前(空なら汎用の「ROOM xxxx」。2026-10-19 からコードネームは使わない)"),
         new Entry(NetPlayer.LocalKeyPref, SaveCategory.Settings, SaveType.String, "マルチ: この端末の参加者の鍵(再接続で同じ番号/色に戻すため。オンラインはサービスの ID を使う、2026-10-14)"),
         new Entry(GameSettings.AuraKey, SaveCategory.Settings, SaveType.Float, "識別用オーラ(マルチ/CPU サポート)の濃さ 0〜1(2026-10-14、既定 0.6)"),

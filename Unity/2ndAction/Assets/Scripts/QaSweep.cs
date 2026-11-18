@@ -204,6 +204,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaTouchProbe") { mode = "touchprobe"; dir = a[i + 1]; } // 2026-10-23 本物の指の結果の記録(Android の adb)
             if (a[i] == "-qaTouchFlick") { mode = "touchflick"; dir = a[i + 1]; } // 2026-10-23 フリックの復旧(指の経路で確認)
             if (a[i] == "-qaLicenses") { mode = "licenses"; dir = a[i + 1]; } // 2026-10-23 ライセンスの画面
+            if (a[i] == "-qaLoginBonus") { mode = "loginbonus"; dir = a[i + 1]; } // 2026-11-18 ログイン特典
             if (a[i] == "-storeCapture") { mode = "storecapture"; dir = a[i + 1]; } // 2026-10-23 Steam のストア素材の撮影
             if (a[i] == "-qaInput") { mode = "input"; dir = a[i + 1]; } // 2026-10-25 操作・設定の整理(キー/マウス/パッド/キー設定/画面設定)
             if (a[i] == "-qaFps") { mode = "fps"; dir = a[i + 1]; }
@@ -437,6 +438,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "credits") yield return CreditsMode();
         else if (mode == "storecapture") yield return StoreCaptureMode();
         else if (mode == "licenses") yield return LicensesModeQa();
+        else if (mode == "loginbonus") yield return LoginBonusModeQa(); // 2026-11-18
         else if (mode == "touchflick") yield return TouchFlickMode();
         else if (mode == "touchprobe") yield return TouchProbeMode();
         else if (mode == "profile") yield return ProfileMode(); // 2026-11-07 プロフィール

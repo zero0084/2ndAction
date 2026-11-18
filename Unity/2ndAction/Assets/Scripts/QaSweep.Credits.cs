@@ -37,7 +37,16 @@ public partial class QaSweep
             if (cr == null) { yield return EndRun(); continue; }
             L($"[{tag}] letters {cr.Letters.Count} plaques {cr.Plaques.Count} subtitles {cr.Subtitles.Count}");
             foreach (var pl in cr.Plaques) L($"[{tag}] plaque '{pl.Text}' width {pl.Width:F1}m text {pl.Label.Width:F1}m");
-            Check(cr.Plaques.Count == 3, $"{tag}: three Japanese names are on plaques ({cr.Plaques.Count})");
+            // 2026-11-18: 人名はすべて英字(足場の文字)。複数の名前は道に沿って順に並び、重ならない
+            Check(cr.Plaques.Count == 0, $"{tag}: all names are in English letters (no plaques: {cr.Plaques.Count})");
+            foreach (var role in new[] { "PLAYTESTERS", "SPECIAL THANKS" })
+            {
+                var secs = cr.Sections.FindAll(s => s.label == role);
+                secs.Sort((a, b) => a.x0.CompareTo(b.x0));
+                bool apart = true;
+                for (int i = 1; i < secs.Count; i++) if (secs[i].x0 < secs[i - 1].x1 + 1.0) apart = false;
+                Check(secs.Count >= 2 && apart, $"{tag}: {role} names are placed one after another without overlapping ({secs.Count} names)");
+            }
             Check(cr.Subtitles.Count >= 4, $"{tag}: role captions are shown ({cr.Subtitles.Count})");
             bool allFit = true;
             foreach (var pl in cr.Plaques) if (pl.Label.Width > pl.Width - 0.2f || pl.Label.Width < 0.5f) allFit = false;
