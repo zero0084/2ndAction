@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -127,6 +127,12 @@ public static class MonetizationConfig
     public const int DayResetUtcOffsetHours = 9;      // 日付の切り替え = 日本時間 0時(世界共通)
     // 本番の値はマスターが登録した後に入れる(未決定)。商品 ID は Play Console で作った後は変えられない
     public static string NoAdsProductId = "noads_pass";
+    // 2026-11-19 Play Console の登録(マスター): 商品 ID noads_pass / 購入オプション ID standard(購入・下位互換あり)/ 非消費型として扱う。
+    //  商品 ID と購入オプション ID は別物: アプリが問い合わせ・購入に使うのは商品 ID だけ。Unity IAP 5.4.4(Play Billing 9.0.0)は
+    //  購入オプションを指定せずに ProductDetails.getOneTimePurchaseOfferDetails() の価格を読み、offer token なしで購入画面を出す
+    //  = Play が「下位互換」の購入オプション(standard)を使う。下位互換を外す/別の購入オプションへ変える時は、ここと IAP の対応を見直すこと。
+    //  この値は記録・ログ用(コードの判定には使わない)
+    public const string NoAdsPurchaseOptionId = "standard";
     public const string TestInterstitialUnit = "ca-app-pub-3940256099942544/1033173712"; // Google のテスト用(公式のサンプル)
     public const string TestRewardedUnit = "ca-app-pub-3940256099942544/5224354917";
     // 2026-10-26 マスターが AdMob で作った本番の広告ユニット(将来の切り替え用。今は使わない)

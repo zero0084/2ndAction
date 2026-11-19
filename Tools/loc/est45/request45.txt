@@ -1,0 +1,47 @@
+エステル、アイリーンです。広告なしパスの購入をつなぐ作業の中で、アプリ内の「お知らせ」に版 458(クローズドテストへ上げる AAB と同じ番号)の項目を足しました。下の3行の訳(29言語)をお願いします。
+
+【原文(ID と日本語)】
+11062	Android 版で、広告なしパス（買い切り）を購入できるようになりました。設定の「広告なしパス」から購入・復元できます。
+11063	Windows 版と、広告なしパスをお持ちの方は、毎日はじめてホームに入ったときに 5,000 MILE を受け取れるようになりました。
+11064	制作クレジットを英語表記にそろえ、テストプレイヤーのお名前を追加しました。
+
+【使い方】タイトル画面の「お知らせ」(更新内容)の箇条書きの1行ずつです。
+・MILE はゲーム内通貨の名前なので訳さない。「5,000」はそのまま(各言語の桁区切りに変えない)。
+・「Android」「Windows」は製品名のまま。
+・「広告なしパス」「ホーム」「制作クレジット」「購入を復元」「設定」は、下の既存の訳語に合わせてください(画面の見出し・ボタンと同じ言葉)。
+・11062 の「購入・復元」は、購入と「購入を復元」のこと。
+
+【既存の訳語(言語コード / 広告なしパス / ホーム / 制作クレジット / 購入を復元 / 設定)】
+code	広告なしパス	ホーム	制作クレジット	購入を復元	設定
+ar	تذكرة بلا إعلانات	إلى الرئيسية	فريق العمل	استعادة المشتريات	الإعدادات
+bn	বিজ্ঞাপনমুক্ত পাস	হোমে ফেরো	নির্মাতাদের পরিচিতি	কেনাকাটা পুনরুদ্ধার	সেটিংস
+cs	Propustka bez reklam	Domů	Tvůrci hry	Obnovit nákupy	Nastavení
+de	Werbefrei-Pass	Zum Hauptmenü	Mitwirkende	Käufe wiederherstellen	Einstellungen
+en	No-Ads Pass	Home	Credits	Restore Purchases	Settings
+es	Pase Sin Anuncios	Al inicio	Créditos	Restaurar compras	Ajustes
+fa	پاس بدون تبلیغ	به خانه	عوامل سازنده	بازیابی خریدها	تنظیمات
+fil	No-Ads Pass	Sa Home	Mga Kredito	I-restore ang Binili	Setting
+fr	Pass Sans Pub	Accueil	Crédits	Restaurer les achats	Options
+hi	विज्ञापन-मुक्त पास	होम पर	निर्माता और योगदानकर्ता	खरीदारी बहाल करें	सेटिंग्स
+id	Pass Tanpa Iklan	Ke Beranda	Kredit	Pulihkan Pembelian	Pengaturan
+it	Pass Senza Pubblicità	Home	Crediti	Ripristina acquisti	Opzioni
+km	Pass គ្មានពាណិជ្ជកម្ម	ទៅផ្ទះ	ក្រុមអ្នកបង្កើត	ស្ដារការទិញ	ការកំណត់
+ko	광고 제거 패스	홈으로	제작진	구매 복원	설정
+lo	ບັດຜ່ານບໍ່ມີໂຄສະນາ	ກັບບ້ານ	ຜູ້ສ້າງເກມ	ກູ້ຄືນການຊື້	ຕັ້ງຄ່າ
+ms	Pas Tanpa Iklan	Ke Laman Utama	Kredit	Pulihkan Pembelian	Tetapan
+my	ကြော်ငြာမဲ့ Pass	ပင်မသို့	ဖန်တီးသူများ	ဝယ်ယူမှု ပြန်ယူရန်	ဆက်တင်
+pl	Karnet Bez Reklam	Do menu	Twórcy gry	Przywróć zakupy	Ustawienia
+pt-BR	Passe Sem Anúncios	Início	Créditos	Restaurar compras	Ajustes
+ro	Permis Fără Reclame	Acasă	Credite	Restabilește achizițiile	Setări
+ru	Пропуск без рекламы	Домой	Авторы игры	Восстановить покупки	Настройки
+sw	Pasi Bila Matangazo	Nyumbani	Waliounda Mchezo	Rejesha Ununuzi	Mipangilio
+ta	விளம்பரமில்லா பாஸ்	முகப்புக்கு	உருவாக்கியவர்கள்	வாங்கியதை மீட்டெடு	அமைப்புகள்
+th	บัตรผ่านไร้โฆษณา	กลับหน้าหลัก	ทีมผู้สร้าง	กู้คืนการซื้อ	ตั้งค่า
+tr	Reklamsız Geçiş	Ana ekrana	Emeği Geçenler	Satın Alımları Geri Yükle	Ayarlar
+uk	Перепустка без реклами	Додому	Автори гри	Відновити покупки	Налаштування
+vi	Vé Không Quảng Cáo	Về sảnh	Đội ngũ thực hiện	Khôi phục giao dịch	Cài đặt
+zh-Hans	免广告通行证	返回主页	制作人员名单	恢复购买	设置
+zh-Hant	免廣告通行證	返回主畫面	製作人員名單	恢復購買	設定
+
+【返してほしい形】1つのコードブロックに、タブ区切りで「言語コード<TAB>ID<TAB>訳」を 29言語×3行=87行。言語コードは上の表と同じ(ar, bn, cs, de, en, es, fa, fil, fr, hi, id, it, km, ko, lo, ms, my, pl, pt-BR, ro, ru, sw, ta, th, tr, uk, vi, zh-Hans, zh-Hant)。日本語(ja)は不要です。
+原文の日本語に気になる所があれば、訳とは別に書いてください。

@@ -24,6 +24,9 @@ public class PatchNotesUi : MonoBehaviour
     {
         // 2026-11-15: 451〜454 は配っていない確認用の版 → Play で配る版(455)の項目にまとめ、ガチャの説明を確定版(最後に出発したマップ + 共通 30%)へ差し替え。
         //  番号は本番用の AAB の versionCode と同じにする(BuildAndroid.BuildProduction が違うと止める)
+        // 2026-11-19: クローズドテストへ上げる AAB(458)の版。広告なしパスの購入・ログイン特典・クレジット。456/457 は配っていない確認用
+        new Note { code = 458, date = "2026/11/19", changes = new[] {
+            LocNotes.N458a, LocNotes.N458b, LocNotes.N458c } },
         new Note { code = 455, date = "2026/11/15", changes = new[] {
             LocNotes.N453a, LocNotes.N451b, LocNotes.N451c, LocNotes.N451d, LocNotes.N451e } },
         new Note { code = 450, date = "2026/11/08", changes = new[] {
@@ -141,11 +144,14 @@ public static class LocNotes
     public const string N451c = "新しいバージョンがあるときに、更新をご案内するようになりました。更新しなくても、そのまま遊べます。"; // ID 11016
     public const string N451d = "カード合成の説明と結果を、スクロールして最後まで読めるようにしました。"; // ID 11017
     public const string N451e = "タイトル画面の文字を大きく、見やすくしました。"; // ID 11018
+    public const string N458a = "Android 版で、広告なしパス（買い切り）を購入できるようになりました。設定の「広告なしパス」から購入、または購入の復元ができます。"; // ID 11062
+    public const string N458b = "Windows 版と、広告なしパスをお持ちの方は、毎日はじめてホームに入ったときに 5,000 MILE を受け取れるようになりました。"; // ID 11063
+    public const string N458c = "制作クレジットを英語表記にそろえ、テストプレイヤーのお名前を追加しました。"; // ID 11064
     public const string N450a = "プロフィール、走る理由、常設チャレンジ、バッヂ、定型メッセージを追加しました。"; // ID 11019
     public const string N450b = "荒野街道の 10km 以降に、城下町の景色を追加しました。"; // ID 11020
     public const string N450c = "カードの分類（共通・荒野・洞窟・天空・ラスダン）を見直しました。"; // ID 11021
     public const string N450d = "95km から先の連戦の難しさを調整しました。"; // ID 11022
     public const string N450e = "中断したプレイを再開すると、撃破や BREAK の報酬が二重に加算されることがある不具合を修正しました。"; // ID 11023
     public const string ButtonNew = "NEW";
-    public static readonly string[] All = { Title, VersionLine, Changes, Known, N453a, N451a, N451b, N451c, N451d, N451e, N450a, N450b, N450c, N450d, N450e };
+    public static readonly string[] All = { Title, VersionLine, Changes, Known, N458a, N458b, N458c, N453a, N451a, N451b, N451c, N451d, N451e, N450a, N450b, N450c, N450d, N450e };
 }

@@ -1,4 +1,5 @@
-using System.IO;
+﻿using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -105,6 +106,16 @@ public static class BuildAndroid
     {
         string defines = PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Android);
         if (defines.Contains("OMM_ADS_PROD")) { Debug.LogError("BuildAndroid: refused - OMM_ADS_PROD is written in PlayerSettings (it must only be added by BuildProduction for that build)"); return; }
+        // 2026-11-19: 広告なしパスの検証の鍵(GooglePlayTangle)と定義(OMM_IAP_TANGLE)をそろえる。ProjectSettings はコミットしないので、
+        //  鍵のファイルがあるのに定義が無い(ProjectSettings を戻した等)= 購入欄が黙って消える → 定義を足す。定義だけある = コンパイルできない → 止める
+        bool hasTangleDefine = defines.Split(';').Contains(IapReceiptSetup.Define);
+        if (hasTangleDefine && !IapReceiptSetup.TangleExists) { Debug.LogError($"BuildAndroid: refused - {IapReceiptSetup.Define} is set but {IapReceiptSetup.TanglePath} is missing (import the Google Play license key again)"); return; }
+        if (!hasTangleDefine && IapReceiptSetup.TangleExists)
+        {
+            defines = defines + ";" + IapReceiptSetup.Define;
+            PlayerSettings.SetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.Android, defines);
+            Debug.Log($"BuildAndroid: {IapReceiptSetup.TanglePath} exists - added {IapReceiptSetup.Define} to the Android defines (no-ads pass purchase enabled)");
+        }
         string outDir = prodAds ? "Builds/Production" : "Builds/ClosedTest";
         string prefix = prodAds ? "OneMoreMile_v" : "OneMoreMile_ct";
         // AdMob のアプリ ID を設定へ(テスト広告でも実際のアプリ ID)。2026-10-26: 同じ起動の中で ID を書き換えた直後のビルドには

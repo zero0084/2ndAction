@@ -1,4 +1,4 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+﻿#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System.Collections;
 using UnityEngine;
 
@@ -72,6 +72,23 @@ public partial class QaSweep
             // 日付の切り替え: 日本時間 0時の前後
             L($"[lb] day key now {DailyLoginBonus.Today}, until next day {TrustedClock.UntilNextDay}");
             L("[lb] log: " + string.Join(" | ", DailyLoginBonus.Log));
+            yield break;
+        }
+        // 2026-11-19: 本物の「進行の初期化」(設定は残す。DefaultSave.WriteNewProgress)を同じ日に通しても2回目は無い。翌日はまた付く
+        if (c == "reset")
+        {
+            Check(DailyLoginBonus.IsWindowsEdition, "X0: Windows edition");
+            yield return WaitFor(() => DailyLoginBonus.ClaimedToday, 4f);
+            Check(DailyLoginBonus.ClaimedToday && DailyLoginBonus.Claims == 1, $"X1: claimed today before the reset (claims {DailyLoginBonus.Claims})");
+            SaveSystem.DevResetProgress();
+            yield return new WaitForSecondsRealtime(0.5f);
+            int mr = gm.TotalOwnedMile;
+            L($"[lb] after progress reset: wallet {mr} claims(progress record) {DailyLoginBonus.Claims} claimedToday {DailyLoginBonus.ClaimedToday}");
+            yield return new WaitForSecondsRealtime(2.0f);
+            Check(gm.TotalOwnedMile == mr && DailyLoginBonus.ClaimedToday && !DailyLoginBonus.TryGrant("qa after reset"), $"X2: progress reset the same day -> no second bonus (wallet {mr} -> {gm.TotalOwnedMile}, '{DailyLoginBonus.LastResult}')");
+            TrustedClock.DevShiftHours += 24;
+            yield return new WaitForSecondsRealtime(1.6f);
+            Check(gm.TotalOwnedMile == mr + DailyLoginBonus.Amount, $"X3: next day after the reset -> +5,000 (wallet {gm.TotalOwnedMile})");
             yield break;
         }
         if (c == "restart2")

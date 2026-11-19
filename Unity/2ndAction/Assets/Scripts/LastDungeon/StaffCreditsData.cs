@@ -76,7 +76,7 @@ public class StaffCreditsData : ScriptableObject
         d.entries = new List<Entry>
         {
             new Entry { role = "", names = new[] { "ONE MORE MILE" }, layout = Layout.Title, nameHeight = 1.5f, gapAfter = 34f },
-            new Entry { role = "CREATED BY", names = new[] { "Majiru Tabibito" }, layout = Layout.Standing, nameHeight = 1.1f, gapAfter = 30f },
+            new Entry { role = "CREATED BY", names = new[] { "Maziru Tabintyu" }, layout = Layout.Standing, nameHeight = 1.1f, gapAfter = 30f },
             new Entry { role = "AI PROGRAMMING", subtitle = "AI assistant (programming)", names = new[] { "Irene" }, layout = Layout.Standing, nameHeight = 1.45f, gapAfter = 30f },
             new Entry { role = "AI GAME DESIGN", subtitle = "AI assistant (game design)", names = new[] { "Estelle" }, layout = Layout.Arch, nameHeight = 1.3f, gapAfter = 30f },
             new Entry { role = "AI ART / DESIGN", subtitle = "AI assistant (art and design)", names = new[] { "Alicia" }, layout = Layout.Stairs, nameHeight = 1.2f, gapAfter = 32f },

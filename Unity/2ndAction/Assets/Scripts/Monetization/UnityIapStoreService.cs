@@ -43,7 +43,10 @@ public class UnityIapStoreService : IStoreService
                 store.OnPurchaseConfirmed += OnConfirmed;
                 store.OnPurchaseFailed += OnFailed;
                 store.OnPurchaseDeferred += OnDeferred;
-                store.OnProductsFetched += ps => { foreach (var p in ps) products[p.definition.id] = p; Debug.Log($"[IAP] products fetched: {string.Join(",", ps.Select(p => p.definition.id + "=" + (p.metadata != null ? p.metadata.localizedPriceString : "?")))}"); };
+                // 2026-11-19: 価格はストアの現地価格(localizedPriceString)だけを使う。通貨も記録(Console の固定値は使わない)。
+                //  購入オプション(Console の standard)はアプリから選ばない: Unity IAP は商品 ID だけで問い合わせ、Play は「下位互換」の
+                //  購入オプションの価格を返し、その購入オプションで購入画面を出す(MonetizationConfig.NoAdsPurchaseOptionId の注を参照)
+                store.OnProductsFetched += ps => { foreach (var p in ps) products[p.definition.id] = p; Debug.Log($"[IAP] products fetched: {string.Join(",", ps.Select(p => p.definition.id + "=" + (p.metadata != null ? p.metadata.localizedPriceString + " " + p.metadata.isoCurrencyCode + " available=" + p.availableToPurchase : "?")))}"); };
                 store.OnStoreConnected += () => Debug.Log("[IAP] store connected");
                 store.OnStoreDisconnected += d => { Ready = false; Debug.LogWarning($"[IAP] store disconnected: {d?.Message}"); };
                 store.OnProductsFetchFailed += f => Debug.LogWarning($"[IAP] products fetch failed: {f?.FailureReason} ({f?.FailedFetchProducts?.Count} products) - the product must exist (and be active) in Play Console");
@@ -51,13 +54,16 @@ public class UnityIapStoreService : IStoreService
                 store.OnPurchasesFetchFailed += f => { restoreCallback?.Invoke(new RestoreResult { ok = false, message = f.FailureReason.ToString() }); restoreCallback = null; };
             }
             await store.Connect();
-            store.FetchProducts(new List<ProductDefinition> { new ProductDefinition(MonetizationConfig.NoAdsProductId, ProductType.NonConsumable) });
+            FetchProducts();
             Ready = true;
             connecting = false;
             done(true);
         }
         catch (Exception e) { connecting = false; Debug.LogWarning($"[IAP] init failed: {e.Message}"); done(false); }
     }
+
+    // 非消費型(NonConsumable)= 確定は acknowledge(消費しない)。Consumable にすると ConfirmPurchase で消費され、1回しか持てない物にならない
+    void FetchProducts() => store.FetchProducts(new List<ProductDefinition> { new ProductDefinition(MonetizationConfig.NoAdsProductId, ProductType.NonConsumable) });
 
     public string LocalizedPrice(string id) => products.TryGetValue(id, out var p) && p.metadata != null && !string.IsNullOrEmpty(p.metadata.localizedPriceString) ? p.metadata.localizedPriceString : null;
 
@@ -81,6 +87,8 @@ public class UnityIapStoreService : IStoreService
             });
             return;
         }
+        // 2026-11-19: 商品の情報(価格)を取れていない時は、確認のついでに取り直す(起動時に取れなかった時も、復帰/「購入を復元」で購入できる状態に戻る)
+        if (!ProductKnown) FetchProducts();
         restoreCallback = done;
         store.FetchPurchases();
     }
@@ -95,8 +103,17 @@ public class UnityIapStoreService : IStoreService
                 if (Validate(o.Info.Receipt)) { owned = true; token = o.Info.TransactionID; }
                 else if (!CanValidate) unverifiable = true;
             }
+        // 2026-11-19: 支払いは済んで、確定(acknowledge)の前の注文(前の起動で確定まで行かなかった等)。IAP が OnPurchasePending へも回す(検証 → 確定)。
+        //  レシートを検証できて購入済み(Purchased)なら「持っている」と答える(以前は「購入の記録はありません」と出た直後に有効になった)。
+        //  確定は OnPending → ConfirmPurchase で行う(ここでは確定しない。有効にするのは何度呼んでも1回分)
+        foreach (var o in orders.PendingOrders)
+            foreach (var item in o.CartOrdered.Items())
+            {
+                if (item.Product.definition.id != MonetizationConfig.NoAdsProductId) continue;
+                if (Validate(o.Info.Receipt)) { owned = true; token = o.Info.TransactionID; Debug.Log("[IAP] restore: a paid order is waiting for confirmation - owned (confirming)"); }
+                else if (!CanValidate) unverifiable = true;
+            }
         // 支払いの完了待ち(コンビニ払い等): 持っているとは扱わない。完了すると OnPurchasePending で届く。
-        //  支払った後で確定(acknowledge)前の注文(PendingOrders)は、IAP が OnPurchasePending へ回す(検証 → 確定 → 有効)
         foreach (var o in orders.DeferredOrders)
             foreach (var item in o.CartOrdered.Items())
                 if (item.Product.definition.id == MonetizationConfig.NoAdsProductId) deferred = true;

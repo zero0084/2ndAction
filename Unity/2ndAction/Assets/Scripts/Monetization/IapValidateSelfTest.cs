@@ -1,4 +1,4 @@
-#if UNITY_ANDROID && OMM_UNITY_IAP && (UNITY_EDITOR || DEVELOPMENT_BUILD)
+﻿#if UNITY_ANDROID && OMM_UNITY_IAP && (UNITY_EDITOR || DEVELOPMENT_BUILD)
 using System;
 using System.Security.Cryptography;
 using System.Text;
@@ -50,6 +50,25 @@ public class IapValidateSelfTest : MonoBehaviour
             }
         }
         catch (Exception e) { fail++; Debug.Log("[IapSelfTest] FAIL exception " + e); }
+        // 2026-11-19: アプリに入った本物の鍵(GooglePlayTangle を戻した物)が、取り込んだ鍵と同じか(SHA-256 の先頭 8 バイト = 取り込みの記録と同じ書き方)。
+        //  -iapKeySha <16桁> を渡した時は一致を確かめる。本物の鍵は Google の秘密鍵が無いのでレシートは作れない → 形(RSA の公開鍵として読める)だけ
+#if OMM_IAP_TANGLE
+        try
+        {
+            byte[] real = UnityEngine.Purchasing.Security.GooglePlayTangle.Data();
+            string fp;
+            using (var sha = SHA256.Create()) fp = BitConverter.ToString(sha.ComputeHash(real), 0, 8).Replace("-", "");
+            Debug.Log($"[IapSelfTest] embedded Google Play key: {real.Length} bytes, sha256 {fp}");
+            int i = Array.IndexOf(QaArgs.All, "-iapKeySha");
+            if (i >= 0 && i + 1 < QaArgs.All.Length) Check(string.Equals(fp, QaArgs.All[i + 1], StringComparison.OrdinalIgnoreCase), $"embedded key matches the imported key ({fp} vs {QaArgs.All[i + 1]})");
+            string loadErr = "";
+            try { new UnityEngine.Purchasing.Security.CrossPlatformValidator(real, Application.identifier); } catch (Exception e) { loadErr = e.GetType().Name + ": " + e.Message; }
+            Check(real.Length > 200 && loadErr == "", $"embedded key loads into the validator for {Application.identifier} {loadErr}");
+        }
+        catch (Exception e) { fail++; Debug.Log("[IapSelfTest] FAIL embedded key " + e); }
+#else
+        Debug.Log("[IapSelfTest] no embedded Google Play key (OMM_IAP_TANGLE not set)");
+#endif
         Debug.Log($"[IapSelfTest] RESULT pass={pass} fail={fail}");
     }
 
