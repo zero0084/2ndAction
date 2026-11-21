@@ -149,3 +149,13 @@ powershell -ExecutionPolicy Bypass -File Tools\ads\build_closedtest.ps1 -Keystor
 
 ### 5. その他
 - 銀行口座の少額入金の確認(Play Console)が済むまで、売上の受け取りはできません。試験には影響しません。
+
+## Wi-Fi を必須にしない(2026-11-21、v459 から)
+- v458 の公開の概要で「必須のハードウェア機能(`android.hardware.wifi`)の申告により配信が制限」と出た。
+- 原因: LAN の部屋の自動発見のために `AndroidLanPermissions.cs` が足す権限(`ACCESS_WIFI_STATE` / `CHANGE_WIFI_MULTICAST_STATE`)から、Play が Wi-Fi を「必須」と推定していた(マニフェストに Wi-Fi の uses-feature は書かれていなかった)。
+- 修正: 同じ所で `<uses-feature android:name="android.hardware.wifi" android:required="false" />` を明示。権限と LAN の機能はそのまま。
+- 確認(開発版 APK 459 相当、エミュレーター):
+  - aapt2: `uses-feature-not-required: name='android.hardware.wifi'`、推定(uses-implied-feature)の行が消えた。権限・ほかの機能の申告は v458 と同じ。
+  - LAN の FIND GAME: 探し始めで MulticastLock を取り、戻ると放す(今までどおり)。
+- 次の AAB: `Tools/ads/verify_closedtest.ps1`(ビルドの最後に自動で動く)が「Wi-Fi は必須ではない」を AAB と APK の両方で確かめる。v458 に当てると NG 2 件になる(確認済み)。
+- v458 はそのままクローズドテストの審査へ(マスター判断)。

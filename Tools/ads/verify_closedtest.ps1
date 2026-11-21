@@ -87,6 +87,17 @@ foreach ($f in @($aab, $apk)) {
     $manAll = if ($isAab) { $man } else { $man + "`n" + ((& (Join-Path $bt 'aapt2.exe') dump xmltree $f --file AndroidManifest.xml 2>&1 | ForEach-Object { "$_" }) -join "`n") } # badging には meta-data が出ない
     if ($manAll -match 'ca-app-pub-2863190967263764~2717237567') { Pass 'AdMob のアプリ ID(本番の ID)が入っている' } else { Fail 'AdMob のアプリ ID(本番の ID)が見つかりません' }
     if ($manAll -match 'ca-app-pub-3940256099942544~') { Fail 'Google のテスト用アプリ ID が入っています' }
+    # 2026-11-21: Wi-Fi を必須にしない(LAN の権限から Play が「必須」と推定するのを、AndroidLanPermissions が required="false" で打ち消す)
+    if ($isAab) {
+        $wifiDecl = [regex]::Match($man, '<uses-feature[^>]*"android\.hardware\.wifi"[^>]*>').Value
+        if ($wifiDecl -match 'android:required="false"') { Pass 'Wi-Fi は必須ではない(uses-feature android.hardware.wifi required="false")' }
+        elseif ($wifiDecl) { Fail "Wi-Fi が必須として申告されています: $wifiDecl" }
+        else { Fail 'Wi-Fi の uses-feature がありません(Wi-Fi の権限から Play が「必須」と推定します)' }
+    }
+    else {
+        if ($man -match "uses-feature-not-required: name='android\.hardware\.wifi'" -and $man -notmatch "uses-implied-feature: name='android\.hardware\.wifi'" -and $man -notmatch "(?m)^\s*uses-feature: name='android\.hardware\.wifi'") { Pass 'Wi-Fi は必須ではない(aapt2: uses-feature-not-required)' }
+        else { Fail 'Wi-Fi が必須として扱われています(aapt2 の uses-feature / uses-implied-feature を確認)' }
+    }
 }
 # 2026-11-15: Play 配信用(OneMoreMile_v)は、ビルドの記録で本番広告・パスの欄・署名を確かめる
 if ($Prefix -eq 'OneMoreMile_v') {
