@@ -18,7 +18,7 @@ using UnityEngine;
 public class IosVersion : IPreprocessBuildWithReport, IPostprocessBuildWithReport
 {
     public const string MarketingVersion = "1.0.0";
-    public const string BuildNumber = "5";
+    public const string BuildNumber = "6"; // 2026-11-21 マスター依頼: TestFlight の次の版は Build 6(Version 1.0.0 のまま)
     // Apple の決まり: 1〜3 個の 0 以上の整数を点でつないだ物
     static readonly Regex Valid = new Regex(@"^\d+(\.\d+){0,2}$");
     public static bool IsValid(string v) => !string.IsNullOrEmpty(v) && Valid.IsMatch(v);
