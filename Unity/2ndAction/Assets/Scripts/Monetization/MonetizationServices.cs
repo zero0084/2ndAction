@@ -4,6 +4,7 @@ using UnityEngine;
 
 // ===== 広告 / 広告なしパス(依頼I、2026-10-10) =====
 // Android 版 = 無料 + 広告(+ 買い切りの「広告なしパス」)、Steam 版 = 広告もモバイル課金も無し。
+// iOS 版(2026-11-22)= 無料 + 広告(リワード/インタースティシャル)。iOS の購入(広告なしパス)はまだ無い
 // ゲーム側は IAdService / IStoreService だけを見る。実際の SDK(AdMob / Unity IAP)は別ファイルで、
 // パッケージを入れて定義(OMM_ADMOB / OMM_UNITY_IAP)を付けた Android ビルドだけに入る。
 // 開発版は「模擬」(MockAdService / MockStoreService)で全部の流れを試せる。模擬の購入は本物の購入権利と別の保存で、製品版には出ない。
@@ -53,6 +54,8 @@ public static class Monetization
     {
         get
         {
+            // 2026-11-22: iOS は広告だけ(購入の仕組みが無い = Store が null)→ パスの購入欄を出さない
+            if (Mode == MonetizationMode.Store && Store == null) return false;
 #if UNITY_ANDROID && OMM_UNITY_IAP && !OMM_IAP_TANGLE
             return Mode != MonetizationMode.Store;
 #else
@@ -81,15 +84,16 @@ public static class Monetization
 #endif
                 break;
             case MonetizationMode.Store:
-#if UNITY_ANDROID && OMM_ADMOB
-                Ads = new AdMobAdService();
+#if (UNITY_ANDROID && OMM_ADMOB) || UNITY_IOS
+                Ads = new AdMobAdService(); // 2026-11-22: iOS も広告(リワード/インタースティシャル)だけ。iOS の購入(IAP)は入れない
 #endif
 #if UNITY_ANDROID && OMM_UNITY_IAP
                 Store = new UnityIapStoreService();
 #endif
                 break;
         }
-        Debug.Log($"[Monetization] mode={Mode} ads={(Ads != null ? Ads.Name : "none")} store={(Store != null ? Store.Name : "none")} platform={Platform.Name} adsProfile={MonetizationConfig.AdsProfile}");
+        Debug.Log($"[Monetization] mode={Mode} ads={(Ads != null ? Ads.Name : "none")} store={(Store != null ? Store.Name : "none")} platform={Platform.Name} adsProfile={MonetizationConfig.AdsProfile} units={MonetizationConfig.UnitsLabel}");
+        if (Ads != null) AdTrace.Note($"ads {Platform.Name} profile={MonetizationConfig.AdsProfile} units={MonetizationConfig.UnitsLabel}"); // 2026-11-22: お問い合わせの「広告の記録」で、どの広告ユニットだったか分かる
         if (Mode == MonetizationMode.None) return; // Steam/PC: 広告の SDK も時刻の確認も始めない
         AdManager.Ensure();
         TrustedClock.Ensure();
@@ -107,6 +111,8 @@ public static class Monetization
 #endif
 #if UNITY_ANDROID && !UNITY_EDITOR && (OMM_ADMOB || OMM_UNITY_IAP)
         return MonetizationMode.Store;
+#elif UNITY_IOS && !UNITY_EDITOR
+        return MonetizationMode.Store; // 2026-11-22: iOS は広告だけ(Store = null。広告なしパスの購入は出さない)
 #else
         return MonetizationMode.None; // Steam / PC / SDK を入れていない Android: 広告も課金も出さない
 #endif
@@ -148,6 +154,21 @@ public static class MonetizationConfig
     public const bool UseProductionAds = false;
 #endif
     public static string AdsProfile => UseProductionAds ? "production" : "test";
+    // 2026-11-22 iOS(マスターが AdMob で作成: アプリ OneMoreMile / com.zero0084.action2nd / ca-app-pub-2863190967263764~1910097904)
+    //  OMM_iOS_Rewarded / OMM_iOS_Interstitial。テストと本番の切り替えは Android と同じ UseProductionAds(OMM_ADS_PROD)。
+    //  iOS の定義に OMM_ADS_PROD を足すまでは、TestFlight の版も含めて必ず Google 公式の iOS 用テスト広告ユニット(Editor/開発版の判定には頼らない)。
+    //  切り替えの手順と公開前の確認: Docs/Release_2026-11-22/iOS_Ads.md
+    public const string IosTestInterstitialUnit = "ca-app-pub-3940256099942544/4411468910"; // Google 公式(iOS)
+    public const string IosTestRewardedUnit = "ca-app-pub-3940256099942544/1712485313";      // Google 公式(iOS)
+    public const string IosProdInterstitialUnit = "ca-app-pub-2863190967263764/6532915373"; // OMM_iOS_Interstitial
+    public const string IosProdRewardedUnit = "ca-app-pub-2863190967263764/2045829270";      // OMM_iOS_Rewarded
+#if UNITY_IOS
+    public static string InterstitialUnit => UseProductionAds ? IosProdInterstitialUnit : IosTestInterstitialUnit;
+    public static string RewardedUnit => UseProductionAds ? IosProdRewardedUnit : IosTestRewardedUnit;
+    public static string UnitsLabel => UseProductionAds ? "ios-production" : "ios-test";
+#else
     public static string InterstitialUnit => UseProductionAds ? ProdInterstitialUnit : TestInterstitialUnit;
     public static string RewardedUnit => UseProductionAds ? ProdRewardedUnit : TestRewardedUnit;
+    public static string UnitsLabel => UseProductionAds ? "android-production" : "android-test";
+#endif
 }

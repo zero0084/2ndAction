@@ -86,7 +86,14 @@ public class AdManager : MonoBehaviour
     void OnApplicationPause(bool paused)
     {
         // 広告の画面(別のアクティビティ)が閉じると、こちらが復帰してすぐ「閉じた」の通知が来るはず。来ない時は待ち続けない(2026-10-10)
+#if UNITY_IOS
+        // 2026-11-22 iOS: 広告はゲームの上に重ねて出る(出しても Unity は止まらない)。広告を押して App Store / Safari へ行き、戻ってきた時は
+        //  広告の画面がまだ開いている → Android のように「戻ったのに通知が無い = 終わった」とは扱わない(4 秒で打ち切ると、広告の下で音と入力が戻ってしまう)。
+        //  代わりに、戻った時から見張り(MaxShowSeconds)を数え直す(App Store で長く過ごしても、戻ってすぐ打ち切らない)
+        if (!paused && Showing && Monetization.Mode == MonetizationMode.Store) showStartedAt = Time.realtimeSinceStartup;
+#else
         if (!paused && Showing && Monetization.Mode == MonetizationMode.Store) resumeCheckAt = Time.realtimeSinceStartup + ResumeCallbackWait;
+#endif
         if (paused || Showing) return;
         if (Time.realtimeSinceStartup - lastResumeCheck < 60f) return;
         lastResumeCheck = Time.realtimeSinceStartup;

@@ -66,6 +66,12 @@ public static class ProductionConfigAudit
         Row("広告", "本番の広告ユニット", !string.IsNullOrEmpty(MonetizationConfig.ProdInterstitialUnit) && !string.IsNullOrEmpty(MonetizationConfig.ProdRewardedUnit) ? "OK" : "NG",
             $"強制 {MonetizationConfig.ProdInterstitialUnit} / 報酬 {MonetizationConfig.ProdRewardedUnit}");
         Row("広告", "テストの広告ユニット", MonetizationConfig.TestInterstitialUnit.StartsWith("ca-app-pub-3940256099942544/") && MonetizationConfig.TestRewardedUnit.StartsWith("ca-app-pub-3940256099942544/") ? "OK" : "NG", "Google 公式のテスト用ユニット");
+        // 2026-11-22 iOS の広告(リワード/インタースティシャル)。本番は iOS の定義に OMM_ADS_PROD を足した時だけ(Docs/Release_2026-11-22/iOS_Ads.md)
+        Row("広告", "iOS の本番の広告ユニット", MonetizationConfig.IosProdInterstitialUnit.StartsWith("ca-app-pub-2863190967263764/") && MonetizationConfig.IosProdRewardedUnit.StartsWith("ca-app-pub-2863190967263764/") ? "OK" : "NG",
+            $"強制 {MonetizationConfig.IosProdInterstitialUnit} / 報酬 {MonetizationConfig.IosProdRewardedUnit}");
+        string iosDefines = PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.iOS);
+        Row("広告", "iOS の広告の版(この PC の iOS の定義)", iosDefines.Contains("OMM_ADS_PROD") ? "INFO" : "WARN",
+            iosDefines.Contains("OMM_ADS_PROD") ? "本番広告(OMM_ADS_PROD あり)" : "テスト広告(Google の iOS 用テストユニット)。App Store で公開する版は、Unity Cloud の iOS の設定の定義に OMM_ADS_PROD を足す");
 
         // ---- 課金
         bool tangle = defines.Contains("OMM_IAP_TANGLE");

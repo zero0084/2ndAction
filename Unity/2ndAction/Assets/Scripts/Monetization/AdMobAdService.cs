@@ -1,4 +1,4 @@
-#if UNITY_ANDROID && OMM_ADMOB
+#if (UNITY_ANDROID && OMM_ADMOB) || UNITY_IOS
 using System;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Ump.Api;
@@ -6,6 +6,8 @@ using UnityEngine;
 
 // 本物の広告(Google Mobile Ads Unity plugin = AdMob、2026-10-10、依頼I)。
 // パッケージ(com.google.ads.mobile)を入れて、Android の Scripting Define Symbols に OMM_ADMOB を足した時だけ入る(Steam/PC には入らない)。
+// 2026-11-22: iOS も同じ物を使う(定義は不要 = UNITY_IOS。ProjectSettings をコミットしない決まりのため、Unity Cloud でも確実に入る)。
+//  iOS のアプリ ID は GoogleMobileAdsSettings の iOS 欄 → Info.plist の GADApplicationIdentifier(プラグインが書く)。ATT は使わない(Docs/Release_2026-11-22/iOS_Ads.md)
 // ・起動ごとに同意(UMP)を確認 → 広告を要求してよい時だけ MobileAds を初期化
 // ・報酬は Show の報酬コールバックだけで渡す(閉じた/失敗では渡さない)。通知は主スレッド以外から来るので AdManager.Post で戻す
 // ・ユニット ID は MonetizationConfig(開発版/未設定はテスト用 ID)

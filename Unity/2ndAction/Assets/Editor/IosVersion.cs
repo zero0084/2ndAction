@@ -18,7 +18,7 @@ using UnityEngine;
 public class IosVersion : IPreprocessBuildWithReport, IPostprocessBuildWithReport
 {
     public const string MarketingVersion = "1.0.0";
-    public const string BuildNumber = "6"; // 2026-11-21 マスター依頼: TestFlight の次の版は Build 6(Version 1.0.0 のまま)
+    public const string BuildNumber = "7"; // 2026-11-22 マスター依頼: iOS の広告(テスト広告)を入れた TestFlight の版は Build 7(Version 1.0.0 のまま)
     // Apple の決まり: 1〜3 個の 0 以上の整数を点でつないだ物
     static readonly Regex Valid = new Regex(@"^\d+(\.\d+){0,2}$");
     public static bool IsValid(string v) => !string.IsNullOrEmpty(v) && Valid.IsMatch(v);
@@ -40,6 +40,8 @@ public class IosVersion : IPreprocessBuildWithReport, IPostprocessBuildWithRepor
         if (wasBuild == BuildNumber) SessionState.EraseString(SavedBuildKey);
         else { SessionState.SetString(SavedBuildKey, wasBuild ?? ""); PlayerSettings.iOS.buildNumber = BuildNumber; }
         Debug.Log($"[IosVersion] iOS version '{was}' -> '{MarketingVersion}', build '{wasBuild}' -> '{BuildNumber}' for this build (restored after the build)");
+        // 2026-11-22: この iOS ビルドの広告(テスト/本番)を記録に残す(Unity Cloud のログでも分かるように)。本番は OMM_ADS_PROD を iOS の定義に足した時だけ
+        Debug.Log($"[IosAds] adsProfile={MonetizationConfig.AdsProfile} units={MonetizationConfig.UnitsLabel} rewarded={MonetizationConfig.RewardedUnit} interstitial={MonetizationConfig.InterstitialUnit}");
     }
 
     public void OnPostprocessBuild(BuildReport report)

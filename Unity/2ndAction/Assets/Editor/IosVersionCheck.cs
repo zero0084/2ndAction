@@ -40,6 +40,18 @@ public static class IosVersionCheck
             foreach (Match x in Regex.Matches(File.ReadAllText(pbx), @"PRODUCT_BUNDLE_IDENTIFIER = ""?([^;""]+)""?;")) ids.Add(x.Groups[1].Value);
             pbxId = string.Join(",", ids);
         }
+        // 2026-11-22 iOS の広告: アプリ ID は本番(MonetizationSetup.ProdIosAppId)/ SKAdNetwork の一覧が入る / ATT の文言(NSUserTrackingUsageDescription)は入れない /
+        //  Podfile に Google Mobile Ads と UMP / この iOS ビルドの広告ユニットはテスト用(OMM_ADS_PROD を iOS の定義に足していない)
+        string pt = File.Exists(plist) ? File.ReadAllText(plist) : "";
+        bool skad = pt.Contains("<key>SKAdNetworkItems</key>"), att = pt.Contains("NSUserTrackingUsageDescription");
+        string pod = Path.Combine(outPath, "Podfile");
+        string podText = File.Exists(pod) ? File.ReadAllText(pod) : "";
+        bool pods = podText.Contains("Google-Mobile-Ads-SDK") && podText.Contains("GoogleUserMessagingPlatform");
+        bool iosTestAds = !MonetizationConfig.UseProductionAds && MonetizationConfig.UnitsLabel == "ios-test"
+                          && MonetizationConfig.RewardedUnit == MonetizationConfig.IosTestRewardedUnit && MonetizationConfig.InterstitialUnit == MonetizationConfig.IosTestInterstitialUnit
+                          && !PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.iOS).Contains("OMM_ADS_PROD");
+        bool adsOk = gadId == MonetizationSetup.ProdIosAppId && skad && !att && pods && iosTestAds;
+        Debug.Log($"[IosVersionCheck] ads: GADApplicationIdentifier='{gadId}' (prod iOS app id: {gadId == MonetizationSetup.ProdIosAppId}) SKAdNetworkItems={skad} NSUserTrackingUsageDescription={att} Podfile(GMA+UMP)={pods} units={MonetizationConfig.UnitsLabel} rewarded={MonetizationConfig.RewardedUnit} interstitial={MonetizationConfig.InterstitialUnit} iOS defines='{PlayerSettings.GetScriptingDefineSymbols(UnityEditor.Build.NamedBuildTarget.iOS)}' -> {(adsOk ? "OK" : "NG")}");
         string after = PlayerSettings.bundleVersion;
         bool idOk = pbxId.Split(',').Length >= 1 && System.Array.IndexOf(pbxId.Split(','), ExpectedBundleId) >= 0;
         bool ok = r.summary.result == BuildResult.Succeeded && r.summary.totalErrors == 0
@@ -47,7 +59,7 @@ public static class IosVersionCheck
                   && after == before && PlayerSettings.iOS.buildNumber == buildNo
                   && iosId == ExpectedBundleId && idOk
                   && PlayerSettings.Android.bundleVersionCode == androidCode && PlayerSettings.GetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.Android) == androidId
-                  && !string.IsNullOrEmpty(GmaIosAppId()) && gadId == GmaIosAppId();
+                  && !string.IsNullOrEmpty(GmaIosAppId()) && gadId == GmaIosAppId() && adsOk;
         Debug.Log($"[IosVersionCheck] result={r.summary.result} errors={r.summary.totalErrors} warnings={r.summary.totalWarnings} Info.plist CFBundleShortVersionString='{shortVer}' CFBundleVersion='{bundleVer}' GADApplicationIdentifier='{gadId}' PRODUCT_BUNDLE_IDENTIFIER='{pbxId}' | after: bundleVersion='{after}' (restored={after == before}) iOS buildNumber={PlayerSettings.iOS.buildNumber} (restored={PlayerSettings.iOS.buildNumber == buildNo}) Android versionCode={PlayerSettings.Android.bundleVersionCode} -> {(ok ? "OK" : "NG")}");
         if (Application.isBatchMode) EditorApplication.Exit(ok ? 0 : 3);
     }
