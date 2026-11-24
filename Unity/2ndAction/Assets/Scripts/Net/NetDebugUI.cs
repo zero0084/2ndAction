@@ -832,7 +832,7 @@ public static class LocRoomUi
     public const string StartGame = "ゲーム開始";                                    // ID 11069 / en: Start Game
     public const string CreateDescOnline = "部屋を作成し、オンラインの「部屋に参加」の一覧に公開します。"; // ID 11070
     public const string CreateDescLocal = "この端末で部屋を作成します。同じWi-Fiの端末から「部屋に参加」で入れます。"; // ID 11071
-    public const string EmptyLocal = "HOST の端末で「部屋を作成」を押して、同じWi-Fi(テザリング)につないでください。"; // ID 11072
+    public const string EmptyLocal = "HOST の端末で「部屋を作成」を押し、すべての端末を同じWi-Fi(またはテザリング)につないでください。"; // ID 11072
     public const string EmptyOnline = "「部屋を作成」で部屋を作るか、少し待ってから再検索してください。"; // ID 11073
     public const string ListedLocal = "近くの端末の「部屋に参加」に表示中";            // ID 11074
     public const string ListedOnline = "オンラインの「部屋に参加」に表示中";           // ID 11075

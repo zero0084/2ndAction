@@ -1,0 +1,145 @@
+[BossHalt] hold (boss) x=1001.2
+[BossHalt] stopped x=1003.1 slide=1.9m
+[HaltWatch] noBoss 11.1s phase=True defeated=True d=1000 x=1007.2 boss=sky_corridor/Dragon alive=0 mp=False
+[BossHalt] release (sky_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=16.9s slide=1.9m maxAhead=7.7m bossFront=26.2m wall=0.0s clamps=0 d=1000 x=1007.2 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2007.4
+[BossHalt] stopped x=2011.4 slide=4.1m
+[HaltWatch] noBoss 4.8s phase=True defeated=True d=2000 x=2015.7 boss=sky_corridor/Dragon alive=0 mp=False
+[BossHalt] release (sky_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.0s slide=4.1m maxAhead=5.6m bossFront=26.4m wall=0.0s clamps=0 d=2000 x=2015.7 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=1992.2
+[BossHalt] stopped x=1999.6 slide=7.3m
+[HaltWatch] noBoss 4.8s phase=True defeated=True d=3000 x=2003.8 boss=sky_corridor/Dragon alive=0 mp=False
+[BossHalt] release (sky_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.0s slide=7.3m maxAhead=5.6m bossFront=26.7m wall=0.0s clamps=0 d=3000 x=2003.8 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=1979.1
+[BossHalt] stopped x=1988.0 slide=8.8m
+[HaltWatch] noBoss 4.8s phase=True defeated=True d=4000 x=1992.4 boss=sky_corridor/Dragon alive=0 mp=False
+[BossHalt] release (sky_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.8s slide=8.8m maxAhead=8.1m bossFront=26.9m wall=0.0s clamps=0 d=4000 x=1992.4 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2993.1
+[BossHalt] stopped x=3001.3 slide=8.3m
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=5000 x=3004.9 boss=sky_corridor/Majin alive=0 mp=False
+[BossHalt] release (sky_corridor/Majin -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.8s slide=8.3m maxAhead=3.6m bossFront=26.9m wall=0.0s clamps=0 d=5000 x=1980.9 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2981.2
+[BossHalt] stopped x=2990.0 slide=8.8m
+[HaltWatch] noBoss 4.8s phase=True defeated=True d=6000 x=2994.6 boss=sky_corridor/Dragon alive=0 mp=False
+[BossHalt] release (sky_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.2s slide=8.8m maxAhead=6.0m bossFront=26.9m wall=0.0s clamps=0 d=6000 x=2994.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2970.4
+[BossHalt] stopped x=2978.9 slide=8.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=7000 x=2986.6 boss=sky_corridor/Majin alive=0 mp=False
+[BossHalt] release (sky_corridor/Majin -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.1s slide=8.5m maxAhead=7.7m bossFront=26.9m wall=0.0s clamps=0 d=7000 x=2986.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2961.8
+[BossHalt] stopped x=2970.6 slide=8.8m
+[HaltWatch] noBoss 4.8s phase=True defeated=True d=8000 x=2975.1 boss=sky_corridor/Dragon alive=0 mp=False
+[BossHalt] release (sky_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.2s slide=8.8m maxAhead=6.0m bossFront=26.9m wall=0.0s clamps=0 d=8000 x=2975.1 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2951.7
+[BossHalt] stopped x=2960.4 slide=8.8m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=9000 x=2964.3 boss=sky_corridor/Majin alive=0 mp=False
+[BossHalt] release (sky_corridor/Majin -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.7s slide=8.8m maxAhead=3.9m bossFront=26.9m wall=0.0s clamps=0 d=9000 x=2964.3 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2940.6
+[BossHalt] stopped x=2950.1 slide=9.5m
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=10000 x=2965.3 boss=sky_corridor/Behemoth alive=0 mp=False
+[BossHalt] release (sky_corridor/Behemoth -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=13.1s slide=9.5m maxAhead=15.2m bossFront=24.8m wall=0.0s clamps=0 d=10000 x=2965.3 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2941.3
+[BossHalt] stopped x=2950.1 slide=8.8m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=11000 x=2957.5 boss=sky_corridor/Majin alive=0 mp=False
+[BossHalt] release (sky_corridor/Majin -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.2s slide=8.8m maxAhead=7.4m bossFront=26.9m wall=0.0s clamps=0 d=11000 x=2957.5 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2933.1
+[BossHalt] stopped x=2941.8 slide=8.8m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=12000 x=2957.2 boss=sky_corridor/Behemoth alive=0 mp=False
+[BossHalt] release (sky_corridor/Behemoth -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=13.3s slide=8.8m maxAhead=17.5m bossFront=25.1m wall=0.0s clamps=0 d=12000 x=2957.2 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2933.4
+[BossHalt] stopped x=2942.2 slide=8.8m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=13000 x=2950.4 boss=sky_corridor/Majin alive=0 mp=False
+[BossHalt] release (sky_corridor/Majin -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.1s slide=8.8m maxAhead=8.2m bossFront=26.9m wall=0.0s clamps=0 d=13000 x=2950.4 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2926.6
+[BossHalt] stopped x=2935.4 slide=8.8m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=14000 x=2955.9 boss=sky_corridor/Behemoth alive=0 mp=False
+[BossHalt] release (sky_corridor/Behemoth -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=13.4s slide=8.8m maxAhead=20.5m bossFront=25.1m wall=0.0s clamps=0 d=14000 x=2955.9 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2930.9
+[BossHalt] stopped x=2939.6 slide=8.7m
+[HaltWatch] noBoss 4.8s phase=True defeated=True d=15000 x=2944.7 boss=sky_corridor/Dragon alive=0 mp=False
+[BossHalt] release (sky_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.2s slide=8.7m maxAhead=6.5m bossFront=26.9m wall=0.0s clamps=0 d=15000 x=2944.7 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2920.9
+[BossHalt] stopped x=2929.2 slide=8.3m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=16000 x=2937.2 boss=sky_corridor/Majin alive=0 mp=False
+[BossHalt] release (sky_corridor/Majin -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.3s slide=8.3m maxAhead=8.0m bossFront=26.9m wall=0.0s clamps=0 d=16000 x=2937.2 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2913.2
+[BossHalt] stopped x=2921.8 slide=8.6m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=17000 x=2939.7 boss=sky_corridor/Behemoth alive=0 mp=False
+[BossHalt] release (sky_corridor/Behemoth -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=12.4s slide=8.6m maxAhead=17.9m bossFront=25.1m wall=0.0s clamps=0 d=17000 x=2939.7 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2916.2
+[BossHalt] stopped x=2924.8 slide=8.6m
+[HaltWatch] noBoss 4.8s phase=True defeated=True d=18000 x=2929.9 boss=sky_corridor/Dragon alive=0 mp=False
+[BossHalt] release (sky_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.2s slide=8.6m maxAhead=6.5m bossFront=26.9m wall=0.0s clamps=0 d=18000 x=2929.9 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2906.2
+[BossHalt] stopped x=2914.8 slide=8.6m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=19000 x=2921.9 boss=sky_corridor/Majin alive=0 mp=False
+[BossHalt] release (sky_corridor/Majin -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.3s slide=8.6m maxAhead=7.1m bossFront=26.9m wall=0.0s clamps=0 d=19000 x=2921.9 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2897.0
+[BossHalt] stopped x=2904.9 slide=7.9m
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=20000 x=2929.1 boss=sky_corridor/Titan alive=0 mp=False
+[BossHalt] release (sky_corridor/Titan -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=12.9s slide=7.9m maxAhead=24.2m bossFront=23.4m wall=0.0s clamps=30 d=20000 x=2929.1 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2808.9
+[BossHalt] stopped x=2818.3 slide=9.4m
+[HaltWatch] noBoss 4.8s phase=True defeated=True d=25000 x=2823.8 boss=sky_corridor/Dragon alive=0 mp=False
+[BossHalt] release (sky_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.1s slide=9.4m maxAhead=6.8m bossFront=26.9m wall=0.0s clamps=30 d=25000 x=2823.8 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2704.4
+[BossHalt] stopped x=2711.8 slide=7.4m
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=30000 x=2734.3 boss=sky_corridor/Jellyfish alive=0 mp=False
+[BossHalt] release (sky_corridor/Jellyfish -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=14.4s slide=7.4m maxAhead=22.5m bossFront=26.5m wall=0.0s clamps=41 d=30000 x=2734.3 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2614.4
+[BossHalt] stopped x=2622.8 slide=8.4m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=35000 x=2640.3 boss=sky_corridor/Majin alive=0 mp=False
+[BossHalt] release (sky_corridor/Majin -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=14.2s slide=8.4m maxAhead=17.5m bossFront=25.1m wall=0.0s clamps=41 d=35000 x=2640.3 boss= alive=0 mp=False
+[QA] stop at 40000m (game 33.1min): damage by reason: road:DeathY=9
+[QA]   1000m sky_corridor/Dragon alive=1 -> defeated in 5.8s
+[QA]   2000m sky_corridor/Dragon alive=1 -> defeated in 5.2s
+[QA]   3000m sky_corridor/Dragon alive=1 -> defeated in 5.2s
+[QA]   4000m sky_corridor/Dragon alive=1 -> defeated in 5.0s
+[QA]   5000m sky_corridor/Majin alive=1 -> defeated in 6.0s
+[QA]   6000m sky_corridor/Dragon alive=1 -> defeated in 4.4s
+[QA]   7000m sky_corridor/Majin alive=1 -> defeated in 5.3s
+[QA]   8000m sky_corridor/Dragon alive=1 -> defeated in 4.4s
+[QA]   9000m sky_corridor/Majin alive=1 -> defeated in 4.9s
+[QA]   10000m sky_corridor/Behemoth alive=1 -> defeated in 8.3s
+[QA]   11000m sky_corridor/Majin alive=1 -> defeated in 5.4s
+[QA]   12000m sky_corridor/Behemoth alive=1 -> defeated in 8.5s
+[QA]   13000m sky_corridor/Majin alive=1 -> defeated in 5.3s
+[QA]   14000m sky_corridor/Behemoth alive=1 -> defeated in 8.6s
+[QA]   15000m sky_corridor/Dragon alive=1 -> defeated in 4.4s
+[QA]   16000m sky_corridor/Majin alive=1 -> defeated in 5.5s
+[QA]   17000m sky_corridor/Behemoth alive=1 -> defeated in 7.6s
+[QA]   18000m sky_corridor/Dragon alive=1 -> defeated in 4.4s
+[QA]   19000m sky_corridor/Majin alive=1 -> defeated in 5.5s
+[QA]   20000m sky_corridor/Titan alive=1 -> defeated in 8.1s
+[QA]   25000m sky_corridor/Dragon alive=1 -> defeated in 4.3s
+[QA]   30000m sky_corridor/Jellyfish alive=2 -> defeated in 9.6s
+[QA]   35000m sky_corridor/Majin alive=3 -> defeated in 9.5s
+[BossHalt] hold (boss) x=2520.3
+[BossHalt] stopped x=2528.9 slide=8.6m
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=40000 x=2540.3 boss=sky_corridor/Leviathan alive=0 mp=False
+[BossHalt] release (sky_corridor/Leviathan -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=15.6s slide=8.6m maxAhead=11.5m bossFront=23.7m wall=0.0s clamps=41 d=40000 x=2540.3 boss= alive=0 mp=False
+[HaltWatch] summary holds=24 seekLong=0 (max 0.0s/0m) runBoss=0 (max 0.0s) reach=0 (max 2.8s) noBoss=24 (max 11.1s) ahead=0 walls=0 (max 0.0s) maxAhead=24.2m arenaV2=True

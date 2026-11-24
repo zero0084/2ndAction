@@ -1,0 +1,127 @@
+[BossHalt] hold (boss) x=1001.2
+[BossHalt] stopped x=1003.3 slide=2.1m
+[HaltWatch] noBoss 12.8s phase=True defeated=True d=1000 x=1016.4 boss=natural_cave/Centipede alive=0 mp=False
+[BossHalt] release (natural_cave/Centipede -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=17.6s slide=2.1m maxAhead=13.1m bossFront=25.3m wall=0.0s clamps=0 d=1000 x=1016.4 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2016.9
+[BossHalt] stopped x=2020.7 slide=3.8m
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=2000 x=2034.3 boss=natural_cave/Centipede alive=0 mp=False
+[BossHalt] release (natural_cave/Centipede -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=11.3s slide=3.8m maxAhead=13.5m bossFront=25.8m wall=0.0s clamps=0 d=2000 x=2034.3 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2009.7
+[BossHalt] stopped x=2017.6 slide=7.9m
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=3000 x=2040.2 boss=natural_cave/Centipede alive=0 mp=False
+[BossHalt] release (natural_cave/Centipede -> no boss hold) early local shown/promoted/cancelled=1/1/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=12.8s slide=7.9m maxAhead=22.6m bossFront=26.5m wall=0.0s clamps=0 d=3000 x=2040.2 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2018.1
+[BossHalt] stopped x=2027.9 slide=9.8m
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=4000 x=2040.6 boss=natural_cave/Centipede alive=0 mp=False
+[BossHalt] release (natural_cave/Centipede -> no boss hold) early local shown/promoted/cancelled=2/2/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=11.6s slide=9.8m maxAhead=13.3m bossFront=27.0m wall=0.0s clamps=0 d=4000 x=2040.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2015.8
+[BossHalt] stopped x=2024.9 slide=9.1m
+[HaltWatch] noBoss 6.7s phase=True defeated=True d=5000 x=2038.9 boss=natural_cave/Scorpion alive=0 mp=False
+[BossHalt] release (natural_cave/Scorpion -> no boss hold) early local shown/promoted/cancelled=2/2/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=11.7s slide=9.1m maxAhead=14.8m bossFront=27.5m wall=0.0s clamps=0 d=5000 x=2038.9 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2014.9
+[BossHalt] stopped x=2024.9 slide=10.0m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=6000 x=2038.3 boss=natural_cave/Centipede alive=0 mp=False
+[BossHalt] release (natural_cave/Centipede -> no boss hold) early local shown/promoted/cancelled=2/2/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.1s slide=10.0m maxAhead=13.4m bossFront=27.0m wall=0.0s clamps=0 d=6000 x=2038.3 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2014.6
+[BossHalt] stopped x=2025.8 slide=11.2m
+[HaltWatch] noBoss 5.6s phase=True defeated=True d=7000 x=2040.6 boss=natural_cave/Scorpion alive=0 mp=False
+[BossHalt] release (natural_cave/Scorpion -> no boss hold) early local shown/promoted/cancelled=2/2/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.6s slide=11.2m maxAhead=15.5m bossFront=27.3m wall=0.0s clamps=0 d=7000 x=2040.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2016.3
+[BossHalt] stopped x=2027.3 slide=11.0m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=8000 x=2041.6 boss=natural_cave/Centipede alive=0 mp=False
+[BossHalt] release (natural_cave/Centipede -> no boss hold) early local shown/promoted/cancelled=2/2/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.6s slide=11.0m maxAhead=14.3m bossFront=26.9m wall=0.0s clamps=0 d=8000 x=2041.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2017.5
+[BossHalt] stopped x=2027.9 slide=10.4m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=9000 x=2042.5 boss=natural_cave/Scorpion alive=0 mp=False
+[BossHalt] release (natural_cave/Scorpion -> no boss hold) early local shown/promoted/cancelled=2/2/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.9s slide=10.4m maxAhead=15.2m bossFront=27.6m wall=0.0s clamps=0 d=9000 x=2042.5 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2018.1
+[BossHalt] stopped x=2025.8 slide=7.7m
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=10000 x=2038.7 boss=natural_cave/Mole alive=0 mp=False
+[BossHalt] release (natural_cave/Mole -> no boss hold) early local shown/promoted/cancelled=2/2/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=14.3s slide=7.7m maxAhead=14.9m bossFront=28.1m wall=0.0s clamps=0 d=10000 x=2038.7 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2016.5
+[BossHalt] stopped x=2025.8 slide=9.3m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=11000 x=2039.6 boss=natural_cave/Centipede alive=0 mp=False
+[BossHalt] release (natural_cave/Centipede -> no boss hold) early local shown/promoted/cancelled=3/2/1 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.4s slide=9.3m maxAhead=13.8m bossFront=26.9m wall=0.0s clamps=0 d=11000 x=2039.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2014.7
+[BossHalt] stopped x=2025.6 slide=10.9m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=12000 x=2040.2 boss=natural_cave/Scorpion alive=0 mp=False
+[BossHalt] release (natural_cave/Scorpion -> no boss hold) early local shown/promoted/cancelled=3/2/1 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.9s slide=10.9m maxAhead=15.2m bossFront=27.6m wall=0.0s clamps=0 d=12000 x=2040.2 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2016.0
+[BossHalt] stopped x=2026.5 slide=10.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=13000 x=2049.2 boss=natural_cave/Mole alive=0 mp=False
+[BossHalt] release (natural_cave/Mole -> no boss hold) early local shown/promoted/cancelled=4/3/1 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=14.5s slide=10.5m maxAhead=23.3m bossFront=28.1m wall=0.0s clamps=4 d=13000 x=2049.2 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2024.9
+[BossHalt] stopped x=2035.3 slide=10.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=14000 x=2050.9 boss=natural_cave/Scorpion alive=0 mp=False
+[BossHalt] release (natural_cave/Scorpion -> no boss hold) early local shown/promoted/cancelled=4/3/1 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=11.2s slide=10.5m maxAhead=16.1m bossFront=27.6m wall=0.0s clamps=4 d=14000 x=2050.9 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2026.7
+[BossHalt] stopped x=2038.1 slide=11.4m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=15000 x=2050.7 boss=natural_cave/Centipede alive=0 mp=False
+[BossHalt] release (natural_cave/Centipede -> no boss hold) early local shown/promoted/cancelled=5/4/1 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.6s slide=11.4m maxAhead=13.1m bossFront=26.9m wall=0.0s clamps=4 d=15000 x=2050.7 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2030.7
+[BossHalt] stopped x=2040.3 slide=9.6m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=16000 x=2055.0 boss=natural_cave/Scorpion alive=0 mp=False
+[BossHalt] release (natural_cave/Scorpion -> no boss hold) early local shown/promoted/cancelled=5/4/1 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=11.6s slide=9.6m maxAhead=16.1m bossFront=27.6m wall=0.0s clamps=4 d=16000 x=2055.0 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2027.2
+[BossHalt] stopped x=2037.6 slide=10.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=17000 x=2052.1 boss=natural_cave/Mole alive=0 mp=False
+[BossHalt] release (natural_cave/Mole -> no boss hold) early local shown/promoted/cancelled=6/4/2 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=12.4s slide=10.5m maxAhead=15.0m bossFront=28.1m wall=0.0s clamps=4 d=17000 x=2052.1 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2028.4
+[BossHalt] stopped x=2038.9 slide=10.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=18000 x=2052.4 boss=natural_cave/Scorpion alive=0 mp=False
+[BossHalt] release (natural_cave/Scorpion -> no boss hold) early local shown/promoted/cancelled=6/4/2 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=11.3s slide=10.5m maxAhead=15.3m bossFront=27.6m wall=0.0s clamps=4 d=18000 x=2052.4 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2027.7
+[BossHalt] stopped x=2038.5 slide=10.8m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=19000 x=2061.2 boss=natural_cave/Mole alive=0 mp=False
+[BossHalt] release (natural_cave/Mole -> no boss hold) early local shown/promoted/cancelled=7/5/2 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=13.7s slide=10.8m maxAhead=23.2m bossFront=28.1m wall=0.0s clamps=15 d=19000 x=2061.2 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2038.2
+[BossHalt] stopped x=2047.3 slide=9.1m
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=20000 x=2062.9 boss=natural_cave/Troll alive=0 mp=False
+[BossHalt] release (natural_cave/Troll -> no boss hold) early local shown/promoted/cancelled=7/5/2 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=13.5s slide=9.1m maxAhead=17.2m bossFront=26.8m wall=0.0s clamps=15 d=20000 x=2062.9 boss= alive=0 mp=False
+[QA] stop at 25000m (game 20.1min): damage by reason: road:DeathY=24
+[QA]   1000m natural_cave/Centipede alive=1 -> defeated in 6.9s
+[QA]   2000m natural_cave/Centipede alive=1 -> defeated in 6.5s
+[QA]   3000m natural_cave/Centipede alive=1 -> defeated in 8.0s
+[QA]   4000m natural_cave/Centipede alive=1 -> defeated in 6.9s
+[QA]   5000m natural_cave/Scorpion alive=1 -> defeated in 7.1s
+[QA]   6000m natural_cave/Centipede alive=1 -> defeated in 5.3s
+[QA]   7000m natural_cave/Scorpion alive=1 -> defeated in 6.2s
+[QA]   8000m natural_cave/Centipede alive=1 -> defeated in 5.8s
+[QA]   9000m natural_cave/Scorpion alive=1 -> defeated in 6.1s
+[QA]   10000m natural_cave/Mole alive=1 -> defeated in 9.5s
+[QA]   11000m natural_cave/Centipede alive=1 -> defeated in 5.6s
+[QA]   12000m natural_cave/Scorpion alive=1 -> defeated in 6.1s
+[QA]   13000m natural_cave/Mole alive=1 -> defeated in 9.7s
+[QA]   14000m natural_cave/Scorpion alive=1 -> defeated in 6.4s
+[QA]   15000m natural_cave/Centipede alive=1 -> defeated in 5.8s
+[QA]   16000m natural_cave/Scorpion alive=1 -> defeated in 6.8s
+[QA]   17000m natural_cave/Mole alive=1 -> defeated in 7.6s
+[QA]   18000m natural_cave/Scorpion alive=1 -> defeated in 6.6s
+[QA]   19000m natural_cave/Mole alive=1 -> defeated in 8.9s
+[QA]   20000m natural_cave/Troll alive=1 -> defeated in 8.7s
+[BossHalt] hold (boss) x=2966.3
+[BossHalt] stopped x=2977.8 slide=11.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=25000 x=2986.7 boss=natural_cave/Scorpion alive=0 mp=False
+[BossHalt] release (natural_cave/Scorpion -> no boss hold) early local shown/promoted/cancelled=8/6/2 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=12.7s slide=11.5m maxAhead=8.9m bossFront=26.4m wall=0.0s clamps=15 d=25000 x=2986.7 boss= alive=0 mp=False
+[HaltWatch] summary holds=21 seekLong=0 (max 0.0s/0m) runBoss=0 (max 0.0s) reach=0 (max 4.2s) noBoss=21 (max 12.8s) ahead=0 walls=0 (max 0.0s) maxAhead=23.3m arenaV2=True

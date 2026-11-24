@@ -1,0 +1,119 @@
+[BossHalt] hold (boss) x=1001.1
+[HaltWatch] noBoss 13.1s phase=True defeated=True d=1000 x=999.4 boss=wasteland_road/Wolf alive=0 mp=False
+[BossHalt] release (wasteland_road/Wolf -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=15.7s slide=0.0m maxAhead=2.1m bossFront=-7.3m wall=0.0s clamps=0 d=1000 x=999.4 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=1999.9
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=2000 x=2021.6 boss=wasteland_road/Wolf alive=0 mp=False
+[BossHalt] release (wasteland_road/Wolf -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.7s slide=0.0m maxAhead=21.7m bossFront=30.0m wall=0.0s clamps=0 d=2000 x=2021.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=1997.7
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=3000 x=2022.1 boss=wasteland_road/Wolf alive=0 mp=False
+[BossHalt] release (wasteland_road/Wolf -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.7s slide=0.0m maxAhead=24.4m bossFront=33.4m wall=0.0s clamps=0 d=3000 x=2022.1 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=1998.2
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=4000 x=2004.0 boss=wasteland_road/Wolf alive=0 mp=False
+[BossHalt] release (wasteland_road/Wolf -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=8.6s slide=0.0m maxAhead=9.8m bossFront=0.4m wall=0.0s clamps=0 d=4000 x=2004.0 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=1980.2
+[HaltWatch] ahead 25.1m from the stop point d=5000 x=2005.3 boss=wasteland_road/GoblinRider alive=1 mp=False
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=5000 x=2006.8 boss=wasteland_road/GoblinRider alive=0 mp=False
+[BossHalt] release (wasteland_road/GoblinRider -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=11.1s slide=0.0m maxAhead=26.6m bossFront=35.5m wall=0.0s clamps=0 d=5000 x=2006.8 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=1982.5
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=6000 x=1989.3 boss=wasteland_road/Wolf alive=0 mp=False
+[BossHalt] release (wasteland_road/Wolf -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=7.6s slide=0.0m maxAhead=10.6m bossFront=1.5m wall=0.0s clamps=0 d=6000 x=1989.3 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2989.2
+[HaltWatch] ahead 25.1m from the stop point d=7000 x=3014.3 boss=wasteland_road/GoblinRider alive=1 mp=False
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=7000 x=3017.0 boss=wasteland_road/GoblinRider alive=0 mp=False
+[BossHalt] release (wasteland_road/GoblinRider -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.7s slide=0.0m maxAhead=27.8m bossFront=37.1m wall=0.0s clamps=0 d=7000 x=1993.0 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2994.0
+[HaltWatch] ahead 25.0m from the stop point d=8000 x=3019.0 boss=wasteland_road/Wolf alive=1 mp=False
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=8000 x=3020.1 boss=wasteland_road/Wolf alive=0 mp=False
+[BossHalt] release (wasteland_road/Wolf -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.8s slide=0.0m maxAhead=26.2m bossFront=36.7m wall=0.0s clamps=0 d=8000 x=1996.1 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2995.0
+[HaltWatch] ahead 25.1m from the stop point d=9000 x=3020.1 boss=wasteland_road/GoblinRider alive=1 mp=False
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=9000 x=3022.8 boss=wasteland_road/GoblinRider alive=0 mp=False
+[BossHalt] release (wasteland_road/GoblinRider -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.7s slide=0.0m maxAhead=27.8m bossFront=37.1m wall=0.0s clamps=0 d=9000 x=1998.8 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2999.9
+[HaltWatch] ahead 25.0m from the stop point d=10000 x=3024.9 boss=wasteland_road/Serpent alive=1 mp=False
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=10000 x=3026.3 boss=wasteland_road/Serpent alive=0 mp=False
+[BossHalt] release (wasteland_road/Serpent -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=12.4s slide=0.0m maxAhead=27.4m bossFront=37.5m wall=0.0s clamps=0 d=10000 x=2002.3 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=1978.3
+[HaltWatch] ahead 25.0m from the stop point d=11000 x=2003.3 boss=wasteland_road/GoblinRider alive=1 mp=False
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=11000 x=2005.2 boss=wasteland_road/GoblinRider alive=0 mp=False
+[BossHalt] release (wasteland_road/GoblinRider -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.1s slide=0.0m maxAhead=26.9m bossFront=36.2m wall=0.0s clamps=0 d=11000 x=2005.2 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=1980.7
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=12000 x=1986.7 boss=wasteland_road/Wolf alive=0 mp=False
+[BossHalt] release (wasteland_road/Wolf -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=7.7s slide=0.0m maxAhead=9.9m bossFront=0.6m wall=0.0s clamps=0 d=12000 x=1986.7 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2987.2
+[HaltWatch] ahead 25.1m from the stop point d=13000 x=3012.2 boss=wasteland_road/Serpent alive=1 mp=False
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=13000 x=3014.7 boss=wasteland_road/Serpent alive=0 mp=False
+[BossHalt] release (wasteland_road/Serpent -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=12.0s slide=0.0m maxAhead=28.2m bossFront=38.4m wall=0.0s clamps=0 d=13000 x=1990.7 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2990.5
+[HaltWatch] ahead 25.0m from the stop point d=14000 x=3015.5 boss=wasteland_road/GoblinRider alive=1 mp=False
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=14000 x=3017.6 boss=wasteland_road/GoblinRider alive=0 mp=False
+[BossHalt] release (wasteland_road/GoblinRider -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.2s slide=0.0m maxAhead=27.1m bossFront=37.1m wall=0.0s clamps=0 d=14000 x=1993.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2993.3
+[HaltWatch] ahead 25.0m from the stop point d=15000 x=3018.3 boss=wasteland_road/Serpent alive=1 mp=False
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=15000 x=3021.0 boss=wasteland_road/Serpent alive=0 mp=False
+[BossHalt] release (wasteland_road/Serpent -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=11.1s slide=0.0m maxAhead=27.8m bossFront=37.5m wall=0.0s clamps=0 d=15000 x=1997.0 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2996.5
+[HaltWatch] ahead 25.1m from the stop point d=16000 x=3021.6 boss=wasteland_road/GoblinRider alive=1 mp=False
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=16000 x=3023.6 boss=wasteland_road/GoblinRider alive=0 mp=False
+[BossHalt] release (wasteland_road/GoblinRider -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.1s slide=0.0m maxAhead=27.2m bossFront=36.8m wall=0.0s clamps=0 d=16000 x=1999.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=3000.9
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=17000 x=3008.1 boss=wasteland_road/Wolf alive=0 mp=False
+[BossHalt] release (wasteland_road/Wolf -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=8.2s slide=0.0m maxAhead=10.6m bossFront=5.8m wall=0.0s clamps=0 d=17000 x=1984.1 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2983.2
+[HaltWatch] ahead 25.1m from the stop point d=18000 x=3008.3 boss=wasteland_road/Serpent alive=1 mp=False
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=18000 x=3010.5 boss=wasteland_road/Serpent alive=0 mp=False
+[BossHalt] release (wasteland_road/Serpent -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=11.3s slide=0.0m maxAhead=28.1m bossFront=37.9m wall=0.0s clamps=0 d=18000 x=1986.5 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2987.1
+[HaltWatch] ahead 25.1m from the stop point d=19000 x=3012.2 boss=wasteland_road/GoblinRider alive=1 mp=False
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=19000 x=3014.8 boss=wasteland_road/GoblinRider alive=0 mp=False
+[BossHalt] release (wasteland_road/GoblinRider -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.7s slide=0.0m maxAhead=27.7m bossFront=37.2m wall=0.0s clamps=0 d=19000 x=1990.8 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2991.0
+[HaltWatch] ahead 25.1m from the stop point d=20000 x=3016.1 boss=wasteland_road/Cyclops alive=1 mp=False
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=20000 x=3018.6 boss=wasteland_road/Cyclops alive=0 mp=False
+[BossHalt] release (wasteland_road/Cyclops -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=12.4s slide=0.0m maxAhead=27.6m bossFront=35.6m wall=0.0s clamps=0 d=20000 x=1994.6 boss= alive=0 mp=False
+[QA] stop at 25000m (game 20.8min): damage by reason: road:DeathY=8
+[QA]   1000m wasteland_road/Wolf alive=1 -> defeated in 4.6s
+[QA]   2000m wasteland_road/Wolf alive=1 -> defeated in 5.9s
+[QA]   3000m wasteland_road/Wolf alive=1 -> defeated in 5.9s
+[QA]   4000m wasteland_road/Wolf alive=1 -> defeated in 3.8s
+[QA]   5000m wasteland_road/GoblinRider alive=1 -> defeated in 6.3s
+[QA]   6000m wasteland_road/Wolf alive=1 -> defeated in 2.8s
+[QA]   7000m wasteland_road/GoblinRider alive=1 -> defeated in 5.9s
+[QA]   8000m wasteland_road/Wolf alive=1 -> defeated in 5.0s
+[QA]   9000m wasteland_road/GoblinRider alive=1 -> defeated in 5.9s
+[QA]   10000m wasteland_road/Serpent alive=1 -> defeated in 7.6s
+[QA]   11000m wasteland_road/GoblinRider alive=1 -> defeated in 5.3s
+[QA]   12000m wasteland_road/Wolf alive=1 -> defeated in 2.9s
+[QA]   13000m wasteland_road/Serpent alive=1 -> defeated in 7.2s
+[QA]   14000m wasteland_road/GoblinRider alive=1 -> defeated in 5.4s
+[QA]   15000m wasteland_road/Serpent alive=1 -> defeated in 6.3s
+[QA]   16000m wasteland_road/GoblinRider alive=1 -> defeated in 5.3s
+[QA]   17000m wasteland_road/Wolf alive=1 -> defeated in 3.4s
+[QA]   18000m wasteland_road/Serpent alive=1 -> defeated in 6.5s
+[QA]   19000m wasteland_road/GoblinRider alive=1 -> defeated in 5.9s
+[QA]   20000m wasteland_road/Cyclops alive=1 -> defeated in 7.6s
+[BossHalt] hold (boss) x=2898.1
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=25000 x=2914.9 boss=wasteland_road/Serpent alive=0 mp=False
+[BossHalt] release (wasteland_road/Serpent -> no boss hold) early local shown/promoted/cancelled=1/0/1 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=15.2s slide=0.0m maxAhead=18.0m bossFront=37.4m wall=0.0s clamps=0 d=25000 x=2914.9 boss= alive=0 mp=False
+[HaltWatch] summary holds=21 seekLong=0 (max 0.0s/0m) runBoss=0 (max 0.0s) reach=0 (max 2.7s) noBoss=21 (max 13.1s) ahead=13 walls=0 (max 0.0s) maxAhead=28.2m arenaV2=False

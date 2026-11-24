@@ -40,11 +40,29 @@ public static class BossBattle
         float d = NearestBossFrontAhead(playerX);
         if (d == float.MaxValue) return 1f;
         if (d < -1f) return 1f; // ボスがすでに後ろ: 伸ばさない
+        // 2026-11-25: 止まって戦うボス戦で、ボスがまだ登場して歩いて来る間は伸ばさない(ボスの方から来る。以前は前攻撃のたびに ×2.6 で
+        //  3秒で約17m 前へ飛び出し、「前進しっぱなし」→ 止まった所からの踏み込みの上限に当たって「これ以上進めない」の元になっていた)
+        if (BossHalt.ArenaV2 && BossHalt.Stopped && NearestBossEntering(playerX)) return 1f;
         float k = Mathf.InverseLerp(tn.lungeNearDistance, tn.lungeFarDistance, d);
         return Mathf.Lerp(tn.lungeForwardNear, tn.lungeForwardFar, k);
     }
 
     public static float NearestBossFrontAheadPublic(float playerX) => NearestBossFrontAhead(playerX); // HUNTER(カード v3)
+    // いちばん近いボスが、まだ登場の途中(画面の外から歩いて来ている)か
+    static bool NearestBossEntering(float playerX)
+    {
+        float best = float.MaxValue; bool entering = false;
+        foreach (var b in Living)
+        {
+            if (b is WildBossBase w && w != null && !w.IsDead && w.isActiveAndEnabled)
+            {
+                float dd = Mathf.Abs(w.transform.position.x - playerX);
+                if (dd < best) { best = dd; entering = w.IsEntering; }
+            }
+            else if (b != null && b.isActiveAndEnabled) { float dd = Mathf.Abs(b.transform.position.x - playerX); if (dd < best) { best = dd; entering = false; } }
+        }
+        return entering;
+    }
     // プレイヤーから見た、前方で一番近いボスの体の手前側までの距離(いなければMaxValue)。後ろのボスは負。
     static float NearestBossFrontAhead(float playerX)
     {

@@ -407,6 +407,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (entering || Broken || MeleeReachableNow) lastMeleeTime = Time.time; // 2026-10-29 停止戦: 被弾の範囲で測った「近接が届く」最後の時刻
         float wxS = worldX;
         BreakComboStep(dt); // BREAK 中に打ち上げたボスの位置 / 大型の膝つき(2026-10-18)
+        // 2026-11-25: 止まって戦うボス戦(ソロ)で、プレイヤーの踏み込みに押されて範囲より前へ逃げ続けない(BossHalt.ClampBossForward)
+        if (!entering && !freeGap && !Broken && !breakRecovering && !IntentionallyAway && !FlyingAway && !NetPuppet && !UltimateArt.ArenaFreeGap)
+            worldX = BossHalt.ClampBossForward(worldX, wx0, halfWidth);
         DebugMoveSplit = new Vector4(wxB - wx0, wxC - wxB, wxS - wxC, worldX - wxS); // 確認用: このフレームの移動(並走/間合いの補正/回り込み/BREAK の寄せ)
         BattleTick(dt);
         OffArenaWatch(dt, px);
@@ -1689,7 +1692,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), c, new Color(1f, 1f, 1f, 0.8f), 0.35f, bodyHeight * 0.3f, bodyHeight * 1.6f, 0.8f, 0f, default, 0f, RenderOrder.CombatFx, 0.05f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossPhase); // 2026-10-06: 段階が上がる専用の音
         BossVoice.Growl(this, DeathKey); // 2026-10-14: 段階が上がる時のうなり
-        BossBattleHud.Banner(Phase >= PhaseCount ? "最終段階!" : "激昂!", col, 1.2f);
+        if (Phase < PhaseCount) BossBattleHud.Banner("激昂!", col, 1.2f); // 2026-11-25 マスター: ボス戦の「最終段階!」の文言は出さない(技名の表示は残す。途中の段階の「激昂!」はそのまま)
     }
 
     // 段階移行: 咆哮(短い無敵+発光+揺れ)。新しい攻撃はPhaseを見て各ボスのAIが解禁する。

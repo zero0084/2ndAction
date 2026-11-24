@@ -994,7 +994,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), transform.position, new Color(1f, 0.4f, 0.2f, 0.95f), 0.5f, 1f, 6f, 0.9f, 0f, default, 0f, RenderOrder.CombatFx, 0.1f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossPhase);
         BossVoice.Growl(this, "Dragon");
-        BossBattleHud.Banner("最終段階!", new Color(1f, 0.4f, 0.25f), 1.2f);
+        // 2026-11-25 マスター: ボス戦の「最終段階!」の文言は出さない(技名の表示は残す。途中の段階の「激昂!」はそのまま)
     }
 
     void AddStagger(float v)

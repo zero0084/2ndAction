@@ -1,0 +1,175 @@
+[BossHalt] hold (boss) x=1001.2
+[HaltTrace] t=153.51 stopped=False F=0.99 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=153.86 stopped=False F=0.39 ahead=0.0 lim=1.00 clamps=0
+[BossHalt] stopped x=1003.2 slide=1.9m
+[HaltTrace] t=154.16 stopped=True F=0.00 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=154.46 stopped=True F=0.00 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=154.73 stopped=True F=0.00 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=155.00 stopped=True F=0.00 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=155.29 stopped=True F=0.00 ahead=0.0 lim=1.00 clamps=0 WolfBoss:front=24.7 gap=27.0 ent=True free=False brk=False act= split=-0.45/0.00/0.00/0.00
+[HaltTrace] t=155.59 stopped=True F=0.00 ahead=2.7 lim=1.00 clamps=0 WolfBoss:front=21.5 gap=21.1 ent=True free=False brk=False act= split=-0.45/0.00/0.00/0.00
+[HaltTrace] t=155.89 stopped=True F=0.00 ahead=5.1 lim=1.00 clamps=0 WolfBoss:front=18.8 gap=16.1 ent=True free=False brk=False act= split=-0.45/0.00/0.00/0.00
+[HaltTrace] t=156.19 stopped=True F=0.00 ahead=7.4 lim=1.00 clamps=0 WolfBoss:front=16.1 gap=11.0 ent=True free=False brk=False act= split=-0.45/0.00/0.00/0.00
+[HaltTrace] t=156.49 stopped=True F=0.00 ahead=9.4 lim=1.00 clamps=0 WolfBoss:front=14.4 gap=7.4 ent=False free=False brk=False act=Approach split=-0.12/0.00/0.00/0.00
+[HaltTrace] t=156.89 stopped=True F=0.00 ahead=11.4 lim=1.00 clamps=0 WolfBoss:front=13.7 gap=4.6 ent=False free=False brk=False act=Approach split=-0.12/0.00/0.00/0.00
+[HaltTrace] t=157.19 stopped=True F=0.00 ahead=13.0 lim=1.00 clamps=0 WolfBoss:front=13.3 gap=2.6 ent=False free=False brk=False act=Telegraph split=0.00/0.00/0.00/0.00
+[HaltTrace] t=157.49 stopped=True F=0.00 ahead=14.3 lim=1.00 clamps=0 WolfBoss:front=13.3 gap=1.3 ent=False free=False brk=False act=Telegraph split=0.00/0.00/0.00/0.00
+[HaltTrace] t=157.79 stopped=True F=0.00 ahead=15.3 lim=1.00 clamps=0 WolfBoss:front=13.3 gap=0.4 ent=False free=False brk=False act=Telegraph split=0.00/0.00/0.00/0.00
+[HaltTrace] t=158.09 stopped=True F=0.00 ahead=16.0 lim=1.00 clamps=0 WolfBoss:front=13.3 gap=-0.4 ent=False free=False brk=False act=Telegraph split=0.00/0.00/0.00/0.00
+[HaltTrace] t=158.35 stopped=True F=0.00 ahead=16.7 lim=1.00 clamps=0
+[HaltTrace] t=158.62 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=158.92 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=159.22 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=159.52 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=159.82 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=160.12 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=160.42 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=160.72 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=161.02 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=161.32 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=161.62 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=161.92 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=162.22 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=162.52 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=162.82 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=163.12 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=163.42 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=163.72 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=164.02 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=164.32 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=164.62 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=164.92 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=165.22 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=165.47 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=165.77 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=166.07 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=166.37 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=166.67 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=166.97 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=167.27 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=167.57 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=167.82 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=168.12 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=168.42 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=168.72 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=169.02 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=169.32 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=169.62 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=169.92 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=170.22 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=170.52 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=170.82 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltTrace] t=171.12 stopped=True F=0.00 ahead=17.5 lim=1.00 clamps=0
+[HaltWatch] noBoss 13.1s phase=True defeated=True d=1000 x=1020.6 boss=wasteland_road/Wolf alive=0 mp=False
+[BossHalt] release (wasteland_road/Wolf -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=17.9s slide=1.9m maxAhead=17.5m bossFront=25.1m wall=0.0s clamps=0 d=1000 x=1020.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2021.0
+[HaltTrace] t=261.30 stopped=False F=0.99 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=261.55 stopped=False F=0.61 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=261.85 stopped=False F=0.06 ahead=0.0 lim=1.00 clamps=0
+[BossHalt] stopped x=2025.4 slide=4.4m
+[HaltTrace] t=262.11 stopped=True F=0.00 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=262.37 stopped=True F=0.00 ahead=-0.4 lim=1.00 clamps=0 WolfBoss:front=-15.8 gap=-13.1 ent=True free=False brk=False act= split=0.50/0.00/0.00/0.00
+[HaltTrace] t=262.62 stopped=True F=0.00 ahead=-1.4 lim=1.00 clamps=0 WolfBoss:front=-13.3 gap=-9.6 ent=True free=False brk=False act= split=0.50/0.00/0.00/0.00
+[HaltTrace] t=262.92 stopped=True F=0.00 ahead=-2.6 lim=1.00 clamps=0 WolfBoss:front=-10.3 gap=-5.4 ent=True free=False brk=False act= split=0.50/0.00/0.00/0.00
+[HaltTrace] t=263.18 stopped=True F=0.00 ahead=-3.2 lim=1.00 clamps=0
+[HaltTrace] t=263.45 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=263.75 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=264.05 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=264.35 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=264.65 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=264.95 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=265.25 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=265.55 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=265.85 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=266.15 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=266.45 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=266.75 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=267.05 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=267.35 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=267.65 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=267.95 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=268.25 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=268.55 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=268.85 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=269.15 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=269.45 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltTrace] t=269.75 stopped=True F=0.00 ahead=-3.8 lim=1.00 clamps=0
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=2000 x=2021.6 boss=wasteland_road/Wolf alive=0 mp=False
+[BossHalt] release (wasteland_road/Wolf -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=8.6s slide=4.4m maxAhead=0.0m bossFront=-9.3m wall=0.0s clamps=0 d=2000 x=2021.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=1997.1
+[HaltTrace] t=327.94 stopped=False F=0.99 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=328.24 stopped=False F=0.50 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=328.54 stopped=False F=0.02 ahead=0.0 lim=1.00 clamps=0
+[BossHalt] stopped x=2004.3 slide=7.2m
+[HaltTrace] t=328.79 stopped=True F=0.00 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=329.06 stopped=True F=0.00 ahead=1.2 lim=1.00 clamps=0 WolfBoss:front=24.5 gap=25.7 ent=True free=False brk=False act= split=-0.45/0.00/0.00/0.00
+[HaltTrace] t=329.31 stopped=True F=0.00 ahead=3.1 lim=1.00 clamps=0 WolfBoss:front=22.3 gap=21.5 ent=True free=False brk=False act= split=-0.45/0.00/0.00/0.00
+[HaltTrace] t=329.61 stopped=True F=0.00 ahead=5.5 lim=1.00 clamps=0 WolfBoss:front=19.6 gap=16.4 ent=True free=False brk=False act= split=-0.45/0.00/0.00/0.00
+[HaltTrace] t=329.91 stopped=True F=0.00 ahead=7.8 lim=1.00 clamps=0 WolfBoss:front=16.9 gap=11.4 ent=True free=False brk=False act= split=-0.45/0.00/0.00/0.00
+[HaltTrace] t=330.21 stopped=True F=0.00 ahead=9.7 lim=1.00 clamps=0 WolfBoss:front=15.2 gap=7.7 ent=False free=False brk=False act=Approach split=-0.12/0.00/0.00/0.00
+[HaltTrace] t=330.51 stopped=True F=0.00 ahead=11.9 lim=1.00 clamps=0 WolfBoss:front=14.5 gap=4.9 ent=False free=False brk=False act=Approach split=-0.12/0.00/0.00/0.00
+[HaltTrace] t=330.81 stopped=True F=0.00 ahead=13.1 lim=1.00 clamps=0 WolfBoss:front=14.3 gap=3.5 ent=False free=False brk=False act=Approach split=0.00/0.00/0.00/0.00
+[HaltTrace] t=331.11 stopped=True F=0.00 ahead=14.4 lim=1.00 clamps=0 WolfBoss:front=14.3 gap=2.3 ent=False free=False brk=False act=Approach split=0.00/0.00/0.00/0.00
+[HaltTrace] t=331.41 stopped=True F=0.00 ahead=15.4 lim=1.00 clamps=0 WolfBoss:front=14.3 gap=1.2 ent=False free=False brk=False act=Approach split=0.00/0.00/0.00/0.00
+[HaltTrace] t=331.71 stopped=True F=0.00 ahead=16.3 lim=1.00 clamps=0 WolfBoss:front=14.3 gap=0.3 ent=False free=False brk=False act=Telegraph split=0.00/0.00/0.00/0.00
+[HaltTrace] t=331.96 stopped=True F=0.00 ahead=17.0 lim=1.00 clamps=0
+[HaltTrace] t=332.24 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=332.54 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=332.84 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=333.14 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=333.44 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=333.74 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=334.04 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=334.34 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=334.64 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=334.94 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=335.24 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=335.54 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=335.84 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=336.14 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=336.44 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=336.74 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=337.04 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=337.34 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=337.64 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=337.94 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=338.24 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltTrace] t=338.54 stopped=True F=0.00 ahead=17.6 lim=1.00 clamps=0
+[HaltWatch] noBoss 6.8s phase=True defeated=True d=3000 x=2021.9 boss=wasteland_road/Wolf alive=0 mp=False
+[BossHalt] release (wasteland_road/Wolf -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.7s slide=7.2m maxAhead=17.6m bossFront=26.3m wall=0.0s clamps=0 d=3000 x=2021.9 boss= alive=0 mp=False
+[QA] stop at 3501m (game 5.9min): damage by reason: road:DeathY=5
+[QA]   1000m wasteland_road/Wolf alive=1 -> defeated in 6.8s
+[QA]   2000m wasteland_road/Wolf alive=1 -> defeated in 3.8s
+[QA]   3000m wasteland_road/Wolf alive=1 -> defeated in 5.9s
+[BossHalt] hold (boss) x=1998.7
+[HaltTrace] t=375.58 stopped=False F=0.99 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=375.88 stopped=False F=0.50 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=376.17 stopped=False F=0.02 ahead=0.0 lim=1.00 clamps=0
+[BossHalt] stopped x=2008.5 slide=9.8m
+[HaltTrace] t=376.43 stopped=True F=0.00 ahead=0.0 lim=1.00 clamps=0
+[HaltTrace] t=376.70 stopped=True F=0.00 ahead=0.0 lim=1.00 clamps=0 WolfBoss:front=-15.3 gap=-13.0 ent=True free=False brk=False act= split=0.50/0.00/0.00/0.00
+[HaltTrace] t=376.95 stopped=True F=0.00 ahead=0.0 lim=1.00 clamps=0 WolfBoss:front=-12.8 gap=-10.5 ent=True free=False brk=False act= split=0.50/0.00/0.00/0.00
+[HaltTrace] t=377.25 stopped=True F=0.00 ahead=0.0 lim=1.00 clamps=0 WolfBoss:front=-9.8 gap=-7.5 ent=True free=False brk=False act= split=0.50/0.00/0.00/0.00
+[HaltTrace] t=377.55 stopped=True F=0.00 ahead=0.0 lim=1.00 clamps=0 WolfBoss:front=-6.8 gap=-4.5 ent=True free=False brk=False act= split=0.50/0.00/0.00/0.00
+[HaltTrace] t=377.85 stopped=True F=0.00 ahead=0.0 lim=1.00 clamps=0 WolfBoss:front=-3.8 gap=-1.5 ent=True free=False brk=False act= split=0.50/0.00/0.00/0.00
+[HaltTrace] t=378.15 stopped=True F=0.00 ahead=0.6 lim=1.00 clamps=0 WolfBoss:front=-0.8 gap=0.9 ent=True free=False brk=False act= split=0.50/0.00/0.00/0.00
+[HaltTrace] t=378.41 stopped=True F=0.00 ahead=1.2 lim=1.00 clamps=0
+[HaltTrace] t=378.68 stopped=True F=0.00 ahead=1.9 lim=1.00 clamps=0
+[HaltTrace] t=378.98 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltTrace] t=379.28 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltTrace] t=379.58 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltTrace] t=379.88 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltTrace] t=380.18 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltTrace] t=380.48 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltTrace] t=380.77 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltTrace] t=381.07 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltTrace] t=381.37 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltTrace] t=381.62 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltTrace] t=381.92 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltTrace] t=382.22 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltTrace] t=382.52 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltTrace] t=382.77 stopped=True F=0.00 ahead=2.1 lim=1.00 clamps=0
+[HaltWatch] summary holds=4 seekLong=0 (max 0.0s/0m) runBoss=0 (max 0.0s) reach=0 (max 1.2s) noBoss=3 (max 13.1s) ahead=0 walls=0 (max 0.0s) maxAhead=17.6m arenaV2=True

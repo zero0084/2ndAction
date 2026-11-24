@@ -1,0 +1,870 @@
+en	11065	Create Room
+en	11066	Join Room
+en	11067	Disband Room
+en	11068	Leave Room
+en	11069	Start Game
+en	11070	Create a room and make it visible in the online “Join Room” list.
+en	11071	Create a room on this device. Devices on the same Wi-Fi can join through “Join Room”.
+en	11072	On the HOST device, select “Create Room” and connect all devices to the same Wi-Fi (or tethering).
+en	11073	Create a room with “Create Room”, or wait a moment and select “Search Again”.
+en	11074	Visible in “Join Room” on nearby devices
+en	11075	Visible in the online “Join Room” list
+en	11076	Once everyone is ready, select “Start Game” and choose a stage. Everyone will start on the same stage at the same time.
+en	11077	Disband the room?\nAll other players in the room will also be removed from it.
+en	11078	Leave the room?\nThe other players will remain in the room and can continue.
+en	11079	Closing this screen with “Close” will not affect the room (you can return to it through “Multi” on the Home screen).
+en	11080	Disbanding room…
+en	11081	Leaving room…
+en	11082	Room disbanded
+en	11083	Left the room
+en	11084	Could not leave the room. Check your connection and try again
+en	11085	Could not open the privacy settings. Check your connection and try again
+en	11086	Updated
+en	11087	Saved
+en	11088	Checking purchase information…
+en	11089	Purchases restored. No-Ads Pass is now active
+en	11090	Purchase confirmed. No-Ads Pass is already active
+en	11091	No restorable purchases were found
+en	11092	Could not connect to the store. Check your connection and try again
+en	11093	Could not connect to the store. No-Ads Pass remains active. Check your connection and try again
+en	11094	The store did not respond. Check your connection and try again
+zh-Hans	11065	创建房间
+zh-Hans	11066	加入房间
+zh-Hans	11067	解散房间
+zh-Hans	11068	离开房间
+zh-Hans	11069	开始游戏
+zh-Hans	11070	创建房间，并将其发布到在线“加入房间”列表中。
+zh-Hans	11071	在此设备上创建房间。连接到同一Wi-Fi的设备可通过“加入房间”进入。
+zh-Hans	11072	在HOST设备上点击“创建房间”，并将所有设备连接到同一Wi-Fi（或热点）。
+zh-Hans	11073	请用“创建房间”创建房间，或稍等片刻后点击“重新搜索”。
+zh-Hans	11074	正在附近设备的“加入房间”列表中显示
+zh-Hans	11075	正在在线“加入房间”列表中显示
+zh-Hans	11076	人齐后，点击“开始游戏”选择关卡并出发，所有人将同时从同一关卡开始。
+zh-Hans	11077	要解散房间吗？\n其他所有已加入的玩家也会被移出房间。
+zh-Hans	11078	要离开房间吗？\n其他玩家会留在房间内，并可继续游戏。
+zh-Hans	11079	即使点击“关闭”关闭此界面，房间也会保留（可从主界面的“多人”返回房间）。
+zh-Hans	11080	正在解散房间……
+zh-Hans	11081	正在离开房间……
+zh-Hans	11082	已解散房间
+zh-Hans	11083	已离开房间
+zh-Hans	11084	无法离开房间。请检查网络连接后重试
+zh-Hans	11085	无法打开隐私设置。请检查网络连接后重试
+zh-Hans	11086	已更新
+zh-Hans	11087	已保存
+zh-Hans	11088	正在检查购买信息……
+zh-Hans	11089	已恢复购买。免广告通行证现已生效
+zh-Hans	11090	已确认购买。免广告通行证已生效
+zh-Hans	11091	未找到可恢复的购买
+zh-Hans	11092	无法连接到商店。请检查网络连接后重试
+zh-Hans	11093	无法连接到商店。免广告通行证仍然有效。请检查网络连接后重试
+zh-Hans	11094	商店没有响应。请检查网络连接后重试
+zh-Hant	11065	建立房間
+zh-Hant	11066	加入房間
+zh-Hant	11067	解散房間
+zh-Hant	11068	離開房間
+zh-Hant	11069	開始遊戲
+zh-Hant	11070	建立房間，並將其公開在「加入房間」的線上清單中。
+zh-Hant	11071	在此裝置建立房間。連接相同Wi-Fi的裝置可從「加入房間」進入。
+zh-Hant	11072	在HOST裝置上按下「建立房間」，並將所有裝置連接到相同Wi-Fi（或行動熱點）。
+zh-Hant	11073	請用「建立房間」建立房間，或稍候再按「重新搜尋」。
+zh-Hant	11074	正在附近裝置的「加入房間」清單中顯示
+zh-Hant	11075	正在線上「加入房間」清單中顯示
+zh-Hant	11076	人員到齊後，按「開始遊戲」選擇關卡並出發，所有人會同時從相同關卡開始。
+zh-Hant	11077	要解散房間嗎？\n其他所有已加入的玩家也會被移出房間。
+zh-Hant	11078	要離開房間嗎？\n其他玩家會留在房間內，並可繼續遊戲。
+zh-Hant	11079	即使按「關閉」關閉此畫面，房間也會保留（可從主畫面的「多人」返回房間）。
+zh-Hant	11080	正在解散房間……
+zh-Hant	11081	正在離開房間……
+zh-Hant	11082	已解散房間
+zh-Hant	11083	已離開房間
+zh-Hant	11084	無法離開房間。請檢查網路連線後再試一次
+zh-Hant	11085	無法開啟隱私權設定。請檢查網路連線後再試一次
+zh-Hant	11086	已更新
+zh-Hant	11087	已儲存
+zh-Hant	11088	正在確認購買資訊……
+zh-Hant	11089	已恢復購買。免廣告通行證現已生效
+zh-Hant	11090	已確認購買。免廣告通行證已生效
+zh-Hant	11091	找不到可恢復的購買
+zh-Hant	11092	無法連接商店。請檢查網路連線後再試一次
+zh-Hant	11093	無法連接商店。免廣告通行證仍然有效。請檢查網路連線後再試一次
+zh-Hant	11094	商店沒有回應。請檢查網路連線後再試一次
+ko	11065	방 만들기
+ko	11066	방 참가
+ko	11067	방 해산
+ko	11068	방 나가기
+ko	11069	게임 시작
+ko	11070	방을 만들고 온라인 ‘방 참가’ 목록에 공개합니다.
+ko	11071	이 기기에서 방을 만듭니다. 같은 Wi-Fi에 연결된 기기는 ‘방 참가’를 통해 들어올 수 있습니다.
+ko	11072	HOST 기기에서 ‘방 만들기’를 누르고, 모든 기기를 같은 Wi-Fi(테더링)에 연결해 주세요.
+ko	11073	‘방 만들기’로 방을 만들거나, 잠시 후 ‘다시 검색’을 눌러 주세요.
+ko	11074	근처 기기의 ‘방 참가’ 목록에 표시 중
+ko	11075	온라인 ‘방 참가’ 목록에 표시 중
+ko	11076	모두 모이면 ‘게임 시작’에서 스테이지를 선택해 출발하세요. 모두 같은 스테이지에서 동시에 시작합니다.
+ko	11077	방을 해산할까요?\n참가 중인 다른 플레이어도 모두 방에서 나가게 됩니다.
+ko	11078	방에서 나갈까요?\n다른 플레이어는 방에 남아 그대로 계속할 수 있습니다.
+ko	11079	‘닫기’로 화면을 닫아도 방은 그대로 유지됩니다(홈의 ‘멀티’에서 방으로 돌아올 수 있습니다).
+ko	11080	방을 해산하는 중…
+ko	11081	방에서 나가는 중…
+ko	11082	방을 해산했습니다
+ko	11083	방에서 나갔습니다
+ko	11084	방에서 나가지 못했습니다. 통신 상태를 확인한 후 다시 시도해 주세요
+ko	11085	개인정보 보호 설정을 열지 못했습니다. 통신 상태를 확인한 후 다시 시도해 주세요
+ko	11086	업데이트했습니다
+ko	11087	저장했습니다
+ko	11088	구매 정보를 확인하는 중…
+ko	11089	구매를 복원했습니다. 광고 제거 패스가 활성화되었습니다
+ko	11090	구매를 확인했습니다. 광고 제거 패스가 이미 활성화되어 있습니다
+ko	11091	복원할 수 있는 구매를 찾지 못했습니다
+ko	11092	스토어에 연결하지 못했습니다. 통신 상태를 확인한 후 다시 시도해 주세요
+ko	11093	스토어에 연결하지 못했습니다. 광고 제거 패스는 계속 활성화되어 있습니다. 통신 상태를 확인한 후 다시 시도해 주세요
+ko	11094	스토어에서 응답이 없습니다. 통신 상태를 확인한 후 다시 시도해 주세요
+es	11065	Crear sala
+es	11066	Unirse a sala
+es	11067	Disolver sala
+es	11068	Salir de sala
+es	11069	Iniciar juego
+es	11070	Crea una sala y publícala en la lista «Unirse a sala» en línea.
+es	11071	Crea una sala en este dispositivo. Los dispositivos conectados al mismo Wi-Fi podrán entrar desde «Unirse a sala».
+es	11072	En el dispositivo HOST, pulsa «Crear sala» y conecta todos los dispositivos al mismo Wi-Fi (o punto de acceso).
+es	11073	Crea una sala con «Crear sala» o espera un momento y pulsa «Buscar de nuevo».
+es	11074	Visible en la lista «Unirse a sala» de dispositivos cercanos
+es	11075	Visible en la lista «Unirse a sala» en línea
+es	11076	Cuando estén todos, pulsa «Iniciar juego», elige un escenario e inicia la partida. Todos empezarán a la vez en el mismo escenario.
+es	11077	¿Disolver la sala?\nTodos los demás jugadores que estén participando también saldrán de la sala.
+es	11078	¿Salir de la sala?\nLos demás jugadores permanecerán en la sala y podrán continuar.
+es	11079	Aunque cierres esta pantalla con «Cerrar», la sala seguirá activa (puedes volver desde «Multi» en la pantalla de inicio).
+es	11080	Disolviendo la sala…
+es	11081	Saliendo de la sala…
+es	11082	Sala disuelta
+es	11083	Has salido de la sala
+es	11084	No se pudo salir de la sala. Comprueba la conexión y vuelve a intentarlo
+es	11085	No se pudo abrir la configuración de privacidad. Comprueba la conexión y vuelve a intentarlo
+es	11086	Actualizado
+es	11087	Guardado
+es	11088	Comprobando la información de compra…
+es	11089	Compra restaurada. Se ha activado el Pase Sin Anuncios
+es	11090	Compra confirmada. El Pase Sin Anuncios ya está activo
+es	11091	No se encontraron compras que se puedan restaurar
+es	11092	No se pudo conectar con la tienda. Comprueba la conexión y vuelve a intentarlo
+es	11093	No se pudo conectar con la tienda. El Pase Sin Anuncios sigue activo. Comprueba la conexión y vuelve a intentarlo
+es	11094	La tienda no respondió. Comprueba la conexión y vuelve a intentarlo
+pt-BR	11065	Criar sala
+pt-BR	11066	Entrar na sala
+pt-BR	11067	Encerrar sala
+pt-BR	11068	Sair da sala
+pt-BR	11069	Iniciar jogo
+pt-BR	11070	Cria uma sala e a publica na lista online de “Entrar na sala”.
+pt-BR	11071	Cria uma sala neste dispositivo. Dispositivos conectados à mesma rede Wi-Fi podem entrar pela opção “Entrar na sala”.
+pt-BR	11072	No dispositivo HOST, selecione “Criar sala” e conecte todos os dispositivos à mesma rede Wi-Fi (ou ao mesmo ponto de acesso).
+pt-BR	11073	Crie uma sala com “Criar sala” ou aguarde um pouco e selecione “Buscar de novo”.
+pt-BR	11074	Visível na lista “Entrar na sala” dos dispositivos próximos
+pt-BR	11075	Visível na lista online de “Entrar na sala”
+pt-BR	11076	Quando todos estiverem na sala, selecione “Iniciar jogo”, escolha uma fase e inicie a partida. Todos começarão ao mesmo tempo na mesma fase.
+pt-BR	11077	Encerrar a sala?\nTodos os outros jogadores também sairão da sala.
+pt-BR	11078	Sair da sala?\nOs outros jogadores permanecerão na sala e poderão continuar jogando.
+pt-BR	11079	Mesmo ao fechar esta tela com “Fechar”, a sala continuará ativa (você pode voltar pela opção “Multi” na tela inicial).
+pt-BR	11080	Encerrando a sala…
+pt-BR	11081	Saindo da sala…
+pt-BR	11082	Sala encerrada
+pt-BR	11083	Você saiu da sala
+pt-BR	11084	Não foi possível sair da sala. Verifique a conexão e tente novamente
+pt-BR	11085	Não foi possível abrir as configurações de privacidade. Verifique a conexão e tente novamente
+pt-BR	11086	Atualizado
+pt-BR	11087	Salvo
+pt-BR	11088	Verificando informações de compra…
+pt-BR	11089	Compras restauradas. O Passe Sem Anúncios foi ativado
+pt-BR	11090	Compra confirmada. O Passe Sem Anúncios já está ativo
+pt-BR	11091	Não foram encontradas compras para restaurar
+pt-BR	11092	Não foi possível conectar-se à loja. Verifique a conexão e tente novamente
+pt-BR	11093	Não foi possível conectar-se à loja. O Passe Sem Anúncios continua ativo. Verifique a conexão e tente novamente
+pt-BR	11094	A loja não respondeu. Verifique a conexão e tente novamente
+fr	11065	Créer un salon
+fr	11066	Rejoindre
+fr	11067	Dissoudre
+fr	11068	Quitter
+fr	11069	Lancer la partie
+fr	11070	Crée un salon visible dans la liste « Rejoindre » en ligne.
+fr	11071	Crée un salon sur cet appareil. Les appareils connectés au même Wi-Fi peuvent y accéder via « Rejoindre ».
+fr	11072	Sur l’appareil HOST, appuie sur « Créer un salon » et connecte tous les appareils au même réseau Wi-Fi (ou au même point d’accès mobile).
+fr	11073	Crée un salon avec « Créer un salon », ou attends un instant puis appuie sur « Rechercher à nouveau ».
+fr	11074	Visible dans la liste « Rejoindre » sur les appareils à proximité
+fr	11075	Visible dans la liste « Rejoindre » en ligne
+fr	11076	Quand tout le monde est là, appuie sur « Lancer la partie », choisis un niveau et démarre. Tous les joueurs commenceront alors le même niveau en même temps.
+fr	11077	Dissoudre le salon ?\nTous les autres joueurs seront également retirés du salon.
+fr	11078	Quitter le salon ?\nLes autres joueurs resteront dans le salon et pourront continuer à jouer.
+fr	11079	Si tu fermes cet écran avec « Fermer », le salon reste actif (tu peux y revenir via « Multi » sur l’écran d’accueil).
+fr	11080	Dissolution du salon…
+fr	11081	Sortie du salon…
+fr	11082	Salon dissous
+fr	11083	Tu as quitté le salon
+fr	11084	Impossible de quitter le salon. Vérifie ta connexion et réessaie
+fr	11085	Impossible d’ouvrir les paramètres de confidentialité. Vérifie ta connexion et réessaie
+fr	11086	Mis à jour
+fr	11087	Enregistré
+fr	11088	Vérification des informations d’achat…
+fr	11089	Achats restaurés. Le Pass Sans Pub est maintenant actif
+fr	11090	Achat confirmé. Le Pass Sans Pub est déjà actif
+fr	11091	Aucun achat à restaurer
+fr	11092	Impossible de se connecter à la boutique. Vérifie ta connexion et réessaie
+fr	11093	Impossible de se connecter à la boutique. Le Pass Sans Pub reste actif. Vérifie ta connexion et réessaie
+fr	11094	La boutique n’a pas répondu. Vérifie ta connexion et réessaie
+de	11065	Raum erstellen
+de	11066	Raum beitreten
+de	11067	Raum auflösen
+de	11068	Raum verlassen
+de	11069	Spiel starten
+de	11070	Erstellt einen Raum und zeigt ihn online in der Liste unter „Raum beitreten“ an.
+de	11071	Erstellt auf diesem Gerät einen Raum. Geräte im selben Wi-Fi-Netzwerk können ihn über „Raum beitreten“ betreten.
+de	11072	Wähle auf dem HOST-Gerät „Raum erstellen“ und verbinde alle Geräte mit demselben Wi-Fi-Netzwerk (oder Hotspot).
+de	11073	Erstelle über „Raum erstellen“ einen Raum oder warte kurz und wähle „Erneut suchen“.
+de	11074	Auf Geräten in der Nähe unter „Raum beitreten“ sichtbar
+de	11075	Online unter „Raum beitreten“ sichtbar
+de	11076	Wenn alle da sind, wähle „Spiel starten“, suche ein Level aus und starte. Alle beginnen dann gleichzeitig im selben Level.
+de	11077	Raum auflösen?\nDabei werden auch alle anderen Spieler aus dem Raum entfernt.
+de	11078	Raum verlassen?\nDie anderen Spieler bleiben im Raum und können weiterspielen.
+de	11079	Wenn du diese Ansicht mit „Schließen“ schließt, bleibt der Raum bestehen (über „Multi“ auf dem Hauptbildschirm kannst du zurückkehren).
+de	11080	Raum wird aufgelöst…
+de	11081	Raum wird verlassen…
+de	11082	Raum aufgelöst
+de	11083	Du hast den Raum verlassen
+de	11084	Der Raum konnte nicht verlassen werden. Prüfe deine Verbindung und versuche es erneut
+de	11085	Die Datenschutzeinstellungen konnten nicht geöffnet werden. Prüfe deine Verbindung und versuche es erneut
+de	11086	Aktualisiert
+de	11087	Gespeichert
+de	11088	Kaufinformationen werden geprüft…
+de	11089	Käufe wiederhergestellt. Der Werbefrei-Pass ist jetzt aktiv
+de	11090	Kauf bestätigt. Der Werbefrei-Pass ist bereits aktiv
+de	11091	Keine wiederherstellbaren Käufe gefunden
+de	11092	Verbindung zum Store fehlgeschlagen. Prüfe deine Verbindung und versuche es erneut
+de	11093	Verbindung zum Store fehlgeschlagen. Der Werbefrei-Pass bleibt aktiv. Prüfe deine Verbindung und versuche es erneut
+de	11094	Keine Antwort vom Store. Prüfe deine Verbindung und versuche es erneut
+it	11065	Crea stanza
+it	11066	Entra in stanza
+it	11067	Elimina stanza
+it	11068	Esci dalla stanza
+it	11069	Avvia partita
+it	11070	Crea una stanza e la rende visibile nell'elenco online di «Entra in stanza».
+it	11071	Crea una stanza su questo dispositivo. I dispositivi connessi alla stessa rete Wi-Fi possono entrare tramite «Entra in stanza».
+it	11072	Sul dispositivo HOST, premi «Crea stanza» e collega tutti i dispositivi alla stessa rete Wi-Fi (o allo stesso hotspot).
+it	11073	Crea una stanza con «Crea stanza» oppure attendi un momento e premi «Cerca ancora».
+it	11074	Visibile in «Entra in stanza» sui dispositivi vicini
+it	11075	Visibile nell'elenco online di «Entra in stanza»
+it	11076	Quando ci siete tutti, premi «Avvia partita», scegli un livello e parti. Tutti inizieranno contemporaneamente nello stesso livello.
+it	11077	Eliminare la stanza?\nTutti gli altri giocatori verranno fatti uscire dalla stanza.
+it	11078	Uscire dalla stanza?\nGli altri giocatori resteranno nella stanza e potranno continuare a giocare.
+it	11079	Anche se chiudi questa schermata con «Chiudi», la stanza resta attiva (puoi tornarci da «Multi» nella schermata iniziale).
+it	11080	Eliminazione della stanza…
+it	11081	Uscita dalla stanza…
+it	11082	Stanza eliminata
+it	11083	Hai lasciato la stanza
+it	11084	Impossibile uscire dalla stanza. Controlla la connessione e riprova
+it	11085	Impossibile aprire le impostazioni sulla privacy. Controlla la connessione e riprova
+it	11086	Aggiornato
+it	11087	Salvato
+it	11088	Verifica delle informazioni di acquisto…
+it	11089	Acquisti ripristinati. Il Pass Senza Pubblicità è ora attivo
+it	11090	Acquisto verificato. Il Pass Senza Pubblicità è già attivo
+it	11091	Non sono stati trovati acquisti da ripristinare
+it	11092	Impossibile connettersi allo store. Controlla la connessione e riprova
+it	11093	Impossibile connettersi allo store. Il Pass Senza Pubblicità rimane attivo. Controlla la connessione e riprova
+it	11094	Nessuna risposta dallo store. Controlla la connessione e riprova
+ru	11065	Создать комнату
+ru	11066	Войти в комнату
+ru	11067	Удалить комнату
+ru	11068	Покинуть комнату
+ru	11069	Начать игру
+ru	11070	Создаёт комнату и добавляет её в онлайн-список «Войти в комнату».
+ru	11071	Создаёт комнату на этом устройстве. С устройств в той же сети Wi-Fi можно войти через «Войти в комнату».
+ru	11072	На устройстве HOST нажмите «Создать комнату» и подключите все устройства к одной сети Wi-Fi (или точке доступа).
+ru	11073	Создайте комнату кнопкой «Создать комнату» или немного подождите и нажмите «Искать снова».
+ru	11074	Отображается в списке «Войти в комнату» на устройствах поблизости
+ru	11075	Отображается в онлайн-списке «Войти в комнату»
+ru	11076	Когда все соберутся, нажмите «Начать игру», выберите уровень и отправляйтесь в путь. Все игроки начнут один и тот же уровень одновременно.
+ru	11077	Удалить комнату?\nВсе остальные игроки тоже покинут комнату.
+ru	11078	Покинуть комнату?\nДругие игроки останутся в комнате и смогут продолжить игру.
+ru	11079	Если закрыть этот экран кнопкой «Закрыть», комната останется активной (вернуться в неё можно через «Мульти» на главном экране).
+ru	11080	Удаление комнаты…
+ru	11081	Выход из комнаты…
+ru	11082	Комната удалена
+ru	11083	Вы покинули комнату
+ru	11084	Не удалось покинуть комнату. Проверьте подключение и повторите попытку
+ru	11085	Не удалось открыть настройки конфиденциальности. Проверьте подключение и повторите попытку
+ru	11086	Обновлено
+ru	11087	Сохранено
+ru	11088	Проверка данных о покупках…
+ru	11089	Покупки восстановлены. Пропуск без рекламы активирован
+ru	11090	Покупка подтверждена. Пропуск без рекламы уже активен
+ru	11091	Покупки для восстановления не найдены
+ru	11092	Не удалось подключиться к магазину. Проверьте подключение и повторите попытку
+ru	11093	Не удалось подключиться к магазину. Пропуск без рекламы остаётся активным. Проверьте подключение и повторите попытку
+ru	11094	Магазин не ответил. Проверьте подключение и повторите попытку
+pl	11065	Utwórz pokój
+pl	11066	Dołącz do pokoju
+pl	11067	Usuń pokój
+pl	11068	Opuść pokój
+pl	11069	Rozpocznij grę
+pl	11070	Tworzy pokój i udostępnia go na liście online „Dołącz do pokoju”.
+pl	11071	Tworzy pokój na tym urządzeniu. Urządzenia w tej samej sieci Wi-Fi mogą dołączyć przez opcję „Dołącz do pokoju”.
+pl	11072	Na urządzeniu HOST naciśnij „Utwórz pokój” i połącz wszystkie urządzenia z tą samą siecią Wi-Fi (lub z tym samym hotspotem).
+pl	11073	Utwórz pokój przyciskiem „Utwórz pokój” lub chwilę poczekaj i naciśnij „Szukaj ponownie”.
+pl	11074	Widoczny na liście „Dołącz do pokoju” na pobliskich urządzeniach
+pl	11075	Widoczny na liście online „Dołącz do pokoju”
+pl	11076	Gdy wszyscy dołączą, naciśnij „Rozpocznij grę”, wybierz etap i wyrusz. Wszyscy rozpoczną jednocześnie ten sam etap.
+pl	11077	Usunąć pokój?\nWszyscy pozostali gracze również opuszczą pokój.
+pl	11078	Opuścić pokój?\nPozostali gracze zostaną w pokoju i będą mogli grać dalej.
+pl	11079	Nawet jeśli zamkniesz ten ekran przyciskiem „Zamknij”, pokój pozostanie aktywny (możesz wrócić do niego przez „Multi” na ekranie głównym).
+pl	11080	Usuwanie pokoju…
+pl	11081	Opuszczanie pokoju…
+pl	11082	Pokój usunięty
+pl	11083	Opuszczono pokój
+pl	11084	Nie udało się opuścić pokoju. Sprawdź połączenie i spróbuj ponownie
+pl	11085	Nie udało się otworzyć ustawień prywatności. Sprawdź połączenie i spróbuj ponownie
+pl	11086	Odświeżono
+pl	11087	Zapisano
+pl	11088	Sprawdzanie informacji o zakupach…
+pl	11089	Przywrócono zakupy. Karnet Bez Reklam jest teraz aktywny
+pl	11090	Potwierdzono zakup. Karnet Bez Reklam jest już aktywny
+pl	11091	Nie znaleziono zakupów do przywrócenia
+pl	11092	Nie udało się połączyć ze sklepem. Sprawdź połączenie i spróbuj ponownie
+pl	11093	Nie udało się połączyć ze sklepem. Karnet Bez Reklam nadal jest aktywny. Sprawdź połączenie i spróbuj ponownie
+pl	11094	Sklep nie odpowiedział. Sprawdź połączenie i spróbuj ponownie
+tr	11065	Oda Oluştur
+tr	11066	Odaya Katıl
+tr	11067	Odayı Sonlandır
+tr	11068	Odadan Ayrıl
+tr	11069	Oyunu Başlat
+tr	11070	Bir oda oluşturur ve odayı çevrimiçi “Odaya Katıl” listesinde gösterir.
+tr	11071	Bu cihazda bir oda oluşturur. Aynı Wi-Fi ağına bağlı cihazlar “Odaya Katıl” üzerinden odaya girebilir.
+tr	11072	HOST cihazında “Oda Oluştur” düğmesine basın ve tüm cihazları aynı Wi-Fi ağına (veya aynı mobil erişim noktasına) bağlayın.
+tr	11073	“Oda Oluştur” ile bir oda oluşturun veya biraz bekleyip “Tekrar ara” düğmesine basın.
+tr	11074	Yakındaki cihazların “Odaya Katıl” listesinde görünüyor
+tr	11075	Çevrimiçi “Odaya Katıl” listesinde görünüyor
+tr	11076	Herkes katıldığında “Oyunu Başlat” düğmesine basıp bir bölüm seçin ve yola çıkın. Herkes aynı bölümde aynı anda başlayacak.
+tr	11077	Odayı sonlandırmak istiyor musunuz?\nOdadaki diğer tüm oyuncular da odadan çıkarılacak.
+tr	11078	Odadan ayrılmak istiyor musunuz?\nDiğer oyuncular odada kalacak ve oynamaya devam edebilecek.
+tr	11079	Bu ekranı “Kapat” ile kapatsanız da oda açık kalır (ana ekrandaki “Çok oyunculu” üzerinden odaya dönebilirsiniz).
+tr	11080	Oda sonlandırılıyor…
+tr	11081	Odadan ayrılıyorsunuz…
+tr	11082	Oda sonlandırıldı
+tr	11083	Odadan ayrıldınız
+tr	11084	Odadan ayrılamadınız. Bağlantınızı kontrol edin ve tekrar deneyin
+tr	11085	Gizlilik ayarları açılamadı. Bağlantınızı kontrol edin ve tekrar deneyin
+tr	11086	Güncellendi
+tr	11087	Kaydedildi
+tr	11088	Satın alma bilgileri kontrol ediliyor…
+tr	11089	Satın alımlar geri yüklendi. Reklamsız Geçiş artık etkin
+tr	11090	Satın alma işlemi doğrulandı. Reklamsız Geçiş zaten etkin
+tr	11091	Geri yüklenebilecek satın alım bulunamadı
+tr	11092	Mağazaya bağlanılamadı. Bağlantınızı kontrol edin ve tekrar deneyin
+tr	11093	Mağazaya bağlanılamadı. Reklamsız Geçiş hâlâ etkin. Bağlantınızı kontrol edin ve tekrar deneyin
+tr	11094	Mağazadan yanıt alınamadı. Bağlantınızı kontrol edin ve tekrar deneyin
+uk	11065	Створити кімнату
+uk	11066	Увійти в кімнату
+uk	11067	Видалити кімнату
+uk	11068	Вийти з кімнати
+uk	11069	Почати гру
+uk	11070	Створює кімнату та додає її до онлайн-списку «Увійти в кімнату».
+uk	11071	Створює кімнату на цьому пристрої. З інших пристроїв у тій самій мережі Wi-Fi можна приєднатися через «Увійти в кімнату».
+uk	11072	На пристрої HOST натисніть «Створити кімнату» та під’єднайте всі пристрої до однієї мережі Wi-Fi (або точки доступу).
+uk	11073	Створіть кімнату кнопкою «Створити кімнату» або трохи зачекайте й натисніть «Шукати знову».
+uk	11074	Відображається у списку «Увійти в кімнату» на пристроях поблизу
+uk	11075	Відображається в онлайн-списку «Увійти в кімнату»
+uk	11076	Коли всі зберуться, натисніть «Почати гру», виберіть рівень і вирушайте в дорогу. Усі гравці почнуть той самий рівень одночасно.
+uk	11077	Видалити кімнату?\nУсі інші гравці також вийдуть із кімнати.
+uk	11078	Вийти з кімнати?\nІнші гравці залишаться в кімнаті та зможуть продовжити гру.
+uk	11079	Якщо закрити цей екран кнопкою «Закрити», кімната залишиться активною (повернутися до неї можна через «Мульти» на головному екрані).
+uk	11080	Видалення кімнати…
+uk	11081	Вихід із кімнати…
+uk	11082	Кімнату видалено
+uk	11083	Ви вийшли з кімнати
+uk	11084	Не вдалося вийти з кімнати. Перевірте з’єднання та спробуйте ще раз
+uk	11085	Не вдалося відкрити налаштування конфіденційності. Перевірте з’єднання та спробуйте ще раз
+uk	11086	Оновлено
+uk	11087	Збережено
+uk	11088	Перевірка даних про покупки…
+uk	11089	Покупки відновлено. Перепустка без реклами тепер активна
+uk	11090	Покупку підтверджено. Перепустка без реклами вже активна
+uk	11091	Покупок для відновлення не знайдено
+uk	11092	Не вдалося під’єднатися до магазину. Перевірте з’єднання та спробуйте ще раз
+uk	11093	Не вдалося під’єднатися до магазину. Перепустка без реклами залишається активною. Перевірте з’єднання та спробуйте ще раз
+uk	11094	Магазин не відповів. Перевірте з’єднання та спробуйте ще раз
+cs	11065	Vytvořit místnost
+cs	11066	Připojit se
+cs	11067	Zrušit místnost
+cs	11068	Opustit místnost
+cs	11069	Spustit hru
+cs	11070	Vytvoří místnost a zveřejní ji v online seznamu „Připojit se“.
+cs	11071	Vytvoří místnost na tomto zařízení. Zařízení ve stejné síti Wi-Fi se mohou připojit přes „Připojit se“.
+cs	11072	Na zařízení HOST stiskněte „Vytvořit místnost“ a připojte všechna zařízení ke stejné síti Wi-Fi (nebo ke stejnému hotspotu).
+cs	11073	Vytvořte místnost pomocí tlačítka „Vytvořit místnost“ nebo chvíli počkejte a stiskněte „Hledat znovu“.
+cs	11074	Zobrazuje se v seznamu „Připojit se“ na okolních zařízeních
+cs	11075	Zobrazuje se v online seznamu „Připojit se“
+cs	11076	Až se všichni sejdou, stiskněte „Spustit hru“, vyberte úroveň a vyrazte. Všichni začnou současně hrát stejnou úroveň.
+cs	11077	Zrušit místnost?\nMístnost opustí také všichni ostatní hráči.
+cs	11078	Opustit místnost?\nOstatní hráči v místnosti zůstanou a budou moci pokračovat ve hře.
+cs	11079	I když tuto obrazovku zavřete tlačítkem „Zavřít“, místnost zůstane aktivní (můžete se do ní vrátit přes „Multi“ na hlavní obrazovce).
+cs	11080	Rušení místnosti…
+cs	11081	Opouštění místnosti…
+cs	11082	Místnost zrušena
+cs	11083	Opustili jste místnost
+cs	11084	Nepodařilo se opustit místnost. Zkontrolujte připojení a zkuste to znovu
+cs	11085	Nepodařilo se otevřít nastavení soukromí. Zkontrolujte připojení a zkuste to znovu
+cs	11086	Aktualizováno
+cs	11087	Uloženo
+cs	11088	Ověřování údajů o nákupech…
+cs	11089	Nákupy obnoveny. Propustka bez reklam je nyní aktivní
+cs	11090	Nákup ověřen. Propustka bez reklam je již aktivní
+cs	11091	Nebyly nalezeny žádné nákupy k obnovení
+cs	11092	Nepodařilo se připojit k obchodu. Zkontrolujte připojení a zkuste to znovu
+cs	11093	Nepodařilo se připojit k obchodu. Propustka bez reklam je stále aktivní. Zkontrolujte připojení a zkuste to znovu
+cs	11094	Obchod neodpověděl. Zkontrolujte připojení a zkuste to znovu
+ro	11065	Creează o cameră
+ro	11066	Intră în cameră
+ro	11067	Desființează
+ro	11068	Părăsește camera
+ro	11069	Începe jocul
+ro	11070	Creează o cameră și o afișează în lista online „Intră în cameră”.
+ro	11071	Creează o cameră pe acest dispozitiv. Dispozitivele conectate la aceeași rețea Wi-Fi o pot accesa prin „Intră în cameră”.
+ro	11072	Pe dispozitivul HOST, apasă „Creează o cameră” și conectează toate dispozitivele la aceeași rețea Wi-Fi (sau la același hotspot).
+ro	11073	Creează o cameră cu „Creează o cameră” sau așteaptă puțin și apasă „Caută din nou”.
+ro	11074	Vizibilă în lista „Intră în cameră” de pe dispozitivele din apropiere
+ro	11075	Vizibilă în lista online „Intră în cameră”
+ro	11076	Când sunt toți în cameră, apasă „Începe jocul”, alege un nivel și pornește. Toți vor începe același nivel în același timp.
+ro	11077	Vrei să desființezi camera?\nToți ceilalți jucători vor fi scoși din cameră.
+ro	11078	Vrei să părăsești camera?\nCeilalți jucători vor rămâne în cameră și vor putea continua să joace.
+ro	11079	Camera rămâne activă chiar dacă închizi acest ecran cu „Închide” (poți reveni prin „Multi” de pe ecranul principal).
+ro	11080	Se desființează camera…
+ro	11081	Se părăsește camera…
+ro	11082	Camera a fost desființată
+ro	11083	Ai părăsit camera
+ro	11084	Nu s-a putut părăsi camera. Verifică conexiunea și încearcă din nou
+ro	11085	Nu s-au putut deschide setările de confidențialitate. Verifică conexiunea și încearcă din nou
+ro	11086	Actualizat
+ro	11087	Salvat
+ro	11088	Se verifică informațiile despre achiziții…
+ro	11089	Achizițiile au fost restabilite. „Permis Fără Reclame” este acum activ
+ro	11090	Achiziția a fost confirmată. „Permis Fără Reclame” este deja activ
+ro	11091	Nu s-au găsit achiziții care să poată fi restabilite
+ro	11092	Conectarea la magazin a eșuat. Verifică conexiunea și încearcă din nou
+ro	11093	Conectarea la magazin a eșuat. „Permis Fără Reclame” rămâne activ. Verifică conexiunea și încearcă din nou
+ro	11094	Magazinul nu a răspuns. Verifică conexiunea și încearcă din nou
+id	11065	Buat Ruang
+id	11066	Gabung Ruang
+id	11067	Bubarkan Ruang
+id	11068	Keluar Ruang
+id	11069	Mulai Game
+id	11070	Membuat ruang dan menampilkannya di daftar online “Gabung Ruang”.
+id	11071	Membuat ruang di perangkat ini. Perangkat di jaringan Wi-Fi yang sama dapat masuk melalui “Gabung Ruang”.
+id	11072	Di perangkat HOST, tekan “Buat Ruang” dan hubungkan semua perangkat ke jaringan Wi-Fi yang sama (atau hotspot yang sama).
+id	11073	Tekan “Buat Ruang” untuk membuat ruang, atau tunggu sebentar lalu tekan “Cari lagi”.
+id	11074	Ditampilkan di daftar “Gabung Ruang” pada perangkat di sekitar
+id	11075	Ditampilkan di daftar online “Gabung Ruang”
+id	11076	Setelah semua pemain berkumpul, tekan “Mulai Game”, pilih level, lalu mulai bermain. Semua pemain akan mulai bersamaan di level yang sama.
+id	11077	Bubarkan ruang?\nSemua pemain lain juga akan dikeluarkan dari ruang.
+id	11078	Keluar dari ruang?\nPemain lain akan tetap berada di ruang dan dapat melanjutkan permainan.
+id	11079	Meski layar ini ditutup dengan “Tutup”, ruang akan tetap aktif (Anda dapat kembali melalui “Multi” di layar utama).
+id	11080	Sedang membubarkan ruang…
+id	11081	Sedang keluar dari ruang…
+id	11082	Ruang telah dibubarkan
+id	11083	Anda telah keluar dari ruang
+id	11084	Tidak dapat keluar dari ruang. Periksa koneksi dan coba lagi
+id	11085	Tidak dapat membuka pengaturan privasi. Periksa koneksi dan coba lagi
+id	11086	Diperbarui
+id	11087	Disimpan
+id	11088	Memeriksa informasi pembelian…
+id	11089	Pembelian dipulihkan. Pass Tanpa Iklan kini aktif
+id	11090	Pembelian terverifikasi. Pass Tanpa Iklan sudah aktif
+id	11091	Tidak ditemukan pembelian yang dapat dipulihkan
+id	11092	Tidak dapat terhubung ke toko. Periksa koneksi dan coba lagi
+id	11093	Tidak dapat terhubung ke toko. Pass Tanpa Iklan tetap aktif. Periksa koneksi dan coba lagi
+id	11094	Toko tidak merespons. Periksa koneksi dan coba lagi
+ms	11065	Cipta Bilik
+ms	11066	Sertai Bilik
+ms	11067	Bubarkan Bilik
+ms	11068	Keluar Bilik
+ms	11069	Mula Main
+ms	11070	Mencipta bilik dan memaparkannya dalam senarai dalam talian “Sertai Bilik”.
+ms	11071	Mencipta bilik pada peranti ini. Peranti pada rangkaian Wi-Fi yang sama boleh masuk melalui “Sertai Bilik”.
+ms	11072	Pada peranti HOST, tekan “Cipta Bilik” dan sambungkan semua peranti ke rangkaian Wi-Fi yang sama (atau hotspot yang sama).
+ms	11073	Tekan “Cipta Bilik” untuk mencipta bilik atau tunggu sebentar, kemudian tekan “Cari semula”.
+ms	11074	Dipaparkan dalam senarai “Sertai Bilik” pada peranti berdekatan
+ms	11075	Dipaparkan dalam senarai dalam talian “Sertai Bilik”
+ms	11076	Apabila semua pemain sudah berkumpul, tekan “Mula Main”, pilih peringkat, kemudian mulakan permainan. Semua pemain akan bermula serentak pada peringkat yang sama.
+ms	11077	Bubarkan bilik?\nSemua pemain lain juga akan dikeluarkan dari bilik.
+ms	11078	Keluar dari bilik?\nPemain lain akan kekal di dalam bilik dan boleh meneruskan permainan.
+ms	11079	Walaupun skrin ini ditutup dengan “Tutup”, bilik akan kekal aktif (anda boleh kembali melalui “Multi” pada skrin utama).
+ms	11080	Sedang membubarkan bilik…
+ms	11081	Sedang keluar dari bilik…
+ms	11082	Bilik telah dibubarkan
+ms	11083	Anda telah keluar dari bilik
+ms	11084	Tidak dapat keluar dari bilik. Semak sambungan dan cuba lagi
+ms	11085	Tidak dapat membuka tetapan privasi. Semak sambungan dan cuba lagi
+ms	11086	Dikemas kini
+ms	11087	Disimpan
+ms	11088	Menyemak maklumat pembelian…
+ms	11089	Pembelian telah dipulihkan. Pas Tanpa Iklan kini aktif
+ms	11090	Pembelian disahkan. Pas Tanpa Iklan sudah pun aktif
+ms	11091	Tiada pembelian yang boleh dipulihkan ditemui
+ms	11092	Tidak dapat menyambung ke gedung. Semak sambungan dan cuba lagi
+ms	11093	Tidak dapat menyambung ke gedung. Pas Tanpa Iklan kekal aktif. Semak sambungan dan cuba lagi
+ms	11094	Tiada respons daripada gedung. Semak sambungan dan cuba lagi
+vi	11065	Tạo phòng
+vi	11066	Vào phòng
+vi	11067	Giải tán phòng
+vi	11068	Rời phòng
+vi	11069	Bắt đầu chơi
+vi	11070	Tạo phòng và đưa phòng vào danh sách “Vào phòng” trực tuyến.
+vi	11071	Tạo phòng trên thiết bị này. Các thiết bị kết nối cùng mạng Wi-Fi có thể tham gia qua “Vào phòng”.
+vi	11072	Nhấn “Tạo phòng” trên thiết bị HOST và kết nối tất cả thiết bị với cùng một mạng Wi-Fi (hoặc cùng một điểm phát sóng di động).
+vi	11073	Tạo phòng bằng “Tạo phòng” hoặc đợi một lát rồi nhấn “Tìm lại”.
+vi	11074	Đang hiển thị trong danh sách “Vào phòng” trên các thiết bị ở gần
+vi	11075	Đang hiển thị trong danh sách “Vào phòng” trực tuyến
+vi	11076	Khi mọi người đã có mặt, nhấn “Bắt đầu chơi”, chọn màn và xuất phát. Tất cả sẽ bắt đầu cùng lúc ở cùng một màn.
+vi	11077	Giải tán phòng?\nTất cả người chơi khác cũng sẽ bị đưa ra khỏi phòng.
+vi	11078	Rời phòng?\nNhững người chơi khác sẽ ở lại trong phòng và có thể tiếp tục chơi.
+vi	11079	Dù đóng màn hình này bằng “Đóng”, phòng vẫn hoạt động (bạn có thể quay lại qua “Nhiều người” trên màn hình chính).
+vi	11080	Đang giải tán phòng…
+vi	11081	Đang rời phòng…
+vi	11082	Đã giải tán phòng
+vi	11083	Đã rời phòng
+vi	11084	Không thể rời phòng. Hãy kiểm tra kết nối rồi thử lại
+vi	11085	Không thể mở cài đặt quyền riêng tư. Hãy kiểm tra kết nối rồi thử lại
+vi	11086	Đã cập nhật
+vi	11087	Đã lưu
+vi	11088	Đang kiểm tra thông tin giao dịch…
+vi	11089	Đã khôi phục giao dịch. Vé Không Quảng Cáo hiện đã có hiệu lực
+vi	11090	Đã xác nhận giao dịch. Vé Không Quảng Cáo đã có hiệu lực từ trước
+vi	11091	Không tìm thấy giao dịch có thể khôi phục
+vi	11092	Không thể kết nối với cửa hàng. Hãy kiểm tra kết nối rồi thử lại
+vi	11093	Không thể kết nối với cửa hàng. Vé Không Quảng Cáo vẫn có hiệu lực. Hãy kiểm tra kết nối rồi thử lại
+vi	11094	Không nhận được phản hồi từ cửa hàng. Hãy kiểm tra kết nối rồi thử lại
+th	11065	สร้างห้อง
+th	11066	เข้าร่วมห้อง
+th	11067	ยุบห้อง
+th	11068	ออกจากห้อง
+th	11069	เริ่มเกม
+th	11070	สร้างห้องและแสดงห้องในรายการ “เข้าร่วมห้อง” ออนไลน์
+th	11071	สร้างห้องบนอุปกรณ์นี้ อุปกรณ์ที่เชื่อมต่อ Wi-Fi เดียวกันสามารถเข้าผ่าน “เข้าร่วมห้อง” ได้
+th	11072	กด “สร้างห้อง” บนอุปกรณ์ HOST แล้วเชื่อมต่ออุปกรณ์ทุกเครื่องกับ Wi-Fi เดียวกัน (หรือฮอตสปอตเดียวกัน)
+th	11073	สร้างห้องด้วย “สร้างห้อง” หรือรอสักครู่แล้วกด “ค้นหาใหม่”
+th	11074	กำลังแสดงในรายการ “เข้าร่วมห้อง” บนอุปกรณ์ใกล้เคียง
+th	11075	กำลังแสดงในรายการ “เข้าร่วมห้อง” ออนไลน์
+th	11076	เมื่อทุกคนมาครบแล้ว ให้กด “เริ่มเกม” เลือกด่านและออกเดินทาง ทุกคนจะเริ่มเล่นด่านเดียวกันพร้อมกัน
+th	11077	ต้องการยุบห้องหรือไม่?\nผู้เล่นคนอื่นทั้งหมดจะถูกนำออกจากห้องด้วย
+th	11078	ต้องการออกจากห้องหรือไม่?\nผู้เล่นคนอื่นจะยังอยู่ในห้องและเล่นต่อได้
+th	11079	แม้จะปิดหน้าจอนี้ด้วย “ปิด” ห้องก็ยังเปิดอยู่ (กลับมาได้โดยกด “มัลติ” บนหน้าหลัก)
+th	11080	กำลังยุบห้อง…
+th	11081	กำลังออกจากห้อง…
+th	11082	ยุบห้องแล้ว
+th	11083	ออกจากห้องแล้ว
+th	11084	ออกจากห้องไม่สำเร็จ ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง
+th	11085	เปิดการตั้งค่าความเป็นส่วนตัวไม่สำเร็จ ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง
+th	11086	อัปเดตแล้ว
+th	11087	บันทึกแล้ว
+th	11088	กำลังตรวจสอบข้อมูลการซื้อ…
+th	11089	กู้คืนการซื้อแล้ว บัตรผ่านไร้โฆษณาเปิดใช้งานแล้ว
+th	11090	ตรวจสอบการซื้อแล้ว บัตรผ่านไร้โฆษณาเปิดใช้งานอยู่แล้ว
+th	11091	ไม่พบการซื้อที่กู้คืนได้
+th	11092	เชื่อมต่อกับร้านค้าไม่สำเร็จ ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง
+th	11093	เชื่อมต่อกับร้านค้าไม่สำเร็จ บัตรผ่านไร้โฆษณายังคงเปิดใช้งานอยู่ ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง
+th	11094	ไม่ได้รับการตอบกลับจากร้านค้า ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง
+fil	11065	Gumawa ng Room
+fil	11066	Sumali sa Room
+fil	11067	Buwagin ang Room
+fil	11068	Umalis sa Room
+fil	11069	Simulan ang Laro
+fil	11070	Gagawa ng room at ipapakita ito sa online na listahan ng “Sumali sa Room”.
+fil	11071	Gagawa ng room sa device na ito. Makakasali rito ang mga device na nakakonekta sa parehong Wi-Fi gamit ang “Sumali sa Room”.
+fil	11072	Sa device ng HOST, pindutin ang “Gumawa ng Room” at ikonekta ang lahat ng device sa iisang Wi-Fi (o hotspot).
+fil	11073	Gumawa ng room gamit ang “Gumawa ng Room”, o maghintay sandali at pindutin ang “Hanapin Ulit”.
+fil	11074	Nakalista sa “Sumali sa Room” ng mga kalapit na device
+fil	11075	Nakalista sa online na “Sumali sa Room”
+fil	11076	Kapag nakasali na ang lahat, pindutin ang “Simulan ang Laro”, pumili ng stage, at magsimula. Sabay-sabay na magsisimula ang lahat sa iisang stage.
+fil	11077	Buwagin ang room?\nPaaalisin din sa room ang lahat ng iba pang manlalaro.
+fil	11078	Umalis sa room?\nMananatili sa room ang ibang manlalaro at makakapagpatuloy sila sa laro.
+fil	11079	Kahit isara ang screen gamit ang “Isara”, mananatili ang room (makakabalik dito mula sa “Multi” sa home screen).
+fil	11080	Binubuwag ang room…
+fil	11081	Umaalis sa room…
+fil	11082	Nabuwag na ang room
+fil	11083	Nakaalis ka na sa room
+fil	11084	Hindi nakaalis sa room. Suriin ang koneksyon at subukan ulit
+fil	11085	Hindi nabuksan ang mga setting ng privacy. Suriin ang koneksyon at subukan ulit
+fil	11086	Na-update na
+fil	11087	Na-save na
+fil	11088	Sinusuri ang mga detalye ng pagbili…
+fil	11089	Na-restore na ang binili. Na-activate na ang No-Ads Pass
+fil	11090	Nakumpirma ang pagbili. Aktibo na ang No-Ads Pass
+fil	11091	Walang nahanap na biniling puwedeng i-restore
+fil	11092	Hindi makakonekta sa store. Suriin ang koneksyon at subukan ulit
+fil	11093	Hindi makakonekta sa store. Aktibo pa rin ang No-Ads Pass. Suriin ang koneksyon at subukan ulit
+fil	11094	Hindi tumugon ang store. Suriin ang koneksyon at subukan ulit
+hi	11065	रूम बनाएँ
+hi	11066	रूम से जुड़ें
+hi	11067	रूम समाप्त करें
+hi	11068	रूम छोड़ें
+hi	11069	गेम शुरू करें
+hi	11070	रूम बनाया जाएगा और उसे “रूम से जुड़ें” की ऑनलाइन सूची में दिखाया जाएगा।
+hi	11071	इस डिवाइस पर रूम बनाया जाएगा। एक ही Wi-Fi से जुड़े डिवाइस “रूम से जुड़ें” के ज़रिए इसमें शामिल हो सकते हैं।
+hi	11072	HOST के डिवाइस पर “रूम बनाएँ” दबाएँ और सभी डिवाइसों को एक ही Wi-Fi नेटवर्क (या एक ही हॉटस्पॉट) से जोड़ें।
+hi	11073	रूम बनाने के लिए “रूम बनाएँ” दबाएँ, या थोड़ी देर रुककर “फिर खोजें” दबाएँ।
+hi	11074	आस-पास के डिवाइसों पर “रूम से जुड़ें” की सूची में दिख रहा है
+hi	11075	“रूम से जुड़ें” की ऑनलाइन सूची में दिख रहा है
+hi	11076	सबके जुड़ जाने पर “गेम शुरू करें” दबाएँ, स्टेज चुनें और रवाना हों। सभी खिलाड़ी एक ही स्टेज पर एक साथ खेल शुरू करेंगे।
+hi	11077	रूम समाप्त करें?\nबाकी सभी खिलाड़ियों को भी रूम से बाहर कर दिया जाएगा।
+hi	11078	रूम छोड़ें?\nबाकी खिलाड़ी रूम में रहेंगे और खेल जारी रख सकेंगे।
+hi	11079	“बंद करें” से यह स्क्रीन बंद करने पर भी रूम वैसा ही रहेगा (होम स्क्रीन के “मल्टी” से वापस आ सकते हैं)।
+hi	11080	रूम समाप्त किया जा रहा है…
+hi	11081	रूम छोड़ा जा रहा है…
+hi	11082	रूम समाप्त कर दिया गया
+hi	11083	आपने रूम छोड़ दिया
+hi	11084	रूम नहीं छोड़ा जा सका। कनेक्शन जाँचें और दोबारा कोशिश करें
+hi	11085	गोपनीयता की सेटिंग नहीं खुल सकी। कनेक्शन जाँचें और दोबारा कोशिश करें
+hi	11086	अपडेट हो गया
+hi	11087	सहेज लिया गया
+hi	11088	खरीदारी की जानकारी जाँची जा रही है…
+hi	11089	खरीदारी बहाल कर दी गई। विज्ञापन-मुक्त पास अब सक्रिय है
+hi	11090	खरीदारी की पुष्टि हो गई। विज्ञापन-मुक्त पास पहले से सक्रिय है
+hi	11091	बहाल करने के लिए कोई खरीदारी नहीं मिली
+hi	11092	स्टोर से कनेक्ट नहीं किया जा सका। कनेक्शन जाँचें और दोबारा कोशिश करें
+hi	11093	स्टोर से कनेक्ट नहीं किया जा सका। विज्ञापन-मुक्त पास अभी भी सक्रिय है। कनेक्शन जाँचें और दोबारा कोशिश करें
+hi	11094	स्टोर से कोई जवाब नहीं मिला। कनेक्शन जाँचें और दोबारा कोशिश करें
+bn	11065	রুম তৈরি করো
+bn	11066	রুমে যোগ দাও
+bn	11067	রুম মুছে ফেলো
+bn	11068	রুম ছাড়ো
+bn	11069	খেলা শুরু করো
+bn	11070	রুম তৈরি করে অনলাইনের “রুমে যোগ দাও” তালিকায় দেখানো হবে।
+bn	11071	এই ডিভাইসে রুম তৈরি করা হবে। একই Wi-Fi নেটওয়ার্কে যুক্ত ডিভাইস থেকে “রুমে যোগ দাও” দিয়ে ঢোকা যাবে।
+bn	11072	HOST ডিভাইসে “রুম তৈরি করো” চাপো এবং সব ডিভাইস একই Wi-Fi নেটওয়ার্কে (বা একই হটস্পটে) যুক্ত করো।
+bn	11073	রুম তৈরি করতে “রুম তৈরি করো” চাপো, অথবা একটু অপেক্ষা করে “আবার খোঁজো” চাপো।
+bn	11074	কাছাকাছি থাকা ডিভাইসগুলোর “রুমে যোগ দাও” তালিকায় দেখানো হচ্ছে
+bn	11075	অনলাইনের “রুমে যোগ দাও” তালিকায় দেখানো হচ্ছে
+bn	11076	সবাই যোগ দিলে, “খেলা শুরু করো” চেপে স্টেজ বেছে নাও, তারপর রওনা দাও। সবাই একই স্টেজে একসঙ্গে খেলা শুরু করবে।
+bn	11077	রুম মুছে ফেলবে?\nরুমে থাকা অন্য সব খেলোয়াড়কেও বের করে দেওয়া হবে।
+bn	11078	রুম ছাড়বে?\nঅন্য খেলোয়াড়েরা রুমে থাকবে এবং খেলা চালিয়ে যেতে পারবে।
+bn	11079	“বন্ধ করো” দিয়ে এই স্ক্রিন বন্ধ করলেও রুম আগের মতোই থাকবে (হোম স্ক্রিনের “মাল্টি” থেকে ফিরে আসতে পারবে)।
+bn	11080	রুম মুছে ফেলা হচ্ছে…
+bn	11081	রুম থেকে বের হচ্ছ…
+bn	11082	রুম মুছে ফেলা হয়েছে
+bn	11083	রুম ছেড়েছ
+bn	11084	রুম ছাড়া যায়নি। সংযোগ পরীক্ষা করে আবার চেষ্টা করো
+bn	11085	গোপনীয়তার সেটিংস খোলা যায়নি। সংযোগ পরীক্ষা করে আবার চেষ্টা করো
+bn	11086	আপডেট হয়েছে
+bn	11087	সংরক্ষণ করা হয়েছে
+bn	11088	কেনাকাটার তথ্য যাচাই করা হচ্ছে…
+bn	11089	কেনাকাটা পুনরুদ্ধার করা হয়েছে। বিজ্ঞাপনমুক্ত পাস এখন সক্রিয়
+bn	11090	কেনাকাটা যাচাই করা হয়েছে। বিজ্ঞাপনমুক্ত পাস আগে থেকেই সক্রিয়
+bn	11091	পুনরুদ্ধার করার মতো কোনো কেনাকাটা পাওয়া যায়নি
+bn	11092	স্টোরের সঙ্গে সংযোগ করা যায়নি। সংযোগ পরীক্ষা করে আবার চেষ্টা করো
+bn	11093	স্টোরের সঙ্গে সংযোগ করা যায়নি। বিজ্ঞাপনমুক্ত পাস এখনও সক্রিয়। সংযোগ পরীক্ষা করে আবার চেষ্টা করো
+bn	11094	স্টোর থেকে কোনো সাড়া পাওয়া যায়নি। সংযোগ পরীক্ষা করে আবার চেষ্টা করো
+ta	11065	அறையை உருவாக்கு
+ta	11066	அறையில் சேர்
+ta	11067	அறையை நீக்கு
+ta	11068	வெளியேறு
+ta	11069	ஆட்டத்தைத் தொடங்கு
+ta	11070	அறை உருவாக்கப்பட்டு, ஆன்லைன் “அறையில் சேர்” பட்டியலில் காட்டப்படும்.
+ta	11071	இந்தச் சாதனத்தில் அறை உருவாக்கப்படும். அதே Wi-Fi-இல் இணைந்துள்ள சாதனங்கள் “அறையில் சேர்” வழியாகச் சேரலாம்.
+ta	11072	HOST சாதனத்தில் “அறையை உருவாக்கு” என்பதை அழுத்தி, எல்லாச் சாதனங்களையும் ஒரே Wi-Fi-க்கு (அல்லது ஹாட்ஸ்பாட்டுக்கு) இணைக்கவும்.
+ta	11073	“அறையை உருவாக்கு” மூலம் ஓர் அறையை உருவாக்கவும் அல்லது சிறிது நேரம் காத்திருந்து “மீண்டும் தேடு” என்பதை அழுத்தவும்.
+ta	11074	அருகிலுள்ள சாதனங்களின் “அறையில் சேர்” பட்டியலில் காட்டப்படுகிறது
+ta	11075	ஆன்லைன் “அறையில் சேர்” பட்டியலில் காட்டப்படுகிறது
+ta	11076	அனைவரும் சேர்ந்ததும், “ஆட்டத்தைத் தொடங்கு” என்பதை அழுத்தி, நிலையைத் தேர்ந்தெடுத்துப் புறப்படவும். அனைவரும் ஒரே நிலையில் ஒரே நேரத்தில் தொடங்குவார்கள்.
+ta	11077	அறையை நீக்கவா?\nஅறையில் உள்ள மற்ற வீரர்கள் அனைவரும் வெளியேற்றப்படுவார்கள்.
+ta	11078	அறையிலிருந்து வெளியேறவா?\nமற்ற வீரர்கள் அறையிலேயே இருந்து தொடர்ந்து விளையாடலாம்.
+ta	11079	“மூடு” என்பதை அழுத்தி இந்தத் திரையை மூடினாலும், அறை அப்படியே இருக்கும் (முகப்புத் திரையின் “மல்டி” வழியாக அறைக்குத் திரும்பலாம்).
+ta	11080	அறை நீக்கப்படுகிறது…
+ta	11081	அறையிலிருந்து வெளியேறுகிறீர்கள்…
+ta	11082	அறை நீக்கப்பட்டது
+ta	11083	அறையிலிருந்து வெளியேறிவிட்டீர்கள்
+ta	11084	அறையிலிருந்து வெளியேற முடியவில்லை. இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்
+ta	11085	தனியுரிமை அமைப்புகளைத் திறக்க முடியவில்லை. இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்
+ta	11086	புதுப்பிக்கப்பட்டது
+ta	11087	சேமிக்கப்பட்டது
+ta	11088	வாங்கியதற்கான விவரங்களைச் சரிபார்க்கிறது…
+ta	11089	வாங்கியது மீட்டெடுக்கப்பட்டது. விளம்பரமில்லா பாஸ் செயல்படுத்தப்பட்டது
+ta	11090	வாங்கியது உறுதிசெய்யப்பட்டது. விளம்பரமில்லா பாஸ் ஏற்கனவே செயலிலுள்ளது
+ta	11091	வாங்கியவற்றில் மீட்டெடுக்கக்கூடியது எதுவும் கிடைக்கவில்லை
+ta	11092	ஸ்டோருடன் இணைய முடியவில்லை. இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்
+ta	11093	ஸ்டோருடன் இணைய முடியவில்லை. விளம்பரமில்லா பாஸ் செயலிலேயே உள்ளது. இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்
+ta	11094	ஸ்டோரிலிருந்து பதில் வரவில்லை. இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்
+ar	11065	إنشاء غرفة
+ar	11066	دخول غرفة
+ar	11067	إنهاء الغرفة
+ar	11068	مغادرة الغرفة
+ar	11069	بدء اللعبة
+ar	11070	إنشاء غرفة وإدراجها في قائمة «دخول غرفة» عبر الإنترنت.
+ar	11071	إنشاء غرفة على هذا الجهاز. يمكن للأجهزة المتصلة بشبكة Wi-Fi نفسها الدخول إليها عبر «دخول غرفة».
+ar	11072	اضغط على «إنشاء غرفة» على جهاز HOST، ثم صِل جميع الأجهزة بشبكة Wi-Fi نفسها (أو بنقطة الاتصال نفسها).
+ar	11073	أنشئ غرفة عبر «إنشاء غرفة»، أو انتظر قليلًا ثم اضغط على «بحث مجددًا».
+ar	11074	معروضة في قائمة «دخول غرفة» على الأجهزة القريبة
+ar	11075	معروضة في قائمة «دخول غرفة» عبر الإنترنت
+ar	11076	عندما ينضم الجميع، اضغط على «بدء اللعبة»، ثم اختر مرحلة وانطلق. سيبدأ الجميع في المرحلة نفسها وفي الوقت نفسه.
+ar	11077	هل تريد إنهاء الغرفة؟\nسيتم إخراج جميع اللاعبين الآخرين من الغرفة أيضًا.
+ar	11078	هل تريد مغادرة الغرفة؟\nسيبقى اللاعبون الآخرون في الغرفة ويمكنهم مواصلة اللعب.
+ar	11079	ستبقى الغرفة كما هي حتى إذا أغلقت هذه الشاشة باستخدام «إغلاق» (يمكنك العودة إليها عبر «جماعي» في الشاشة الرئيسية).
+ar	11080	جارٍ إنهاء الغرفة…
+ar	11081	جارٍ الخروج من الغرفة…
+ar	11082	تم إنهاء الغرفة
+ar	11083	تمت مغادرة الغرفة
+ar	11084	تعذرت مغادرة الغرفة. تحقق من الاتصال وحاول مجددًا
+ar	11085	تعذر فتح إعدادات الخصوصية. تحقق من الاتصال وحاول مجددًا
+ar	11086	تم التحديث
+ar	11087	تم الحفظ
+ar	11088	جارٍ التحقق من معلومات المشتريات…
+ar	11089	تمت استعادة المشتريات. أصبحت «تذكرة بلا إعلانات» مفعّلة الآن
+ar	11090	تم التحقق من المشتريات. «تذكرة بلا إعلانات» مفعّلة بالفعل
+ar	11091	لم يتم العثور على مشتريات يمكن استعادتها
+ar	11092	تعذر الاتصال بالمتجر. تحقق من الاتصال وحاول مجددًا
+ar	11093	تعذر الاتصال بالمتجر. لا تزال «تذكرة بلا إعلانات» مفعّلة. تحقق من الاتصال وحاول مجددًا
+ar	11094	لم يستجب المتجر. تحقق من الاتصال وحاول مجددًا
+fa	11065	ساخت اتاق
+fa	11066	ورود به اتاق
+fa	11067	حذف اتاق
+fa	11068	خروج از اتاق
+fa	11069	شروع بازی
+fa	11070	اتاقی می‌سازد و آن را در فهرست آنلاین «ورود به اتاق» نمایش می‌دهد.
+fa	11071	در این دستگاه اتاقی می‌سازد. دستگاه‌های متصل به همان شبکهٔ Wi-Fi می‌توانند از طریق «ورود به اتاق» وارد شوند.
+fa	11072	در دستگاه HOST روی «ساخت اتاق» بزنید و همهٔ دستگاه‌ها را به یک شبکهٔ Wi-Fi مشترک (یا یک نقطهٔ اتصال مشترک) وصل کنید.
+fa	11073	با «ساخت اتاق» یک اتاق بسازید یا کمی صبر کنید و سپس روی «جستجوی دوباره» بزنید.
+fa	11074	در فهرست «ورود به اتاق» دستگاه‌های نزدیک نمایش داده می‌شود
+fa	11075	در فهرست آنلاین «ورود به اتاق» نمایش داده می‌شود
+fa	11076	وقتی همه جمع شدند، روی «شروع بازی» بزنید، مرحله‌ای انتخاب کنید و راه بیفتید. همه بازی را هم‌زمان در همان مرحله شروع می‌کنند.
+fa	11077	اتاق حذف شود؟\nهمهٔ بازیکنان دیگر هم از اتاق خارج خواهند شد.
+fa	11078	می‌خواهید از اتاق خارج شوید؟\nبازیکنان دیگر در اتاق می‌مانند و می‌توانند به بازی ادامه دهند.
+fa	11079	حتی اگر با «بستن» این صفحه را ببندید، اتاق همچنان برقرار می‌ماند (می‌توانید از طریق «چندنفره» در صفحهٔ اصلی به اتاق بازگردید).
+fa	11080	در حال حذف اتاق…
+fa	11081	در حال خروج از اتاق…
+fa	11082	اتاق حذف شد
+fa	11083	از اتاق خارج شدید
+fa	11084	خروج از اتاق ناموفق بود. اتصال را بررسی کنید و دوباره تلاش کنید
+fa	11085	باز کردن تنظیمات حریم خصوصی ناموفق بود. اتصال را بررسی کنید و دوباره تلاش کنید
+fa	11086	به‌روزرسانی شد
+fa	11087	ذخیره شد
+fa	11088	در حال بررسی اطلاعات خرید…
+fa	11089	خریدها بازیابی شدند. پاس بدون تبلیغ اکنون فعال است
+fa	11090	خرید تأیید شد. پاس بدون تبلیغ از قبل فعال است
+fa	11091	خریدی برای بازیابی پیدا نشد
+fa	11092	اتصال به فروشگاه برقرار نشد. اتصال را بررسی کنید و دوباره تلاش کنید
+fa	11093	اتصال به فروشگاه برقرار نشد. پاس بدون تبلیغ همچنان فعال است. اتصال را بررسی کنید و دوباره تلاش کنید
+fa	11094	پاسخی از فروشگاه دریافت نشد. اتصال را بررسی کنید و دوباره تلاش کنید
+sw	11065	Unda Chumba
+sw	11066	Jiunge na Chumba
+sw	11067	Vunja Chumba
+sw	11068	Ondoka Chumbani
+sw	11069	Anza Mchezo
+sw	11070	Unda chumba na ukionyeshe kwenye orodha ya mtandaoni ya “Jiunge na Chumba”.
+sw	11071	Unda chumba kwenye kifaa hiki. Vifaa vilivyounganishwa kwenye Wi-Fi ileile vinaweza kuingia kupitia “Jiunge na Chumba”.
+sw	11072	Kwenye kifaa cha HOST, bonyeza “Unda Chumba” na uunganishe vifaa vyote kwenye Wi-Fi ileile (au sehemu ileile ya kusambaza intaneti).
+sw	11073	Unda chumba kwa “Unda Chumba”, au subiri kidogo kisha ubonyeze “Tafuta tena”.
+sw	11074	Kinaonekana kwenye orodha ya “Jiunge na Chumba” ya vifaa vilivyo karibu
+sw	11075	Kinaonekana kwenye orodha ya mtandaoni ya “Jiunge na Chumba”
+sw	11076	Kila mtu akishajiunga, bonyeza “Anza Mchezo”, chagua hatua na uanze. Wachezaji wote wataanza hatua ileile kwa wakati mmoja.
+sw	11077	Unataka kuvunja chumba?\nWachezaji wengine wote pia wataondolewa kwenye chumba.
+sw	11078	Unataka kuondoka chumbani?\nWachezaji wengine watabaki chumbani na wanaweza kuendelea kucheza.
+sw	11079	Hata ukifunga skrini hii kwa “Funga”, chumba kitaendelea kuwepo (unaweza kurudi kupitia “Wachezaji wengi” kwenye skrini kuu).
+sw	11080	Chumba kinavunjwa…
+sw	11081	Unaondoka chumbani…
+sw	11082	Chumba kimevunjwa
+sw	11083	Umeondoka chumbani
+sw	11084	Imeshindikana kuondoka chumbani. Angalia muunganisho wako na ujaribu tena
+sw	11085	Imeshindikana kufungua mipangilio ya faragha. Angalia muunganisho wako na ujaribu tena
+sw	11086	Imesasishwa
+sw	11087	Imehifadhiwa
+sw	11088	Inakagua taarifa za ununuzi…
+sw	11089	Ununuzi umerejeshwa. Pasi Bila Matangazo sasa inatumika
+sw	11090	Ununuzi umethibitishwa. Pasi Bila Matangazo tayari inatumika
+sw	11091	Hakuna ununuzi unaoweza kurejeshwa uliopatikana
+sw	11092	Imeshindikana kuunganishwa na duka. Angalia muunganisho wako na ujaribu tena
+sw	11093	Imeshindikana kuunganishwa na duka. Pasi Bila Matangazo bado inatumika. Angalia muunganisho wako na ujaribu tena
+sw	11094	Duka halijajibu. Angalia muunganisho wako na ujaribu tena
+km	11065	បង្កើតបន្ទប់
+km	11066	ចូលបន្ទប់
+km	11067	រំសាយបន្ទប់
+km	11068	ចាកចេញពីបន្ទប់
+km	11069	ចាប់ផ្តើមហ្គេម
+km	11070	បង្កើតបន្ទប់ ហើយបង្ហាញបន្ទប់នោះក្នុងបញ្ជី «ចូលបន្ទប់» អនឡាញ។
+km	11071	បង្កើតបន្ទប់នៅលើឧបករណ៍នេះ។ ឧបករណ៍ដែលភ្ជាប់ Wi-Fi ដូចគ្នាអាចចូលតាម «ចូលបន្ទប់» បាន។
+km	11072	នៅលើឧបករណ៍ HOST ចុច «បង្កើតបន្ទប់» ហើយភ្ជាប់ឧបករណ៍ទាំងអស់ទៅ Wi-Fi ដូចគ្នា (ឬហតស្ប៉តដូចគ្នា)។
+km	11073	បង្កើតបន្ទប់ដោយចុច «បង្កើតបន្ទប់» ឬរង់ចាំបន្តិច រួចចុច «ស្វែងរកម្ដងទៀត»។
+km	11074	កំពុងបង្ហាញក្នុងបញ្ជី «ចូលបន្ទប់» លើឧបករណ៍នៅជិត
+km	11075	កំពុងបង្ហាញក្នុងបញ្ជី «ចូលបន្ទប់» អនឡាញ
+km	11076	ពេលអ្នកលេងទាំងអស់មកជុំគ្នា សូមចុច «ចាប់ផ្តើមហ្គេម» ជ្រើសរើសដំណាក់កាល ហើយចាប់ផ្តើម។ អ្នកទាំងអស់គ្នានឹងចាប់ផ្តើមនៅដំណាក់កាលដូចគ្នាក្នុងពេលតែមួយ។
+km	11077	តើចង់រំសាយបន្ទប់ឬ?\nអ្នកលេងផ្សេងទៀតទាំងអស់ក៏នឹងត្រូវបានដកចេញពីបន្ទប់ដែរ។
+km	11078	តើចង់ចាកចេញពីបន្ទប់ឬ?\nអ្នកលេងផ្សេងទៀតនឹងនៅក្នុងបន្ទប់ ហើយអាចបន្តលេងបាន។
+km	11079	ទោះបីបិទអេក្រង់នេះដោយចុច «បិទ» ក៏បន្ទប់នៅតែមានដដែល (អាចត្រឡប់មកវិញតាម «ច្រើននាក់» នៅអេក្រង់ដើម)។
+km	11080	កំពុងរំសាយបន្ទប់…
+km	11081	កំពុងចាកចេញពីបន្ទប់…
+km	11082	បានរំសាយបន្ទប់ហើយ
+km	11083	បានចាកចេញពីបន្ទប់ហើយ
+km	11084	មិនអាចចាកចេញពីបន្ទប់បានទេ។ សូមពិនិត្យការតភ្ជាប់ ហើយព្យាយាមម្តងទៀត
+km	11085	មិនអាចបើកការកំណត់ឯកជនភាពបានទេ។ សូមពិនិត្យការតភ្ជាប់ ហើយព្យាយាមម្តងទៀត
+km	11086	បានធ្វើបច្ចុប្បន្នភាព
+km	11087	បានរក្សាទុក
+km	11088	កំពុងពិនិត្យព័ត៌មានការទិញ…
+km	11089	បានស្ដារការទិញឡើងវិញ។ Pass គ្មានពាណិជ្ជកម្ម បានដំណើរការហើយ
+km	11090	បានផ្ទៀងផ្ទាត់ការទិញ។ Pass គ្មានពាណិជ្ជកម្ម កំពុងដំណើរការរួចហើយ
+km	11091	រកមិនឃើញការទិញដែលអាចស្ដារឡើងវិញបានទេ
+km	11092	មិនអាចភ្ជាប់ទៅហាងបានទេ។ សូមពិនិត្យការតភ្ជាប់ ហើយព្យាយាមម្តងទៀត
+km	11093	មិនអាចភ្ជាប់ទៅហាងបានទេ។ Pass គ្មានពាណិជ្ជកម្ម នៅតែដំណើរការ។ សូមពិនិត្យការតភ្ជាប់ ហើយព្យាយាមម្តងទៀត
+km	11094	មិនមានការឆ្លើយតបពីហាងទេ។ សូមពិនិត្យការតភ្ជាប់ ហើយព្យាយាមម្តងទៀត
+lo	11065	ສ້າງຫ້ອງ
+lo	11066	ເຂົ້າຮ່ວມຫ້ອງ
+lo	11067	ຍຸບຫ້ອງ
+lo	11068	ອອກຈາກຫ້ອງ
+lo	11069	ເລີ່ມເກມ
+lo	11070	ສ້າງຫ້ອງ ແລະສະແດງຫ້ອງນັ້ນໃນລາຍການ “ເຂົ້າຮ່ວມຫ້ອງ” ອອນລາຍ.
+lo	11071	ສ້າງຫ້ອງຢູ່ໃນອຸປະກອນນີ້. ອຸປະກອນທີ່ເຊື່ອມຕໍ່ Wi-Fi ດຽວກັນສາມາດເຂົ້າຜ່ານ “ເຂົ້າຮ່ວມຫ້ອງ” ໄດ້.
+lo	11072	ໃນອຸປະກອນ HOST ໃຫ້ກົດ “ສ້າງຫ້ອງ” ແລະເຊື່ອມຕໍ່ທຸກອຸປະກອນກັບ Wi-Fi ດຽວກັນ (ຫຼືຮັອດສະປອດດຽວກັນ).
+lo	11073	ສ້າງຫ້ອງດ້ວຍ “ສ້າງຫ້ອງ” ຫຼືລໍຖ້າຈັກໜ້ອຍ ແລ້ວກົດ “ຊອກຫາໃໝ່”.
+lo	11074	ກຳລັງສະແດງໃນລາຍການ “ເຂົ້າຮ່ວມຫ້ອງ” ຂອງອຸປະກອນໃກ້ຄຽງ
+lo	11075	ກຳລັງສະແດງໃນລາຍການ “ເຂົ້າຮ່ວມຫ້ອງ” ອອນລາຍ
+lo	11076	ເມື່ອທຸກຄົນມາຄົບແລ້ວ ໃຫ້ກົດ “ເລີ່ມເກມ” ເລືອກດ່ານ ແລ້ວອອກເດີນທາງ. ທຸກຄົນຈະເລີ່ມດ່ານດຽວກັນພ້ອມກັນ.
+lo	11077	ຕ້ອງການຍຸບຫ້ອງບໍ?\nຜູ້ຫຼິ້ນຄົນອື່ນທັງໝົດຈະຖືກນຳອອກຈາກຫ້ອງນຳ.
+lo	11078	ຕ້ອງການອອກຈາກຫ້ອງບໍ?\nຜູ້ຫຼິ້ນຄົນອື່ນຈະຍັງຢູ່ໃນຫ້ອງ ແລະສາມາດຫຼິ້ນຕໍ່ໄດ້.
+lo	11079	ເຖິງຈະກົດ “ປິດ” ເພື່ອປິດໜ້າຈໍນີ້ ຫ້ອງກໍຍັງຄົງຢູ່ (ສາມາດກັບເຂົ້າມາຜ່ານ “ຫຼາຍຄົນ” ຢູ່ໜ້າຫຼັກ).
+lo	11080	ກຳລັງຍຸບຫ້ອງ…
+lo	11081	ກຳລັງອອກຈາກຫ້ອງ…
+lo	11082	ຍຸບຫ້ອງແລ້ວ
+lo	11083	ອອກຈາກຫ້ອງແລ້ວ
+lo	11084	ບໍ່ສາມາດອອກຈາກຫ້ອງໄດ້. ກະລຸນາກວດສອບການເຊື່ອມຕໍ່ ແລ້ວລອງໃໝ່
+lo	11085	ບໍ່ສາມາດເປີດການຕັ້ງຄ່າຄວາມເປັນສ່ວນຕົວໄດ້. ກະລຸນາກວດສອບການເຊື່ອມຕໍ່ ແລ້ວລອງໃໝ່
+lo	11086	ອັບເດດແລ້ວ
+lo	11087	ບັນທຶກແລ້ວ
+lo	11088	ກຳລັງກວດສອບຂໍ້ມູນການຊື້…
+lo	11089	ກູ້ຄືນການຊື້ແລ້ວ. ບັດຜ່ານບໍ່ມີໂຄສະນາ ເປີດໃຊ້ງານແລ້ວ
+lo	11090	ຢືນຢັນການຊື້ແລ້ວ. ບັດຜ່ານບໍ່ມີໂຄສະນາ ເປີດໃຊ້ງານຢູ່ແລ້ວ
+lo	11091	ບໍ່ພົບການຊື້ທີ່ສາມາດກູ້ຄືນໄດ້
+lo	11092	ບໍ່ສາມາດເຊື່ອມຕໍ່ກັບຮ້ານຄ້າໄດ້. ກະລຸນາກວດສອບການເຊື່ອມຕໍ່ ແລ້ວລອງໃໝ່
+lo	11093	ບໍ່ສາມາດເຊື່ອມຕໍ່ກັບຮ້ານຄ້າໄດ້. ບັດຜ່ານບໍ່ມີໂຄສະນາ ຍັງເປີດໃຊ້ງານຢູ່. ກະລຸນາກວດສອບການເຊື່ອມຕໍ່ ແລ້ວລອງໃໝ່
+lo	11094	ບໍ່ໄດ້ຮັບການຕອບກັບຈາກຮ້ານຄ້າ. ກະລຸນາກວດສອບການເຊື່ອມຕໍ່ ແລ້ວລອງໃໝ່
+my	11065	အခန်းဖွဲ့ရန်
+my	11066	အခန်းဝင်ရန်
+my	11067	အခန်းဖျက်သိမ်းရန်
+my	11068	အခန်းမှထွက်ရန်
+my	11069	ဂိမ်းစရန်
+my	11070	အခန်းဖွဲ့ပြီး အွန်လိုင်းရှိ “အခန်းဝင်ရန်” စာရင်းတွင် ပြသပါမည်။
+my	11071	ဤစက်တွင် အခန်းဖွဲ့ပါမည်။ Wi-Fi တစ်ခုတည်းသို့ ချိတ်ဆက်ထားသော စက်များသည် “အခန်းဝင်ရန်” မှတစ်ဆင့် ဝင်နိုင်ပါသည်။
+my	11072	HOST စက်တွင် “အခန်းဖွဲ့ရန်” ကိုနှိပ်ပြီး စက်အားလုံးကို Wi-Fi တစ်ခုတည်း (သို့မဟုတ် ဟော့စပေါ့တစ်ခုတည်း) သို့ ချိတ်ဆက်ပါ။
+my	11073	“အခန်းဖွဲ့ရန်” ဖြင့် အခန်းဖွဲ့ပါ၊ သို့မဟုတ် ခဏစောင့်ပြီး “ပြန်ရှာ” ကိုနှိပ်ပါ။
+my	11074	အနီးရှိစက်များ၏ “အခန်းဝင်ရန်” စာရင်းတွင် ပြသနေသည်
+my	11075	အွန်လိုင်း “အခန်းဝင်ရန်” စာရင်းတွင် ပြသနေသည်
+my	11076	အားလုံးရောက်လာပါက “ဂိမ်းစရန်” ကိုနှိပ်ပြီး အဆင့်ရွေးကာ စတင်ပါ။ အားလုံးသည် အဆင့်တစ်ခုတည်းတွင် တစ်ပြိုင်နက် စတင်မည်ဖြစ်သည်။
+my	11077	အခန်းကို ဖျက်သိမ်းမလား?\nအခြားကစားသမားအားလုံးလည်း အခန်းမှ ထွက်ရမည်ဖြစ်သည်။
+my	11078	အခန်းမှ ထွက်မလား?\nအခြားကစားသမားများသည် အခန်းတွင် ဆက်လက်ရှိနေပြီး ဆက်ကစားနိုင်ပါသည်။
+my	11079	“ပိတ်” ဖြင့် ဤမျက်နှာပြင်ကို ပိတ်လိုက်သော်လည်း အခန်းသည် ဆက်လက်ရှိနေမည် (ပင်မမျက်နှာပြင်ရှိ “အတူကစား” မှ ပြန်ဝင်နိုင်ပါသည်)။
+my	11080	အခန်းကို ဖျက်သိမ်းနေသည်…
+my	11081	အခန်းမှ ထွက်နေသည်…
+my	11082	အခန်းကို ဖျက်သိမ်းပြီးပါပြီ
+my	11083	အခန်းမှ ထွက်ပြီးပါပြီ
+my	11084	အခန်းမှ ထွက်၍မရပါ။ ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ
+my	11085	ကိုယ်ရေးအချက်အလက် လုံခြုံရေးဆက်တင်များကို ဖွင့်၍မရပါ။ ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ
+my	11086	အပ်ဒိတ်လုပ်ပြီးပါပြီ
+my	11087	သိမ်းဆည်းပြီးပါပြီ
+my	11088	ဝယ်ယူမှုအချက်အလက်ကို စစ်ဆေးနေသည်…
+my	11089	ဝယ်ယူမှုကို ပြန်လည်ရယူပြီးပါပြီ။ ကြော်ငြာမဲ့ Pass ကို ယခု အသုံးပြုနိုင်ပါပြီ
+my	11090	ဝယ်ယူမှုကို အတည်ပြုပြီးပါပြီ။ ကြော်ငြာမဲ့ Pass ကို အသုံးပြုနိုင်ပြီးသားဖြစ်သည်
+my	11091	ပြန်လည်ရယူနိုင်သော ဝယ်ယူမှု မတွေ့ပါ
+my	11092	စတိုးနှင့် ချိတ်ဆက်၍မရပါ။ ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ
+my	11093	စတိုးနှင့် ချိတ်ဆက်၍မရပါ။ ကြော်ငြာမဲ့ Pass ကို ဆက်လက်အသုံးပြုနိုင်ပါသည်။ ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ
+my	11094	စတိုးမှ တုံ့ပြန်မှုမရှိပါ။ ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ

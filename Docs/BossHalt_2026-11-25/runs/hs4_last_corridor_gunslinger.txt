@@ -1,0 +1,242 @@
+[BossHalt] hold (boss) x=1001.0
+[BossHalt] stopped x=1003.3 slide=2.3m
+[HaltWatch] noBoss 11.0s phase=True defeated=True d=1000 x=1006.9 boss=last_corridor/Dragon alive=0 mp=False
+[BossHalt] release (last_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=15.8s slide=2.3m maxAhead=5.0m bossFront=26.2m wall=0.0s clamps=0 d=1000 x=1006.9 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2007.5
+[BossHalt] stopped x=2012.7 slide=5.2m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=2000 x=2019.4 boss=last_corridor/Wolf alive=0 mp=False
+[BossHalt] release (last_corridor/Wolf -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=8.1s slide=5.2m maxAhead=6.7m bossFront=25.4m wall=0.0s clamps=0 d=2000 x=2019.4 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=1994.8
+[BossHalt] stopped x=2002.0 slide=7.2m
+[HaltWatch] noBoss 4.8s phase=True defeated=True d=3000 x=2005.1 boss=last_corridor/Dragon alive=0 mp=False
+[BossHalt] release (last_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.0s slide=7.2m maxAhead=5.0m bossFront=26.7m wall=0.0s clamps=0 d=3000 x=2005.1 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=1981.2
+[BossHalt] stopped x=1991.7 slide=10.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=4000 x=1999.3 boss=last_corridor/Centipede alive=0 mp=False
+[BossHalt] release (last_corridor/Centipede -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=8.2s slide=10.5m maxAhead=7.6m bossFront=26.9m wall=0.0s clamps=0 d=4000 x=1999.3 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=3001.3
+[BossHalt] stopped x=3010.8 slide=9.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=5000 x=3024.4 boss=last_corridor/GoblinRider alive=0 mp=False
+[BossHalt] release (last_corridor/GoblinRider -> no boss hold) early local shown/promoted/cancelled=0/0/0 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.1s slide=9.5m maxAhead=13.7m bossFront=27.4m wall=0.0s clamps=0 d=5000 x=2000.4 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2999.4
+[BossHalt] stopped x=3009.9 slide=10.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=6000 x=3019.1 boss=last_corridor/Centipede alive=0 mp=False
+[BossHalt] release (last_corridor/Centipede -> no boss hold) early local shown/promoted/cancelled=1/0/1 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=8.3s slide=10.5m maxAhead=9.2m bossFront=27.0m wall=0.0s clamps=0 d=6000 x=1995.1 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2994.1
+[BossHalt] stopped x=3003.7 slide=9.6m
+[HaltWatch] noBoss 4.8s phase=True defeated=True d=7000 x=3008.2 boss=last_corridor/Dragon alive=0 mp=False
+[BossHalt] release (last_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=1/0/1 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.2s slide=9.6m maxAhead=5.9m bossFront=26.9m wall=0.0s clamps=0 d=7000 x=1984.2 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2985.4
+[BossHalt] stopped x=2995.9 slide=10.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=8000 x=2994.2 boss=last_corridor/Wolf alive=0 mp=False
+[BossHalt] release (last_corridor/Wolf -> no boss hold) early local shown/promoted/cancelled=1/0/1 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=8.4s slide=10.5m maxAhead=0.0m bossFront=-1.4m wall=0.0s clamps=0 d=8000 x=2994.2 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2969.2
+[BossHalt] stopped x=2978.8 slide=9.6m
+[HaltWatch] noBoss 4.8s phase=True defeated=True d=9000 x=2983.3 boss=last_corridor/Dragon alive=0 mp=False
+[BossHalt] release (last_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=1/0/1 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.2s slide=9.6m maxAhead=5.9m bossFront=26.9m wall=0.0s clamps=0 d=9000 x=2983.3 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2959.7
+[BossHalt] stopped x=2969.3 slide=9.6m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=10000 x=2991.3 boss=last_corridor/Titan alive=0 mp=False
+[BossHalt] release (last_corridor/Titan -> no boss hold) early local shown/promoted/cancelled=1/0/1 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=13.5s slide=9.6m maxAhead=22.1m bossFront=23.4m wall=0.0s clamps=22 d=10000 x=2991.3 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2967.3
+[BossHalt] stopped x=2977.5 slide=10.2m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=11000 x=2996.0 boss=last_corridor/Centipede alive=0 mp=False
+[BossHalt] release (last_corridor/Centipede -> no boss hold) early local shown/promoted/cancelled=2/0/2 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.2s slide=10.2m maxAhead=18.5m bossFront=27.2m wall=0.0s clamps=29 d=11000 x=2996.0 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2971.6
+[BossHalt] stopped x=2980.8 slide=9.2m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=12000 x=2989.6 boss=last_corridor/Wolf alive=0 mp=False
+[BossHalt] release (last_corridor/Wolf -> no boss hold) early local shown/promoted/cancelled=2/0/2 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=8.7s slide=9.2m maxAhead=8.8m bossFront=27.0m wall=0.0s clamps=29 d=12000 x=2989.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2966.3
+[BossHalt] stopped x=2975.8 slide=9.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=13000 x=2981.1 boss=last_corridor/Dragon alive=0 mp=False
+[BossHalt] release (last_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=2/0/2 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.5s slide=9.5m maxAhead=5.9m bossFront=27.0m wall=0.0s clamps=29 d=13000 x=2981.1 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2957.1
+[BossHalt] stopped x=2966.5 slide=9.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=14000 x=2966.3 boss=last_corridor/Wolf alive=0 mp=False
+[BossHalt] release (last_corridor/Wolf -> no boss hold) early local shown/promoted/cancelled=2/0/2 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.0s slide=9.5m maxAhead=0.0m bossFront=4.7m wall=0.0s clamps=29 d=14000 x=2966.3 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2941.9
+[BossHalt] stopped x=2949.8 slide=8.0m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=15000 x=2964.7 boss=last_corridor/GoblinRider alive=0 mp=False
+[BossHalt] release (last_corridor/GoblinRider -> no boss hold) early local shown/promoted/cancelled=3/1/2 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.9s slide=8.0m maxAhead=14.9m bossFront=27.0m wall=0.0s clamps=29 d=15000 x=2964.7 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2940.9
+[BossHalt] stopped x=2949.0 slide=8.1m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=16000 x=2966.4 boss=last_corridor/Centipede alive=0 mp=False
+[BossHalt] release (last_corridor/Centipede -> no boss hold) early local shown/promoted/cancelled=4/1/3 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.5s slide=8.1m maxAhead=17.4m bossFront=27.1m wall=0.0s clamps=31 d=16000 x=2966.4 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2942.4
+[BossHalt] stopped x=2950.5 slide=8.1m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=17000 x=2955.8 boss=last_corridor/Dragon alive=0 mp=False
+[BossHalt] release (last_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=4/1/3 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.6s slide=8.1m maxAhead=5.9m bossFront=26.9m wall=0.0s clamps=31 d=17000 x=2955.8 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2931.6
+[BossHalt] stopped x=2940.7 slide=9.1m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=18000 x=2952.8 boss=last_corridor/Centipede alive=0 mp=False
+[BossHalt] release (last_corridor/Centipede -> no boss hold) early local shown/promoted/cancelled=4/1/3 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=8.9s slide=9.1m maxAhead=12.1m bossFront=26.9m wall=0.0s clamps=31 d=18000 x=2952.8 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2928.7
+[BossHalt] stopped x=2938.5 slide=9.8m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=19000 x=2945.6 boss=last_corridor/Wolf alive=0 mp=False
+[BossHalt] release (last_corridor/Wolf -> no boss hold) early local shown/promoted/cancelled=4/1/3 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=8.4s slide=9.8m maxAhead=7.1m bossFront=26.6m wall=0.0s clamps=31 d=19000 x=2945.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2922.1
+[BossHalt] stopped x=2931.4 slide=9.4m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=20000 x=2955.5 boss=last_corridor/Drake alive=0 mp=False
+[BossHalt] release (last_corridor/Drake -> no boss hold) early local shown/promoted/cancelled=5/2/3 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=15.8s slide=9.4m maxAhead=24.1m bossFront=25.6m wall=0.0s clamps=54 d=20000 x=2955.5 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2931.1
+[BossHalt] stopped x=2940.1 slide=9.0m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=21000 x=2940.6 boss=last_corridor/Wolf alive=0 mp=False
+[BossHalt] release (last_corridor/Wolf -> no boss hold) early local shown/promoted/cancelled=5/2/3 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.1s slide=9.0m maxAhead=0.5m bossFront=4.7m wall=0.0s clamps=54 d=21000 x=2940.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2916.5
+[BossHalt] stopped x=2924.8 slide=8.3m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=22000 x=2942.9 boss=last_corridor/Centipede alive=0 mp=False
+[BossHalt] release (last_corridor/Centipede -> no boss hold) early local shown/promoted/cancelled=6/2/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.5s slide=8.3m maxAhead=18.1m bossFront=27.1m wall=0.0s clamps=57 d=22000 x=2942.9 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2918.7
+[BossHalt] stopped x=2928.0 slide=9.3m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=23000 x=2937.2 boss=last_corridor/Wolf alive=0 mp=False
+[BossHalt] release (last_corridor/Wolf -> no boss hold) early local shown/promoted/cancelled=6/2/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=8.3s slide=9.3m maxAhead=9.2m bossFront=26.8m wall=0.0s clamps=57 d=23000 x=2937.2 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2914.1
+[BossHalt] stopped x=2923.4 slide=9.3m
+[HaltWatch] noBoss 4.8s phase=True defeated=True d=24000 x=2925.6 boss=last_corridor/Dragon alive=0 mp=False
+[BossHalt] release (last_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=6/2/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.0s slide=9.3m maxAhead=5.7m bossFront=26.9m wall=0.0s clamps=57 d=24000 x=2925.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2901.8
+[BossHalt] stopped x=2910.9 slide=9.2m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=25000 x=2920.8 boss=last_corridor/Majin alive=0 mp=False
+[BossHalt] release (last_corridor/Majin -> no boss hold) early local shown/promoted/cancelled=6/2/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=11.5s slide=9.2m maxAhead=9.9m bossFront=26.9m wall=0.0s clamps=57 d=25000 x=2920.8 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2896.7
+[BossHalt] stopped x=2906.3 slide=9.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=26000 x=2904.6 boss=last_corridor/Wolf alive=0 mp=False
+[BossHalt] release (last_corridor/Wolf -> no boss hold) early local shown/promoted/cancelled=6/2/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=8.6s slide=9.5m maxAhead=0.0m bossFront=2.5m wall=0.0s clamps=57 d=26000 x=2904.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2880.2
+[BossHalt] stopped x=2888.5 slide=8.2m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=27000 x=2905.4 boss=last_corridor/Centipede alive=0 mp=False
+[BossHalt] release (last_corridor/Centipede -> no boss hold) early local shown/promoted/cancelled=6/2/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=10.2s slide=8.2m maxAhead=16.9m bossFront=27.1m wall=0.0s clamps=57 d=27000 x=2905.4 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2881.0
+[BossHalt] stopped x=2889.2 slide=8.2m
+[HaltWatch] noBoss 4.8s phase=True defeated=True d=28000 x=2894.7 boss=last_corridor/Dragon alive=0 mp=False
+[BossHalt] release (last_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=6/2/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.1s slide=8.2m maxAhead=6.9m bossFront=26.9m wall=0.0s clamps=57 d=28000 x=2894.7 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2871.1
+[BossHalt] stopped x=2880.1 slide=8.9m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=29000 x=2894.4 boss=last_corridor/Wolf alive=0 mp=False
+[BossHalt] release (last_corridor/Wolf -> no boss hold) early local shown/promoted/cancelled=7/3/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=9.3s slide=8.9m maxAhead=14.3m bossFront=27.1m wall=0.0s clamps=57 d=29000 x=2894.4 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2870.5
+[BossHalt] stopped x=2879.0 slide=8.6m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=30000 x=2900.2 boss=last_corridor/AncientDemon alive=0 mp=False
+[BossHalt] release (last_corridor/AncientDemon -> no boss hold) early local shown/promoted/cancelled=7/3/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=17.9s slide=8.6m maxAhead=22.1m bossFront=27.5m wall=0.0s clamps=58 d=30000 x=2900.2 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2875.7
+[BossHalt] stopped x=2885.6 slide=9.8m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=31000 x=2905.1 boss=last_corridor/Centipede alive=0 mp=False
+[BossHalt] release (last_corridor/Centipede -> no boss hold) early local shown/promoted/cancelled=7/3/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=12.1s slide=9.8m maxAhead=20.2m bossFront=26.6m wall=0.0s clamps=58 d=31000 x=2905.1 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2882.0
+[BossHalt] stopped x=2891.6 slide=9.7m
+[HaltWatch] ahead 25.2m from the stop point d=32000 x=2916.9 boss=last_corridor/Dragon alive=1 mp=False
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=32000 x=2921.9 boss=last_corridor/Dragon alive=0 mp=False
+[BossHalt] release (last_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=7/3/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=21.2s slide=9.7m maxAhead=30.3m bossFront=40.9m wall=0.0s clamps=82 d=32000 x=2921.9 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2897.1
+[BossHalt] stopped x=2906.0 slide=8.9m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=33000 x=2926.2 boss=last_corridor/Centipede alive=0 mp=False
+[BossHalt] release (last_corridor/Centipede -> no boss hold) early local shown/promoted/cancelled=8/4/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=13.5s slide=8.9m maxAhead=20.6m bossFront=27.1m wall=0.0s clamps=82 d=33000 x=2926.2 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2902.0
+[BossHalt] stopped x=2910.2 slide=8.2m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=34000 x=2927.7 boss=last_corridor/Wolf alive=0 mp=False
+[BossHalt] release (last_corridor/Wolf -> no boss hold) early local shown/promoted/cancelled=8/4/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=19.6s slide=8.2m maxAhead=17.5m bossFront=20.0m wall=0.0s clamps=90 d=34000 x=2927.7 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2903.8
+[BossHalt] stopped x=2913.0 slide=9.3m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=35000 x=2927.7 boss=last_corridor/Majin alive=0 mp=False
+[BossHalt] release (last_corridor/Majin -> no boss hold) early local shown/promoted/cancelled=9/5/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=11.9s slide=9.3m maxAhead=14.7m bossFront=18.5m wall=0.0s clamps=90 d=35000 x=2927.7 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2904.1
+[BossHalt] stopped x=2913.3 slide=9.2m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=36000 x=2931.1 boss=last_corridor/Dragon alive=0 mp=False
+[BossHalt] release (last_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=10/6/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=11.5s slide=9.2m maxAhead=17.8m bossFront=26.8m wall=0.0s clamps=90 d=36000 x=2931.1 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2907.5
+[BossHalt] stopped x=2915.0 slide=7.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=37000 x=2931.6 boss=last_corridor/Wolf alive=0 mp=False
+[BossHalt] release (last_corridor/Wolf -> no boss hold) early local shown/promoted/cancelled=10/6/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=13.1s slide=7.5m maxAhead=18.5m bossFront=22.0m wall=0.0s clamps=90 d=37000 x=2931.6 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2907.8
+[BossHalt] stopped x=2917.2 slide=9.4m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=38000 x=2935.7 boss=last_corridor/Dragon alive=0 mp=False
+[BossHalt] release (last_corridor/Dragon -> no boss hold) early local shown/promoted/cancelled=10/6/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=11.8s slide=9.4m maxAhead=18.5m bossFront=28.6m wall=0.0s clamps=90 d=38000 x=2935.7 boss= alive=0 mp=False
+[BossHalt] hold (boss) x=2911.7
+[BossHalt] stopped x=2922.1 slide=10.4m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=39000 x=2942.1 boss=last_corridor/Wolf alive=0 mp=False
+[BossHalt] release (last_corridor/Wolf -> no boss hold) early local shown/promoted/cancelled=10/6/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=12.0s slide=10.4m maxAhead=20.0m bossFront=21.8m wall=0.0s clamps=90 d=39000 x=2942.1 boss= alive=0 mp=False
+[QA] stop at 40000m (game 35.8min): damage by reason: road:DeathY=34
+[QA]   1000m last_corridor/Dragon alive=1 -> defeated in 4.8s
+[QA]   2000m last_corridor/Wolf alive=1 -> defeated in 3.3s
+[QA]   3000m last_corridor/Dragon alive=1 -> defeated in 4.2s
+[QA]   4000m last_corridor/Centipede alive=1 -> defeated in 3.4s
+[QA]   5000m last_corridor/GoblinRider alive=1 -> defeated in 4.3s
+[QA]   6000m last_corridor/Centipede alive=1 -> defeated in 3.5s
+[QA]   7000m last_corridor/Dragon alive=1 -> defeated in 4.4s
+[QA]   8000m last_corridor/Wolf alive=1 -> defeated in 3.6s
+[QA]   9000m last_corridor/Dragon alive=1 -> defeated in 4.4s
+[QA]   10000m last_corridor/Titan alive=1 -> defeated in 8.7s
+[QA]   11000m last_corridor/Centipede alive=1 -> defeated in 5.4s
+[QA]   12000m last_corridor/Wolf alive=1 -> defeated in 3.9s
+[QA]   13000m last_corridor/Dragon alive=1 -> defeated in 4.7s
+[QA]   14000m last_corridor/Wolf alive=1 -> defeated in 4.2s
+[QA]   15000m last_corridor/GoblinRider alive=1 -> defeated in 5.1s
+[QA]   16000m last_corridor/Centipede alive=1 -> defeated in 5.7s
+[QA]   17000m last_corridor/Dragon alive=1 -> defeated in 4.8s
+[QA]   18000m last_corridor/Centipede alive=1 -> defeated in 4.1s
+[QA]   19000m last_corridor/Wolf alive=1 -> defeated in 3.6s
+[QA]   20000m last_corridor/Drake alive=1 -> defeated in 11.0s
+[QA]   21000m last_corridor/Wolf alive=1 -> defeated in 4.3s
+[QA]   22000m last_corridor/Centipede alive=1 -> defeated in 5.7s
+[QA]   23000m last_corridor/Wolf alive=1 -> defeated in 3.5s
+[QA]   24000m last_corridor/Dragon alive=1 -> defeated in 4.2s
+[QA]   25000m last_corridor/Majin alive=1 -> defeated in 6.7s
+[QA]   26000m last_corridor/Wolf alive=1 -> defeated in 3.8s
+[QA]   27000m last_corridor/Centipede alive=1 -> defeated in 5.4s
+[QA]   28000m last_corridor/Dragon alive=1 -> defeated in 4.3s
+[QA]   29000m last_corridor/Wolf alive=1 -> defeated in 4.5s
+[QA]   30000m last_corridor/AncientDemon alive=2 -> defeated in 13.1s
+[QA]   31000m last_corridor/Centipede alive=2 -> defeated in 7.4s
+[QA]   32000m last_corridor/Dragon alive=2 -> defeated in 16.4s
+[QA]   33000m last_corridor/Centipede alive=2 -> defeated in 8.7s
+[QA]   34000m last_corridor/Wolf alive=2 -> defeated in 14.8s
+[QA]   35000m last_corridor/Majin alive=3 -> defeated in 7.1s
+[QA]   36000m last_corridor/Dragon alive=3 -> defeated in 6.7s
+[QA]   37000m last_corridor/Wolf alive=3 -> defeated in 8.3s
+[QA]   38000m last_corridor/Dragon alive=2 -> defeated in 7.0s
+[QA]   39000m last_corridor/Wolf alive=3 -> defeated in 7.2s
+[BossHalt] hold (boss) x=2917.6
+[BossHalt] stopped x=2926.1 slide=8.5m
+[HaltWatch] noBoss 5.9s phase=True defeated=True d=40000 x=2939.3 boss=last_corridor/CrystalGolem alive=0 mp=False
+[BossHalt] release (last_corridor/CrystalGolem -> no boss hold) early local shown/promoted/cancelled=10/6/4 net sent/recv/late=0/0/0 remote shown/expired/cancel=0/0/0 hold sent/recv=0/0
+[HaltWatch] fight hold=13.2s slide=8.5m maxAhead=13.2m bossFront=28.7m wall=0.0s clamps=90 d=40000 x=2939.3 boss= alive=0 mp=False
+[HaltWatch] summary holds=40 seekLong=0 (max 0.0s/0m) runBoss=0 (max 0.0s) reach=0 (max 2.4s) noBoss=40 (max 11.0s) ahead=1 walls=0 (max 0.0s) maxAhead=30.3m arenaV2=True

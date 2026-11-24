@@ -1260,7 +1260,7 @@ public partial class QaSweep : MonoBehaviour
                     bossLog.Add($"{bossLabel ?? d.ToString("F0") + "m ?"} -> defeated in {dur:F1}s");
                     bossKills++;
                     inBoss = false;
-                    float w = 0f; while (bm.IsBossPhase && w < 20f) { yield return null; w += Time.unscaledDeltaTime; }
+                    float w = 0f; while (bm.IsBossPhase && w < 20f) { yield return null; w += Time.unscaledDeltaTime; } lastProgressT = Time.time; lastProgressX = FloatingOrigin.ToLogical(pc.transform.position.x); // 2026-11-25: 報酬を待った間を「詰まり」に数えない
                 }
                 else if (Time.time - bossStart > 75f)
                 {

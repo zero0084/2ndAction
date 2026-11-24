@@ -106,7 +106,7 @@ public partial class MajinController : IBossBattleDebug
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), transform.position, MagicCol, 0.5f, 1f, 5f, 0.9f, 0f, default, 0f, RenderOrder.CombatFx, 0.1f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossPhase);
         BossVoice.Growl(this, "Majin");
-        BossBattleHud.Banner(phase >= PhaseCount ? "最終段階!" : "激昂!", MagicCol, 1.2f);
+        if (phase < PhaseCount) BossBattleHud.Banner("激昂!", MagicCol, 1.2f); // 2026-11-25 マスター: ボス戦の「最終段階!」の文言は出さない(技名の表示は残す。途中の段階の「激昂!」はそのまま)
         lastSpecialTime = Time.time - battle.specialCooldown + 0.6f; // 新しい技をすぐ見せる
     }
 
