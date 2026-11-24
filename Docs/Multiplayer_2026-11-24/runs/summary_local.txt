@@ -1,0 +1,172 @@
+### B: CO-OP 参加者が先行・参加者がとどめ・参加者が8秒カード選択
+== B (local coop) after 70s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 5.4 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 3)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 11.3 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  COOP: HOST/JOIN screen distance differ at most 5.3 m (mean 1.9 m, last 10 max 1.4 m)
+OK  COOP: they agree at the end (last 10 samples max 1.4 m)
+OK  JOIN: kept running while the other side chose/paused (1.6s, moved 4.4 m outside the arena)
+OK  HOST: kept running while the other side chose/paused (29.9s, moved 99.3 m outside the arena)
+INFO HOST: arena-halt samples 23, halted after the boss died 4, hud 0->252 own 175 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (4 samples of 0.5 s)
+INFO JOIN: arena-halt samples 23, halted after the boss died 3, hud 0->252 own 252 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (3 samples of 0.5 s)
+RESULT PASS ng=0
+
+### C: CO-OP HOST先行・後続(参加者)が闘技場に着いて合流・参加者がとどめ
+== C (local coop) after 80s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 5.2 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 5)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 12.8 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 1)
+OK  COOP: HOST/JOIN screen distance differ at most 3.9 m (mean 1.6 m, last 10 max 2.4 m)
+OK  COOP: they agree at the end (last 10 samples max 2.4 m)
+OK  JOIN: kept running while the other side chose/paused (44.5s, moved 170.3 m outside the arena)
+OK  HOST: kept running while the other side chose/paused (18.0s, moved 31.6 m outside the arena)
+INFO HOST: arena-halt samples 47, halted after the boss died 4, hud 0->291 own 291 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (4 samples of 0.5 s)
+INFO JOIN: arena-halt samples 31, halted after the boss died 4, hud 0->293 own 232 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (4 samples of 0.5 s)
+RESULT PASS ng=0
+
+### D: CO-OP 後続が着く前に撃破(HOST が3秒で倒す・差150m)
+== D (local coop) after 70s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 19.9 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 3)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 27.1 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  COOP: HOST/JOIN screen distance differ at most 16.1 m (mean 2.9 m, last 10 max 1.4 m)
+OK  COOP: they agree at the end (last 10 samples max 1.4 m)
+OK  JOIN: kept running while the other side chose/paused (28.4s, moved 39.9 m outside the arena)
+INFO HOST: arena-halt samples 10, halted after the boss died 4, hud 0->276 own 259 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (4 samples of 0.5 s)
+INFO JOIN: arena-halt samples 0, halted after the boss died 0, hud 0->276 own 71 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+RESULT PASS ng=0
+
+### E: CO-OP HOST が一時停止のメニュー6秒
+== E (local coop) after 60s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 3.9 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 7.4 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  COOP: HOST/JOIN screen distance differ at most 4.5 m (mean 0.9 m, last 10 max 1.2 m)
+OK  COOP: they agree at the end (last 10 samples max 1.2 m)
+OK  JOIN: kept running while the other side chose/paused (16.0s, moved 71.5 m outside the arena)
+OK  HOST: other side choosing/paused 1.5s (this side was in the boss arena or choosing - not measured)
+INFO HOST: arena-halt samples 0, halted after the boss died 0, hud 0->209 own 181 dupOffers 0
+INFO JOIN: arena-halt samples 0, halted after the boss died 0, hud 0->207 own 209 dupOffers 0
+RESULT PASS ng=0
+
+### F: CO-OP 参加者が一時停止のメニュー6秒
+== F (local coop) after 60s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 4.0 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 7.6 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  COOP: HOST/JOIN screen distance differ at most 6.3 m (mean 0.8 m, last 10 max 1.5 m)
+OK  COOP: they agree at the end (last 10 samples max 1.5 m)
+OK  JOIN: kept running while the other side chose/paused (1.6s, moved 5.7 m outside the arena)
+OK  HOST: kept running while the other side chose/paused (13.4s, moved 60.3 m outside the arena)
+INFO HOST: arena-halt samples 0, halted after the boss died 0, hud 0->217 own 217 dupOffers 0
+INFO JOIN: arena-halt samples 0, halted after the boss died 0, hud 0->216 own 179 dupOffers 0
+RESULT PASS ng=0
+
+### G: CO-OP 連続するボス2体(HOST がとどめ)+参加者の DOWN→復活
+== G (local coop) after 75s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 3.9 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 2)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 7.4 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  COOP: HOST/JOIN screen distance differ at most 5.6 m (mean 1.4 m, last 10 max 5.4 m)
+OK  COOP: they agree at the end (last 10 samples max 5.4 m)
+OK  JOIN: kept running while the other side chose/paused (23.3s, moved 62.3 m outside the arena)
+OK  HOST: kept running while the other side chose/paused (1.5s, moved 3.8 m outside the arena)
+INFO HOST: arena-halt samples 12, halted after the boss died 4, hud 0->254 own 254 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (4 samples of 0.5 s)
+INFO JOIN: arena-halt samples 11, halted after the boss died 4, hud 0->252 own 217 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (4 samples of 0.5 s)
+RESULT PASS ng=0
+
+### H: CO-OP ボス戦の途中で参加者が退出
+== H (local coop) after 70s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 5.2 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 4)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 12.8 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 1)
+OK  COOP: HOST/JOIN screen distance differ at most 5.8 m (mean 2.3 m, last 10 max 1.8 m)
+OK  COOP: they agree at the end (last 10 samples max 1.8 m)
+OK  JOIN: kept running while the other side chose/paused (32.6s, moved 34.6 m outside the arena)
+INFO HOST: arena-halt samples 31, halted after the boss died 4, hud 0->235 own 235 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (4 samples of 0.5 s)
+INFO JOIN: arena-halt samples 12, halted after the boss died 0, hud 0->140 own 99 dupOffers 0
+RESULT PASS ng=0
+
+### V1: VERSUS HOST 先行・HOST がとどめ・HOST が8秒カード選択
+== V1 (local versus) after 70s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 5.3 m)
+OK  HOST: VERSUS shows own distance (max |hud-own| 0.00)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 3)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 3.6 m)
+OK  JOIN: VERSUS shows own distance (max |hud-own| 0.00)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 2)
+OK  JOIN: kept running while the other side chose/paused (30.4s, moved 102.0 m outside the arena)
+OK  HOST: kept running while the other side chose/paused (1.5s, moved 7.5 m outside the arena)
+INFO HOST: arena-halt samples 23, halted after the boss died 3, hud 0->248 own 248 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (3 samples of 0.5 s)
+INFO JOIN: arena-halt samples 24, halted after the boss died 4, hud 0->169 own 169 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (4 samples of 0.5 s)
+RESULT PASS ng=0
+
+### V2: VERSUS 参加者が先行・参加者がとどめ・参加者が8秒カード選択
+== V2 (local versus) after 70s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 3.4 m)
+OK  HOST: VERSUS shows own distance (max |hud-own| 0.00)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 1)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 5.5 m)
+OK  JOIN: VERSUS shows own distance (max |hud-own| 0.00)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: other side choosing/paused 1.6s (this side was in the boss arena or choosing - not measured)
+OK  HOST: kept running while the other side chose/paused (29.9s, moved 96.8 m outside the arena)
+INFO HOST: arena-halt samples 23, halted after the boss died 3, hud 0->171 own 171 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (3 samples of 0.5 s)
+INFO JOIN: arena-halt samples 24, halted after the boss died 4, hud 0->244 own 244 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (4 samples of 0.5 s)
+RESULT PASS ng=0
+
+### V3: VERSUS 参加者が一時停止のメニュー6秒
+== V3 (local versus) after 60s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 3.9 m)
+OK  HOST: VERSUS shows own distance (max |hud-own| 0.00)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 1)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 3.9 m)
+OK  JOIN: VERSUS shows own distance (max |hud-own| 0.00)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 1)
+OK  JOIN: other side choosing/paused 1.6s (this side was in the boss arena or choosing - not measured)
+OK  HOST: kept running while the other side chose/paused (8.7s, moved 34.3 m outside the arena)
+INFO HOST: arena-halt samples 0, halted after the boss died 0, hud 0->213 own 213 dupOffers 0
+INFO JOIN: arena-halt samples 0, halted after the boss died 0, hud 0->175 own 175 dupOffers 0
+RESULT PASS ng=0
+
+DONE

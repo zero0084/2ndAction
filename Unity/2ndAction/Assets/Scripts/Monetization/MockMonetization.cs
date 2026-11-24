@@ -32,7 +32,7 @@ public class MockAdService : MonoBehaviour, IAdService
         ready[(int)k] = true;
     }
     public bool PrivacyOptionsRequired => false;
-    public void ShowPrivacyOptions() { }
+    public void ShowPrivacyOptions(System.Action<string> done) { done?.Invoke(null); }
 
     bool showing; AdKind showingKind; float t; Action onReward; Action<AdOutcome, string> onFinished; bool rewardSent;
     public static bool ShowingNow => inst != null && inst.showing;

@@ -96,10 +96,20 @@ public class LanAutoTest : MonoBehaviour
         var ui = FindFirstObjectByType<NetDebugUI>();
         NetDebugUI.OpenPanel();
         ushort port = (ushort)(NetSession.DefaultPort + 3);
+        // 2026-11-24: 部屋のボタンの文言の確認(部屋を作成/部屋に参加/ゲーム開始/部屋を解散/部屋から退出/閉じる)と確認の文
+        var lcField = typeof(NetDebugUI).GetField("leaveConfirm", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var lcHostField = typeof(NetDebugUI).GetField("leaveConfirmRoomHost", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var leavingField = typeof(NetDebugUI).GetField("leavingAt", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var leavingDisbandField = typeof(NetDebugUI).GetField("leavingDisband", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var lcType = typeof(NetDebugUI).GetNestedType("LeaveConfirm", System.Reflection.BindingFlags.NonPublic);
+        void SetConfirm(string name, bool hostRole) { lcField.SetValue(ui, System.Enum.Parse(lcType, name)); lcHostField.SetValue(ui, hostRole); }
+        // 確認の「部屋を解散/部屋から退出」を押したのと同じ(NetDebugUI の確認のボタンの処理)
+        void ConfirmLeave(bool disband) { SetConfirm("None", disband); leavingField.SetValue(ui, Time.unscaledTime); leavingDisbandField.SetValue(ui, disband); NetSession.Instance.Leave(); f.SetValue(ui, NetDebugUI.MultiScreen.Choose); }
         if (role == "host")
         {
             f.SetValue(ui, NetDebugUI.MultiScreen.Choose);
             yield return new WaitForSecondsRealtime(0.5f);
+            yield return Shot("choose_buttons");
             bool ok = NetSession.Instance.StartHost(port);
             if (ok) LanDiscovery.StartAdvertising();
             L($"ROOM host started={ok} port={port}");
@@ -107,12 +117,30 @@ public class LanAutoTest : MonoBehaviour
             float w = 0f; while (w < 60f && (NetSession.Manager == null || NetSession.Manager.ConnectedClientsIds.Count < 2)) { yield return null; w += Time.unscaledDeltaTime; }
             L($"ROOM a player joined={(NetSession.Manager != null && NetSession.Manager.ConnectedClientsIds.Count >= 2)} after {w:F1}s");
             yield return Shot("room_with_join");
+            SetConfirm("Disband", true);
+            yield return Shot("disband_confirm");
+            SetConfirm("None", true);
+            // 「閉じる」= 小窓を閉じるだけ(部屋はそのまま)
+            NetDebugUI.ClosePanel();
+            yield return new WaitForSecondsRealtime(1f);
+            L($"ROOM CHECK close keeps the room: panelOpen={NetDebugUI.PanelOpen} active={NetSession.IsActive} players={(NetSession.Manager != null ? NetSession.Manager.ConnectedClientsIds.Count : -1)}");
+            NetDebugUI.OpenPanel();
+            yield return new WaitForSecondsRealtime(0.5f);
+            // 「ゲーム開始」= ステージ選択を開く(部屋はそのまま)
+            var sg = typeof(NetDebugUI).GetMethod("StartGameFromRoom", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            sg.Invoke(ui, null);
+            yield return Shot("start_game_stage_select");
+            L($"ROOM CHECK start game: panelOpen={NetDebugUI.PanelOpen} active={NetSession.IsActive} taps={NetDebugUI.StartGameTaps}");
+            var gmS = GameManager.Instance; if (gmS != null) gmS.CloseStageSelect();
+            yield return new WaitForSecondsRealtime(1.5f);
+            NetDebugUI.OpenPanel(); f.SetValue(ui, NetDebugUI.MultiScreen.Room);
             w = 0f; while (w < 40f && NetSession.Manager != null && NetSession.Manager.ConnectedClientsIds.Count >= 2) { yield return null; w += Time.unscaledDeltaTime; }
             L($"ROOM the player left after {w:F1}s");
             yield return Shot("room_after_join_left");
-            NetSession.Instance.Leave();
-            yield return new WaitForSecondsRealtime(1f);
-            yield return Shot("after_leave");
+            ConfirmLeave(true);
+            yield return new WaitForSecondsRealtime(0.3f);
+            yield return Shot("after_disband");
+            L($"ROOM CHECK disbanded: active={NetSession.IsActive} leaveRequests={NetDebugUI.LeaveRequests} timeouts={NetDebugUI.LeaveTimeouts}");
         }
         else
         {
@@ -129,10 +157,14 @@ public class LanAutoTest : MonoBehaviour
                 L($"ROOM connected={NetSession.IsConnected} after {w:F1}s");
                 yield return new WaitForSecondsRealtime(1.5f);
                 yield return Shot("room_joined");
-                yield return new WaitForSecondsRealtime(3f);
-                NetSession.Instance.Leave();
-                yield return new WaitForSecondsRealtime(1f);
+                SetConfirm("Leave", false);
+                yield return Shot("leave_confirm");
+                SetConfirm("None", false);
+                yield return new WaitForSecondsRealtime(14f); // HOST が「閉じる」「ゲーム開始」を試す間は部屋に残る
+                ConfirmLeave(false);
+                yield return new WaitForSecondsRealtime(0.3f);
                 yield return Shot("after_leave");
+                L($"ROOM CHECK left: active={NetSession.IsActive} leaveRequests={NetDebugUI.LeaveRequests} timeouts={NetDebugUI.LeaveTimeouts}");
             }
             LanDiscovery.StopDiscovery("room shots");
         }

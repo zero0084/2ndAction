@@ -62,8 +62,9 @@ public static class WorldRange
         PlayerController pc = PlayerController.Instance;
         GameManager gm = GameManager.Instance;
         float localX = pc != null ? pc.transform.position.x : 0f;
-        float localDist = gm != null ? gm.MaxDistance : 0f;
         bool multi = NetMatch.Active;
+        // 2026-11-24: 置き直し(協力の復帰)で距離の報酬から除いた分は、物差しには足し戻す(除くと自分の位置と距離がずれ、全員の距離 = チーム走行距離が数秒止まった)
+        float localDist = gm != null ? gm.MaxDistance + (multi ? (float)gm.WarpExcludedMeters : 0f) : 0f;
 
         // 自分
         if (pc != null && gm != null && gm.HasStarted && !gm.IsGameOver && !pc.IsFinishing)

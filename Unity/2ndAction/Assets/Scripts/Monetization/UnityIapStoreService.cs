@@ -29,10 +29,13 @@ public class UnityIapStoreService : IStoreService
 
     // 2026-11-18: 起動時に繋がらなかった/途中で切れた時は、次の確認(復帰・「購入を復元」)で繋ぎ直す。通知の登録は1回だけ(繋ぎ直しで二重にしない)
     bool hooked, connecting;
+    float connectingSince;
     public async void Initialize(Action<bool> done)
     {
-        if (connecting) { done(false); return; }
-        connecting = true;
+        // 2026-11-24: 繋ぎ方の途中で答えが来ないまま(Connect が戻らない)だと、以後の確認が全部「繋がらない」になっていた → 30 秒で次の試みを許す
+        if (connecting && Time.realtimeSinceStartup - connectingSince < 30f) { done(false); return; }
+        if (connecting) Debug.LogWarning("[IAP] previous connect attempt did not finish in 30s - trying again");
+        connecting = true; connectingSince = Time.realtimeSinceStartup;
         try
         {
             if (store == null) store = UnityIAPServices.StoreController();

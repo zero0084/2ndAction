@@ -125,6 +125,7 @@ public partial class NetMatch : MonoBehaviour
     void ResetForScene()
     {
         recs.Clear();
+        ResetBossRewardSerials(); // 2026-11-24: ランごとに番号を数え直す
         helloSeed = 0;
         EventLog.Clear();
         StatClaimsSent = StatClaimsAccepted = StatClaimsRejected = StatHitsConfirmed = StatHostRemoteHits = 0;
@@ -159,7 +160,7 @@ public partial class NetMatch : MonoBehaviour
             Rec me = GetOrCreate(local, NetworkManager.ServerClientId);
             if (!me.Known) { me.Known = true; me.Hp = gm.Lives; me.MaxHp = gm.MaxLives; dirty = true; }
             if (me.State == PState.Alive && (me.Hp != gm.Lives || me.MaxHp != gm.MaxLives)) { me.Hp = gm.Lives; me.MaxHp = gm.MaxLives; dirty = true; }
-            bool choosing = gm.IsLocalChoiceOpen;
+            bool choosing = gm.IsLocalNetHoldOpen; // 2026-11-24: 一時停止のメニューの間も「選択中」と同じ(自分だけ止まり、狙われない)
             if (me.Choosing != choosing) { if (!choosing) me.ChoiceEndedAt = Time.realtimeSinceStartup; me.Choosing = choosing; dirty = true; Log($"P{local} IsChoosingCard={choosing}"); HostOnChoosingChanged(me, choosing); }
             if (me.State == PState.Alive) me.Distance = pc.DistanceExact;
             foreach (NetPlayer p in NetPlayer.All)
@@ -183,7 +184,7 @@ public partial class NetMatch : MonoBehaviour
                 SendToHost(w => { w.WriteValueSafe(ReqHello); w.WriteValueSafe(gm.Lives); w.WriteValueSafe(gm.MaxLives); });
                 Log($"P{local} hello hp={gm.Lives}/{gm.MaxLives}");
             }
-            bool choosing = gm.IsLocalChoiceOpen;
+            bool choosing = gm.IsLocalNetHoldOpen; // 2026-11-24: 一時停止のメニューの間も「選択中」と同じ(自分だけ止まり、狙われない)
             Rec me = Get(local);
             if (me != null && me.Choosing != choosing) { me.Choosing = choosing; SendToHost(w => { w.WriteValueSafe(ReqChoosing); w.WriteValueSafe(choosing); }); Log($"P{local} IsChoosingCard={choosing}"); }
             UpdatePhase3Client(gm, pc);
@@ -537,9 +538,12 @@ public partial class NetMatch : MonoBehaviour
             case SyncBossReward:
             {
                 r.ReadValueSafe(out byte pn);
+                r.ReadValueSafe(out int serial); // 2026-11-24(版14): 同じ報酬を2回受け取らない
                 if (pn == local && gm != null)
                 {
-                    Log($"Boss reward offered to P{pn} (this device)");
+                    if (serial <= lastBossRewardSerial) { BossRewardOffersIgnored++; Log($"Boss reward offer #{serial} ignored (already received #{lastBossRewardSerial})"); break; }
+                    lastBossRewardSerial = serial;
+                    Log($"Boss reward offered to P{pn} (this device, #{serial})");
                     gm.NetOfferBossReward();
                 }
                 break;
@@ -699,8 +703,13 @@ public partial class NetMatch : MonoBehaviour
         Rec rec = Get(pn);
         Instance.Log($"Boss reward recipient = P{pn}");
         if (rec == null) return;
-        SendToClients(w => { w.WriteValueSafe(SyncBossReward); w.WriteValueSafe((byte)pn); }, rec.ClientId);
+        int serial = ++bossRewardSerialSent;
+        SendToClients(w => { w.WriteValueSafe(SyncBossReward); w.WriteValueSafe((byte)pn); w.WriteValueSafe(serial); }, rec.ClientId);
     }
+    // 2026-11-24: ボス報酬の知らせの番号(HOST が送るたびに +1。受け取る側は前と同じか古い番号を捨てる)。ランごとに NetMatch が作り直される
+    static int bossRewardSerialSent, lastBossRewardSerial;
+    public static int BossRewardOffersIgnored { get; private set; } // 確認用
+    public static void ResetBossRewardSerials() { bossRewardSerialSent = 0; lastBossRewardSerial = 0; }
 
     // 2026-10-16 第5弾(マスター): 協力の各マップのラッシュの完走報酬は、完走した時にランへ参加している人(DOWN の人も)が1回ずつ選ぶ。
     // HOST が参加者全員へ(自分以外)知らせる。serial = そのランのラッシュの番号(受け取る側は同じ番号を2回受け取らない)。戻り値 = 送った人数

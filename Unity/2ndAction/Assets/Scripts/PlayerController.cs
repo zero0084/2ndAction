@@ -1990,7 +1990,7 @@ public partial class PlayerController : MonoBehaviour
         {
             if (!NetMatch.Active || netDowned || hasDied || IsFinishing) return false;
             GameManager gm = GameManager.Instance;
-            return gm != null && gm.HasStarted && !gm.IsGameOver && (gm.IsLocalChoiceOpen || netRejoinHold);
+            return gm != null && gm.HasStarted && !gm.IsGameOver && (gm.IsLocalNetHoldOpen || netRejoinHold); // 2026-11-24: 一時停止のメニューも(マルチ)
         }
     }
 

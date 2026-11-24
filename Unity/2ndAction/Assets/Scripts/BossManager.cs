@@ -390,7 +390,10 @@ public partial class BossManager : MonoBehaviour
     // HoldsRun    … ランを止めている(距離が進まない/雑魚/障害物を出さない)。ラン再開でfalseになる。
     // SpawnsHeld  … 雑魚の出現を止めている(ラン再開から zakoResumeDelay 秒は止めたまま)。
     public bool RunResumed { get; private set; }
-    public bool HoldsRun => IsBossPhase && !RunResumed;
+    // 2026-11-24(マスター依頼: マルチで1人のボス戦/カード選択が全員の停止に広がる): マルチでは、ボスを倒した時点で止めるのをやめる
+    //  (以前は報酬を選び終えるまで = HOST がとどめを刺した時は HOST のカード選択の間じゅう、闘技場にいる全員と後から着いた人が止まっていた)。
+    //  報酬のカードを選ぶ本人だけが止まる(PlayerController.NetIsChoosing)。シングルは従来どおり報酬まで止める
+    public bool HoldsRun => IsBossPhase && !RunResumed && !(MpRun.On && BossDefeatedThisPhase);
     public bool SpawnsHeld => IsBossPhase && (!RunResumed || Time.time - resumedAt < BossBattleTuning.I.zakoResumeDelay || MapRushActive || AirRaidActive); // 2026-11-04: 空中ボスの乱入の間も雑魚を足さない(画面を散らかさない) / 2026-10-15: 各マップのラッシュの間は雑魚を出さない(出して消すの繰り返しにしない)
     public float EncounterSeconds => encounterTimer;
     public float ResumeSecondsTotal => resumeSeconds;
@@ -636,7 +639,9 @@ public partial class BossManager : MonoBehaviour
             {
                 // ボス戦の強化(2026-10-01): 保留していた関門(すでに通り過ぎている)では距離を関門まで戻さない
                 float md = GameManager.Instance.MaxDistance;
-                if (md >= targetDistance - 0.5f && md - targetDistance < 30f) GameManager.Instance.ClampMaxDistanceTo(targetDistance);
+                // 2026-11-24: マルチでは距離を関門へ戻さない(HOST だけ距離が変わり、端末ごとに距離がずれる原因だった)
+                if (MpRun.On) Debug.Log($"[BossRun] Gate {targetDistance:F0}m (multiplayer: distances are not clamped, HOST={md:F0}m front={gateDistance:F0}m)");
+                else if (md >= targetDistance - 0.5f && md - targetDistance < 30f) GameManager.Instance.ClampMaxDistanceTo(targetDistance);
                 else if (md < targetDistance) Debug.Log($"[BossRun] Gate {targetDistance:F0}m reached by the front player P{WorldRange.WorldFrontPlayer} (front={gateDistance:F0}m, HOST={md:F0}m) - HOST distance not moved");
                 else Debug.Log($"[BossRun] PendingGateStart {targetDistance:F0}m at d={md:F0}");
                 // Bugfix 2026-09-06, item "Boss中Distanceの根本修正" - marks

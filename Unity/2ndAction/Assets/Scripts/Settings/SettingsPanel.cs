@@ -45,6 +45,7 @@ public partial class SettingsPanel : MonoBehaviour
         if (state == St.Open || state == St.Opening) return;
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         state = St.Opening; t = 0f; scroll = Vector2.zero; dragging = false; nameEditing = false;
+        NoAdsPass.ClearUserResult(); // 2026-11-24: 前に押した「購入を復元」の結果を、新しい結果に見せない
         keyView = false; capturing = false; conflictOpen = false; resetAsk = false; selMode = -1; drawnH = 0f; // 2026-10-25
         PlaySe(true);
     }
@@ -272,6 +273,19 @@ public partial class SettingsPanel : MonoBehaviour
     }
 
     // 2026-10-08: 説明は幅で折り返す(長い言語でも縮めずに全部出す。内容全体は BeginScroll でスクロールする)
+    public const string NameSavedText = "保存しました"; // ID 11087(コードネームの保存の結果)
+    static float nameSavedUntil = -1f;
+
+    // 訳した後の文を色付きで(2026-11-24)
+    float NoteLocalized(float x, float y, float w, string localized, Color c)
+    {
+        var st = new GUIStyle(UiKit.Label(15f, TextAnchor.UpperLeft, false, c));
+        st.wordWrap = true;
+        float h = Mathf.Max(22f, st.CalcHeight(new GUIContent(localized), w) + 2f);
+        GUI.Label(new Rect(x, y - 4f, w, h + 4f), localized, st);
+        return y + h;
+    }
+
     float Note(float x, float y, float w, string text)
     {
         var st = new GUIStyle(UiKit.Label(15f, TextAnchor.UpperLeft, false, new Color(0.75f, 0.8f, 0.9f)));
@@ -675,8 +689,10 @@ public partial class SettingsPanel : MonoBehaviour
             nameEditing = false;
             GUI.FocusControl(null);
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
+            nameSavedUntil = Time.realtimeSinceStartup + 3f; // 2026-11-24: 押した結果が分かるように
         }
         y += RowH;
+        if (Time.realtimeSinceStartup < nameSavedUntil && Loc.Ready(NameSavedText)) y = NoteLocalized(x, y, w, Loc.Auto(NameSavedText), new Color(0.55f, 1f, 0.65f));
         y = Note(x, y, w, $"ランキングとマルチで表示する名前(最大{Codename.MaxLength}文字)。未設定でも遊べます。");
         return Note(x, y, w, "本名などの個人情報は入れないでください。");
     }
@@ -701,12 +717,22 @@ public partial class SettingsPanel : MonoBehaviour
 
     // 広告なしパス/購入の復元/プライバシー(2026-10-10、依頼I)。Steam/PC(広告も課金も無い)では出さない
     static bool PrivacyRow => Monetization.Ads != null && Monetization.Ads.PrivacyOptionsRequired;
+    // 2026-11-24(押しても結果が分からない操作の点検): 広告のプライバシーの設定は、開いている間は押せない・開けなかった時は理由を出す(以前は記録だけ)
+    public const string PrivacyFailedText = "プライバシーの設定を開けませんでした。通信を確認して、もう一度お試しください"; // ID 11085
+    static float privacyBusySince = -1f;
+    static string privacyNote = "";
+    static bool PrivacyBusy => privacyBusySince > 0f && Time.realtimeSinceStartup - privacyBusySince < 20f;
+    static void OpenPrivacyOptions()
+    {
+        privacyBusySince = Time.realtimeSinceStartup; privacyNote = "";
+        Monetization.Ads.ShowPrivacyOptions(err => { privacyBusySince = -1f; privacyNote = err == null ? "" : Loc.Reviewed(PrivacyFailedText, "通信を確認してください"); });
+    }
     // 2026-11-14: 販売の準備(レシートの検証)ができていない製品版では、パスの欄を出さない(購入できるように見せない)。
     //  持っている人(以前の確認で有効)と開発版(確かめるため)には出す。広告のプライバシーの行は必要な地域では今までどおり
     static bool PassRows => Monetization.PurchaseSetupComplete || NoAdsPass.Owned || DevGate.On;
     float MeasureNoAds() => Monetization.Mode == MonetizationMode.None ? 0f
-        : !PassRows ? (PrivacyRow ? 16f + HeadH + 4f + RowH : 0f)
-        : 16f + HeadH + 4f + RowH * (PrivacyRow ? 3f : 2f) + 22f * 2f;
+        : !PassRows ? (PrivacyRow ? 16f + HeadH + 4f + RowH + (string.IsNullOrEmpty(privacyNote) ? 0f : 44f) : 0f)
+        : 16f + HeadH + 4f + RowH * (PrivacyRow ? 3f : 2f) + 22f * (NoAdsPass.UserState != NoAdsPass.UserResult.None ? 4f : 2f);
     float DrawNoAds(float x, float y, float w, bool interactive)
     {
         if (Monetization.Mode == MonetizationMode.None) return y;
@@ -715,8 +741,10 @@ public partial class SettingsPanel : MonoBehaviour
             if (!PrivacyRow) return y;
             y = Head(x, y + 16f, w, "広告のプライバシー");
             RowLabel(x, y, "広告のプライバシー");
-            if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), "プライバシーの設定", 19f, false, true) && interactive) Monetization.Ads.ShowPrivacyOptions();
-            return y + RowH;
+            if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), PrivacyBusy ? "読み込み中…" : "プライバシーの設定", 19f, false, true, !PrivacyBusy) && interactive && !PrivacyBusy) OpenPrivacyOptions();
+            y += RowH;
+            if (!string.IsNullOrEmpty(privacyNote)) y = Note(x, y, w, privacyNote);
+            return y;
         }
         y = Head(x, y + 16f, w, "広告なしパス");
         RowLabel(x, y, "広告なしパス");
@@ -725,15 +753,18 @@ public partial class SettingsPanel : MonoBehaviour
         y += RowH;
         RowLabel(x, y, "購入の復元");
         bool busy = NoAdsPass.Busy;
-        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), busy ? "確認中…" : "購入を復元", 19f, false, true, !busy) && interactive && !busy) NoAdsPass.Check("settings restore");
+        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), busy ? "確認中…" : "購入を復元", 19f, false, true, !busy) && interactive && !busy) NoAdsPass.RequestRestore("settings restore");
         y += RowH;
         if (PrivacyRow)
         {
             RowLabel(x, y, "広告のプライバシー");
-            if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), "プライバシーの設定", 19f, false, true) && interactive) Monetization.Ads.ShowPrivacyOptions();
+            if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), PrivacyBusy ? "読み込み中…" : "プライバシーの設定", 19f, false, true, !PrivacyBusy) && interactive && !PrivacyBusy) OpenPrivacyOptions();
             y += RowH;
         }
-        y = Note(x, y, w, string.IsNullOrEmpty(NoAdsPass.LastNote) ? "パスはストアのアカウントに紐づきます(購入の復元でセーブデータは戻りません)" : NoAdsPass.LastNote);
+        if (!string.IsNullOrEmpty(privacyNote)) y = Note(x, y, w, privacyNote);
+        // 2026-11-24: 押した「購入を復元」の結果(確認中 → 結果)を色付きで。無い時は今までの控えの文
+        if (NoAdsPass.UserState != NoAdsPass.UserResult.None) y = NoteLocalized(x, y, w, MonetizationUi.ResultLine(), MonetizationUi.ResultColor(new Color(0.75f, 0.8f, 0.9f)));
+        else y = Note(x, y, w, string.IsNullOrEmpty(NoAdsPass.LastNote) ? "パスはストアのアカウントに紐づきます(購入の復元でセーブデータは戻りません)" : NoAdsPass.LastNote);
         return y;
     }
 

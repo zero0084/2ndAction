@@ -98,7 +98,12 @@ public class DataDeletionUi : MonoBehaviour
             float bw = (full - 12f) / 2f, by = Mathf.Max(y + 6f, p.yMax - 24f - 52f);
             bool canDelete = AccountDeletion.InAppAvailable && (phase == AccountDeletion.Phase.Ready || phase == AccountDeletion.Phase.Failed && hasId);
             string label = phase == AccountDeletion.Phase.Deleting ? Loc.T("削除しています…") : phase == AccountDeletion.Phase.Done ? Loc.T("削除しました") : Loc.T("削除する");
-            if (UiKit.Button(new Rect(x, by, bw, 52f), label, 18f, true, false, canDelete) && canDelete) AccountDeletion.AskConfirm();
+            // 2026-11-24(押しても結果が分からない操作の点検): サービスに繋がらなかった時は、閉じて開き直さなくても「再試行」で確かめ直せる
+            if (phase == AccountDeletion.Phase.Unavailable)
+            {
+                if (UiKit.Button(new Rect(x, by, bw, 52f), Loc.T("再試行"), 18f, true, false, true)) { AccountDeletion.Reset(); AccountDeletion.Check(); }
+            }
+            else if (UiKit.Button(new Rect(x, by, bw, 52f), label, 18f, true, false, canDelete) && canDelete) AccountDeletion.AskConfirm();
             if (UiKit.Button(new Rect(x + bw + 12f, by, bw, 52f), "閉じる", 18f, false, false, !busy) && !busy) Close();
         }
 

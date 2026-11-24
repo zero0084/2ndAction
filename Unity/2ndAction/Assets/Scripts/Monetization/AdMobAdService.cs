@@ -122,6 +122,6 @@ public class AdMobAdService : IAdService
     public void DevDropLoaded() { interstitial?.Destroy(); interstitial = null; rewarded?.Destroy(); rewarded = null; Debug.Log("[AdMob] dev: dropped loaded ads"); }
 #endif
     public bool PrivacyOptionsRequired => ConsentInformation.PrivacyOptionsRequirementStatus == PrivacyOptionsRequirementStatus.Required;
-    public void ShowPrivacyOptions() => ConsentForm.ShowPrivacyOptionsForm(err => { string m = err?.Message; AdManager.Post(() => { if (m != null) Debug.LogWarning($"[AdMob] privacy options: {m}"); }); });
+    public void ShowPrivacyOptions(Action<string> done) => ConsentForm.ShowPrivacyOptionsForm(err => { string m = err?.Message; AdManager.Post(() => { if (m != null) Debug.LogWarning($"[AdMob] privacy options: {m}"); done?.Invoke(m); }); });
 }
 #endif

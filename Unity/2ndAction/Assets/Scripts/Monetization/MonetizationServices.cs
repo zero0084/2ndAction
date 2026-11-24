@@ -22,7 +22,7 @@ public interface IAdService
     void Show(AdKind kind, Action onReward, Action<AdOutcome, string> onFinished);
     // 同意(UMP など)の「プライバシーの設定」を出す必要があるか / 出す
     bool PrivacyOptionsRequired { get; }
-    void ShowPrivacyOptions();
+    void ShowPrivacyOptions(Action<string> done); // done(null) = 開いて閉じた / done(エラー) = 開けなかった(2026-11-24)
 }
 
 public enum PurchaseStatus { Purchased, Pending, Cancelled, Failed, AlreadyOwned, NotReady }

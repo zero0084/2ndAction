@@ -176,7 +176,7 @@ public class BossFinish : MonoBehaviour
         var tn = BossDeathTuning.I;
         float rt = Time.unscaledTime - realStart;
         if (zoomOn && rt > tn.finalHitStop + tn.finalZoomSeconds) EndZoom();
-        if (!slowOn && slowOwner == null && zoomOwner == this && tn.slowMotionSeconds > 0f && rt > tn.finalHitStop && rt < tn.finalHitStop + 0.05f && !TimeControl.PresentationBusy)
+        if (!slowOn && slowOwner == null && zoomOwner == this && tn.slowMotionSeconds > 0f && rt > tn.finalHitStop && rt < tn.finalHitStop + 0.05f && !TimeControl.PresentationBusy && !MpRun.On) // 2026-11-24: マルチは世界の時間を遅くしない
         {
             slowOwner = this; slowOn = true;
             TimeControl.BeginPresentationDrive(this);

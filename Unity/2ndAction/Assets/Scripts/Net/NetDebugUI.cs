@@ -225,7 +225,8 @@ public class NetDebugUI : MonoBehaviour
     {
         // 接続中は待機室(部屋)の画面へ(ONLINE は Session の作成/参加が終わるまで待つ)
         if (NetSession.IsActive && screen != MultiScreen.Advanced && !OnlineServices.Busy) screen = MultiScreen.Room;
-        else if (!NetSession.IsActive && screen == MultiScreen.Room && !OnlineServices.Busy) screen = MultiScreen.Choose;
+        else if (!NetSession.IsActive && screen == MultiScreen.Room && !OnlineServices.Busy) { screen = MultiScreen.Choose; NoteLeaveFinished(); }
+        if (!NetSession.IsActive && leavingAt > 0f && !OnlineServices.Busy) NoteLeaveFinished(); // 選択の画面に居る間に終わった時も
         // ONLINE: サービスが使えない → 専用の画面
         if (online && OnlineServices.Status == OnlineServices.State.Unavailable && (screen == MultiScreen.Mode || screen == MultiScreen.Choose || screen == MultiScreen.OnlineFind)) screen = MultiScreen.OnlineUnavailable;
     }
@@ -330,10 +331,11 @@ public class NetDebugUI : MonoBehaviour
         bool busy = online && OnlineServices.Busy;
         if (NetRunLauncher.SelectedMode == MultiplayerGameMode.Versus) DrawReaperTimeButton(busy); // 2026-11-05: 部屋を作る前に選ぶ(作った後も出発まで変えられる)
         GUI.enabled = !busy;
-        if (PadNav.LayoutButton(GUILayout.Button("CREATE GAME", buttonStyle, GUILayout.Height(70f)))) { if (online) CreateOnlineGame(); else CreateGame(); }
-        GUILayout.Label(L(online ? "部屋を作成し、オンラインの「FIND GAME」に公開します。" : "この端末で部屋を作ります。同じWi-Fiの端末から「FIND GAME」で参加できます。"), smallStyle);
+        // 2026-11-24(マスター依頼): ボタンの文言を動作に合わせる(CREATE GAME → 部屋を作成 / FIND GAME → 部屋に参加)。訳は LocRoomUi(エステルの確認の前は前の文)
+        if (PadNav.LayoutButton(GUILayout.Button(L(LocRoomUi.T(LocRoomUi.CreateRoom)), buttonStyle, GUILayout.Height(70f)))) { if (online) CreateOnlineGame(); else CreateGame(); }
+        GUILayout.Label(L(LocRoomUi.T(online ? LocRoomUi.CreateDescOnline : LocRoomUi.CreateDescLocal)), smallStyle);
         GUILayout.Space(10f);
-        if (PadNav.LayoutButton(GUILayout.Button("FIND GAME", buttonStyle, GUILayout.Height(70f)))) Go(online ? MultiScreen.OnlineFind : MultiScreen.Find);
+        if (PadNav.LayoutButton(GUILayout.Button(L(LocRoomUi.T(LocRoomUi.JoinRoom)), buttonStyle, GUILayout.Height(70f)))) Go(online ? MultiScreen.OnlineFind : MultiScreen.Find);
         GUILayout.Label(L(online ? "オンラインの部屋を探して参加します。" : "近くの部屋を探して参加します(IPの入力は不要)。"), smallStyle);
         GUI.enabled = true;
         if (busy) GUILayout.Label(L("部屋を作っています…"), labelStyle);
@@ -389,7 +391,7 @@ public class NetDebugUI : MonoBehaviour
     void DrawOnlineFind()
     {
         string m = NetRunLauncher.SelectedMode == MultiplayerGameMode.Coop ? "CO-OP" : "VERSUS";
-        GUILayout.Label("FIND GAME · ONLINE", titleStyle);
+        GUILayout.Label(L(LocRoomUi.T(LocRoomUi.JoinRoom)) + " · ONLINE", titleStyle);
         GUILayout.Label(L("オンラインの部屋") + $"({m})", smallStyle);
         GUILayout.Space(6f);
         bool joining = OnlineServices.Busy;
@@ -412,7 +414,7 @@ public class NetDebugUI : MonoBehaviour
             GUILayout.Space(20f);
             bool searching = OnlineServices.Querying || OnlineServices.Queries == 0;
             GUILayout.Label(L(searching ? "オンラインの部屋を探しています…" : "ゲームが見つかりません"), titleStyle);
-            if (!searching) GUILayout.Label(L("「CREATE GAME」で部屋を作るか、少し待ってから再検索してください。"), smallStyle);
+            if (!searching) GUILayout.Label(L(LocRoomUi.T(LocRoomUi.EmptyOnline)), smallStyle);
         }
         else
         {
@@ -425,7 +427,7 @@ public class NetDebugUI : MonoBehaviour
                 GUILayout.Label($"{(r.GameMode == MultiplayerGameMode.Coop ? "CO-OP" : "VERSUS")}   {r.players}/{r.maxPlayers}   {r.StateLabel}", smallStyle);
                 GUILayout.EndVertical();
                 GUI.enabled = r.Joinable && !joining && !NetSession.IsActive;
-                if (PadNav.LayoutButton(GUILayout.Button("JOIN", buttonStyle, GUILayout.Width(170f), GUILayout.Height(56f)))) JoinOnline(r);
+                if (PadNav.LayoutButton(GUILayout.Button(L(LocRoomUi.T(LocRoomUi.JoinRoom)), buttonStyle, GUILayout.Width(200f), GUILayout.Height(56f)))) JoinOnline(r);
                 GUI.enabled = true;
                 GUILayout.EndHorizontal();
             }
@@ -460,14 +462,14 @@ public class NetDebugUI : MonoBehaviour
         if (PadNav.LayoutButton(GUILayout.Button("RETRY", buttonStyle, GUILayout.Height(60f)))) { OnlineServices.ResetError(); StartOnline(); }
         GUI.enabled = true;
         GUILayout.Space(6f);
-        if (PadNav.LayoutButton(GUILayout.Button(L("BACK"), buttonStyle, GUILayout.Height(48f)))) Go(MultiScreen.Top);
+        if (PadNav.LayoutButton(GUILayout.Button(L("戻る"), buttonStyle, GUILayout.Height(48f)))) Go(MultiScreen.Top);
     }
 
     Vector2 roomScroll;
     void DrawFind()
     {
         string m = NetRunLauncher.SelectedMode == MultiplayerGameMode.Coop ? "CO-OP" : "VERSUS";
-        GUILayout.Label("FIND GAME", titleStyle);
+        GUILayout.Label(L(LocRoomUi.T(LocRoomUi.JoinRoom)), titleStyle);
         GUILayout.Label(L("近くの部屋") + $"({m})", smallStyle);
         GUILayout.Space(6f);
         bool joining = NetSession.JoinPending;
@@ -486,7 +488,7 @@ public class NetDebugUI : MonoBehaviour
             GUILayout.Space(20f);
             bool searching = Time.unscaledTime - LanDiscovery.DiscoveryStartedAt < 4f;
             GUILayout.Label(L(searching ? "近くの部屋を探しています…" : "ゲームが見つかりません"), titleStyle);
-            if (!searching) GUILayout.Label(L("HOST の端末で「CREATE GAME」を押して、同じWi-Fi(テザリング)につないでください。"), smallStyle);
+            if (!searching) GUILayout.Label(L(LocRoomUi.T(LocRoomUi.EmptyLocal)), smallStyle);
         }
         else
         {
@@ -502,7 +504,7 @@ public class NetDebugUI : MonoBehaviour
                 GUILayout.Label($"{(r.mode == MultiplayerGameMode.Coop ? "CO-OP" : "VERSUS")}   {r.players}/{r.maxPlayers}   {r.StateLabel}", smallStyle);
                 GUILayout.EndVertical();
                 GUI.enabled = r.Joinable && !joining && !NetSession.IsActive;
-                if (PadNav.LayoutButton(GUILayout.Button("JOIN", buttonStyle, GUILayout.Width(170f), GUILayout.Height(56f)))) JoinRoom(r);
+                if (PadNav.LayoutButton(GUILayout.Button(L(LocRoomUi.T(LocRoomUi.JoinRoom)), buttonStyle, GUILayout.Width(200f), GUILayout.Height(56f)))) JoinRoom(r);
                 GUI.enabled = true;
                 GUILayout.EndHorizontal();
             }
@@ -546,23 +548,93 @@ public class NetDebugUI : MonoBehaviour
             sb.Append($"{p.Tag}  {(p.OwnerClientId == 0 ? "HOST" : "JOIN")}  {CharLabel(p.CharacterId.Value.ToString())}{(p.IsOwner ? "  (" + L("自分") + ")" : "")}").Append('\n');
         GUILayout.Label(sb.ToString(), smallStyle);
         DrawRoomDeck(roomName); // 2026-10-31: 使うデッキ(出発前だけ選べる)
-        if (host && LanDiscovery.Advertising) GUILayout.Label(L("近くの端末の「FIND GAME」に表示中"), smallStyle);
-        if (host && onl && OnlineServices.Current != null) GUILayout.Label(L("オンラインの「FIND GAME」に表示中"), smallStyle);
+        if (host && LanDiscovery.Advertising) GUILayout.Label(L(LocRoomUi.T(LocRoomUi.ListedLocal)), smallStyle);
+        if (host && onl && OnlineServices.Current != null) GUILayout.Label(L(LocRoomUi.T(LocRoomUi.ListedOnline)), smallStyle);
         if (onl && Debug.isDebugBuild) GUILayout.Label("DEV " + NetStats.PingLine(), smallStyle);
         GUILayout.Label(L(host
-            ? "そろったら「閉じる(部屋はそのまま)」→ 扉 → STAGE SELECTで「出発」すると、全員が同じステージで同時にスタートします。"
+            ? LocRoomUi.T(LocRoomUi.HostHelp)
             : "HOSTが出発すると自動でスタートします。そのままお待ちください。"), smallStyle);
         GUILayout.Space(6f); QuickChat.DrawRoomButtons(buttonStyle, smallStyle); // 2026-11-07 プロフィール: 定型メッセージ
         GUILayout.FlexibleSpace();
-        GUI.enabled = !OnlineServices.Busy;
-        if (PadNav.LayoutButton(GUILayout.Button(L(host ? "部屋を閉じる" : "退出する"), buttonStyle, GUILayout.Height(52f))))
+        // 2026-11-24(マスター依頼): ホストは「ゲーム開始」(ステージを選んで出発)/「部屋を解散」、参加者は「部屋から退出」。
+        //  解散・退出は確かめてから(ほかの人への影響を書く)。「閉じる」は小窓を閉じるだけ(部屋はそのまま。端末の戻る/Esc も同じ)
+        if (leaveConfirm != LeaveConfirm.None && leaveConfirmRoomHost != host) leaveConfirm = LeaveConfirm.None; // 役割が変わった時は出し直さない
+        // 退出/解散の途中(ONLINE は部屋の削除・退出の通信を待つ)。10 秒で終わらなければ、失敗を出してもう一度押せるように
+        if (leavingAt > 0f)
         {
-            NetSession.Instance.Leave();
-            screen = MultiScreen.Choose;
+            if (Time.unscaledTime - leavingAt < LeaveTimeout)
+            {
+                GUILayout.Label(L(LocRoomUi.T(leavingDisband ? LocRoomUi.Disbanding : LocRoomUi.Leaving)), bannerStyle);
+                return;
+            }
+            leavingAt = -1f; LeaveTimeouts++;
+            Debug.LogWarning("[NetUI] leaving the room did not finish in time - offering retry");
+            createMessage = L(LocRoomUi.T(LocRoomUi.LeaveFailed)); createMessageUntil = Time.unscaledTime + 6f;
+        }
+        if (Time.unscaledTime < createMessageUntil) GUILayout.Label(createMessage, bannerStyle);
+        if (leaveConfirm != LeaveConfirm.None)
+        {
+            bool disband = leaveConfirm == LeaveConfirm.Disband;
+            GUILayout.Label(L(LocRoomUi.T(disband ? LocRoomUi.DisbandConfirm : LocRoomUi.LeaveConfirm)), bannerStyle);
+            GUILayout.Space(6f);
+            GUI.enabled = !OnlineServices.Busy;
+            if (PadNav.LayoutButton(GUILayout.Button(L(LocRoomUi.T(disband ? LocRoomUi.Disband : LocRoomUi.Leave)), buttonStyle, GUILayout.Height(52f))))
+            {
+                leaveConfirm = LeaveConfirm.None;
+                Debug.Log($"[NetUI] {(disband ? "disband room (host)" : "leave room (join)")}");
+                leavingAt = Time.unscaledTime; leavingDisband = disband; LeaveRequests++;
+                NetSession.Instance.Leave();
+                screen = MultiScreen.Choose;
+            }
+            GUI.enabled = true;
+            GUILayout.Space(6f);
+            if (PadNav.LayoutButton(GUILayout.Button(L("戻る"), buttonStyle, GUILayout.Height(48f)))) leaveConfirm = LeaveConfirm.None;
+            return;
+        }
+        if (host)
+        {
+            if (PadNav.LayoutButton(GUILayout.Button(L(LocRoomUi.T(LocRoomUi.StartGame)), buttonStyle, GUILayout.Height(56f)))) StartGameFromRoom();
+            GUILayout.Space(6f);
+        }
+        GUI.enabled = !OnlineServices.Busy;
+        if (PadNav.LayoutButton(GUILayout.Button(L(LocRoomUi.T(host ? LocRoomUi.Disband : LocRoomUi.Leave)), buttonStyle, GUILayout.Height(52f))))
+        {
+            leaveConfirm = host ? LeaveConfirm.Disband : LeaveConfirm.Leave; leaveConfirmRoomHost = host;
         }
         GUI.enabled = true;
         GUILayout.Space(6f);
-        if (PadNav.LayoutButton(GUILayout.Button(L("閉じる(部屋はそのまま)"), buttonStyle, GUILayout.Height(48f)))) PanelOpen = false;
+        if (PadNav.LayoutButton(GUILayout.Button(L("閉じる"), buttonStyle, GUILayout.Height(48f)))) ClosePanelFromUi();
+        if (LocRoomUi.Ready(LocRoomUi.CloseNote)) GUILayout.Label(L(LocRoomUi.CloseNote), smallStyle);
+    }
+
+    // 退出/解散の結果(2026-11-24): 部屋が無くなったら選択の画面で「解散しました/退出しました」を数秒出す(AutoScreen が Room から戻す時)
+    const float LeaveTimeout = 10f;
+    float leavingAt = -1f; bool leavingDisband;
+    public static int LeaveRequests { get; private set; }  // 確認用
+    public static int LeaveTimeouts { get; private set; }  // 確認用
+    void NoteLeaveFinished()
+    {
+        if (leavingAt <= 0f) return;
+        leavingAt = -1f;
+        string done = leavingDisband ? LocRoomUi.Disbanded : LocRoomUi.Left;
+        if (LocRoomUi.Ready(done)) { createMessage = L(done); createMessageUntil = Time.unscaledTime + 4f; } // 訳が無い言語では出さない(戻った画面で分かる)
+    }
+
+    enum LeaveConfirm { None, Disband, Leave }
+    LeaveConfirm leaveConfirm;
+    bool leaveConfirmRoomHost;
+    public static int StartGameTaps { get; private set; } // 確認用
+
+    // ホストの「ゲーム開始」: 小窓を閉じて、ステージ選択を開く(扉と同じ。出発すると全員が同時にスタート)
+    void StartGameFromRoom()
+    {
+        var gm = GameManager.Instance;
+        if (gm == null || !NetSession.IsHost) return;
+        StartGameTaps++;
+        Debug.Log("[NetUI] start game (host) -> stage select");
+        leaveConfirm = LeaveConfirm.None;
+        PanelOpen = false;
+        gm.OpenStageSelect();
     }
 
     // デッキのプリセット(2026-10-31): 部屋に入った時に、このモードで前回使ったデッキへ(1回だけ)。出発までは ◀ ▶ で選べる
@@ -747,4 +819,47 @@ public class NetDebugUI : MonoBehaviour
         SaveStore.SetInt(LastPortKey, ParsePort());
         SaveStore.Save();
     }
+}
+
+// マルチの部屋のボタンと説明(2026-11-24、マスター依頼: ボタンの文言を実際の動作に合わせる)。訳は Tools/loc/keys_extra46.tsv(エステルの確認の後に反映)。
+//  T(): 訳がまだ無い言語では、変更前の英語の名前(CREATE GAME など)を出す(未訳の日本語を出さない)。日本語はそのまま
+public static class LocRoomUi
+{
+    public const string CreateRoom = "部屋を作成";                                   // ID 11065 / en: Create Room
+    public const string JoinRoom = "部屋に参加";                                     // ID 11066 / en: Join Room
+    public const string Disband = "部屋を解散";                                      // ID 11067 / en: Disband Room
+    public const string Leave = "部屋から退出";                                      // ID 11068 / en: Leave Room
+    public const string StartGame = "ゲーム開始";                                    // ID 11069 / en: Start Game
+    public const string CreateDescOnline = "部屋を作成し、オンラインの「部屋に参加」の一覧に公開します。"; // ID 11070
+    public const string CreateDescLocal = "この端末で部屋を作成します。同じWi-Fiの端末から「部屋に参加」で入れます。"; // ID 11071
+    public const string EmptyLocal = "HOST の端末で「部屋を作成」を押して、同じWi-Fi(テザリング)につないでください。"; // ID 11072
+    public const string EmptyOnline = "「部屋を作成」で部屋を作るか、少し待ってから再検索してください。"; // ID 11073
+    public const string ListedLocal = "近くの端末の「部屋に参加」に表示中";            // ID 11074
+    public const string ListedOnline = "オンラインの「部屋に参加」に表示中";           // ID 11075
+    public const string HostHelp = "そろったら「ゲーム開始」でステージを選んで出発すると、全員が同じステージで同時にスタートします。"; // ID 11076
+    public const string DisbandConfirm = "部屋を解散しますか？\n参加しているほかのプレイヤーも、全員が部屋から退出になります。"; // ID 11077
+    public const string LeaveConfirm = "部屋から退出しますか？\nほかのプレイヤーは部屋に残り、そのまま続けられます。"; // ID 11078
+    public const string CloseNote = "「閉じる」で画面を閉じても、部屋はそのままです(ホームの「マルチ」から戻れます)。"; // ID 11079
+    public const string Disbanding = "部屋を解散しています…";      // ID 11080
+    public const string Leaving = "部屋から退出しています…";       // ID 11081
+    public const string Disbanded = "部屋を解散しました";          // ID 11082
+    public const string Left = "部屋から退出しました";             // ID 11083
+    public const string LeaveFailed = "部屋から退出できませんでした。通信を確認して、もう一度お試しください"; // ID 11084
+    public static readonly string[] All = { CreateRoom, JoinRoom, Disband, Leave, StartGame, CreateDescOnline, CreateDescLocal, EmptyLocal, EmptyOnline, ListedLocal, ListedOnline, HostHelp, DisbandConfirm, LeaveConfirm, CloseNote, Disbanding, Leaving, Disbanded, Left, LeaveFailed };
+
+    // 訳が無い言語の控え(変更前の表示。英語の名前か、変更前の日本語の鍵 = 既に訳がある)
+    static readonly System.Collections.Generic.Dictionary<string, string> Fallback = new System.Collections.Generic.Dictionary<string, string>
+    {
+        { CreateRoom, "CREATE GAME" }, { JoinRoom, "JOIN" }, { Disband, "部屋を閉じる" }, { Leave, "退出する" }, { StartGame, "START" },
+        { CreateDescOnline, "部屋を作成し、オンラインの「FIND GAME」に公開します。" },
+        { CreateDescLocal, "この端末で部屋を作ります。同じWi-Fiの端末から「FIND GAME」で参加できます。" },
+        { EmptyLocal, "HOST の端末で「CREATE GAME」を押して、同じWi-Fi(テザリング)につないでください。" },
+        { EmptyOnline, "「CREATE GAME」で部屋を作るか、少し待ってから再検索してください。" },
+        { ListedLocal, "近くの端末の「FIND GAME」に表示中" }, { ListedOnline, "オンラインの「FIND GAME」に表示中" },
+        { HostHelp, "そろったら「閉じる(部屋はそのまま)」→ 扉 → STAGE SELECTで「出発」すると、全員が同じステージで同時にスタートします。" },
+        { DisbandConfirm, "部屋を閉じる" }, { LeaveConfirm, "退出する" }, { Disbanding, "接続中…" }, { Leaving, "接続中…" },
+        { LeaveFailed, "接続できませんでした。もう一度お試しください" },
+    };
+    public static string T(string key) => Loc.Ready(key) || !Fallback.TryGetValue(key, out var old) ? key : old;
+    public static bool Ready(string key) => Loc.Ready(key);
 }

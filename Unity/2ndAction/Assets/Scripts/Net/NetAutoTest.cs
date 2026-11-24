@@ -492,6 +492,7 @@ public partial class NetAutoTest : MonoBehaviour
         ScanEnemySprites();
         GameManager gm = GameManager.Instance;
         StaggerPreTick(gm); // 2026-11-07 -netAutoChar
+        TeamRunTick(gm); // 2026-11-24 -netAutoTeamLog / -netAutoHoldChoiceSec / -netAutoPauseAt
         switch (step)
         {
             case Step.Connect:
@@ -644,6 +645,7 @@ public partial class NetAutoTest : MonoBehaviour
     {
         if (gm == null || !gm.IsRewardSequenceWaitingForSelection) { cardClickTimer = -1f; return; }
         if (choiceHoldUntil > 0f && runTime < choiceHoldUntil) return; // 選択を保持中(世界が進み続けるかの確認)
+        if (TeamHoldsChoice(gm)) return; // 2026-11-24 -netAutoHoldChoiceSec
         RewardCardSequence seq = FindFirstObjectByType<RewardCardSequence>();
         if (seq == null) return;
         if (cardClickTimer < 0f)

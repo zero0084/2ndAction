@@ -1255,6 +1255,10 @@ public partial class GameManager : MonoBehaviour
     public int MaxLives => maxLives;
     // マルチプレイPhase 2.5: この端末でカード選択(レベルアップ/ボス報酬)を開いているか。
     public bool IsLocalChoiceOpen => levelUpPending;
+    // 画面の DISTANCE(2026-11-24): 疾走中は疾走の距離 / 協力のマルチは HOST が決めるチーム走行距離(TeamDistance)/ それ以外は自分の距離
+    public double HudDistanceExact => SprintActive && SprintRunner.Instance != null ? SprintRunner.Instance.DistanceNow : TeamDistance.Active ? TeamDistance.Display : MaxDistanceExact;
+    // 2026-11-24: マルチでこの端末のプレイヤーだけを止める状態 = カード選択 + 一時停止のメニュー(マルチでは時間を止めない。止めると HOST の世界ごと全員が止まった)
+    public bool IsLocalNetHoldOpen => levelUpPending || (MpRun.PauseOnlyMe && showPauseMenu);
     public int Level { get; private set; } = 1;
     public float Exp { get; private set; }
     public float ExpToNext { get; private set; }
@@ -2348,6 +2352,9 @@ public partial class GameManager : MonoBehaviour
     public int BossExclusionEndsIgnored { get; private set; }
     public void BeginBossDistanceExclusion()
     {
+        // 2026-11-24: マルチではボス戦の距離の除外をしない(以前は HOST だけが除外し、JOIN は除外しない → ボスの後で端末ごとに距離がずれた)。
+        //  マルチの距離は全員「実際に進んだ距離」(順位/結果が使う値と同じ)。協力の画面の距離は HOST が決めるチーム走行距離(TeamDistance)
+        if (MpRun.On) { Debug.Log("[Distance] boss distance exclusion skipped (multiplayer)"); return; }
         bossExclusionBegun = true;
         bossPhaseEntryRawDistance = lastRawDistanceSeen;
         bossPhaseEntryRawDistanceExact = lastRawDistanceSeenExact;
@@ -2360,13 +2367,14 @@ public partial class GameManager : MonoBehaviour
     // 2026-10-16 第6弾: 協力の復帰で置き直した距離(d)を距離の除外へ足す(距離の報酬/EXP/累計を新たに付けない)。
     // ボス戦で距離を止めている間(除外を始めて、まだ折りたたんでいない)は、その終わりの除外に含まれるので足さない
     public int WarpExclusions { get; private set; }
+    public double WarpExcludedMeters { get; private set; } // 2026-11-24: 物差し(WorldRange)の補正用。置き直した分は距離の報酬からは除くが、位置の物差しからは除かない
     public void ExcludeWarpDistance(float d)
     {
         if (Mathf.Abs(d) < 0.001f) return;
         if (bossExclusionBegun && !bossExclusionFolded) { Debug.Log($"[Distance] warp {d:+0.0;-0.0}m during a held boss fight - covered by the fight's exclusion"); return; }
         distanceExclusionOffset += d;
         distanceExclusionOffsetExact += d;
-        WarpExclusions++;
+        WarpExclusions++; WarpExcludedMeters += d;
         Debug.Log($"[Distance] warp {d:+0.0;-0.0}m excluded from the run distance (no distance MILE/EXP for it)");
     }
 
@@ -2416,7 +2424,7 @@ public partial class GameManager : MonoBehaviour
         // Background Scroll/Enemy Battle/Player操作 are all completely
         // untouched by this, since none of them read GameManager.
         // MaxDistance at all. This early-return is the ENTIRE gate.
-        if (BossManager.Instance != null && BossManager.Instance.HoldsRun) return; // ラン再開後はボスが残っていても距離が進む
+        if (BossManager.Instance != null && BossManager.Instance.HoldsRun && !MpRun.On) return; // ラン再開後はボスが残っていても距離が進む / 2026-11-24: マルチは止めない(上の除外と同じ理由)
 
         double distanceExact = rawDistanceExact - distanceExclusionOffsetExact;
         if (distanceExact > MaxDistanceExact) MaxDistanceExact = distanceExact;
@@ -4536,7 +4544,7 @@ public partial class GameManager : MonoBehaviour
             if (!HudPrefs.Legacy) DrawHudV2(); // 2026-10-31: 刷新した HUD(GameManager.HudV2.cs)
             else {
             if (!ArenaMode.Active) DrawStatPanel(V(GetBestPanelRect()), "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor);
-            DrawStatPanel(V(GetDistancePanelRect()), "DISTANCE", FormatDistanceExact(SprintActive && SprintRunner.Instance != null ? SprintRunner.Instance.DistanceNow : MaxDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity); // 疾走中(リングの3択)は疾走の距離
+            DrawStatPanel(V(GetDistancePanelRect()), "DISTANCE", FormatDistanceExact(HudDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity); // 疾走中(リングの3択)は疾走の距離 / 協力のマルチはチーム走行距離(2026-11-24)
             DrawSpeedHud();
             DrawTakeHomeHud(); // 2026-10-11: 持ち帰り予定 MILE
             DrawFinalEvoHud(); // 2026-10-24: FINAL EVOLUTION の残り時間
@@ -4588,7 +4596,7 @@ public partial class GameManager : MonoBehaviour
                 {
                     showPauseMenu = !showPauseMenu;
                     if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(showPauseMenu ? SeId.Pause : SeId.Resume); // 音の再設計(2026-10-06)
-                    if (showPauseMenu) TimeControl.Pause(pauseMenuTimeOwner);
+                    if (showPauseMenu) { if (!MpRun.PauseOnlyMe) TimeControl.Pause(pauseMenuTimeOwner); } // 2026-11-24: マルチは自分だけ止まる(IsLocalNetHoldOpen)
                     else TimeControl.Resume(pauseMenuTimeOwner);
                 }
                 if (showPauseMenu) { int pl = PadNav.BeginLayer(4); DrawPauseMenu(); PadNav.EndLayer(pl); }
@@ -6837,7 +6845,7 @@ public partial class GameManager : MonoBehaviour
         if (!levelUpPending && !IsBossPresentationActive() && !AnyOverlayOpen)
         {
             showPauseMenu = true;
-            TimeControl.Pause(pauseMenuTimeOwner);
+            if (!MpRun.PauseOnlyMe) TimeControl.Pause(pauseMenuTimeOwner); // 2026-11-24: マルチは自分だけ止まる(IsLocalNetHoldOpen)
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
         }
     }

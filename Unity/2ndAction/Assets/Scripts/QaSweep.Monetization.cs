@@ -346,6 +346,7 @@ public partial class QaSweep
         for (int i = 0; i < 3; i++) { NoAdsPass.Check("qa offline " + i); yield return new WaitForSecondsRealtime(0.2f); }
         Check(NoAdsPass.Owned, "E8: repeated connection failures never remove the pass");
         MockStoreService.Refunded = false; MockStoreService.Mode = MockStoreService.Behaviour.Success; NoAdsPass.DevTimeoutOverride = 0f;
+        yield return RestoreResultQa();
         Check(Platform.Save.HasKey(NoAdsPass.Key) == realKey0, "E6: the real entitlement key was never written by the mock");
 
         // ================================================================ G
@@ -436,6 +437,71 @@ public partial class QaSweep
         if (lastAd0 == null) Platform.Save.DeleteKey(AdManager.LastAdEndUtcKey); else Platform.Save.SetString(AdManager.LastAdEndUtcKey, lastAd0);
         Platform.Save.Save();
         yield return ReloadHome();
+    }
+
+    // 2026-11-24 E11(マスター依頼: 「購入を復元」を押しても結果が出ない): 押した操作ごとの結果(確認中 → 結果)。設定の画面で撮る
+    System.Collections.IEnumerator RestoreResultQa()
+    {
+        L("== E11: restore result per press ==");
+        var sp = SettingsPanel.Instance;
+        if (sp != null) sp.Open();
+        yield return new WaitForSecondsRealtime(0.8f);
+        NoAdsPass.ClearUserResult();
+        Check(NoAdsPass.UserState == NoAdsPass.UserResult.None, "E11: opening the settings clears an old result");
+        MonetizationUi.OpenPass(); // 撮影はパスの小窓で(同じ結果の行。設定は下まで送らないと見えない)
+        yield return new WaitForSecondsRealtime(0.5f);
+        // 1) 持っていない(よくある場合。以前は押す前と同じ文で、押しても何も変わらなかった)
+        MockStoreService.Mode = MockStoreService.Behaviour.Success; MockStoreService.DevClearAccount(); NoAdsPass.DevMockSet(false);
+        MockStoreService.RestoreDelay = 1.0f;
+        int a0 = NoAdsPass.UserAnswers;
+        NoAdsPass.RequestRestore("qa e11 none");
+        yield return null;
+        Check(NoAdsPass.UserState == NoAdsPass.UserResult.Checking, $"E11: right after the press -> 'checking' ({NoAdsPass.UserState})");
+        yield return new WaitForSecondsRealtime(0.25f); Shot("e11_checking"); yield return new WaitForSecondsRealtime(0.3f);
+        yield return new WaitForSecondsRealtime(0.9f);
+        Check(NoAdsPass.UserState == NoAdsPass.UserResult.NotFound && NoAdsPass.UserAnswers == a0 + 1, $"E11: no purchase -> 'nothing to restore' ({NoAdsPass.UserState})");
+        Shot("e11_notfound"); yield return new WaitForSecondsRealtime(0.3f);
+        // 2) 再インストール後に復元できた(権利を反映してから「復元しました」)
+        SaveStore.SetInt(MockStoreService.OwnedKey, 1); SaveStore.Save(); MockStoreService.RestoreDelay = 0f;
+        NoAdsPass.RequestRestore("qa e11 restore");
+        yield return new WaitForSecondsRealtime(0.4f);
+        Check(NoAdsPass.UserState == NoAdsPass.UserResult.Restored && NoAdsPass.Owned, $"E11: purchase on the account -> 'restored' and the pass is active ({NoAdsPass.UserState}, owned={NoAdsPass.Owned})");
+        Shot("e11_restored"); yield return new WaitForSecondsRealtime(0.3f);
+        // 3) もう有効(押しても同じ文、ではなく「確認しました・すでに有効」)
+        NoAdsPass.RequestRestore("qa e11 again");
+        yield return new WaitForSecondsRealtime(0.4f);
+        Check(NoAdsPass.UserState == NoAdsPass.UserResult.AlreadyActive, $"E11: already active -> 'confirmed, already active' ({NoAdsPass.UserState})");
+        Shot("e11_already"); yield return new WaitForSecondsRealtime(0.3f);
+        // 4) 繋がらない(持っている人は権利を失わない)
+        MockStoreService.Mode = MockStoreService.Behaviour.Offline;
+        NoAdsPass.RequestRestore("qa e11 offline");
+        yield return new WaitForSecondsRealtime(0.4f);
+        Check(NoAdsPass.UserState == NoAdsPass.UserResult.Failed && NoAdsPass.Owned && !NoAdsPass.Busy, $"E11: offline -> 'could not connect, pass stays active', can press again ({NoAdsPass.UserState}, owned={NoAdsPass.Owned}, busy={NoAdsPass.Busy})");
+        Shot("e11_offline"); yield return new WaitForSecondsRealtime(0.3f);
+        // 5) 応答なし(打ち切り)→ 待ち続けない・もう一度押せる
+        MockStoreService.Mode = MockStoreService.Behaviour.Success; NoAdsPass.DevTimeoutOverride = 0.6f; MockStoreService.RestoreDelay = 3f;
+        NoAdsPass.RequestRestore("qa e11 slow");
+        yield return new WaitForSecondsRealtime(1.0f);
+        Check(NoAdsPass.UserState == NoAdsPass.UserResult.Failed && !NoAdsPass.Busy, $"E11: no answer -> result shown, not waiting forever ({NoAdsPass.UserState}, busy={NoAdsPass.Busy})");
+        yield return new WaitForSecondsRealtime(2.6f); // 遅れて届いた返事(持っている)は、既に有効なので結果は変えない
+        NoAdsPass.DevTimeoutOverride = 0f; MockStoreService.RestoreDelay = 0f;
+        // 6) 起動時の確認の最中に押した → その確認の答えを結果として出す(押しても無反応、にしない)
+        MockStoreService.RestoreDelay = 1.0f;
+        NoAdsPass.Check("qa e11 startup-like");
+        yield return null;
+        bool busyNow = NoAdsPass.Busy;
+        NoAdsPass.RequestRestore("qa e11 while busy");
+        yield return null;
+        Check(busyNow && NoAdsPass.UserState == NoAdsPass.UserResult.Checking, $"E11: pressed while a check runs -> 'checking' ({NoAdsPass.UserState}, busy={busyNow})");
+        yield return new WaitForSecondsRealtime(1.4f);
+        Check(NoAdsPass.UserState == NoAdsPass.UserResult.AlreadyActive, $"E11: ... then the running check's answer is shown ({NoAdsPass.UserState})");
+        MockStoreService.RestoreDelay = 0f;
+        MonetizationUi.Close();
+        // 7) 画面を開き直すと消える
+        if (sp != null) { sp.Close(); yield return new WaitForSecondsRealtime(0.6f); sp.Open(); yield return new WaitForSecondsRealtime(0.6f); }
+        Check(NoAdsPass.UserState == NoAdsPass.UserResult.None, $"E11: reopening the settings clears the result ({NoAdsPass.UserState})");
+        if (sp != null) { sp.Close(); yield return new WaitForSecondsRealtime(0.6f); }
+        MockStoreService.DevClearAccount(); NoAdsPass.DevMockSet(false);
     }
 }
 #endif

@@ -15,6 +15,7 @@ public class RankingPanel : MonoBehaviour
     int tab;
     readonly Dictionary<string, Leaderboard.Page> cache = new Dictionary<string, Leaderboard.Page>();
     string loadingStage, errorStage, errorText;
+    public const string RefreshedText = "更新しました"; // ID 11086(2026-11-24: 更新の結果が分かるように)
     float lastLoadAt = -100f;
     int seenSentVersion; bool reloadWanted; // 2026-10-27: 送信が終わったら読み直す
     string nameEdit; bool joinStep;
@@ -55,11 +56,12 @@ public class RankingPanel : MonoBehaviour
         string st = tabs[Mathf.Clamp(tab, 0, tabs.Count - 1)];
         if (loadingStage == st) { if (afterSend) reloadWanted = true; return; } // 読み込み中に送信が終わった → 終わってからもう一度
         if (!force && cache.ContainsKey(st) && Time.realtimeSinceStartup - lastLoadAt < 20f) return;
-        if (Time.realtimeSinceStartup - lastLoadAt < 2f && force && !afterSend) return; // 連打で API を呼びすぎない(送信の後の読み直しは別)
+        // 連打で API を呼びすぎない(送信の後の読み直しは別)。2026-11-24: 2 秒以内の押下は捨てずに後回し(失敗の直後の「再試行」が何も起きなかった)
+        if (Time.realtimeSinceStartup - lastLoadAt < 2f && force && !afterSend) { queuedForce = true; return; }
         loadingStage = st; errorStage = null; lastLoadAt = Time.realtimeSinceStartup;
         try
         {
-            var page = await Leaderboard.Backend.Load(st, 50); cache[st] = page;
+            var page = await Leaderboard.Backend.Load(st, 50); cache[st] = page; if (force) refreshedAt = Time.realtimeSinceStartup;
             RankingDiag.Note("LOAD", $"{Leaderboard.BoardId(st)} total={page.total} me={(page.me != null ? "#" + page.me.rank + " " + page.me.meters + "m" : "none")} player={OnlineServices.ShortId(OnlineServices.PlayerId)} env={OnlineServices.EnvironmentName}");
         }
         catch (System.Exception e)
@@ -74,8 +76,11 @@ public class RankingPanel : MonoBehaviour
         }
     }
 
+    // 2026-11-24: 後回しにした読み直し / 「更新しました」を出す時刻
+    bool queuedForce; float refreshedAt = -99f;
     void Update()
     {
+        if (queuedForce && open && loadingStage == null && Time.realtimeSinceStartup - lastLoadAt >= 2f) { queuedForce = false; Load(force: true); }
         if (!open && (GameManager.Instance == null || !GameManager.Instance.HasStarted)) Leaderboard.Tick(); // 2026-10-14: 自動の再送はホームでだけ(ラン中に通信しない)
         // 2026-10-27: 送信が終わった(サーバーが返事をした)ら、ほかのマップの表は古いので捨てて、今のマップを読み直す
         if (Leaderboard.SentVersion != seenSentVersion && !Leaderboard.Sending)
@@ -249,7 +254,7 @@ public class RankingPanel : MonoBehaviour
         if (failedHere && page != null) { LocGUI.Label(new Rect(r.x, y - 8f, r.width, 22f), "最新の順位を読み込めませんでした(前回の表示です)", UiKit.Label(14f, TextAnchor.MiddleLeft, false, new Color(1f, 0.7f, 0.6f))); y += 16f; }
 
         var view = new Rect(r.x, y, r.width, r.yMax - y - 44f);
-        if (loadingStage == st && page == null) { LocGUI.Label(view, "読み込み中…", UiKit.Label(20f, TextAnchor.MiddleCenter)); }
+        if ((loadingStage == st || queuedForce) && page == null) { LocGUI.Label(view, "読み込み中…", UiKit.Label(20f, TextAnchor.MiddleCenter)); }
         else if (errorStage == st && page == null)
         {
             LocGUI.Label(new Rect(view.x, view.y + view.height * 0.3f, view.width, 30f), "ランキングを読み込めませんでした。通信を確認してください", UiKit.Label(18f, TextAnchor.MiddleCenter, false, new Color(1f, 0.7f, 0.6f)));
@@ -276,7 +281,9 @@ public class RankingPanel : MonoBehaviour
             }
             list.End(view, contentH);
         }
-        if (UiKit.Button(new Rect(r.x, r.yMax - 38f, 160f, 36f), "更新", 16f, false, true, loadingStage == null) && loadingStage == null) Load(force: true);
+        bool refreshing = loadingStage != null || queuedForce;
+        if (UiKit.Button(new Rect(r.x, r.yMax - 38f, 160f, 36f), refreshing ? "読み込み中…" : "更新", 16f, false, true, !refreshing) && !refreshing) Load(force: true);
+        if (!refreshing && Time.realtimeSinceStartup - refreshedAt < 2.5f && string.IsNullOrEmpty(errorStage) && Loc.Ready(RefreshedText)) LocGUI.Label(new Rect(r.x + 170f, r.yMax - 38f, 200f, 36f), RefreshedText, UiKit.Label(14f, TextAnchor.MiddleLeft, false, new Color(0.55f, 1f, 0.65f)));
         if (UiKit.Button(new Rect(r.xMax - 200f, r.yMax - 38f, 200f, 36f), "記録の送信をやめる", 15f, false, true)) { Leaderboard.Leave(); joinStep = false; }
         if (!string.IsNullOrEmpty(Leaderboard.LastSendError) && pending > 0)
             LocGUI.Label(new Rect(r.x + 170f, r.yMax - 38f, r.width - 380f, 36f), "通信できない時は投稿待ちに残し、後で送ります", UiKit.Label(14f, TextAnchor.MiddleCenter, false, new Color(1f, 0.75f, 0.6f)));

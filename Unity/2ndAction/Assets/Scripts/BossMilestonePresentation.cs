@@ -264,6 +264,8 @@ public class BossMilestonePresentation : MonoBehaviour
     IEnumerator TempoDown(float duration)
     {
         if (BossDiagnostics.DisableBossTimeScalePresentation) yield break;
+        // 2026-11-24: マルチでは時間を止めない(HOST で止めると共有の世界 = 敵/ボスが全員の画面で止まり、HOST 自身の走りも止まった)
+        if (MpRun.On) yield break;
         float start = TimeControl.BeginPresentationDrive(this);
         float mid = Mathf.Min(tempoMidScale, start);
         float half = duration * 0.5f;

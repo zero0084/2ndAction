@@ -36,6 +36,75 @@ public static class NoAdsPass
     public static bool PendingPayment => Monetization.Mode != MonetizationMode.None && S.pending;
     public static DateTime LastConfirmed => S.lastConfirmedUtc > 0 ? new DateTime(S.lastConfirmedUtc, DateTimeKind.Utc) : DateTime.MinValue;
     public static string LastNote { get; private set; } = "";
+
+    // 2026-11-24(マスター依頼: 「購入を復元」を押しても結果が出ない): LastNote は起動/復帰の自動の確認も同じ文を書くので、押す前と後で画面が変わらなかった
+    //  (持っていない/持っている、のよくある2つで同じ文。持っている時は何も書かない)。→ 押した操作ごとの結果を別に持つ:
+    //  押す → 「購入情報を確認しています…」→ ストアの答え(権利を反映した後)で結果。確認中に押した時は、走っている確認の答えをその結果として出す。
+    //  画面(設定/パスの小窓)を開き直すと消える(前の結果を新しい結果に見せない)
+    public enum UserResult { None, Checking, Restored, AlreadyActive, NotFound, Pending, StillActiveUnconfirmed, Revoked, Failed, Unavailable, Purchased, Cancelled, PurchaseFailed }
+    public static UserResult UserState { get; private set; }
+    public static string UserText { get; private set; } = "";   // 日本語の鍵(画面で Loc.Auto)
+    public static string UserExtra { get; private set; } = "";  // 訳した後の追加の行(ログイン特典など)
+    public static bool UserIsError => UserState == UserResult.Failed || UserState == UserResult.Unavailable || UserState == UserResult.PurchaseFailed;
+    public static bool UserIsGood => UserState == UserResult.Restored || UserState == UserResult.AlreadyActive || UserState == UserResult.Purchased;
+    public static int UserRequests { get; private set; }  // 確認用
+    public static int UserAnswers { get; private set; }   // 確認用
+    static bool userWaiting, userWasOwned, userBonusBefore;
+    public const string TextChecking = "購入情報を確認しています…"; // ID 11088
+    public const string TextRestored = "購入を復元しました。広告なしパスが有効になりました"; // ID 11089
+    public const string TextAlreadyActive = "購入を確認しました。広告なしパスはすでに有効です"; // ID 11090
+    public const string TextNotFound = "復元できる購入が見つかりませんでした"; // ID 11091
+    public const string TextFailed = "ストアに接続できませんでした。通信を確認して、もう一度お試しください"; // ID 11092
+    public const string TextFailedKept = "ストアに接続できませんでした。広告なしパスは有効のままです。通信を確認して、もう一度お試しください"; // ID 11093
+    public const string TextNoAnswer = "ストアから応答がありませんでした。通信を確認して、もう一度お試しください"; // ID 11094
+    public static readonly string[] UserTexts = { TextChecking, TextRestored, TextAlreadyActive, TextNotFound, TextFailed, TextFailedKept, TextNoAnswer };
+    // 訳がまだ無い言語では、意味の近い既存の文(訳あり)を出す(未訳の日本語を出さない)
+    static readonly System.Collections.Generic.Dictionary<string, string> UserFallback = new System.Collections.Generic.Dictionary<string, string>
+    {
+        { TextChecking, "確認中…" }, { TextRestored, "広告なしパスが有効になりました" }, { TextAlreadyActive, "有効です" },
+        { TextNotFound, "購入の記録はありませんでした" }, { TextFailed, "ストアに接続できませんでした。最後に確認した状態のままです" },
+        { TextFailedKept, "ストアに接続できませんでした。最後に確認した状態のままです" }, { TextNoAnswer, "ストアに接続できませんでした。最後に確認した状態のままです" },
+    };
+    public static string UserTextShown => UserFallback.TryGetValue(UserText, out var old) ? Loc.Reviewed(UserText, old) : UserText;
+
+    static void SetUser(UserResult st, string text, string extra = "")
+    {
+        UserState = st; UserText = text ?? ""; UserExtra = extra ?? "";
+        if (st != UserResult.Checking && st != UserResult.None) UserAnswers++;
+        Debug.Log($"[NoAds] user result: {st}");
+    }
+    // 画面を開いた時: 前の結果を消す(確かめている最中なら「確認中」のまま)
+    public static void ClearUserResult() { if (userWaiting) return; UserState = UserResult.None; UserText = ""; UserExtra = ""; }
+
+    // 「購入を復元」のボタン(設定/パスの小窓)
+    public static void RequestRestore(string why)
+    {
+        UserRequests++;
+        if (Monetization.Store == null) { userWaiting = false; SetUser(UserResult.Unavailable, "ストアを利用できません"); return; }
+        if (!userWaiting) { userWasOwned = S.owned; userBonusBefore = DailyLoginBonus.ClaimedToday; }
+        userWaiting = true;
+        SetUser(UserResult.Checking, TextChecking);
+        if (Busy) { Debug.Log($"[NoAds] restore pressed while a check is running ({why}) - its answer is shown as the result"); return; }
+        Check(why);
+    }
+
+    // 押した操作への答え(確かめ終わり、権利を反映した後に呼ぶ)
+    static void AnswerUser(RestoreResult r, bool revokedNow)
+    {
+        if (!userWaiting) return;
+        userWaiting = false;
+        if (!r.ok) { SetUser(UserResult.Failed, S.owned ? TextFailedKept : TextFailed); return; }
+        if (r.owned)
+        {
+            string extra = !userBonusBefore && DailyLoginBonus.ClaimedToday ? Loc.F(DailyLoginBonus.ToastText, DailyLoginBonus.AmountText) : "";
+            SetUser(userWasOwned ? UserResult.AlreadyActive : UserResult.Restored, userWasOwned ? TextAlreadyActive : TextRestored, extra);
+            return;
+        }
+        if (r.pending) { SetUser(UserResult.Pending, "お支払いの完了待ちです。完了すると自動で有効になります"); return; }
+        if (revokedNow) { SetUser(UserResult.Revoked, "購入が取り消されたため、広告なしパスは無効になりました"); return; }
+        if (S.owned) { SetUser(UserResult.StillActiveUnconfirmed, "購入を確認できませんでした。パスは有効のまま、後でもう一度確認します"); return; }
+        SetUser(UserResult.NotFound, TextNotFound);
+    }
     public static bool Busy { get; private set; }
     public static bool Purchasing { get; private set; } // ストアの購入画面を出している間(こちらの画面は隠す)
 
@@ -75,6 +144,7 @@ public static class NoAdsPass
         LastNote = "ストアに接続できませんでした。最後に確認した状態のままです";
         Debug.LogWarning($"[NoAds] check timed out after {TimeoutSeconds:F0}s - keep owned={S.owned}");
         var d = checkDone; checkDone = null;
+        if (userWaiting) { userWaiting = false; SetUser(UserResult.Failed, S.owned ? TextFailedKept : TextNoAnswer); } // 2026-11-24: 待ち続けない(もう一度押せる)
         d?.Invoke(new RestoreResult { ok = false, message = LastNote });
     }
 
@@ -95,6 +165,7 @@ public static class NoAdsPass
                     bool was = S.owned;
                     Grant(r.token, "late reply " + why);
                     if (!was) LastNote = "広告なしパスが有効になりました";
+                    if (!was && UserState == UserResult.Failed) SetUser(UserResult.Restored, TextRestored); // 2026-11-24: 打ち切りの後に届いた「持っている」を結果にも
                     Debug.Log($"[NoAds] late reply for a timed-out check ({why}): owned -> {(was ? "already owned (nothing doubled)" : "granted")}");
                 }
                 else { LateIgnoredReplies++; Debug.Log($"[NoAds] late reply for a timed-out check ({why}) ok={r.ok} owned={r.owned}: nothing changed (owned={S.owned})"); }
@@ -102,7 +173,8 @@ public static class NoAdsPass
             }
             checkDone = null;
             Busy = false;
-            if (!r.ok) { LastNote = "ストアに接続できませんでした。最後に確認した状態のままです"; Debug.Log($"[NoAds] check ({why}) offline: keep owned={S.owned}"); done?.Invoke(r); return; }
+            if (!r.ok) { LastNote = "ストアに接続できませんでした。最後に確認した状態のままです"; Debug.Log($"[NoAds] check ({why}) offline: keep owned={S.owned}"); AnswerUser(r, false); done?.Invoke(r); return; }
+            bool revokedNow = false;
             if (r.owned)
             {
                 Grant(r.token, "restore " + why);
@@ -118,7 +190,7 @@ public static class NoAdsPass
             else if (S.owned)
             {
                 S.absentChecks++;
-                if (S.absentChecks >= 2) { S.owned = false; S.absentChecks = 0; LastNote = "購入が取り消されたため、広告なしパスは無効になりました"; Debug.Log("[NoAds] revoked (store reports not owned twice)"); }
+                if (S.absentChecks >= 2) { S.owned = false; S.absentChecks = 0; revokedNow = true; LastNote = "購入が取り消されたため、広告なしパスは無効になりました"; Debug.Log("[NoAds] revoked (store reports not owned twice)"); }
                 else LastNote = "購入を確認できませんでした。パスは有効のまま、後でもう一度確認します";
                 Write();
             }
@@ -128,6 +200,7 @@ public static class NoAdsPass
                 if (S.pending) { S.pending = false; Write(); Debug.Log("[NoAds] pending payment no longer at the store - pending mark cleared"); }
                 LastNote = "購入の記録はありませんでした";
             }
+            AnswerUser(r, revokedNow);
             done?.Invoke(r);
         }));
     }
@@ -136,7 +209,7 @@ public static class NoAdsPass
     public static void Purchase(Action<PurchaseResult> done)
     {
         var st = Monetization.Store;
-        if (st == null || Busy) { done?.Invoke(new PurchaseResult { status = PurchaseStatus.NotReady, message = "ストアを利用できません" }); return; }
+        if (st == null || Busy) { if (st == null) SetUser(UserResult.Unavailable, "ストアを利用できません"); done?.Invoke(new PurchaseResult { status = PurchaseStatus.NotReady, message = "ストアを利用できません" }); return; }
         if (!Monetization.PurchaseSetupComplete) { LastNote = "購入の準備中です"; done?.Invoke(new PurchaseResult { status = PurchaseStatus.NotReady, message = "receipt validation not set up" }); return; } // 2026-10-14: 検証できない間は払わせない
         Busy = true; Purchasing = true;
         st.Purchase(MonetizationConfig.NoAdsProductId, r => AdManager.Post(() =>
@@ -144,12 +217,18 @@ public static class NoAdsPass
             Busy = false; Purchasing = false;
             switch (r.status)
             {
-                case PurchaseStatus.Purchased: Grant(r.token, r.status.ToString()); S.pending = false; Write(); LastNote = "広告なしパスが有効になりました"; DailyLoginBonus.OnPassConfirmed("purchase"); break;
+                case PurchaseStatus.Purchased:
+                    {
+                        bool bonusBefore = DailyLoginBonus.ClaimedToday;
+                        Grant(r.token, r.status.ToString()); S.pending = false; Write(); LastNote = "広告なしパスが有効になりました"; DailyLoginBonus.OnPassConfirmed("purchase");
+                        SetUser(UserResult.Purchased, "広告なしパスが有効になりました", !bonusBefore && DailyLoginBonus.ClaimedToday ? Loc.F(DailyLoginBonus.ToastText, DailyLoginBonus.AmountText) : "");
+                        break;
+                    }
                 // 2026-11-18: 「もう持っている」はストアで確かめ直してから有効に(検証していない返事では有効にしない)。確かめた後のログイン特典も Check の中で
-                case PurchaseStatus.AlreadyOwned: AlreadyOwnedRechecks++; Debug.Log("[NoAds] purchase says already owned - checking with the store"); AdManager.Post(() => Check("restore already-owned")); break;
-                case PurchaseStatus.Pending: S.pending = true; Write(); LastNote = "お支払いの完了待ちです。完了すると自動で有効になります"; break;
-                case PurchaseStatus.Cancelled: LastNote = "購入をキャンセルしました"; break;
-                default: LastNote = "購入できませんでした。時間をおいてお試しください"; break;
+                case PurchaseStatus.AlreadyOwned: AlreadyOwnedRechecks++; Debug.Log("[NoAds] purchase says already owned - checking with the store"); AdManager.Post(() => RequestRestore("restore already-owned")); break;
+                case PurchaseStatus.Pending: S.pending = true; Write(); LastNote = "お支払いの完了待ちです。完了すると自動で有効になります"; SetUser(UserResult.Pending, LastNote); break;
+                case PurchaseStatus.Cancelled: LastNote = "購入をキャンセルしました"; SetUser(UserResult.Cancelled, LastNote); break;
+                default: LastNote = "購入できませんでした。時間をおいてお試しください"; SetUser(UserResult.PurchaseFailed, LastNote); break;
             }
             Debug.Log($"[NoAds] purchase {r.status} {r.message}");
             done?.Invoke(r);

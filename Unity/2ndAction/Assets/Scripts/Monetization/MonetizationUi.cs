@@ -11,8 +11,14 @@ public class MonetizationUi : MonoBehaviour
     public static float LastContentBottom { get; private set; }
     public static float LastButtonsTop { get; private set; }
     public static float LastButtonsBottom { get; private set; }
-    public static void OpenPass() { if (Monetization.Mode == MonetizationMode.None) return; AdManager.Ensure(); Open = true; }
+    public static void OpenPass() { if (Monetization.Mode == MonetizationMode.None) return; AdManager.Ensure(); NoAdsPass.ClearUserResult(); Open = true; }
     public static void Close() { Open = false; UiInputGate.LatchUntilRelease(); }
+
+    // 2026-11-24: 押した操作の結果の行(設定の画面と共通)。成功は緑、失敗は赤みの色、確認中は黄
+    public static string ResultLine() => Loc.Auto(NoAdsPass.UserTextShown) + (string.IsNullOrEmpty(NoAdsPass.UserExtra) ? "" : "\n" + NoAdsPass.UserExtra);
+    public static Color ResultColor(Color normal) => NoAdsPass.UserState == NoAdsPass.UserResult.None ? normal
+        : NoAdsPass.UserIsGood ? new Color(0.55f, 1f, 0.65f) : NoAdsPass.UserIsError ? new Color(1f, 0.6f, 0.55f)
+        : NoAdsPass.UserState == NoAdsPass.UserResult.Checking ? new Color(1f, 0.9f, 0.55f) : normal;
 
     float S => UiScalePref.Menu(Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f));
 
@@ -66,16 +72,23 @@ public class MonetizationUi : MonoBehaviour
         else if (NoAdsPass.PendingPayment) y += Line("お支払いの完了待ちです。完了すると自動で有効になります", new GUIStyle(body) { normal = { textColor = new Color(1f, 0.85f, 0.5f) } });
 
         float bh = 52f, bw = (full - 12f) / 2f;
-        lastNeededH = (y - p.y) + 6f + bh + 34f + 24f; // 本文 + ボタン + 下の注記 + 余白(次のフレームの板の高さ)
-        float by = Mathf.Max(y + 6f, p.yMax - 24f - bh - 34f);
+        lastNeededH = (y - p.y) + 6f + bh + 50f + 24f; // 本文 + ボタン + 下の注記(結果は2行まで) + 余白(次のフレームの板の高さ)
+        float by = Mathf.Max(y + 6f, p.yMax - 24f - bh - 50f);
         bool busy = NoAdsPass.Busy;
         bool setup = Monetization.PurchaseSetupComplete;
         string buyLabel = owned ? Loc.T("購入済み") : !setup ? Loc.T("購入の準備中です") : string.IsNullOrEmpty(price) ? Loc.T("価格を取得できません") : Loc.F("購入する {0}", price);
         bool canBuy = setup && !owned && !busy && !string.IsNullOrEmpty(price) && !NoAdsPass.PendingPayment;
         if (UiKit.Button(new Rect(x, by, bw, bh), buyLabel, 18f, true, false, canBuy) && canBuy) NoAdsPass.Purchase(null);
-        if (UiKit.Button(new Rect(x + bw + 12f, by, bw, bh), busy ? Loc.T("確認中…") : Loc.T("購入を復元"), 18f, false, false, !busy) && !busy) NoAdsPass.Check("restore button");
-        if (!string.IsNullOrEmpty(NoAdsPass.LastNote)) GUI.Label(new Rect(x, by + bh + 4f, full, 30f), Loc.Auto(NoAdsPass.LastNote), new GUIStyle(small) { alignment = TextAnchor.MiddleCenter });
-        LastPanelRect = p; LastContentBottom = y; LastButtonsTop = by; LastButtonsBottom = by + bh + 30f; // 確認用
+        if (UiKit.Button(new Rect(x + bw + 12f, by, bw, bh), busy ? Loc.T("確認中…") : Loc.T("購入を復元"), 18f, false, false, !busy) && !busy) NoAdsPass.RequestRestore("restore button");
+        // 2026-11-24: 押した操作の結果(確認中 → 結果)を優先して出す。無い時は今までの控えの文
+        string note = NoAdsPass.UserState != NoAdsPass.UserResult.None ? ResultLine() : (string.IsNullOrEmpty(NoAdsPass.LastNote) ? "" : Loc.Auto(NoAdsPass.LastNote));
+        if (!string.IsNullOrEmpty(note))
+        {
+            var ns = new GUIStyle(small) { alignment = TextAnchor.UpperCenter, wordWrap = true };
+            ns.normal.textColor = ResultColor(ns.normal.textColor);
+            GUI.Label(new Rect(x, by + bh + 4f, full, 46f), note, ns);
+        }
+        LastPanelRect = p; LastContentBottom = y; LastButtonsTop = by; LastButtonsBottom = by + bh + 46f; // 確認用
 
         GUI.matrix = keep;
         GUI.Button(new Rect(0f, 0f, Screen.width, Screen.height), GUIContent.none, GUIStyle.none); // 背後へ通さない

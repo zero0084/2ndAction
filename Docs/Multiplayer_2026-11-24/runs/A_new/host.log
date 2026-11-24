@@ -1,0 +1,153 @@
+[NETTEST] utc=14:23:00.398 TEAMLOG utc=14:23:00.398 t=0.0 role=HOST me=P1 mode=Coop x=1.17 raw=0.17 hud=0.17 own=0.17 front=0.17 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:00.407 BOSSRUN t=0 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=0 dist=0 enc=0.0
+[NETTEST] utc=14:23:00.908 TEAMLOG utc=14:23:00.908 t=0.5 role=HOST me=P1 mode=Coop x=5.56 raw=4.56 hud=4.56 own=4.56 front=4.56 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:01.410 BOSSRUN t=1 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=0 dist=9 enc=0.0
+[NETTEST] utc=14:23:01.425 TEAMLOG utc=14:23:01.425 t=1.0 role=HOST me=P1 mode=Coop x=9.95 raw=8.95 hud=8.95 own=8.95 front=8.95 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:01.942 TEAMLOG utc=14:23:01.942 t=1.5 role=HOST me=P1 mode=Coop x=14.34 raw=13.34 hud=13.34 own=13.34 front=13.34 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:02.426 BOSSRUN t=2 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=4 dist=17 enc=0.0
+[NETTEST] utc=14:23:02.458 TEAMLOG utc=14:23:02.458 t=2.1 role=HOST me=P1 mode=Coop x=18.73 raw=17.73 hud=17.73 own=17.73 front=17.73 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:02.976 TEAMLOG utc=14:23:02.976 t=2.6 role=HOST me=P1 mode=Coop x=23.12 raw=22.12 hud=22.12 own=22.12 front=22.12 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:03.442 BOSSRUN t=3 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=4 dist=27 enc=0.0
+[NETTEST] utc=14:23:03.492 TEAMLOG utc=14:23:03.492 t=3.1 role=HOST me=P1 mode=Coop x=28.40 raw=27.40 hud=27.40 own=27.40 front=27.40 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:04.008 TEAMLOG utc=14:23:04.008 t=3.6 role=HOST me=P1 mode=Coop x=33.07 raw=32.07 hud=32.07 own=32.07 front=32.07 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:04.459 BOSSRUN t=4 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=11 dist=37 enc=0.0
+[NETTEST] utc=14:23:04.524 TEAMLOG utc=14:23:04.524 t=4.1 role=HOST me=P1 mode=Coop x=38.54 raw=37.54 hud=37.54 own=37.54 front=37.54 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:05.041 TEAMLOG utc=14:23:05.041 t=4.6 role=HOST me=P1 mode=Coop x=42.69 raw=41.69 hud=41.69 own=41.69 front=41.69 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:05.476 BOSSRUN t=5 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=11 dist=45 enc=0.0
+[NETTEST] utc=14:23:05.559 TEAMLOG utc=14:23:05.559 t=5.2 role=HOST me=P1 mode=Coop x=46.75 raw=45.75 hud=45.75 own=45.75 front=45.75 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:06.075 TEAMLOG utc=14:23:06.075 t=5.7 role=HOST me=P1 mode=Coop x=50.74 raw=49.74 hud=49.74 own=49.74 front=49.74 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:06.491 BOSSRUN t=6 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=11 dist=53 enc=0.0
+[NETTEST] utc=14:23:06.592 TEAMLOG utc=14:23:06.592 t=6.2 role=HOST me=P1 mode=Coop x=54.64 raw=53.64 hud=53.64 own=53.64 front=53.64 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:07.107 TEAMLOG utc=14:23:07.107 t=6.7 role=HOST me=P1 mode=Coop x=59.22 raw=58.22 hud=58.22 own=58.22 front=58.22 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:07.508 BOSSRUN t=7 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=10 dist=61 enc=0.0
+[NETTEST] utc=14:23:07.624 TEAMLOG utc=14:23:07.624 t=7.2 role=HOST me=P1 mode=Coop x=62.60 raw=61.60 hud=61.60 own=61.60 front=61.60 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:08.140 TEAMLOG utc=14:23:08.140 t=7.7 role=HOST me=P1 mode=Coop x=65.39 raw=64.39 hud=64.39 own=64.39 front=64.39 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:08.524 BOSSRUN t=8 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=7 dist=68 enc=0.0
+[NETTEST] utc=14:23:08.657 TEAMLOG utc=14:23:08.657 t=8.3 role=HOST me=P1 mode=Coop x=69.74 raw=68.74 hud=68.74 own=68.74 front=68.74 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:09.173 TEAMLOG utc=14:23:09.173 t=8.8 role=HOST me=P1 mode=Coop x=73.36 raw=72.36 hud=72.36 own=72.36 front=72.36 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:09.541 BOSSRUN t=9 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=7 dist=75 enc=0.0
+[NETTEST] utc=14:23:09.690 TEAMLOG utc=14:23:09.690 t=9.3 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=0.00 recv=0 dup=0
+[NETTEST] utc=14:23:10.207 TEAMLOG utc=14:23:10.207 t=9.8 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:10.558 BOSSRUN t=10 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=6 dist=75 enc=0.0
+[NETTEST] utc=14:23:10.725 TEAMLOG utc=14:23:10.725 t=10.3 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:10.823 TEAMHOLD choice opened on HOST me=P1 - holding 8s
+[NETTEST] utc=14:23:11.240 TEAMLOG utc=14:23:11.240 t=10.8 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:11.574 BOSSRUN t=11 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=6 dist=75 enc=0.0
+[NETTEST] utc=14:23:11.757 TEAMLOG utc=14:23:11.757 t=11.4 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:12.273 TEAMLOG utc=14:23:12.273 t=11.9 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:12.595 BOSSRUN t=12 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=6 dist=75 enc=0.0
+[NETTEST] utc=14:23:12.790 TEAMLOG utc=14:23:12.790 t=12.4 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:13.306 TEAMLOG utc=14:23:13.306 t=12.9 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:13.606 BOSSRUN t=13 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=6 dist=75 enc=0.0
+[NETTEST] utc=14:23:13.823 TEAMLOG utc=14:23:13.823 t=13.4 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:14.340 TEAMLOG utc=14:23:14.340 t=13.9 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:14.624 BOSSRUN t=14 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=6 dist=75 enc=0.0
+[NETTEST] utc=14:23:14.856 TEAMLOG utc=14:23:14.856 t=14.5 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:15.373 TEAMLOG utc=14:23:15.373 t=15.0 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:15.640 BOSSRUN t=15 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=6 dist=75 enc=0.0
+[NETTEST] utc=14:23:15.889 TEAMLOG utc=14:23:15.889 t=15.5 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:16.406 TEAMLOG utc=14:23:16.406 t=16.0 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:16.658 BOSSRUN t=16 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=6 dist=75 enc=0.0
+[NETTEST] utc=14:23:16.922 TEAMLOG utc=14:23:16.922 t=16.5 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:17.438 TEAMLOG utc=14:23:17.438 t=17.0 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:17.673 BOSSRUN t=17 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=6 dist=75 enc=0.0
+[NETTEST] utc=14:23:17.956 TEAMLOG utc=14:23:17.956 t=17.6 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:18.472 TEAMLOG utc=14:23:18.472 t=18.1 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:18.690 BOSSRUN t=18 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=6 dist=75 enc=0.0
+[NETTEST] utc=14:23:18.842 card choice #1 (auto pick)
+[NETTEST] utc=14:23:18.989 TEAMLOG utc=14:23:18.988 t=18.6 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:19.504 TEAMLOG utc=14:23:19.504 t=19.1 role=HOST me=P1 mode=Coop x=76.36 raw=75.36 hud=75.36 own=75.36 front=75.36 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:19.707 BOSSRUN t=19 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=6 dist=75 enc=0.0
+[NETTEST] utc=14:23:20.022 TEAMLOG utc=14:23:20.022 t=19.6 role=HOST me=P1 mode=Coop x=79.05 raw=78.05 hud=78.05 own=78.05 front=78.05 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:20.545 TEAMLOG utc=14:23:20.545 t=20.1 role=HOST me=P1 mode=Coop x=83.35 raw=82.35 hud=82.35 own=82.35 front=82.35 haltF=0.88 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:20.724 BOSSRUN t=20 role=HOST bossPhase=True resumed=False holds=True bosses=1 zako=0 dist=83 enc=-1.9
+[NETTEST] utc=14:23:21.057 TEAMLOG utc=14:23:21.057 t=20.7 role=HOST me=P1 mode=Coop x=85.04 raw=84.04 hud=84.04 own=84.04 front=84.04 haltF=0.01 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:21.576 TEAMLOG utc=14:23:21.576 t=21.2 role=HOST me=P1 mode=Coop x=85.43 raw=84.43 hud=84.43 own=84.43 front=84.43 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:21.742 BOSSRUN t=21 role=HOST bossPhase=True resumed=False holds=True bosses=1 zako=0 dist=86 enc=-0.9
+[NETTEST] utc=14:23:22.090 TEAMLOG utc=14:23:22.090 t=21.7 role=HOST me=P1 mode=Coop x=88.29 raw=87.29 hud=87.29 own=87.29 front=87.29 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:22.608 TEAMLOG utc=14:23:22.607 t=22.2 role=HOST me=P1 mode=Coop x=90.20 raw=89.20 hud=89.20 own=89.20 front=89.20 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:22.764 BOSSRUN t=22 role=HOST bossPhase=True resumed=False holds=True bosses=1 zako=0 dist=90 enc=0.2
+[NETTEST] utc=14:23:23.122 TEAMLOG utc=14:23:23.122 t=22.7 role=HOST me=P1 mode=Coop x=92.59 raw=91.59 hud=91.59 own=91.59 front=91.59 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:23.639 TEAMLOG utc=14:23:23.639 t=23.2 role=HOST me=P1 mode=Coop x=94.27 raw=93.27 hud=93.27 own=93.27 front=93.27 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:23.772 BOSSRUN t=23 role=HOST bossPhase=True resumed=False holds=True bosses=1 zako=0 dist=94 enc=1.0
+[NETTEST] utc=14:23:24.157 TEAMLOG utc=14:23:24.156 t=23.8 role=HOST me=P1 mode=Coop x=95.21 raw=94.21 hud=94.21 own=94.21 front=94.21 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:24.674 TEAMLOG utc=14:23:24.674 t=24.3 role=HOST me=P1 mode=Coop x=96.69 raw=95.69 hud=95.69 own=95.69 front=95.69 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:24.790 BOSSRUN t=24 role=HOST bossPhase=True resumed=False holds=True bosses=1 zako=0 dist=96 enc=1.9
+[NETTEST] utc=14:23:25.188 TEAMLOG utc=14:23:25.188 t=24.8 role=HOST me=P1 mode=Coop x=98.58 raw=97.58 hud=97.58 own=97.58 front=97.58 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:25.707 TEAMLOG utc=14:23:25.707 t=25.3 role=HOST me=P1 mode=Coop x=100.33 raw=99.33 hud=99.33 own=99.33 front=99.33 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:25.808 BOSSRUN t=25 role=HOST bossPhase=True resumed=False holds=True bosses=1 zako=0 dist=100 enc=2.8
+[NETTEST] utc=14:23:26.222 TEAMLOG utc=14:23:26.222 t=25.8 role=HOST me=P1 mode=Coop x=102.21 raw=101.21 hud=101.21 own=101.21 front=101.21 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:26.738 TEAMLOG utc=14:23:26.738 t=26.3 role=HOST me=P1 mode=Coop x=103.96 raw=102.96 hud=102.96 own=102.96 front=102.96 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=0.00 recv=0 dup=0
+[NETTEST] utc=14:23:26.825 BOSSRUN t=26 role=HOST bossPhase=True resumed=False holds=True bosses=1 zako=0 dist=103 enc=3.7
+[NETTEST] utc=14:23:27.253 TEAMLOG utc=14:23:27.253 t=26.9 role=HOST me=P1 mode=Coop x=105.46 raw=104.46 hud=104.46 own=104.46 front=104.46 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=0.00 recv=0 dup=0
+[NETTEST] utc=14:23:27.772 TEAMLOG utc=14:23:27.772 t=27.4 role=HOST me=P1 mode=Coop x=106.88 raw=105.88 hud=105.88 own=105.88 front=105.88 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:27.840 BOSSRUN t=27 role=HOST bossPhase=True resumed=False holds=True bosses=1 zako=0 dist=106 enc=4.6
+[NETTEST] utc=14:23:28.288 TEAMLOG utc=14:23:28.288 t=27.9 role=HOST me=P1 mode=Coop x=107.88 raw=106.88 hud=106.88 own=106.88 front=106.88 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:28.807 TEAMLOG utc=14:23:28.807 t=28.4 role=HOST me=P1 mode=Coop x=108.70 raw=107.70 hud=107.70 own=107.70 front=107.70 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:28.854 BOSSRUN t=28 role=HOST bossPhase=True resumed=False holds=True bosses=1 zako=0 dist=108 enc=5.5
+[NETTEST] utc=14:23:29.323 TEAMLOG utc=14:23:29.323 t=28.9 role=HOST me=P1 mode=Coop x=109.38 raw=108.38 hud=108.38 own=108.38 front=108.38 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:29.836 TEAMLOG utc=14:23:29.836 t=29.4 role=HOST me=P1 mode=Coop x=109.83 raw=108.83 hud=108.83 own=108.83 front=108.83 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:29.871 BOSSRUN t=29 role=HOST bossPhase=True resumed=False holds=True bosses=1 zako=0 dist=109 enc=6.4
+[NETTEST] utc=14:23:30.356 TEAMLOG utc=14:23:30.356 t=30.0 role=HOST me=P1 mode=Coop x=110.25 raw=109.25 hud=109.25 own=109.25 front=109.25 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=1 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:30.870 TEAMLOG utc=14:23:30.870 t=30.5 role=HOST me=P1 mode=Coop x=110.34 raw=109.34 hud=109.34 own=109.34 front=109.34 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:30.886 BOSSRUN t=31 role=HOST bossPhase=True resumed=False holds=True bosses=0 zako=0 dist=109 enc=6.9
+[NETTEST] utc=14:23:31.387 TEAMLOG utc=14:23:31.387 t=31.0 role=HOST me=P1 mode=Coop x=110.34 raw=109.34 hud=109.34 own=109.34 front=109.34 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:31.903 TEAMLOG utc=14:23:31.903 t=31.5 role=HOST me=P1 mode=Coop x=110.34 raw=109.34 hud=109.34 own=109.34 front=109.34 haltF=0.00 holding=True choosing=False paused=False hold=True phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:31.904 BOSSRUN t=32 role=HOST bossPhase=True resumed=False holds=True bosses=0 zako=0 dist=109 enc=6.9
+[NETTEST] utc=14:23:32.420 TEAMLOG utc=14:23:32.420 t=32.0 role=HOST me=P1 mode=Coop x=110.34 raw=109.34 hud=109.34 own=109.34 front=109.34 haltF=0.00 holding=False choosing=False paused=False hold=False phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:32.919 BOSSRUN t=33 role=HOST bossPhase=True resumed=False holds=False bosses=0 zako=0 dist=112 enc=6.9
+[NETTEST] utc=14:23:32.935 TEAMLOG utc=14:23:32.935 t=32.5 role=HOST me=P1 mode=Coop x=112.83 raw=111.83 hud=111.83 own=111.83 front=111.83 haltF=0.66 holding=False choosing=False paused=False hold=False phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:33.452 TEAMLOG utc=14:23:33.452 t=33.1 role=HOST me=P1 mode=Coop x=116.78 raw=115.78 hud=115.78 own=115.78 front=115.78 haltF=1.00 holding=False choosing=False paused=False hold=False phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:33.937 BOSSRUN t=34 role=HOST bossPhase=True resumed=False holds=False bosses=0 zako=0 dist=121 enc=6.9
+[NETTEST] utc=14:23:33.969 TEAMLOG utc=14:23:33.969 t=33.6 role=HOST me=P1 mode=Coop x=122.23 raw=121.23 hud=121.23 own=121.23 front=121.23 haltF=1.00 holding=False choosing=False paused=False hold=False phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:34.486 TEAMLOG utc=14:23:34.486 t=34.1 role=HOST me=P1 mode=Coop x=126.36 raw=125.36 hud=125.36 own=125.36 front=125.36 haltF=1.00 holding=False choosing=False paused=False hold=False phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:34.953 BOSSRUN t=35 role=HOST bossPhase=True resumed=False holds=False bosses=0 zako=0 dist=129 enc=6.9
+[NETTEST] utc=14:23:35.002 TEAMLOG utc=14:23:35.002 t=34.6 role=HOST me=P1 mode=Coop x=130.41 raw=129.41 hud=129.41 own=129.41 front=129.41 haltF=1.00 holding=False choosing=False paused=False hold=False phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:35.519 TEAMLOG utc=14:23:35.519 t=35.1 role=HOST me=P1 mode=Coop x=134.39 raw=133.39 hud=133.39 own=133.39 front=133.39 haltF=1.00 holding=False choosing=False paused=False hold=False phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:35.969 BOSSRUN t=36 role=HOST bossPhase=True resumed=False holds=False bosses=0 zako=0 dist=137 enc=6.9
+[NETTEST] utc=14:23:36.036 TEAMLOG utc=14:23:36.036 t=35.6 role=HOST me=P1 mode=Coop x=138.30 raw=137.30 hud=137.30 own=137.30 front=137.30 haltF=1.00 holding=False choosing=False paused=False hold=False phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NET][BOSS] Reward Recipient = P1 (local=P1)
+[NETTEST] utc=14:23:36.552 TEAMLOG utc=14:23:36.552 t=36.2 role=HOST me=P1 mode=Coop x=138.68 raw=137.68 hud=137.68 own=137.68 front=137.68 haltF=1.00 holding=False choosing=True paused=False hold=False phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:36.986 BOSSRUN t=37 role=HOST bossPhase=True resumed=False holds=False bosses=0 zako=0 dist=138 enc=6.9
+[NETTEST] utc=14:23:37.068 TEAMLOG utc=14:23:37.068 t=36.7 role=HOST me=P1 mode=Coop x=138.68 raw=137.68 hud=137.68 own=137.68 front=137.68 haltF=1.00 holding=False choosing=True paused=False hold=False phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:37.301 card choice #2 (auto pick)
+[NETTEST] utc=14:23:37.585 TEAMLOG utc=14:23:37.585 t=37.2 role=HOST me=P1 mode=Coop x=138.68 raw=137.68 hud=137.68 own=137.68 front=137.68 haltF=1.00 holding=False choosing=True paused=False hold=False phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:38.003 BOSSRUN t=38 role=HOST bossPhase=True resumed=False holds=False bosses=0 zako=0 dist=138 enc=6.9
+[NETTEST] utc=14:23:38.110 TEAMLOG utc=14:23:38.110 t=37.7 role=HOST me=P1 mode=Coop x=138.68 raw=137.68 hud=137.68 own=137.68 front=137.68 haltF=1.00 holding=False choosing=True paused=False hold=False phase=True bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:38.618 TEAMLOG utc=14:23:38.618 t=38.2 role=HOST me=P1 mode=Coop x=142.22 raw=141.22 hud=141.22 own=141.22 front=141.22 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:39.019 BOSSRUN t=39 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=0 dist=144 enc=6.9
+[NETTEST] utc=14:23:39.135 TEAMLOG utc=14:23:39.135 t=38.7 role=HOST me=P1 mode=Coop x=146.21 raw=145.21 hud=145.21 own=145.21 front=145.21 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:39.652 TEAMLOG utc=14:23:39.652 t=39.3 role=HOST me=P1 mode=Coop x=150.14 raw=149.14 hud=149.14 own=149.14 front=149.14 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:40.036 BOSSRUN t=40 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=0 dist=150 enc=6.9
+[NETTEST] utc=14:23:40.168 TEAMLOG utc=14:23:40.168 t=39.8 role=HOST me=P1 mode=Coop x=151.14 raw=150.14 hud=150.14 own=150.14 front=150.14 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:40.685 TEAMLOG utc=14:23:40.685 t=40.3 role=HOST me=P1 mode=Coop x=151.14 raw=150.14 hud=150.14 own=150.14 front=150.14 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:40.986 card choice #3 (auto pick)
+[NETTEST] utc=14:23:41.054 BOSSRUN t=41 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=0 dist=150 enc=6.9
+[NETTEST] utc=14:23:41.201 TEAMLOG utc=14:23:41.201 t=40.8 role=HOST me=P1 mode=Coop x=151.14 raw=150.14 hud=150.14 own=150.14 front=150.14 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:41.717 TEAMLOG utc=14:23:41.717 t=41.3 role=HOST me=P1 mode=Coop x=151.14 raw=150.14 hud=150.14 own=150.14 front=150.14 haltF=1.00 holding=False choosing=True paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:42.069 BOSSRUN t=42 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=0 dist=152 enc=6.9
+[NETTEST] utc=14:23:42.234 TEAMLOG utc=14:23:42.234 t=41.8 role=HOST me=P1 mode=Coop x=154.16 raw=153.16 hud=153.16 own=153.16 front=153.16 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:42.751 TEAMLOG utc=14:23:42.751 t=42.4 role=HOST me=P1 mode=Coop x=158.18 raw=157.18 hud=157.18 own=157.18 front=157.18 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:43.086 BOSSRUN t=43 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=0 dist=160 enc=6.9
+[NETTEST] utc=14:23:43.270 TEAMLOG utc=14:23:43.270 t=42.9 role=HOST me=P1 mode=Coop x=162.12 raw=161.12 hud=161.12 own=161.12 front=161.12 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:43.784 TEAMLOG utc=14:23:43.784 t=43.4 role=HOST me=P1 mode=Coop x=166.74 raw=165.74 hud=165.74 own=165.74 front=165.74 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:44.104 BOSSRUN t=44 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=2 dist=169 enc=6.9
+[NETTEST] utc=14:23:44.301 TEAMLOG utc=14:23:44.301 t=43.9 role=HOST me=P1 mode=Coop x=171.04 raw=170.04 hud=170.04 own=170.04 front=170.04 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:44.818 TEAMLOG utc=14:23:44.818 t=44.4 role=HOST me=P1 mode=Coop x=175.89 raw=174.89 hud=174.89 own=174.89 front=174.89 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:45.118 BOSSRUN t=45 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=2 dist=177 enc=6.9
+[NETTEST] utc=14:23:45.335 TEAMLOG utc=14:23:45.334 t=44.9 role=HOST me=P1 mode=Coop x=179.72 raw=178.72 hud=178.72 own=178.72 front=178.72 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:45.850 TEAMLOG utc=14:23:45.850 t=45.5 role=HOST me=P1 mode=Coop x=183.36 raw=182.36 hud=182.36 own=182.36 front=182.36 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:46.134 BOSSRUN t=46 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=2 dist=184 enc=6.9
+[NETTEST] utc=14:23:46.367 TEAMLOG utc=14:23:46.367 t=46.0 role=HOST me=P1 mode=Coop x=186.94 raw=185.94 hud=185.94 own=185.94 front=185.94 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:46.886 TEAMLOG utc=14:23:46.886 t=46.5 role=HOST me=P1 mode=Coop x=190.47 raw=189.47 hud=189.47 own=189.47 front=189.47 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:47.152 BOSSRUN t=47 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=2 dist=191 enc=6.9
+[NETTEST] utc=14:23:47.401 TEAMLOG utc=14:23:47.401 t=47.0 role=HOST me=P1 mode=Coop x=194.50 raw=193.50 hud=193.50 own=193.50 front=193.50 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:47.917 TEAMLOG utc=14:23:47.917 t=47.5 role=HOST me=P1 mode=Coop x=198.64 raw=197.64 hud=197.64 own=197.64 front=197.64 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:48.170 BOSSRUN t=48 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=2 dist=199 enc=6.9
+[NETTEST] utc=14:23:48.433 TEAMLOG utc=14:23:48.433 t=48.0 role=HOST me=P1 mode=Coop x=202.90 raw=201.90 hud=201.90 own=201.90 front=201.90 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:48.950 TEAMLOG utc=14:23:48.950 t=48.6 role=HOST me=P1 mode=Coop x=206.66 raw=205.66 hud=205.66 own=205.66 front=205.66 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:49.184 BOSSRUN t=49 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=2 dist=207 enc=6.9
+[NETTEST] utc=14:23:49.468 TEAMLOG utc=14:23:49.468 t=49.1 role=HOST me=P1 mode=Coop x=209.99 raw=208.99 hud=208.99 own=208.99 front=208.99 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:49.985 TEAMLOG utc=14:23:49.985 t=49.6 role=HOST me=P1 mode=Coop x=213.29 raw=212.29 hud=212.29 own=212.29 front=212.29 haltF=1.00 holding=False choosing=False paused=False hold=False phase=False bosses=0 ts=1.00 recv=0 dup=0
+[NETTEST] utc=14:23:50.200 BOSSRUN t=50 role=HOST bossPhase=False resumed=False holds=False bosses=0 zako=4 dist=213 enc=6.9
+[NETTEST] utc=14:23:50.388 SUMMARY reason=run time elapsed role=HOST exceptions=0 errors=0 remoteShownSeconds=49 maxStepErr=0.132 maxStep=0.274 backSteps=4/2968 sigA= sigB= sigC= ping avg=34 max=85 sim=0

@@ -193,7 +193,7 @@ public partial class GameManager
             {
                 var ls = HudStyle.LabelStyle(); HudStyle.Fit(ls, "DISTANCE", labelW);
                 HudStyle.Text(new Rect(x, y, labelW, RunRowDistH), "DISTANCE", ls, HudStyle.Label);
-                double d = SprintActive && SprintRunner.Instance != null ? SprintRunner.Instance.DistanceNow : MaxDistanceExact; // 疾走中(リングの3択)は疾走の距離
+                double d = HudDistanceExact; // 疾走中(リングの3択)は疾走の距離 / 協力のマルチはチーム走行距離(2026-11-24)
                 string v = FormatDistanceExact(d);
                 float fl = DistanceFlashIntensity;
                 var vs = HudStyle.ValueStyle(fl > 0f ? Mathf.RoundToInt(HudStyle.BigSize * Mathf.Lerp(1f, 1.2f, fl)) : HudStyle.BigSize);
