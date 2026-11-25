@@ -4,7 +4,8 @@ using UnityEngine;
 
 // Android の画面の出入りの試験(2026-11-25、Unity 6000.6.10f1 の UUM-159613 対策の確認)。操作は外から adb で行い(Tools/security/lifecycle_emulator.sh)、
 // ここは状態を書き出すだけ(ゲームの動きは変えない)。
-//  -qaLifecycle <dir> [-lcRun 1|0] [-lcContinue 1] [-lcSeconds 300] [-lcMulti 1]
+//  -qaLifecycle <dir> [-lcRun 1|0] [-lcContinue 1] [-lcSeconds 300] [-lcMulti 1] [-lcLeaveAt <秒>] [-lcBg 1]
+//   -lcLeaveAt: その秒で部屋を出る(Run In Background が元に戻るか) / -lcBg 1: Run In Background を有効のまま始める(不具合の再現用)
 //   -lcRun 1: ランを始めて走り続ける(無敵・補助) / 0: ホームのまま
 //   -lcContinue 1: ホームで中断中のランがあれば CONTINUE する(強制終了の後の起動で使う)
 //   -lcMulti 1: LOCAL の部屋を作って待つ(マルチ中は Run In Background が有効になる = UUM-159613 の条件)
@@ -16,6 +17,9 @@ public partial class QaSweep
         while (GameManager.Instance == null && w0 < 90f) { yield return null; w0 += Time.unscaledDeltaTime; } // エミュレーターの起動は遅い
         yield return new WaitForSecondsRealtime(2f);
         gm = GameManager.Instance; // ランを始めない時(CONTINUE/部屋)は BeginRun を通らないので、ここで取る
+        // 試験の起動は Run In Background が有効(QaSweep)。普通のプレイヤーと同じ無効の状態から始める(-lcBg 1 で有効のまま = 不具合の再現用)
+        if (Arg("-lcBg", "0") != "1") Application.runInBackground = false;
+        float leaveAt = float.Parse(Arg("-lcLeaveAt", "0"), System.Globalization.CultureInfo.InvariantCulture); bool left = false;
         float secs = float.Parse(Arg("-lcSeconds", "300"), System.Globalization.CultureInfo.InvariantCulture);
         var cp0 = RunCheckpoint.Load();
         L($"[lc] boot: checkpoint={(cp0 != null && cp0.active)} at {(cp0 != null ? cp0.checkpointDistance : 0f):F0}m");
@@ -36,6 +40,7 @@ public partial class QaSweep
         while (Time.realtimeSinceStartup - t0 < secs)
         {
             if (GameManager.Instance != null) gm = GameManager.Instance;
+            if (leaveAt > 0f && !left && Time.realtimeSinceStartup - t0 >= leaveAt && NetSession.Instance != null) { left = true; NetSession.Instance.Leave(); L($"[lc] left the room (runInBackground right after: {Application.runInBackground})"); }
             if (gm != null && Time.realtimeSinceStartup >= next)
             {
                 next = Time.realtimeSinceStartup + 1.5f;

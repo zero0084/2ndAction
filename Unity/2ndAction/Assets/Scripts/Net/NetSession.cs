@@ -126,8 +126,8 @@ public class NetSession : MonoBehaviour
         };
         nm.ConnectionApprovalCallback = ApproveConnection;
         nm.OnServerStarted += () => { Log($"Host started (port {LastPort}, max players {MaxPlayers})"); StatusText = "HOST: 参加待ち"; };
-        nm.OnServerStopped += _ => { Log("Host stopped"); LanDiscovery.StopAdvertising("host stopped"); };
-        nm.OnClientStopped += _ => { Log("Client stopped"); if (JoinPending) { JoinPending = false; if (string.IsNullOrEmpty(LastJoinFailure)) LastJoinFailure = "CONNECTION FAILED"; Debug.Log($"[LAN] Join failed {LastHostAddress}:{LastPort} ({LastJoinFailure})"); } };
+        nm.OnServerStopped += _ => { Log("Host stopped"); LanDiscovery.StopAdvertising("host stopped"); RestoreRunInBackground("host stopped"); };
+        nm.OnClientStopped += _ => { Log("Client stopped"); RestoreRunInBackground("client stopped"); if (JoinPending) { JoinPending = false; if (string.IsNullOrEmpty(LastJoinFailure)) LastJoinFailure = "CONNECTION FAILED"; Debug.Log($"[LAN] Join failed {LastHostAddress}:{LastPort} ({LastJoinFailure})"); } };
         nm.OnClientConnectedCallback += OnClientConnected;
         nm.OnClientDisconnectCallback += OnClientDisconnected;
         nm.OnTransportFailure += OnTransportFailure;
@@ -180,9 +180,9 @@ public class NetSession : MonoBehaviour
         if (nm == null || nm.ShutdownInProgress) { StatusText = "通信を開始できませんでした。もう一度試すか、アプリを再起動してください"; return false; }
         ClearConnectionLost(); leavingByChoice = false;
         ConfigureRelay(data);
-        Application.runInBackground = true;
+        KeepRunningInBackground();
         bool ok = nm.StartHost();
-        if (!ok) { Log("Host start failed (relay)"); Connection = ConnectionType.Local; }
+        if (!ok) { Log("Host start failed (relay)"); Connection = ConnectionType.Local; RestoreRunInBackground("host start failed"); }
         return ok;
     }
 
@@ -194,13 +194,29 @@ public class NetSession : MonoBehaviour
         ClearConnectionLost(); leavingByChoice = false;
         LastHostAddress = "relay";
         ConfigureRelay(data);
-        Application.runInBackground = true;
+        KeepRunningInBackground();
         Log("Client connecting via relay");
         StatusText = "接続中…";
         LastJoinFailure = ""; JoinPending = true;
         bool ok = nm.StartClient();
-        if (!ok) { Log("Client start failed (relay)"); JoinPending = false; LastJoinFailure = "CONNECTION FAILED"; Connection = ConnectionType.Local; }
+        if (!ok) { Log("Client start failed (relay)"); JoinPending = false; LastJoinFailure = "CONNECTION FAILED"; Connection = ConnectionType.Local; RestoreRunInBackground("client start failed"); }
         return ok;
+    }
+
+    // 2026-11-25 最終工程: 通信の間だけ裏でも動かす(接続を保つため)。通信が終わったら元に戻す。
+    //  以前は一度マルチをすると、その起動の間ずっと有効のままで、ソロでも 消灯中にランが進む/裏から戻った後の「戻る」でアプリが終わる(Android)原因になっていた
+    static bool? runInBackgroundBefore;
+    static void KeepRunningInBackground()
+    {
+        if (runInBackgroundBefore == null) runInBackgroundBefore = Application.runInBackground;
+        Application.runInBackground = true;
+    }
+    static void RestoreRunInBackground(string why)
+    {
+        if (runInBackgroundBefore == null) return;
+        Application.runInBackground = runInBackgroundBefore.Value;
+        runInBackgroundBefore = null;
+        Debug.Log($"[NET] run in background restored to {Application.runInBackground} ({why})");
     }
 
     // 通信だけを止める(ONLINE の Session の後始末からも呼ばれる。Session の操作はしない)
@@ -230,11 +246,12 @@ public class NetSession : MonoBehaviour
             StatusText = Loc.Reviewed("安全な通信を準備できなかったため、部屋を作成できませんでした", "部屋を作成できませんでした(他のアプリが通信を使用中の可能性)");
             return false;
         }
-        Application.runInBackground = true;
+        KeepRunningInBackground();
         bool ok = nm.StartHost();
         if (!ok)
         {
             Log("Host start failed");
+            RestoreRunInBackground("host start failed");
             StatusText = "部屋を作成できませんでした(他のアプリが通信を使用中の可能性)";
         }
         return ok;
@@ -268,7 +285,7 @@ public class NetSession : MonoBehaviour
             LastJoinFailure = "CONNECTION FAILED";
             return false;
         }
-        Application.runInBackground = true;
+        KeepRunningInBackground();
         Log($"Client connecting to {hostAddress}:{port}");
         StatusText = $"接続中… {hostAddress}:{port}";
         LastJoinFailure = ""; JoinPending = true;
@@ -276,6 +293,7 @@ public class NetSession : MonoBehaviour
         if (!ok)
         {
             Log("Client start failed");
+            RestoreRunInBackground("client start failed");
             StatusText = "JOINを開始できませんでした";
             JoinPending = false; LastJoinFailure = "CONNECTION FAILED";
             Debug.Log($"[LAN] Join failed {hostAddress}:{port} (client start failed)");

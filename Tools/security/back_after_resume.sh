@@ -8,7 +8,7 @@ P=com.zero0084.action2nd; A=$P/com.unity3d.player.UnityPlayerGameActivity; APK=$
 "$ADB" shell svc power stayon true
 [ -n "$APK" ] && { "$ADB" install -r "$APK" | tail -1; }
 echo "manifest: $("$ADB" shell dumpsys package $P | grep -o 'versionName=[^ ]*' | head -1)"
-"$ADB" shell am force-stop $P; "$ADB" shell "am start -n $A -e unity '-force-gles30 -qaLifecycle /sdcard/Android/data/$P/files/lc -lcRun 1'" >/dev/null; sleep 40
+"$ADB" shell am force-stop $P; "$ADB" shell "am start -n $A -e unity '-force-gles30 -qaLifecycle /sdcard/Android/data/$P/files/lc -lcRun 1 -lcBg 1'" >/dev/null; sleep 40
 ok=0; n=0
 resume_back() { # $1 = button|gesture
   "$ADB" shell input keyevent KEYCODE_HOME; sleep 5; "$ADB" shell monkey -p $P -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; sleep 6
@@ -19,7 +19,7 @@ resume_back() { # $1 = button|gesture
   if [ -n "$pid" ] && [ "$kn" -ge 1 ]; then ok=$((ok+1)); r=OK; else r=NG; fi
   echo "[$L] $1 after resume: $r (app ${pid:+alive}${pid:-ENDED}, back reached the game: $kn)"
   "$ADB" logcat -d | grep -a "KeyNav\] screen" | tail -1 | sed 's/^.*Unity   : /    /' | cut -c1-120
-  [ -z "$pid" ] && { "$ADB" shell "am start -n $A -e unity '-force-gles30 -qaLifecycle /sdcard/Android/data/$P/files/lc -lcRun 1'" >/dev/null; sleep 40; }
+  [ -z "$pid" ] && { "$ADB" shell "am start -n $A -e unity '-force-gles30 -qaLifecycle /sdcard/Android/data/$P/files/lc -lcRun 1 -lcBg 1'" >/dev/null; sleep 40; }
 }
 resume_back button; "$ADB" shell input keyevent KEYCODE_BACK; sleep 2
 resume_back button; "$ADB" shell input keyevent KEYCODE_BACK; sleep 2
