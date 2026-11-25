@@ -21,7 +21,7 @@ public partial class NetMatch
         int local = NetCombat.LocalPlayerNumber;
         foreach (var r in m.results)
         {
-            string s = $"#{r.Rank}  {NetPlayer.TagOf(r.Pn)}   {r.Distance:N0} m";
+            string s = $"#{r.Rank}  {NetPlayer.TagOf(r.Pn)}   {System.Math.Floor(r.Distance):N0} m"; // 2026-11-25: 大きな数字(切り捨て)と同じ丸め
             if (Mode == MultiplayerGameMode.Versus)
             {
                 if (r.State == PState.Out) s += "   (DISCONNECTED)";

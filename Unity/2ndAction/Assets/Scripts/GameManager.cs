@@ -4544,7 +4544,7 @@ public partial class GameManager : MonoBehaviour
             if (!HudPrefs.Legacy) DrawHudV2(); // 2026-10-31: 刷新した HUD(GameManager.HudV2.cs)
             else {
             if (!ArenaMode.Active) DrawStatPanel(V(GetBestPanelRect()), "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor);
-            DrawStatPanel(V(GetDistancePanelRect()), "DISTANCE", FormatDistanceExact(HudDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity); // 疾走中(リングの3択)は疾走の距離 / 協力のマルチはチーム走行距離(2026-11-24)
+            DrawStatPanel(V(GetDistancePanelRect()), TeamDistance.HudLabel, FormatDistanceExact(HudDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity); // 疾走中(リングの3択)は疾走の距離 / 協力のマルチはチーム走行距離(2026-11-24)
             DrawSpeedHud();
             DrawTakeHomeHud(); // 2026-10-11: 持ち帰り予定 MILE
             DrawFinalEvoHud(); // 2026-10-24: FINAL EVOLUTION の残り時間
@@ -5042,7 +5042,12 @@ public partial class GameManager : MonoBehaviour
         float updH = items.Count > 0 ? 34f * s + items.Count * 26f * s : 0f;
         float detH = 30f * s;
         var mrows = NetMatch.ResultLinesForScreen(); // 2026-11-05: マルチの順位(CO-OP/VERSUS RESULT)。シングルは空
-        float rankH = mrows.Count > 0 ? 34f * s + mrows.Count * 24f * s + 6f * s : 0f;
+        // 2026-11-25: 協力の RESULT は、確定したチーム距離の1行を一覧の先頭に(報酬/BEST/ランキングは今まで通り個人距離)
+        double teamFinal = mrows.Count > 0 && NetMatch.Mode == MultiplayerGameMode.Coop ? TeamDistance.ResultTeamDistance : -1.0;
+        // 位置は少し遅れて届くので、最前の人の最後の1m前後がチーム距離に入らないことがある → メンバーの個人距離の最大を下回らない(一覧は全員で同じ)
+        if (teamFinal >= 0.0 && NetMatch.Instance != null) foreach (var rr in NetMatch.Instance.Results) if (rr.Distance > teamFinal) teamFinal = rr.Distance;
+        int teamRows = teamFinal >= 0.0 ? 1 : 0;
+        float rankH = mrows.Count > 0 ? 34f * s + (mrows.Count + teamRows) * 24f * s + 6f * s : 0f;
         float contentH = (rankH > 0 ? rankH + 10f * s : 0f) + (cardsH > 0 ? cardsH + 10f * s : 0f) + (updH > 0 ? updH + 10f * s : 0f) + detH;
         float monetH = DoubleOffered ? 92f * Mathf.Min(s, 1.4f) : 0f;
         float btnH = 60f * s;
@@ -5071,7 +5076,7 @@ public partial class GameManager : MonoBehaviour
         // ① 距離(いちばん大きく)
         Rect dist = new Rect(x, y, w, distH);
         ResultBlock(dist, false);
-        LocGUI.Label(new Rect(dist.x + 14f * s, dist.y + 6f * s, dist.width * 0.5f, 22f * s), "DISTANCE", UiKit.Label(15f * s, TextAnchor.MiddleLeft, false, UiTheme.TextSub));
+        LocGUI.Label(new Rect(dist.x + 14f * s, dist.y + 6f * s, dist.width * 0.5f, 22f * s), teamRows > 0 ? Loc.Reviewed(TeamDistance.LabelPersonal, "DISTANCE") : "DISTANCE", UiKit.Label(15f * s, TextAnchor.MiddleLeft, false, UiTheme.TextSub)); // 2026-11-25: 協力は「個人距離」
         string distText = Mathf.FloorToInt(MaxDistance).ToString("N0") + " m";
         LocGUI.Label(new Rect(dist.x, dist.y + 18f * s, dist.width, 60f * s), distText, UiKit.Label(50f * s, TextAnchor.MiddleCenter, true, UiTheme.Text));
         if (win && IsNewBestDistance)
@@ -5155,8 +5160,10 @@ public partial class GameManager : MonoBehaviour
             Rect rb = new Rect(0f, cy, w, rankH);
             ResultBlock(rb, false);
             LocGUI.Label(new Rect(rb.x + 14f * s, rb.y + 6f * s, rb.width - 28f * s, 22f * s), NetMatch.Mode == MultiplayerGameMode.Versus ? "VERSUS RESULT" : "CO-OP RESULT", UiKit.Label(15f * s, TextAnchor.MiddleLeft, true, UiTheme.GoldText));
+            if (teamRows > 0)
+                LocGUI.Label(new Rect(rb.x + 18f * s, rb.y + 30f * s, rb.width - 36f * s, 24f * s), Loc.T(Loc.Reviewed(TeamDistance.LabelTeam, "DISTANCE")) + "   " + System.Math.Floor(teamFinal).ToString("N0") + " m" /* 大きな数字/一覧と同じ切り捨て */, UiKit.Label(15f * s, TextAnchor.MiddleLeft, true, UiTheme.Text));
             for (int i = 0; i < mrows.Count; i++)
-                LocGUI.Label(new Rect(rb.x + 18f * s, rb.y + 30f * s + i * 24f * s, rb.width - 36f * s, 24f * s), mrows[i].text, UiKit.Label(15f * s, TextAnchor.MiddleLeft, mrows[i].self, mrows[i].self ? UiTheme.GoldHover : UiTheme.Text));
+                LocGUI.Label(new Rect(rb.x + 18f * s, rb.y + 30f * s + (i + teamRows) * 24f * s, rb.width - 36f * s, 24f * s), mrows[i].text, UiKit.Label(15f * s, TextAnchor.MiddleLeft, mrows[i].self, mrows[i].self ? UiTheme.GoldHover : UiTheme.Text));
             cy += rankH + 10f * s;
         }
         if (cardsH > 0f) { DrawResultCards(new Rect(0f, cy, w, cardsH), s); cy += cardsH + 10f * s; }

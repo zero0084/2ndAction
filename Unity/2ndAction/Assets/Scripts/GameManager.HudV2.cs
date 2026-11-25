@@ -36,20 +36,20 @@ public partial class GameManager
             return h <= 0f ? 0f : h + RunPadV * 2f + ((RunRowBest || RunRowDist) && (RunRowSpeed || RunRowMile) ? 3f : 0f);
         }
     }
-    float runPanelW = -1f; float runPanelWScreen = -1f; string runPanelWLang;
+    float runPanelW = -1f; float runPanelWScreen = -1f; string runPanelWLang; bool runPanelWTeam;
     float RunPanelWidthV
     {
         get
         {
             float vw = VW;
-            if (runPanelWScreen != vw || runPanelWLang != Loc.Current)
+            if (runPanelWScreen != vw || runPanelWLang != Loc.Current || runPanelWTeam != TeamDistance.Active)
             {
                 var vs = HudStyle.ValueStyle(HudStyle.BigSize);
                 float vwid = vs.CalcSize(new GUIContent(FormatDistanceExact(9999999.99))).x;
                 var ls = HudStyle.LabelStyle();
-                float lw = Mathf.Max(ls.CalcSize(new GUIContent(Loc.Auto("DISTANCE"))).x, ls.CalcSize(new GUIContent(Loc.Auto("SPEED"))).x);
+                float lw = Mathf.Max(ls.CalcSize(new GUIContent(Loc.Auto(TeamDistance.HudLabel))).x, ls.CalcSize(new GUIContent(Loc.Auto("SPEED"))).x); // 2026-11-25: 協力は「チーム距離」
                 runPanelW = Mathf.Clamp(vwid + Mathf.Min(lw, 70f) + 30f, 200f, Mathf.Max(200f, vw * 0.5f - LvChipW * 0.5f - HudStyle.Margin - 12f));
-                runPanelWScreen = vw; runPanelWLang = Loc.Current;
+                runPanelWScreen = vw; runPanelWLang = Loc.Current; runPanelWTeam = TeamDistance.Active;
             }
             return runPanelW;
         }
@@ -191,8 +191,9 @@ public partial class GameManager
             }
             if (RunRowDist)
             {
-                var ls = HudStyle.LabelStyle(); HudStyle.Fit(ls, "DISTANCE", labelW);
-                HudStyle.Text(new Rect(x, y, labelW, RunRowDistH), "DISTANCE", ls, HudStyle.Label);
+                string dl = TeamDistance.HudLabel; // 2026-11-25: 協力のマルチは「チーム距離」(VERSUS/ソロは DISTANCE のまま)
+                var ls = HudStyle.LabelStyle(); HudStyle.Fit(ls, dl, labelW);
+                HudStyle.Text(new Rect(x, y, labelW, RunRowDistH), dl, ls, HudStyle.Label);
                 double d = HudDistanceExact; // 疾走中(リングの3択)は疾走の距離 / 協力のマルチはチーム走行距離(2026-11-24)
                 string v = FormatDistanceExact(d);
                 float fl = DistanceFlashIntensity;

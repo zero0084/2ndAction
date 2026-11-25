@@ -69,6 +69,15 @@ public static class TeamDistance
     static float lastRecvAt = -1f, prevRecvAt = -1f;
     static double recvFrontLX; // 表が届いた時の、この端末から見た最前の人の論理X
     static bool final; // ランが終わった(HOST の値で固定。倒れた人だけになると最前の数え方が変わるので、以後は足さない)
+    static bool coopRun; // このランで協力のチーム走行距離を出した(RESULT の「チーム距離」の行を出すか)
+
+    // ===== 表記(2026-11-25 第3、マスター依頼): 協力のラン中の距離は「チーム距離」、RESULT の大きな数字は「個人距離」+ 確定したチーム距離の1行 =====
+    //  VERSUS/ソロは今まで通り(DISTANCE)。訳が無い言語は前の DISTANCE(ID 11095/11096、keys_extra47)
+    public const string LabelTeam = "チーム距離";   // ID 11095
+    public const string LabelPersonal = "個人距離"; // ID 11096
+    public static string HudLabel => Active ? Loc.Reviewed(LabelTeam, "DISTANCE") : "DISTANCE";
+    // RESULT: このランが協力なら確定したチーム走行距離(HOST = 共有値 / 参加者 = ランの終わりに HOST の値へそろえた値)。協力でなければ負
+    public static double ResultTeamDistance { get { EnsureRun(); if (Active) coopRun = true; return coopRun ? (NetCombat.Replica ? shown : System.Math.Max(shown, WorldProgress.FrontHigh)) : -1.0; } }
     public static int Received { get; private set; } // 確認用
 
     public static bool Active => MpRun.On && NetSession.IsActive && NetMatch.Active && NetMatch.Mode == MultiplayerGameMode.Coop;
@@ -77,7 +86,7 @@ public static class TeamDistance
     {
         var gm = GameManager.Instance;
         if (gm == owner) return;
-        owner = gm; shown = 0; lastRecv = prevRecv = 0; speed = 0; lastRecvAt = prevRecvAt = -1f; Received = 0; final = false;
+        owner = gm; shown = 0; lastRecv = prevRecv = 0; speed = 0; lastRecvAt = prevRecvAt = -1f; Received = 0; final = false; coopRun = false;
     }
 
     // JOIN: HOST の表から(WorldProgress.SetFromHost と同じ値)
@@ -112,6 +121,7 @@ public static class TeamDistance
         get
         {
             EnsureRun();
+            if (Active) coopRun = true;
             double target;
             if (!NetCombat.Replica) target = WorldProgress.FrontHigh; // HOST
             else if (lastRecvAt < 0f) target = 0; // まだ届いていない(出発の直後だけ)

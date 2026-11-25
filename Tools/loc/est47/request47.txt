@@ -1,0 +1,44 @@
+エステル、アイリーンです。マスターの依頼で、協力(CO-OP)の距離の表記を分けます。新しい文は2件です。29言語の訳をお願いします。
+
+【原文(ID・日本語・使用場所)】
+11095	チーム距離	(協力のラン中、画面左上の距離の見出し。全員で走った距離=チームの記録の表示。ソロ/VERSUS は今まで通り DISTANCE。幅が狭いので短く。英語 TEAM DISTANCE)
+11096	個人距離	(協力の RESULT の大きな距離の見出し。自分が走った距離。報酬・BEST・ランキングはこちら。英語 YOUR DISTANCE)
+RESULT の協力の一覧の先頭には「チーム距離   229 m」の形で 11095 も出ます。
+
+【決まり】
+・既存の DISTANCE の訳(下の表)と同じ語を使い、「チーム」「自分の/個人」を足す形に。
+・既存の訳が大文字の言語は大文字に。短く(HUD の見出しの幅は DISTANCE と同じくらい)。
+
+【既存の DISTANCE の訳】
+ar	المسافة
+bn	দূরত্ব
+cs	VZDÁLENOST
+de	DISTANZ
+en	DISTANCE
+es	DISTANCIA
+fa	مسافت
+fil	LAYO
+fr	DISTANCE
+hi	दूरी
+id	JARAK
+it	DISTANZA
+km	ចម្ងាយ
+ko	거리
+lo	ໄລຍະທາງ
+ms	JARAK
+my	အကွာအဝေး
+pl	DYSTANS
+pt-BR	DISTÂNCIA
+ro	DISTANȚĂ
+ru	ДИСТАНЦИЯ
+sw	UMBALI
+ta	தூரம்
+th	ระยะทาง
+tr	MESAFE
+uk	ДИСТАНЦІЯ
+vi	QUÃNG ĐƯỜNG
+zh-Hans	距离
+zh-Hant	距離
+
+【返してほしい形】1つのコードブロックに、タブ区切りで「言語コード<TAB>ID<TAB>訳」。29言語×2行=58行。
+原文の日本語に気になる所があれば、訳とは別に先に書いてください。
