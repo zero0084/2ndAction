@@ -30,7 +30,9 @@ public class LanRoom
 
 public class LanDiscovery : MonoBehaviour
 {
-    public const int MultiplayerProtocolVersion = 14;  // 2026-11-24: 14 = ボスを倒した時点で全員の足止めを解く・一時停止のメニューは本人だけ止まる・協力のチーム走行距離・ボス報酬の知らせに番号(旧版と混ぜると止まり方と報酬の知らせが食い違う)。 2026-11-07: 13 = 攻撃の申告に空中の印(KindAir 0x40)・参加者のキャラの崩しの倍率を HOST で掛ける(双剣士)・マップ専用カード(JOIN の血の盾/1ラン1回)。旧版は 0x40 を種類と読むので混ぜない。 2026-11-05: 12 = CO-OP の長押し復活(FRONT から HP)・脱出の報告・VERSUS の死神の乱入時間(Run 開始の通知/表の見出し/部屋の設定)と順位ボーナス(結果の行)。 2026-10-28: 11 = ボスの技ごとの1枚絵(BossPose)を JOIN へ(竜/魔人は FramesSet 10〜、天空は SpriteIdx。旧版は絵の番号を知らないので混ぜない)。 2026-10-27: 10 = 13・14人目(ルカ/ペンタトゥットゥルー星人。旧版は知らないキャラを表示できないので、版の違う端末と部屋を混ぜない)。2026-10-19: 9 = LOCAL の通信を DTLS で暗号化(LanSecurity)・部屋の案内に HOST の証明書・部屋の名前は汎用(ROOM xxxx)。2026-10-16: 8 = 協力のラッシュの完走報酬を参加者全員へ(SyncRushReward)。2026-10-15: 7 = WANTED の Lv(NetPlayer)と賞金首の印(OpWanted)・協力のボスラッシュ。6 = 撃破の知らせに WANTED の賞金
+    static readonly System.Collections.Generic.Dictionary<string, string> roomCerts = new System.Collections.Generic.Dictionary<string, string>(); // 2026-11-25: 部屋の ID → 最初に届いた証明書
+    public static int CertConflicts { get; private set; }
+    public const int MultiplayerProtocolVersion = 15;  // 2026-11-25: 15 = セキュリティ監査の受信値の検証(送り手/範囲/回数)。送る内容は 14 と同じだが、検証の無い 14 の端末と同じ部屋にしない。 // 2026-11-24: 14 = ボスを倒した時点で全員の足止めを解く・一時停止のメニューは本人だけ止まる・協力のチーム走行距離・ボス報酬の知らせに番号(旧版と混ぜると止まり方と報酬の知らせが食い違う)。 2026-11-07: 13 = 攻撃の申告に空中の印(KindAir 0x40)・参加者のキャラの崩しの倍率を HOST で掛ける(双剣士)・マップ専用カード(JOIN の血の盾/1ラン1回)。旧版は 0x40 を種類と読むので混ぜない。 2026-11-05: 12 = CO-OP の長押し復活(FRONT から HP)・脱出の報告・VERSUS の死神の乱入時間(Run 開始の通知/表の見出し/部屋の設定)と順位ボーナス(結果の行)。 2026-10-28: 11 = ボスの技ごとの1枚絵(BossPose)を JOIN へ(竜/魔人は FramesSet 10〜、天空は SpriteIdx。旧版は絵の番号を知らないので混ぜない)。 2026-10-27: 10 = 13・14人目(ルカ/ペンタトゥットゥルー星人。旧版は知らないキャラを表示できないので、版の違う端末と部屋を混ぜない)。2026-10-19: 9 = LOCAL の通信を DTLS で暗号化(LanSecurity)・部屋の案内に HOST の証明書・部屋の名前は汎用(ROOM xxxx)。2026-10-16: 8 = 協力のラッシュの完走報酬を参加者全員へ(SyncRushReward)。2026-10-15: 7 = WANTED の Lv(NetPlayer)と賞金首の印(OpWanted)・協力のボスラッシュ。6 = 撃破の知らせに WANTED の賞金
     public const int PreviousProtocolVersion = 8;   // 2026-10-12: 4 = 位置/敵の状態を詰めた形・位置の中継を送り先ごとに1件へまとめる(3: 中継を HOST が送り先ごとに行う)
     //   // 2026-10-08: 2 = コードネーム(NetPlayer.CodenameVar)を追加   // 部屋の知らせ+ゲームの同期の版(違えば一覧で VERSION MISMATCH、接続も断る)
     // 知らせに載せる版(開発ビルドだけ -lanProtocol N で変えて、版違いの表示を確かめられる)
@@ -293,6 +295,10 @@ public class LanDiscovery : MonoBehaviour
             nameAt = 10;
             if (p[9] != "-")
             {
+                // 2026-11-25 セキュリティ監査: 一度覚えた部屋(roomId)の証明書が、別の証明書に変わった案内は使わない(同じ Wi-Fi での偽の案内による
+                //  すり替え。HOST が起動し直すと部屋の ID も新しくなるので、正しい部屋はこれで困らない)
+                if (roomCerts.TryGetValue(id, out var pinned) && pinned != p[9]) { CertConflicts++; if (CertConflicts <= 3) Debug.LogWarning($"[LAN] room {id}: a different certificate was announced - ignored"); return; }
+                if (!roomCerts.ContainsKey(id) && roomCerts.Count < 256) roomCerts[id] = p[9];
                 LanSecurity.RememberHostCert(ip, p[9]);
                 // 同じ端末の HOST へ IP(127.0.0.1)で参加する時: 返事は端末の LAN の IP から届くので、尋ねた宛先の証明書としても覚える
                 if (fetchUntil > 0f && !string.IsNullOrEmpty(fetchIp) && fetchIp != ip && IPAddress.TryParse(fetchIp, out var fa) && IPAddress.IsLoopback(fa))
@@ -300,8 +306,10 @@ public class LanDiscovery : MonoBehaviour
             }
         }
         string name = string.Join("|", p, nameAt, p.Length - nameAt);
+        if (name.Length > 64) name = name.Substring(0, 64); // 2026-11-25: 部屋の名前の長さ
         var r = Rooms.Find(x => x.roomId == id);
         bool isNew = r == null;
+        if (isNew && Rooms.Count >= 64) return; // 2026-11-25: 一覧の数の上限(大量の偽の案内)
         if (isNew) { r = new LanRoom { roomId = id }; Rooms.Add(r); }
         bool changed = !isNew && (r.players != players || r.inProgress != (p[6] == "1") || (int)r.mode != mode || r.roomName != name);
         r.protocol = ver; r.mode = (MultiplayerGameMode)Mathf.Clamp(mode, 0, 1); r.players = players; r.maxPlayers = Mathf.Max(1, max);
