@@ -80,6 +80,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaRewardQueue") { mode = "rewardqueue"; dir = a[i + 1]; } // 2026-10-21 後回しのボス報酬の選択が倒した数だけ出るか
             if (a[i] == "-qaKneelShots") { mode = "kneelshots"; dir = a[i + 1]; } // 2026-10-21 大型ボスの膝つきの見た目
             if (a[i] == "-qaPrivacy") { mode = "privacy"; dir = a[i + 1]; } // 2026-10-19 データとプライバシー(削除/ポリシー)
+            if (a[i] == "-qaAcProbe") { mode = "acprobe"; dir = a[i + 1]; } // 2026-11-25 セキュリティ監査: 直接の書き込み/偽の送信の拒否(development)
             if (a[i] == "-qaRankRoute") { mode = "rankroute"; dir = a[i + 1]; } // 2026-10-27 ランキングの実際の経路(脱出 → RESULT → ホーム → 画面)
             if (a[i] == "-qaClearUnlock") { mode = "clearunlock"; dir = a[i + 1]; } // 2026-10-27 クリア後のご褒美の2人の解放
             if (a[i] == "-qaBossAssist") { mode = "bossassist"; dir = a[i + 1]; }
@@ -329,6 +330,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "bossairvideo") yield return BossAirVideoMode();
         else if (mode == "privacy") yield return PrivacyMode();
         else if (mode == "rankroute") yield return RankRouteMode();
+        else if (mode == "acprobe") yield return AcProbeMode();
         else if (mode == "clearunlock") yield return ClearUnlockMode();
         else if (mode == "bossassist") yield return BossAssistMode();
         else if (mode == "finalevo") yield return FinalEvoMode();

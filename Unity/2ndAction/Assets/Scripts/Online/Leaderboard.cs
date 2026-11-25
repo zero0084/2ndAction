@@ -47,6 +47,8 @@ public static class Leaderboard
         public int partySize = 1;     // 常に 1(ソロ)。前の版の端末に残ったサポートの記録を見分けるために読む(2〜4 = サポート)
         public string allies = "";    // 前の版のサポートの記録の仲間(読むだけ。送らない)
         public string env = "";       // 2026-10-14: 作った時の UGS の環境(空 = 分ける前の版の物。送らない)
+        public string ticket = "";    // 2026-11-25: ラン開始の受付(サーバーが発行)。無い記録は送らない
+        public bool continuation;     // 2026-11-25: ラスダンの続き(同じ受付を前より長い距離で)
     }
     [Serializable] class EntryList { public List<Entry> items = new List<Entry>(); }
 
@@ -81,6 +83,7 @@ public static class Leaderboard
         appVersion = Application.version,
         partySize = 1, allies = "",
         env = UgsEnvironment.Name,
+        ticket = r.ticket ?? "", continuation = r.continuation,
     };
 
     // RunLedger.CommitSuccess から(資格のある成功だけ)
@@ -150,6 +153,8 @@ public static class Leaderboard
     static void Enqueue(Entry e)
     {
         if (IsSent(e.runId) || WasSupport(e) || !Sendable(e)) return;
+        // 2026-11-25: ラン開始の受付が無い(オフラインで始めた/参加の前/古い版)記録は送らない。ローカルの記録・報酬はそのまま
+        if (string.IsNullOrEmpty(e.ticket)) { Log($"not queued {e.stageId} {e.meters}m: no run ticket from the server (started offline or before joining)"); RankingDiag.Note("QUEUE", $"{e.stageId} {e.meters}m not sent: no run ticket"); return; }
         var q = Load(PendingKey);
         if (q.items.Exists(x => x.runId == e.runId)) return;
         // 同じマップの、より短い投稿待ちは要らない(サーバーは自己ベストより短い物を書かない)

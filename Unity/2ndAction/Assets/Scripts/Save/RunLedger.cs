@@ -42,6 +42,9 @@ public static class RunLedger
         public int speedSettingMax = 100;
         // 2026-11-07 プロフィール: 常設チャレンジのラン内の数え(被弾/オート/初期デッキ/BREAK)。この仕組みより前の中断データは v = 0(分からない物は達成させない)
         public ChallengeRunStats ch = new ChallengeRunStats();
+        // 2026-11-25 セキュリティ監査 B 案: ランキングのラン開始の受付(サーバーが発行。RankingTicket)。中断データにも入る = CONTINUE でも同じ
+        public string ticket = "";
+        public bool continuation; // ラスダンの ONE MORE MILE? の続き(同じ受付を、前より長い距離で使う)
     }
 
     public static Run Current { get; private set; }
@@ -64,6 +67,7 @@ public static class RunLedger
             ch = ChallengeRunStats.Fresh(), // 2026-11-07 プロフィール
         };
         Debug.Log($"[RunLedger] begin {Current.runId.Substring(0, 8)} stage={stageId} char={characterId}{(multiplayer ? " multi" : "")} speed {Current.speedSettingPercent}%");
+        RankingTicket.Tick(); // 2026-11-25: ランキングに参加していれば、ラン開始の受付をサーバーへ(オフラインでもランは止めない)
     }
 
     // CONTINUE: 中断データの台帳をそのまま使う(無い = この仕組みより前の中断データ)
@@ -104,6 +108,7 @@ public static class RunLedger
             partySize = prev.partySize, supportIds = prev.supportIds, officialParty = prev.officialParty, // CPU サポート
             speedSettingPercent = prev.speedSettingPercent, speedSettingMax = prev.speedSettingMax, // 最高速度の設定(2026-10-24)
             ch = prev.ch, // 2026-11-07 プロフィール: 常設チャレンジのラン内の数えは同じランの続き
+            ticket = prev.ticket, continuation = true, // 2026-11-25: 同じラン = 同じ受付
         };
         Debug.Log($"[RunLedger] continuation {Current.runId.Substring(0, 8)} of {(prev.runId.Length >= 8 ? prev.runId.Substring(0, 8) : prev.runId)} from {reached:F0}m");
     }
@@ -126,7 +131,7 @@ public static class RunLedger
         r.debugUsed = true;
         if (!r.debugWhat.Contains(what)) r.debugWhat = string.IsNullOrEmpty(r.debugWhat) ? what : r.debugWhat + "," + what;
     }
-    public static void Tick(float dt) { var r = Current; if (r != null && dt > 0f && dt < 1f) r.playSeconds += dt; }
+    public static void Tick(float dt) { var r = Current; if (r != null && dt > 0f && dt < 1f) r.playSeconds += dt; if (r != null && string.IsNullOrEmpty(r.ticket)) RankingTicket.Tick(); }
 
     // ---------------------------------------------------------------- 確定(成功)
     public class CommitResult

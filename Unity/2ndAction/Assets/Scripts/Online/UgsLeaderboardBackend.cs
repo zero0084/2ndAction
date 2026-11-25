@@ -57,9 +57,30 @@ public class UgsLeaderboardBackend : Leaderboard.IBackend
                 { "partySize", partySize }, // ソロの宣言(サーバーは 1 以外 / 無い物を拒否する)。端末はいつも 1(試験だけ別の値でサーバーの拒否を確かめる)
                 { "allies", allies },
                 { "buildKind", UgsEnvironment.BuildKind }, { "env", e.env }, // 2026-10-14: production のスクリプトは release 以外を拒否する
+                { "ticket", e.ticket ?? "" }, { "continuation", e.continuation }, // 2026-11-25: ラン開始の受付
             }
         },
     };
+
+    // 2026-11-25 セキュリティ監査 B 案: ラン開始の受付をもらう(失敗/オフラインは null = そのランはランキングに載らないだけ)
+    [Serializable] class StartReply { public string status = "", message = "", ticket = ""; }
+    public async Task<string> StartRun(RunLedger.Run r)
+    {
+        if (!await OnlineServices.EnsureReadyAsync()) return null;
+        try
+        {
+            var args = new Dictionary<string, object> { { "run", new Dictionary<string, object> {
+                { "stageId", r.stageId }, { "characterId", r.characterId }, { "speedPercent", r.speedSettingPercent },
+                { "appVersion", Application.version }, { "buildKind", UgsEnvironment.BuildKind }, { "env", UgsEnvironment.Name } } } };
+            string json = await CloudCodeService.Instance.CallEndpointAsync(RankingTicket.StartScript, args);
+            var reply = JsonUtility.FromJson<StartReply>(json ?? "{}") ?? new StartReply();
+            if (reply.status == "ok" && System.Text.RegularExpressions.Regex.IsMatch(reply.ticket ?? "", "^[0-9a-f]{32}$")) return reply.ticket;
+            Debug.Log($"[Ranking] run ticket not issued: {reply.status} {reply.message}");
+            return null;
+        }
+        catch (CloudCodeException ex) { Debug.Log("[Ranking] run ticket: cloud code " + ex.Reason); return null; }
+        catch (Exception ex) { Debug.Log("[Ranking] run ticket: " + ex.GetType().Name); return null; }
+    }
 
     public async Task<Leaderboard.Page> Load(string stageId, int limit)
     {

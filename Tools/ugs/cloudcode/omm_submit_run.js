@@ -14,6 +14,9 @@
  *  - Access Control: プレイヤーが Leaderboards へ直接書くのを禁止(Tools/ugs/access/omm_leaderboards.ac)
  *  - Cloud Save: 送信済みの runId を自分のプレイヤーデータ "omm_runs" に保存する
  * 2026-10-20: development に配置して本物で確認(Docs/UgsDevelopment_2026-10-20)。
+ * 2026-11-25(セキュリティ監査 B 案): ラン開始の受付(omm_start_run が Protected の Cloud Save "omm_tickets" に控えた ticket)が必須。
+ *   受付があること・未使用・マップ/キャラが同じ・サーバーが測った経過時間で走れる距離(受付の前に走った分の余裕つき)を確かめ、
+ *   結果が決まったら受付を消す(同じ受付で二度載せない)。受付の無い記録(オフラインで始めた/古い版)は "no ticket" で拒否
  */
 const { LeaderboardsApi } = require("@unity-services/leaderboards-1.1");
 const { DataApi } = require("@unity-services/cloud-save-1.4");
@@ -24,6 +27,9 @@ const MAX_METERS = 2000000;
 const MAX_SPEED_MPS = 160 / 3.6;
 const SPEED_SLACK = 1.2, DISTANCE_SLACK = 300;
 const RECENT_RUNS = 200;
+const TICKET_KEY = "omm_tickets", TICKET_DAYS = 30;
+const SERVER_SPEED_MPS = 160 / 3.6;   // サーバーが測った経過時間に対する平均の速さの上限(自然の上限 100km/h・設定 120%・補助より上)
+const PRE_TICKET_METERS = 1000;       // 受付が取れる前(ラン開始の直後の通信待ち)に走ってよい距離
 const NAME_MAX = 16;
 
 function sanitizeName(raw) {
@@ -63,6 +69,22 @@ function validate(p, serverBest, recentRuns, nowUtc) {
   if (committed - started + 120 < play) return "play time longer than the wall clock";
   if (recentRuns.includes(p.runId)) return "duplicate";
   return "";
+}
+
+// 受付(ticket)の検査。tickets = Protected に控えた一覧。返す: [エラー, 使った受付]
+function checkTicket(p, tickets, nowUtc) {
+  if (!/^[0-9a-f]{32}$/.test(p.ticket || "")) return ["no ticket", null];
+  const t = tickets.find(x => x && x.id === p.ticket);
+  if (!t || t.d) return ["unknown or used ticket", null];
+  if (nowUtc - Number(t.t) > TICKET_DAYS * 86400) return ["ticket expired", t];
+  if (t.st !== p.stageId || t.ch !== p.characterId) return ["ticket for another map or character", t];
+  // 使った受付は、ラスダンの続き(continuation)が前より長い距離で使う時だけ(合わせて3回まで)
+  if (Number(t.u || 0) > 0 && (p.continuation !== true || Number(p.meters) <= Number(t.m || 0) || Number(t.u) >= 3)) return ["unknown or used ticket", null];
+  const elapsed = Math.max(0, nowUtc - Number(t.t));
+  const ran = Number(p.meters) - Number(p.sprintFrom);
+  if (ran > SERVER_SPEED_MPS * elapsed + DISTANCE_SLACK + PRE_TICKET_METERS) return ["too fast for the server time", t];
+  if (Number(p.playSeconds) > elapsed + 600) return ["play time longer than the server time", t];
+  return ["", t];
 }
 
 module.exports = async ({ params: args, context, logger }) => {
@@ -110,7 +132,25 @@ module.exports = async ({ params: args, context, logger }) => {
   const now = Math.floor(Date.now() / 1000);
   const err = validate(params, best, runs, now);
   if (err === "duplicate") return { status: "duplicate", message: err };
-  if (err) { logger.info(`rejected ${playerId} ${params.stageId} ${params.meters}: ${err}`); return { status: "rejected", message: err }; }
+  if (err) { logger.info(`rejected ${playerId.substring(0, 6)} ${params.stageId} ${params.meters}: ${err}`); return { status: "rejected", message: err }; }
+
+  // 2026-11-25: ラン開始の受付(サーバーの時刻)
+  let tickets = [];
+  try {
+    const g = await cs.getProtectedItems(projectId, playerId, [TICKET_KEY]);
+    const item = (g.data.results || []).find(x => x.key === TICKET_KEY);
+    if (item && Array.isArray(item.value)) tickets = item.value;
+  } catch (e) {
+    const st = e && e.response ? e.response.status : 0;
+    if (st !== 404) { logger.info(`ticket read failed (${st})`); return { status: "error", message: "temporary" }; }
+  }
+  const [terr, used] = checkTicket(params, tickets, now);
+  if (terr) {
+    // 拒否した受付は消さずに無効の印(消すと omm_start_run の1分の回数の数えから外れてしまう)
+    if (used && !used.d) { used.d = 1; await cs.setProtectedItem(projectId, playerId, { key: TICKET_KEY, value: tickets }); }
+    logger.info(`rejected ${playerId.substring(0, 6)} ${params.stageId} ${params.meters}: ${terr}`);
+    return { status: "rejected", message: terr };
+  }
 
   // 2026-11-25 セキュリティ監査: 記録の書き込みを先に、送信済み runId の記録は後に(書き込みに失敗した時、送り直しが duplicate で捨てられていた)
   const better = params.meters > best;
@@ -121,14 +161,18 @@ module.exports = async ({ params: args, context, logger }) => {
   runs.push(params.runId);
   if (runs.length > RECENT_RUNS) runs = runs.slice(runs.length - RECENT_RUNS);
   await cs.setItem(projectId, playerId, { key: "omm_runs", value: runs });
+  // 使った受付には印(回数と距離)を付ける。二度目は、ラスダンの続きが前より長い距離の時だけ通る(checkTicket)
+  used.u = Number(used.u || 0) + 1; used.m = Number(params.meters);
+  await cs.setProtectedItem(projectId, playerId, { key: TICKET_KEY, value: tickets });
 
   if (!better) return { status: "not_better", message: `best ${best}m` };
-  logger.info(`accepted ${playerId} ${params.stageId} ${params.meters}m (was ${best})`);
+  logger.info(`accepted ${playerId.substring(0, 6)} ${params.stageId} ${params.meters}m (was ${best})`);
   return { status: "accepted", message: "" };
 };
 
 module.exports.params = {
   // run: { runId, stageId, characterId, meters, playSeconds, sprintFrom, usedAuto, usedSprint, startedUtc, committedUtc,
-  //        appVersion, name, partySize(ソロの宣言。1 だけ受け付ける), allies, buildKind, env(環境の分離。production では release + production 以外を拒否) }
+  //        appVersion, name, partySize(ソロの宣言。1 だけ受け付ける), allies, buildKind, env(環境の分離。production では release + production 以外を拒否),
+  //        ticket(2026-11-25: omm_start_run が発行したラン開始の受付) }
   run: { type: "JSON", required: true },
 };
