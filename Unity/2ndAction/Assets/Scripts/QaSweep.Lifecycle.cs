@@ -4,7 +4,7 @@ using UnityEngine;
 
 // Android の画面の出入りの試験(2026-11-25、Unity 6000.6.10f1 の UUM-159613 対策の確認)。操作は外から adb で行い(Tools/security/lifecycle_emulator.sh)、
 // ここは状態を書き出すだけ(ゲームの動きは変えない)。
-//  -qaLifecycle <dir> [-lcRun 1|0] [-lcContinue 1] [-lcSeconds 300] [-lcMulti 1] [-lcLeaveAt <秒>] [-lcBg 1]
+//  -qaLifecycle <dir> [-lcRun 1|0] [-lcContinue 1] [-lcSeconds 300] [-lcMulti 1] [-lcLeaveAt <秒>] [-lcBg 1] [-lcJoinFail 1]
 //   -lcLeaveAt: その秒で部屋を出る(Run In Background が元に戻るか) / -lcBg 1: Run In Background を有効のまま始める(不具合の再現用)
 //   -lcRun 1: ランを始めて走り続ける(無敵・補助) / 0: ホームのまま
 //   -lcContinue 1: ホームで中断中のランがあれば CONTINUE する(強制終了の後の起動で使う)
@@ -34,6 +34,15 @@ public partial class QaSweep
         {
             typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
             if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(true);
+        }
+        // -lcJoinFail 1: 誰もいない宛先へ JOIN して失敗させる(接続の失敗の後に Run In Background が元に戻るか)
+        if (Arg("-lcJoinFail", "0") == "1" && NetSession.Instance != null)
+        {
+            bool s = NetSession.Instance.StartClient("127.0.0.1", 7790);
+            L($"[lc] join to nobody: started={s} runInBackground={Application.runInBackground}");
+            float wj = 0f; while (NetSession.JoinPending && wj < 40f) { yield return null; wj += Time.unscaledDeltaTime; }
+            yield return new WaitForSecondsRealtime(1f);
+            L($"[lc] join failed after {wj:F0}s: '{NetSession.LastJoinFailure}' runInBackground={Application.runInBackground}");
         }
         if (Arg("-lcMulti", "0") == "1") { bool t = NetSession.Instance != null && NetSession.Instance.StartHost(NetSession.DefaultPort); L($"[lc] local room: {t} runInBackground={Application.runInBackground}"); }
         float t0 = Time.realtimeSinceStartup, next = 0f;

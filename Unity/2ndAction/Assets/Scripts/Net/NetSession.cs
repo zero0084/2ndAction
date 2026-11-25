@@ -114,7 +114,13 @@ public class NetSession : MonoBehaviour
         var go = new GameObject("[NetworkManager]");
         DontDestroyOnLoad(go);
         transport = go.AddComponent<UnityTransport>();
+        // 2026-11-26: NetworkManager は有効になった瞬間に Application.runInBackground = true にする(NGO の RunInBackground の初期値)。
+        //  そのままだと、通信の前の値を覚える時点で既に有効になっていて、通信が終わっても有効のまま残る(KeepRunningInBackground/RestoreRunInBackground が効かない)。
+        //  作る前の値へ戻し、以後は通信の間だけ NetSession が有効にする
+        bool appRunInBackground = Application.runInBackground;
         var nm = go.AddComponent<NetworkManager>();
+        nm.RunInBackground = false;
+        Application.runInBackground = appRunInBackground;
         nm.NetworkConfig = new NetworkConfig
         {
             NetworkTransport = transport,

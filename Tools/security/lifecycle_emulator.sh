@@ -4,8 +4,7 @@
 ADB="${ADB:-/c/Program Files/Unity/Hub/Editor/6000.5.6f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/platform-tools/adb.exe}"
 P=com.zero0084.action2nd; A=$P/com.unity3d.player.UnityPlayerGameActivity
 OUT=${1:-lc_out}; APK=$2; mkdir -p "$OUT"
-"$ADB" wait-for-device; until [ "$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '
-')" = "1" ]; do sleep 3; done
+"$ADB" wait-for-device; until [ "$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '')" = "1" ]; do sleep 3; done
 [ -n "$APK" ] && "$ADB" install -r "$APK" | tail -1
 "$ADB" shell svc power stayon true; "$ADB" shell settings put system accelerometer_rotation 0
 launch() { "$ADB" shell am force-stop $P; "$ADB" logcat -c; "$ADB" shell "am start -n $A -e unity '-force-gles30 -qaLifecycle /sdcard/Android/data/$P/files/lc $1'" >/dev/null
@@ -49,6 +48,13 @@ front; step "back to the game" 5 l3_02_front
 "$ADB" shell input keyevent KEYCODE_BACK; sleep 2
 for i in $(seq 1 30); do "$ADB" logcat -d -s Unity | grep -aq "\[lc\] left the room" && break; sleep 2; done
 "$ADB" logcat -d -s Unity | grep -a "\[lc\] left the room\|run in background restored" | sed 's/^.*Unity *: /    /' | tr -d '\r'; step "after leaving the room (bg must be False)" 3 l3_05_left
+errs
+fi
+if [[ " ${CASES:-L1 L2 L3} L4 " == *" L4 "* ]]; then
+echo "== L4 誰もいない部屋へ JOIN → 接続の失敗 → Run In Background が元(False)に戻る"
+launch "-lcRun 0 -lcJoinFail 1 -lcSeconds 80" 5
+for i in $(seq 1 30); do "$ADB" logcat -d -s Unity | grep -aq "\[lc\] join failed" && break; sleep 2; done
+"$ADB" logcat -d -s Unity | grep -a "\[lc\] join\|run in background restored" | sed 's/^.*Unity *: /    /' | tr -d '\r'
 errs
 fi
 "$ADB" shell am force-stop $P
