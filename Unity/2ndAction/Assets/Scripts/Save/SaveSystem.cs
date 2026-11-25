@@ -279,6 +279,7 @@ public static class SaveSystem
 
         // 数値
         if (SaveStore.GetInt("TotalOwnedMile", 0) < 0) { SaveStore.SetInt("TotalOwnedMile", 0); repairs.Add("MILE<0 -> 0"); }
+        if (SaveStore.GetInt("TotalOwnedMile", 0) > 2000000000) { SaveStore.SetInt("TotalOwnedMile", 2000000000); repairs.Add("MILE>2e9 -> 2e9"); } // 2026-11-25 セキュリティ監査: 加算で int があふれない上限(SaveTransfer と同じ)
         foreach (string k in new[] { "BestDistance", "BestTime", "BestDistance_legacyBackup" })
         {
             if (!SaveStore.HasKey(k)) continue;
