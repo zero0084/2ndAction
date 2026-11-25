@@ -68,7 +68,8 @@ function validate(p, serverBest, recentRuns, nowUtc) {
   const started = Number(p.startedUtc), committed = Number(p.committedUtc);
   // 2026-11-25 第4回: 端末の時計のずれで正当な記録を拒否しない(時間の検査の本体は受付のサーバーの時刻。ここは明らかに壊れた値だけ)
   if (committed > nowUtc + DEVICE_CLOCK_SLACK) return "time in the future";
-  if (!(started > 0) || started > committed) return "bad start time";
+  if (!(started > 0) || started > committed + DEVICE_CLOCK_SLACK) return "bad start time"; // ラン中に端末の時計が戻された(進んでいたのを直した)時も拒否しない
+  // ここまでの端末の時刻は「明らかに壊れた値」を落とすだけ。走れる距離・受付の期限・使い回し・同時送信の検査はサーバーの時刻(checkTicket)だけを使う
   if (committed - started + DEVICE_CLOCK_SLACK < play) return "play time longer than the wall clock";
   if (recentRuns.includes(p.runId)) return "duplicate";
   return "";

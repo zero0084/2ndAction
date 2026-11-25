@@ -135,6 +135,48 @@ function runParams(o) {
   clock += 400 * 1000;
   r = await submit({ params: { run: runParams({ ticket: s.ticket, meters: 4000, startedUtc: Math.floor(clock / 1000) + 3600 - 400, committedUtc: Math.floor(clock / 1000) + 3600 }) }, context: ctx(env), logger });
   check(r.status === "accepted" || r.status === "not_better", `a device clock 1 hour fast does not reject a fair run (${r.status} ${r.message})`);
+  // 18. 端末の時計が 1 日遅れていても正当な記録は通る
+  clock += 120 * 1000;
+  s = await start({ params: { run: { stageId: "natural_cave", characterId: "ninja", speedPercent: 100, appVersion: "1.0", buildKind: "release", env } }, context: ctx(env), logger });
+  clock += 400 * 1000;
+  r = await submit({ params: { run: runParams({ stageId: "natural_cave", characterId: "ninja", ticket: s.ticket, meters: 4000, startedUtc: Math.floor(clock / 1000) - 86400 - 400, committedUtc: Math.floor(clock / 1000) - 86400 }) }, context: ctx(env), logger });
+  check(r.status === "accepted" || r.status === "not_better", `a device clock 1 day slow does not reject a fair run (${r.status} ${r.message})`);
+  // 19. ラン中に端末の時計が 1 時間戻された(開始 > 確定)でも通る
+  clock += 120 * 1000;
+  s = await start({ params: { run: { stageId: "sky_corridor", characterId: "archer", speedPercent: 100, appVersion: "1.0", buildKind: "release", env } }, context: ctx(env), logger });
+  clock += 400 * 1000;
+  r = await submit({ params: { run: runParams({ stageId: "sky_corridor", characterId: "archer", ticket: s.ticket, meters: 4000, startedUtc: Math.floor(clock / 1000) + 3600, committedUtc: Math.floor(clock / 1000) }) }, context: ctx(env), logger });
+  check(r.status === "accepted" || r.status === "not_better", `a clock set back during the run does not reject a fair run (${r.status} ${r.message})`);
+  // 20. 端末の時刻で長いラン(2 日前に開始)を装っても、サーバーの時刻で走れない距離は拒否(許容で上限が緩くならない)
+  clock += 120 * 1000;
+  s = await start({ params: { run: { stageId: "wasteland_road", characterId: "swordsman", speedPercent: 100, appVersion: "1.0", buildKind: "release", env } }, context: ctx(env), logger });
+  clock += 600 * 1000;
+  r = await submit({ params: { run: runParams({ ticket: s.ticket, meters: 200000, playSeconds: 170000, startedUtc: Math.floor(clock / 1000) - 2 * 86400, committedUtc: Math.floor(clock / 1000) + 86400 }) }, context: ctx(env), logger });
+  check(r.status === "rejected" && /server time/.test(r.message), `device times claiming a 2-day run cannot raise the distance limit (${r.status} ${r.message})`);
+  // 21. 上限ちょうどの確認: サーバーの 600 秒で 360km/h + 余裕 を 1m 超える距離は拒否・内側は受け付け(端末の時刻は大きくずらす)
+  clock += 120 * 1000;
+  s = await start({ params: { run: { stageId: "last_corridor", characterId: "mage", speedPercent: 100, appVersion: "1.0", buildKind: "release", env } }, context: ctx(env), logger });
+  clock += 600 * 1000;
+  const cap = Math.floor(360 / 3.6 * 600 + 300 + 1000);
+  r = await submit({ params: { run: runParams({ stageId: "last_corridor", characterId: "mage", ticket: s.ticket, meters: cap + 1, playSeconds: 620, startedUtc: Math.floor(clock / 1000) - 86400, committedUtc: Math.floor(clock / 1000) + 86000 }) }, context: ctx(env), logger });
+  check(r.status === "rejected" && /server time/.test(r.message), `1m over the server-time limit is rejected even with shifted device times (${r.status} ${r.message})`);
+  // 22. 端末の時刻をずらしても、拒否した受付は使えない(同じマップ/キャラ)
+  r = await submit({ params: { run: runParams({ stageId: "last_corridor", characterId: "mage", ticket: s.ticket, meters: 3000, startedUtc: Math.floor(clock / 1000) - 3 * 86400 }) }, context: ctx(env), logger });
+  check(r.status === "rejected" && /used/.test(r.message), `shifted device times do not revive a rejected ticket (${r.status} ${r.message})`);
+  // 23. 上限の内側(1m 手前)は、端末の時刻をずらしていても受け付け
+  clock += 120 * 1000;
+  s = await start({ params: { run: { stageId: "last_corridor", characterId: "mage", speedPercent: 100, appVersion: "1.0", buildKind: "release", env } }, context: ctx(env), logger });
+  clock += 600 * 1000;
+  r = await submit({ params: { run: runParams({ stageId: "last_corridor", characterId: "mage", ticket: s.ticket, meters: cap - 1, playSeconds: 620, startedUtc: Math.floor(clock / 1000) - 86400, committedUtc: Math.floor(clock / 1000) - 86000 }) }, context: ctx(env), logger });
+  check(r.status === "accepted", `1m inside the server-time limit is accepted (${r.status} ${r.message})`);
+  // 24. 同じ受付を、端末の時刻だけ変えて同時に 2 回 → 1 つだけ
+  clock += 120 * 1000;
+  s = await start({ params: { run: { stageId: "natural_cave", characterId: "fighter", speedPercent: 100, appVersion: "1.0", buildKind: "release", env } }, context: ctx(env), logger });
+  clock += 400 * 1000;
+  const two = await Promise.all([
+    submit({ params: { run: runParams({ stageId: "natural_cave", characterId: "fighter", ticket: s.ticket, meters: 30000, playSeconds: 380, startedUtc: Math.floor(clock / 1000) + 86000, committedUtc: Math.floor(clock / 1000) + 86400 }) }, context: ctx(env), logger }),
+    submit({ params: { run: runParams({ stageId: "natural_cave", characterId: "fighter", ticket: s.ticket, meters: 30001, playSeconds: 380, startedUtc: Math.floor(clock / 1000) - 86400, committedUtc: Math.floor(clock / 1000) - 86000 }) }, context: ctx(env), logger })]);
+  check(two.filter(x => x.status === "accepted" || x.status === "not_better").length === 1, `simultaneous submits with shifted device times: only one goes through (${two.map(x => x.status + " " + x.message).join(" / ")})`);
   // 11. 受付は Protected(プレイヤーが書けない場所)にある
   check(Array.isArray(store.protected.omm_tickets) && !("omm_tickets" in store.default), "tickets are kept in Protected Cloud Save only");
   Date.now = realNow;

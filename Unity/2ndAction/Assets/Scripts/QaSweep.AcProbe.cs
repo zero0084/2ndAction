@@ -83,9 +83,24 @@ public partial class QaSweep
         Check(through == 1, $"two simultaneous submits with the same ticket: only one goes through ({through})");
         var c3 = Call("omm_submit_run", Legit(tk2, 320)); while (!c3.IsCompleted) yield return null;
         Check(c3.Result.Contains("rejected"), $"... and the ticket cannot be used again ({Flat(c3.Result)})");
-        // ④ 開始の連打(上の2回 + 5回 = 7回目で拒否)
+        // ③'' 端末の時計のずれ(進んでいる / 遅れている)で正当な記録を拒否しない(2026-11-25 第4回)
+        foreach (var (label, shift, stage, chr) in new[] { ("fast +1h", 3600L, "natural_cave", "archer"), ("slow -1day", -86400L, "wasteland_road", "fighter") })
+        {
+            var tq = Call("omm_start_run", new Dictionary<string, object> { { "run", new Dictionary<string, object> { { "stageId", stage }, { "characterId", chr }, { "speedPercent", 100 }, { "appVersion", Application.version }, { "buildKind", UgsEnvironment.BuildKind }, { "env", UgsEnvironment.Name } } } });
+            while (!tq.IsCompleted) yield return null;
+            string tkq = Extract(tq.Result, "ticket");
+            yield return new WaitForSecondsRealtime(3f);
+            var d = Run(tkq, 200, 2f); var run = (Dictionary<string, object>)d["run"];
+            run["stageId"] = stage; run["characterId"] = chr;
+            long nowS = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds() + shift;
+            run["startedUtc"] = nowS - 40; run["committedUtc"] = nowS;
+            var tr = Call("omm_submit_run", d); while (!tr.IsCompleted) yield return null;
+            L($"[ac] device clock {label} -> {Flat(tr.Result)}");
+            Check(tr.Result.Contains("accepted") || tr.Result.Contains("not_better"), $"a fair run with the device clock {label} is accepted ({Flat(tr.Result)})");
+        }
+        // ④ 開始の連打(上の4回 + 3回 = 7回目で拒否)
         string last = "";
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 3; i++)
         {
             var tt = Call("omm_start_run", new Dictionary<string, object> { { "run", new Dictionary<string, object> { { "stageId", "natural_cave" }, { "characterId", "ninja" }, { "speedPercent", 100 }, { "appVersion", Application.version }, { "buildKind", UgsEnvironment.BuildKind }, { "env", UgsEnvironment.Name } } } });
             while (!tt.IsCompleted) yield return null;

@@ -338,7 +338,7 @@ public static class LeaderboardRules
         float ran = e.meters - e.sprintFrom;
         if (ran > MaxSpeedMps * SpeedSlack * e.playSeconds + DistanceSlack) return "too fast";
         if (e.committedUtc > nowUtc + DeviceClockSlack) return "time in the future";
-        if (e.startedUtc <= 0 || e.startedUtc > e.committedUtc) return "bad start time";
+        if (e.startedUtc <= 0 || e.startedUtc > e.committedUtc + DeviceClockSlack) return "bad start time";
         if (e.committedUtc - e.startedUtc + DeviceClockSlack < e.playSeconds) return "play time longer than the wall clock";
         if (recentRunIds != null && recentRunIds.Contains(e.runId)) return "duplicate";
         return "";
