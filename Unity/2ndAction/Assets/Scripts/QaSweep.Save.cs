@@ -184,6 +184,9 @@ public partial class QaSweep
             r = QaBoot();
             Check(!PlayerPrefs.HasKey("OwnedCardsV1"), $"corrupt without a backup: only that item goes back to default, the game still starts ({string.Join(" / ", r.repairs)})");
             Check(PlayerPrefs.GetInt("TotalOwnedMile", -1) >= 0 && PlayerPrefs.GetString("DeckCardIds", "") == "attack_up,attack_up", "corrupt without a backup: other items untouched");
+            // 2026-11-25 セキュリティ監査: 上限を超えた MILE(改ざん/あふれ)は 2e9 へ
+            PlayerPrefs.SetInt("TotalOwnedMile", int.MaxValue); r = QaBoot();
+            Check(PlayerPrefs.GetInt("TotalOwnedMile", -1) == 2000000000, $"corrupt: MILE above 2e9 clamped ({PlayerPrefs.GetInt("TotalOwnedMile", -1)})");
 
             // ---- I: 実際のラン(2026-10-08 仕様変更): 累計距離はラン中/一時停止/死亡/途中帰還では書かず、正規の帰還(成功)で確定する。遭遇は出現の時点で保存
             ClearRegistered(); QaBoot();

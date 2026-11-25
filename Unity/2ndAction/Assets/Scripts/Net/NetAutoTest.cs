@@ -492,6 +492,7 @@ public partial class NetAutoTest : MonoBehaviour
         ScanEnemySprites();
         GameManager gm = GameManager.Instance;
         StaggerPreTick(gm); // 2026-11-07 -netAutoChar
+        AbuseTick(); // 2026-11-25 セキュリティ監査 -netAutoAbuseAt
         TeamRunTick(gm); // 2026-11-24 -netAutoTeamLog / -netAutoHoldChoiceSec / -netAutoPauseAt
         switch (step)
         {
