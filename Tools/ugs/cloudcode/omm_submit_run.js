@@ -93,7 +93,11 @@ module.exports = async ({ params: args, context, logger }) => {
   try {
     const r = await lb.getLeaderboardPlayerScore(projectId, board, playerId);
     best = Math.floor(r.data.score || 0);
-  } catch (e) { /* 404 = まだ記録なし */ }
+  } catch (e) {
+    // 2026-11-25 セキュリティ監査: 404(まだ記録なし)以外の失敗で 0 とみなすと、低い記録で上書きされ得た → 一時的な失敗として返す(端末が後で送り直す)
+    const st = e && e.response ? e.response.status : 0;
+    if (st !== 404) { logger.info(`best lookup failed (${st}) for ${playerId}`); return { status: "error", message: "temporary" }; }
+  }
 
   // 送信済みの runId
   let runs = [];
@@ -108,14 +112,17 @@ module.exports = async ({ params: args, context, logger }) => {
   if (err === "duplicate") return { status: "duplicate", message: err };
   if (err) { logger.info(`rejected ${playerId} ${params.stageId} ${params.meters}: ${err}`); return { status: "rejected", message: err }; }
 
+  // 2026-11-25 セキュリティ監査: 記録の書き込みを先に、送信済み runId の記録は後に(書き込みに失敗した時、送り直しが duplicate で捨てられていた)
+  const better = params.meters > best;
+  if (better) {
+    const metadata = { n: sanitizeName(params.name), c: params.characterId, a: params.usedAuto ? 1 : 0, s: params.usedSprint ? 1 : 0 };
+    await lb.addLeaderboardPlayerScore(projectId, board, playerId, { score: params.meters, metadata });
+  }
   runs.push(params.runId);
   if (runs.length > RECENT_RUNS) runs = runs.slice(runs.length - RECENT_RUNS);
   await cs.setItem(projectId, playerId, { key: "omm_runs", value: runs });
 
-  if (params.meters <= best) return { status: "not_better", message: `best ${best}m` };
-
-  const metadata = { n: sanitizeName(params.name), c: params.characterId, a: params.usedAuto ? 1 : 0, s: params.usedSprint ? 1 : 0 };
-  await lb.addLeaderboardPlayerScore(projectId, board, playerId, { score: params.meters, metadata });
+  if (!better) return { status: "not_better", message: `best ${best}m` };
   logger.info(`accepted ${playerId} ${params.stageId} ${params.meters}m (was ${best})`);
   return { status: "accepted", message: "" };
 };

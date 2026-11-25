@@ -8,6 +8,14 @@
       "Principal": "Player",
       "Resource": "urn:ugs:leaderboards:/*",
       "Version": "1.0.0"
+    },
+    {
+      "Sid": "deny-player-cloudsave-writes",
+      "Action": ["Write"],
+      "Effect": "Deny",
+      "Principal": "Player",
+      "Resource": "urn:ugs:cloud-save:/*",
+      "Version": "1.0.0"
     }
   ]
 }
