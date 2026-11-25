@@ -204,7 +204,7 @@ public class NetDebugUI : MonoBehaviour
             case MultiScreen.Room: DrawRoom(); break;
             case MultiScreen.OnlineFind: DrawOnlineFind(); break;
             case MultiScreen.OnlineUnavailable: DrawOnlineUnavailable(); break;
-            default: DrawAdvanced(); break;
+            default: if (Debug.isDebugBuild) DrawAdvanced(); else DrawTop(); break; // 2026-11-25 セキュリティ監査: 製品版で開発用の IP 直接入力へ落ちない
         }
         GUILayout.EndVertical();
         if (ev.type == EventType.Repaint) panelContentH = GUILayoutUtility.GetLastRect().height;
