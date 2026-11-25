@@ -27,6 +27,7 @@ const MAX_METERS = 2000000;
 const MAX_SPEED_MPS = 300 / 3.6;   // ×SPEED_SLACK = 360km/h(端末の LeaderboardRules.MaxSpeedMps と同じ)。正当な最大 ≒ 330km/h(下の SERVER_SPEED_MPS の説明)
 const SPEED_SLACK = 1.2, DISTANCE_SLACK = 300;
 const RECENT_RUNS = 200;
+const DEVICE_CLOCK_SLACK = 2 * 86400; // 端末の時計(開始/確定の時刻)のずれの許容。端末の LeaderboardRules.DeviceClockSlack と同じ
 const TICKET_KEY = "omm_tickets", TICKET_DAYS = 90;
 const SERVER_SPEED_MPS = 360 / 3.6;   // サーバーが測った経過時間に対する平均の速さの上限。2026-11-25: 160 では最大強化の正当な走りを拒否しうるため変更。
 //  自然 100km/h × 設定 120% × キャラ 1.15 × 速さのカード ×1.45 ≒ 200km/h、80km から FINAL DRIVE +20%、DIVE BOOST +26%、ULTIMATE ×1.12 が重なると ≒ 330km/h
@@ -65,9 +66,10 @@ function validate(p, serverBest, recentRuns, nowUtc) {
   const ran = meters - sprint;
   if (ran > MAX_SPEED_MPS * SPEED_SLACK * play + DISTANCE_SLACK) return "too fast";
   const started = Number(p.startedUtc), committed = Number(p.committedUtc);
-  if (committed > nowUtc + 600) return "time in the future";
+  // 2026-11-25 第4回: 端末の時計のずれで正当な記録を拒否しない(時間の検査の本体は受付のサーバーの時刻。ここは明らかに壊れた値だけ)
+  if (committed > nowUtc + DEVICE_CLOCK_SLACK) return "time in the future";
   if (!(started > 0) || started > committed) return "bad start time";
-  if (committed - started + 120 < play) return "play time longer than the wall clock";
+  if (committed - started + DEVICE_CLOCK_SLACK < play) return "play time longer than the wall clock";
   if (recentRuns.includes(p.runId)) return "duplicate";
   return "";
 }

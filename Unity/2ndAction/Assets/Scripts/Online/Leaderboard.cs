@@ -317,6 +317,8 @@ public static class LeaderboardRules
     //  80km から FINAL DRIVE +20%、DIVE BOOST +26%、ULTIMATE の強化 ×1.12 が重なると ≒ 330km/h。サーバー(omm_submit_run.js)と同じ値
     public const float MaxSpeedMps = 300f / 3.6f;
     public const float SpeedSlack = 1.2f, DistanceSlack = 300f;
+    // 2026-11-25 第4回: 端末の時計のずれ(進んでいる・ラン中に合わせ直された)で正当な記録を拒否しない。時間の検査の本体はサーバーの受付の時刻
+    public const long DeviceClockSlack = 2 * 86400;
     public static readonly string[] Characters = { "swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin", "luka", "pentatuttulu" }; // 2026-10-27: 13・14人目を足した(旧版の12人の記録もそのまま受け付ける)
 
     // serverBest: そのプレイヤーの、そのマップの掲載中の記録(無ければ 0)。recentRunIds: サーバーが覚えている送信済みの runId
@@ -335,9 +337,9 @@ public static class LeaderboardRules
         if (e.sprintFrom > 0f && e.sprintFrom > serverBest) return "sprint beyond the confirmed best";
         float ran = e.meters - e.sprintFrom;
         if (ran > MaxSpeedMps * SpeedSlack * e.playSeconds + DistanceSlack) return "too fast";
-        if (e.committedUtc > nowUtc + 600) return "time in the future";
+        if (e.committedUtc > nowUtc + DeviceClockSlack) return "time in the future";
         if (e.startedUtc <= 0 || e.startedUtc > e.committedUtc) return "bad start time";
-        if (e.committedUtc - e.startedUtc + 120 < e.playSeconds) return "play time longer than the wall clock";
+        if (e.committedUtc - e.startedUtc + DeviceClockSlack < e.playSeconds) return "play time longer than the wall clock";
         if (recentRunIds != null && recentRunIds.Contains(e.runId)) return "duplicate";
         return "";
     }

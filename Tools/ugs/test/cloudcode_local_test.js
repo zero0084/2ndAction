@@ -129,6 +129,12 @@ function runParams(o) {
   check(r.status === "rejected" && /expired|unknown/.test(r.message), `a ticket older than 90 days is not accepted (${r.status} ${r.message})`);
   // 16. 受付の一覧の大きさ(30件まで)
   check(store.protected.omm_tickets.length <= 30, `at most 30 tickets are kept (${store.protected.omm_tickets.length})`);
+  // 17. 端末の時計が 1 時間進んでいても正当な記録は通る
+  clock += 120 * 1000;
+  s = await start({ params: { run: { stageId: "wasteland_road", characterId: "swordsman", speedPercent: 100, appVersion: "1.0", buildKind: "release", env } }, context: ctx(env), logger });
+  clock += 400 * 1000;
+  r = await submit({ params: { run: runParams({ ticket: s.ticket, meters: 4000, startedUtc: Math.floor(clock / 1000) + 3600 - 400, committedUtc: Math.floor(clock / 1000) + 3600 }) }, context: ctx(env), logger });
+  check(r.status === "accepted" || r.status === "not_better", `a device clock 1 hour fast does not reject a fair run (${r.status} ${r.message})`);
   // 11. 受付は Protected(プレイヤーが書けない場所)にある
   check(Array.isArray(store.protected.omm_tickets) && !("omm_tickets" in store.default), "tickets are kept in Protected Cloud Save only");
   Date.now = realNow;
