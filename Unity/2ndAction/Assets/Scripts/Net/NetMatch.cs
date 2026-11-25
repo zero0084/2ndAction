@@ -286,6 +286,9 @@ public partial class NetMatch : MonoBehaviour
         }
     }
 
+    // 2026-11-25: 確定の時(ボスに致命の一撃/撃破)に表をすぐ送る(チーム走行距離を両方の画面でそろえる)
+    public static void MarkDirty() { if (Instance != null && NetCombat.Authority) Instance.dirty = true; }
+
     void SendTable()
     {
         SendToClients(w =>

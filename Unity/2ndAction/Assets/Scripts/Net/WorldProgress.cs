@@ -67,6 +67,8 @@ public static class TeamDistance
     static GameManager owner;
     static double shown, lastRecv, prevRecv, speed;
     static float lastRecvAt = -1f, prevRecvAt = -1f;
+    static double recvFrontLX; // 表が届いた時の、この端末から見た最前の人の論理X
+    static bool final; // ランが終わった(HOST の値で固定。倒れた人だけになると最前の数え方が変わるので、以後は足さない)
     public static int Received { get; private set; } // 確認用
 
     public static bool Active => MpRun.On && NetSession.IsActive && NetMatch.Active && NetMatch.Mode == MultiplayerGameMode.Coop;
@@ -75,10 +77,23 @@ public static class TeamDistance
     {
         var gm = GameManager.Instance;
         if (gm == owner) return;
-        owner = gm; shown = 0; lastRecv = prevRecv = 0; speed = 0; lastRecvAt = prevRecvAt = -1f; Received = 0;
+        owner = gm; shown = 0; lastRecv = prevRecv = 0; speed = 0; lastRecvAt = prevRecvAt = -1f; Received = 0; final = false;
     }
 
     // JOIN: HOST の表から(WorldProgress.SetFromHost と同じ値)
+    // 2026-11-25(マスター依頼 第2「最大10mの差」): 差の元は、表が約1秒ごと(変化があればすぐ)にしか届かず、その間を直前の速さで
+    //  先読みしていたこと。先頭の人がボスで止まった時も最大1.25秒ぶん先へ進め、表示は下げないので、その分(最大10m前後)が残った。
+    //  ・表と表の間は「速さで先読み」をやめ、この端末に毎秒20回ほど届いている全員の位置から、表が届いた時からの最前の人の
+    //    実際の進みを足す(止まればすぐ止まり、走り出せばすぐ追う。通信の中身は変えない = 通信の版 14 のまま)。
+    //    最前の人が入れ替わって後ろの人になった時は進みを 0 から数え直す(表示は下げない)。念のため1秒の先読みの量を上限にする
+    //  ・確定の時(ランの終わり = 表の over)は、HOST の値にそろえる(先読みで進みすぎていても戻す)
+    //  ・HOST はボスに致命の一撃が入った時/撃破の時に表をすぐ送る(NetMatch.MarkDirty) → 両方の画面がその時の HOST の値になる
+    public static int Snaps { get; private set; }  // 確認用: 確定でそろえた回数
+    public static void NoteFromHost(double v, bool runOver)
+    {
+        NoteFromHost(v);
+        if (runOver && NetCombat.Replica) { if (System.Math.Abs(shown - v) > 0.001) { shown = v; Snaps++; } final = true; }
+    }
     public static void NoteFromHost(double v)
     {
         EnsureRun();
@@ -86,7 +101,10 @@ public static class TeamDistance
         if (lastRecvAt >= 0f && now - lastRecvAt >= 0.2f) speed = System.Math.Max(0.0, (v - lastRecv) / (now - lastRecvAt)); // 近すぎる2回からは速さを出さない
         prevRecv = lastRecv; prevRecvAt = lastRecvAt;
         lastRecv = System.Math.Max(lastRecv, v); lastRecvAt = now; Received++;
+        recvFrontLX = FrontLX();
     }
+
+    static double FrontLX() => FloatingOrigin.ToLogical(WorldRange.WorldFrontSceneX);
 
     // 画面に出すチーム走行距離(協力のマルチ中だけ意味がある)
     public static double Display
@@ -97,7 +115,13 @@ public static class TeamDistance
             double target;
             if (!NetCombat.Replica) target = WorldProgress.FrontHigh; // HOST
             else if (lastRecvAt < 0f) target = 0; // まだ届いていない(出発の直後だけ)
-            else target = lastRecv + speed * Mathf.Min(Time.realtimeSinceStartup - lastRecvAt, 1.25f);
+            else if (final) return shown;
+            else
+            {
+                double moved = System.Math.Max(0.0, FrontLX() - recvFrontLX);
+                double cap = System.Math.Max(speed, 5.0) * 1.5 + 2.0; // 位置の補間の乱れの用心(1.5秒ぶんの速さ)
+                target = lastRecv + System.Math.Min(moved, cap);
+            }
             if (target > shown) shown = target;
             return shown;
         }

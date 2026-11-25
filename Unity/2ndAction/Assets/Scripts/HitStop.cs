@@ -85,9 +85,30 @@ public static class HitStop
     public static int ActiveCount => activeOwners.Count;
     public static float SecondsSinceFreezeStarted => freezeStartRealtime >= 0f ? Time.realtimeSinceStartup - freezeStartRealtime : 0f;
 
+    // ===== マルチ(2026-11-25、マスター依頼「ヒットストップが無関係な人まで止めないか」) =====
+    // 以前は HOST の端末全体の時間(Time.timeScale)を止めていた。HOST は全員の敵/ボスを動かしているので、
+    //  ・HOST の攻撃 → 全員の画面の敵/ボスが一瞬止まる
+    //  ・参加者の攻撃(HOST が代わりに処理)/ボスの攻撃/ほかの人の BREAK → HOST のプレイヤー(無関係)まで止まる
+    // マルチ(MpRun.On)では端末の時間を止めず、「この端末のプレイヤーの攻撃が直前に当たった」時だけ、そのプレイヤーだけを止める
+    // (PlayerController が LocalFrozen の間は時間停止と同じ扱い = 動かず、指は先行入力として覚える)。当たった相手は
+    //  今までどおり自分の怯みのコルーチンで同じ時間だけ止まる(Run が実時間で待つ)。シングル/CPU サポートは今まで通り
+    public static float LocalUntil { get; private set; } = -1f;
+    public static int LocalApplied, LocalSkipped; // 確認用: 自分だけ止めた回数 / 自分の攻撃ではないので止めなかった回数
+    public static bool LocalFrozen => Time.realtimeSinceStartup < LocalUntil;
+    const float LocalHitWindow = 0.1f; // この端末のプレイヤーの攻撃が当たってから、この秒数以内の HitStop だけ自分を止める
+    static bool LocalOnly(float d)
+    {
+        if (!MpRun.On) return false;
+        var pc = PlayerController.Instance;
+        if (pc != null && Time.time - pc.LastAttackLandedAt <= LocalHitWindow) { LocalUntil = Mathf.Max(LocalUntil, Time.realtimeSinceStartup + d); LocalApplied++; }
+        else LocalSkipped++;
+        return true;
+    }
+
     public static IEnumerator Freeze(float durationRealSeconds)
     {
         if (durationRealSeconds <= 0f) yield break;
+        if (LocalOnly(durationRealSeconds)) { yield return new WaitForSecondsRealtime(durationRealSeconds); yield break; }
 
         // 自己修復(上記コメント参照) - 新しいFreezeを始める前に、既存の
         // activeOwnersが不自然に長時間残っていないか確認する。

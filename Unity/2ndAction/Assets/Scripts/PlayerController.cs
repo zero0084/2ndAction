@@ -1100,11 +1100,12 @@ public partial class PlayerController : MonoBehaviour
         // input entirely rather than just letting Move() no-op on a zero
         // deltaTime, so a tap on a choice card doesn't also get recorded as
         // a leftover jump/attack gesture that fires the instant play resumes.
-        if (Time.timeScale <= 0f)
+        bool localHitStop = !IsAlly && Instance == this && HitStop.LocalFrozen; // 2026-11-25: マルチは命中の一瞬の停止を自分だけに(HitStop.LocalOnly)
+        if (Time.timeScale <= 0f || localHitStop)
         {
             // エリアルコンボ改修(2026-10-18): ヒットストップ(命中の一瞬の停止)の間も指を読み、入ったフリックを先行入力として覚える。
             // 以前はこの間の指の置き始めを見落とし、そのタッチ全体がフリックにならなかった。停止/カード選択などでは捨てる。
-            if (!IsAlly && TimeControl.PausedOnlyByHitStop && !UiInputGate.Blocked)
+            if (!IsAlly && (TimeControl.PausedOnlyByHitStop || (localHitStop && Time.timeScale > 0f)) && !UiInputGate.Blocked)
             {
                 UpdatePointerInput();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD

@@ -393,8 +393,21 @@ public partial class BossManager : MonoBehaviour
     // 2026-11-24(マスター依頼: マルチで1人のボス戦/カード選択が全員の停止に広がる): マルチでは、ボスを倒した時点で止めるのをやめる
     //  (以前は報酬を選び終えるまで = HOST がとどめを刺した時は HOST のカード選択の間じゅう、闘技場にいる全員と後から着いた人が止まっていた)。
     //  報酬のカードを選ぶ本人だけが止まる(PlayerController.NetIsChoosing)。シングルは従来どおり報酬まで止める
-    public bool HoldsRun => IsBossPhase && !RunResumed && !(MpRun.On && BossDefeatedThisPhase);
-    public bool SpawnsHeld => IsBossPhase && (!RunResumed || Time.time - resumedAt < BossBattleTuning.I.zakoResumeDelay || MapRushActive || AirRaidActive); // 2026-11-04: 空中ボスの乱入の間も雑魚を足さない(画面を散らかさない) / 2026-10-15: 各マップのラッシュの間は雑魚を出さない(出して消すの繰り返しにしない)
+    public bool HoldsRun => IsBossPhase && !RunResumed && !MpBossFightOver;
+    // 2026-11-25(マスター依頼 第2): マルチでは「全部のボスに致命の一撃が入った」時点で、足止めと雑魚の出現の停止をやめる。
+    //  以前は撃破の扱い(BossDefeatedThisPhase)が倒れる演出(約2秒)の後で、その間は闘技場の全員が止まり、
+    //  さらに報酬を選び終えるまで(=遭遇の終わり)雑魚が出なかった(HOST がカードを選ぶ間、ほかの人の前に雑魚が出ない)。
+    //  倒れる演出・報酬の選択はそのまま(選ぶ本人だけ止まる)。ラッシュ/3連戦/乱入は今まで通り(次のボスがいる)
+    public bool MpBossFightOver => MpRun.On && IsBossPhase && (BossDefeatedThisPhase
+        || (mpFightSeen && mpNoFightSince >= 0f && Time.time - mpNoFightSince >= 0.3f && CurrentTrio == null && !MapRushActive && !AirRaidActive));
+    bool mpFightSeen; float mpNoFightSince = -1f;
+    void TickMpFightOver()
+    {
+        if (!IsBossPhase || !MpRun.On) { mpFightSeen = false; mpNoFightSince = -1f; return; }
+        if (BossBattle.AnyBossFighting) { mpFightSeen = true; mpNoFightSince = -1f; }
+        else if (mpFightSeen && mpNoFightSince < 0f) { mpNoFightSince = Time.time; NetMatch.MarkDirty(); Debug.Log($"[BossRun] multiplayer: every boss has taken its lethal hit -> the run is not held (defeat presentation/reward continue)"); }
+    }
+    public bool SpawnsHeld => IsBossPhase && !MpBossFightOver && (!RunResumed || Time.time - resumedAt < BossBattleTuning.I.zakoResumeDelay || MapRushActive || AirRaidActive); // 2026-11-04: 空中ボスの乱入の間も雑魚を足さない(画面を散らかさない) / 2026-10-15: 各マップのラッシュの間は雑魚を出さない(出して消すの繰り返しにしない)
     public float EncounterSeconds => encounterTimer;
     public float ResumeSecondsTotal => resumeSeconds;
     public float ResumeSecondsLeft => Mathf.Max(0f, resumeSeconds - encounterTimer);
@@ -554,6 +567,7 @@ public partial class BossManager : MonoBehaviour
         if (GameManager.Instance == null || !GameManager.Instance.HasStarted || GameManager.Instance.IsGameOver) return;
         // マルチプレイPhase 2 - JOIN側はボスを自分で出現させない(HOSTが出現を確定して共有する)。
         if (NetCombat.SuppressLocalBossSpawn) return;
+        TickMpFightOver(); // 2026-11-25: マルチの「全部のボスに致命の一撃」(HOST だけ。JOIN は HOST の OpBossHold に従う)
 
 #if UNITY_EDITOR
         // 動作確認用(Editor専用): F1〜F11で荒野街道ボスを即時出現(順序は
@@ -949,6 +963,7 @@ public partial class BossManager : MonoBehaviour
             if (TrioContinues()) return; // 2026-10-24: 95〜99km の3連戦 = まだ次のボスがいる(関門は終わらない)
             if (CurrentTrio != null) TrioCleared();
             BossDefeatedThisPhase = true; // BGM: 撃破したら道中曲へ戻す
+            NetMatch.MarkDirty(); // 2026-11-25: マルチ: 撃破の時のチーム走行距離をすぐ届ける
             if (MapRushActive) OnMapRushCleared(); // 2026-10-15: 各マップのラッシュを終えた(90km の門番を倒した扱い)
             // 疾走出発の解放(2026-10-05): ソロの通常ランで 10,000m 刻みの門番を実際に倒した記録(闘技場/DEBUG RUN/マルチは除く)
             if (useWildSchedule && currentGateK > 0 && currentGateK % 10 == 0 && !ArenaMode.Active && !NetRunLauncher.IsMultiplayerRun && GameManager.Instance != null)

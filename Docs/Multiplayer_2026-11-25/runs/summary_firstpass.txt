@@ -1,0 +1,255 @@
+### R1: CO-OP HOSTがとどめ・HOSTがボス報酬を10秒選ばない(参加者が追い越して先へ・雑魚が出続けるか)
+== R1 (local coop) after 80s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 4.2 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 5.4 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+INFO COOP: nearest-row comparison (old way) max 0.9 m mean 0.4 m
+OK  COOP: HOST/JOIN screen distance differ at most 1.1 m (mean 0.2 m, last 10 max 0.3 m)
+OK  COOP: they agree at the end (last 10 samples max 0.3 m)
+OK  JOIN: kept running while the other side chose/paused (38.7s, moved 148.5 m outside the arena)
+OK  HOST: kept running while the other side chose/paused (35.6s, moved 95.7 m outside the arena)
+INFO HOST: arena-halt samples 20, halted after the boss died 0, hud 0->296 own 224 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+INFO JOIN: arena-halt samples 20, halted after the boss died 0, hud 0->295 own 296 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+OK  zako spawns resumed when the boss died, before the reward choice ended (resumed during the boss phase 1, only after it 0; plans while HOST chose 4, enemies 12)
+INFO HOST: hit-stop on this player only 36, not stopped (someone else hit / boss) 22, team-distance snaps 0
+INFO JOIN: hit-stop on this player only 38, not stopped (someone else hit / boss) 0, team-distance snaps 0
+RESULT PASS ng=0
+
+### R1_legacy: 同上を変更前の決まり
+== R1_legacy (local coop) after 80s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 4.0 m)
+NG  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 1, single hit-stop samples 3)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 4.3 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+INFO COOP: nearest-row comparison (old way) max 44.0 m mean 18.5 m
+NG  COOP: HOST/JOIN screen distance differ at most 44.0 m (mean 18.5 m, last 10 max 43.9 m)
+NG  COOP: they agree at the end (last 10 samples max 43.9 m)
+OK  JOIN: kept running while the other side chose/paused (14.5s, moved 12.8 m outside the arena)
+OK  HOST: other side choosing/paused 1.6s (this side was in the boss arena or choosing - not measured)
+INFO HOST: arena-halt samples 54, halted after the boss died 34, hud 0->168 own 168 dupOffers 0
+NG  HOST: not held after the boss died beyond the ~2 s defeat animation (34 samples of 0.5 s)
+INFO JOIN: arena-halt samples 54, halted after the boss died 34, hud 0->211 own 211 dupOffers 0
+NG  JOIN: not held after the boss died beyond the ~2 s defeat animation (34 samples of 0.5 s)
+INFO zako spawns resumed when the boss died, before the reward choice ended (resumed during the boss phase 0, only after it 1; plans while HOST chose 0, enemies 0)
+INFO HOST: hit-stop on this player only 0, not stopped (someone else hit / boss) 0, team-distance snaps 0
+INFO JOIN: hit-stop on this player only 0, not stopped (someone else hit / boss) 0, team-distance snaps 0
+RESULT FAIL ng=5
+
+### R2: CO-OP HOST先行60m・HOSTがとどめ・HOSTが10秒選ぶ(後ろの人が止まらない)
+== R2 (local coop) after 80s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 6.9 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 7.3 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+INFO COOP: nearest-row comparison (old way) max 2.8 m mean 0.7 m
+OK  COOP: HOST/JOIN screen distance differ at most 2.1 m (mean 0.5 m, last 10 max 1.0 m)
+OK  COOP: they agree at the end (last 10 samples max 1.0 m)
+OK  JOIN: kept running while the other side chose/paused (37.7s, moved 153.1 m outside the arena)
+OK  HOST: kept running while the other side chose/paused (2.0s, moved 3.1 m outside the arena)
+INFO HOST: arena-halt samples 20, halted after the boss died 0, hud 0->282 own 282 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+INFO JOIN: arena-halt samples 4, halted after the boss died 0, hud 0->282 own 236 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+OK  zako spawns resumed when the boss died, before the reward choice ended (resumed during the boss phase 1, only after it 0; plans while HOST chose 0, enemies 0)
+INFO HOST: hit-stop on this player only 40, not stopped (someone else hit / boss) 0, team-distance snaps 0
+INFO JOIN: hit-stop on this player only 0, not stopped (someone else hit / boss) 0, team-distance snaps 0
+RESULT PASS ng=0
+
+### R3: CO-OP 参加者がとどめ・参加者が10秒選ぶ
+== R3 (local coop) after 80s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 5.9 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 5.9 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+INFO COOP: nearest-row comparison (old way) max 1.4 m mean 0.4 m
+OK  COOP: HOST/JOIN screen distance differ at most 1.4 m (mean 0.2 m, last 10 max 0.6 m)
+OK  COOP: they agree at the end (last 10 samples max 0.6 m)
+OK  JOIN: other side choosing/paused 1.5s (this side was in the boss arena or choosing - not measured)
+OK  HOST: kept running while the other side chose/paused (33.0s, moved 131.6 m outside the arena)
+INFO HOST: arena-halt samples 5, halted after the boss died 0, hud 0->288 own 236 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+INFO JOIN: arena-halt samples 20, halted after the boss died 0, hud 0->287 own 288 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+OK  zako spawns resumed when the boss died, before the reward choice ended (resumed during the boss phase 1, only after it 0; plans while HOST chose 0, enemies 0)
+INFO HOST: hit-stop on this player only 0, not stopped (someone else hit / boss) 21, team-distance snaps 0
+INFO JOIN: hit-stop on this player only 31, not stopped (someone else hit / boss) 0, team-distance snaps 0
+RESULT PASS ng=0
+
+### E2: CO-OP HOSTが一時停止のメニュー8秒(雑魚が出続ける)
+== E2 (local coop) after 65s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 3.9 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 4.0 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+INFO COOP: nearest-row comparison (old way) max 1.1 m mean 0.2 m
+OK  COOP: HOST/JOIN screen distance differ at most 0.9 m (mean 0.1 m, last 10 max 0.8 m)
+OK  COOP: they agree at the end (last 10 samples max 0.8 m)
+OK  JOIN: kept running while the other side chose/paused (21.7s, moved 108.3 m outside the arena)
+OK  HOST: kept running while the other side chose/paused (23.7s, moved 102.9 m outside the arena)
+INFO HOST: arena-halt samples 0, halted after the boss died 0, hud 0->232 own 192 dupOffers 0
+INFO JOIN: arena-halt samples 0, halted after the boss died 0, hud 0->232 own 231 dupOffers 0
+INFO HOST: hit-stop on this player only 0, not stopped (someone else hit / boss) 0, team-distance snaps 0
+INFO JOIN: hit-stop on this player only 9, not stopped (someone else hit / boss) 0, team-distance snaps 0
+RESULT PASS ng=0
+
+### G2: CO-OP 連続するボス2体+参加者の DOWN→復活
+== G2 (local coop) after 75s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 3.9 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 4.8 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+INFO COOP: nearest-row comparison (old way) max 1.9 m mean 0.7 m
+OK  COOP: HOST/JOIN screen distance differ at most 1.1 m (mean 0.3 m, last 10 max 0.5 m)
+OK  COOP: they agree at the end (last 10 samples max 0.5 m)
+OK  JOIN: kept running while the other side chose/paused (20.7s, moved 41.2 m outside the arena)
+OK  HOST: kept running while the other side chose/paused (1.5s, moved 6.8 m outside the arena)
+INFO HOST: arena-halt samples 9, halted after the boss died 1, hud 0->245 own 245 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (1 samples of 0.5 s)
+INFO JOIN: arena-halt samples 8, halted after the boss died 1, hud 0->244 own 207 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (1 samples of 0.5 s)
+OK  zako spawns resumed when the boss died, before the reward choice ended (resumed during the boss phase 1, only after it 0; plans while HOST chose 0, enemies 0)
+INFO HOST: hit-stop on this player only 12, not stopped (someone else hit / boss) 1, team-distance snaps 0
+INFO JOIN: hit-stop on this player only 4, not stopped (someone else hit / boss) 0, team-distance snaps 0
+RESULT PASS ng=0
+
+### V1: VERSUS HOST先行・HOSTがとどめ・HOSTが8秒選ぶ
+== V1 (local versus) after 75s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 6.8 m)
+OK  HOST: VERSUS shows own distance (max |hud-own| 0.00)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 3.5 m)
+OK  JOIN: VERSUS shows own distance (max |hud-own| 0.00)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: kept running while the other side chose/paused (34.1s, moved 129.2 m outside the arena)
+OK  HOST: kept running while the other side chose/paused (1.5s, moved 5.9 m outside the arena)
+INFO HOST: arena-halt samples 20, halted after the boss died 1, hud 0->265 own 265 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (1 samples of 0.5 s)
+INFO JOIN: arena-halt samples 0, halted after the boss died 0, hud 0->208 own 208 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+OK  zako spawns resumed when the boss died, before the reward choice ended (resumed during the boss phase 1, only after it 0; plans while HOST chose 0, enemies 0)
+INFO HOST: hit-stop on this player only 28, not stopped (someone else hit / boss) 0, team-distance snaps 0
+INFO JOIN: hit-stop on this player only 1, not stopped (someone else hit / boss) 0, team-distance snaps 0
+RESULT PASS ng=0
+
+### V2: VERSUS 参加者がとどめ・参加者が8秒選ぶ
+== V2 (local versus) after 75s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 3.3 m)
+OK  HOST: VERSUS shows own distance (max |hud-own| 0.00)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 5.5 m)
+OK  JOIN: VERSUS shows own distance (max |hud-own| 0.00)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: other side choosing/paused 2.1s (this side was in the boss arena or choosing - not measured)
+OK  HOST: kept running while the other side chose/paused (33.9s, moved 129.0 m outside the arena)
+INFO HOST: arena-halt samples 0, halted after the boss died 0, hud 0->207 own 207 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+INFO JOIN: arena-halt samples 19, halted after the boss died 0, hud 0->268 own 268 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+OK  zako spawns resumed when the boss died, before the reward choice ended (resumed during the boss phase 1, only after it 0; plans while HOST chose 0, enemies 0)
+INFO HOST: hit-stop on this player only 0, not stopped (someone else hit / boss) 28, team-distance snaps 0
+INFO JOIN: hit-stop on this player only 36, not stopped (someone else hit / boss) 1, team-distance snaps 0
+RESULT PASS ng=0
+
+### V3: VERSUS 参加者が一時停止のメニュー6秒
+== V3 (local versus) after 65s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 3.9 m)
+OK  HOST: VERSUS shows own distance (max |hud-own| 0.00)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 3.9 m)
+OK  JOIN: VERSUS shows own distance (max |hud-own| 0.00)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: kept running while the other side chose/paused (24.3s, moved 123.2 m outside the arena)
+OK  HOST: kept running while the other side chose/paused (14.4s, moved 63.2 m outside the arena)
+INFO HOST: arena-halt samples 0, halted after the boss died 0, hud 0->223 own 223 dupOffers 0
+INFO JOIN: arena-halt samples 0, halted after the boss died 0, hud 0->204 own 204 dupOffers 0
+INFO HOST: hit-stop on this player only 10, not stopped (someone else hit / boss) 0, team-distance snaps 0
+INFO JOIN: hit-stop on this player only 3, not stopped (someone else hit / boss) 0, team-distance snaps 0
+RESULT PASS ng=0
+
+### RS: CO-OP ボスの後に2人とも倒れてランの終わり→RESULT(終わりのチーム距離がそろうか・RESULT の撮影)
+== RS (local coop) after 70s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 6.4 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+NG  JOIN: screen distance never goes back (largest drop 0.35 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 6.4 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+INFO COOP: nearest-row comparison (old way) max 1.2 m mean 0.3 m
+OK  COOP: HOST/JOIN screen distance differ at most 0.9 m (mean 0.2 m, last 10 max 0.0 m)
+OK  COOP: they agree at the end (last 10 samples max 0.0 m)
+OK  JOIN: kept running while the other side chose/paused (4.1s, moved 19.3 m outside the arena)
+OK  HOST: other side choosing/paused 1.6s (this side was in the boss arena or choosing - not measured)
+INFO HOST: arena-halt samples 20, halted after the boss died 0, hud 0->215 own 201 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+INFO JOIN: arena-halt samples 20, halted after the boss died 0, hud 0->215 own 217 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+OK  zako spawns resumed when the boss died, before the reward choice ended (resumed during the boss phase 1, only after it 0; plans while HOST chose 1, enemies 3)
+INFO HOST: hit-stop on this player only 31, not stopped (someone else hit / boss) 2, team-distance snaps 0
+INFO JOIN: hit-stop on this player only 4, not stopped (someone else hit / boss) 0, team-distance snaps 1
+RESULT FAIL ng=1
+
+### O1: CO-OP ONLINE(Relay)HOSTがとどめ・HOSTが10秒選ぶ
+== O1 (online coop) after 80s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 5.2 m)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 6.5 m)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+INFO COOP: nearest-row comparison (old way) max 3.2 m mean 0.9 m
+OK  COOP: HOST/JOIN screen distance differ at most 2.1 m (mean 0.6 m, last 10 max 0.3 m)
+OK  COOP: they agree at the end (last 10 samples max 0.3 m)
+OK  JOIN: kept running while the other side chose/paused (36.2s, moved 138.4 m outside the arena)
+OK  HOST: kept running while the other side chose/paused (1.5s, moved 7.5 m outside the arena)
+INFO HOST: arena-halt samples 20, halted after the boss died 0, hud 0->282 own 282 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+INFO JOIN: arena-halt samples 4, halted after the boss died 0, hud 0->281 own 234 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+OK  zako spawns resumed when the boss died, before the reward choice ended (resumed during the boss phase 1, only after it 0; plans while HOST chose 0, enemies 0)
+INFO HOST: hit-stop on this player only 33, not stopped (someone else hit / boss) 0, team-distance snaps 0
+INFO JOIN: hit-stop on this player only 1, not stopped (someone else hit / boss) 0, team-distance snaps 0
+RESULT PASS ng=0
+
+### O2: VERSUS ONLINE(Relay)参加者がとどめ・参加者が10秒選ぶ
+== O2 (online versus) after 80s
+OK  HOST: screen distance never goes back (largest drop 0.00 m)
+OK  HOST: no sudden jump in 0.5 s (largest step 3.3 m)
+OK  HOST: VERSUS shows own distance (max |hud-own| 0.00)
+OK  HOST: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: screen distance never goes back (largest drop 0.00 m)
+OK  JOIN: no sudden jump in 0.5 s (largest step 5.3 m)
+OK  JOIN: VERSUS shows own distance (max |hud-own| 0.00)
+OK  JOIN: the shared world never stopped for 1 s or more (3+ consecutive ts=0 samples 0, single hit-stop samples 0)
+OK  JOIN: other side choosing/paused 2.1s (this side was in the boss arena or choosing - not measured)
+OK  HOST: kept running while the other side chose/paused (35.0s, moved 139.3 m outside the arena)
+INFO HOST: arena-halt samples 5, halted after the boss died 0, hud 0->241 own 241 dupOffers 0
+OK  HOST: not held after the boss died beyond the ~2 s defeat animation (0 samples of 0.5 s)
+INFO JOIN: arena-halt samples 20, halted after the boss died 1, hud 0->288 own 288 dupOffers 0
+OK  JOIN: not held after the boss died beyond the ~2 s defeat animation (1 samples of 0.5 s)
+OK  zako spawns resumed when the boss died, before the reward choice ended (resumed during the boss phase 1, only after it 0; plans while HOST chose 0, enemies 0)
+INFO HOST: hit-stop on this player only 0, not stopped (someone else hit / boss) 28, team-distance snaps 0
+INFO JOIN: hit-stop on this player only 34, not stopped (someone else hit / boss) 0, team-distance snaps 0
+RESULT PASS ng=0
+
+DONE

@@ -271,7 +271,7 @@ public partial class NetMatch
         r.ReadValueSafe(out bool over);
         r.ReadValueSafe(out double frontHigh);
         WorldProgress.SetFromHost(frontHigh);
-        TeamDistance.NoteFromHost(frontHigh); // 2026-11-24: 協力の画面の距離(チーム走行距離)
+        TeamDistance.NoteFromHost(frontHigh, over); // 2026-11-24: 協力の画面の距離(チーム走行距離)。2026-11-25: ランの終わりは HOST の値にそろえる
         r.ReadValueSafe(out reaperLeft);
         r.ReadValueSafe(out short rsec); reaperSecondsCached = rsec;
         r.ReadValueSafe(out byte evn);

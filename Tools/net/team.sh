@@ -32,4 +32,5 @@ for p in "${pids[@]}"; do kill $p 2>/dev/null; done   # この試験で起動し
 echo "== $TAG ($NET $GM) after ${t}s"
 grep -h "SUMMARY reason" $D/host.log $D/join.log | sed 's/.*\[NETTEST\] utc=[^ ]* //' | cut -c1-200
 PY=${PY:-/c/Users/0084k/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe}
-"$PY" -I "$ROOT/Tools/net/teamrun.py" "$D" "$GM"
+LEG=""; case "$COMMON" in *netLegacyStops*) LEG=legacy;; esac
+"$PY" -I "$ROOT/Tools/net/teamrun.py" "$D" "$GM" $LEG

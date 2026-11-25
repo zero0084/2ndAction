@@ -66,7 +66,9 @@ public partial class NetAutoTest
         bool paused = PauseField != null && (bool)PauseField.GetValue(gm);
         bool hold = NetCombat.Authority ? (bm != null && bm.HoldsRun) : NetCombat.RemoteBossHold;
         L($"TEAMLOG utc={DateTime.UtcNow:HH:mm:ss.fff} t={runTime:F1} role={role} me=P{NetCombat.LocalPlayerNumber} mode={NetMatch.Mode} x={x:F2} raw={(pc != null ? pc.DistanceExact : 0):F2} hud={gm.HudDistanceExact:F2} own={gm.MaxDistanceExact:F2} front={WorldProgress.FrontHigh:F2} " +
-          $"haltF={BossHalt.Factor:F2} holding={BossHalt.Holding} choosing={(pc != null && pc.NetIsChoosing)} paused={paused} hold={hold} phase={(bm != null && bm.IsBossPhase)} bosses={bosses} ts={Time.timeScale:F2} recv={TeamDistance.Received} dup={NetMatch.BossRewardOffersIgnored}");
-    }
+          $"haltF={BossHalt.Factor:F2} holding={BossHalt.Holding} choosing={(pc != null && pc.NetIsChoosing)} paused={paused} hold={hold} phase={(bm != null && bm.IsBossPhase)} bosses={bosses} ts={Time.timeScale:F2} recv={TeamDistance.Received} dup={NetMatch.BossRewardOffersIgnored} en={EnemyCountActive()} spawned={(EncounterDirector.Instance != null ? EncounterDirector.Instance.SpawnedEnemies : -1)} hsL={HitStop.LocalApplied} hsS={HitStop.LocalSkipped} hsLocal={HitStop.LocalFrozen} snaps={TeamDistance.Snaps} fightOver={(bm != null && bm.MpBossFightOver)}");
+    
+    static int EnemyCountActive() { int n = 0; foreach (var e in FindObjectsByType<EnemyController>(FindObjectsSortMode.None)) if (e != null && e.isActiveAndEnabled && !e.IsDying) n++; return n; } // 2026-11-25
+}
 }
 #endif
