@@ -4,12 +4,19 @@ const Module = require("module");
 const path = require("path");
 const store = { default: {}, protected: {} };
 let board = {};
-let failBest = 0;
+let failBest = 0, failAdd = 0;
+const locks = {};   // Cloud Save の writeLock の代わり(書くたびに変わる)
+let lockSeq = 0;
+const tick = () => new Promise(r => setImmediate(r)); // 本物の通信と同じく、await の間に別の処理が割り込めるようにする
 class DataApi {
-  async getItems(p, pl, keys) { return { data: { results: keys.filter(k => k in store.default).map(k => ({ key: k, value: JSON.parse(JSON.stringify(store.default[k])) })) } }; }
-  async setItem(p, pl, it) { store.default[it.key] = JSON.parse(JSON.stringify(it.value)); }
-  async getProtectedItems(p, pl, keys) { return { data: { results: keys.filter(k => k in store.protected).map(k => ({ key: k, value: JSON.parse(JSON.stringify(store.protected[k])) })) } }; }
-  async setProtectedItem(p, pl, it) { store.protected[it.key] = JSON.parse(JSON.stringify(it.value)); }
+  async getItems(p, pl, keys) { await tick(); return { data: { results: keys.filter(k => k in store.default).map(k => ({ key: k, value: JSON.parse(JSON.stringify(store.default[k])) })) } }; }
+  async setItem(p, pl, it) { await tick(); store.default[it.key] = JSON.parse(JSON.stringify(it.value)); }
+  async getProtectedItems(p, pl, keys) { await tick(); return { data: { results: keys.filter(k => k in store.protected).map(k => ({ key: k, value: JSON.parse(JSON.stringify(store.protected[k])), writeLock: locks[k] })) } }; }
+  async setProtectedItem(p, pl, it) {
+    await tick();
+    if (it.writeLock !== undefined && it.writeLock !== locks[it.key]) { const e = new Error("conflict"); e.response = { status: 409 }; throw e; }
+    store.protected[it.key] = JSON.parse(JSON.stringify(it.value)); locks[it.key] = "L" + (++lockSeq);
+  }
 }
 class LeaderboardsApi {
   async getLeaderboardPlayerScore(p, b, pl) {
@@ -17,7 +24,7 @@ class LeaderboardsApi {
     if (!(b in board)) { const e = new Error("nf"); e.response = { status: 404 }; throw e; }
     return { data: { score: board[b] } };
   }
-  async addLeaderboardPlayerScore(p, b, pl, d) { board[b] = d.score; }
+  async addLeaderboardPlayerScore(p, b, pl, d) { await tick(); if (failAdd) { const e = new Error("x"); e.response = { status: failAdd }; throw e; } board[b] = d.score; }
 }
 const origLoad = Module._load;
 Module._load = function (req, parent, isMain) {
@@ -88,6 +95,40 @@ function runParams(o) {
   failBest = 0;
   r = await submit({ params: { run: runParams({ ticket: s.ticket, meters: 9000 }) }, context: ctx(env), logger });
   check(r.status === "accepted", `the retry after the temporary failure is accepted (${r.status} ${r.message})`);
+  // 12. 同じ受付の同時の提出 → 1つだけ通る(書き込みの鍵)
+  clock += 120 * 1000;
+  s = await start({ params: { run: { stageId: "wasteland_road", characterId: "swordsman", speedPercent: 100, appVersion: "1.0", buildKind: "release", env } }, context: ctx(env), logger });
+  clock += 900 * 1000;
+  const both = await Promise.all([
+    submit({ params: { run: runParams({ ticket: s.ticket, meters: 12000, playSeconds: 800, startedUtc: Math.floor(clock / 1000) - 880 }) }, context: ctx(env), logger }),
+    submit({ params: { run: runParams({ ticket: s.ticket, meters: 13000, playSeconds: 800, startedUtc: Math.floor(clock / 1000) - 880 }) }, context: ctx(env), logger })]);
+  const okN = both.filter(x => x.status === "accepted" || x.status === "not_better").length;
+  check(okN === 1, `two simultaneous submits with the same ticket: only one goes through (${both.map(x => x.status + " " + x.message).join(" / ")})`);
+  const again = await submit({ params: { run: runParams({ ticket: s.ticket, meters: 14000, playSeconds: 800, startedUtc: Math.floor(clock / 1000) - 880 }) }, context: ctx(env), logger });
+  check(again.status === "rejected", `... and the ticket cannot be used afterwards (${again.status} ${again.message})`);
+  // 13. 記録の書き込みに失敗 → 受付の印を戻す → 送り直しで通る
+  clock += 120 * 1000;
+  s = await start({ params: { run: { stageId: "wasteland_road", characterId: "swordsman", speedPercent: 100, appVersion: "1.0", buildKind: "release", env } }, context: ctx(env), logger });
+  clock += 900 * 1000; failAdd = 503;
+  const rp = runParams({ ticket: s.ticket, meters: 20000, playSeconds: 850, startedUtc: Math.floor(clock / 1000) - 880 });
+  r = await submit({ params: { run: rp }, context: ctx(env), logger });
+  check(r.status === "error", `a failed leaderboard write is a temporary error (${r.status})`);
+  failAdd = 0;
+  r = await submit({ params: { run: rp }, context: ctx(env), logger });
+  check(r.status === "accepted", `the retry after a failed write is accepted (the claim was reverted) (${r.status} ${r.message})`);
+  // 14. 1日の上限
+  store.protected.omm_ticket_day = { d: new Date(clock).toISOString().substring(0, 10), n: 500 };
+  clock += 120 * 1000;
+  s = await start({ params: { run: { stageId: "wasteland_road", characterId: "swordsman", speedPercent: 100, appVersion: "1.0", buildKind: "release", env } }, context: ctx(env), logger });
+  check(s.status === "rejected" && /today/.test(s.message), `the daily limit of starts (${s.status} ${s.message})`);
+  // 15. 90日を過ぎた受付は無効
+  delete store.protected.omm_ticket_day;
+  s = await start({ params: { run: { stageId: "wasteland_road", characterId: "swordsman", speedPercent: 100, appVersion: "1.0", buildKind: "release", env } }, context: ctx(env), logger });
+  clock += 91 * 86400 * 1000;
+  r = await submit({ params: { run: runParams({ ticket: s.ticket, meters: 3000, playSeconds: 400 }) }, context: ctx(env), logger });
+  check(r.status === "rejected" && /expired|unknown/.test(r.message), `a ticket older than 90 days is not accepted (${r.status} ${r.message})`);
+  // 16. 受付の一覧の大きさ(30件まで)
+  check(store.protected.omm_tickets.length <= 30, `at most 30 tickets are kept (${store.protected.omm_tickets.length})`);
   // 11. 受付は Protected(プレイヤーが書けない場所)にある
   check(Array.isArray(store.protected.omm_tickets) && !("omm_tickets" in store.default), "tickets are kept in Protected Cloud Save only");
   Date.now = realNow;

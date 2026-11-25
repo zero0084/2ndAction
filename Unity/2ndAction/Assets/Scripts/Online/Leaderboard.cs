@@ -312,7 +312,10 @@ public static class Leaderboard
 public static class LeaderboardRules
 {
     public const int MaxMeters = 2000000;          // これより長い記録は受け付けない
-    public const float MaxSpeedMps = 160f / 3.6f;   // 自然の上限 100km/h + 補助(130)に余裕を見た値
+    // 2026-11-25 最終確認: 正当な最大の速さで誤って拒否しない値へ(160 → 300、×SpeedSlack 1.2 = 360km/h)。
+    //  自然の上限 100km/h × 最高速度の設定 120% × キャラ 1.15 × 速さのカード(6枚 Lv9 を曲線に通して ×1.45)≒ 200km/h、
+    //  80km から FINAL DRIVE +20%、DIVE BOOST +26%、ULTIMATE の強化 ×1.12 が重なると ≒ 330km/h。サーバー(omm_submit_run.js)と同じ値
+    public const float MaxSpeedMps = 300f / 3.6f;
     public const float SpeedSlack = 1.2f, DistanceSlack = 300f;
     public static readonly string[] Characters = { "swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin", "luka", "pentatuttulu" }; // 2026-10-27: 13・14人目を足した(旧版の12人の記録もそのまま受け付ける)
 

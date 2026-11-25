@@ -1,11 +1,13 @@
 /*
  * One More Mile - ランキングのラン開始の受付(Cloud Code, JavaScript)。2026-11-25(セキュリティ監査 B 案)
  * ランの開始の時に、サーバーが「受付番号(ticket)」と開始時刻を発行し、そのプレイヤーの Protected の Cloud Save に控える
- * (プレイヤーは Protected を読み書きできない。書くのはこのスクリプトと omm_submit_run だけ)。
+ * (Protected = プレイヤーは自分の分を読めるが、書けない。書くのはこのスクリプトと omm_submit_run だけ。受付の値を読まれても、
+ *  サーバーの時刻と未使用の印はサーバーだけが書くので偽れない)。
  * omm_submit_run は、この受付があること・未使用であること・マップ/キャラが同じこと・サーバーの経過時間で走れる距離であることを確かめる。
  *  ・受付はランキングに参加した人のソロのランだけ(端末が判断して呼ぶ)。オフラインで始めたランは受付が無い = ランキングに載らないだけ
  *    (ローカルの BEST・報酬は今まで通り)
- *  ・受付は 1人 MAX_TICKETS 件(古い順に捨てる)・TICKET_DAYS 日で無効。1分に START_PER_MIN 回まで
+ *  ・受付は 1人 MAX_TICKETS 件(古い順に捨てる)・TICKET_DAYS 日で無効。1分に START_PER_MIN 回・1日(UTC)に START_PER_DAY 回まで
+ *  ・同時の要求は Cloud Save の書き込みの鍵(writeLock)で1つずつ(負けた方は一時的な失敗 = 端末が後で取り直す)
  */
 const { DataApi } = require("@unity-services/cloud-save-1.4");
 
@@ -13,8 +15,10 @@ const STAGES = ["wasteland_road", "natural_cave", "sky_corridor", "last_corridor
 const CHARACTERS = ["swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin", "luka", "pentatuttulu"];
 const KEY = "omm_tickets";
 const MAX_TICKETS = 30;
-const TICKET_DAYS = 30;
+const TICKET_DAYS = 90;
 const START_PER_MIN = 6;
+const START_PER_DAY = 500;
+const DAY_KEY = "omm_ticket_day";
 
 function newId() {
   try { return require("crypto").randomBytes(16).toString("hex"); }
@@ -37,11 +41,13 @@ module.exports = async ({ params: args, context, logger }) => {
 
   const { projectId, playerId, serviceToken } = context;
   const cs = new DataApi({ accessToken: serviceToken });
-  let list = [];
+  let list = [], lock, day = null, dayLock;
   try {
-    const g = await cs.getProtectedItems(projectId, playerId, [KEY]);
+    const g = await cs.getProtectedItems(projectId, playerId, [KEY, DAY_KEY]);
     const item = (g.data.results || []).find(x => x.key === KEY);
-    if (item && Array.isArray(item.value)) list = item.value;
+    if (item && Array.isArray(item.value)) { list = item.value; lock = item.writeLock; }
+    const d = (g.data.results || []).find(x => x.key === DAY_KEY);
+    if (d && d.value && typeof d.value === "object") { day = d.value; dayLock = d.writeLock; }
   } catch (e) {
     const st = e && e.response ? e.response.status : 0;
     if (st !== 404) { logger.info(`ticket read failed (${st})`); return { status: "error", message: "temporary" }; }
@@ -49,11 +55,20 @@ module.exports = async ({ params: args, context, logger }) => {
   const now = Math.floor(Date.now() / 1000);
   list = list.filter(t => t && typeof t.id === "string" && now - Number(t.t) < TICKET_DAYS * 86400);
   if (list.filter(t => now - Number(t.t) < 60).length >= START_PER_MIN) return { status: "rejected", message: "too many starts" };
+  const today = new Date(now * 1000).toISOString().substring(0, 10);
+  const n = day && day.d === today ? Number(day.n || 0) : 0;
+  if (n >= START_PER_DAY) return { status: "rejected", message: "too many starts today" };
 
   const ticket = { id: newId(), t: now, st: p.stageId, ch: p.characterId, sp: Math.round(speed), v: String(p.appVersion || "").substring(0, 32) };
   list.push(ticket);
   if (list.length > MAX_TICKETS) list = list.slice(list.length - MAX_TICKETS);
-  await cs.setProtectedItem(projectId, playerId, { key: KEY, value: list });
+  const body = { key: KEY, value: list };
+  if (lock) body.writeLock = lock;
+  try { await cs.setProtectedItem(projectId, playerId, body); }
+  catch (e) { logger.info(`ticket write failed (${e && e.response ? e.response.status : 0})`); return { status: "error", message: "temporary" }; }
+  const dbody = { key: DAY_KEY, value: { d: today, n: n + 1 } };
+  if (dayLock) dbody.writeLock = dayLock;
+  try { await cs.setProtectedItem(projectId, playerId, dbody); } catch (e) { /* 数えの失敗は受付を止めない(1分の制限は一覧で効く) */ }
   return { status: "ok", ticket: ticket.id, serverTime: now };
 };
 

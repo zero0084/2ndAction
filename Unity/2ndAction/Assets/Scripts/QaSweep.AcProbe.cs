@@ -65,9 +65,27 @@ public partial class QaSweep
         var tf = Call("omm_submit_run", Run(tk, 100000, 3000f)); while (!tf.IsCompleted) yield return null;
         L($"[ac] 100km right after the ticket -> {tf.Result}");
         Check(tf.Result.Contains("rejected"), $"a distance impossible for the server time is rejected ({tf.Result})");
-        // ④ 開始の連打(上の1回 + 6回 = 7回目で拒否)
+        // ③' 同じ受付の同時の提出(本物の Cloud Save の書き込みの鍵)→ 1つだけ通る
+        var tc = Call("omm_start_run", new Dictionary<string, object> { { "run", new Dictionary<string, object> { { "stageId", "sky_corridor" }, { "characterId", "mage" }, { "speedPercent", 100 }, { "appVersion", Application.version }, { "buildKind", UgsEnvironment.BuildKind }, { "env", UgsEnvironment.Name } } } });
+        while (!tc.IsCompleted) yield return null;
+        string tk2 = Extract(tc.Result, "ticket");
+        yield return new WaitForSecondsRealtime(3f);
+        Dictionary<string, object> Legit(string ticket, int meters)
+        {
+            var d = Run(ticket, meters, 2f);
+            var run = (Dictionary<string, object>)d["run"]; run["stageId"] = "sky_corridor"; run["characterId"] = "mage";
+            return d;
+        }
+        var c1 = Call("omm_submit_run", Legit(tk2, 300)); var c2 = Call("omm_submit_run", Legit(tk2, 310));
+        while (!c1.IsCompleted || !c2.IsCompleted) yield return null;
+        int through = (c1.Result.Contains("accepted") || c1.Result.Contains("not_better") ? 1 : 0) + (c2.Result.Contains("accepted") || c2.Result.Contains("not_better") ? 1 : 0);
+        L($"[ac] simultaneous submits with one ticket -> '{Flat(c1.Result)}' / '{Flat(c2.Result)}'");
+        Check(through == 1, $"two simultaneous submits with the same ticket: only one goes through ({through})");
+        var c3 = Call("omm_submit_run", Legit(tk2, 320)); while (!c3.IsCompleted) yield return null;
+        Check(c3.Result.Contains("rejected"), $"... and the ticket cannot be used again ({Flat(c3.Result)})");
+        // ④ 開始の連打(上の2回 + 5回 = 7回目で拒否)
         string last = "";
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 5; i++)
         {
             var tt = Call("omm_start_run", new Dictionary<string, object> { { "run", new Dictionary<string, object> { { "stageId", "natural_cave" }, { "characterId", "ninja" }, { "speedPercent", 100 }, { "appVersion", Application.version }, { "buildKind", UgsEnvironment.BuildKind }, { "env", UgsEnvironment.Name } } } });
             while (!tt.IsCompleted) yield return null;
@@ -84,6 +102,7 @@ public partial class QaSweep
         catch (CloudCodeException e) { return "error: " + e.Reason; }
         catch (System.Exception e) { return "error: " + e.GetType().Name; }
     }
+    static string Flat(string s) => (s ?? "").Replace("\n", " ").Replace("\r", " ").Replace("  ", " ");
     static string Extract(string json, string key)
     {
         int i = json.IndexOf("\"" + key + "\""); if (i < 0) return "";

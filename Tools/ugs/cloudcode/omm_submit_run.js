@@ -24,11 +24,12 @@ const { DataApi } = require("@unity-services/cloud-save-1.4");
 const STAGES = ["wasteland_road", "natural_cave", "sky_corridor", "last_corridor"];
 const CHARACTERS = ["swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin", "luka", "pentatuttulu"]; // 2026-10-27: 13・14人目(旧版の12人の記録もそのまま受け付ける)
 const MAX_METERS = 2000000;
-const MAX_SPEED_MPS = 160 / 3.6;
+const MAX_SPEED_MPS = 300 / 3.6;   // ×SPEED_SLACK = 360km/h(端末の LeaderboardRules.MaxSpeedMps と同じ)。正当な最大 ≒ 330km/h(下の SERVER_SPEED_MPS の説明)
 const SPEED_SLACK = 1.2, DISTANCE_SLACK = 300;
 const RECENT_RUNS = 200;
-const TICKET_KEY = "omm_tickets", TICKET_DAYS = 30;
-const SERVER_SPEED_MPS = 160 / 3.6;   // サーバーが測った経過時間に対する平均の速さの上限(自然の上限 100km/h・設定 120%・補助より上)
+const TICKET_KEY = "omm_tickets", TICKET_DAYS = 90;
+const SERVER_SPEED_MPS = 360 / 3.6;   // サーバーが測った経過時間に対する平均の速さの上限。2026-11-25: 160 では最大強化の正当な走りを拒否しうるため変更。
+//  自然 100km/h × 設定 120% × キャラ 1.15 × 速さのカード ×1.45 ≒ 200km/h、80km から FINAL DRIVE +20%、DIVE BOOST +26%、ULTIMATE ×1.12 が重なると ≒ 330km/h
 const PRE_TICKET_METERS = 1000;       // 受付が取れる前(ラン開始の直後の通信待ち)に走ってよい距離
 const NAME_MAX = 16;
 
@@ -69,6 +70,27 @@ function validate(p, serverBest, recentRuns, nowUtc) {
   if (committed - started + 120 < play) return "play time longer than the wall clock";
   if (recentRuns.includes(p.runId)) return "duplicate";
   return "";
+}
+
+// 受付の一覧を読む(書き込みの鍵 writeLock も)。404 = まだ無い
+async function readTickets(cs, projectId, playerId, logger) {
+  try {
+    const g = await cs.getProtectedItems(projectId, playerId, [TICKET_KEY]);
+    const item = (g.data.results || []).find(x => x.key === TICKET_KEY);
+    return { list: item && Array.isArray(item.value) ? item.value : [], lock: item ? item.writeLock : undefined };
+  } catch (e) {
+    const st = e && e.response ? e.response.status : 0;
+    if (st === 404) return { list: [], lock: undefined };
+    logger.info(`ticket read failed (${st})`);
+    return { error: true };
+  }
+}
+// 読んだ時の鍵で書く(その間に別の書き込みがあれば 409 = false)。鍵が無い(初めて)時は鍵なしで書く
+async function writeTickets(cs, projectId, playerId, list, lock, logger) {
+  const body = { key: TICKET_KEY, value: list };
+  if (lock) body.writeLock = lock;
+  try { await cs.setProtectedItem(projectId, playerId, body); return true; }
+  catch (e) { const st = e && e.response ? e.response.status : 0; logger.info(`ticket write failed (${st})`); return false; }
 }
 
 // 受付(ticket)の検査。tickets = Protected に控えた一覧。返す: [エラー, 使った受付]
@@ -134,36 +156,41 @@ module.exports = async ({ params: args, context, logger }) => {
   if (err === "duplicate") return { status: "duplicate", message: err };
   if (err) { logger.info(`rejected ${playerId.substring(0, 6)} ${params.stageId} ${params.meters}: ${err}`); return { status: "rejected", message: err }; }
 
-  // 2026-11-25: ラン開始の受付(サーバーの時刻)
-  let tickets = [];
-  try {
-    const g = await cs.getProtectedItems(projectId, playerId, [TICKET_KEY]);
-    const item = (g.data.results || []).find(x => x.key === TICKET_KEY);
-    if (item && Array.isArray(item.value)) tickets = item.value;
-  } catch (e) {
-    const st = e && e.response ? e.response.status : 0;
-    if (st !== 404) { logger.info(`ticket read failed (${st})`); return { status: "error", message: "temporary" }; }
-  }
+  // 2026-11-25: ラン開始の受付(サーバーの時刻)。Cloud Save の書き込みの鍵(writeLock)で、同じ受付の同時の提出を1つだけ通す
+  const rt = await readTickets(cs, projectId, playerId, logger);
+  if (rt.error) return { status: "error", message: "temporary" };
+  let tickets = rt.list;
   const [terr, used] = checkTicket(params, tickets, now);
   if (terr) {
-    // 拒否した受付は消さずに無効の印(消すと omm_start_run の1分の回数の数えから外れてしまう)
-    if (used && !used.d) { used.d = 1; await cs.setProtectedItem(projectId, playerId, { key: TICKET_KEY, value: tickets }); }
+    // 拒否した受付は消さずに無効の印(消すと omm_start_run の回数の数えから外れてしまう)
+    if (used && !used.d) { used.d = 1; await writeTickets(cs, projectId, playerId, tickets, rt.lock, logger); }
     logger.info(`rejected ${playerId.substring(0, 6)} ${params.stageId} ${params.meters}: ${terr}`);
     return { status: "rejected", message: terr };
   }
+  // ① 先に受付へ「使った」の印(回数・距離・runId)を、読んだ時の鍵で書く。同時に別の提出が書いていたら失敗 = 一時的な失敗として返す
+  //   (端末は後で送り直し、その時は「使った受付」で拒否 or 重複)
+  used.u = Number(used.u || 0) + 1; used.m = Number(params.meters); used.r = params.runId;
+  if (!(await writeTickets(cs, projectId, playerId, tickets, rt.lock, logger))) return { status: "error", message: "temporary" };
 
-  // 2026-11-25 セキュリティ監査: 記録の書き込みを先に、送信済み runId の記録は後に(書き込みに失敗した時、送り直しが duplicate で捨てられていた)
+  // ② 記録の書き込み。失敗したら ① の印を戻す(送り直しで通るように)
   const better = params.meters > best;
   if (better) {
     const metadata = { n: sanitizeName(params.name), c: params.characterId, a: params.usedAuto ? 1 : 0, s: params.usedSprint ? 1 : 0 };
-    await lb.addLeaderboardPlayerScore(projectId, board, playerId, { score: params.meters, metadata });
+    try { await lb.addLeaderboardPlayerScore(projectId, board, playerId, { score: params.meters, metadata }); }
+    catch (e) {
+      const back = await readTickets(cs, projectId, playerId, logger);
+      if (!back.error) {
+        const t = back.list.find(x => x && x.id === used.id && x.r === params.runId);
+        if (t) { t.u = Math.max(0, Number(t.u || 1) - 1); delete t.r; if (t.u === 0) delete t.m; await writeTickets(cs, projectId, playerId, back.list, back.lock, logger); }
+      }
+      logger.info(`leaderboard write failed (${e && e.response ? e.response.status : 0}) - claim reverted`);
+      return { status: "error", message: "temporary" };
+    }
   }
+  // ③ 送信済みの runId(重複の拒否)
   runs.push(params.runId);
   if (runs.length > RECENT_RUNS) runs = runs.slice(runs.length - RECENT_RUNS);
   await cs.setItem(projectId, playerId, { key: "omm_runs", value: runs });
-  // 使った受付には印(回数と距離)を付ける。二度目は、ラスダンの続きが前より長い距離の時だけ通る(checkTicket)
-  used.u = Number(used.u || 0) + 1; used.m = Number(params.meters);
-  await cs.setProtectedItem(projectId, playerId, { key: TICKET_KEY, value: tickets });
 
   if (!better) return { status: "not_better", message: `best ${best}m` };
   logger.info(`accepted ${playerId.substring(0, 6)} ${params.stageId} ${params.meters}m (was ${best})`);
