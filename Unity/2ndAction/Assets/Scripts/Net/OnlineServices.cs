@@ -96,6 +96,7 @@ public static class OnlineServices
             if (!await InitCoreAsync()) return false;
             if (!AuthenticationService.Instance.IsSignedIn)
             {
+                RestoredInstallGuard.BeforeSignIn(); // 2026-11-25: バックアップから戻した端末では、UGS のセッションを引き継がない(セーブは残す)
                 await AuthenticationService.Instance.SignInAnonymouslyAsync();
                 Log($"Authentication succeeded (anonymous, player {ShortId(AuthenticationService.Instance.PlayerId)})");
             }
