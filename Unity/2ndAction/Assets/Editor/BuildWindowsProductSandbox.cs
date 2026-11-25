@@ -47,6 +47,7 @@ public static class BuildWindowsProductSandbox
     {
         string dir = Path.GetDirectoryName(path);
         if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+        BuildWindowsProduct.ApplyCompanyName(); // 2026-11-25: 会社名 MIXGame(製品と同じ。旧 DefaultCompany から移行)
         string original = PlayerSettings.productName;
         try
         {

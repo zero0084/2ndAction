@@ -10,12 +10,20 @@ public static class BuildWindowsProduct
 {
     const string OutputPath = "Builds/WindowsProduct/OneMoreMile.exe";
 
+    // 2026-11-25(マスター依頼): Windows の会社名(保存先のレジストリ/LocalLow の名前)。旧 DefaultCompany からの移行は WindowsSaveMigration
+    public const string CompanyName = "MIXGame";
+    public static void ApplyCompanyName()
+    {
+        if (PlayerSettings.companyName != CompanyName) { Debug.Log($"[Build] companyName '{PlayerSettings.companyName}' -> '{CompanyName}'"); PlayerSettings.companyName = CompanyName; }
+    }
+
     [MenuItem("Tools/2ndAction/Build Windows Product")]
     public static void Build()
     {
         string dir = Path.GetDirectoryName(OutputPath);
         if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
         NetPrefabBuilder.Build();
+        ApplyCompanyName();
         var opts = new BuildPlayerOptions
         {
             scenes = System.Array.ConvertAll(System.Array.FindAll(EditorBuildSettings.scenes, s => s.enabled), s => s.path),
