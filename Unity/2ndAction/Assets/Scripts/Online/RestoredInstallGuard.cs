@@ -16,6 +16,7 @@ public static class RestoredInstallGuard
     const string PrefKey = "Device.InstallIdV1";
     const string FileName = "omm_install_id";
     public static string LastResult { get; private set; } = "";
+    public static bool RestoredFromBackup { get; private set; }   // この起動でバックアップからの復元を見つけた(中断中のランの受付も使わない)
 
     public static void BeforeSignIn()
     {
@@ -37,6 +38,10 @@ public static class RestoredInstallGuard
                     LastResult = "restored from a backup: online sign-in reset (the save is kept)";
                 }
                 else LastResult = "restored from a backup (no session to reset)";
+                // 前のアカウントのランキングの状態(参加/送信待ち/受付付きの記録/送信済み)は持ち込まない。
+                //  新しい匿名のプレイヤーでは受付が使えず、参加(コードネームの公開の同意)もやり直してもらう。ローカルの BEST・進行・購入はそのまま
+                Leaderboard.ForgetAfterDeletion();
+                RestoredFromBackup = true;
                 Debug.Log("[Online] " + LastResult);
             }
             else LastResult = "first run of this version on this install";
