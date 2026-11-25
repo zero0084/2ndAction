@@ -13,7 +13,7 @@ public partial class QaSweep
     IEnumerator LifecycleMode()
     {
         float w0 = 0f;
-        while (GameManager.Instance == null && w0 < 10f) { yield return null; w0 += Time.unscaledDeltaTime; }
+        while (GameManager.Instance == null && w0 < 90f) { yield return null; w0 += Time.unscaledDeltaTime; } // エミュレーターの起動は遅い
         yield return new WaitForSecondsRealtime(2f);
         gm = GameManager.Instance; // ランを始めない時(CONTINUE/部屋)は BeginRun を通らないので、ここで取る
         float secs = float.Parse(Arg("-lcSeconds", "300"), System.Globalization.CultureInfo.InvariantCulture);
@@ -35,7 +35,8 @@ public partial class QaSweep
         float t0 = Time.realtimeSinceStartup, next = 0f;
         while (Time.realtimeSinceStartup - t0 < secs)
         {
-            if (Time.realtimeSinceStartup >= next)
+            if (GameManager.Instance != null) gm = GameManager.Instance;
+            if (gm != null && Time.realtimeSinceStartup >= next)
             {
                 next = Time.realtimeSinceStartup + 1.5f;
                 L($"[lc] t={Time.realtimeSinceStartup - t0:F0} started={gm.HasStarted} over={gm.IsGameOver} d={gm.MaxDistance:F0} pauseMenu={Field<bool>(gm, "showPauseMenu")} gate={gm.ResumeGate} timePaused={TimeControl.IsPaused} ts={Time.timeScale:F2} orient={Screen.orientation} {Screen.width}x{Screen.height} focus={Application.isFocused} bg={Application.runInBackground} exitAsk={AppExit.Open} title={TitleScreen.Showing}");
