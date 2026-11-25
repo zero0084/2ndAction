@@ -168,6 +168,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaReach") { mode = "reach"; dir = a[i + 1]; } // 2026-10-29: 停止戦で近接の攻撃が届く機会(ボスごと)
             if (a[i] == "-qaReaperRetreat") { mode = "reaperretreat"; dir = a[i + 1]; } // 2026-10-29: ボス戦の間の死神の退避と追跡の再開
             if (a[i] == "-qaHomeChoice") { mode = "homechoice"; dir = a[i + 1]; }
+            if (a[i] == "-qaInstallGuard") { mode = "installguard"; dir = a[i + 1]; } // 2026-11-25: Android の復元の見分け(エミュレーターだけ)
             if (a[i] == "-qaUgsEnv") { mode = "ugsenv"; dir = a[i + 1]; }
             if (a[i] == "-qaUgsLive") { mode = "ugslive"; dir = a[i + 1]; }
             if (a[i] == "-qaUgsDev") { mode = "ugsdev"; dir = a[i + 1]; }
@@ -295,6 +296,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "bosskill") yield return BossKillMode();
         else if (mode == "resume") yield return ResumeMode();
         else if (mode == "homechoice") yield return HomeChoiceMode();
+        else if (mode == "installguard") yield return InstallGuardMode();
         else if (mode == "ugsenv") yield return UgsEnvMode();
         else if (mode == "ugslive") yield return UgsLiveMode();
         else if (mode == "ugsdev") yield return UgsDevMode();
