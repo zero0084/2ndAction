@@ -172,6 +172,9 @@ public partial class NetMatch
     {
         if (rec == null || rec.State == PState.Escaped || rec.State == PState.Out || rec.State == PState.Eliminated) return;
         rec.State = PState.Escaped;
+        // 2026-11-25 セキュリティ監査: 申告の距離は有限で、HOST が知っている距離から少しだけ先まで(VERSUS の順位の水増し)
+        if (!NetSecurity.Finite(distance) || distance < 0) { NetSecurity.Reject("Escaped", "non-finite"); distance = rec.Distance; }
+        distance = System.Math.Min(distance, rec.Distance + NetSecurity.EscapeSlack);
         rec.FinalDistance = System.Math.Max(rec.Distance, distance);
         dirty = true;
         Log($"P{rec.Pn} ESCAPED FinalDistance={rec.FinalDistance:F1}m (no longer FRONT/alive)");

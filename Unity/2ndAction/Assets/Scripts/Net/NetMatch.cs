@@ -336,7 +336,7 @@ public partial class NetMatch : MonoBehaviour
             case ReqHello:
             {
                 r.ReadValueSafe(out int hp); r.ReadValueSafe(out int max);
-                if (!rec.Known) { rec.Hp = hp; rec.MaxHp = max; rec.Known = true; rec.State = PState.Alive; }
+                if (!rec.Known) { rec.MaxHp = Mathf.Clamp(max, 1, NetSecurity.MaxHp); rec.Hp = Mathf.Clamp(hp, 1, rec.MaxHp); rec.Known = true; rec.State = PState.Alive; } // 2026-11-25: 上限
                 Log($"P{pn} joined run hp={rec.Hp}/{rec.MaxHp}");
                 dirty = true;
                 break;
@@ -352,7 +352,7 @@ public partial class NetMatch : MonoBehaviour
             case ReqHeal:
             {
                 r.ReadValueSafe(out int amount);
-                if (rec.State == PState.Alive) { rec.Hp = Mathf.Min(rec.MaxHp, rec.Hp + Mathf.Max(0, amount)); dirty = true; Log($"P{pn} heal +{amount} -> hp={rec.Hp}/{rec.MaxHp}"); }
+                if (rec.State == PState.Alive) { rec.Hp = Mathf.Min(rec.MaxHp, rec.Hp + Mathf.Clamp(amount, 0, NetSecurity.MaxHp)); dirty = true; Log($"P{pn} heal +{amount} -> hp={rec.Hp}/{rec.MaxHp}"); }
                 break;
             }
             case ReqSetMax:
@@ -360,7 +360,7 @@ public partial class NetMatch : MonoBehaviour
                 r.ReadValueSafe(out int max); r.ReadValueSafe(out bool restore);
                 if (rec.State == PState.Alive)
                 {
-                    rec.MaxHp = Mathf.Max(1, max);
+                    rec.MaxHp = Mathf.Clamp(max, 1, NetSecurity.MaxHp); // 2026-11-25: 上限
                     rec.Hp = restore ? rec.MaxHp : Mathf.Min(rec.Hp, rec.MaxHp);
                     dirty = true;
                     Log($"P{pn} maxHp={rec.MaxHp} restore={restore} -> hp={rec.Hp}");

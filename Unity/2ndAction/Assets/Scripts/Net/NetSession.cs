@@ -352,7 +352,10 @@ public class NetSession : MonoBehaviour
             return;
         }
         response.Approved = true;
-        if (!isHostSelf && !string.IsNullOrEmpty(ugsPlayerId)) OnlinePlayerIds[request.ClientNetworkId] = ugsPlayerId;
+        if (!isHostSelf && !string.IsNullOrEmpty(ugsPlayerId) && ugsPlayerId.Length <= 64 && !OnlinePlayerIds.ContainsValue(ugsPlayerId)
+            && (OnlineServices.Current == null || OnlineServices.IsSessionMember(ugsPlayerId)))
+            OnlinePlayerIds[request.ClientNetworkId] = ugsPlayerId; // 2026-11-25 セキュリティ監査: 他人の PlayerId を名乗って、その人を部屋から外させない
+        else if (!isHostSelf && !string.IsNullOrEmpty(ugsPlayerId)) NetSecurity.Reject("Approve", "player id not a member / already used");
     }
 
     // ONLINE: NGO の clientId → UGS の PlayerId(HOST だけが持つ。切断した人を Session から外して一覧の人数を正しくする)

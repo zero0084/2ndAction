@@ -335,7 +335,8 @@ public class NetPlayer : NetworkBehaviour
     }
 
     // JOIN → HOST
-    [Rpc(SendTo.Server, Delivery = RpcDelivery.Unreliable)]
+    // 2026-11-25 セキュリティ監査: 既定は誰でも呼べた(他人の分身/距離を書き換えられた)→ 本人だけ
+    [Rpc(SendTo.Server, Delivery = RpcDelivery.Unreliable, InvokePermission = RpcInvokePermission.Owner)]
     void SnapshotToServerRpc(NetPlayerSnapshot snapshot)
     {
         ReceiveSnapshot(snapshot);
@@ -343,7 +344,7 @@ public class NetPlayer : NetworkBehaviour
     }
 
     // HOST → 1人の JOIN(その間に届いた全員分)
-    [Rpc(SendTo.SpecifiedInParams, Delivery = RpcDelivery.Unreliable)]
+    [Rpc(SendTo.SpecifiedInParams, Delivery = RpcDelivery.Unreliable, InvokePermission = RpcInvokePermission.Server)] // 2026-11-25: HOST だけ
     void SnapshotBatchRpc(RelayBatch batch, RpcParams rpcParams = default)
     {
         int bytes = RpcHeaderBytes + 1;
@@ -434,9 +435,19 @@ public class NetPlayer : NetworkBehaviour
     {
         snapshotsReceived++;
         if (count) NetStats.Received("snapshot", RpcHeaderBytes + snapshot.WireSize);
+        // 2026-11-25 セキュリティ監査: 速さは有限・0〜60(送る側と同じ範囲)。HOST では距離の増え方を時間で抑える(VERSUS の順位/距離の水増し)
+        float rs = snapshot.RunSpeed;
+        if (float.IsNaN(rs) || float.IsInfinity(rs)) { rs = 0f; NetSecurity.Reject("Snapshot", "non-finite speed"); }
+        snapshot.RunSpeed = Mathf.Clamp(rs, 0f, 60f);
         interpolator.Add(snapshot);
         remoteRunSpeed = snapshot.RunSpeed;
-        remoteDistance = snapshot.Distance;
+        double nd = snapshot.Distance;
+        if (IsServer && !IsOwner && lastSnapshotRealtime > 0f)
+        {
+            double cap = remoteDistance + (Time.realtimeSinceStartup - lastSnapshotRealtime) * NetSecurity.MaxRunSpeedMps + NetSecurity.DistanceSlack;
+            if (nd > cap) { NetSecurity.Reject("Snapshot", $"distance jump {nd - remoteDistance:F0}m"); nd = cap; }
+        }
+        remoteDistance = nd;
         remoteRunning = (snapshot.Flags & NetPlayerSnapshot.FlagRunning) != 0;
         lastSnapshotRealtime = Time.realtimeSinceStartup;
     }

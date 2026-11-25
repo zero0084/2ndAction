@@ -407,11 +407,15 @@ public class NetRunLauncher : MonoBehaviour
 
     void OnRunStartMessage(ulong senderClientId, FastBufferReader reader)
     {
+        // 2026-11-25 セキュリティ監査: ラン開始は HOST からだけ(JOIN が HOST や他の JOIN を任意のステージへ読み直させられた)
+        var nmS = NetSession.Manager;
+        if (nmS == null || nmS.IsServer || senderClientId != NetworkManager.ServerClientId) { NetSecurity.Reject("RunStart", $"from client {senderClientId}"); return; }
         reader.ReadValueSafe(out FixedString64Bytes stage);
         reader.ReadValueSafe(out int seed);
         reader.ReadValueSafe(out double go);
         reader.ReadValueSafe(out byte mode);
         reader.ReadValueSafe(out byte reaperMin);
+        if (!NetSecurity.KnownStage(stage.ToString()) || mode > (byte)MultiplayerGameMode.Versus || !NetSecurity.Finite(go)) { NetSecurity.Reject("RunStart", $"bad stage/mode '{stage}' {mode}"); return; }
         NetSession.Log($"Run start received from clientId={senderClientId} stage={stage} seed={seed} mode={(MultiplayerGameMode)mode} reaperMin={reaperMin}");
         BeginRunReload(stage.ToString(), seed, go, (MultiplayerGameMode)mode, reaperMin);
     }

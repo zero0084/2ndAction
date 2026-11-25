@@ -415,6 +415,15 @@ public static class OnlineServices
     }
 
     // HOST: 通信が切れた JOIN を Session から外す(自分から抜けた人は既に居ないので、その時は何もしない)
+    public static bool LastRelaySecure { get; set; } // 確認用: 直前の Relay の接続が DTLS か
+    public static bool IsSessionMember(string playerId)
+    {
+        var s = Current;
+        if (s == null || string.IsNullOrEmpty(playerId)) return false;
+        foreach (var p in s.Players) if (p.Id == playerId) return true;
+        return false;
+    }
+
     public static async void HostRemovePlayer(string playerId)
     {
         var s = Current;
@@ -475,7 +484,11 @@ public class OnlineNetworkHandler : INetworkHandler
         if (ns == null) throw new InvalidOperationException("NetSession missing");
         RelayServerData data = configuration.RelayServerData;
         OnlineServices.RelayHost = data.Endpoint.Address;
-        Debug.Log($"[ONLINE] Relay allocation created (role {configuration.Role})");
+        Debug.Log($"[ONLINE] Relay allocation created (role {configuration.Role}, {(data.IsSecure != 0 ? "DTLS" : "NOT ENCRYPTED")})");
+        OnlineServices.LastRelaySecure = data.IsSecure != 0;
+#if !(UNITY_EDITOR || DEVELOPMENT_BUILD)
+        if (data.IsSecure == 0) throw new Exception("relay connection is not encrypted (DTLS required)"); // 2026-11-25 セキュリティ監査: 平文の UDP では始めない
+#endif
         if (configuration.Role == NetworkRole.Client)
         {
             if (!ns.StartRelayClient(data)) throw new Exception("client start failed");

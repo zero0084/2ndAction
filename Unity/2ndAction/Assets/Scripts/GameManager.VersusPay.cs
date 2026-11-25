@@ -24,7 +24,7 @@ public partial class GameManager
         if (IsGameOver || versusPaid) return;
         VersusPaySet = true;
         VersusRank = rank; VersusPlayers = players;
-        VersusRankBonusRate = Mathf.Max(0f, rankBonus); VersusReaperBonusRate = Mathf.Max(0f, reaperBonus);
+        VersusRankBonusRate = NetSecurity.ClampFinite(rankBonus, 0f, NetSecurity.MaxVersusBonus); VersusReaperBonusRate = NetSecurity.ClampFinite(reaperBonus, 0f, NetSecurity.MaxVersusBonus); // 2026-11-25: HOST の値は有限・上限つき
     }
 
     // FinishRunCore(負けの経路)から。RunDistanceMile を決めた後に呼ぶ

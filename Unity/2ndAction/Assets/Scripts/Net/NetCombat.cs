@@ -942,6 +942,11 @@ public class NetCombat : MonoBehaviour
 
         int attacker = PlayerNumberOfClient(senderClientId);
         if (attacker <= 0) { StatHitRequestsIgnored++; Log("HIT", $"request id={id} from unknown client {senderClientId} ignored"); return; }
+        // 2026-11-25 セキュリティ監査: 有限でない座標/吸い寄せ、1秒の数の上限、倒れて/脱落している人の攻撃は受けない
+        if (!NetSecurity.Finite(cx) || !NetSecurity.Finite(cy) || !NetSecurity.Finite(vx) || !NetSecurity.Finite(vy) || !NetSecurity.Finite(vdur)) { StatHitRequestsIgnored++; NetSecurity.Reject("Hit", "non-finite"); return; }
+        if (!NetSecurity.RateOk("hit", senderClientId, NetSecurity.MaxHitsPerSecond)) { StatHitRequestsIgnored++; return; }
+        var arec = NetMatch.Get(attacker);
+        if (arec != null && arec.State != NetMatch.PState.Alive) { StatHitRequestsIgnored++; NetSecurity.Reject("Hit", $"attacker P{attacker} is {arec.State}"); return; }
         if (seed != NetRunLauncher.ActiveRunSeed || !entities.TryGetValue(id, out Entity e) || e.Go == null)
         {
             StatHitRequestsIgnored++;
@@ -958,7 +963,7 @@ public class NetCombat : MonoBehaviour
         StatHitRequestsApplied++;
         if (op == HitVacuum)
         {
-            if (e.Enemy != null) e.Enemy.NetRemoteVacuum(attacker, new Vector2(vx, vy), vdur);
+            if (e.Enemy != null) e.Enemy.NetRemoteVacuum(attacker, new Vector2(Mathf.Clamp(vx, -NetSecurity.MaxVacuum, NetSecurity.MaxVacuum), Mathf.Clamp(vy, -NetSecurity.MaxVacuum, NetSecurity.MaxVacuum)), Mathf.Clamp(vdur, 0f, NetSecurity.MaxVacuumSeconds));
             return;
         }
         damage = Mathf.Clamp(damage, 1, 999999); // 2026-10-02: 10倍スケール+Lv9の大きな値
@@ -1346,6 +1351,9 @@ public class NetCombat : MonoBehaviour
         r.ReadValueSafe(out float mileBase); r.ReadValueSafe(out float expMul);
         r.ReadValueSafe(out int bounty);
         r.ReadValueSafe(out ushort finishCode);
+        // 2026-11-25 セキュリティ監査: HOST から届く報酬の値は有限・現実的な範囲だけ(壊れた/改変した HOST の値で MILE が増えない)
+        mileBase = NetSecurity.ClampFinite(mileBase, 0f, NetSecurity.MaxMileBase); expMul = NetSecurity.ClampFinite(expMul, 0f, NetSecurity.MaxExpMul);
+        bounty = Mathf.Clamp(bounty, 0, NetSecurity.MaxBounty);
         if (!entities.TryGetValue(id, out Entity e)) return;
         if (e.Enemy != null) { e.Enemy.NetFinishCode = cause == 0 ? finishCode : (ushort)0; e.Enemy.NetFinishLocal = lastHit == LocalPlayerNumber; }
         if (e.Wild != null) { e.Wild.NetBossFinishCode = finishCode; e.Wild.NetBossFinishLocal = lastHit == LocalPlayerNumber; }
