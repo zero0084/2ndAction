@@ -3431,13 +3431,8 @@ public static class SceneBuilder
             slot.SetTextures(new[] { background, foreground });
         }
         PlayerSettings.SetPlatformIcons(target, AndroidPlatformIconKind.Adaptive, adaptiveIcons);
-
-        PlatformIcon[] roundIcons = PlayerSettings.GetPlatformIcons(target, AndroidPlatformIconKind.Round);
-        foreach (PlatformIcon slot in roundIcons)
-        {
-            slot.SetTextures(new[] { roundIcon });
-        }
-        PlayerSettings.SetPlatformIcons(target, AndroidPlatformIconKind.Round, roundIcons);
+        // 2026-11-25 Unity 6000.6: AndroidPlatformIconKind.Round は廃止(Adaptive を使う)。このゲームの最低対応は API 26 で、
+        //  API 26 以上はアダプティブアイコンが丸いアイコンも兼ねるので、Round の枠への設定は不要になった(roundIcon は使わない)
     }
 
     // Root/Visual split (see the same convention on GroundFactory.
