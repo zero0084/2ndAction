@@ -168,6 +168,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaReach") { mode = "reach"; dir = a[i + 1]; } // 2026-10-29: 停止戦で近接の攻撃が届く機会(ボスごと)
             if (a[i] == "-qaReaperRetreat") { mode = "reaperretreat"; dir = a[i + 1]; } // 2026-10-29: ボス戦の間の死神の退避と追跡の再開
             if (a[i] == "-qaHomeChoice") { mode = "homechoice"; dir = a[i + 1]; }
+            if (a[i] == "-qaLifecycle") { mode = "lifecycle"; dir = a[i + 1]; } // 2026-11-25: Android の裏へ/復帰・戻る・回転・消灯(外から adb で操作)
             if (a[i] == "-qaInstallGuard") { mode = "installguard"; dir = a[i + 1]; } // 2026-11-25: Android の復元の見分け(エミュレーターだけ)
             if (a[i] == "-qaUgsEnv") { mode = "ugsenv"; dir = a[i + 1]; }
             if (a[i] == "-qaUgsLive") { mode = "ugslive"; dir = a[i + 1]; }
@@ -296,6 +297,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "bosskill") yield return BossKillMode();
         else if (mode == "resume") yield return ResumeMode();
         else if (mode == "homechoice") yield return HomeChoiceMode();
+        else if (mode == "lifecycle") yield return LifecycleMode();
         else if (mode == "installguard") yield return InstallGuardMode();
         else if (mode == "ugsenv") yield return UgsEnvMode();
         else if (mode == "ugslive") yield return UgsLiveMode();
@@ -516,6 +518,33 @@ public partial class QaSweep : MonoBehaviour
             if (gm != null && gm.Lives < 500 && !gm.IsGameOver) setter.Invoke(gm, new object[] { 990 });
             yield return null;
         }
+    }
+
+    // ランキングの速さの上限(端末 LeaderboardRules / サーバー omm_submit_run)に対する実際の平均。
+    //  ゲーム内の時間(一時停止・選択中を含まない)での平均 ≧ 実時間での平均 なので、ゲーム内の時間で上限の内側なら実時間でも内側
+    void SpeedLimitReport(float d, float g0, float t0, float maxKmh)
+    {
+        var run = RunLedger.Current;
+        float game = Mathf.Max(1f, Time.time - g0), play = run != null ? Mathf.Max(1f, run.playSeconds) : game, real = Mathf.Max(1f, Time.realtimeSinceStartup - t0);
+        float limit = LeaderboardRules.MaxSpeedMps * LeaderboardRules.SpeedSlack * 3.6f;
+        float avgGame = d / game * 3.6f, avgPlay = d / play * 3.6f, avgReal = d / real * 3.6f;
+        L($"[speedcap] {d,7:F0}m avg {avgGame:F0}km/h (game time) / {avgPlay:F0}km/h (play time) / {avgReal:F0}km/h (real) top {maxKmh:F0}km/h now {GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):F0}km/h limit {limit:F0}km/h");
+        Check(avgGame < limit && avgPlay < limit, $"[speedcap] average below the ranking limit at {d:F0}m ({Mathf.Max(avgGame, avgPlay):F0} < {limit:F0}km/h)");
+    }
+
+    void ApplyMaxSpeedDeck()
+    {
+        GameSettings.SetMaxSpeedPercent(GameSettings.MaxSpeedMax);
+        foreach (var id in new[] { "speed_up", "greed", "overdrive", "ultimate", "no_turning_back", "close_call" })
+        {
+            var c = CardDatabase.FindBaseById(id);
+            if (c != null) gm.ApplyCardEffectsStacked(c, 9); else L($"[speedcap] card not found: {id}");
+        }
+        var mapTypes = new[] { EffectType.DiveBoostLevel, EffectType.SecondRiseLevel, EffectType.FinalDriveLevel, EffectType.OneMoreChanceLevel };
+        foreach (var c in CardDatabase.AllCards)
+            if (c != null && CardDatabase.FindBaseById(c.cardId) == c && c.effects != null && c.effects.Exists(e => System.Array.IndexOf(mapTypes, e.type) >= 0))
+            { gm.ApplyCardEffectsStacked(c, 9); L($"[speedcap] map card {c.cardId} Lv9"); }
+        L($"[speedcap] max deck: speed setting {GameSettings.MaxSpeedPercent}% char {pc.name} base run {GameManager.SpeedKmh(pc.runSpeed):F1}km/h natural cap x{pc.NaturalCapMultiplier * PlayerController.UserSpeedScale:F2}");
     }
 
     int cardPicks;
@@ -1198,6 +1227,12 @@ public partial class QaSweep : MonoBehaviour
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
         if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(true);
         pc.AddAttackPower(powerAdd);
+        // 2026-11-25 ランキングの速さの上限の実測: -qaMaxDeck 1 = 最高速度の設定 120% + 速さのカード6枚 Lv9 + マップ専用の速さのカード Lv9(どのマップでも全部 = 上限側)
+        //  -qaYes <m> = ラスダンの ONE MORE MILE? に YES で答えて、その先を <m> 走って終える
+        bool maxDeck = Arg("-qaMaxDeck", "0") == "1";
+        float yesMeters = float.Parse(Arg("-qaYes", "0"), System.Globalization.CultureInfo.InvariantCulture);
+        float yesAt = -1f;
+        if (maxDeck) ApplyMaxSpeedDeck();
         var bm = BossManager.Instance;
         float t0 = Time.realtimeSinceStartup, g0 = Time.time; bool reported100k = false; float maxKmh = 0f;
         if (ts != 1f) TimeControl.SetDebugTimeScale(ts);
@@ -1233,7 +1268,10 @@ public partial class QaSweep : MonoBehaviour
             inBossForTap = inBoss || bm.IsBossPhase;
             if (!reported100k && d >= 100000f) { reported100k = true; L($"reached 100,000m at game time {(Time.time - g0) / 60f:F1}min (max speed {maxKmh:F0}km/h, cards picked {cardPicks})"); }
             // 99,500mで無敵を切る(死神に捕まるため)
-            if (d >= 99500f && gm.InvincibleMode) { typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false); L($"{d:F0}m: invincible off (for the reaper)"); }
+            if (yesMeters > 0f && LastDungeonFlow.Instance != null && LastDungeonFlow.Instance.Choice != null && LastDungeonFlow.Instance.Choice.Risen && !LastDungeonFlow.Instance.Choice.Decided)
+            { LastDungeonFlow.Instance.Choice.Decide(LastDungeonFlow.Instance.Choice.Yes); yesAt = d; L($"{d:F0}m: ONE MORE MILE? -> YES (run {yesMeters:F0}m more)"); }
+            if (yesAt >= 0f && d >= yesAt + yesMeters) { L($"{d:F0}m: ran {yesMeters:F0}m past the YES"); SpeedLimitReport(d, g0, t0, maxKmh); break; }
+            if (d >= 99500f && gm.InvincibleMode && yesMeters <= 0f) { typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false); L($"{d:F0}m: invincible off (for the reaper)"); }
             if (d >= 99900f) { stopKeepAlive = true; PlayerController.DebugSpeedScale = Mathf.Min(PlayerController.DebugSpeedScale, 1f); }
 
             // ボス
@@ -1328,6 +1366,7 @@ public partial class QaSweep : MonoBehaviour
             if (d - lastLog >= 5000f)
             {
                 lastLog = d;
+                if (maxDeck) SpeedLimitReport(d, g0, t0, maxKmh);
                 if (dmgWhy.Count > 0) L("   damage by reason: " + string.Join(", ", dmgWhy.OrderByDescending(kv => kv.Value).Select(kv => $"{kv.Key}={kv.Value}")));
                 L($"{d,7:F0}m  game {(Time.time - g0) / 60f,5:F1}min  real {Time.realtimeSinceStartup - t0,6:F0}s  speed {GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):F0}km/h  lv? cards={cardPicks} bosses {bossKills}/{bossFights} stuck={stuck} hits(lives lost)={respawns} fps~{1f / Mathf.Max(0.0001f, Time.smoothDeltaTime):F0}");
                 if (((int)(d / 5000f)) % 2 == 0) StartCoroutine(ShotLater($"run_{(int)(d / 1000)}k", 0f));
@@ -1338,6 +1377,8 @@ public partial class QaSweep : MonoBehaviour
         L("");
         L("bosses:");
         foreach (var b in bossLog) L("  " + b);
+        if (maxDeck) SpeedLimitReport(gm.MaxDistance, g0, t0, maxKmh);
+        if (yesMeters > 0f) { Check(yesAt >= 0f, "answered YES to ONE MORE MILE and ran on"); yield break; }
         var r = ReaperBase.Active;
         L($"end: gameOver={gm.IsGameOver} distance={gm.MaxDistance:F0}m reaperSpawned={bm.DeathSpawned} reaper={(r != null ? r.GetType().Name : "-")} bossFights={bossFights} defeated={bossKills} forced={bossForced} stuck={stuck} real={Time.realtimeSinceStartup - t0:F0}s");
         Check(gm.IsGameOver && bm.DeathSpawned && gm.MaxDistance >= 99990f, "ran to 100,000m and the reaper ended the run");
