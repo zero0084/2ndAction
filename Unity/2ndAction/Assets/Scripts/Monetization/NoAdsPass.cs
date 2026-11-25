@@ -32,7 +32,7 @@ public static class NoAdsPass
     static void Write() { SaveStore.SetString(StoreKey, JsonUtility.ToJson(S)); SaveStore.Save(); }
 
     // 持っている(Steam/None ではいつも false = 何も変わらない)
-    public static bool Owned => Monetization.Mode != MonetizationMode.None && S.owned;
+    public static bool Owned => Monetization.Mode != MonetizationMode.None && Monetization.StoreOn && S.owned; // 2026-11-25 セキュリティ監査: 購入の仕組みが無い端末(iOS)では、保存の値だけで有効にしない
     public static bool PendingPayment => Monetization.Mode != MonetizationMode.None && S.pending;
     public static DateTime LastConfirmed => S.lastConfirmedUtc > 0 ? new DateTime(S.lastConfirmedUtc, DateTimeKind.Utc) : DateTime.MinValue;
     public static string LastNote { get; private set; } = "";
