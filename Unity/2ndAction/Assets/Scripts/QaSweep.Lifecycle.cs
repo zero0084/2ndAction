@@ -15,6 +15,7 @@ public partial class QaSweep
         float w0 = 0f;
         while (GameManager.Instance == null && w0 < 10f) { yield return null; w0 += Time.unscaledDeltaTime; }
         yield return new WaitForSecondsRealtime(2f);
+        gm = GameManager.Instance; // ランを始めない時(CONTINUE/部屋)は BeginRun を通らないので、ここで取る
         float secs = float.Parse(Arg("-lcSeconds", "300"), System.Globalization.CultureInfo.InvariantCulture);
         var cp0 = RunCheckpoint.Load();
         L($"[lc] boot: checkpoint={(cp0 != null && cp0.active)} at {(cp0 != null ? cp0.checkpointDistance : 0f):F0}m");
