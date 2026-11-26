@@ -114,7 +114,13 @@ public class NetSession : MonoBehaviour
         var go = new GameObject("[NetworkManager]");
         DontDestroyOnLoad(go);
         transport = go.AddComponent<UnityTransport>();
+        // 2026-11-26: NetworkManager は有効になった瞬間に Application.runInBackground = true にする(NGO の RunInBackground の初期値)。
+        //  そのままだと、通信の前の値を覚える時点で既に有効になっていて、通信が終わっても有効のまま残る(KeepRunningInBackground/RestoreRunInBackground が効かない)。
+        //  作る前の値へ戻し、以後は通信の間だけ NetSession が有効にする
+        bool appRunInBackground = Application.runInBackground;
         var nm = go.AddComponent<NetworkManager>();
+        nm.RunInBackground = false;
+        Application.runInBackground = appRunInBackground;
         nm.NetworkConfig = new NetworkConfig
         {
             NetworkTransport = transport,
@@ -211,9 +217,19 @@ public class NetSession : MonoBehaviour
         if (runInBackgroundBefore == null) runInBackgroundBefore = Application.runInBackground;
         Application.runInBackground = true;
     }
+    // 2026-11-26: ONLINE の自動の立て直し(部屋の作り直し / JOIN のもう1回)の間は戻さない。
+    //  途中で通信が一度止まるので、ここで戻すと Windows では裏の窓が止まり、立て直しが終わらない(8人の試験で 113 秒止まって部屋の作り直しが失敗した)
+    public static bool HoldRunInBackground { get; private set; }
+    public static void BeginRunInBackgroundHold() => HoldRunInBackground = true;
+    public static void EndRunInBackgroundHold(string why)
+    {
+        HoldRunInBackground = false;
+        if (!IsActive) RestoreRunInBackground(why);
+    }
     static void RestoreRunInBackground(string why)
     {
         if (runInBackgroundBefore == null) return;
+        if (HoldRunInBackground) { Debug.Log($"[NET] run in background kept during the automatic recovery ({why})"); return; }
         Application.runInBackground = runInBackgroundBefore.Value;
         runInBackgroundBefore = null;
         Debug.Log($"[NET] run in background restored to {Application.runInBackground} ({why})");

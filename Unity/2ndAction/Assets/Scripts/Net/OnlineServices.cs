@@ -213,6 +213,7 @@ public static class OnlineServices
     {
         if (Recreating) return;
         Recreating = true; recreatesThisRoom++; AutoRecreates++;
+        NetSession.BeginRunInBackgroundHold(); // 作り直しの間は裏でも進める(以前と同じ)
         try
         {
             var mode = lastCreateMode; string name = lastCreateName;
@@ -226,7 +227,7 @@ public static class OnlineServices
             Log($"Room recreated: {(ok ? "ok" : "failed")}");
             if (!ok) NetSession.Instance?.NotifyOnlineLost();
         }
-        finally { Recreating = false; }
+        finally { Recreating = false; NetSession.EndRunInBackgroundHold("room recreate finished"); }
     }
 
     // ---------------------------------------------------------------- 探す
@@ -292,12 +293,18 @@ public static class OnlineServices
     public static int JoinAutoRetries { get; private set; }
     public static async Task<bool> JoinAsync(Room r)
     {
-        bool ok = await JoinOnceAsync(r);
-        if (ok || LastJoinFailure != "CONNECTION FAILED" || r == null) return ok;
-        JoinAutoRetries++;
-        Log("Join: relay connection failed -> trying once more");
-        float w = Time.realtimeSinceStartup; while (Time.realtimeSinceStartup - w < 1.5f) await Task.Yield();
-        return await JoinOnceAsync(r);
+        // 1回目の失敗で通信が止まっても、もう1回が終わるまでは裏でも進める(2026-11-26、NetSession.HoldRunInBackground)
+        NetSession.BeginRunInBackgroundHold();
+        try
+        {
+            bool ok = await JoinOnceAsync(r);
+            if (ok || LastJoinFailure != "CONNECTION FAILED" || r == null) return ok;
+            JoinAutoRetries++;
+            Log("Join: relay connection failed -> trying once more");
+            float w = Time.realtimeSinceStartup; while (Time.realtimeSinceStartup - w < 1.5f) await Task.Yield();
+            return await JoinOnceAsync(r);
+        }
+        finally { NetSession.EndRunInBackgroundHold("join finished"); }
     }
 
     static async Task<bool> JoinOnceAsync(Room r)
