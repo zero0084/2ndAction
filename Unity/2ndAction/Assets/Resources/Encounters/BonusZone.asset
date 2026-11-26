@@ -621,15 +621,15 @@ MonoBehaviour:
       t3: 0
       t4: 0
       t5: 0
-  goblinHitMile: 5
-  goblinKillMile: 45
-  mimicHitMile: 6
+  goblinHitMile: 15
+  goblinKillMile: 135
+  mimicHitMile: 18
   mimicLaunchMultiplier: 1.5
   mimicAerialMultiplier: 1.25
   mimicSlamMultiplier: 2
-  mimicMaxMile: 150
+  mimicMaxMile: 450
   mimicMaxRewardHits: 45
-  mimicKillMile: 30
+  mimicKillMile: 90
   mimicStaySeconds: 8
   goldenSlimeExp: 15
   goldenSlimeExpPerLevel: 0.06

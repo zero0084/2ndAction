@@ -90,7 +90,7 @@ public static class ChallengeSystem
         for (int i = wanted.Count - 1; i >= 0; i--)
         {
             var w = wanted[i];
-            if (w == null || w.IsDying) { if (w != null && w.IsDying) { WantedKilled++; gm.AddRunBonusMile(w.WantedBounty > 0 ? w.WantedBounty : 20 + 10 * Mathf.Max(1, lv)); BossBattleHud.Banner("BOUNTY!", new Color(1f, 0.85f, 0.3f), 1.2f); } wanted.RemoveAt(i); continue; }
+            if (w == null || w.IsDying) { if (w != null && w.IsDying) { WantedKilled++; gm.AddRunBonusMile(w.WantedBounty > 0 ? w.WantedBounty : RunRewards.WantedBounty(lv)); BossBattleHud.Banner("BOUNTY!", new Color(1f, 0.85f, 0.3f), 1.2f); } wanted.RemoveAt(i); continue; }
             var pc = PlayerController.Instance;
             if (pc != null && w.transform.position.x < pc.transform.position.x - 18f) { WantedEscaped++; wanted.RemoveAt(i); }
         }
@@ -123,7 +123,7 @@ public static class ChallengeSystem
         var e = go.GetComponent<EnemyController>();
         if (e == null) return;
         MakeElite(e, 3f + 0.3f * lv, true);
-        e.WantedBounty = 20 + 10 * Mathf.Max(1, lv); // 2026-10-15: 協力マルチでは撃破の知らせに載せて全員へ(人数で分配)
+        e.WantedBounty = RunRewards.WantedBounty(lv); // 2026-10-15: 協力マルチでは撃破の知らせに載せて全員へ(人数で分配)
         e.WantedLevel = lv; // 強さ(HP)と賞金は出した時に決まる(後でカードの Lv が変わっても、この敵の値は変えない)
         wanted.Add(e);
         WantedSpawned++;

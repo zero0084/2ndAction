@@ -48,7 +48,7 @@ public static class CardBehaviorText
             case EffectType.BrakeLevel: return Loc.Src("前後攻撃後0.4秒間 移動速度-10%");
             case EffectType.HeavyArmorLevel: return Loc.Src("ハート2つ以上の被弾をハート1つ分軽く");
             case EffectType.BossRushLevel: return Loc.Src("ボスがもう1体加わる確率 {0}%", Mathf.Min(100, 8 * lv).ToString());
-            case EffectType.WantedLevel: return Loc.Src("賞金首 {0}mごと・HP×{1}・撃破で{2} MILE", Mathf.Max(1500, 3000 - 150 * (lv - 1)).ToString("#,0"), M(3f + 0.3f * lv), (20 + 10 * lv).ToString());
+            case EffectType.WantedLevel: return Loc.Src("賞金首 {0}mごと・HP×{1}・撃破で{2} MILE", Mathf.Max(1500, 3000 - 150 * (lv - 1)).ToString("#,0"), M(3f + 0.3f * lv), RunRewards.WantedBounty(lv).ToString());
             case EffectType.InfernoLevel: return Loc.Src("炎上中の敵を撃破 → 延焼 威力{0}・半径{1}m", CardProcs.InfernoDamage(lv).ToString("0"), M(CardProcs.InfernoRadius(lv)));
             case EffectType.AbsoluteZeroLevel: return Loc.Src("冷えた/凍結した敵への攻撃+{0}%・凍結時の砕け 威力{1}", (3 * lv).ToString(), ElementSystem.ShatterBase(lv).ToString("0"));
             // 2026-10-30: 回数と引き寄せを足した新しい文。訳が入るまでは前の文(回数の所は前の「×3回」のまま)

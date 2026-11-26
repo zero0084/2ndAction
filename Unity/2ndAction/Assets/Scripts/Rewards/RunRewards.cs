@@ -13,12 +13,22 @@ using UnityEngine;
 //  ・EXP は分けない。
 public static class RunRewards
 {
+    // ---- 撃破 MILE の増額(2026-11-26 マスター依頼。倍率はすべて修正前の値が基準。距離の報酬/BONUS のクリア・パーフェクト/ガチャの値段/持ち帰り/マルチの分配は変えない)
+    //  ・雑魚・空中の雑魚: 種類ごとの基本額 ×3、最低 5(基本額 0 の BONUS の報酬の敵は 0 のまま = ゾーンの設定で払う)。距離の係数はこの後に掛かる
+    //  ・強敵: 増額後の基本額に今まで通り ×3(ChallengeSystem.EliteMileMul)
+    //  ・WANTED の賞金: 60 + 30 × Lv(以前 20 + 10 × Lv)
+    //  ・ボス: 基本の倍率 1.5 → 4.5(空中ボスの乱入はこの後に今まで通り ×0.5、死神三姉妹は BossMile(800) = 3,600)
+    //  ・BONUS ZONE の報酬の敵(ヒット/撃破の額・ヒットの上限)は Resources/Encounters/BonusZone.asset
+    public const int ZakoMileMul = 3, ZakoMileMin = 5;
+    public static int ZakoMile(int specMile) => specMile <= 0 ? 0 : Mathf.Max(ZakoMileMin, specMile * ZakoMileMul);
+    public static int WantedBounty(int lv) => 60 + 30 * Mathf.Max(1, lv);
+
     // ---- 雑魚 ----
     public const float EnemyDistanceWeight = 0.5f;
     public static float EnemyMileFactor(float hpRatio) => 1f + EnemyDistanceWeight * Mathf.Max(0f, hpRatio - 1f);
 
     // ---- ボス ----
-    public const float BossMileBase = 1.5f, BossStrengthWeight = 0.5f, BossStrengthMax = 2.5f;
+    public const float BossMileBase = 4.5f, BossStrengthWeight = 0.5f, BossStrengthMax = 2.5f;
     public static float BossStrengthFactor(float hpScale) => Mathf.Clamp(1f + BossStrengthWeight * (hpScale - 1f), 1f, BossStrengthMax);
     public static int BossMile(int specMile, float hpScale) => Mathf.Max(0, Mathf.RoundToInt(specMile * BossMileBase * BossStrengthFactor(hpScale)));
 
