@@ -61,7 +61,7 @@ public partial class QaSweep
         yield return new WaitForSecondsRealtime(1.2f);
 
         // ---- 3) Runは選んだキャラの枠を使う(忍者で出発 → JUMP COUNT UP が付く、黒剣士の SPEED UP は付かない)
-        yield return BeginRun("ninja", "wasteland_road");
+        yield return BeginRun(Arg("-ccChar", "ninja"), "wasteland_road"); // -ccChar: ソニックムーブの比べ(大柄/小柄なキャラ)
         int jc = gm.GetCurrentRunStack("jump_count_up"), su = gm.GetCurrentRunStack("speed_up");
         L($"[cc] ninja run: jump_count_up stack={jc} speed_up stack={su} maxJumps={pc.maxJumps}");
         Check(jc == 1 && su == 0, "a run uses the slots of the character it starts with");

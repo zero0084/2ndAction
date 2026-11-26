@@ -424,7 +424,7 @@ public partial class PlayerController : MonoBehaviour
     // Bugfix 2026-09-05, items 1/2 - gated on escapeChargeConfirmDelay, not
     // 0f, so a normal tap/swipe (which resolves well within that window)
     // never trips this - see escapeChargeConfirmDelay's own comment.
-    public bool IsEscapeCharging => escapeHoldTimer > escapeChargeConfirmDelay && !isAscending;
+    public bool IsEscapeCharging => escapeHolding && escapePressTime > escapeChargeConfirmDelay && !isAscending; // 2026-11-26: 今の押下が 0.3 秒を超えて溜めている時だけ(減っている途中は含めない)
     public float EscapeChargeProgress01 => Mathf.Clamp01(escapeHoldTimer / Mathf.Max(0.01f, escapeHoldDuration));
     public float EscapeHoldSeconds => escapeHoldTimer; // 持ち帰り予定の内訳は1秒以上の長押しで出す(GameManager.TakeHome)
     bool escapeHoldWasDown, escapeHoldMoved;
@@ -1880,6 +1880,8 @@ public partial class PlayerController : MonoBehaviour
     // amount(2026-10-01): ボスの必殺技などの重い一撃(ハートの数)。既定1。満タンから1発で倒れることはない(GameManager側)。
     public void TakeDamage(bool isFall = false, string source = null, int amount = CombatScale.PlayerHit, bool slamDown = false)
     {
+        // 2026-11-26 依頼⑤: 穴へ落ちた(落下の確定)時は脱出のゲージを 0 へ。復帰後は一度指を離してから溜め直す
+        if (isFall && !IsAlly && !IsFinishing && escapeHoldTimer > 0f) { escapeHoldTimer = 0f; escapePressTime = 0f; escapeHolding = false; escapeNeedRelease = true; }
         // GameManager.PresentationDamageLockでも防いでいるが、Finish演出中
         // (RUN正常終了)はPlayerController側でも二重に無敵化しておく。
         if (hasDied || IsFinishing) return;
@@ -2478,22 +2480,77 @@ public partial class PlayerController : MonoBehaviour
         if (down && !escapeHoldWasDown) { escapeHoldStartPos = hp; escapeHoldMoved = false; }
         if (down && Input.touchCount > 0 && (hp - escapeHoldStartPos).magnitude > EscapeMoveCancelPx) escapeHoldMoved = true;
         if (down && Input.touchCount == 0 && Input.GetMouseButton(0) && (hp - escapeHoldStartPos).magnitude > EscapeMoveCancelPx) escapeHoldMoved = true;
+        bool pressStarted = down && !escapeHoldWasDown;
         escapeHoldWasDown = down;
 
-        if (!canEscape || !down || escapeHoldMoved)
+        // 2026-11-26 依頼⑤: 離すと即 0 ではなく少しずつ減る(押し直すと残りから再開)。被弾だけでは減らさない。
+        //  0 へ戻すのは: 脱出できない状態(死亡/DOWN/脱出不可)・穴への落下が確定・画面(カード選択/一時停止)を開いた時。
+        //  落下で戻した後は、一度指を離すまで溜めない(押しっぱなしで自動で再開しない)。
+        //  ジャンプ/攻撃を止める「溜めている」(IsEscapeCharging)は、今の押下が 0.3 秒を超えた時だけ(減っている途中のタップは普通の操作)。
+        //  確定も「溜めている」時だけ(減っている途中のタップで満タンになって脱出しない)。必要な長押しの時間は今まで通り
+        var gmE = GameManager.Instance;
+        bool cannot = !canEscape || hasDied || (NetMatch.Active && !NetMatch.IsLocalAlive) || gmE == null || gmE.RunScreenOpen || TimeControl.IsPaused;
+        if (cannot)
         {
-            escapeHoldTimer = 0f;
+            escapeHoldTimer = 0f; escapePressTime = 0f; escapeHolding = false;
             return;
         }
-
-        escapeHoldTimer += Time.deltaTime;
-        if (escapeHoldTimer >= escapeHoldDuration)
+        // 穴の上を落ちている間は進めない(止めるだけ。0 へ戻すのは落下が確定した時 = TakeDamage(isFall)。推測で 0 にしない)
+        if (isGrounded) escapeLastGroundFeetY = transform.position.y - groundOffset;
+        bool pitFall = EscapePitFalling();
+        if (!down) escapeNeedRelease = false;
+        bool counts = down && !escapeHoldMoved && !escapeNeedRelease;
+        if (counts)
+        {
+            if (pressStarted || !escapeHolding) { escapeTimerAtPress = escapeHoldTimer; escapePressTime = 0f; }
+            escapeHolding = true;
+            escapePressTime += Time.deltaTime;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // 自動試験の長押し(-qaEscape がゲージを直接満タン近くにしてから押す): 以前と同じ時刻に確定させる(押下の 0.3 秒を待たない)
+            if (QaEscapeHold && escapePressTime <= escapeChargeConfirmDelay) escapePressTime = escapeChargeConfirmDelay + 0.001f;
+#endif
+            if (!pitFall) escapeHoldTimer = Mathf.Min(escapeHoldDuration, escapeHoldTimer + Time.deltaTime);
+        }
+        else
+        {
+            // 押していた分が短い(タップ/フリック)なら、その押下で足した分を取り消す(普通の操作でゲージを溜めない)
+            if (escapeHolding && escapePressTime <= escapeChargeConfirmDelay) escapeHoldTimer = escapeTimerAtPress;
+            escapeHolding = false; escapePressTime = 0f;
+            // 満タンから 0 まで、必要な長押しの時間と同じ時間で減らす
+            escapeHoldTimer = Mathf.Max(0f, escapeHoldTimer - Time.deltaTime * EscapeDecayPerSecond);
+            return;
+        }
+        if (escapeHoldTimer >= escapeHoldDuration && IsEscapeCharging && !pitFall) // 落下と満タンが同時なら落下が先(脱出しない)
         {
             // 2026-10-24: 長押しが完了した時点で成功を確定してから演出を始める(敗北が先なら確定せず、演出も出さない)
-            GameManager.Instance.EscapeLog($"hold complete {escapeHoldTimer:F2}s");
+            GameManager.Instance.EscapeLog($"hold complete {escapeHoldTimer:F2}s (press {escapePressTime:F2}s)");
             if (GameManager.Instance.TryConfirmEscape("hold")) StartCoroutine(DoFinishSequence());
             else escapeHoldTimer = 0f;
         }
+    }
+
+    // 脱出のゲージ(2026-11-26): 離した時の減り方(1 = 満タンから 0 まで escapeHoldDuration 秒)
+    public float EscapeDecayPerSecond = 1f;
+    float escapePressTime, escapeTimerAtPress, escapeLastGroundFeetY = float.NegativeInfinity;
+    bool escapeHolding, escapeNeedRelease;
+    public bool EscapeNeedsRelease => escapeNeedRelease;
+    public bool EscapeGaugeVisible => !isAscending && escapeHoldTimer > escapeChargeConfirmDelay;
+
+    // 穴の中を落ちている: 空中で下へ動いていて、足元に乗れる面が無く、最後に立っていた高さより 1m 以上下。この間はゲージを進めない(確定もしない)。
+    //  0 へ戻すのは落下が確定した時(落下の線を越えた TakeDamage(isFall))だけ。推測で 0 にしない。
+    //  ※ 脱出を溜めている間は自動操作補助が跳ばないので、溜めたまま穴へ走ると本当に落ちる(今まで通り)
+    bool EscapePitFalling()
+    {
+        if (isGrounded || velocityY >= 0f) return false;
+        // 最後に立っていた高さより 1m 以上下(穴の中へ入った)。世界の高さ(failY)は距離で地面がずれるので使わない(2026-11-26: failY 基準では通常の走行でも反応した)
+        if (transform.position.y - groundOffset > escapeLastGroundFeetY - 1f) return false;
+        var tm = TerrainManager.Instance;
+        if (tm == null) return false;
+        float x = transform.position.x, feet = transform.position.y - groundOffset;
+        float? sky = tm.GetSkyHeightAt(x, feet);
+        if (sky.HasValue && feet >= sky.Value - 0.05f) return false;   // 下に乗れる面がある
+        float? g = tm.GetHeightAt(x);
+        return !g.HasValue || feet < g.Value - 0.5f;                     // 地面が無い / 縁より下へ入った
     }
 
     // RUN正常終了演出(2026-09-23) - 旧"3秒完了→魔法陣→上昇して画面外へ"
@@ -2698,7 +2755,7 @@ public partial class PlayerController : MonoBehaviour
     {
         if (escapeRingSprite == null) return;
 
-        if (!IsEscapeCharging)
+        if (!EscapeGaugeVisible)
         {
             if (escapeRingRenderer != null) escapeRingRenderer.enabled = false;
             return;
@@ -2720,9 +2777,9 @@ public partial class PlayerController : MonoBehaviour
         // the ring itself brightening/growing rather than a separate
         // particle count, per the brief's own "重いPost Processing等は不
         // 要" - a simple color/scale lerp instead).
-        Color navy = new Color(0.2f, 0.35f, 0.55f, 0.5f);
-        Color goldCyan = new Color(0.75f, 0.95f, 1f, 0.95f);
-        escapeRingRenderer.color = Color.Lerp(navy, goldCyan, progress);
+        // 2026-11-26: 色は上のゲージと同じ(赤→黄→緑)。離して減っている間は薄く
+        Color rc = EscapeGaugeColor(progress); rc.a = (escapeHolding ? 0.85f : 0.45f) * Mathf.Lerp(0.6f, 1f, progress);
+        escapeRingRenderer.color = rc;
         escapeRingRenderer.transform.localScale = Vector3.one * Mathf.Lerp(0.55f, 1.25f, progress);
         escapeRingRenderer.transform.localPosition = new Vector3(0f, 0.05f, 0f);
         escapeRingRenderer.transform.Rotate(Vector3.forward, 70f * Time.deltaTime);
@@ -2735,7 +2792,7 @@ public partial class PlayerController : MonoBehaviour
 
         DrawFallDeadlineWarning();
 
-        if (IsEscapeCharging)
+        if (EscapeGaugeVisible)
         {
             DrawEscapeChargeGauge();
         }
@@ -2810,45 +2867,87 @@ public partial class PlayerController : MonoBehaviour
     // %/remaining-seconds text as secondary annotation around it rather
     // than the main event - a disclosed simplification, not a true radial
     // wipe.
+    // 2026-11-26 依頼⑤: 本当の円形ゲージ。長押しした分だけ上から時計回りに埋まり、色は赤→黄→緑へなめらかに変わる
+    //  (色だけでなく埋まり具合で進み具合が分かる)。離して減っている間は少し暗く、残りがそのまま見える。満タンの時だけ確定(UpdateEscapeInput)
     void DrawEscapeChargeGauge()
     {
         float progress = EscapeChargeProgress01;
         float remaining = Mathf.Max(0f, escapeHoldDuration - escapeHoldTimer);
+        float k = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.2f);
 
         Camera cam = Camera.main;
         Vector3 screenPos = cam != null ? cam.WorldToScreenPoint(transform.position) : new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
         float guiY = Screen.height - screenPos.y;
 
-        const float ringSize = 90f;
-        Rect ringRect = new Rect(screenPos.x - ringSize / 2f, guiY - ringSize - 90f, ringSize, ringSize);
-
-        if (escapeRingSprite != null)
-        {
-            Color prev = GUI.color;
-            GUI.color = Color.Lerp(new Color(0.55f, 0.75f, 1f, 0.6f), new Color(1f, 0.92f, 0.5f, 1f), progress);
-            GUI.DrawTexture(ringRect, escapeRingSprite.texture, ScaleMode.ScaleToFit);
-            GUI.color = prev;
-        }
+        float ringSize = 90f * k;
+        Rect ringRect = new Rect(screenPos.x - ringSize / 2f, guiY - ringSize - 90f * k, ringSize, ringSize);
+        Color prev = GUI.color;
+        // 地の輪(まだ埋まっていない所)
+        GUI.color = new Color(0.05f, 0.07f, 0.12f, 0.6f);
+        GUI.DrawTexture(ringRect, EscapeGaugeTex(1f));
+        // 埋まった所
+        Color c = EscapeGaugeColor(progress);
+        if (!escapeHolding) c = Color.Lerp(c, new Color(0.6f, 0.6f, 0.6f), 0.35f); // 離して減っている間
+        GUI.color = c;
+        if (progress > 0.001f) GUI.DrawTexture(ringRect, EscapeGaugeTex(progress));
+        GUI.color = prev;
 
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-        labelStyle.fontSize = 16;
+        labelStyle.fontSize = Mathf.RoundToInt(16 * k);
         labelStyle.fontStyle = FontStyle.Bold;
         labelStyle.alignment = TextAnchor.MiddleCenter;
-        labelStyle.normal.textColor = new Color(0.75f, 0.95f, 1f);
-        LocGUI.Label(new Rect(ringRect.x - 30f, ringRect.y - 26f, ringRect.width + 60f, 24f), "ESCAPE", labelStyle);
+        labelStyle.normal.textColor = new Color(0.92f, 0.95f, 1f);
+        LocGUI.Label(new Rect(ringRect.x - 30f * k, ringRect.y - 26f * k, ringRect.width + 60f * k, 24f * k), "ESCAPE", labelStyle);
 
         GUIStyle pctStyle = new GUIStyle(GUI.skin.label);
-        pctStyle.fontSize = 20;
+        pctStyle.fontSize = Mathf.RoundToInt(20 * k);
         pctStyle.fontStyle = FontStyle.Bold;
         pctStyle.alignment = TextAnchor.MiddleCenter;
         pctStyle.normal.textColor = Color.white;
         LocGUI.Label(ringRect, $"{Mathf.RoundToInt(progress * 100f)}%", pctStyle);
 
         GUIStyle secStyle = new GUIStyle(GUI.skin.label);
-        secStyle.fontSize = 14;
+        secStyle.fontSize = Mathf.RoundToInt(14 * k);
         secStyle.alignment = TextAnchor.MiddleCenter;
         secStyle.normal.textColor = new Color(1f, 1f, 1f, 0.85f);
-        LocGUI.Label(new Rect(ringRect.x - 30f, ringRect.yMax + 2f, ringRect.width + 60f, 22f), $"{remaining:0.0}s", secStyle);
+        LocGUI.Label(new Rect(ringRect.x - 30f * k, ringRect.yMax + 2f * k, ringRect.width + 60f * k, 22f * k), $"{remaining:0.0}s", secStyle);
+    }
+
+    // 進み具合の色: 0 赤 → 0.5 黄 → 1 緑(なめらか)
+    static Color EscapeGaugeColor(float p)
+    {
+        p = Mathf.Clamp01(p);
+        Color red = new Color(1f, 0.3f, 0.25f), yellow = new Color(1f, 0.85f, 0.25f), green = new Color(0.35f, 0.95f, 0.45f);
+        return p < 0.5f ? Color.Lerp(red, yellow, p / 0.5f) : Color.Lerp(yellow, green, (p - 0.5f) / 0.5f);
+    }
+
+    // 円形ゲージの絵: 上から時計回りに fill(0..1)だけ埋まった輪(白、色は GUI.color)。段階ごとに作って使い回す(60段 + 満)
+    const int EscapeGaugeSteps = 60, EscapeGaugePx = 96;
+    static readonly Texture2D[] escapeGaugeTex = new Texture2D[EscapeGaugeSteps + 1];
+    static Texture2D EscapeGaugeTex(float fill)
+    {
+        int step = Mathf.Clamp(Mathf.CeilToInt(Mathf.Clamp01(fill) * EscapeGaugeSteps), 0, EscapeGaugeSteps);
+        if (escapeGaugeTex[step] != null) return escapeGaugeTex[step];
+        float f = step / (float)EscapeGaugeSteps;
+        var tex = new Texture2D(EscapeGaugePx, EscapeGaugePx, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, name = "EscapeGauge" + step };
+        var px = new Color32[EscapeGaugePx * EscapeGaugePx];
+        float half = EscapeGaugePx * 0.5f, rOut = half - 1.5f, rIn = half * 0.72f;
+        for (int y = 0; y < EscapeGaugePx; y++)
+            for (int x = 0; x < EscapeGaugePx; x++)
+            {
+                float dx = x + 0.5f - half, dy = y + 0.5f - half; // y は上が +(絵の上 = 画面の上)
+                float r = Mathf.Sqrt(dx * dx + dy * dy);
+                float ring = Mathf.Clamp01(rOut - r + 0.5f) * Mathf.Clamp01(r - rIn + 0.5f); // 縁をなめらかに
+                float ang = Mathf.Atan2(dx, dy); if (ang < 0f) ang += Mathf.PI * 2f;      // 上 = 0、時計回りに増える
+                float a01 = ang / (Mathf.PI * 2f);
+                float cover = f >= 1f ? 1f : Mathf.Clamp01((f - a01) * EscapeGaugePx * 0.5f); // 埋まった端もなめらかに
+                byte a = (byte)Mathf.RoundToInt(255f * ring * cover);
+                px[y * EscapeGaugePx + x] = new Color32(255, 255, 255, a);
+            }
+        tex.SetPixels32(px);
+        tex.Apply(false, true);
+        escapeGaugeTex[step] = tex;
+        return tex;
     }
 
     void OnDeath()

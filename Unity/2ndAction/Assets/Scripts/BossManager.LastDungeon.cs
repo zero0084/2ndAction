@@ -562,7 +562,7 @@ public partial class BossManager
         if (gm != null) { gm.BeginBossDistanceExclusion(); gm.ResumeBossDistance(); }
         RunResumed = true; resumedAt = Time.time;
         Debug.Log($"[BossRush] RUN RUSH Start at {(gm != null ? gm.MaxDistance : 0f):F0}m from {fromK}km: {enc.label} (bosses {enc.total}, together <={(map ? 1 : LastDungeonBossTuning.I.maxSimultaneous)}{(map ? ", map rush" : "")})");
-        BossBattleHud.Banner("BOSS RUSH  走りながら戦え!", new Color(1f, 0.45f, 0.3f), 2.0f);
+        BossBattleHud.Banner(RunCallouts.SeriesStart(), new Color(1f, 0.45f, 0.3f), 2.0f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
         rushZakoCheckAt = 0f; RushClearZako();
         if (gm != null) gm.LogBoss("CombatStart");
@@ -629,7 +629,7 @@ public partial class BossManager
             enc.waiting.RemoveAt(i);
             enc.telegraphing = s;
             enc.telegraphEnd = Time.time + Mathf.Max(0f, ld.telegraphSeconds);
-            BossBattleHud.Banner($"WARNING  {ShortName(s.key)} が迫る!", new Color(1f, 0.35f, 0.25f), Mathf.Max(0.8f, ld.telegraphSeconds + 0.4f));
+            BossBattleHud.Banner(RunCallouts.SeriesNext(s.key), new Color(1f, 0.35f, 0.25f), Mathf.Max(0.8f, ld.telegraphSeconds + 0.4f));
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
             RushTelegraphs++;
             Debug.Log($"[BossRush] telegraph {s.key} (milestone {s.value:F0}km) - spawn in {ld.telegraphSeconds:F1}s");

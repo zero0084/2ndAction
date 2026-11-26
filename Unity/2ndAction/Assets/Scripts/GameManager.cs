@@ -5038,7 +5038,7 @@ public partial class GameManager : MonoBehaviour
         float pw = Mathf.Min(safeR - safeL, 760f * s);
         // 中身の高さ(③〜⑤ と下のボタン)を先に測って、板の高さを中身に合わせる(空いた所を作らない。入らない時は ③〜⑤ がスクロール)
         var items = ResultUpdateLines(win);
-        float cardsH = upgradeHistory.Count > 0 ? 150f * s : 0f;
+        float cardsH = ResultAbilitiesHeight(pw - 68f * s, s);
         float updH = items.Count > 0 ? 34f * s + items.Count * 26f * s : 0f;
         float detH = 30f * s;
         var mrows = NetMatch.ResultLinesForScreen(); // 2026-11-05: マルチの順位(CO-OP/VERSUS RESULT)。シングルは空
@@ -5223,32 +5223,56 @@ public partial class GameManager : MonoBehaviour
         return list;
     }
 
-    // ③ 今回のラン中の強化(ラン中だけ。所持には入らない)。共通のカード面で、入るだけ並べて残りは「+N」
-    void DrawResultCards(Rect r, float s)
+    // ③ このランで取得した能力(ラン中だけ。所持カードには入らない)。
+    // 2026-11-26 依頼①: カードの絵を並べると「持ち帰って所持に入った」ように見えた → 能力名と Lv の一覧へ(表示だけ。能力・所持・報酬の処理は同じ)。
+    //  中身は upgradeHistory(このランで取った能力の履歴)を重ねずに取った順、Lv はラン終了時の Lv(GetAbilityRunStack)。
+    //  見出しはデータに合わせて「このランで取得した能力」、補足「所持カードには追加されません」。持ち帰る MILE(②)とは別の枠
+    List<(CardDefinition card, int lv)> ResultAbilities()
     {
-        ResultBlock(r, false);
-        LocGUI.Label(new Rect(r.x + 14f * s, r.y + 6f * s, r.width - 28f * s, 22f * s), Loc.Reviewed(LocPendingReview.ResultRunBuild, "UPGRADES OBTAINED"), UiKit.Label(15f * s, TextAnchor.MiddleLeft, false, UiTheme.TextSub));
         var counts = new Dictionary<CardDefinition, int>();
         var order = new List<CardDefinition>();
         foreach (CardDefinition c in upgradeHistory) { if (c == null) continue; if (!counts.ContainsKey(c)) { counts[c] = 0; order.Add(c); } counts[c]++; }
-        float ch = r.height - 36f * s, cw = ch * 2f / 3f, gap = 8f * s;
-        float avail = r.width - 28f * s;
-        int fit = Mathf.Max(1, Mathf.FloorToInt((avail + gap) / (cw + gap)));
-        bool more = order.Count > fit;
-        int show = more ? fit - 1 : order.Count;
-        float cx = r.x + 14f * s, cyy = r.y + 30f * s;
-        for (int i = 0; i < show; i++)
+        var list = new List<(CardDefinition, int)>(order.Count);
+        foreach (var c in order) { int lv = GetAbilityRunStack(c.cardId); list.Add((c, lv > 0 ? lv : counts[c])); }
+        return list;
+    }
+    static int ResultAbilityColumns(float w, float s) => w >= 520f * s ? 2 : 1;
+    static Color RarityDot(CardDefinition c) => c != null ? UiTheme.Rarity(c.rarity) : UiTheme.TextSub;
+    float ResultAbilitiesHeight(float w, float s)
+    {
+        int n = 0; var seen = new HashSet<CardDefinition>();
+        foreach (CardDefinition c in upgradeHistory) if (c != null && seen.Add(c)) n++;
+        if (n == 0) return 0f;
+        int rows = Mathf.CeilToInt(n / (float)ResultAbilityColumns(w, s));
+        return 30f * s + 22f * s + rows * 26f * s + 10f * s;
+    }
+    void DrawResultCards(Rect r, float s)
+    {
+        ResultBlock(r, false);
+        float x0 = r.x + 14f * s, iw = r.width - 28f * s;
+        bool ready = Loc.Ready(LocPendingReview.ResultAbilitiesTitle) && Loc.Ready(LocPendingReview.ResultAbilitiesNote);
+        // 訳が入るまでは前の見出し(ラン中の強化(ラン中だけ・持ち帰りません))。補足は前の見出しに含まれているので出さない
+        LocGUI.Label(new Rect(x0, r.y + 6f * s, iw, 24f * s), ready ? LocPendingReview.ResultAbilitiesTitle : LocPendingReview.ResultRunBuild, UiKit.Label(16f * s, TextAnchor.MiddleLeft, true, UiTheme.TextSub));
+        float y = r.y + 30f * s;
+        if (ready) LocGUI.Label(new Rect(x0, y, iw, 20f * s), LocPendingReview.ResultAbilitiesNote, UiKit.Label(13f * s, TextAnchor.MiddleLeft, false, UiTheme.TextSubBlue));
+        y += 22f * s;
+        var list = ResultAbilities();
+        int cols = ResultAbilityColumns(r.width - 28f * s, s);
+        float colW = (iw - (cols - 1) * 16f * s) / cols, rowH = 26f * s;
+        var nameSt = new GUIStyle(UiKit.Label(16f * s, TextAnchor.MiddleLeft, false, UiTheme.Text)); // UiKit.Label は同じ物を使い回すので写しを使う
+        var lvSt = new GUIStyle(UiKit.Label(16f * s, TextAnchor.MiddleRight, true, UiTheme.GoldText));
+        for (int i = 0; i < list.Count; i++)
         {
-            // 共通のカード面。Lv はこのランでの Lv
-            int lv = GetAbilityRunStack(order[i].cardId); // このランでの Lv(取った回数とキャラカードの分)
-            CardFaceRenderer.Draw(new Rect(cx, cyy, cw, ch), order[i], lv > 0 ? lv : counts[order[i]], plain: true); // 所持の NEW の札は出さない(ラン中の強化なので)
-            cx += cw + gap;
-        }
-        if (more)
-        {
-            Rect mr = new Rect(cx, cyy, cw, ch);
-            ResultBlock(mr, false);
-            LocGUI.Label(mr, "+" + (order.Count - show), UiKit.Label(26f * s, TextAnchor.MiddleCenter, true, UiTheme.GoldText));
+            int col = i % cols, row = i / cols;
+            Rect rr = new Rect(x0 + col * (colW + 16f * s), y + row * rowH, colW, rowH);
+            // 行の区切り(薄い下線)
+            UiKit.Fill(new Rect(rr.x, rr.yMax - 1f, rr.width, 1f), new Color(1f, 1f, 1f, 0.08f));
+            string lv = "Lv." + list[i].lv;
+            float lvW = 64f * s;
+            // 名前の左に小さな印(レア度の色)。名前は LocGUI が訳す(元の名前を渡す)
+            UiKit.Fill(new Rect(rr.x + 4f * s, rr.center.y - 3f * s, 6f * s, 6f * s), RarityDot(list[i].card));
+            LocGUI.Label(new Rect(rr.x + 16f * s, rr.y, rr.width - lvW - 20f * s, rr.height), list[i].card.cardName, nameSt);
+            GUI.Label(new Rect(rr.xMax - lvW, rr.y, lvW - 4f * s, rr.height), lv, lvSt);
         }
     }
 

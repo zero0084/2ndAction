@@ -56,7 +56,20 @@ public partial class BossManager
     int FormationClampCount(int count) => FormationApplies(gateK * gateIntervalMeters) ? Mathf.Clamp(count, 1, FormationMaxBosses) : count;
 
     // 主役を出した直後に呼ぶ。primaryKey = 主役の種類、primaryCount = 主役の数
+    // 2026-11-26 依頼④: 関門のボスが決まった所で「ボス接近：名前」(単体)/「ボス群接近！ N体同時」(同時に複数)。
+    //  BOSS RUSH のカードで1体増えた関門は、その知らせ(BOSS RUSH! もう1体)を残す。出し方・数・強さは変えない(知らせだけ)
+    int rushExtraGateK = -1;
     void AddFormationExtras(string primaryKey, int primaryCount)
+    {
+        int before = FormationExtras;
+        AddFormationExtrasInner(primaryKey, primaryCount);
+        if (rushExtraGateK == gateK) return;
+        int total = Mathf.Max(1, primaryCount) + Mathf.Max(0, FormationExtras - before);
+        if (!RunCallouts.GateReady) return; // 新しい知らせ(訳が入るまで、その言語では出さない = 今までと同じ)
+        if (total >= 2) BossBattleHud.Banner(RunCallouts.Group(total), new Color(1f, 0.45f, 0.3f), 1.8f);
+        else BossBattleHud.Banner(string.Format(RunCallouts.BossApproach, RunCallouts.Name(primaryKey)), new Color(1f, 0.55f, 0.32f), 1.6f);
+    }
+    void AddFormationExtrasInner(string primaryKey, int primaryCount)
     {
         float d = gateK * gateIntervalMeters;
         if (!FormationApplies(d)) return;

@@ -1,0 +1,126 @@
+es	11097	Habilidades obtenidas en esta partida
+es	11098	No se añaden a tu colección de cartas
+es	11099	SE ACERCA UN JEFE: {0}
+es	11100	¡GRUPO DE JEFES EN CAMINO! {0} a la vez
+es	11101	¡GRUPO DE JEFES EN CAMINO! ¡Lucha mientras corres!
+es	11102	Próximo grupo de jefes: {0} km
+es	11103	¡OLEADA DE JEFES! ¡Lucha mientras corres!
+es	11104	OLEADA DE JEFES: {0}
+es	11105	SE ACERCA EL JEFE FINAL: {0}
+es	11106	¡Se acerca una horda de enemigos!
+es	11107	Horda de enemigos: ¡la mayor oleada!
+es	11108	¡Grupo de enemigos aéreos en camino!
+es	11109	¡Grupo con enemigos fuertes en camino!
+es	11110	¡Grupo de enemigos rápidos en camino!
+es	11111	¡OLEADA DE JEFES: 3 seguidos!
+es	11112	OLEADA DE JEFES: {0} ({1}/3)
+es	11113	¡OLEADA DE JEFES superada!
+es	11114	¡Tutorial completado! {0} MILE obtenidos
+es	11115	Recompensa por completar el tutorial
+es	11116	Como ya completaste el tutorial, te hemos otorgado {0} MILE de recompensa. Suficientes para 10 tiradas del gacha.
+es	11117	Recompensa del tutorial: {0} MILE obtenidos
+pt-BR	11097	Habilidades obtidas nesta corrida
+pt-BR	11098	Não são adicionadas à sua coleção de cartas
+pt-BR	11099	CHEFE SE APROXIMANDO: {0}
+pt-BR	11100	GRUPO DE CHEFES A CAMINHO! {0} de uma vez
+pt-BR	11101	GRUPO DE CHEFES A CAMINHO! Lute enquanto corre!
+pt-BR	11102	Próximo grupo de chefes: {0} km
+pt-BR	11103	ONDA DE CHEFES! Lute enquanto corre!
+pt-BR	11104	ONDA DE CHEFES: {0}
+pt-BR	11105	CHEFE FINAL SE APROXIMANDO: {0}
+pt-BR	11106	Horda de inimigos se aproximando!
+pt-BR	11107	Horda de inimigos: a maior onda!
+pt-BR	11108	Grupo de inimigos vindo pelo ar!
+pt-BR	11109	Grupo com inimigos fortes a caminho!
+pt-BR	11110	Grupo de inimigos velozes a caminho!
+pt-BR	11111	ONDA DE CHEFES: 3 seguidos!
+pt-BR	11112	ONDA DE CHEFES: {0} ({1}/3)
+pt-BR	11113	ONDA DE CHEFES superada!
+pt-BR	11114	Tutorial concluído! {0} MILE recebidos
+pt-BR	11115	Recompensa por concluir o tutorial
+pt-BR	11116	Como você já concluiu o tutorial, creditamos {0} MILE como recompensa. O suficiente para 10 sorteios no gacha.
+pt-BR	11117	Recompensa do tutorial: {0} MILE recebidos
+it	11097	Abilità ottenute in questa corsa
+it	11098	Non vengono aggiunte alla tua collezione di carte
+it	11099	BOSS IN ARRIVO: {0}
+it	11100	GRUPPO DI BOSS IN ARRIVO! {0} insieme
+it	11101	GRUPPO DI BOSS IN ARRIVO! Combatti correndo!
+it	11102	Prossimo gruppo di BOSS: {0} km
+it	11103	ASSALTO DI BOSS! Combatti correndo!
+it	11104	ASSALTO DI BOSS: {0}
+it	11105	BOSS FINALE IN ARRIVO: {0}
+it	11106	Orda di nemici in arrivo!
+it	11107	Orda di nemici: ondata più grande!
+it	11108	Gruppo di nemici in arrivo dall'alto!
+it	11109	Gruppo con nemici forti in arrivo!
+it	11110	Gruppo di nemici veloci in arrivo!
+it	11111	ASSALTO DI BOSS: 3 di fila!
+it	11112	ASSALTO DI BOSS: {0} ({1}/3)
+it	11113	ASSALTO DI BOSS superato!
+it	11114	Tutorial completato! {0} MILE ottenuti
+it	11115	Ricompensa per il completamento del tutorial
+it	11116	Hai già completato il tutorial, quindi ti abbiamo accreditato {0} MILE come ricompensa. Bastano per 10 estrazioni gacha.
+it	11117	Ricompensa del tutorial: {0} MILE ottenuti
+pl	11097	Zdolności zdobyte w tym biegu
+pl	11098	Nie trafiają do kolekcji kart
+pl	11099	NADCHODZI BOSS: {0}
+pl	11100	NADCHODZI GRUPA BOSSÓW! {0} naraz
+pl	11101	NADCHODZI GRUPA BOSSÓW! Walcz w biegu!
+pl	11102	Następna grupa bossów: {0} km
+pl	11103	NAWAŁA BOSSÓW! Walcz w biegu!
+pl	11104	NAWAŁA BOSSÓW: {0}
+pl	11105	NADCHODZI BOSS FINAŁOWY: {0}
+pl	11106	Nadciąga horda wrogów!
+pl	11107	Horda wrogów: największa fala!
+pl	11108	Nadciąga grupa latających wrogów!
+pl	11109	Nadciąga grupa z silnymi wrogami!
+pl	11110	Nadciąga grupa szybkich wrogów!
+pl	11111	NAWAŁA BOSSÓW: 3 z rzędu!
+pl	11112	NAWAŁA BOSSÓW: {0} ({1}/3)
+pl	11113	NAWAŁA BOSSÓW odparta!
+pl	11114	Samouczek ukończony! Zdobyto {0} MILE
+pl	11115	Nagroda za ukończenie samouczka
+pl	11116	Samouczek masz już za sobą, więc przyznaliśmy ci {0} MILE w nagrodę. To wystarczy na 10 losowań w systemie gacha.
+pl	11117	Nagroda za samouczek: zdobyto {0} MILE
+uk	11097	Здібності, отримані в цьому забігу
+uk	11098	Не додаються до колекції карток
+uk	11099	БОС НАБЛИЖАЄТЬСЯ: {0}
+uk	11100	ГРУПА БОСІВ НАБЛИЖАЄТЬСЯ! {0} одночасно
+uk	11101	ГРУПА БОСІВ НАБЛИЖАЄТЬСЯ! Бийся на бігу!
+uk	11102	Наступна група босів: {0} км
+uk	11103	НАВАЛА БОСІВ! Бийся на бігу!
+uk	11104	НАВАЛА БОСІВ: {0}
+uk	11105	ФІНАЛЬНИЙ БОС НАБЛИЖАЄТЬСЯ: {0}
+uk	11106	Орда ворогів наближається!
+uk	11107	Орда ворогів: найбільша хвиля!
+uk	11108	Група ворогів наближається з повітря!
+uk	11109	Наближається група із сильними ворогами!
+uk	11110	Група швидких ворогів наближається!
+uk	11111	НАВАЛА БОСІВ: 3 поспіль!
+uk	11112	НАВАЛА БОСІВ: {0} ({1}/3)
+uk	11113	НАВАЛУ БОСІВ ПОДОЛАНО!
+uk	11114	Навчання завершено! Отримано {0} MILE
+uk	11115	Нагорода за завершення навчання
+uk	11116	Оскільки навчання вже завершено, ми нарахували тобі {0} MILE як нагороду. Цього вистачить на 10 розіграшів у системі гача.
+uk	11117	Нагорода за навчання: отримано {0} MILE
+ru	11097	Способности, полученные в этом забеге
+ru	11098	Не добавляются в коллекцию карт
+ru	11099	БОСС ПРИБЛИЖАЕТСЯ: {0}
+ru	11100	ГРУППА БОССОВ ПРИБЛИЖАЕТСЯ! {0} одновременно
+ru	11101	ГРУППА БОССОВ ПРИБЛИЖАЕТСЯ! Сражайся на бегу!
+ru	11102	Следующая группа боссов: {0} км
+ru	11103	НАШЕСТВИЕ БОССОВ! Сражайся на бегу!
+ru	11104	НАШЕСТВИЕ БОССОВ: {0}
+ru	11105	ФИНАЛЬНЫЙ БОСС ПРИБЛИЖАЕТСЯ: {0}
+ru	11106	Орда врагов приближается!
+ru	11107	Орда врагов: самая большая волна!
+ru	11108	Группа врагов приближается с воздуха!
+ru	11109	Приближается группа с сильными врагами!
+ru	11110	Группа быстрых врагов приближается!
+ru	11111	НАШЕСТВИЕ БОССОВ: 3 подряд!
+ru	11112	НАШЕСТВИЕ БОССОВ: {0} ({1}/3)
+ru	11113	НАШЕСТВИЕ БОССОВ отражено!
+ru	11114	Обучение завершено! Получено {0} MILE
+ru	11115	Награда за завершение обучения
+ru	11116	Поскольку обучение уже пройдено, мы начислили тебе {0} MILE в награду. Этого хватит на 10 розыгрышей в системе гача.
+ru	11117	Награда за обучение: получено {0} MILE

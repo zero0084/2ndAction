@@ -156,6 +156,7 @@ public static class SaveSystem
         // ④ 検査と修復
         Validate(r.repairs);
         log.Append(TutorialProgress.EnsureInitialized());
+        log.Append(TutorialClearReward.EnsureInitialized()); // 2026-11-26: 初回チュートリアルの完了報酬(既存プレイヤーはホームで1回)
         log.Append(UnlockRules.EnsureInitialized()); // 解放条件(2026-10-07): 既存データは今使える物をそのまま解放済みに // 初回チュートリアル(2026-10-07): 既存のデータには初回の案内を出さない
         log.Append(CardMapUnlock.EnsureInitialized()); // カードのマップ分類の解禁(2026-11-06): 既存データは今まで使えたカードを解禁済みのままに
         if (r.repairs.Count > 0) log.Append("repairs: " + string.Join(" / ", r.repairs) + "; ");

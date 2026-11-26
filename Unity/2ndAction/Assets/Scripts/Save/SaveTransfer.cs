@@ -202,6 +202,7 @@ public static class SaveTransfer
             if (!int.TryParse(v, NumberStyles.Integer, inv, out int i)) return "not an int";
             if (key == GameManager.TotalMileKey) return i < 0 || i > 2000000000 ? "MILE out of range" : null;
             if (key == DeckPresets.ActiveKey) return i < 0 || i >= DeckPresets.Count ? "deck preset index" : null; // 2026-10-31
+            if (key == TutorialClearReward.RewardKey) return i < 0 || i > TutorialClearReward.StateLegacyPending ? "tutorial reward state" : null; // 2026-11-26
             return i < 0 ? "negative" : null;
         }
         if (t == SaveType.Float)

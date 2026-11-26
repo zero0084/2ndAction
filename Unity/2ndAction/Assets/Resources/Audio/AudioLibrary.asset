@@ -278,7 +278,7 @@ MonoBehaviour:
     maxVoices: 2
   - id: 8
     clips:
-    - {fileID: 8300000, guid: 7e3589691ccd0ee4790023e48a8eff62, type: 3}
+    - {fileID: 8300000, guid: a4df089b86b148998d2a39bbf151358d, type: 3}
     volume: 1
     pitchJitter: 0.03
     volumeJitter: 0.06
@@ -334,7 +334,7 @@ MonoBehaviour:
     maxVoices: 4
   - id: 50
     clips:
-    - {fileID: 8300000, guid: e4782913fbf79f84b831de8152849633, type: 3}
+    - {fileID: 8300000, guid: 3456d6a84d6341ef8db0b7150c407db4, type: 3}
     volume: 1
     pitchJitter: 0.05
     volumeJitter: 0.06

@@ -90,7 +90,12 @@ public partial class PlayerController
 
     public void NotifyAttackLanded(Component target, PlayerAttackInfo attack)
     {
-        if (target != null && (attack == null || (!attack.elementProc && !attack.suppressHitStop))) LastAttackLandedAt = Time.time;
+        if (target != null && (attack == null || (!attack.elementProc && !attack.suppressHitStop)))
+        {
+            LastAttackLandedAt = Time.time;
+            // 2026-11-26 依頼②: 手動の攻撃が当たったら命中音を優先(その攻撃の空振り音を短く減衰)。自分の攻撃だけ(CPU の仲間の音は元から鳴らない)
+            if (!IsAlly && AudioManager.Instance != null) AudioManager.Instance.SoftenSwingOnHit();
+        }
         if (target != null && target is EnemyController) { lungeHitTarget = target; lungeHitTime = Time.time; }
         OnCardAttackLanded(target, attack); // カードバランス v3(AIR DOMINION / SKY MASTER)
         if (target == null || contactGraceDuration <= 0f) return;

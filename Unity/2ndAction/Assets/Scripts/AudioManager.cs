@@ -219,7 +219,15 @@ public class AudioManager : MonoBehaviour
         if (jingleSource != null) jingleSource.volume = Mathf.Clamp01(bgmBase * (Library != null ? Library.MusicGain(jingleSource.clip) : 1f));
         float sfxBase = BaseSfxVolume * Master * SfxVolume;
         if (sfxSource != null) sfxSource.volume = sfxBase;
-        for (int i = 0; i < voices.Count; i++) { var v = voices[i]; if (v.src != null && v.src.isPlaying) v.src.volume = Mathf.Clamp01(v.baseVol * sfxBase); }
+        float vdt = Time.unscaledDeltaTime;
+        for (int i = 0; i < voices.Count; i++)
+        {
+            var v = voices[i];
+            if (v.src == null || !v.src.isPlaying) continue;
+            // 2026-11-26: 命中した攻撃の空振り音を短く減衰(SoftenSwingOnHit)。0 になったら止める
+            if (v.fadeSpeed > 0f) { v.fadeMul = Mathf.MoveTowards(v.fadeMul, 0f, v.fadeSpeed * vdt); if (v.fadeMul <= 0f) { v.src.Stop(); v.fadeSpeed = 0f; continue; } }
+            v.src.volume = Mathf.Clamp01(v.baseVol * v.fadeMul * sfxBase);
+        }
         float envBase = BaseEnvVolume * Master * EnvVolume * (0.5f + 0.5f * seDuck);
         if (envLoop != null) envLoop.volume = envBase * (ambience != null ? ambience.loopVolume : 0f) * envWeight;
         if (envShot != null) envShot.volume = envBase;
@@ -322,15 +330,18 @@ public class AudioManager : MonoBehaviour
 #endif
         if (!SfxEnabled) return true;
         float vol = (e != null ? e.volume : 1f) * volumeScale;
+        bool swing = id == SeId.AttackUp || id == SeId.AttackDown || id == SeId.AttackAir; // 近接の振りの音(空振り音)
+        if (swing) vol *= SwingVolume;
         float pj = e != null ? e.pitchJitter : 0.03f, vj = e != null ? e.volumeJitter : 0.05f;
         var pri = e != null ? e.priority : SePriority.Normal;
-        PlayVoice(clip, vol * Random.Range(1f - vj, 1f + vj), Random.Range(1f - pj, 1f + pj) * pitchScale, pri, id, true, pan, e != null ? Mathf.Max(1, e.maxVoices) : 3);
+        bool played = PlayVoice(clip, vol * Random.Range(1f - vj, 1f + vj), Random.Range(1f - pj, 1f + pj) * pitchScale, pri, id, true, pan, e != null ? Mathf.Max(1, e.maxVoices) : 3);
+        if (swing && played) MarkSwing();
         if (pri == SePriority.Critical) DuckForImportantSe();
         return true;
     }
 
     // ---- SE の声(AudioSource の束) ----
-    class Voice { public AudioSource src; public SeId id; public bool hasId; public SePriority pri; public float start, baseVol; }
+    class Voice { public AudioSource src; public SeId id; public bool hasId; public SePriority pri; public float start, baseVol; public float fadeMul = 1f, fadeSpeed; }
     readonly List<Voice> voices = new List<Voice>();
     public readonly Dictionary<SeId, int> SeCounts = new Dictionary<SeId, int>(); // テスト用(鳴らした回数)
     public int DroppedVoices { get; private set; }   // 優先度で鳴らせなかった数(テスト用)
@@ -391,7 +402,8 @@ public class AudioManager : MonoBehaviour
         if (pri <= SePriority.Normal && active > 5) vol *= 1f / (1f + 0.07f * (active - 5));
         pick.src.Stop();
         pick.src.clip = clip; pick.src.pitch = pitch; pick.src.panStereo = pan;
-        pick.id = id; pick.hasId = hasId; pick.pri = pri; pick.start = now; pick.baseVol = vol;
+        pick.id = id; pick.hasId = hasId; pick.pri = pri; pick.start = now; pick.baseVol = vol; pick.fadeMul = 1f; pick.fadeSpeed = 0f;
+        lastVoice = pick;
         pick.src.volume = Mathf.Clamp01(vol * BaseSfxVolume * Master * SfxVolume);
         pick.src.Play();
         int nowActive = pick.src.isPlaying ? ActiveVoices : active;
@@ -520,7 +532,29 @@ public class AudioManager : MonoBehaviour
             else if (set.normal != null && set.normal.Count > 0) clip = set.normal[Mathf.Clamp(stage - 1, 0, 99) % set.normal.Count];
         }
         if (clip == null) clip = stage <= 1 ? attackSe1 : stage == 2 ? attackSe2 : attackSe3;
-        if (clip != null) PlayOneShotVaried(clip, vol * Random.Range(0.94f, 1.04f), Random.Range(0.96f, 1.04f));
+        if (melee) vol *= SwingVolume; // 近接の空振り音は控えめに(射撃/魔法の発射音はそのまま)
+        if (clip != null && PlayVoice(clip, vol * Random.Range(0.94f, 1.04f), Random.Range(0.96f, 1.04f), SePriority.Normal, default, false, 0f, 99) && melee) MarkSwing();
+    }
+
+    // ===== 空振り音と命中音(2026-11-26 依頼②) =====
+    //  ・近接の空振り音(シュッ)を個別に小さく(SwingVolume。全体の SE 音量は変えない)。音の種類はそのまま、攻撃の始まりに今まで通り鳴らす(遅らせない)
+    //  ・攻撃が当たったら命中音を優先: その攻撃の空振り音がまだ鳴っていれば、短く減衰させる(SoftenSwingOnHit。命中音は今まで通り)
+    public const float SwingVolume = 0.72f;          // 約 -3dB(命中音より控えめ。操作した手応えは残す)
+    public const float SwingFadeSeconds = 0.07f;     // 命中した時に空振り音が消えるまで
+    public const float SwingHitWindow = 0.4f;        // この時間内に当たった命中を「その攻撃の命中」とみなす
+    Voice lastSwingVoice; float lastSwingAt = -1f;
+    Voice lastVoice;
+    public int SwingsSoftened { get; private set; }  // 確認用
+    float lastSwingStart = -1f;
+    void MarkSwing() { lastSwingVoice = lastVoice; lastSwingAt = Time.unscaledTime; lastSwingStart = lastVoice != null ? lastVoice.start : -1f; }
+    public void SoftenSwingOnHit()
+    {
+        var v = lastSwingVoice;
+        if (v == null || v.src == null || !v.src.isPlaying || v.fadeSpeed > 0f || v.start != lastSwingStart) return; // 別の音に差し替わっていたら触らない
+        if (Time.unscaledTime - lastSwingAt > SwingHitWindow) return;
+        v.fadeSpeed = 1f / SwingFadeSeconds;
+        SwingsSoftened++;
+        lastSwingVoice = null;
     }
 
     public WeaponType CurrentWeapon()

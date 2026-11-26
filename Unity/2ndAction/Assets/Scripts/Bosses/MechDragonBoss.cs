@@ -165,7 +165,7 @@ public partial class MechDragonBoss : SkyBossBase
     // ---- 登場: 警告(危険な相手だと伝える)→ 遠くから飛来 ----
     protected override IEnumerator Enter()
     {
-        BossBattleHud.Banner("WARNING!  メカドラゴン接近!", Alarm, 2.6f);
+        BossBattleHud.Banner(RunCallouts.BossNamed("MECH DRAGON", "WARNING!  メカドラゴン接近!"), Alarm, 2.6f); // 2026-11-26: 種類(ボス)が先
         CaveDarkness.Set(0.25f);
         for (int i = 0; i < 3; i++)
         {

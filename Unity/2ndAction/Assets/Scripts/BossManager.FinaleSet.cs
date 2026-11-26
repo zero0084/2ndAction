@@ -108,7 +108,7 @@ public partial class BossManager
         RunResumed = true; resumedAt = Time.time;
         SetStartedAt = Time.time; FinalSpawnedAt = -1f;
         Debug.Log($"[SetRush] start at {(gm != null ? gm.MaxDistance : 0f):F0}m ({(SetRefill ? "refill" : "stack")}, alive<={SetMaxAlive})");
-        BossBattleHud.Banner("BOSS RUSH  ×3  走りながら戦え!", new Color(1f, 0.4f, 0.28f), 2.0f);
+        BossBattleHud.Banner(RunCallouts.GroupStart(), new Color(1f, 0.4f, 0.28f), 2.0f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
         rushZakoCheckAt = 0f; RushClearZako();
         if (gm != null) gm.LogBoss("CombatStart");
@@ -144,7 +144,7 @@ public partial class BossManager
         enc.lastSpawnAt = -99f;
         SetLog.Add($"{k}km set: {desc}");
         Debug.Log($"[SetRush] {k}km set reserved: {desc} (alive {ActiveCount(enc)}, queue {enc.Queued})");
-        BossBattleHud.Banner($"BOSS SET  {k}km", new Color(1f, 0.45f, 0.3f), 1.4f);
+        BossBattleHud.Banner(RunCallouts.GroupNext(k), new Color(1f, 0.45f, 0.3f), 1.4f);
     }
 
     static readonly float[] noHolds = new float[0];
@@ -257,8 +257,8 @@ public partial class BossManager
             float tele = fin ? 1.6f : SetTelegraphSeconds;
             enc.telegraphEnd = Time.time + tele;
             PrewarmBossAssets(s.key);
-            if (fin) BossBattleHud.Banner($"FINAL BOSS  {ShortName(s.key)}", new Color(1f, 0.25f, 0.2f), tele + 0.8f);
-            else BossBattleHud.Banner($"WARNING  {ShortName(s.key)}", new Color(1f, 0.35f, 0.25f), tele + 0.3f);
+            if (fin) BossBattleHud.Banner(RunCallouts.Final(s.key), new Color(1f, 0.25f, 0.2f), tele + 0.8f);
+            else BossBattleHud.Banner(RunCallouts.Boss(s.key, "WARNING  {0}"), new Color(1f, 0.35f, 0.25f), tele + 0.3f);
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
             RushTelegraphs++;
             break;

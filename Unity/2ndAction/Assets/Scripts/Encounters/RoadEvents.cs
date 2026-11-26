@@ -243,7 +243,7 @@ public class RoadEvents : MonoBehaviour
     {
         Color c = kind == RoadEventKind.Rush ? new Color(1f, 0.6f, 0.3f) : kind == RoadEventKind.Flying ? new Color(0.6f, 0.85f, 1f)
             : kind == RoadEventKind.Elite ? new Color(1f, 0.45f, 0.4f) : new Color(1f, 0.85f, 0.35f);
-        BossBattleHud.Banner($"WARNING  {name} が迫る!", c, 1.8f);
+        BossBattleHud.Banner(RunCallouts.RoadEvent(kind, name), c, 1.8f); // 2026-11-26: 種類が先(敵の大群/空から敵の群れ/…)
         var am = AudioManager.Instance;
         var cam = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         switch (kind)
@@ -320,7 +320,7 @@ public class RoadEvents : MonoBehaviour
     System.Collections.IEnumerator RaidWarnLater(string key, string name, float wait)
     {
         yield return new WaitForSeconds(wait);
-        BossBattleHud.Banner($"WARNING  {name} が迫る!", new Color(1f, 0.55f, 0.3f), 1.2f);
+        BossBattleHud.Banner(RunCallouts.Boss(key), new Color(1f, 0.55f, 0.3f), 1.2f); // 空中ボスの乱入 = 単体のボス(2026-11-26)
         BossVoice.Growl(null, key);
     }
 

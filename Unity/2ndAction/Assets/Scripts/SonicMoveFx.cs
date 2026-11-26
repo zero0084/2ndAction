@@ -15,14 +15,19 @@ public class SonicMoveFx : MonoBehaviour
     [Header("速さ(km/h)")]
     public float startKmh = 60f;     // ここから出始める
     public float fullKmh = 130f;     // ここで最大
+    // 2026-11-26 見た目の調整(依頼⑦): 大きすぎ・濃すぎ → 残像はキャラ本体と同じくらい〜少し小さく(0.9倍)、衝撃波の高さは
+    //  体の当たり判定(武器や攻撃の絵を含まない)の 0.9 倍。透明度を上げ、高速でも重なって濃くなりすぎないよう間隔を広げた。
+    //  速さ・効果時間・当たり判定は変えていない(この演出は見た目だけ)
     [Header("残像")]
-    public float ghostIntervalSlow = 0.07f, ghostIntervalFast = 0.028f;
-    public float ghostLife = 0.3f;
-    public float ghostAlpha = 0.85f;
+    public float ghostIntervalSlow = 0.08f, ghostIntervalFast = 0.05f;
+    public float ghostLife = 0.28f;
+    public float ghostAlpha = 0.45f;
+    public float ghostScale = 0.9f;
     public Color ghostColor = new Color(0.55f, 0.85f, 1f);
     [Header("衝撃波")]
-    public float waveAlpha = 0.8f;
+    public float waveAlpha = 0.4f;
     public float waveAhead = 1.15f;
+    public float waveBodyScale = 0.9f;
     [Header("背景の流線")]
     public float streakIntervalSlow = 0.07f, streakIntervalFast = 0.012f;
     public float streakAlpha = 0.38f;
@@ -108,7 +113,8 @@ public class SonicMoveFx : MonoBehaviour
             var g = ghosts[ghostNext]; ghostNext = (ghostNext + 1) % GhostPool;
             var t = playerSr.transform;
             g.transform.SetPositionAndRotation(t.position, t.rotation);
-            Vector3 ls = t.lossyScale; ls.x *= 1f + 0.12f * Intensity; // 横に少し伸ばす(流れる感じ)
+            Vector3 ls = t.lossyScale * ghostScale; ls.x *= 1f + 0.05f * Intensity; // 本体より少し小さく、横にわずかに伸ばす(流れる感じ)
+            ls.z = 1f;
             g.transform.localScale = ls;
             g.sprite = playerSr.sprite; g.flipX = playerSr.flipX; g.flipY = playerSr.flipY;
             g.sortingLayerID = playerSr.sortingLayerID;
@@ -125,12 +131,13 @@ public class SonicMoveFx : MonoBehaviour
         }
 
         // ---- 衝撃波(体の前)
-        Bounds pb = playerSr.bounds;
-        float h = Mathf.Max(0.8f, pb.size.y);
+        // 大きさの基準は体(当たり判定の箱)。武器・攻撃の絵・効果を含む絵の範囲は使わない(大柄/小柄なキャラでも本体に合う)
+        Bounds pb = BodyBounds(playerSr);
+        float h = Mathf.Max(0.5f, pb.size.y) * waveBodyScale;
         wave.enabled = true;
-        wave.transform.position = new Vector3(pb.max.x + waveAhead * (0.6f + 0.4f * Intensity) * h * 0.45f, pb.center.y, 0f);
-        float pulse = 1f + 0.06f * Mathf.Sin(Time.time * 38f);
-        wave.transform.localScale = new Vector3(h * 1.7f * pulse, h * 1.35f * (0.85f + 0.15f * Intensity), 1f);
+        wave.transform.position = new Vector3(pb.max.x + waveAhead * (0.6f + 0.4f * Intensity) * h * 0.35f, pb.center.y, 0f);
+        float pulse = 1f + 0.04f * Mathf.Sin(Time.time * 38f);
+        wave.transform.localScale = new Vector3(h * 1.1f * pulse, h * (0.9f + 0.1f * Intensity), 1f);
         wave.sortingLayerID = playerSr.sortingLayerID;
         wave.sortingOrder = playerSr.sortingOrder - 1;
         Color wc = new Color(0.75f, 0.92f, 1f, waveAlpha * Intensity * glow);
@@ -149,6 +156,21 @@ public class SonicMoveFx : MonoBehaviour
             Color sc = new Color(1f, 1f, 1f, streakAlpha * Mathf.Lerp(0.4f, 1f, Intensity) * glow);
             SpeedLine.Spawn(new Vector3(x, y, 0f), Random.Range(6f, 14f) * (0.7f + 0.6f * Intensity), sc, Random.Range(0.18f, 0.32f), RenderOrder.SkyCloud + 1, Random.Range(0.05f, 0.11f));
         }
+    }
+
+    // 体の範囲 = Player の BoxCollider2D(体の当たり判定)。Collider2D.bounds は物理の更新まで古い位置のことがあるので、
+    //  箱の大きさ/ずれと今の Transform から求める。縦は絵の範囲より大きくしない。箱が無い時は絵の範囲
+    BoxCollider2D bodyBox;
+    Bounds BodyBounds(SpriteRenderer sr)
+    {
+        Bounds sb = sr.bounds;
+        if (boundPc == null) return sb;
+        if (bodyBox == null || bodyBox.gameObject != boundPc.gameObject) bodyBox = boundPc.GetComponent<BoxCollider2D>();
+        if (bodyBox == null) return sb;
+        Transform t = bodyBox.transform;
+        Vector3 c = t.TransformPoint(bodyBox.offset);
+        Vector3 s = Vector3.Scale(bodyBox.size, t.lossyScale); s.x = Mathf.Abs(s.x); s.y = Mathf.Min(Mathf.Abs(s.y), sb.size.y); s.z = 1f;
+        return new Bounds(new Vector3(c.x, c.y, 0f), s);
     }
 
     void AgeGhosts(float dt)

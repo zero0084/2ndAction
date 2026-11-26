@@ -189,6 +189,8 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaFinalBoss") { mode = "finalboss"; dir = a[i + 1]; } // 2026-11-06 通常マップの専用ラスボス
             if (a[i] == "-qaMaxSpeed") { mode = "maxspeed"; dir = a[i + 1]; }
             if (a[i] == "-qaEscape") { mode = "escape"; dir = a[i + 1]; }
+            if (a[i] == "-qaEscGauge") { mode = "escgauge"; dir = a[i + 1]; } // 2026-11-26 脱出の円形ゲージ(減り方/被弾/落下)
+            if (a[i] == "-qaTutReward") { mode = "tutreward"; dir = a[i + 1]; } // 2026-11-26 初回チュートリアルの完了報酬
             if (a[i] == "-qaAnimJitter") { mode = "animjitter"; dir = a[i + 1]; }
             if (a[i] == "-qaMech") { mode = "mech"; dir = a[i + 1]; }
             if (a[i] == "-qaNobleMoves") { mode = "noblemoves"; dir = a[i + 1]; }
@@ -427,6 +429,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "finalboss") yield return FinalBossMode();
         else if (mode == "maxspeed") yield return MaxSpeedMode();
         else if (mode == "escape") yield return EscapeMode();
+        else if (mode == "escgauge") yield return EscGaugeMode();
+        else if (mode == "tutreward") yield return TutRewardModeQa();
         else if (mode == "animjitter") yield return AnimJitterMode();
         else if (mode == "mech") yield return MechMode();
         else if (mode == "noblemoves") yield return NobleMovesMode();
@@ -1249,7 +1253,7 @@ public partial class QaSweep : MonoBehaviour
         FreezeDiagnostics.EventTap += dmgTap;
         // ボットは穴を跳ばないので、自然速度(100km/h未満)では補助を全速度で最大にして「上手なプレイヤー」の代わりにする
         if (natural && HighSpeedAssist.Instance != null) { var hsa = HighSpeedAssist.Instance; hsa.engageKmh = 1f; hsa.releaseKmh = 0.5f; hsa.fullAssistKmh = 2f; }
-        float lastLog = -1f, lastFlick = 0f;
+        float lastLog = -1f, lastFlick = 0f; int mileLogK = 0; // 2026-11-26: 持ち帰り MILE の内訳を 1km ごと(5km まで)・5km ごとに(撃破 MILE の見直しの比べ)
         float lastProgressX = FloatingOrigin.ToLogical(pc.transform.position.x), lastProgressT = Time.time;
         int stuck = 0, bossFights = 0, bossKills = 0, bossForced = 0, respawns = 0;
         var bossLog = new List<string>();
@@ -1263,7 +1267,8 @@ public partial class QaSweep : MonoBehaviour
             if (!inBoss && d < 99900f) { if (natural) PlayerController.DebugSpeedScale = 1f; else SetKmh(kmh); }
             if (ts != 1f && Time.timeScale > 0.01f && Mathf.Abs(TimeControl.DebugTimeScale - ts) > 0.01f && d < 99500f) TimeControl.SetDebugTimeScale(ts);
             if (d >= 99500f && TimeControl.DebugTimeScale != 1f) TimeControl.SetDebugTimeScale(1f); // 死神の場面は等倍で
-            if (stopAt > 0f && d >= stopAt) { L($"stop at {d:F0}m (game {(Time.time - g0) / 60f:F1}min): damage by reason: " + string.Join(", ", dmgWhy.OrderByDescending(kv => kv.Value).Select(kv => $"{kv.Key}={kv.Value}"))); break; }
+            if (d >= (mileLogK < 5 ? (mileLogK + 1) * 1000f : (mileLogK - 3) * 5000f)) { mileLogK++; L($"   MILE at {d:F0}m: take-home {gm.TakeHomeMile} = distance {gm.TakeHomeMile - gm.RunEnemyMile - gm.RunBossMile - gm.RunBonusMile} + zako {gm.RunEnemyMile} + boss {gm.RunBossMile} + bonus {gm.RunBonusMile}"); }
+            if (stopAt > 0f && d >= stopAt) { L($"   MILE at stop: take-home {gm.TakeHomeMile} = distance {gm.TakeHomeMile - gm.RunEnemyMile - gm.RunBossMile - gm.RunBonusMile} + zako {gm.RunEnemyMile} + boss {gm.RunBossMile} + bonus {gm.RunBonusMile}"); L($"stop at {d:F0}m (game {(Time.time - g0) / 60f:F1}min): damage by reason: " + string.Join(", ", dmgWhy.OrderByDescending(kv => kv.Value).Select(kv => $"{kv.Key}={kv.Value}"))); break; }
             maxKmh = Mathf.Max(maxKmh, GameManager.SpeedKmh(pc.CurrentAutoRunSpeed));
             inBossForTap = inBoss || bm.IsBossPhase;
             if (!reported100k && d >= 100000f) { reported100k = true; L($"reached 100,000m at game time {(Time.time - g0) / 60f:F1}min (max speed {maxKmh:F0}km/h, cards picked {cardPicks})"); }

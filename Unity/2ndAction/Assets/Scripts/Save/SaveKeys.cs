@@ -95,6 +95,7 @@ public static class SaveKeys
         new Entry(TutorialProgress.PracticeDoneKey, SaveCategory.Progress, SaveType.Int, "操作の練習を最後まで(またはスキップ)"),
         new Entry(TutorialProgress.EscapeGuideKey, SaveCategory.Progress, SaveType.Int, "初めてのボス報酬の後の脱出の説明を出した"),
         new Entry(TutorialProgress.MileGuideKey, SaveCategory.Progress, SaveType.Int, "MILEの使い道の案内 0=まだ/1=初めて脱出した(ホームで出す)/2=出した"),
+        new Entry(TutorialClearReward.RewardKey, SaveCategory.Progress, SaveType.Int, "初回チュートリアルの完了報酬 5,000 MILE 0=まだ/1=完了・受け取り待ち/2=受け取り済み/3=既存プレイヤー・受け取り待ち(2026-11-26)"),
         new Entry(AdRewards.Key, SaveCategory.Progress, SaveType.String, "広告/パスの報酬の記録(JSON: MILE 2倍にしたランの ID/広告ガチャの日付と回数/追加した MILE の合計。走行の記録とは別、2026-10-10)"),
         new Entry(AdRewards.RunsFinishedKey, SaveCategory.Progress, SaveType.Int, "終わったランの数(チュートリアル/練習/闘技場/DEBUG RUN を除く。初回ランの後に広告を出さない判定)"),
         new Entry(DailyLoginBonus.Key, SaveCategory.Progress, SaveType.String, "ログイン特典(Windows 版/広告なしパス、1日 5,000 MILE)の受け取りの記録(JSON: 最後に受け取った日(日本時間)/回数/合計/直近の記録)。MILE と同じ1回の保存で書く(2026-11-18)"),

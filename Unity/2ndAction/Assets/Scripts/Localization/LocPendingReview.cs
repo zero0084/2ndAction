@@ -36,6 +36,9 @@ public static class LocPendingReview
     public const string ResultNewBest = "NEW BEST!";                           // ID 10051(前: NEW + BEST)
     public const string ResultTakeHome = "持ち帰った MILE";                      // ID 10052(前: TOTAL MILE)
     public const string ResultRunBuild = "ラン中の強化(ラン中だけ・持ち帰りません)"; // ID 10053(前: UPGRADES OBTAINED)
+    // ID 11097〜11098(2026-11-26 依頼①): RESULT の能力の一覧。訳が入るまでは前の見出し(ResultRunBuild)だけを出す
+    public const string ResultAbilitiesTitle = "このランで取得した能力"; // ID 11097
+    public const string ResultAbilitiesNote = "所持カードには追加されません"; // ID 11098
 
     // ID 10054〜10055(2026-10-23 タップ攻撃の復活): 練習の説明に足す行。エステルのレビューを30言語へ反映済み(keys_extra22)
     public const string TapAttackLine = "タップ: その場で前へ攻撃(踏み込みなし)。前へフリックすると、踏み込みながら攻撃します。"; // ID 10054

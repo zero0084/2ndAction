@@ -136,8 +136,8 @@ public partial class BossManager
         zakoRushBannerWave = w;
         ZakoRushBanners++;
         Debug.Log($"[MapFinale] zako rush wave {w} at {gm.MaxDistance:F0}m (alive enemies {EnemyController.ActiveCount})");
-        if (first) { BossBattleHud.Banner("FINAL RUSH  >> 95km", new Color(1f, 0.55f, 0.3f), 2.0f); if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning); }
-        else if (w == 4) BossBattleHud.Banner("FINAL RUSH  MAX", new Color(1f, 0.45f, 0.3f), 1.4f);
+        if (first) { BossBattleHud.Banner(RunCallouts.HordeStart(), new Color(1f, 0.55f, 0.3f), 2.0f); if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning); }
+        else if (w == 4) BossBattleHud.Banner(RunCallouts.HordeMax(), new Color(1f, 0.45f, 0.3f), 1.4f);
     }
 
     // ---- 95〜99km: ボス3体の関門 ----
@@ -202,7 +202,7 @@ public partial class BossManager
         MapRushesStarted++; // 協力マルチの完走報酬(全員に1回)の通し番号
         LastTrioPlan = $"{k}km: " + string.Join(" > ", t.plan.ConvertAll(x => $"{ShortName(x)}(C{t.classes[t.plan.IndexOf(x)] + 1})"));
         Debug.Log($"[MapFinale] trio gate {k * 1000}m start: {LastTrioPlan}");
-        BossBattleHud.Banner($"BOSS RUSH  {k}km  ×3", new Color(1f, 0.45f, 0.3f), 1.8f);
+        BossBattleHud.Banner(RunCallouts.TrioStart(k), new Color(1f, 0.45f, 0.3f), 1.8f);
         SpawnTrioBoss(t, 0);
     }
 
@@ -266,7 +266,7 @@ public partial class BossManager
         string line = $"{t.k}km: " + string.Join(" > ", t.plan.ConvertAll(ShortName)) + " | kill s: " + string.Join("/", t.killSeconds.ConvertAll(x => x.ToString("0.0")));
         TrioLog.Add(line);
         Debug.Log($"[MapFinale] trio cleared {line}");
-        BossBattleHud.Banner($"BOSS RUSH  {t.k}km  CLEAR!", new Color(1f, 0.85f, 0.4f), 1.8f);
+        BossBattleHud.Banner(RunCallouts.TrioClear(t.k), new Color(1f, 0.85f, 0.4f), 1.8f);
     }
 
     // 毎フレーム(BossManager.Update): 次のボスまでの間 → 予告 → 出現
@@ -282,7 +282,7 @@ public partial class BossManager
         {
             t.telegraph = true;
             t.telegraphEnd = Time.time + Mathf.Max(0f, TrioTelegraphSeconds);
-            BossBattleHud.Banner($"NEXT  {ShortName(t.plan[t.idx])}  ({t.idx + 1}/3)", new Color(1f, 0.35f, 0.25f), Mathf.Max(0.8f, TrioTelegraphSeconds + 0.4f));
+            BossBattleHud.Banner(RunCallouts.TrioNext(t.plan[t.idx], t.idx + 1), new Color(1f, 0.35f, 0.25f), Mathf.Max(0.8f, TrioTelegraphSeconds + 0.4f));
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
             PrewarmBossAssets(t.plan[t.idx]);
             return;

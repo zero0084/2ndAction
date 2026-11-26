@@ -51,10 +51,16 @@ public partial class QaSweep
                 yield return new WaitForSecondsRealtime(1.4f); if (shots) Shot(P("bonus_2result"));
                 yield return new WaitForSecondsRealtime(2.5f);
             }
-            // ---- ボス戦の見出し(長い物)
-            for (int i = 0; i < TsBossBanners.Length; i++)
+            // ---- ボス戦の見出し(長い物)。2026-11-26: ラン中の予告(依頼④)の新しい文も(-tsCallouts 1 で予告だけ)
+            var banners = new System.Collections.Generic.List<string>(Arg("-tsCallouts", "0") == "1" ? new string[0] : TsBossBanners);
+            banners.AddRange(new[] {
+                string.Format(RunCallouts.BossApproach, "GOBLIN RIDER"), string.Format(RunCallouts.BossGroup, 3), RunCallouts.BossGroupStart,
+                string.Format(RunCallouts.BossGroupNext, 96), RunCallouts.BossSeriesStart, string.Format(RunCallouts.BossSeriesNext, "BLACK KNIGHT"),
+                string.Format(RunCallouts.FinalBoss, "SERAPHIEL"), RunCallouts.Horde, RunCallouts.HordePeak, RunCallouts.AirSwarm, RunCallouts.EliteSwarm,
+                RunCallouts.FastSwarm, RunCallouts.SeriesTrioStart, string.Format(RunCallouts.SeriesTrioNext, "ANCIENT DEMON", 2), RunCallouts.SeriesClear });
+            for (int i = 0; i < banners.Count; i++)
             {
-                BossBattleHud.Banner(TsBossBanners[i], new Color(1f, 0.85f, 0.4f), 2.4f);
+                BossBattleHud.Banner(banners[i], new Color(1f, 0.85f, 0.4f), 2.4f);
                 yield return Frames(2); if (shots) Shot(P($"banner{i}_0start"));
                 yield return new WaitForSecondsRealtime(1.2f); if (shots) Shot(P($"banner{i}_1mid"));
                 yield return new WaitForSecondsRealtime(1.4f);

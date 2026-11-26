@@ -142,7 +142,7 @@ public class TutorialRun : MonoBehaviour
     {
         if (CurrentStep >= Step.End) return;
         EnterStep(CurrentStep + 1);
-        if (CurrentStep == Step.End) TutorialProgress.MarkPracticeDone();
+        if (CurrentStep == Step.End) { TutorialProgress.MarkPracticeDone(); TutorialClearReward.OnTutorialCompleted(); } // 2026-11-26: 初回の完了報酬(受け取り待ちへ)
     }
 
     bool Achieved()

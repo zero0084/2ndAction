@@ -1117,7 +1117,7 @@ public partial class BossManager : MonoBehaviour
         if (gm == null || gateK % 10 == 0 || RushGateK != 0) return 0;
         float ch = Mathf.Clamp01(0.08f * gm.Card.Get(EffectType.BossRushLevel));
         if (ch <= 0f || Random.value >= ch) return 0;
-        BossRushExtras++;
+        BossRushExtras++; rushExtraGateK = gateK;
         BossBattleHud.Banner("BOSS RUSH! もう1体", new Color(1f, 0.5f, 0.35f), 1.4f);
         return 1;
     }
