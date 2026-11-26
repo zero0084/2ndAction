@@ -3,15 +3,17 @@
 # 本物のセーブ・production には触れない(ONLINE/ランキングは development)。同時に動かすのは 2 本まで。
 # 使い方: bash Tools/qa/regress.sh <出力フォルダ> [試験名の絞り込み(正規表現)]
 OUT=${1:?out dir}; ONLY=${2:-.}
-EXE=/c/GameProject/2ndAction/Unity/2ndAction/Builds/WindowsDevSandbox/OneMoreMile.exe
+EXE=${EXE:-/c/GameProject/2ndAction/Unity/2ndAction/Builds/WindowsDevSandbox/OneMoreMile.exe}
 mkdir -p "$OUT"; SUM="$OUT/summary.txt"; : > "$SUM"
 W() { cygpath -w "$1"; }
 one() { # name save-key timeout args...
   local n=$1 sk=$2 to=$3; shift 3
   echo "$n" | grep -Eq "$ONLY" || return 0
-  local d="$OUT/$n"; mkdir -p "$d" "$OUT/saves"
+  local d="$OUT/$n"; mkdir -p "$d"
+  # 保存キー "-" = -fileSave を付けない(PlayerPrefs を直接使う試験。試験版の別製品名のレジストリだけを使い、試験自身が前後で控え/戻す)
+  local fs=(); [ "$sk" != "-" ] && { mkdir -p "$OUT/saves/$sk"; fs=(-fileSave "$(W "$OUT/saves/$sk/save.json")"); }
   local t0=$(date +%s)
-  timeout $to "$EXE" -screen-width 1280 -screen-height 720 -screen-fullscreen 0 -fileSave "$(W "$OUT/saves")\$sk.json" -logFile "$(W "$d")\log.txt" "$@" >/dev/null 2>&1 &
+  timeout $to "$EXE" -screen-width 1280 -screen-height 720 -screen-fullscreen 0 "${fs[@]}" -logFile "$(W "$d")\log.txt" "$@" >/dev/null 2>&1 &
   local tp=$!; memwatch $tp "$d/mem.csv" & local mp=$!
   wait $tp; local rc=$? t=$(( $(date +%s) - t0 )); kill $mp 2>/dev/null; wait $mp 2>/dev/null
   local mem=$(awk -F, 'NR==1{f=$2} {l=$2; if($2>m)m=$2} END{if(NR) printf "mem MB first %d max %d last %d (%d samples)", f/1024, m/1024, l/1024, NR}' "$d/mem.csv" 2>/dev/null)
@@ -29,10 +31,12 @@ memwatch() { local tp=$1 f=$2 s=0 wp=""; : > "$f"
     [ -n "$kb" ] && echo "$s,$kb" >> "$f"; sleep 30; s=$((s+30)); done; }
 pair() { "$@" & }
 # --- セーブ・引き継ぎ
-one save          save     900 -qaSave "$(W "$OUT/save")"
+one save          -        900 -qaSave "$(W "$OUT/save")"
 TR=$(W "$OUT/trshared"); mkdir -p "$OUT/trshared"
 one tr1_seedA     trA      300 -qaTransfer "$(W "$OUT/tr1_seedA")" -trPhase seedA -trShared "$TR"
+one tr1b_bootA    trA      300 -qaTransfer "$(W "$OUT/tr1b_bootA")" -trPhase bootA -trShared "$TR"
 one tr2_seedB     trB      300 -qaTransfer "$(W "$OUT/tr2_seedB")" -trPhase seedB -trShared "$TR"
+one tr2b_bootB    trB      300 -qaTransfer "$(W "$OUT/tr2b_bootB")" -trPhase bootB -trShared "$TR"
 one tr3_cancel    trB      300 -qaTransfer "$(W "$OUT/tr3_cancel")" -trPhase cancel -trShared "$TR"
 one tr4_reject    trB      300 -qaTransfer "$(W "$OUT/tr4_reject")" -trPhase reject -trShared "$TR"
 one tr5_import    trB      300 -qaTransfer "$(W "$OUT/tr5_import")" -trPhase import -trShared "$TR"
@@ -44,12 +48,12 @@ one monet         monet    900 -qaMonet "$(W "$OUT/monet")" -monetizationMock 1
 one login_win     lbw      300 -qaLoginBonus "$(W "$OUT/login_win")" -loginBonusOn -lbCase windows
 one login_r1      lbr      300 -qaLoginBonus "$(W "$OUT/login_r1")" -loginBonusOn -lbCase restart1
 one login_r2      lbr      300 -qaLoginBonus "$(W "$OUT/login_r2")" -loginBonusOn -lbCase restart2
-one login_mobile  lbm      300 -qaLoginBonus "$(W "$OUT/login_mobile")" -loginBonusOn -lbCase mobilefree
-one login_pass    lbp      300 -qaLoginBonus "$(W "$OUT/login_pass")" -loginBonusOn -lbCase mobilepass
+one login_mobile  lbm      300 -qaLoginBonus "$(W "$OUT/login_mobile")" -loginBonusOn -lbCase mobilefree -loginBonusAs mobile
+one login_pass    lbp      300 -qaLoginBonus "$(W "$OUT/login_pass")" -loginBonusOn -lbCase mobilepass -loginBonusAs mobile -monetizationMock 1
 # --- CONTINUE・ランキング(development)
 one resume        resume   900 -qaResume "$(W "$OUT/resume")"
 one rank_cont     rank     900 -qaRankRoute "$(W "$OUT/rank_cont")" -rrPhase cont -ugsProfile regress_rank
-one records       records  600 -qaRecords "$(W "$OUT/records")"
+one records       -        600 -qaRecords "$(W "$OUT/records")"
 one acprobe       ac       600 -qaAcProbe "$(W "$OUT/acprobe")" -ugsProfile regress_ac
 # --- 画面(縦横・戻る・UI)
 one uicheck       ui       600 -qaUiCheck "$(W "$OUT/uicheck")"

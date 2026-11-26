@@ -415,6 +415,9 @@ public partial class NetAutoTest : MonoBehaviour
             catch (Exception e) { Debug.LogWarning("[NETTEST] enemy trace open failed: " + e.Message); enemyTrace = null; }
         }
         Application.logMessageReceived += OnLog;
+        // 2026-11-26: 同じ PC に何個も起動する試験のボットは、窓が裏でも進める(LanAutoTest と同じ)。製品の Run In Background は通信の間だけ有効なので、
+        //  裏の窓のボットが通信の前(部屋を探す/もう一度 JOIN を押す)で止まって試験が時間切れになっていた。Run In Background の戻り方の確認は QaSweep -qaLifecycle で行う
+        Application.runInBackground = true;
         L($"start role={role} stage={stage} speed={speedMul} runSeconds={runSeconds} leaveAt={leaveAt}");
     }
 
