@@ -78,7 +78,9 @@ public class ReaperFinaleBattle : MonoBehaviour
             Say(NameOf(Order[i]));
             Debug.Log($"[ReaperBoss] Solo {i + 1}/3 {Order[i]} Start");
             soloDone = false;
-            var b = ReaperSisterBoss.Create(Order[i], player, 0, Hp(soloHp), 8f);
+            ReaperSisterBoss b;
+            NetCombat.BeginBossSpawn(NetCombat.BossMethod.Sister, (int)Order[i], 0, 8f); // 2026-11-28: マルチは参加者の端末へ人形として映す
+            try { b = ReaperSisterBoss.Create(Order[i], player, 0, Hp(soloHp), 8f); } finally { NetCombat.EndBossSpawn(); }
             b.retreatOnLethal = true;
             b.Retreated = _ => soloDone = true;
             Active.Add(b);
@@ -97,7 +99,9 @@ public class ReaperFinaleBattle : MonoBehaviour
         GroupDefeated = 0;
         for (int i = 0; i < Order.Length; i++)
         {
-            var b = ReaperSisterBoss.Create(Order[i], player, i, Hp(groupHp), 7f);
+            ReaperSisterBoss b;
+            NetCombat.BeginBossSpawn(NetCombat.BossMethod.Sister, (int)Order[i], i, 7f);
+            try { b = ReaperSisterBoss.Create(Order[i], player, i, Hp(groupHp), 7f); } finally { NetCombat.EndBossSpawn(); }
             b.aggression = 1.25f;
             b.DefeatOverride = w => { GroupDefeated++; Debug.Log($"[LastDungeon][Finale] {w.bossName} defeated ({GroupDefeated}/3)"); };
             Active.Add(b);

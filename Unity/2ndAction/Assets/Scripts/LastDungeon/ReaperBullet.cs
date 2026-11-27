@@ -11,7 +11,8 @@ using UnityEngine;
 //  動き: 走りの座標系で動く(BossProjectile と同じ。走る速さで流れる)。地面を這う弾(hugGround)は地形の高さに沿う。
 //  プレイヤーの攻撃との当たりは、物理の接触に加えて毎フレーム判定の範囲の重なりで確かめる(体と攻撃が同じ瞬間に触れた時は攻撃を優先)。
 //  多段の攻撃でも、返す/砕くのは1回だけ(返した弾はもうプレイヤーの攻撃に反応しない)。
-//  三姉妹の正式戦はシングル専用(マルチでは出ない)なので、通信の同期はしない。
+//  2026-11-28: マルチでも三姉妹戦が出る → 弾を HOST の飛び道具として参加者へ映す(当たりは参加者の申告 → HOST が確定)。
+//   参加者の攻撃で壊す/返すのは HOST の判定が要るので、参加者の端末の弾は「避ける弾」(今回の範囲外として報告)。
 public enum ReaperBulletKind { Breakable, Reflectable, Hazard }
 public enum ReaperBulletShape { Orb, Crescent, Blade, Spike, Fissure }
 
@@ -296,6 +297,8 @@ public class ReaperBullet : MonoBehaviour
     }
 
     // ---------------------------------------------------------------- プレイヤーの体
+    void Start() { NetAttackSync.Register(gameObject, NetAttackSync.AType.BossProjectile, velocity, destroyOnHit: true); } // 2026-11-28 マルチ
+
     void OnTriggerEnter2D(Collider2D other)
     {
         if (reflected || !other.CompareTag("Player") || PlayerController.Instance == null) return;

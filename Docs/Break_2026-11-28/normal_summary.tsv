@@ -1,0 +1,39 @@
+char	mode	boss	result	sec	breaks	attacks	phase
+gunslinger	after	Dragon	killed	53.7	1	5	2
+gunslinger	after	Dragon	killed	56.4	1	5	2
+gunslinger	after	Dragon(sky)	killed	6.2	0	1	2
+gunslinger	after	Dragon(sky)	killed	5.7	0	1	2
+gunslinger	before	Dragon	killed	48.7	4	3	2
+gunslinger	before	Dragon	killed	50.2	4	3	2
+gunslinger	before	Dragon(sky)	killed	4.8	1	1	2
+gunslinger	before	Dragon(sky)	killed	5.8	1	1	2
+gunslinger	dragononly	Dragon	killed	50.5	4	3	2
+gunslinger	dragononly	Dragon	killed	48.4	3	4	2
+gunslinger	dragononly	Dragon(sky)	killed	5.1	0	1	2
+gunslinger	dragononly	Dragon(sky)	killed	6.0	0	1	2
+swordsman	after	Dragon	killed	55.6	1	5	2
+swordsman	after	Dragon	killed	47.7	1	4	2
+swordsman	after	Dragon(sky)	killed	4.4	0	1	2
+swordsman	after	Dragon(sky)	killed	4.9	0	1	2
+swordsman	before	Dragon	killed	68.2	4	6	2
+swordsman	before	Dragon	killed	43.0	4	3	2
+swordsman	before	Dragon(sky)	killed	4.2	1	0	2
+swordsman	before	Dragon(sky)	killed	4.1	1	1	2
+swordsman	dragononly	Dragon	killed	51.6	3	4	2
+swordsman	dragononly	Dragon	killed	47.9	3	4	2
+swordsman	dragononly	Dragon(sky)	killed	5.4	0	1	2
+swordsman	dragononly	Dragon(sky)	killed	4.9	0	1	2
+
+# 平均(ボス × キャラ × 変更前/後): 秒 / BREAK / 攻撃
+Dragon	gunslinger	after	n=2	55.0s	BREAK 1.0	attacks 5.0
+Dragon	gunslinger	before	n=2	49.5s	BREAK 4.0	attacks 3.0
+Dragon	gunslinger	dragononly	n=2	49.5s	BREAK 3.5	attacks 3.5
+Dragon	swordsman	after	n=2	51.7s	BREAK 1.0	attacks 4.5
+Dragon	swordsman	before	n=2	55.6s	BREAK 4.0	attacks 4.5
+Dragon	swordsman	dragononly	n=2	49.8s	BREAK 3.0	attacks 4.0
+Dragon(sky)	gunslinger	after	n=2	6.0s	BREAK 0.0	attacks 1.0
+Dragon(sky)	gunslinger	before	n=2	5.3s	BREAK 1.0	attacks 1.0
+Dragon(sky)	gunslinger	dragononly	n=2	5.5s	BREAK 0.0	attacks 1.0
+Dragon(sky)	swordsman	after	n=2	4.7s	BREAK 0.0	attacks 1.0
+Dragon(sky)	swordsman	before	n=2	4.2s	BREAK 1.0	attacks 0.5
+Dragon(sky)	swordsman	dragononly	n=2	5.2s	BREAK 0.0	attacks 1.0

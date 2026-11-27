@@ -166,6 +166,7 @@ public partial class NetMatch
         if (NetCombat.Authority) HostMarkEscaped(Get(NetCombat.LocalPlayerNumber), d);
         else SendToHost(w => { w.WriteValueSafe(ReqEscaped); w.WriteValueSafe(d); });
         Log($"ESCAPE reported at {d:F1}m");
+        if (NetCombat.Authority) HostDeclareClear(); // 2026-11-28 依頼④: HOST の脱出成功 = 続けている全員をクリア
     }
 
     void HostMarkEscaped(Rec rec, double distance)
@@ -331,6 +332,7 @@ public partial class NetMatch
         runStartRt = -1f; reaperLeft = -1f; ReaperTriggered = false; ReaperTriggerSource = ""; reaperSecondsCached = -1;
         lastWarnShown = int.MaxValue; warnShownAt = -99f; reaperArrivedSeen = false; reaperArrivedShownAt = -99f;
         escapeReported = false; LocalPay = null;
+        ReaperEliminations = 0; OnSceneResetHostClear(); OnSceneResetLastDungeon();
         reviveHoldT = 0f; reviveHolding = false; reviveSent = false; lastReviveBlockAt = -99f;
         ReviveHoldsStarted = ReviveHoldsCancelled = ReviveHoldsCompleted = 0;
     }

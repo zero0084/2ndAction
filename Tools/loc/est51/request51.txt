@@ -1,0 +1,45 @@
+エステル、続けてもう3行お願いします(日本語はこのままです)。マルチの画面の新しい文です。
+
+【原文(ID・日本語・使う場所)】
+11124	HOSTの選択を待っています	(マルチのラスダンの最後「ONE MORE MILE?」で、参加者(HOST 以外)の画面に出る短い表示。HOST が YES/NO を選ぶまで、参加者は選べず待つ。HOST は英字の役名のまま)
+11125	死神に倒されました(復活できません)	(マルチで、死神の攻撃で倒れた本人の画面中央に出る(大きな ELIMINATED の下の行)。仲間による救助やカードの復活が効かない脱落であることを伝える)
+11126	{0}が死神に倒されました(復活できません)	(マルチで、仲間が死神に倒された時にほかの人の画面中央に出る短い知らせ(2.5秒)。{0}=プレイヤー名)
+
+【決まり】
+・どれも走りながら読む短い表示。主語(私/あなた)は付けない。HOST は英字のまま。{0} はそのまま残す。
+・「死神」「脱落」「復活なし」の言い方は、下の既存の訳(死神の言い方)とそろえてください。
+・11125 と 11126 は「死神の攻撃で倒れたので、仲間の救助もカードの復活も効かない」ことが伝われば十分です。括弧の形は各言語で自然な形に。
+
+【既存の訳(言い回しをそろえる参考)】順に: 死神の乱入まで {0}秒 / {0}が切断しました / HOSTが脱出に成功しました
+ar	حاصد الأرواح خلال {0} ث	انقطع اتصال {0}	نجح HOST في الهروب
+bn	মৃত্যুদূত আসবে {0} সেকেন্ডে	{0} সংযোগ ছিন্ন করেছে	HOST সফলভাবে পালিয়েছে
+cs	Smrtka za {0} s	{0} se odpojil	HOST úspěšně unikl
+de	Schnitter in {0} s	{0} hat die Verbindung getrennt	HOST ist entkommen
+en	Reaper arrives in {0}s	{0} disconnected	HOST escaped successfully
+es	La Parca llega en {0} s	{0} se ha desconectado	HOST ha escapado con éxito
+fa	دروگر مرگ تا {0} ثانیه دیگر می‌رسد	{0} قطع شد	HOST با موفقیت فرار کرد
+fil	Reaper sa loob ng {0}s	Nadiskonekta si {0}	Matagumpay na nakatakas ang HOST
+fr	La Faucheuse dans {0} s	{0} s'est déconnecté	HOST s'est échappé avec succès
+hi	यमदूत {0} सेकंड में आएगा	{0} डिस्कनेक्ट हो गया	HOST सफलतापूर्वक बच निकला
+id	Malaikat Maut dalam {0} dtk	{0} terputus	HOST berhasil kabur
+it	Il Mietitore arriva tra {0} s	{0} si è disconnesso	HOST è riuscito a fuggire
+km	មច្ចុរាជមកក្នុង {0} វិនាទី	{0} បានផ្ដាច់	HOST គេចខ្លួនបានជោគជ័យ
+ko	사신 난입까지 {0}초	{0}의 연결이 끊어졌습니다	HOST가 탈출에 성공했습니다
+lo	ຍົມທູດຈະມາໃນ {0} ວິນາທີ	{0} ຕັດການເຊື່ອມຕໍ່ແລ້ວ	HOST ຫຼົບໜີສຳເລັດແລ້ວ
+ms	Malaikat Maut dalam {0} saat	{0} terputus	HOST berjaya melarikan diri
+my	သေမင်း {0} စက္ကန့်အတွင်း ရောက်မည်	{0} ချိတ်ဆက်မှု ဖြတ်သွားပြီ	HOST အောင်မြင်စွာ လွတ်မြောက်ပြီ
+pl	Żniwiarz za {0} s	{0} rozłączył się	HOST zdołał uciec
+pt-BR	Ceifador chega em {0} s	{0} se desconectou	HOST escapou com sucesso
+ro	Secerătoarea vine în {0} s	{0} s-a deconectat	HOST a evadat cu succes
+ru	Жнец через {0} с	{0} отключился	HOST успешно сбежал
+sw	Mvunaji anafika baada ya sekunde {0}	{0} ametenganishwa	HOST ametoroka salama
+ta	{0} வினாடியில் மரணதூதன் வரும்	{0} இணைப்பைத் துண்டித்தார்	HOST வெற்றிகரமாகத் தப்பித்தார்
+th	ยมทูตจะมาใน {0} วินาที	{0} หลุดการเชื่อมต่อ	HOST หลบหนีสำเร็จ
+tr	Azrail {0} sn sonra geliyor	{0} bağlantıyı kesti	HOST başarıyla kaçtı
+uk	Жнець через {0} с	{0} від'єднався	HOST успішно втік
+vi	Tử Thần đến sau {0} giây	{0} đã ngắt kết nối	HOST đã thoát thành công
+zh-Hans	距死神乱入还有{0}秒	{0}已断开连接	HOST成功脱出
+zh-Hant	距死神亂入還有{0}秒	{0}已中斷連線	HOST成功脫出
+
+【返してほしい形】1つのコードブロックに、タブ区切りで「言語コード<TAB>ID<TAB>訳」。29言語×3行=87行。
+言語: ar, bn, cs, de, en, es, fa, fil, fr, hi, id, it, km, ko, lo, ms, my, pl, pt-BR, ro, ru, sw, ta, th, tr, uk, vi, zh-Hans, zh-Hant

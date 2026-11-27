@@ -260,15 +260,20 @@ public partial class BossManager : MonoBehaviour
     public void BeginScriptedBossPhase(BossBgmTier tier, string musicKey)
     {
         IsBossPhase = true;
+        // 2026-11-28: マルチ(三姉妹戦)= 全員を戦いの並びで止める(前のラッシュで「再開」のままだと足止めの合図が出なかった)。
+        //  三姉妹の入れ替わり(前半の1人ずつの間)でボスが居ない瞬間も、勝利までは止めたまま(scriptedHold)
+        if (MpRun.On) { RunResumed = false; scriptedHold = true; }
         BossMusicTier = tier;
         BossMusicKey = musicKey;
         BossDefeatedThisPhase = false;
         if (GameManager.Instance != null) { GameManager.Instance.ClampMaxDistanceTo(GameManager.Instance.MaxDistance); GameManager.Instance.BeginBossDistanceExclusion(); }
         if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
     }
-    public void MarkScriptedBossDefeated() { BossDefeatedThisPhase = true; }
+    public void MarkScriptedBossDefeated() { BossDefeatedThisPhase = true; scriptedHold = false; }
+    bool scriptedHold;
     public void EndScriptedBossPhase()
     {
+        scriptedHold = false;
         EndBossPhase();
         if (GameManager.Instance != null) GameManager.Instance.EndBossDistanceExclusion();
     }
@@ -399,7 +404,7 @@ public partial class BossManager : MonoBehaviour
     //  さらに報酬を選び終えるまで(=遭遇の終わり)雑魚が出なかった(HOST がカードを選ぶ間、ほかの人の前に雑魚が出ない)。
     //  倒れる演出・報酬の選択はそのまま(選ぶ本人だけ止まる)。ラッシュ/3連戦/乱入は今まで通り(次のボスがいる)
     public bool MpBossFightOver => MpRun.On && IsBossPhase && (BossDefeatedThisPhase
-        || (mpFightSeen && mpNoFightSince >= 0f && Time.time - mpNoFightSince >= 0.3f && CurrentTrio == null && !MapRushActive && !AirRaidActive));
+        || (mpFightSeen && mpNoFightSince >= 0f && Time.time - mpNoFightSince >= 0.3f && CurrentTrio == null && !MapRushActive && !AirRaidActive && !scriptedHold));
     bool mpFightSeen; float mpNoFightSince = -1f;
     void TickMpFightOver()
     {
@@ -1741,6 +1746,7 @@ public partial class BossManager : MonoBehaviour
             case NetCombat.BossMethod.SkyMajin: SpawnSkyMajin(standoff); break;
             case NetCombat.BossMethod.LegacyMechDragon: break; // 旧メカドラゴン(撤去、2026-10-13)。番号だけ残す
             case NetCombat.BossMethod.Reaper: SpawnDeath(); break;
+            case NetCombat.BossMethod.Sister: ReaperSisterBoss.Create((ReaperSister)kind, player, index, 1, standoff); break; // 2026-11-28 ラスダンの三姉妹(HP は HOST の値で上書き)
         }
     }
 }

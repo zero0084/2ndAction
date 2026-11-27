@@ -85,6 +85,7 @@ public partial class QaSweep
                 var activeNow = new HashSet<int>();
                 while (boss.DebugAlive && Time.time - t0 < secs && !gm.IsGameOver && gm.Lives > 0)
                 {
+                    if (gm.IsRewardSequenceWaitingForSelection) { yield return AutoPickOnce(); continue; } // 2026-11-28: カードなしの構成ではレベルアップの選択が出る(1枚目を選ぶ)
                     float t = Time.time - t0;
                     if (wb != null)
                     {

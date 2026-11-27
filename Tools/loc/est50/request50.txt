@@ -1,0 +1,49 @@
+エステル、こんにちは。One More Mile のマルチの画面に、新しい文を 5 行追加します。訳をお願いします(日本語はこのままです)。
+
+【原文(ID・日本語・使う場所)】
+11119	{0}位 / {1}人	(マルチ VERSUS のラン中、左上の参加者の欄の見出しの下に常に出す自分の順位。{0}=順位の数字、{1}=人数。後ろに「先頭まで {0}m」か「先頭」が続く。短く)
+11120	走行位置 {0} / {1}	(マルチ CO-OP のラン中、同じ場所に出す自分のコース上の並び順(チームの距離は全員同じなので、実際の位置での前から何番目か)。{0}=何番目、{1}=人数。短く)
+11121	先頭まで {0}m	(上の2つの後ろに続く。走っている人の一番前までの距離の差。{0}=メートルの数字(1,250 のように区切り済み))
+11122	先頭	(自分が走っている人の一番前の時、上の差の代わりに出す一語)
+11123	HOSTが脱出に成功しました	(マルチのラン中、HOST が脱出に成功してランが全員クリアになった時、ほかの人の画面中央に出る短い知らせ(2.5秒)。HOST はそのまま英字の役名)
+
+【決まり】
+・11119〜11122 は走りながら一瞬で読む HUD の1行(左上の小さな欄の中、幅が狭い)。できるだけ短く。{0} {1} はそのまま残す(順番は言語に合わせて入れ替えてよい)。
+・11119 は「何位 / 何人中」、11120 は「コース上で前から何番目 / 何人中」(順位ではなく並び順)。2つの違いが分かる言い方に。
+・11121 と 11122 は同じ場所に入れ替わって出る(先頭でない時は差、先頭の時は一語)。11122 は 11121 の「先頭」と同じ言葉に。
+・11123 の HOST は英字のまま。主語(私/あなた)は付けない。
+・用語は下の既存の訳(同じマルチの画面の文)とそろえてください。
+
+【既存の訳(言い回しをそろえる参考)】順に: 仲間に合流しました / このまま走る / 脱出成功！
+ar	تم اللحاق بالفريق	واصل الركض	نجحت في الهروب!
+bn	দলের কাছে পৌঁছে গেছ	দৌড়াতে থাকো	সফলভাবে পালিয়েছেন!
+cs	Zpět u týmu	Běžet dál	ÚSPĚŠNÝ ÚNIK!
+de	Wieder beim Team	Weiterlaufen	ENTKOMMEN!
+en	Back with the team	Keep Running	ESCAPED!
+es	De nuevo con el equipo	Seguir corriendo	¡ESCAPASTE!
+fa	به هم‌تیمی‌ها رسیدید	ادامهٔ دویدن	فرار موفقیت‌آمیز!
+fil	Nakasabay na sa team	Tumakbo Lang	MATAGUMPAY NA NAKATAKAS!
+fr	De retour avec l'équipe	Continuer à courir	ÉVASION RÉUSSIE !
+hi	टीम के पास पहुँच गए	ऐसे ही दौड़ें	सफलतापूर्वक बच निकले!
+id	Sudah menyusul tim	Terus berlari	BERHASIL KABUR!
+it	Di nuovo con la squadra	Continua a correre	FUGA RIUSCITA!
+km	បានតាមទាន់ក្រុម	រត់បន្តដូច្នេះ	គេចខ្លួនបានជោគជ័យ!
+ko	팀원들과 합류했습니다	이대로 달리기	탈출 성공!
+lo	ຕາມທັນທີມແລ້ວ	ແລ່ນຕໍ່ໄປ	ຫຼົບໜີສຳເລັດ!
+ms	Kembali bersama pasukan	Terus berlari	BERJAYA MELARIKAN DIRI!
+my	အသင်းဖော်တွေနဲ့ ပြန်ဆုံပြီ	ဆက်ပြေး	အောင်မြင်စွာ လွတ်မြောက်ပြီ!
+pl	Znowu z drużyną	Biegnij dalej	UDANA UCIECZKA!
+pt-BR	De volta com a equipe	Continuar correndo	ESCAPOU!
+ro	Din nou alături de echipă	Continuă să alergi	EVADARE REUȘITĂ!
+ru	Снова рядом с командой	Бежать дальше	ПОБЕГ УДАЛСЯ!
+sw	Umeungana tena na timu	Endelea kukimbia	UMETOROKA SALAMA!
+ta	குழுவை வந்தடைந்தீர்கள்	தொடர்ந்து ஓடு	வெற்றிகரமாகத் தப்பித்தீர்கள்!
+th	ตามเพื่อนร่วมทีมทันแล้ว	วิ่งต่อไป	หลบหนีสำเร็จ!
+tr	Takıma yetiştin	Koşmaya devam et	KAÇIŞ BAŞARILI!
+uk	Знову поруч із командою	Бігти далі	УСПІШНА ВТЕЧА!
+vi	Đã bắt kịp đồng đội	Tiếp tục chạy	THOÁT THÀNH CÔNG!
+zh-Hans	已与队友会合	继续奔跑	成功脱出！
+zh-Hant	已與隊友會合	繼續奔跑	成功脫出！
+
+【返してほしい形】1つのコードブロックに、タブ区切りで「言語コード<TAB>ID<TAB>訳」。29言語×5行=145行。長くて途中で切れそうなら、言語の順に分けて返してください(続きはこちらから頼みます)。
+言語: ar, bn, cs, de, en, es, fa, fil, fr, hi, id, it, km, ko, lo, ms, my, pl, pt-BR, ro, ru, sw, ta, th, tr, uk, vi, zh-Hans, zh-Hant

@@ -43,6 +43,11 @@ public partial class NetMatch
         if (!NetCombat.Authority || Mode != MultiplayerGameMode.Coop || RunOver || CatchupGap <= 0f) return;
         var gm = GameManager.Instance;
         if (gm == null || !gm.HasStarted) return;
+        // 2026-11-28 ラスダン: クリアの後(エンドロール/ONE MORE MILE?/NO の後)は各自が自分のエンドロールの道を走るので移さない
+        //  (立ち上がった DOWN の人を先頭の近くへ移すと、自分のエンドロールの先へ出て問いかけへ飛んでいた)。YES の後(BEYOND)は戻す
+        var ldf = LastDungeonFlow.Instance;
+        if (ldf != null && (ldf.Current == LastDungeonFlow.State.Credits || ldf.Current == LastDungeonFlow.State.Choice || ldf.Current == LastDungeonFlow.State.Stopping || ldf.Current == LastDungeonFlow.State.Done)) return;
+        if (ldClearDeclared && (ldf == null || ldf.Current != LastDungeonFlow.State.Beyond)) return;
         catchupTick -= Time.unscaledDeltaTime;
         if (catchupTick > 0f) return;
         var bm0 = BossManager.Instance;

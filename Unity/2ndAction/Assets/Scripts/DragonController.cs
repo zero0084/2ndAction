@@ -905,6 +905,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
             if (juggle != null) juggle.CloseBreak(); // 打ち上げ中でも寄せをやめる
             BossBattle.EndUltimate(this);
             if (hpBar != null) hpBar.SetSub(0f, false);
+            Debug.Log($"[BossBattle] Dragon{(skyMode ? "(sky)" : "")} defeated phase={phase} breaks={BreakCount} attacks={AttacksStarted} t={(battle != null ? Time.time - battleStartAt : -1f):F1}s staggerMax={(battle != null ? battle.staggerMax : 0f):F0} rageLock={BreakRules.RageLock} dragonMul={BreakRules.DragonStaggerMul:F2}"); // 2026-11-28 依頼⑥
             if (BossFinish.Enabled) BeginBossFinish(false); else StartCoroutine(FinalHitAndDie());
             return;
         }
@@ -961,18 +962,21 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         RematchTier = tierIndex;
     }
 
+    float battleStartAt; // 2026-11-28 確認用(撃破までの秒)
     public void EnableWastelandBattle(BossBattleTuning.Entry entry)
     {
-        battle = entry;
+        battleStartAt = Time.time;
+        battle = entry != null ? BreakRules.ForBoss(entry.key, entry) : null; // 2026-11-28 依頼⑥: ドラゴンは BREAK に要る蓄積を 1.5 倍(写しに掛ける)
         if (battle != null && battle.hpScale > 0f && Mathf.Abs(battle.hpScale - 1f) > 0.001f) maxHp = Mathf.Max(1, Mathf.RoundToInt(maxHp * battle.hpScale));
     }
 
     void BattleTick()
     {
         if (battle == null) return;
-        if (state != State.Stunned && stagger > 0f && Time.time - lastStaggerTime > BossBattleTuning.I.staggerRecoveryDelay)
+        bool rageLock = BreakRules.Locked(phase) && state != State.Stunned; // 2026-11-28 依頼⑥
+        if (state != State.Stunned && !rageLock && stagger > 0f && Time.time - lastStaggerTime > BossBattleTuning.I.staggerRecoveryDelay)
             stagger = Mathf.Max(0f, stagger - battle.staggerRecoveryPerSec * Time.deltaTime);
-        if (hpBar != null && battle.staggerMax > 0f) hpBar.SetSub(battle.staggerMax > 0f ? stagger / battle.staggerMax : 0f, state == State.Stunned);
+        if (hpBar != null && battle.staggerMax > 0f) hpBar.SetSub(battle.staggerMax > 0f ? stagger / battle.staggerMax : 0f, state == State.Stunned, rageLock);
         if (state == State.Stunned) StunFollow();
     }
 
@@ -1001,6 +1005,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     {
         if (BossBattle.DebugNoStagger) return;
         if (battle == null || battle.staggerMax <= 0f || state == State.Stunned || state == State.Entering || breakRecovering) return;
+        if (BreakRules.Locked(phase)) { BreakRules.LockedHits++; return; } // 2026-11-28 依頼⑥: 怒り(激昂)の間は BREAK しない
         v *= ElementSystem.IceStaggerMul(gameObject, v); // 2026-10-30: 冷えた/凍結したボスは BREAK が溜まりやすい
         if (netAttacker <= 0) v *= MapCardRules.BreakGainMul; // 2026-11-06 SKY BREAKER(空中)/ SONIC EDGE(130km/h 以上)/ FINAL DRIVE(80km 以降)/ ONE MORE CHANCE の強化中。HOST の端末で受けた他のプレイヤーの攻撃には掛けない
         float before = StaggerFraction;
@@ -1462,7 +1467,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         if (flashOverlay != null && flashOverlay.enabled) { s.Flags |= NetCombat.FlagFlash; s.Flash = NetPlayerSnapshot.PackColor(flashOverlay.color); }
         if (hitFlashOverlay != null && hitFlashOverlay.enabled) s.Flags |= NetCombat.FlagHitFlash;
         s.Combo = juggle != null ? juggle.NetPack() : (byte)0; // 2026-10-21: BREAK コンボの状態(JOIN の空中の補助)
-        if (battle != null && battle.staggerMax > 0f) s.Stagger = NetCombat.PackStagger(StaggerFraction, Broken); // 2026-11-07: 崩しのゲージは HOST の値
+        if (battle != null && battle.staggerMax > 0f) s.Stagger = NetCombat.PackStagger(StaggerFraction, Broken, BreakRules.Locked(phase) && !Broken); // 2026-11-07: 崩しのゲージは HOST の値
     }
     bool netStaggerSeen;
 
@@ -1486,7 +1491,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
             }
         }
         if (sr != null) sr.color = NetPlayerSnapshot.UnpackColor(s.Color);
-        if (s.Stagger != 0 || netStaggerSeen) { netStaggerSeen = true; float sf = NetCombat.UnpackStagger(s.Stagger, out bool sb); if (hpBar != null) hpBar.SetSub(sf, sb); } // 2026-11-07: HOST の崩しのゲージ
+        if (s.Stagger != 0 || netStaggerSeen) { netStaggerSeen = true; float sf = NetCombat.UnpackStagger(s.Stagger, out bool sb, out bool sl); if (hpBar != null) hpBar.SetSub(sf, sb, sl); } // 2026-11-07: HOST の崩しのゲージ
         if (flashOverlay != null)
         {
             bool on = (s.Flags & NetCombat.FlagFlash) != 0;

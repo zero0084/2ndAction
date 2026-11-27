@@ -30,7 +30,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 300999216d2733845ad1b68d1b6726a1, type: 3}
   attackSprite: {fileID: 21300000, guid: 37d8025c4a93e6344a64f324a2ac97ca, type: 3}
   mileReward: 2
-  visualScaleMultiplier: 1
+  visualScaleMultiplier: 1.48
   aiTier: 1
   stageIds:
   - last_corridor
@@ -48,7 +48,7 @@ MonoBehaviour:
   motionLinks: []
   runFrameOffsets: []
   idleHoverAmplitude: 0
-  bodyColliderScale: {x: 0.32226562, y: 0.38671875}
+  bodyColliderScale: {x: 0.4754, y: 0.5704}
   bodyColliderOffset: {x: 0, y: 0}
   launchScale: 1.2
   knockbackScale: 1.1

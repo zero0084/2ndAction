@@ -26,7 +26,7 @@ MonoBehaviour:
   runFrames: []
   attackSprite: {fileID: 0}
   mileReward: 0
-  visualScaleMultiplier: 1
+  visualScaleMultiplier: 1.69
   aiTier: 0
   stageIds:
   - bonus_zone
@@ -42,8 +42,8 @@ MonoBehaviour:
     charge: {fileID: 0}
     dive: {fileID: 0}
   idleHoverAmplitude: 0
-  bodyColliderScale: {x: 0.85, y: 0.8}
-  bodyColliderOffset: {x: 0, y: -0.099999994}
+  bodyColliderScale: {x: 1.4338, y: 1.3494}
+  bodyColliderOffset: {x: 0.0011, y: 0.1676}
   launchScale: 1.1
   knockbackScale: 1
   finishMass: 0

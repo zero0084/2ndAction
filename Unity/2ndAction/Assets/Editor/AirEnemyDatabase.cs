@@ -177,7 +177,9 @@ public static class AirEnemyDatabase
         def.poses = art.poses;
         def.attackSprite = art.poses.attack != null ? art.poses.attack : art.poses.dive;
         def.defaultFacingRight = false; // 素材は左向き(右から左へ飛んでくる)
-        def.bodyColliderScale = colScale;
+        // 2026-11-27 見た目の大きさの底上げ: 当たり判定は visualScaleMultiplier に付いてこない(GroundFactory.CreateEnemy は
+        //  sprite.bounds のまま)ので、ここで同じ倍率を掛けて絵と揃える(中心ピボットなのでずらしは 0 のまま)
+        def.bodyColliderScale = colScale * Mathf.Max(0.01f, def.visualScaleMultiplier);
         def.bodyColliderOffset = Vector2.zero;
         EditorUtility.SetDirty(def);
         Debug.Log($"AirEnemyDatabase: {(created ? "created" : "synced")} {spec.id} (move={def.runFrames?.Length ?? 0}, collider={colScale})");

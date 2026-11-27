@@ -281,7 +281,10 @@ public class BossHitbox : MonoBehaviour
         if (!other.CompareTag("Player") || PlayerController.Instance == null) return;
         if (hitThisActivation) return; // 1回の攻撃判定でダメージは最大1回
         hitThisActivation = true;
-        PlayerController.Instance.TakeDamage(source: "BossCombatPart:" + name, amount: BossManager.ScaleDamage(damageAmount), slamDown: slamDown);
+        // 2026-11-28 マスター依頼③: 死神の攻撃かどうかは攻撃の持ち主(ReaperBase)で見る(名前の文字では決めない)
+        NetMatch.LocalHitFromReaper = GetComponentInParent<ReaperBase>() != null;
+        try { PlayerController.Instance.TakeDamage(source: "BossCombatPart:" + name, amount: BossManager.ScaleDamage(damageAmount), slamDown: slamDown); }
+        finally { NetMatch.LocalHitFromReaper = false; }
         onHitPlayer?.Invoke(PlayerController.Instance);
     }
 }

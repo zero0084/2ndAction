@@ -30,7 +30,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 967c8aecf8c03d84cbaed2f05c9c1220, type: 3}
   attackSprite: {fileID: 21300000, guid: 27dc8d23ed9724c4ab08a9146deb22ba, type: 3}
   mileReward: 1
-  visualScaleMultiplier: 1
+  visualScaleMultiplier: 3.21
   aiTier: 1
   stageIds:
   - natural_cave
@@ -48,7 +48,7 @@ MonoBehaviour:
   motionLinks: []
   runFrameOffsets: []
   idleHoverAmplitude: 0
-  bodyColliderScale: {x: 0.31796876, y: 0.33789062}
+  bodyColliderScale: {x: 1.0205, y: 1.0844}
   bodyColliderOffset: {x: 0, y: 0}
   launchScale: 1.2
   knockbackScale: 1.1

@@ -1,0 +1,87 @@
+char	mode	boss	result	sec	breaks	attacks	phase
+gunslinger	after	Dragon	killed	12.6	0	1	2
+gunslinger	after	Dragon	killed	12.4	0	1	2
+gunslinger	after	Dragon(sky)	killed	1.4	0	0	2
+gunslinger	after	Dragon(sky)	killed	2.1	0	0	2
+gunslinger	after	Drake	killed	14.9	0	6	3
+gunslinger	after	Drake	killed	10.4	0	4	3
+gunslinger	after	MechDragon	killed	37.9	0	7	3
+gunslinger	after	MechDragon	killed	37.3	0	7	3
+gunslinger	after	Troll	killed	6.0	0	2	3
+gunslinger	after	Troll	killed	6.0	0	3	3
+gunslinger	after	Majin	killed	-1.0	0	0	2
+gunslinger	after	Majin	killed	-1.0	0	0	2
+gunslinger	before	Dragon	killed	8.7	1	1	2
+gunslinger	before	Dragon	killed	9.2	1	1	2
+gunslinger	before	Dragon(sky)	killed	1.4	0	0	2
+gunslinger	before	Dragon(sky)	killed	2.5	0	0	2
+gunslinger	before	Drake	killed	9.9	1	2	3
+gunslinger	before	Drake	killed	10.8	1	3	3
+gunslinger	before	MechDragon	killed	22.4	1	3	3
+gunslinger	before	MechDragon	killed	22.4	1	4	3
+gunslinger	before	Troll	killed	6.2	0	3	3
+gunslinger	before	Troll	killed	5.6	0	3	3
+gunslinger	before	Majin	killed	-1.0	1	0	2
+gunslinger	before	Majin	killed	-1.0	1	0	2
+swordsman	after	Dragon	killed	11.5	0	1	2
+swordsman	after	Dragon	killed	12.7	0	1	2
+swordsman	after	Dragon(sky)	killed	2.0	0	0	2
+swordsman	after	Dragon(sky)	killed	2.1	0	0	2
+swordsman	after	Drake	killed	16.5	0	7	3
+swordsman	after	Drake	killed	18.6	0	7	3
+swordsman	after	MechDragon	killed	42.9	0	8	3
+swordsman	after	MechDragon	killed	64.9	0	11	3
+swordsman	after	Troll	killed	6.9	0	3	3
+swordsman	after	Troll	killed	6.4	0	3	3
+swordsman	after	Majin	killed	-1.0	0	0	2
+swordsman	after	Majin	killed	-1.0	0	0	2
+swordsman	before	Dragon	killed	10.1	1	1	2
+swordsman	before	Dragon	killed	9.0	1	0	2
+swordsman	before	Dragon(sky)	killed	2.0	0	0	2
+swordsman	before	Dragon(sky)	killed	2.1	0	0	2
+swordsman	before	Drake	killed	10.2	1	3	3
+swordsman	before	Drake	killed	10.8	1	4	3
+swordsman	before	MechDragon	killed	33.5	1	6	3
+swordsman	before	MechDragon	killed	38.8	1	6	3
+swordsman	before	Troll	killed	7.3	0	3	3
+swordsman	before	Troll	killed	9.3	0	3	3
+swordsman	before	Majin	killed	-1.0	1	0	2
+swordsman	before	Majin	killed	-1.0	1	0	2
+swordsman	dragononly	Dragon	killed	11.3	1	1	2
+swordsman	dragononly	Dragon	killed	10.3	1	1	2
+swordsman	dragononly	Dragon(sky)	killed	2.0	0	0	2
+swordsman	dragononly	Dragon(sky)	killed	2.2	0	0	2
+swordsman	dragononly	Drake	killed	13.7	1	5	3
+swordsman	dragononly	Drake	killed	17.8	1	6	3
+swordsman	dragononly	MechDragon	killed	62.5	0	9	3
+swordsman	dragononly	MechDragon	killed	50.8	0	10	3
+
+# 平均(ボス × キャラ × 変更前/後): 秒 / BREAK / 攻撃
+Dragon	gunslinger	after	n=2	12.5s	BREAK 0.0	attacks 1.0
+Dragon	gunslinger	before	n=2	8.9s	BREAK 1.0	attacks 1.0
+Dragon	swordsman	after	n=2	12.1s	BREAK 0.0	attacks 1.0
+Dragon	swordsman	before	n=2	9.6s	BREAK 1.0	attacks 0.5
+Dragon	swordsman	dragononly	n=2	10.8s	BREAK 1.0	attacks 1.0
+Dragon(sky)	gunslinger	after	n=2	1.8s	BREAK 0.0	attacks 0.0
+Dragon(sky)	gunslinger	before	n=2	1.9s	BREAK 0.0	attacks 0.0
+Dragon(sky)	swordsman	after	n=2	2.0s	BREAK 0.0	attacks 0.0
+Dragon(sky)	swordsman	before	n=2	2.0s	BREAK 0.0	attacks 0.0
+Dragon(sky)	swordsman	dragononly	n=2	2.1s	BREAK 0.0	attacks 0.0
+Drake	gunslinger	after	n=2	12.7s	BREAK 0.0	attacks 5.0
+Drake	gunslinger	before	n=2	10.4s	BREAK 1.0	attacks 2.5
+Drake	swordsman	after	n=2	17.6s	BREAK 0.0	attacks 7.0
+Drake	swordsman	before	n=2	10.5s	BREAK 1.0	attacks 3.5
+Drake	swordsman	dragononly	n=2	15.8s	BREAK 1.0	attacks 5.5
+Majin	gunslinger	after	n=2	-1.0s	BREAK 0.0	attacks 0.0
+Majin	gunslinger	before	n=2	-1.0s	BREAK 1.0	attacks 0.0
+Majin	swordsman	after	n=2	-1.0s	BREAK 0.0	attacks 0.0
+Majin	swordsman	before	n=2	-1.0s	BREAK 1.0	attacks 0.0
+MechDragon	gunslinger	after	n=2	37.6s	BREAK 0.0	attacks 7.0
+MechDragon	gunslinger	before	n=2	22.4s	BREAK 1.0	attacks 3.5
+MechDragon	swordsman	after	n=2	53.9s	BREAK 0.0	attacks 9.5
+MechDragon	swordsman	before	n=2	36.1s	BREAK 1.0	attacks 6.0
+MechDragon	swordsman	dragononly	n=2	56.6s	BREAK 0.0	attacks 9.5
+Troll	gunslinger	after	n=2	6.0s	BREAK 0.0	attacks 2.5
+Troll	gunslinger	before	n=2	5.9s	BREAK 0.0	attacks 3.0
+Troll	swordsman	after	n=2	6.7s	BREAK 0.0	attacks 3.0
+Troll	swordsman	before	n=2	8.3s	BREAK 0.0	attacks 3.0

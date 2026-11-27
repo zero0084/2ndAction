@@ -52,7 +52,7 @@ public class NetCombat : MonoBehaviour
 
     // ===== エンティティ =====
     public enum Kind : byte { Enemy = 1, Boss = 2 }
-    public enum BossMethod : byte { None = 0, Wild, Cave, Sky, Dragon, WastelandDragon, SkyDragon, Majin, SkyMajin, LegacyMechDragon, Reaper } // LegacyMechDragon: 撤去した旧メカドラゴン(番号を詰めると Reaper の番号が変わるので残す)
+    public enum BossMethod : byte { None = 0, Wild, Cave, Sky, Dragon, WastelandDragon, SkyDragon, Majin, SkyMajin, LegacyMechDragon, Reaper, Sister } // Sister = ラスダンの三姉妹の正式戦(2026-11-28、末尾に追加) // LegacyMechDragon: 撤去した旧メカドラゴン(番号を詰めると Reaper の番号が変わるので残す)
 
     public class Entity
     {
@@ -114,8 +114,10 @@ public class NetCombat : MonoBehaviour
         public byte Combo;            // 2026-10-21: ボスの BREAK コンボの状態(BossJuggle.NetPack: 基準の人/受付/締めの合図/浮き/膝つき)
         public byte Stagger;          // 2026-11-07(同期の版 13): ボスの崩しのゲージ(HOST が決めた値。0〜254 = 割合 / 255 = BREAK 中)。JOIN の HP バーの下のゲージに出す
     }
-    public static byte PackStagger(float fraction, bool broken) => broken ? (byte)255 : (byte)Mathf.Clamp(Mathf.RoundToInt(Mathf.Clamp01(fraction) * 254f), 0, 254);
-    public static float UnpackStagger(byte b, out bool broken) { broken = b == 255; return broken ? 1f : b / 254f; }
+    // 2026-11-28(版 18): 0〜126 = 割合 / 127〜253 = 怒り中で BREAK できない(割合は 127 を引く)/ 255 = BREAK 中
+    public static byte PackStagger(float fraction, bool broken, bool locked = false) => broken ? (byte)255 : (byte)((locked ? 127 : 0) + Mathf.Clamp(Mathf.RoundToInt(Mathf.Clamp01(fraction) * 126f), 0, 126));
+    public static float UnpackStagger(byte b, out bool broken) => UnpackStagger(b, out broken, out _);
+    public static float UnpackStagger(byte b, out bool broken, out bool locked) { broken = b == 255; locked = !broken && b >= 127; return broken ? 1f : (locked ? b - 127 : b) / 126f; }
     public const byte FlagReacting = 1, FlagHpBar = 2, FlagHurtbox = 4, FlagVisible = 8, FlagFlash = 16, FlagHitFlash = 32;
 
     readonly Dictionary<int, Entity> entities = new Dictionary<int, Entity>();

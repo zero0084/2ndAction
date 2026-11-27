@@ -57,6 +57,7 @@ public partial class NetMatch : MonoBehaviour
         public float LastCatchupAt = -99f;    // 2026-11-28: 大きく遅れた人の合流補助(HOST の実時間)
         public int Catchups;                  // 確認用: 合流補助で移した回数
         public double CatchupFightId = double.NaN; // 2026-11-28 第2: ボス戦の合流で移した戦闘(関門の位置)。同じ戦闘で2回移さない
+        public bool ReaperFatal;              // 2026-11-28 依頼③: 死神の攻撃で HP 0(通常の3マップ)= 復活できない脱落
     }
 
     readonly Dictionary<int, Rec> recs = new Dictionary<int, Rec>();
@@ -444,12 +445,15 @@ public partial class NetMatch : MonoBehaviour
         float sf = hi.Known ? hi.SlowF : 1f, sd = hi.Known ? hi.SlowD : 0f;
         if (kind == ClaimKind.Attack) { NetAttackSync.HostNotifyHit(id, rec.Pn); NetAttackSync.ConsumeOnHit(id); }
         if (kind == ClaimKind.EnemyContact) rec.HitKeys.Remove(key); // 同じ敵への接触は無敵明けに再び当たり得る(元の挙動と同じ)
-        ApplyHostDamage(rec, isFall, invuln, source, dmg);
+        // 2026-11-28 依頼③: 死神の攻撃か(JOIN の申告の文字ではなく、HOST の本物の攻撃の持ち主で決める)
+        var ce = kind == ClaimKind.EnemyContact ? NetCombat.Find(id) : null;
+        bool fromReaper = !isFall && (kind == ClaimKind.Attack ? NetAttackSync.HostIsReaperAttack(id) : ce != null && ce.Reaper != null);
+        ApplyHostDamage(rec, isFall, invuln, source, dmg, fromReaper);
         StatClaimsAccepted++;
         SendHitResult(rec, seq, true, isFall, sf, sd, source);
     }
 
-    void ApplyHostDamage(Rec rec, bool isFall, float invuln, string source, int amount = CombatScale.PlayerHit)
+    void ApplyHostDamage(Rec rec, bool isFall, float invuln, string source, int amount = CombatScale.PlayerHit, bool fromReaper = false)
     {
         float now = Time.realtimeSinceStartup;
         int before = rec.Hp;
@@ -458,7 +462,8 @@ public partial class NetMatch : MonoBehaviour
         rec.HitsTaken++;
         rec.InvulnUntil = now + Mathf.Clamp(invuln, 0.2f, 4f);
         Log($"Damage P{rec.Pn} src={source} fall={isFall} amount={amount} hp {before} -> {rec.Hp} (authority=HOST){(rec.Choosing ? " [while choosing card]" : "")}");
-        if (rec.Hp <= 0) OnPlayerHpZero(rec, source);
+        if (rec.Hp <= 0 && fromReaper && ReaperNoReviveApplies) rec.ReaperFatal = true; // HP が残る被弾では付けない
+        if (rec.Hp <= 0) OnPlayerHpZero(rec, rec.ReaperFatal ? source + "(reaper)" : source);
         dirty = true;
         SendTable();
         dirty = false;
@@ -571,6 +576,12 @@ public partial class NetMatch : MonoBehaviour
             }
             case SyncRunOver:
                 ReadRunOver(r);
+                break;
+            case SyncHostClear: // 2026-11-28 依頼④
+                ApplyHostClearLocal("message");
+                break;
+            case SyncLdFinale: case SyncLdClear: case SyncLdChoice: case SyncReaperOut: // 2026-11-28 ラスダン / 死神による脱落
+                OnLastDungeonMessage(op, r);
                 break;
             case SyncRevived:
             {
@@ -692,12 +703,13 @@ public partial class NetMatch : MonoBehaviour
     }
 
     // HOST: HOST自身のHPが0になった。trueなら(Phase 3のダウン/脱落として)既存のRun終了を行わない。
-    public static bool HostLocalHpZero(string reason)
+    public static bool HostLocalHpZero(string reason, bool fromReaper = false)
     {
         if (Instance == null || !NetCombat.Authority) return false;
         Rec me = Instance.GetOrCreate(NetCombat.LocalPlayerNumber, NetworkManager.ServerClientId);
         if (me.State != PState.Alive) return me.State == PState.Down || me.State == PState.Eliminated;
         me.Hp = 0;
+        if (fromReaper && ReaperNoReviveApplies) me.ReaperFatal = true;
         Instance.OnPlayerHpZero(me, reason);
         Instance.dirty = true;
         Instance.SendTable();

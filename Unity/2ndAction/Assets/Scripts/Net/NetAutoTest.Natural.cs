@@ -74,7 +74,7 @@ public partial class NetAutoTest
             case "-netAutoNatChar": natChar = next; return true;
             case "-netAutoNatReaperMin": int.TryParse(next, out natReaperMin); return true;
         }
-        return false;
+        return ParseCondArg(a, next); // 2026-11-28: 条件を作る補助試験(NetAutoTest.Cond)
     }
 
     // 性格(4人で、キャラ・選び方・迷う時間・反応・一時停止を変える。引数で上書きできる)
@@ -200,6 +200,7 @@ public partial class NetAutoTest
     {
         if (overlapTest && NetMatch.QaOutHook == null) OverlapSetup(); // 補助試験: 退出と撃破が重なる場合
         OverlapTick();
+        CondTick(gm); // 2026-11-28: 条件を作る補助試験
         var pc = PlayerController.Instance;
         bool hold = false;
         if (gm == null) { NatPadFrame(false); return; }
@@ -260,7 +261,7 @@ public partial class NetAutoTest
         if (down)
         {
             // CO-OP の復活: 本人の長押し(パッドの BACK = 長押しの操作)。反応の遅さの分だけ待ってから押し続ける
-            hold = NetMatch.Mode == MultiplayerGameMode.Coop && runTime - natDownAt > 0.8f + natReact * 3f;
+            hold = NetMatch.Mode == MultiplayerGameMode.Coop && runTime - natDownAt > 0.8f + natReact * 3f && !condNoRevive; // 補助試験: 救助を押さずに DOWN のまま待つ
         }
         else if (!paused && !gm.IsRewardSequenceRunning)
         {
@@ -420,7 +421,7 @@ public partial class NetAutoTest
                 shown ? ax + FloatingOrigin.Offset : 0.0, shown ? a.transform.position.y : 0f, agy, shown && a.Grounded ? 1 : 0, np.PlaybackLag * 1000f, np.RemoteDistance,
                 rec != null ? rec.Hp : -1, rec != null ? rec.MaxHp : -1, rec != null ? rec.State.ToString() : "?", rec != null && rec.Choosing ? "+ch" : ""));
         }
-        L($"NAT utc={utc} t={runTime:F1} run={natRunIndex} me=P{NetCombat.LocalPlayerNumber} role={role} {self} front={WorldProgress.FrontHigh:F1} team={(TeamDistance.Active ? TeamDistance.Display : -1):F1} conn={(NetSession.IsConnected ? 1 : 0)} n={NetPlayer.All.Count}{others}");
+        L($"NAT utc={utc} t={runTime:F1} run={natRunIndex} me=P{NetCombat.LocalPlayerNumber} role={role} {self} front={WorldProgress.FrontHigh:F1} team={(TeamDistance.Active ? TeamDistance.Display : -1):F1} conn={(NetSession.IsConnected ? 1 : 0)} n={NetPlayer.All.Count} rank='{NetMatch.ComputeRank().Text}'{others}");
         if (Time.unscaledTime >= natNextEnt && NetCombat.Instance != null && pc != null)
         {
             natNextEnt = Time.unscaledTime + 1f;

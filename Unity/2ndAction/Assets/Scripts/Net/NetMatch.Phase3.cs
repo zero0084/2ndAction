@@ -65,7 +65,17 @@ public partial class NetMatch
         {
             rec.State = PState.Eliminated;
             rec.FinalDistance = rec.Distance;
-            Log($"P{rec.Pn} ELIMINATED (VERSUS) FinalDistance={rec.FinalDistance:F1}m src={source}");
+            Log($"P{rec.Pn} ELIMINATED (VERSUS) FinalDistance={rec.FinalDistance:F1}m src={source}{(rec.ReaperFatal ? " [reaper]" : "")}");
+            if (rec.ReaperFatal) HostAnnounceReaperOut(rec);
+        }
+        else if (rec.ReaperFatal)
+        {
+            // 2026-11-28 依頼③: 死神に倒された(通常の3マップ)= 復活できない脱落。救助の対象にしない(DOWN にしない)
+            rec.State = PState.Eliminated;
+            rec.FinalDistance = rec.Distance;
+            ReaperEliminations++;
+            Log($"P{rec.Pn} ELIMINATED by the reaper (CO-OP, no revive) FinalDistance={rec.FinalDistance:F1}m src={source}");
+            HostAnnounceReaperOut(rec);
         }
         else
         {
@@ -171,6 +181,7 @@ public partial class NetMatch
                 if (NetCombat.Replica) gm.NetApplyAuthoritativeLives(me.Hp, me.MaxHp, fromHit: true);
             }
             else if (me.State == PState.Out && NetCombat.Replica && !gm.IsGameOver) gm.NetForceGameOver("HP0(HOST)");
+            CheckHostClearFromTable(gm, me); // 2026-11-28 依頼④: 知らせが遅れても表で同じ処理(1回だけ)
         }
         if (runOver && !gm.IsGameOver && runOverAt > 0f && Time.realtimeSinceStartup >= runOverAt)
         {
@@ -207,6 +218,22 @@ public partial class NetMatch
         });
         dirty = true;
         SendTable();
+    }
+
+    // 2026-11-28: 1人の参加者だけへ結果を送る(ラスダンのクリアの時点で先に脱落していた人。結果の中身は HostEndRun と同じ形)
+    void SendRunOverTo(ulong clientId)
+    {
+        SendToClients(w =>
+        {
+            w.WriteValueSafe(SyncRunOver);
+            w.WriteValueSafe((byte)results.Count);
+            foreach (var r in results)
+            {
+                w.WriteValueSafe((byte)r.Pn); w.WriteValueSafe(r.Distance); w.WriteValueSafe(r.Kills); w.WriteValueSafe(r.BossLastHits);
+                w.WriteValueSafe((byte)r.State); w.WriteValueSafe((byte)r.Rank);
+                w.WriteValueSafe(r.Eligible); w.WriteValueSafe(r.ReaperReached); w.WriteValueSafe(r.RankBonus); w.WriteValueSafe(r.ReaperBonus);
+            }
+        }, clientId);
     }
 
     // RunState=Finished(2026-09-28): 結果を最優先にする - この端末の選択UI(レベルアップ/ボス報酬)を

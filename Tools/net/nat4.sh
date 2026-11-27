@@ -22,18 +22,19 @@ if [ "$MODE" = restart ]; then
   grep -a -h "NATSNAP tag=restart" "$OUT"/restart_p*.log | sed 's/.*\[NETTEST\] utc=[^ ]* //'
   exit 0
 fi
-BASE="-titleScreen 0 -netAutoNatDoneDir $(cygpath -w $OUT) -netAutoMode $GM -netAutoStage wasteland_road -netAutoWaitPlayers 150 -netAutoNatMaxMin $MAXMIN -netAutoNatSeed 1 -netAutoRunSeconds 99999 $COMMON"
+BASE="-titleScreen 0 -netAutoNatDoneDir $(cygpath -w $OUT) -netAutoMode $GM -netAutoStage ${STAGE:-wasteland_road} -netAutoWaitPlayers 150 -netAutoNatMaxMin $MAXMIN -netAutoNatSeed 1 -netAutoRunSeconds 99999 $COMMON"
 if [ "$NET" = online ]; then ROOM=QANAT$RANDOM; HNET="-netAutoOnline -netAutoRoom $ROOM -ugsProfile qanat_1"; GAP=8
 else HNET=""; GAP=4; fi
 pids=(); names=()
-"$EXE" -screen-fullscreen 0 -screen-width 640 -screen-height 360 -fileSave "$(W $SAVES/p1/save.json)" -netAutoHost $HNET -netAutoPlayers 4 -netAutoStartDelay $((GAP * 4 + 15)) -netAutoNatural 1 $BASE $HOSTX $P1 -logFile "$(W $OUT/p1_host.log)" > /dev/null 2>&1 &
+"$EXE" -screen-fullscreen 0 -screen-width ${W1:-640} -screen-height ${H1:-360} -fileSave "$(W $SAVES/p1/save.json)" -netAutoHost $HNET -netAutoPlayers 4 -netAutoStartDelay $((GAP * 4 + 15)) -netAutoNatural 1 $BASE $HOSTX $P1 -logFile "$(W $OUT/p1_host.log)" > /dev/null 2>&1 &
 pids+=($!); names+=(p1)
 if [ "$NET" = online ]; then for w in $(seq 1 60); do grep -aq "Session created" "$OUT/p1_host.log" 2>/dev/null && break; sleep 3; done; echo "host room: $(grep -a -o "ONLINE CREATE ok=[A-Za-z]* in [0-9.]*s" "$OUT/p1_host.log" | head -1)"; fi
 for n in 2 3 4; do
   sleep $GAP
   if [ "$NET" = online ]; then JNET="-netAutoJoin online -netAutoOnline -netAutoRoom $ROOM -ugsProfile qanat_$n"; else JNET="-netAutoJoin 127.0.0.1"; fi
   eval "PX=\$P$n"
-  "$EXE" -screen-fullscreen 0 -screen-width 640 -screen-height 360 -fileSave "$(W $SAVES/p$n/save.json)" $JNET -netAutoNatural $n $BASE $PX -logFile "$(W $OUT/p${n}_join.log)" > /dev/null 2>&1 &
+  eval "WW=\${W$n:-640}; HH=\${H$n:-360}"
+  "$EXE" -screen-fullscreen 0 -screen-width $WW -screen-height $HH -fileSave "$(W $SAVES/p$n/save.json)" $JNET -netAutoNatural $n $BASE $PX -logFile "$(W $OUT/p${n}_join.log)" > /dev/null 2>&1 &
   pids+=($!); names+=(p$n)
 done
 wp=(); for p in "${pids[@]}"; do w=$(cat /proc/$p/winpid 2>/dev/null); wp+=(${w:-0}); done

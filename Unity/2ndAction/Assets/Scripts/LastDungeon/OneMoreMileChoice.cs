@@ -14,6 +14,8 @@ public class OneMoreMileChoice : MonoBehaviour
     public bool Decided { get; private set; }
     public bool ChoseYes { get; private set; }
     public System.Action<bool> Chosen;
+    public bool FollowHost; // 2026-11-28 マルチの参加者: 石は攻撃で壊れない(HOST の答えで ForceDecide)
+    public void ForceDecide(bool yes) { if (!Decided) Decide(yes ? Yes : No); }
     public readonly List<CreditLetter> QuestionLetters = new List<CreditLetter>();
     float riseT;
     public bool Risen => riseT >= 1.4f;
@@ -194,7 +196,7 @@ public class ChoiceWord : MonoBehaviour, IWorldSolid
         for (int i = 0; i < hitCols.Length; i++) if (hitCols[i] == atk && hitSwings[i] == swing) return; // 同じ振りでは1回
         hitCols[hitNext] = atk; hitSwings[hitNext] = swing; hitNext = (hitNext + 1) % hitCols.Length;
         Vector3 at = atk.bounds.ClosestPoint(transform.position + new Vector3(0f, Height * 0.5f, 0f));
-        if (Locked)
+        if (Locked || (Owner != null && Owner.FollowHost && NetMatch.LdChoiceFollowsHost))
         {
             // 答えが決まった後は受け付けない(鈍い音と小さな火花だけ)
             LockedHitsIgnored++;

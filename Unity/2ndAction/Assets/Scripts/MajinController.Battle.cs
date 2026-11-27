@@ -48,9 +48,10 @@ public partial class MajinController : IBossBattleDebug
     {
         if (battle == null) return;
         if (!subBarReady && hpBar != null && battle.staggerMax > 0f) { hpBar.EnableSub(squareSprite, 0.08f); if (battle.phaseThresholds != null && battle.phaseThresholds.Length > 0) hpBar.SetPhaseTicks(squareSprite, battle.phaseThresholds); subBarReady = true; }
-        if (!Broken && stagger > 0f && Time.time - lastStaggerTime > BossBattleTuning.I.staggerRecoveryDelay)
+        bool rageLock = BreakRules.Locked(phase) && !Broken; // 2026-11-28 依頼⑥
+        if (!Broken && !rageLock && stagger > 0f && Time.time - lastStaggerTime > BossBattleTuning.I.staggerRecoveryDelay)
             stagger = Mathf.Max(0f, stagger - battle.staggerRecoveryPerSec * Time.deltaTime);
-        if (hpBar != null && battle.staggerMax > 0f) hpBar.SetSub(StaggerFraction, Broken);
+        if (hpBar != null && battle.staggerMax > 0f) hpBar.SetSub(StaggerFraction, Broken, rageLock);
     }
 
     // 攻撃の開始の前(Update)。必殺技/第2段階の技を始めたら true
@@ -114,6 +115,7 @@ public partial class MajinController : IBossBattleDebug
     {
         if (BossBattle.DebugNoStagger) return;
         if (battle == null || battle.staggerMax <= 0f || Broken || state == State.Entering || state == State.Dead || breakRecovering) return;
+        if (BreakRules.Locked(phase)) { BreakRules.LockedHits++; return; } // 2026-11-28 依頼⑥: 怒り(激昂)の間は BREAK しない
         v *= ElementSystem.IceStaggerMul(gameObject, v); // 2026-10-30: 冷えた/凍結したボスは BREAK が溜まりやすい
         if (netAttacker <= 0) v *= MapCardRules.BreakGainMul; // 2026-11-06 SKY BREAKER(空中)/ SONIC EDGE(130km/h 以上)/ FINAL DRIVE(80km 以降)/ ONE MORE CHANCE の強化中。HOST の端末で受けた他のプレイヤーの攻撃には掛けない
         float before = StaggerFraction;

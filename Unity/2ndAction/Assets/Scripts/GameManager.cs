@@ -3572,6 +3572,9 @@ public partial class GameManager : MonoBehaviour
         NoteHudDamage(); // 2026-10-31: 非表示モードでは被弾の直後だけ HP を見せる
         // マルチプレイPhase 2.5: HOST自身のHPの変化もHOSTの表(全員へ配る正解)へ即反映する。
         if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
+        // 2026-11-28 依頼③: マルチ(通常の3マップ)で死神の攻撃により HP 0 = 復活できない脱落。PHOENIX / FINAL EVOLUTION の緊急復活を使わない
+        bool reaperFatal = Lives <= 0 && NetMatch.LocalHitFromReaper && NetMatch.ReaperNoReviveApplies;
+        if (reaperFatal) Debug.Log($"[NET][REAPER] lethal reaper hit on the HOST (reason={reason}) -> no PHOENIX / FINAL EVOLUTION revive (phoenixCharges={PhoenixCharges})");
         // 2026-11-06 ONE MORE CHANCE: 倒れる被弾を1ランに1回だけハート1つで残す。PHOENIX / FINAL EVOLUTION の緊急復活より先
         //  (ここで Lives が 1 以上になるので、同じ被弾で下の復活は出ない。落下なら通常の被弾と同じく足場へ戻る)
         if (Lives <= 0 && MapCardsTryOneMoreChance())
@@ -3581,7 +3584,7 @@ public partial class GameManager : MonoBehaviour
             RequestInterruptSave();
             return DamageResult.Hit;
         }
-        if (Lives <= 0 && FinalEvolution.TryEmergencyRevive(this))
+        if (Lives <= 0 && !reaperFatal && FinalEvolution.TryEmergencyRevive(this))
         {
             // FINAL EVOLUTION(PHOENIX): 専用の緊急復活(通常の PHOENIX Charge は使わない/増やさない)
             Lives = Mathf.Clamp(Mathf.CeilToInt(maxLives * FinalEvolution.EmergencyReviveHpFraction), 1, maxLives);
@@ -3591,7 +3594,7 @@ public partial class GameManager : MonoBehaviour
             RequestInterruptSave(); // 2026-10-10: 戦闘中は間引いて保存(Android の保存は毎回 XML を書き直す)
             return DamageResult.Hit;
         }
-        if (Lives <= 0 && TryPhoenix(reason))
+        if (Lives <= 0 && !reaperFatal && TryPhoenix(reason))
         {
             // PHOENIX(v3): 倒れる被弾を取り消して復活(落下なら通常の被弾と同じく足場へ戻る)
             if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
@@ -3603,7 +3606,7 @@ public partial class GameManager : MonoBehaviour
         if (Lives <= 0)
         {
             // マルチプレイPhase 3: CO-OP=ダウン / VERSUS=脱落 はRunを終えずにNetMatchが扱う。
-            if (NetMatch.HostLocalHpZero(reason)) return DamageResult.GameOver;
+            if (NetMatch.HostLocalHpZero(reason, reaperFatal)) return DamageResult.GameOver;
             // Bugfix 2026-09-06, item 2 - logged unconditionally (not just
             // under DebugMode) since a GAME OVER is rare enough that this
             // never spams, and this is the one moment the report explicitly
@@ -3720,6 +3723,19 @@ public partial class GameManager : MonoBehaviour
     }
 
     public int NetChoicesClosedCount { get; private set; } // 自動テスト用
+
+    // 2026-11-28 依頼④: HOST のクリアでランを終える前に、開いている画面(カード選択・一時停止・確認・設定)を閉じる
+    public void NetCloseScreensForRunEnd(string reason)
+    {
+        NetCloseAllChoices(reason, true);
+        if (showPauseMenu || showReturnHomeConfirm)
+        {
+            showPauseMenu = false; showReturnHomeConfirm = false;
+            TimeControl.Resume(pauseMenuTimeOwner);
+            Debug.Log($"[NET][CHOICE] pause menu closed ({reason})");
+        }
+        if (SettingsPanel.IsVisible) SettingsPanel.CloseStatic();
+    }
 
     // 表示中/待機中の選択UIをすべて閉じる(カードは適用しない)。Run終了/脱落/DOWNの時に使う。
     public void NetCloseAllChoices(string reason, bool dropQueued)

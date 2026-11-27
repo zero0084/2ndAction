@@ -132,8 +132,18 @@ public class BossHudPanel : MonoBehaviour
             float sh = 5f;
             Rect sr = new Rect(x, hp ? r.yMax - sh - r.height * 0.12f : r.y + (r.height - sh) * 0.5f, bw, sh);
             Color sc = broken ? Color.Lerp(Color.white, new Color(1f, 0.6f, 0.2f), Mathf.PingPong(Time.time * 6f, 1f))
+                     : b.SubLocked ? new Color(0.45f, 0.45f, 0.5f) // 2026-11-28 依頼⑥: 怒り中 = 灰色(溜まらない)
                               : Color.Lerp(new Color(1f, 0.82f, 0.25f), new Color(1f, 0.35f, 0.2f), b.SubFraction);
             HudStyle.Bar(sr, b.SubFraction, sc, 0.6f);
+            if (b.SubLocked)
+            {
+                // 怒り中は BREAK できない: ゲージに斜線の錠前の代わりに赤い×と短い札(英字の札は BREAK! と同じ扱い)
+                Color keepC = GUI.color; GUI.color = new Color(1f, 0.3f, 0.25f, 0.9f);
+                GUI.DrawTexture(new Rect(sr.x, sr.y + sh * 0.5f - 0.75f, sr.width, 1.5f), Texture2D.whiteTexture);
+                GUI.color = keepC;
+                var lt = HudStyle.ValueStyle(10, TextAnchor.MiddleRight);
+                HudStyle.Text(new Rect(x, sr.y - 12f, bw, 11f), "RAGE: NO BREAK", lt, new Color(1f, 0.45f, 0.4f));
+            }
             if (broken)
             {
                 var st = HudStyle.ValueStyle(11, TextAnchor.MiddleRight);

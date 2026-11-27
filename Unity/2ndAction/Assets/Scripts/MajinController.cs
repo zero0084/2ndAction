@@ -409,8 +409,12 @@ public partial class MajinController : MonoBehaviour
         return TerrainManager.Instance.GetSupportHeightAt(x); // 2026-10-10: 穴の上を 0 にしない(上下に跳んでいた原因)
     }
 
+    public int AttacksStarted { get; private set; } // 2026-11-28 依頼⑥ 確認用
+    float majinSpawnAt = -1f;
     IEnumerator TelegraphAndAttack()
     {
+        AttacksStarted++;
+        if (majinSpawnAt < 0f) majinSpawnAt = Time.time;
         state = State.Telegraphing;
         if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(SeId.BossCharge, transform.position); // 2026-10-06: 魔法の溜め
         SetFrames(Pose("cast", idleFrames)); // 2026-10-28: 予告の間は両手に魔力を溜める(以前は待機のコマ+点滅だけ)
@@ -646,6 +650,7 @@ public partial class MajinController : MonoBehaviour
             if (juggle != null) juggle.CloseBreak(); // 打ち上げ中でも寄せをやめる
             if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
             if (hpBar != null) hpBar.SetSub(0f, false);
+            Debug.Log($"[BossBattle] Majin defeated phase={phase} breaks={BreakCount} attacks={AttacksStarted} t={(majinSpawnAt > 0f ? Time.time - majinSpawnAt : -1f):F1}s(from 1st attack) rageLock={BreakRules.RageLock}"); // 2026-11-28 依頼⑥
             if (BossFinish.Enabled) BeginBossFinish(false); else StartCoroutine(FinalHitAndDie());
             return;
         }
@@ -872,7 +877,7 @@ public partial class MajinController : MonoBehaviour
         if (flashOverlay != null && flashOverlay.enabled) { s.Flags |= NetCombat.FlagFlash; s.Flash = NetPlayerSnapshot.PackColor(flashOverlay.color); }
         if (hitFlashOverlay != null && hitFlashOverlay.enabled) s.Flags |= NetCombat.FlagHitFlash;
         s.Combo = juggle != null ? juggle.NetPack() : (byte)0; // 2026-10-21: BREAK コンボの状態(JOIN の空中の補助)
-        if (battle != null && battle.staggerMax > 0f) s.Stagger = NetCombat.PackStagger(StaggerFraction, Broken); // 2026-11-07: 崩しのゲージは HOST の値
+        if (battle != null && battle.staggerMax > 0f) s.Stagger = NetCombat.PackStagger(StaggerFraction, Broken, BreakRules.Locked(phase) && !Broken); // 2026-11-07: 崩しのゲージは HOST の値
     }
     bool netStaggerSeen;
 
@@ -893,7 +898,7 @@ public partial class MajinController : MonoBehaviour
             }
         }
         if (sr != null) sr.color = NetPlayerSnapshot.UnpackColor(s.Color);
-        if (s.Stagger != 0 || netStaggerSeen) { netStaggerSeen = true; float sf = NetCombat.UnpackStagger(s.Stagger, out bool sb); if (hpBar != null) hpBar.SetSub(sf, sb); } // 2026-11-07: HOST の崩しのゲージ
+        if (s.Stagger != 0 || netStaggerSeen) { netStaggerSeen = true; float sf = NetCombat.UnpackStagger(s.Stagger, out bool sb, out bool sl); if (hpBar != null) hpBar.SetSub(sf, sb, sl); } // 2026-11-07: HOST の崩しのゲージ
         if (flashOverlay != null)
         {
             bool on = (s.Flags & NetCombat.FlagFlash) != 0;

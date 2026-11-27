@@ -42,13 +42,14 @@ public partial class NetMatch
     public static Rect LastPartyHudRect { get; private set; }
     public static Rect LastRevivePanelRect { get; private set; }
     public static int LastPartyRowsDrawn { get; private set; }
+    public static Rect LastRankRect { get; private set; } // 2026-11-28 依頼②: 順位の行(確認用)
 
     static readonly List<Rec> rowsTmp = new List<Rec>();
     float reaperArrivedShownAt = -99f; bool reaperArrivedSeen;
 
     void OnGUI()
     {
-        LastPartyRowsDrawn = 0; LastPartyHudRect = Rect.zero; LastRevivePanelRect = Rect.zero;
+        LastPartyRowsDrawn = 0; LastPartyHudRect = Rect.zero; LastRevivePanelRect = Rect.zero; LastRankRect = Rect.zero;
         if (!Active || !NetRunLauncher.IsMultiplayerRun) return;
         GameManager gm = GameManager.Instance;
         if (gm == null || !gm.HasStarted || gm.IsGameOver) return;
@@ -79,10 +80,12 @@ public partial class NetMatch
         bool downCoop = Mode == MultiplayerGameMode.Coop && me != null && me.State == PState.Down && !runOver;
         if (downCoop) DrawRevivePanel(me, k); // 長押しの数え方は Update(UpdateRules2)
 
+        // 2026-11-28 依頼③: CO-OP で死神に倒された自分(復活できない脱落。救助の欄は出さない)
+        if (Mode == MultiplayerGameMode.Coop && !runOver && me != null && me.State == PState.Eliminated) DrawCenterNote("ELIMINATED", ReaperOutSub(me), k, 0.62f, new Color(1f, 0.55f, 0.5f));
         // ③ VERSUS: 脱落した自分 / 死神の予告 / 乱入
         if (Mode == MultiplayerGameMode.Versus && !runOver)
         {
-            if (me != null && me.State == PState.Eliminated) DrawCenterNote("ELIMINATED", $"{me.FinalDistance:N0} m", k, 0.62f, new Color(1f, 0.55f, 0.5f));
+            if (me != null && me.State == PState.Eliminated) DrawCenterNote("ELIMINATED", ReaperOutSub(me), k, 0.62f, new Color(1f, 0.55f, 0.5f));
             DrawReaperBanner(k);
         }
         PadNav.EndLayer(padLayer);
@@ -93,10 +96,13 @@ public partial class NetMatch
         Vector2 a = GameManager.PartyHudAnchorPx;
         float w = GameManager.PartyHudWidthPx;
         float rowH = 22f * k, pad = 5f * k, headH = 18f * k;
-        float h = pad * 2f + headH + rows.Count * rowH;
+        // 2026-11-28 依頼②: 見出しの下に自分の順位と先頭との差(走りながら読めるよう太字で少し大きく)。欄の中の1行なので他の HUD と重ならない
+        var rank = ComputeRank();
+        float rankH = rank.Valid ? 22f * k : 0f;
+        float h = pad * 2f + headH + rankH + rows.Count * rowH;
         // 画面の下に収まらない時は行を詰める(8人 + 縦の小さい画面)
         float maxH = Screen.height - StableSafeArea.Rect.y - a.y - 120f * k;
-        if (h > maxH && maxH > 0f) { rowH = Mathf.Max(15f * k, (maxH - pad * 2f - headH) / rows.Count); h = pad * 2f + headH + rows.Count * rowH; }
+        if (h > maxH && maxH > 0f) { rowH = Mathf.Max(15f * k, (maxH - pad * 2f - headH - rankH) / rows.Count); h = pad * 2f + headH + rankH + rows.Count * rowH; }
         Rect panel = new Rect(a.x, a.y, w, h);
         LastPartyHudRect = panel; LastPartyRowsDrawn = rows.Count;
         HudStyle.Panel(panel, 0.5f);
@@ -109,6 +115,16 @@ public partial class NetMatch
         HudStyle.Text(new Rect(panel.x + pad + 2f * k, panel.y + pad, w - pad * 2f, headH), head, hs, HudStyle.Label);
 
         float y = panel.y + pad + headH;
+        if (rank.Valid)
+        {
+            var rs = HudStyle.ValueStyle(Mathf.RoundToInt(14f * k), TextAnchor.MiddleLeft);
+            rs.fontStyle = FontStyle.Bold;
+            float rw = w - pad * 2f - 4f * k;
+            HudStyle.Fit(rs, rank.Text, rw, Mathf.RoundToInt(9f * k));
+            HudStyle.Text(new Rect(panel.x + pad + 2f * k, y, rw, rankH), rank.Text, rs, rank.Leader ? UiTheme.Mile : Color.white);
+            LastRankRect = new Rect(panel.x, y, w, rankH);
+            y += rankH;
+        }
         float chipW = 4f * k, tagW = 46f * k, barW = Mathf.Clamp(w * 0.26f, 40f * k, 70f * k);
         float nameX = panel.x + pad + chipW + 5f * k;
         float tagX = panel.xMax - pad - tagW;
@@ -150,6 +166,7 @@ public partial class NetMatch
             // 状態の札
             string tag = null; Color tc = Color.white, tb = Color.clear;
             if (r.State == PState.Down) { tag = "DOWN"; tc = Color.white; tb = new Color(0.75f, 0.15f, 0.15f, 0.9f); }
+            else if (r.State == PState.Eliminated && r.ReaperFatal) { tag = "REAPER"; tc = Color.white; tb = new Color(0.35f, 0.05f, 0.25f, 0.95f); } // 2026-11-28: 死神による復活できない脱落
             else if (r.State == PState.Eliminated) { tag = "OUT"; tc = new Color(1f, 0.7f, 0.7f); }
             else if (r.State == PState.Out) { tag = "LEFT"; tc = HudStyle.Label; }
             else if (r.State == PState.Escaped) { tag = "ESC"; tc = UiTheme.Success; }
@@ -219,6 +236,9 @@ public partial class NetMatch
         Event e = Event.current;
         if ((e.type == EventType.MouseDown || e.type == EventType.MouseUp) && r.Contains(e.mousePosition)) e.Use();
     }
+
+    // 2026-11-28 依頼③: 死神に倒された人は「復活できない」ことを出す(ほかは今まで通り距離)
+    static string ReaperOutSub(Rec me) => me.ReaperFatal ? (Loc.Ready(ReaperOutSelfKey) ? Loc.T(ReaperOutSelfKey) : "Defeated by the Reaper - no revive") : $"{me.FinalDistance:N0} m";
 
     void DrawCenterNote(string head, string sub, float k, float yFrac, Color c)
     {

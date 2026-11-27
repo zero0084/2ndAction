@@ -192,6 +192,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaEscGauge") { mode = "escgauge"; dir = a[i + 1]; } // 2026-11-26 脱出の円形ゲージ(減り方/被弾/落下)
             if (a[i] == "-qaTutReward") { mode = "tutreward"; dir = a[i + 1]; } // 2026-11-26 初回チュートリアルの完了報酬
             if (a[i] == "-qaAnimJitter") { mode = "animjitter"; dir = a[i + 1]; }
+            if (a[i] == "-qaEnemySize") { mode = "enemysize"; dir = a[i + 1]; }
             if (a[i] == "-qaMech") { mode = "mech"; dir = a[i + 1]; }
             if (a[i] == "-qaNobleMoves") { mode = "noblemoves"; dir = a[i + 1]; }
             if (a[i] == "-qaFix13b") { mode = "fix13b"; dir = a[i + 1]; }
@@ -432,6 +433,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "escgauge") yield return EscGaugeMode();
         else if (mode == "tutreward") yield return TutRewardModeQa();
         else if (mode == "animjitter") yield return AnimJitterMode();
+        else if (mode == "enemysize") yield return EnemySizeMode();
         else if (mode == "mech") yield return MechMode();
         else if (mode == "noblemoves") yield return NobleMovesMode();
         else if (mode == "fix13b") yield return Fix13bModeQa();

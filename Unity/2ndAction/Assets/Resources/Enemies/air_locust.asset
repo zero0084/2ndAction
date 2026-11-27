@@ -30,7 +30,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 57acc4507722c774680cb3750524a56c, type: 3}
   attackSprite: {fileID: 21300000, guid: 0d9b38bf929b48f49b25d3145d4eca4e, type: 3}
   mileReward: 1
-  visualScaleMultiplier: 1
+  visualScaleMultiplier: 2.81
   aiTier: 1
   stageIds:
   - wasteland_road
@@ -48,7 +48,7 @@ MonoBehaviour:
   motionLinks: []
   runFrameOffsets: []
   idleHoverAmplitude: 0
-  bodyColliderScale: {x: 0.36308596, y: 0.359375}
+  bodyColliderScale: {x: 1.0204, y: 1.01}
   bodyColliderOffset: {x: 0, y: 0}
   launchScale: 1.2
   knockbackScale: 1.1

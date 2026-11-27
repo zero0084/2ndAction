@@ -1112,9 +1112,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
 
     // 予備動作: 向き固定・その場で(間合い保持)溜める。markersは進行に応じて
     // 点滅しながら濃くなる。interruptible時にプレイヤー攻撃を受けたら中断。
+    public int AttacksStarted { get; private set; } // 2026-11-28 依頼⑥ 確認用: 攻撃の予兆を始めた回数(= 攻撃できた回数)
+    bool netLockedSeen;
     protected IEnumerator Telegraph(float duration, params BossTelegraphMarker[] zones)
     {
         DebugAct = "Telegraph";
+        AttacksStarted++;
         NoteTelegraphForBreakQa();
         // 複数体: 予備動作の開始を全体で少しずらす(同時に攻撃が重ならないように)。待つ間は走り続ける。
         float gateWait = 0f;
@@ -1568,7 +1571,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             relVelocity = 0f;
             if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
             if (hpBar != null) hpBar.SetSub(0f, false);
-            Debug.Log($"[BossBattle] {bossName} defeated phase={Phase} breaks={BreakCount} ultimates={UltimatesUsed} t={Time.time - battleStartedAt:F1}s");
+            Debug.Log($"[BossBattle] {bossName} defeated phase={Phase} breaks={BreakCount} ultimates={UltimatesUsed} attacks={AttacksStarted} t={Time.time - battleStartedAt:F1}s key={tuningKey} staggerMax={(tune != null ? tune.staggerMax : 0f):F0} rageLock={BreakRules.RageLock} dragonMul={BreakRules.DragonStaggerMul:F2}");
             if (BossFinish.Enabled) BeginBossFinish(hitPos); // BOSS FINISH(2026-10-06): 報酬はこの瞬間、遭遇の終了は見た目の後
             else StartCoroutine(FinalHitAndDie());
             return;
@@ -1647,7 +1650,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     public void ApplyTuning(string key)
     {
         tuningKey = key;
-        tune = BossBattleTuning.I.For(key);
+        tune = BreakRules.ForBoss(key, BossBattleTuning.I.For(key)); // 2026-11-28 依頼⑥: ドラゴン系は BREAK に要る蓄積を増やす(写しに掛ける)
         if (tune.hpScale > 0f && Mathf.Abs(tune.hpScale - 1f) > 0.001f) maxHp = Mathf.Max(1, Mathf.RoundToInt(maxHp * tune.hpScale));
     }
 
@@ -1663,9 +1666,10 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     {
         OnBattleTick(dt);
         if (tune == null) return;
-        if (!Broken && stagger > 0f && Time.time - lastStaggerTime > BossBattleTuning.I.staggerRecoveryDelay)
+        bool rageLock = BreakRules.Locked(Phase) && !Broken; // 2026-11-28 依頼⑥: 怒りの間は蓄積を止め、怒る前の量を残す(減らさない)
+        if (!Broken && !rageLock && stagger > 0f && Time.time - lastStaggerTime > BossBattleTuning.I.staggerRecoveryDelay)
             stagger = Mathf.Max(0f, stagger - tune.staggerRecoveryPerSec * dt);
-        if (hpBar != null && tune.staggerMax > 0f) hpBar.SetSub(StaggerFraction, Broken);
+        if (hpBar != null && tune.staggerMax > 0f) hpBar.SetSub(StaggerFraction, Broken, rageLock);
     }
 
     void CheckPhase()
@@ -1677,7 +1681,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (p <= Phase) return;
         Phase = p;
         phaseUnlockedAt = Time.time;
-        Debug.Log($"[BossBattle] {bossName} PHASE {Phase} (hp {Hp}/{maxHp}) t={Time.time - battleStartedAt:F1}s");
+        Debug.Log($"[BossBattle] {bossName} PHASE {Phase} (hp {Hp}/{maxHp}) t={Time.time - battleStartedAt:F1}s{(BreakRules.Locked(Phase) ? $" -> rage: BREAK locked (gauge kept {StaggerFraction:F2}{(Broken ? ", current BREAK continues" : "")})" : "")}");
         if (hpBar != null) hpBar.Flash(0.8f);
         if (supportsInterrupt && !entering && !Broken) InterruptAI(PhaseRoar());
         else PhaseFx();
@@ -1725,6 +1729,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     {
         if (BossBattle.DebugNoStagger) return;
         if (tune == null || tune.staggerMax <= 0f || Broken || phaseRoaring || entering || breakRecovering) return;
+        if (BreakRules.Locked(Phase)) { BreakRules.LockedHits++; return; } // 2026-11-28 依頼⑥: 怒り(激昂)の間は BREAK しない(ダメージは通る)
         float before = StaggerFraction;
         v *= ElementSystem.IceStaggerMul(gameObject, v); // 2026-10-30: 冷えた/凍結したボスは BREAK が溜まりやすい(氷の役割)
         if (netAttacker <= 0) v *= MapCardRules.BreakGainMul; // 2026-11-06 SKY BREAKER(空中)/ SONIC EDGE(130km/h 以上)/ FINAL DRIVE(80km 以降)/ ONE MORE CHANCE の強化中。HOST の端末で受けた他のプレイヤーの攻撃には掛けない
@@ -2242,7 +2247,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (hurtCol != null && hurtCol.enabled) s.Flags |= NetCombat.FlagHurtbox;
         s.Combo = juggle != null ? juggle.NetPack() : (byte)0; // 2026-10-21: BREAK コンボの状態(JOIN の空中の補助/膝つきの見た目)
         s.SpriteIdx = NetPoseArtIndex(); // 2026-10-28(同期の版 11): 技ごとの1枚絵(天空のボス。0 = なし)
-        if (tune != null && tune.staggerMax > 0f) s.Stagger = NetCombat.PackStagger(StaggerFraction, Broken); // 2026-11-07: 崩しのゲージは HOST の値
+        if (tune != null && tune.staggerMax > 0f) s.Stagger = NetCombat.PackStagger(StaggerFraction, Broken, BreakRules.Locked(Phase) && !Broken); // 2026-11-07: 崩しのゲージは HOST の値
     }
     // JOIN: HOST から届いた崩しのゲージ(確認用にも読む)
     [System.NonSerialized] public float NetStaggerFraction; [System.NonSerialized] public bool NetBrokenShown; bool netStaggerSeen;
@@ -2271,8 +2276,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (s.Stagger != 0 || netStaggerSeen)
         {
             netStaggerSeen = true;
-            NetStaggerFraction = NetCombat.UnpackStagger(s.Stagger, out NetBrokenShown);
-            if (hpBar != null) hpBar.SetSub(NetStaggerFraction, NetBrokenShown);
+            NetStaggerFraction = NetCombat.UnpackStagger(s.Stagger, out NetBrokenShown, out bool netLocked);
+            if (hpBar != null) hpBar.SetSub(NetStaggerFraction, NetBrokenShown, netLocked);
+            if (netLocked != netLockedSeen) { netLockedSeen = netLocked; Debug.Log($"[BossBattle] {bossName} (puppet) rage BREAK lock {(netLocked ? "ON" : "OFF")} gauge={NetStaggerFraction:F2} (from HOST)"); } // 2026-11-28 依頼⑥ 確認用
         }
         if (s.Combo != 0 || (juggle != null && juggle.Open))
         {

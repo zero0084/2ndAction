@@ -1,0 +1,76 @@
+air_ancient_drone: visualScaleMultiplier: 1  ->  1.16
+air_ancient_drone: bodyColliderScale: {x: 0.31796876, y: 0.26953125}  ->  {x: 0.3676, y: 0.3116}
+air_ancient_drone: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_bat_swarm: visualScaleMultiplier: 1  ->  3.21
+air_bat_swarm: bodyColliderScale: {x: 0.31796876, y: 0.33789062}  ->  {x: 1.0205, y: 1.0844}
+air_bat_swarm: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_black_imp: visualScaleMultiplier: 1  ->  1.48
+air_black_imp: bodyColliderScale: {x: 0.32226562, y: 0.38671875}  ->  {x: 0.4754, y: 0.5704}
+air_black_imp: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_crystal_dragonfly: visualScaleMultiplier: 1  ->  1.71
+air_crystal_dragonfly: bodyColliderScale: {x: 0.32226562, y: 0.31445312}  ->  {x: 0.5508, y: 0.5375}
+air_crystal_dragonfly: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_jellyfish: visualScaleMultiplier: 1  ->  1.13
+air_jellyfish: bodyColliderScale: {x: 0.27929688, y: 0.21289062}  ->  {x: 0.316, y: 0.2409}
+air_jellyfish: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_locust: visualScaleMultiplier: 1  ->  2.81
+air_locust: bodyColliderScale: {x: 0.36308596, y: 0.359375}  ->  {x: 1.0204, y: 1.01}
+air_locust: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_mech_drake: visualScaleMultiplier: 1  ->  1.26
+air_mech_drake: bodyColliderScale: {x: 0.41035157, y: 0.30859375}  ->  {x: 0.5157, y: 0.3878}
+air_mech_drake: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_moth: visualScaleMultiplier: 1  ->  2.23
+air_moth: bodyColliderScale: {x: 0.38027343, y: 0.3984375}  ->  {x: 0.8465, y: 0.8869}
+air_moth: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_reaper_familiar: visualScaleMultiplier: 1  ->  1.92
+air_reaper_familiar: bodyColliderScale: {x: 0.38027343, y: 0.31835938}  ->  {x: 0.7315, y: 0.6124}
+air_reaper_familiar: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_red_eagle: visualScaleMultiplier: 1  ->  1.17
+air_red_eagle: bodyColliderScale: {x: 0.39746094, y: 0.41796875}  ->  {x: 0.4635, y: 0.4874}
+air_red_eagle: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_sand_swallow: visualScaleMultiplier: 1  ->  2.03
+air_sand_swallow: bodyColliderScale: {x: 0.37597656, y: 0.40429688}  ->  {x: 0.7618, y: 0.8192}
+air_sand_swallow: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_sky_swallow: visualScaleMultiplier: 1  ->  2.71
+air_sky_swallow: bodyColliderScale: {x: 0.3544922, y: 0.32421875}  ->  {x: 0.9619, y: 0.8798}
+air_sky_swallow: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_sky_wisp: visualScaleMultiplier: 1  ->  2.22
+air_sky_wisp: bodyColliderScale: {x: 0.27929688, y: 0.32226562}  ->  {x: 0.6202, y: 0.7156}
+air_sky_wisp: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_thread_spider: visualScaleMultiplier: 1  ->  1.47
+air_thread_spider: bodyColliderScale: {x: 0.26210937, y: 0.26953125}  ->  {x: 0.3859, y: 0.3968}
+air_thread_spider: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_vulture: visualScaleMultiplier: 1  ->  1.27
+air_vulture: bodyColliderScale: {x: 0.47050783, y: 0.36328125}  ->  {x: 0.598, y: 0.4617}
+air_vulture: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+air_wraith: visualScaleMultiplier: 1  ->  1.17
+air_wraith: bodyColliderScale: {x: 0.3308594, y: 0.375}  ->  {x: 0.387, y: 0.4387}
+air_wraith: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0}
+card_fairy: visualScaleMultiplier: 1  ->  2.77
+card_fairy: bodyColliderScale: {x: 0.6, y: 0.7}  ->  {x: 1.6632, y: 1.9404}
+card_fairy: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0.8706}
+cave_bat: visualScaleMultiplier: 1  ->  1.21
+cave_bat: bodyColliderScale: {x: 1, y: 1}  ->  {x: 1.21, y: 1.21}
+cave_bat: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: -0.2767}
+celestial_knight: visualScaleMultiplier: 1  ->  1.15
+celestial_knight: bodyColliderScale: {x: 0.6, y: 0.9}  ->  {x: 0.6917, y: 1.0375}
+celestial_knight: bodyColliderOffset: {x: 0, y: -0.050000012}  ->  {x: 0, y: 0.0167}
+flying_wyvern: visualScaleMultiplier: 1  ->  4.58
+flying_wyvern: bodyColliderScale: {x: 1, y: 1}  ->  {x: 2.748, y: 2.748}
+flying_wyvern: bodyColliderOffset: {x: 0, y: 0}  ->  {x: -0.0311, y: 0.4507}
+flying_wyvern: sprite: {fileID: 21300000, guid: 5a675f0d7764f524193321196dc80f26, type: 3}  ->  {fileID: 21300000, guid: d8b31faa42878e14a8e4e6539209a84c, type: 3}
+golden_slime: visualScaleMultiplier: 1  ->  1.69
+golden_slime: bodyColliderScale: {x: 0.85, y: 0.8}  ->  {x: 1.4338, y: 1.3494}
+golden_slime: bodyColliderOffset: {x: 0, y: -0.099999994}  ->  {x: 0.0011, y: 0.1676}
+mimic: visualScaleMultiplier: 1  ->  1.21
+mimic: bodyColliderScale: {x: 0.8, y: 0.85}  ->  {x: 0.972, y: 1.0327}
+mimic: bodyColliderOffset: {x: 0, y: -0.07499999}  ->  {x: 0.0003, y: 0.014}
+shooter_archer: visualScaleMultiplier: 1.19  ->  1.33
+shooter_archer: bodyColliderScale: (missing, appended)  ->  {x: 1.1205, y: 1.1205}
+shooter_archer: bodyColliderOffset: (missing, appended)  ->  {x: 0, y: 0.0592}
+sky_hunter: visualScaleMultiplier: 1  ->  1.79
+sky_hunter: bodyColliderScale: {x: 0.45, y: 0.65}  ->  {x: 0.8065, y: 1.165}
+sky_hunter: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0.001, y: 0.3892}
+storm_spirit: visualScaleMultiplier: 1  ->  1.13
+storm_spirit: bodyColliderScale: {x: 0.5, y: 0.65}  ->  {x: 0.5643, y: 0.7336}
+storm_spirit: bodyColliderOffset: {x: 0, y: 0}  ->  {x: 0, y: 0.0631}

@@ -136,8 +136,10 @@ public class DragonHealthBar : MonoBehaviour
     }
 
     // 0..1。broken=trueの間は白く点滅(BREAK中)
-    public void SetSub(float f, bool broken)
+    public bool SubLocked { get; private set; } // 2026-11-28 依頼⑥: 怒り中で BREAK できない
+    public void SetSub(float f, bool broken, bool locked = false)
     {
+        SubLocked = locked && !broken;
         if (subFill == null) return;
         f = Mathf.Clamp01(f);
         SubFraction = f; SubBroken = broken;

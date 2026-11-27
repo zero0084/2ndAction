@@ -57,7 +57,7 @@ public partial class NetAutoTest
             hudShotIndex++;
             Rect p = NetMatch.LastPartyHudRect, r = NetMatch.LastRevivePanelRect;
             string boss = BossHudPanel.VisibleBottomPx > 0f ? $"bossBottom={BossHudPanel.VisibleBottomPx:F0}" : "boss=none";
-            L($"[HUD] t={runTime:F1} screen={Screen.width}x{Screen.height} stacked={GameManager.HudStacked} mode={HudPrefs.CurrentMode} rows={NetMatch.LastPartyRowsDrawn} party=({p.x:F0},{p.y:F0},{p.width:F0},{p.height:F0}) revive=({r.x:F0},{r.y:F0},{r.width:F0},{r.height:F0}) cardsTop={GameManager.RunCardsTopPx:F0} cardsLeftLimit={GameManager.RunCardsLeftLimitPx:F0} {boss}");
+            L($"[HUD] t={runTime:F1} screen={Screen.width}x{Screen.height} stacked={GameManager.HudStacked} mode={HudPrefs.CurrentMode} rows={NetMatch.LastPartyRowsDrawn} party=({p.x:F0},{p.y:F0},{p.width:F0},{p.height:F0}) rankRow=({NetMatch.LastRankRect.x:F0},{NetMatch.LastRankRect.y:F0},{NetMatch.LastRankRect.width:F0},{NetMatch.LastRankRect.height:F0}) rank='{NetMatch.LastRankText}' revive=({r.x:F0},{r.y:F0},{r.width:F0},{r.height:F0}) cardsTop={GameManager.RunCardsTopPx:F0} cardsLeftLimit={GameManager.RunCardsLeftLimitPx:F0} {boss}");
             if (!string.IsNullOrEmpty(shotDir))
             {
                 System.IO.Directory.CreateDirectory(shotDir);

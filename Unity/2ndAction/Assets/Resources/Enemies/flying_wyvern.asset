@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
   enemyId: flying_wyvern
   displayName: BIRD
-  sprite: {fileID: 21300000, guid: 5a675f0d7764f524193321196dc80f26, type: 3}
+  sprite: {fileID: 21300000, guid: d8b31faa42878e14a8e4e6539209a84c, type: 3}
   tint: {r: 1, g: 1, b: 1, a: 1}
   movementType: 1
   category: 1
@@ -31,7 +31,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6f9987db11efe84449e9d6896718ca76, type: 3}
   attackSprite: {fileID: 0}
   mileReward: 2
-  visualScaleMultiplier: 1
+  visualScaleMultiplier: 4.58
   aiTier: 0
   stageIds: []
   bonusKind: 0
@@ -46,8 +46,8 @@ MonoBehaviour:
     charge: {fileID: 0}
     dive: {fileID: 0}
   idleHoverAmplitude: 0
-  bodyColliderScale: {x: 1, y: 1}
-  bodyColliderOffset: {x: 0, y: 0}
+  bodyColliderScale: {x: 2.748, y: 2.748}
+  bodyColliderOffset: {x: -0.0311, y: 0.4507}
   launchScale: 1
   knockbackScale: 1
   finishMass: 0

@@ -1,0 +1,145 @@
+ar 11119 الترتيب {0}/{1}
+ar 11120 الموقع {0}/{1}
+ar 11121 إلى المتصدر: {0} م
+ar 11122 المتصدر
+ar 11123 نجح HOST في الهروب
+bn 11119 র‍্যাঙ্ক {0}/{1}
+bn 11120 অবস্থান {0}/{1}
+bn 11121 শীর্ষে যেতে {0} মি
+bn 11122 শীর্ষে
+bn 11123 HOST সফলভাবে পালিয়েছে
+cs 11119 Pořadí {0}/{1}
+cs 11120 Pozice {0}/{1}
+cs 11121 Do čela: {0} m
+cs 11122 Čelo
+cs 11123 HOST úspěšně unikl
+de 11119 Rang {0}/{1}
+de 11120 Position {0}/{1}
+de 11121 Zur Spitze: {0} m
+de 11122 Spitze
+de 11123 HOST ist entkommen
+en 11119 Rank {0}/{1}
+en 11120 Pos. {0}/{1}
+en 11121 To leader: {0} m
+en 11122 Leader
+en 11123 HOST escaped successfully
+es 11119 Clasif. {0}/{1}
+es 11120 Pos. {0}/{1}
+es 11121 Al líder: {0} m
+es 11122 Líder
+es 11123 HOST ha escapado con éxito
+fa 11119 رتبه {0}/{1}
+fa 11120 موقعیت {0}/{1}
+fa 11121 تا پیشتاز: {0} متر
+fa 11122 پیشتاز
+fa 11123 HOST با موفقیت فرار کرد
+fil 11119 Ranggo {0}/{1}
+fil 11120 Posisyon {0}/{1}
+fil 11121 Sa nangunguna: {0} m
+fil 11122 Nangunguna
+fil 11123 Matagumpay na nakatakas ang HOST
+fr 11119 Rang {0}/{1}
+fr 11120 Pos. {0}/{1}
+fr 11121 À {0} m du leader
+fr 11122 Leader
+fr 11123 HOST s'est échappé avec succès
+hi 11119 रैंक {0}/{1}
+hi 11120 स्थिति {0}/{1}
+hi 11121 अग्रणी से {0} मी
+hi 11122 अग्रणी
+hi 11123 HOST सफलतापूर्वक बच निकला
+id 11119 Peringkat {0}/{1}
+id 11120 Posisi {0}/{1}
+id 11121 Ke terdepan: {0} m
+id 11122 Terdepan
+id 11123 HOST berhasil kabur
+it 11119 Class. {0}/{1}
+it 11120 Pos. {0}/{1}
+it 11121 Dal primo: {0} m
+it 11122 Primo
+it 11123 HOST è riuscito a fuggire
+km 11119 ចំណាត់ថ្នាក់ {0}/{1}
+km 11120 ទីតាំង {0}/{1}
+km 11121 ដល់អ្នកនាំមុខ៖ {0} m
+km 11122 នាំមុខ
+km 11123 HOST គេចខ្លួនបានជោគជ័យ
+ko 11119 {0}위/{1}명
+ko 11120 주행 위치 {0}/{1}
+ko 11121 선두까지 {0}m
+ko 11122 선두
+ko 11123 HOST가 탈출에 성공했습니다
+lo 11119 ອັນດັບ {0}/{1}
+lo 11120 ຕຳແໜ່ງ {0}/{1}
+lo 11121 ຫ່າງຜູ້ນຳ {0} m
+lo 11122 ຜູ້ນຳ
+lo 11123 HOST ຫຼົບໜີສຳເລັດແລ້ວ
+ms 11119 Ranking {0}/{1}
+ms 11120 Posisi {0}/{1}
+ms 11121 Ke pendahulu: {0} m
+ms 11122 Pendahulu
+ms 11123 HOST berjaya melarikan diri
+my 11119 အဆင့် {0}/{1}
+my 11120 နေရာ {0}/{1}
+my 11121 ရှေ့ဆုံးအထိ {0} m
+my 11122 ရှေ့ဆုံး
+my 11123 HOST အောင်မြင်စွာ လွတ်မြောက်ပြီ
+pl 11119 Miejsce {0}/{1}
+pl 11120 Poz. {0}/{1}
+pl 11121 Do lidera: {0} m
+pl 11122 Lider
+pl 11123 HOST zdołał uciec
+pt-BR 11119 Class. {0}/{1}
+pt-BR 11120 Pos. {0}/{1}
+pt-BR 11121 Até o líder: {0} m
+pt-BR 11122 Líder
+pt-BR 11123 HOST escapou com sucesso
+ro 11119 Loc {0}/{1}
+ro 11120 Poz. {0}/{1}
+ro 11121 Până la lider: {0} m
+ro 11122 Lider
+ro 11123 HOST a evadat cu succes
+ru 11119 Место {0}/{1}
+ru 11120 Позиция {0}/{1}
+ru 11121 До лидера: {0} м
+ru 11122 Лидер
+ru 11123 HOST успешно сбежал
+sw 11119 Nafasi {0}/{1}
+sw 11120 Mpangilio {0}/{1}
+sw 11121 Hadi kinara: {0} m
+sw 11122 Kinara
+sw 11123 HOST ametoroka salama
+ta 11119 தரவரிசை {0}/{1}
+ta 11120 இடம் {0}/{1}
+ta 11121 முன்னணிக்கு {0} m
+ta 11122 முன்னணி
+ta 11123 HOST வெற்றிகரமாகத் தப்பித்தார்
+th 11119 อันดับ {0}/{1}
+th 11120 ตำแหน่ง {0}/{1}
+th 11121 ถึงคนหน้าสุด {0} ม.
+th 11122 หน้าสุด
+th 11123 HOST หลบหนีสำเร็จ
+tr 11119 Sıra {0}/{1}
+tr 11120 Konum {0}/{1}
+tr 11121 Lidere {0} m
+tr 11122 Lider
+tr 11123 HOST başarıyla kaçtı
+uk 11119 Місце {0}/{1}
+uk 11120 Позиція {0}/{1}
+uk 11121 До лідера: {0} м
+uk 11122 Лідер
+uk 11123 HOST успішно втік
+vi 11119 Hạng {0}/{1}
+vi 11120 Vị trí {0}/{1}
+vi 11121 Cách người dẫn đầu {0} m
+vi 11122 Dẫn đầu
+vi 11123 HOST đã thoát thành công
+zh-Hans 11119 第{0}名/{1}人
+zh-Hans 11120 位置 {0}/{1}
+zh-Hans 11121 距领跑者 {0}m
+zh-Hans 11122 领跑
+zh-Hans 11123 HOST成功脱出
+zh-Hant 11119 第{0}名/{1}人
+zh-Hant 11120 位置 {0}/{1}
+zh-Hant 11121 距領跑者 {0}m
+zh-Hant 11122 領跑
+zh-Hant 11123 HOST成功脫出

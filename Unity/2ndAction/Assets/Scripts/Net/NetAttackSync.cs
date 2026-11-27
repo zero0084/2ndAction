@@ -347,6 +347,14 @@ public class NetAttackSync : MonoBehaviour
         return hi;
     }
 
+    // 2026-11-28 依頼③: HOST: 申告された攻撃の持ち主が死神か(本物の攻撃の部品から。消えた/分からない攻撃は false)
+    public static bool HostIsReaperAttack(int claimId)
+    {
+        if (Instance == null || !Instance.tracked.TryGetValue(claimId / 64, out Tracked t)) return false;
+        if (t.Go != null && t.Go.GetComponentInParent<ReaperBase>() != null) return true;
+        return t.OwnerT != null && t.OwnerT.GetComponentInParent<ReaperBase>() != null;
+    }
+
     public static void HostNotifyHit(int claimId, int pn)
     {
         if (Instance == null || !Instance.tracked.TryGetValue(claimId / 64, out Tracked t) || t.Go == null) return;

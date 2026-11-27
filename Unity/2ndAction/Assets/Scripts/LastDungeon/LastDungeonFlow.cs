@@ -89,7 +89,7 @@ public class LastDungeonFlow : MonoBehaviour
     bool ShouldRun(GameManager gm)
     {
         if (gm == null || !gm.HasStarted || gm.ActiveRunStageId != LastCorridorDirector.StageId) return false;
-        if (NetRunLauncher.IsMultiplayerRun) return false;
+        // 2026-11-28 マスター依頼④: マルチでも三姉妹戦 → クリア → エンドロール → ONE MORE MILE? を動かす(三姉妹は HOST、ほかは各端末。NetMatch.LastDungeon)
         if (lc != null && !lc.hardMode) return false;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-lcLegacyFinale") >= 0) return false;
@@ -145,7 +145,7 @@ public class LastDungeonFlow : MonoBehaviour
             else SetState(State.Run);
         }
         if (gm.IsGameOver) return;
-        float d = gm.MaxDistance;
+        float d = FlowDistance(gm);
         var bm = BossManager.Instance;
         float rushFrom = lc != null ? lc.rushFrom : 90000f, silenceFrom = lc != null ? lc.silenceFrom : 99000f;
 
@@ -171,6 +171,9 @@ public class LastDungeonFlow : MonoBehaviour
                 break;
         }
     }
+
+    // 2026-11-28: マルチは全員で同じ区間(ラッシュ/静寂)へ入るよう、共有世界の進行距離(最前の人の最高到達。関門/死神と同じ物差し)
+    static float FlowDistance(GameManager gm) => NetRunLauncher.IsMultiplayerRun ? (float)WorldProgress.FrontHigh : gm.MaxDistance;
 
     // 三姉妹/巨大文字の絵を走り始めに読み込んでおく(初めて出る瞬間の読み込みで処理落ちしないように)
     static readonly System.Collections.Generic.List<Object> preloaded = new System.Collections.Generic.List<Object>();
@@ -203,7 +206,7 @@ public class LastDungeonFlow : MonoBehaviour
         BgmDirector.OverrideAmbience = null;  // ステージの環境音(風/空気)だけが残る
         BgmDirector.OverrideReason = "silence";
         calloutIndex = 0;
-        while (calloutIndex < Callouts.Length && GameManager.Instance.MaxDistance >= Callouts[calloutIndex]) calloutIndex++;
+        while (calloutIndex < Callouts.Length && FlowDistance(GameManager.Instance) >= Callouts[calloutIndex]) calloutIndex++;
     }
 
     void UpdateSilence(float d)
@@ -222,7 +225,9 @@ public class LastDungeonFlow : MonoBehaviour
     void OnReach100k()
     {
         if (Current >= State.Finale) return; // 三姉妹戦/エンドロール以降に二重に始めない(デバッグでエンドロールから始めた時も)
+        if (NetCombat.Replica) { NetFinaleStarted(); return; } // 2026-11-28: 参加者の端末では三姉妹を作らない(HOST の三姉妹が同期で映る)
         SetState(State.Finale);
+        NetMatch.HostSendLdFinale(); // 2026-11-28: マルチ = 参加者の端末も三姉妹戦の場面へ(三姉妹そのものはボスの同期で映る)
         BgmDirector.ClearOverride(); // ボス戦の曲(死神の曲)はBossManagerの台本のボス戦が決める
         calloutText = "100,000 m"; calloutAt = Time.time;
         var pc = PlayerController.Instance;
@@ -235,6 +240,9 @@ public class LastDungeonFlow : MonoBehaviour
     // ===================================================================== //
     void BeginCredits()
     {
+        // 2026-11-28: マルチの HOST = 撃破の確定を全員へ(1回だけ)。自分がランに残っていなければ(脱出/脱落/退出)エンドロールへ進まない
+        if (NetRunLauncher.IsMultiplayerRun && NetCombat.Authority && !NetMatch.HostDeclareLdClear()) { Debug.Log("[LastDungeon] multiplayer clear declared, but this player is not in the run any more -> no credits here"); return; }
+        if (Current >= State.Credits) return;
         SetState(State.Credits);
         // 2026-10-27: ゲームクリアの記録とご褒美の2人の解放(三姉妹を倒してエンディングへ到達した、この時点で保存。
         //  エンドロールの最後まで待たない = スキップ・中断・再起動でも失わない)。マルチはこの流れを通らない(ShouldRun)。
@@ -319,12 +327,47 @@ public class LastDungeonFlow : MonoBehaviour
         float gy = TerrainManager.Instance != null ? (TerrainManager.Instance.GetHeightAt(pc.transform.position.x) ?? pc.transform.position.y) : pc.transform.position.y;
         Choice = OneMoreMileChoice.Build(pc.transform.position.x, gy, credits);
         Choice.Chosen = OnChosen;
+        Choice.FollowHost = NetMatch.LdChoiceFollowsHost; // 2026-11-28: 参加者は HOST の答えを待つ(石は壊れない)
+        if (Choice.FollowHost && netHostChoice < 0) Banner(Loc.Ready(NetMatch.LdWaitHostKey) ? Loc.T(NetMatch.LdWaitHostKey) : "Waiting for the HOST...");
+        if (netHostChoice >= 0) StartCoroutine(ApplyHostChoiceWhenRisen());
+    }
+
+    // ===================================================================== //
+    // 2026-11-28 マルチ(参加者の端末): HOST からの知らせ
+    // ===================================================================== //
+    int netHostChoice = -1;
+    public void NetFinaleStarted()
+    {
+        if (!Enabled || Current >= State.Finale) return;
+        SetState(State.Finale);
+        calloutText = "100,000 m"; calloutAt = Time.time;
+    }
+    public void NetClear()
+    {
+        if (!Enabled || Current >= State.Credits) return;
+        if (Current < State.Finale) SetState(State.Finale);
+        BeginCredits();
+    }
+    public void NetHostChoice(bool yes)
+    {
+        if (netHostChoice >= 0) return;
+        netHostChoice = yes ? 1 : 0;
+        if (Choice != null && !Choice.Decided) StartCoroutine(ApplyHostChoiceWhenRisen());
+    }
+    IEnumerator ApplyHostChoiceWhenRisen()
+    {
+        while (Choice != null && !Choice.Risen) yield return null;
+        if (Choice == null || Choice.Decided) yield break;
+        Banner("");
+        Debug.Log($"[EndingChoice] following the HOST: {(netHostChoice == 1 ? "YES" : "NO")}");
+        Choice.ForceDecide(netHostChoice == 1);
     }
 
     void UpdateChoice(PlayerController pc) { }
 
     void OnChosen(bool yes)
     {
+        if (NetRunLauncher.IsMultiplayerRun && NetCombat.Authority) NetMatch.HostSendLdChoice(yes); // 2026-11-28: HOST の答えを全員へ
         if (yes) StartCoroutine(GoBeyond());
         else StartCoroutine(StopByChoice());
     }

@@ -2531,6 +2531,22 @@ public partial class PlayerController : MonoBehaviour
         }
     }
 
+    // 2026-11-28 依頼④: HOST の脱出成功でこのランもクリア(自分の記録のまま脱出成功として終える)。
+    //  走っている人は普通の終わりの動き(減速 → ポーズ → 暗転 → RESULT)。DOWN の人は倒れたまま暗転して RESULT。
+    public bool NetHostClearFinish()
+    {
+        var gm = GameManager.Instance;
+        if (gm == null || isAscending) return false;
+        bool downed = netDowned;
+        if (!gm.TryConfirmEscape(downed ? "host clear (down)" : "host clear")) return false;
+        if (!downed) { StartCoroutine(DoFinishSequence()); return true; }
+        isAscending = true; IsFinishing = true; escapeHoldTimer = 0f;
+        gm.EscapeLog("host clear while DOWN -> transition");
+        if (ScreenTransitionManager.Instance != null && !ScreenTransitionManager.Instance.IsTransitioning) ScreenTransitionManager.Instance.PlayTransition(() => gm.Win());
+        else gm.Win();
+        return true;
+    }
+
     // 脱出のゲージ(2026-11-26): 離した時の減り方(1 = 満タンから 0 まで escapeHoldDuration 秒)
     public float EscapeDecayPerSecond = 1f;
     float escapePressTime, escapeTimerAtPress, escapeLastGroundFeetY = float.NegativeInfinity;
