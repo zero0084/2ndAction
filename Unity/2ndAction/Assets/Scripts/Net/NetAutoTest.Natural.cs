@@ -44,7 +44,7 @@ public partial class NetAutoTest
     // ----------------------------------------------------------------- 設定
     int natProfile; bool natSeed, natSnapOnly; float natMaxMin = 75f;
     float[] natEscapeAt = { -1f, -1f }; float natPauseAt = -1f, natPauseFor = 20f;
-    float natHoldLv = 1f, natHoldBoss = 3f; int natPick = 0; bool natPickRand;
+    float natHoldLv = 1f, natHoldBoss = 3f; int natPick = 0; bool natPickRand; string[] natPrefer = new string[0];
     string natDoneDir = ""; // 試験の道具の待ち合わせ(同じ PC の時だけ): 最後のランの後、ホームへ戻った印のファイルを置く
     float natHomeDelay = 3f; int natRuns = 1; string natLeave = ""; float natLeaveTime = -1f;
     float natBgAt = -1f, natBgFor = 0f; string natChar = ""; int natReaperMin = -1;
@@ -63,6 +63,7 @@ public partial class NetAutoTest
             case "-netAutoNatPauseAt": float.TryParse(next, out natPauseAt); return true;
             case "-netAutoNatPauseFor": float.TryParse(next, out natPauseFor); return true;
             case "-netAutoNatHold": { var p = next.Split(','); if (p.Length > 0) float.TryParse(p[0], out natHoldLv); if (p.Length > 1) float.TryParse(p[1], out natHoldBoss); return true; }
+            case "-netAutoNatPrefer": natPrefer = next.Split(','); return true;
             case "-netAutoNatPick": if (next == "rand") natPickRand = true; else { natPickRand = false; int.TryParse(next, out natPick); } return true;
             case "-netAutoNatHomeDelay": float.TryParse(next, out natHomeDelay); return true;
             case "-netAutoNatDoneDir": natDoneDir = next; return true;
@@ -354,6 +355,8 @@ public partial class NetAutoTest
         if (Time.unscaledTime - natChoiceSeenAt < wait) return;
         if (ids.Count == 0) return;
         int idx = natPickRand ? natRng.Next(ids.Count) : Mathf.Clamp(natPick, 0, ids.Count - 1);
+        // -netAutoNatPrefer a,b: この中のカードが出ていれば先に取る(遅い人/速い人を作る試験用。例 speed_down / speed_up)
+        if (natPrefer.Length > 0) for (int i = 0; i < ids.Count; i++) if (System.Array.IndexOf(natPrefer, ids[i]) >= 0) { idx = i; break; }
         if (natChoiceClicks == 0 || Time.unscaledTime - natChoiceSeenAt - wait > 0.35f * natChoiceClicks)
         {
             if (natChoiceClicks == 0) L($"NATEV choice pick kind={kind} idx={idx} card={ids[idx]} waited={Time.unscaledTime - natChoiceSeenAt:F1}s");

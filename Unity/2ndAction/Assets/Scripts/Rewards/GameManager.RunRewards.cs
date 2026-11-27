@@ -16,7 +16,25 @@ public partial class GameManager
     // 確認用: 経路ごとの「分配前の基本」と「分配・補正の後の正確な値」の合計(0 = 距離 は都度計算、1 雑魚 / 2 ボス / 3 BONUS / 4 リング)
     public readonly float[] MileBaseDbg = new float[5], MileExactDbg = new float[5];
     public float DistanceMileBase => MileDistanceForRun / 100f * Mathf.Max(0f, 1f + Card.Get(EffectType.DistanceMilePct));
-    public float DistanceMileExact => DistanceMileBase / Mathf.Max(1, MileShareCount);
+    // 2026-11-28(マスター決定): 協力で退出/切断が確定した人は、それ以降の分配の人数から外す。すでに配った分は計算し直さない
+    //  → 距離の MILE は「人数が変わるまでに走った距離 ÷ その時の人数」を足し込み、それ以降の距離だけ新しい人数で割る
+    //    (カードの距離 MILE の倍率は今まで通り全体に掛ける)
+    double shareMetersBanked; float shareMetersAt;
+    float ShareMeters => (float)(shareMetersBanked + Mathf.Max(0f, MileDistanceForRun - shareMetersAt) / Mathf.Max(1, MileShareCount));
+    public float DistanceMileExact => ShareMeters / 100f * Mathf.Max(0f, 1f + Card.Get(EffectType.DistanceMilePct));
+    // HOST が撃破の知らせで決めた分配の人数(その報酬だけ。0 = この端末の今の人数)
+    public static int ShareOverride;
+    public int ShareChanges { get; private set; } // 確認用
+    // 協力: 分配の人数を減らす(退出/切断が確定した時だけ。増やさない)。HOST と参加者の両方で、HOST の表の状態から
+    public void MpReduceShare(int n, string why)
+    {
+        n = Mathf.Clamp(n, 1, 8);
+        if (n >= MileShareCount) return;
+        shareMetersBanked += Mathf.Max(0f, MileDistanceForRun - shareMetersAt) / Mathf.Max(1, MileShareCount);
+        shareMetersAt = MileDistanceForRun;
+        Debug.Log($"[Reward] MILE share 1/{MileShareCount} -> 1/{n} ({why}); distance so far {shareMetersAt:F0}m stays at the old share (banked {shareMetersBanked:F1}m)");
+        MileShareCount = n; ShareChanges++;
+    }
     public float TakeHomeExactDebug => DistanceMileExact + MileExactDbg[1] + MileExactDbg[2] + MileExactDbg[3] + MileExactDbg[4];
     void Track(int ch, float baseAmount, float exact) { MileBaseDbg[ch] += baseAmount; MileExactDbg[ch] += exact; }
 
@@ -31,6 +49,7 @@ public partial class GameManager
         }
         else n = 1 + CpuParty.Allies.Count;
         MileShareCount = Mathf.Clamp(n, 1, 8);
+        shareMetersBanked = 0; shareMetersAt = 0f; ShareChanges = 0; ShareOverride = 0;
         mileCarry = 0f; System.Array.Clear(MileBaseDbg, 0, 5); System.Array.Clear(MileExactDbg, 0, 5);
         Debug.Log($"[Reward] MILE share for this run: 1/{MileShareCount} ({(NetRunLauncher.IsMultiplayerRun ? NetMatch.Mode.ToString() : CpuParty.Allies.Count > 0 ? "CPU support" : "solo")})");
     }
@@ -44,7 +63,7 @@ public partial class GameManager
         if (carry < 0f) carry = 0f;
         return whole;
     }
-    float Share(float baseAmount) => baseAmount / Mathf.Max(1, MileShareCount);
+    float Share(float baseAmount) => baseAmount / Mathf.Max(1, ShareOverride > 0 ? ShareOverride : MileShareCount);
 
     // 雑魚: mileBase = 種類の MILE × 距離の係数(精鋭は ×3 済み)。grantExp=false は協力マルチの分け前だけ(EXP/撃破数はラストヒットの人)
     public void RegisterEnemyKill(float mileBase = 1f, float expMul = 1f, bool grantExp = true)
@@ -170,6 +189,7 @@ public partial class GameManager
     void RestoreRewardSnapshot(RunCheckpoint.Data d)
     {
         MileShareCount = Mathf.Clamp(d.mileShare > 0 ? d.mileShare : 1 + CpuParty.Allies.Count, 1, 8);
+        shareMetersBanked = 0; shareMetersAt = 0f; // 中断データはソロ/CPU サポートだけ(途中で人数は変わらない)
         mileCarry = Mathf.Repeat(d.mileCarry + d.carryEnemy + d.carryBoss + d.carryBonus + d.carryRing, 1f); // 以前の形(経路ごと)も1つへ
         System.Array.Clear(MileBaseDbg, 0, 5); System.Array.Clear(MileExactDbg, 0, 5);
         heldBossExp = d.heldBossExp;

@@ -54,6 +54,8 @@ public partial class NetMatch : MonoBehaviour
         public int HitsTaken, ClaimsRejected;
         public bool Known;                    // HOSTがこの人の初期HPを受け取った
         public bool ReaperReached;            // 2026-11-05 VERSUS: 死神の乱入の時に生き残っていた(REAPER BONUS)
+        public float LastCatchupAt = -99f;    // 2026-11-28: 大きく遅れた人の合流補助(HOST の実時間)
+        public int Catchups;                  // 確認用: 合流補助で移した回数
     }
 
     readonly Dictionary<int, Rec> recs = new Dictionary<int, Rec>();
@@ -154,6 +156,8 @@ public partial class NetMatch : MonoBehaviour
 
         int local = NetCombat.LocalPlayerNumber;
         UpdateRules2(gm); // 2026-11-05: 脱出の通知・死神の乱入時間・予告
+        TickCoopShare(gm);   // 2026-11-28: 退出/切断が確定した人を分配の人数から外す
+        UpdateCoopCatchup(); // 2026-11-28: 大きく遅れた人の合流補助(HOST)
         if (NetCombat.Authority)
         {
             // HOST自身の記録はHOSTのGameManagerが持つ値そのもの(HOSTが権威)。

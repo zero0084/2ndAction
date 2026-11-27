@@ -934,6 +934,8 @@ public class NetCombat : MonoBehaviour
             w.WriteValueSafe(RewardMileBase(e)); w.WriteValueSafe(RewardExpMul(e)); // 2026-10-15: 報酬の基本(距離/強さの係数込み、精鋭も)と EXP の倍率(雑魚)/割合(ボス)をHOSTが決めて送る
             w.WriteValueSafe(e.Enemy != null ? e.Enemy.WantedBounty : 0); // 2026-10-15(版6): WANTED の賞金(0 = 賞金首ではない)
             w.WriteValueSafe(e.Enemy != null ? e.Enemy.NetFinishCode : e.Wild != null ? e.Wild.BossFinishCode : e.Dragon != null ? e.Dragon.BossFinishCode : e.Majin != null ? e.Majin.BossFinishCode : (ushort)0); // FINISH: 撃破の向き/種類(見た目は各端末で再生)
+            // 通信の版 17(2026-11-28): この撃破の報酬の分配の人数(HOST が撃破を確定した時の人数。退出と重なっても全員が同じ人数で受け取る)
+            w.WriteValueSafe((byte)Mathf.Clamp(GameManager.Instance != null ? GameManager.Instance.MileShareCount : 1, 1, 8));
             if (e.SpawnSent) SendReliableToClients(w);
         }
         if (GameManager.Instance != null && GameManager.Instance.DebugMode)
@@ -1415,6 +1417,8 @@ public class NetCombat : MonoBehaviour
         r.ReadValueSafe(out float mileBase); r.ReadValueSafe(out float expMul);
         r.ReadValueSafe(out int bounty);
         r.ReadValueSafe(out ushort finishCode);
+        r.ReadValueSafe(out byte shareN); // 通信の版 17: この報酬の分配の人数(HOST が確定)
+        shareN = (byte)Mathf.Clamp(shareN, 1, 8);
         // 2026-11-25 セキュリティ監査: HOST から届く報酬の値は有限・現実的な範囲だけ(壊れた/改変した HOST の値で MILE が増えない)
         mileBase = NetSecurity.ClampFinite(mileBase, 0f, NetSecurity.MaxMileBase); expMul = NetSecurity.ClampFinite(expMul, 0f, NetSecurity.MaxExpMul);
         bounty = Mathf.Clamp(bounty, 0, NetSecurity.MaxBounty);
@@ -1429,7 +1433,9 @@ public class NetCombat : MonoBehaviour
         if (bounty > 0 && NetMatch.Mode == MultiplayerGameMode.Coop && GameManager.Instance != null && bountyPaid.Add(id))
         {
             float carry0 = GameManager.Instance.MileCarryDebug;
-            int got = GameManager.Instance.AddRunBonusMile(bounty);
+            GameManager.ShareOverride = shareN;
+            int got;
+            try { got = GameManager.Instance.AddRunBonusMile(bounty); } finally { GameManager.ShareOverride = 0; }
             ChallengeSystem.NoteRemoteBounty();
             BossBattleHud.Banner("BOUNTY!", new Color(1f, 0.85f, 0.3f), 1.2f);
             Log("WANTED", $"bounty id={id} {bounty} MILE -> +{got} (1/{GameManager.Instance.MileShareCount}, MILE x{GameManager.Instance.MileGainMultiplier:F2}, shared carry {carry0:F3} -> {GameManager.Instance.MileCarryDebug:F3})");
@@ -1451,8 +1457,14 @@ public class NetCombat : MonoBehaviour
         if (GameManager.Instance != null && (rewardee == LocalPlayerNumber || CoopShare))
         {
             bool mine = rewardee == LocalPlayerNumber;
-            if (e.Kind == Kind.Boss) GameManager.Instance.RegisterBossDefeat(mileBase, expMul, mine);
-            else GameManager.Instance.RegisterEnemyKill(mileBase, expMul, mine);
+            GameManager.ShareOverride = CoopShare ? shareN : 0; // 協力: HOST が確定した人数で割る(この端末の表がまだ古くても同じ額)
+            try
+            {
+                if (e.Kind == Kind.Boss) GameManager.Instance.RegisterBossDefeat(mileBase, expMul, mine);
+                else GameManager.Instance.RegisterEnemyKill(mileBase, expMul, mine);
+            }
+            finally { GameManager.ShareOverride = 0; }
+            if (CoopShare && shareN != GameManager.Instance.MileShareCount) Log("REWARD", $"kill id={id} shared 1/{shareN} (HOST) while this device has 1/{GameManager.Instance.MileShareCount}");
         }
         // 2026-11-27(4人の通し試験で発見): 脱出の解放は「ボスの撃破 + 報酬の完了」。報酬を受け取らない参加者(ラストヒットでない人)は
         //  報酬の流れを通らないので、ランの最後まで一度も脱出できなかった。HOST は報酬を他の人へ渡した時点で解放している(GameManager の

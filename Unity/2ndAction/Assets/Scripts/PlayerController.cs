@@ -2108,6 +2108,8 @@ public partial class PlayerController : MonoBehaviour
         UiInputGate.LatchUntilRelease();
         NetRejoinsDone++;
         if (LastRejoinLog == "" || !LastRejoinLog.StartsWith("no safe")) LastRejoinLog = $"moved {x - fromX:F0}m (serial {serial})";
+        // 2026-11-28(マスター決定): 「仲間に合流しました」と短く知らせる(訳が入った言語だけ。未訳の日本語は出さない)
+        if (x - fromX > 30f && Loc.Ready(NetMatch.RejoinedToast)) NetDebugUI.Toast(Loc.T(NetMatch.RejoinedToast));
         Debug.Log($"[NET][REJOIN] P{NetCombat.LocalPlayerNumber} placed at {FloatingOrigin.ToLogical(x):F0} (moved {x - fromX:F0}m, waited {w:F2}s) serial {serial}");
         NetMatch.ReportRejoinDone(serial, x);
         if (Debug.isDebugBuild && gm != null)
