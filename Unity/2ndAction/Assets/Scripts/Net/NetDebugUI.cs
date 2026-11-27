@@ -52,6 +52,7 @@ public class NetDebugUI : MonoBehaviour
     void Update()
     {
         OnlineServices.Tick(); // ONLINE の部屋の状態(開始したら IN PROGRESS)。部屋が無ければ何もしない
+        TickConnectionLostPause();
         if (!PanelOpen) return;
         ipRefreshTimer -= Time.unscaledDeltaTime;
         if (ipRefreshTimer <= 0f)
@@ -95,7 +96,7 @@ public class NetDebugUI : MonoBehaviour
         GUI.depth = -1000;
         EnsureStyles();
         PadNav.BeginLayoutButtons();
-        int padLayer = PadNav.BeginLayer(PanelOpen ? 8 : gm.HasStarted ? PadNav.HudLayer : 0); // マルチのパネルはホームより手前、ラン中の物は HUD(2026-10-06)
+        int padLayer = PadNav.BeginLayer(BannerVisible ? 9 : PanelOpen ? 8 : gm.HasStarted ? PadNav.HudLayer : 0); // マルチのパネルはホームより手前、ラン中の物は HUD(2026-10-06)。2026-11-27: 切断の案内は一番手前(止めている間にパッドの選択が HUD へ行かない)
 
         float s = Scale;
         Matrix4x4 prevMatrix = GUI.matrix;
@@ -121,6 +122,7 @@ public class NetDebugUI : MonoBehaviour
         }
 
         if (BannerVisible) DrawConnectionLostBanner(w, h, gm);
+        else DrawConnectionLostCountdown(w, h);
         if (!string.IsNullOrEmpty(toastText) && Time.unscaledTime < toastUntil)
         {
             Rect r = new Rect(w * 0.5f - 260f, h * 0.18f, 520f, 56f);
@@ -793,19 +795,63 @@ public class NetDebugUI : MonoBehaviour
         bool inRun = gm.HasStarted && !gm.IsGameOver;
         if (inRun)
         {
-            if (GUI.Button(new Rect(r.x + 24f, r.yMax - 76f, bw * 0.5f - 36f, 56f), "ホームへ戻る", buttonStyle))
+            // 2026-11-27(マスター要望): 案内が出ている間はゲームを止める(TickConnectionLostPause)。パッドでも押せるように PadNav を通す
+            Rect home = new Rect(r.x + 24f, r.yMax - 76f, bw * 0.5f - 36f, 56f), cont = new Rect(r.x + bw * 0.5f + 12f, r.yMax - 76f, bw * 0.5f - 36f, 56f);
+            if (PadNav.Button(home) | GUI.Button(home, "ホームへ戻る", buttonStyle))
             {
                 NetSession.Instance.ClearConnectionLost();
+                connLostCountdown = -1f; TimeControl.Resume(ConnLostPauseOwner);
                 gm.ReturnToHome();
             }
-            if (GUI.Button(new Rect(r.x + bw * 0.5f + 12f, r.yMax - 76f, bw * 0.5f - 36f, 56f), "このまま走る", buttonStyle))
-                NetSession.Instance.ClearConnectionLost();
+            if (PadNav.Button(cont) | GUI.Button(cont, "このまま走る", buttonStyle)) ContinueAfterConnectionLost();
         }
-        else if (GUI.Button(new Rect(r.x + bw * 0.5f - 120f, r.yMax - 76f, 240f, 56f), "OK", buttonStyle))
+        else
         {
-            NetSession.Instance.ClearConnectionLost();
+            Rect ok = new Rect(r.x + bw * 0.5f - 120f, r.yMax - 76f, 240f, 56f);
+            if (PadNav.Button(ok) | GUI.Button(ok, "OK", buttonStyle)) NetSession.Instance.ClearConnectionLost();
         }
         ConsumePointer(r);
+    }
+
+    // ===== HOST との接続が切れた時の一時停止(2026-11-27、マスター要望「走ったままより一時停止した方が親切」) =====
+    //  ラン中に切断の案内が出たら、ゲーム全体を止める(TimeControl)。「このまま走る」→ 3・2・1(実時間)の後に再開。「ホームへ戻る」→ そのまま帰る。
+    //  ラン中でなければ止めない(ホーム/部屋の画面は OK だけ)。ランが終わった/シーンが変わったら止めを解く
+    static readonly object ConnLostPauseOwner = new object();
+    float connLostCountdown = -1f;
+    public static int ConnLostPauses { get; private set; } // 確認用
+    public static bool ConnLostPausedNow => TimeControl.IsPausedBy(ConnLostPauseOwner);
+
+    // 「このまま走る」(自動の試験からも)
+    public static void ContinueAfterConnectionLost()
+    {
+        if (NetSession.Instance != null) NetSession.Instance.ClearConnectionLost();
+        var gm = GameManager.Instance;
+        if (instance != null && gm != null && gm.HasStarted && !gm.IsGameOver) { instance.connLostCountdown = 3f; Debug.Log("[NET] connection lost: continue solo after 3-2-1"); }
+        else TimeControl.Resume(ConnLostPauseOwner);
+    }
+
+    void TickConnectionLostPause()
+    {
+        var gm = GameManager.Instance;
+        bool inRun = gm != null && gm.HasStarted && !gm.IsGameOver;
+        bool want = inRun && (BannerVisible || connLostCountdown >= 0f);
+        bool paused = TimeControl.IsPausedBy(ConnLostPauseOwner);
+        if (want && !paused) { TimeControl.Pause(ConnLostPauseOwner); ConnLostPauses++; Debug.Log("[NET] connection lost during the run - game paused until the player chooses"); }
+        if (!inRun) connLostCountdown = -1f;
+        if (connLostCountdown >= 0f)
+        {
+            connLostCountdown -= Time.unscaledDeltaTime;
+            if (connLostCountdown < 0f) { connLostCountdown = -1f; want = false; UiInputGate.LatchUntilRelease(); Debug.Log("[NET] connection lost: GO (resumed)"); }
+        }
+        if (!want && TimeControl.IsPausedBy(ConnLostPauseOwner)) TimeControl.Resume(ConnLostPauseOwner);
+    }
+
+    void DrawConnectionLostCountdown(float w, float h)
+    {
+        if (connLostCountdown < 0f) return;
+        int n = Mathf.Clamp(Mathf.CeilToInt(connLostCountdown), 1, 3);
+        var st = new GUIStyle(bannerStyle) { fontSize = 96, alignment = TextAnchor.MiddleCenter }; st.normal.textColor = Color.white;
+        GUI.Label(new Rect(0f, h * 0.5f - 80f, w, 160f), n.ToString(), st);
     }
 
     ushort ParsePort()

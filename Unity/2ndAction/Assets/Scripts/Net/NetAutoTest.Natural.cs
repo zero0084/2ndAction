@@ -201,6 +201,12 @@ public partial class NetAutoTest
         if (gm == null) { NatPadFrame(false); return; }
         // お知らせの板(解放の知らせ等)は人と同じく「わかった」を押して閉じる(パッドの決定)。練習の誘いの板は押さずに記録だけ
         if (NoticeQueue.Open && Time.unscaledTime >= natNoticeNext) { natNoticeNext = Time.unscaledTime + 1.5f; L($"NATEV notice confirm id={NoticeQueue.CurrentId} t={runTime:F1} started={gm.HasStarted}"); GameInput.Inject(GameAction.Confirm); }
+        // HOST との接続が切れた案内(ラン中は止まる): 人と同じく少し読んでから「このまま走る」
+        if (NetSession.Instance != null && NetSession.Instance.ConnectionLostPending && gm.HasStarted && !gm.IsGameOver)
+        {
+            if (natConnLostAt < 0f) { natConnLostAt = Time.unscaledTime; L($"NATEV connection lost banner t={runTime:F1} paused={NetDebugUI.ConnLostPausedNow} ts={Time.timeScale:F2}"); }
+            else if (Time.unscaledTime - natConnLostAt > 2f) { L($"NATEV connection lost: continue t={runTime:F1} paused={NetDebugUI.ConnLostPausedNow} ts={Time.timeScale:F2}"); NetDebugUI.ContinueAfterConnectionLost(); natConnLostAt = -1f; }
+        }
         if (UiInputGate.ModalOpen && !NoticeQueue.Open && Time.unscaledTime >= natModalLogNext) { natModalLogNext = Time.unscaledTime + 5f; L($"NATEV modal open (not a notice) t={runTime:F1} guide={FirstRunGuide.Open} settings={SettingsPanel.IsVisible} tutorial={TutorialRun.PanelOpen} transfer={SaveTransferUi.IsOpen} loading={LoadingScreen.BlocksInput}"); }
         if (natRunStartUnscaled < 0f && gm.HasStarted) natRunStartUnscaled = Time.unscaledTime;
         float tRun = natRunStartUnscaled < 0f ? 0f : Time.unscaledTime - natRunStartUnscaled;
@@ -459,7 +465,7 @@ public partial class NetAutoTest
         NatSnap("home");
     }
 
-    bool natDeparted2, natDoneWritten; float natHomeLogNext;
+    bool natDeparted2, natDoneWritten; float natHomeLogNext; float natConnLostAt = -1f;
     void NatHomeTick(GameManager gm)
     {
         float since = runTime - natHomeAt;
