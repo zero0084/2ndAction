@@ -56,6 +56,7 @@ public partial class NetMatch : MonoBehaviour
         public bool ReaperReached;            // 2026-11-05 VERSUS: 死神の乱入の時に生き残っていた(REAPER BONUS)
         public float LastCatchupAt = -99f;    // 2026-11-28: 大きく遅れた人の合流補助(HOST の実時間)
         public int Catchups;                  // 確認用: 合流補助で移した回数
+        public double CatchupFightId = double.NaN; // 2026-11-28 第2: ボス戦の合流で移した戦闘(関門の位置)。同じ戦闘で2回移さない
     }
 
     readonly Dictionary<int, Rec> recs = new Dictionary<int, Rec>();

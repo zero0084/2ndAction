@@ -924,7 +924,7 @@ public class NetCombat : MonoBehaviour
         NetMatch.HostRecordKill(rewardee, e.Kind == Kind.Boss);
         string line = $"{KindTag(e.Kind)} KILL id={e.Id} LastHit={P(lastHit)} LastDamagedBy={P(e.LastDamagedBy)}";
         KillLog.Add(line);
-        Log(KindTag(e.Kind), $"Death id={e.Id} type={e.TypeKey} cause={(cause == 0 ? "hit" : cause == 1 ? "fall" : "other")}");
+        Log(KindTag(e.Kind), $"Death id={e.Id} type={e.TypeKey} cause={(cause == 0 ? "hit" : cause == 1 ? "fall" : "other")} share=1/{(GameManager.Instance != null ? GameManager.Instance.MileShareCount : 1)} rewardee={P(rewardee)}");
         Log(KindTag(e.Kind), $"LastHit={P(lastHit)} id={e.Id} lastDamagedBy={P(e.LastDamagedBy)}");
         using (var w = new FastBufferWriter(48, Allocator.Temp))
         {
@@ -956,6 +956,7 @@ public class NetCombat : MonoBehaviour
         {
             if (e.Kind == Kind.Boss) GameManager.Instance.RegisterBossDefeat(RewardMileBase(e), RewardExpMul(e), false);
             else GameManager.Instance.RegisterEnemyKill(RewardMileBase(e), RewardExpMul(e), false);
+            Log("REWARD", $"kill id={e.Id} reward applied share=1/{GameManager.Instance.MileShareCount} mine=False base={RewardMileBase(e):F2} runMile={GameManager.Instance.RunMile} carry={GameManager.Instance.MileCarryDebug:F3} (HOST)");
         }
         return other;
     }
@@ -1444,7 +1445,7 @@ public class NetCombat : MonoBehaviour
         StatDeaths++;
         string line = $"{KindTag(e.Kind)} KILL id={e.Id} LastHit={P(lastHit)} LastDamagedBy={P(lastDamagedBy)}";
         KillLog.Add(line);
-        Log(KindTag(e.Kind), $"Death id={id} type={e.TypeKey} cause={(cause == 0 ? "hit" : cause == 1 ? "fall" : "other")} (from HOST)");
+        Log(KindTag(e.Kind), $"Death id={id} type={e.TypeKey} cause={(cause == 0 ? "hit" : cause == 1 ? "fall" : "other")} share=1/{shareN} (from HOST)");
         Log(KindTag(e.Kind), $"LastHit={P(lastHit)} id={id} lastDamagedBy={P(lastDamagedBy)}");
         if (e.Enemy != null) e.Enemy.NetMarkDead();
         else if (e.Wild != null) e.Wild.NetPuppetDie();
@@ -1464,6 +1465,7 @@ public class NetCombat : MonoBehaviour
                 else GameManager.Instance.RegisterEnemyKill(mileBase, expMul, mine);
             }
             finally { GameManager.ShareOverride = 0; }
+            Log("REWARD", $"kill id={id} reward applied share=1/{(CoopShare ? shareN : 1)} mine={mine} base={mileBase:F2} runMile={GameManager.Instance.RunMile} carry={GameManager.Instance.MileCarryDebug:F3}");
             if (CoopShare && shareN != GameManager.Instance.MileShareCount) Log("REWARD", $"kill id={id} shared 1/{shareN} (HOST) while this device has 1/{GameManager.Instance.MileShareCount}");
         }
         // 2026-11-27(4人の通し試験で発見): 脱出の解放は「ボスの撃破 + 報酬の完了」。報酬を受け取らない参加者(ラストヒットでない人)は

@@ -18,8 +18,10 @@ public partial class NetMatch
 {
     public static float CatchupGap = 500f;       // 仮の調整値(開発版は -coopCatchupGap <m>、0 で止める)
     public const float CatchupBehind = 30f;      // 先頭のこれだけ後ろへ
+    public static float CatchupGapBoss = 100f;   // 2026-11-28 第2: ボス戦の間の合流の基準(その戦闘の並びの一番後ろから)。開発版は -coopCatchupGapBoss
+    public static int BossCatchups { get; private set; } // 確認用
     public const float CatchupCooldown = 12f;    // 同じ人への合流補助の間隔(秒)
-    public const string RejoinedToast = "仲間に合流しました"; // ID 11118(Tools/loc/keys_extra49.tsv、エステルのレビュー待ち。訳が入るまでは日本語以外では出さない)
+    public const string RejoinedToast = "仲間に合流しました"; // ID 11118(Tools/loc/keys_extra49.tsv。2026-11-28 エステルの29言語の訳を反映済み。訳が無い言語では出さない)
     public static int CatchupOrders { get; private set; } // 確認用
     public static int CatchupSkipped { get; private set; }
     float catchupTick;
@@ -30,6 +32,7 @@ public partial class NetMatch
         catchupArgsRead = true;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         var a = System.Environment.GetCommandLineArgs();
+        for (int i = 0; i + 1 < a.Length; i++) if (a[i] == "-coopCatchupGapBoss" && float.TryParse(a[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float gb)) { CatchupGapBoss = gb; Debug.Log($"[NET][CATCHUP] boss gap = {gb:F0}m (dev arg)"); }
         for (int i = 0; i + 1 < a.Length; i++) if (a[i] == "-coopCatchupGap" && float.TryParse(a[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float g)) { CatchupGap = g; Debug.Log($"[NET][CATCHUP] gap = {g:F0}m (dev arg)"); }
 #endif
     }
@@ -42,7 +45,8 @@ public partial class NetMatch
         if (gm == null || !gm.HasStarted) return;
         catchupTick -= Time.unscaledDeltaTime;
         if (catchupTick > 0f) return;
-        catchupTick = 1f;
+        var bm0 = BossManager.Instance;
+        catchupTick = bm0 != null && bm0.HoldsRun ? 0.25f : 1f; // ボス戦は 3〜20秒で終わるので、戦闘中は細かく見る
         var now = AllLogicalX();
         // 活動中の先頭
         int fpn = 0; float fx = float.MinValue;
@@ -56,18 +60,34 @@ public partial class NetMatch
         float t = Time.realtimeSinceStartup;
         var bm = BossManager.Instance;
         bool bossLine = bm != null && bm.HoldsRun && BossHalt.SharedStop && NetCombat.HoldAnchorLX > 0.0;
+        // 2026-11-28 第2(マスター決定): ボス戦の間は、その戦闘の並び(一番後ろ)から CatchupGapBoss(100m)以上後ろの人を並びへ移す。
+        //  ボスが生きている間だけ(倒された/全部に致命の一撃が入った後は移さない)。同じ戦闘で1人1回だけ(戦闘は関門の位置で見分ける)
+        bool bossAlive = bossLine && !bm.MpBossFightOver && !bm.BossDefeatedThisPhase;
+        double fightId = NetCombat.HoldGateLX;
+        float lineBack = (float)NetCombat.HoldAnchorLX - BossHalt.LineSpacing * 7f;
         foreach (var kv in now)
         {
             if (kv.Key == fpn) continue;
             var rec = Get(kv.Key);
             if (rec == null || rec.State != PState.Alive || rec.Choosing) continue;
-            if (t - rec.ChoiceEndedAt < 2f || t - rec.LastCatchupAt < CatchupCooldown) continue;
             float meX = kv.Value, gap = fx - meX;
-            if (gap < CatchupGap) continue;
+            bool bossCatch = bossAlive && rec.CatchupFightId != fightId && lineBack - meX >= CatchupGapBoss;
+            if (bossCatch)
+            {
+                // 閉じた直後(0.5秒)と、ふつうの合流補助の直後(2秒)は待つ。ボス戦の分は 12秒の間隔を待たない(戦闘が先に終わるため)
+                if (t - rec.ChoiceEndedAt < 0.5f || t - rec.LastCatchupAt < 2f) continue;
+                gap = lineBack - meX;
+            }
+            else
+            {
+                if (t - rec.ChoiceEndedAt < 2f || t - rec.LastCatchupAt < CatchupCooldown) continue;
+                if (gap < CatchupGap) continue;
+                if (bossLine && !bossAlive) continue; // 倒されたボスの場所へ遅れて移さない(ボス戦が終わって走り出してから判定する)
+            }
             // 移す先(論理X): ボス戦の並びの少し後ろ(着けば並んで止まる)/ 先頭の後ろ
             float targetLogical = bossLine ? (float)NetCombat.HoldAnchorLX - BossHalt.LineSpacing * 8f - 6f : fx - CatchupBehind;
             float sceneTarget = targetLogical - (float)FloatingOrigin.Offset;
-            float sceneFloor = Mathf.Max(targetLogical - 80f, meX + 100f) - (float)FloatingOrigin.Offset; // 100m より短い移動はしない
+            float sceneFloor = (bossCatch ? Mathf.Max(targetLogical - 40f, meX + 30f) : Mathf.Max(targetLogical - 80f, meX + 100f)) - (float)FloatingOrigin.Offset; // ふつうは 100m より短い移動はしない(ボス戦の分は並びの後ろ 40m の中)
             if (sceneFloor > sceneTarget) continue;
             float? spot = RejoinSafety.FindSpot(sceneTarget, sceneFloor, out string why);
             if (!spot.HasValue)
@@ -79,7 +99,8 @@ public partial class NetMatch
             float finalLogical = FloatingOrigin.ToLogical(spot.Value);
             int serial = ++rejoinSerial;
             CatchupOrders++; rec.Catchups++; rec.LastCatchupAt = t;
-            Log($"[CATCHUP] P{rec.Pn} {gap:F0}m behind P{fpn}{(bossLine ? " (boss fight: to the line)" : "")} -> place at {finalLogical:F0} (moved {finalLogical - meX:F0}m, #{rec.Catchups}) serial {serial}");
+            if (bossLine) { rec.CatchupFightId = fightId; BossCatchups++; }
+            Log($"[CATCHUP] P{rec.Pn} {gap:F0}m behind {(bossCatch ? "the boss line" : $"P{fpn}")}{(bossLine ? " (boss fight: to the line)" : "")} -> place at {finalLogical:F0} (moved {finalLogical - meX:F0}m, #{rec.Catchups}) serial {serial}");
             if (rec.Pn == NetCombat.LocalPlayerNumber)
             {
                 var pc = PlayerController.Instance;
@@ -92,6 +113,9 @@ public partial class NetMatch
             }
         }
     }
+
+    // 開発版の補助試験(退出と撃破が重なる場合): HOST が退出/切断を確定する直前(true)/直後(false、同じフレーム)に呼ぶ
+    public static System.Action<Rec, bool> QaOutHook;
 
     // ② 分配の人数(HOST も参加者も、HOST の表の状態から): 退出/切断が確定した人(Out)を除いた人数まで減らす(増やさない)
     void TickCoopShare(GameManager gm)

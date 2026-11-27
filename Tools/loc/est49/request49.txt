@@ -1,0 +1,40 @@
+エステル、こんにちは。One More Mile の新しい文を 1 行だけ訳してください(日本語はマスターが確認済みで、このままです)。
+
+【原文(ID・日本語・使う場所)】
+11118	仲間に合流しました	(協力マルチのラン中、画面中央の短い知らせ(2.5秒)。仲間から大きく遅れた人を、前の仲間の近くへ自動で移した時に、移された本人の画面に出す。短く、主語なし)
+
+【決まり】走りながら一瞬で読む短い知らせ。主語(私/あなた)は付けない。「チーム」「仲間」の言い方は、下の既存の訳(同じ協力マルチの画面の文)とそろえてください。
+
+【既存の訳(言い回しをそろえる参考)】順に: {0}が切断しました / このまま走る / ホームへ戻る
+ar	انقطع اتصال {0}	واصل الركض	العودة للرئيسية
+bn	{0} সংযোগ ছিন্ন করেছে	দৌড়াতে থাকো	হোমে ফেরো
+cs	{0} se odpojil	Běžet dál	Domů
+de	{0} hat die Verbindung getrennt	Weiterlaufen	Zum Hauptmenü
+en	{0} disconnected	Keep Running	Back to Home
+es	{0} se ha desconectado	Seguir corriendo	Volver al inicio
+fa	{0} قطع شد	ادامهٔ دویدن	بازگشت به خانه
+fil	Nadiskonekta si {0}	Tumakbo Lang	Bumalik sa Home
+fr	{0} s'est déconnecté	Continuer à courir	Retour à l'accueil
+hi	{0} डिस्कनेक्ट हो गया	ऐसे ही दौड़ें	होम पर लौटें
+id	{0} terputus	Terus berlari	Kembali ke Beranda
+it	{0} si è disconnesso	Continua a correre	Torna alla Home
+km	{0} បានផ្ដាច់	រត់បន្តដូច្នេះ	ត្រឡប់ទៅផ្ទះ
+ko	{0}의 연결이 끊어졌습니다	이대로 달리기	홈으로 돌아가기
+lo	{0} ຕັດການເຊື່ອມຕໍ່ແລ້ວ	ແລ່ນຕໍ່ໄປ	ກັບບ້ານ
+ms	{0} terputus	Terus berlari	Kembali ke Laman Utama
+my	{0} ချိတ်ဆက်မှု ဖြတ်သွားပြီ	ဆက်ပြေး	ပင်မသို့ ပြန်
+pl	{0} rozłączył się	Biegnij dalej	Wróć do menu
+pt-BR	{0} se desconectou	Continuar correndo	Voltar ao Início
+ro	{0} s-a deconectat	Continuă să alergi	Acasă
+ru	{0} отключился	Бежать дальше	Домой
+sw	{0} ametenganishwa	Endelea kukimbia	Rudi nyumbani
+ta	{0} இணைப்பைத் துண்டித்தார்	தொடர்ந்து ஓடு	முகப்புக்குத் திரும்பு
+th	{0} หลุดการเชื่อมต่อ	วิ่งต่อไป	กลับหน้าหลัก
+tr	{0} bağlantıyı kesti	Koşmaya devam et	Ana ekrana dön
+uk	{0} від'єднався	Бігти далі	Додому
+vi	{0} đã ngắt kết nối	Tiếp tục chạy	Về sảnh
+zh-Hans	{0}已断开连接	继续奔跑	返回主页
+zh-Hant	{0}已中斷連線	繼續奔跑	返回主畫面
+
+【返してほしい形】1つのコードブロックに、タブ区切りで「言語コード<TAB>ID<TAB>訳」。29言語×1行=29行。
+言語: ar, bn, cs, de, en, es, fa, fil, fr, hi, id, it, km, ko, lo, ms, my, pl, pt-BR, ro, ru, sw, ta, th, tr, uk, vi, zh-Hans, zh-Hant

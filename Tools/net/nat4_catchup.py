@@ -8,7 +8,7 @@ D = sys.argv[1]
 host = os.path.join(D, 'p1_host.log')
 orders = {}
 for line in open(host, encoding='utf-8', errors='replace'):
-    m = re.search(r'\[CATCHUP\] P(\d) (\d+)m behind P(\d)(.*?) -> place at (-?\d+) \(moved (-?\d+)m, #(\d+)\)', line)
+    m = re.search(r'\[CATCHUP\] P(\d) (\d+)m behind (P\d|the boss line)(.*?) -> place at (-?\d+) \(moved (-?\d+)m, #(\d+)\)', line)
     if m: orders.setdefault(int(m.group(1)), []).append((int(m.group(2)), m.group(4).strip(), int(m.group(6))))
     m2 = re.search(r'\[CATCHUP\] P(\d) .* no safe footing', line)
     if m2: orders.setdefault(int(m2.group(1)), []).append((-1, 'no safe footing', 0))

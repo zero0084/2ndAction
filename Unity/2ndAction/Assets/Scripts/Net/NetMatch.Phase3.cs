@@ -95,9 +95,12 @@ public partial class NetMatch
             if (!connected && r.Known)
             {
                 if (r.FinalDistance <= 0) r.FinalDistance = r.State == PState.Down ? r.DownDistance : r.Distance;
+                QaOutHook?.Invoke(r, true); // 開発版の補助試験: 退出の確定の直前に撃破
                 r.State = PState.Out;
                 dirty = true;
                 Log($"P{r.Pn} disconnected -> excluded (state=Out, distance={r.FinalDistance:F1}m)");
+                TickCoopShare(gm);           // 2026-11-28: 確定したその場で分配の人数を減らす(このフレームの後の撃破から新しい人数)
+                QaOutHook?.Invoke(r, false); // 開発版の補助試験: 確定と同じフレーム(確定の後)に撃破
             }
         }
 

@@ -64,6 +64,7 @@ public partial class NetAutoTest
             case "-netAutoNatPauseFor": float.TryParse(next, out natPauseFor); return true;
             case "-netAutoNatHold": { var p = next.Split(','); if (p.Length > 0) float.TryParse(p[0], out natHoldLv); if (p.Length > 1) float.TryParse(p[1], out natHoldBoss); return true; }
             case "-netAutoNatPrefer": natPrefer = next.Split(','); return true;
+            case "-netAutoShareOverlap": overlapTest = next != "0"; return true;
             case "-netAutoNatPick": if (next == "rand") natPickRand = true; else { natPickRand = false; int.TryParse(next, out natPick); } return true;
             case "-netAutoNatHomeDelay": float.TryParse(next, out natHomeDelay); return true;
             case "-netAutoNatDoneDir": natDoneDir = next; return true;
@@ -197,6 +198,8 @@ public partial class NetAutoTest
 
     void NatTick(GameManager gm)
     {
+        if (overlapTest && NetMatch.QaOutHook == null) OverlapSetup(); // 補助試験: 退出と撃破が重なる場合
+        OverlapTick();
         var pc = PlayerController.Instance;
         bool hold = false;
         if (gm == null) { NatPadFrame(false); return; }
