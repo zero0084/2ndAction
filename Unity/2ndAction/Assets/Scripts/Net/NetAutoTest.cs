@@ -507,7 +507,14 @@ public partial class NetAutoTest : MonoBehaviour
                 {
                     if (!onlineStarted) { onlineStarted = true; if (role == "HOST") OnlineHost(); else OnlineJoin(); }
                     if (!onlineDone) { if (stepTime > 90f) Finish("TIMEOUT online connect"); return; }
-                    if (!onlineOk) { Finish("ONLINE connect failed"); return; }
+                    // 2026-11-27(4人の通し試験 O2): ゲームは参加の失敗(Relay の接続)を自分で1回やり直す。やり直しでつながったら続ける
+                    //  (以前は最初の失敗で試験を終えてアプリを閉じ、つながってランに入っていた参加者が抜けていた)
+                    if (!onlineOk)
+                    {
+                        if (NetSession.IsConnected) { L("ONLINE join recovered by the game's own retry"); onlineOk = true; }
+                        else if (stepTime < 75f) return;
+                        else { Finish("ONLINE connect failed"); return; }
+                    }
                     L($"ONLINE {OnlineServices.DebugLine()}");
                     Next(Step.WaitPlayers);
                     break;
