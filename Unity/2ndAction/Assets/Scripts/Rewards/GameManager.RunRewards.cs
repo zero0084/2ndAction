@@ -49,7 +49,7 @@ public partial class GameManager
     // 雑魚: mileBase = 種類の MILE × 距離の係数(精鋭は ×3 済み)。grantExp=false は協力マルチの分け前だけ(EXP/撃破数はラストヒットの人)
     public void RegisterEnemyKill(float mileBase = 1f, float expMul = 1f, bool grantExp = true)
     {
-        if (EscapeFrozen) return; // 脱出の成功の確定後は報酬を増やさない(2026-10-24)
+        if (EscapeFrozen || IsGameOver) return; // 脱出の成功の確定後は報酬を増やさない(2026-10-24)。2026-11-27: ランの終了後も(協力で先に帰還した人に、走り続ける仲間の撃破の分け前が入り続け、RESULT の表示 +110 と保存 +108 がずれていた)
         float chain = CardRewards.ChainBonusNow(this); // 2026-11-06 CHAIN BOUNTY: 10HIT 以上の連続ヒット中の撃破は MILE と撃破の EXP(枠に足して曲線)
         if (grantExp)
         {
@@ -88,7 +88,7 @@ public partial class GameManager
     // ボス: mileBase = 種類の MILE × 1.5 × 強さの係数(出した時に決めた値)/ expFraction = 次のレベルまでの量に対する割合
     public void RegisterBossDefeat(float mileBase, float expFraction, bool grantExp = true)
     {
-        if (EscapeFrozen) return; // 脱出の成功の確定後は報酬を増やさない(2026-10-24)
+        if (EscapeFrozen || IsGameOver) return; // 脱出の成功の確定後は報酬を増やさない(2026-10-24)。2026-11-27: ランの終了後も(協力で先に帰還した人に、走り続ける仲間の撃破の分け前が入り続け、RESULT の表示 +110 と保存 +108 がずれていた)
         float dominion = MapCardRules.TakeBrokenKillMul(); // 2026-11-06 BREAK DOMINION: BREAK 中に倒したボスの MILE/EXP
         if (grantExp)
         {

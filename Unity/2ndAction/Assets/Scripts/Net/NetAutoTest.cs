@@ -351,7 +351,7 @@ public partial class NetAutoTest : MonoBehaviour
         {
             string a = args[i];
             string next = i + 1 < args.Length ? args[i + 1] : "";
-            if (ParseWorldArg(a, next) || ParseAuraArg(a, next) || ParseRulesArg(a, next) || ParseMapCardsArg(a, next) || ParseStaggerArg(a, next) || ParseChatArg(a, next)) { } // 2026-11-06 マップ専用カード / 2026-11-07 崩しの倍率
+            if (ParseWorldArg(a, next) || ParseAuraArg(a, next) || ParseRulesArg(a, next) || ParseMapCardsArg(a, next) || ParseStaggerArg(a, next) || ParseChatArg(a, next) || ParseNaturalArg(a, next)) { } // 2026-11-06 マップ専用カード / 2026-11-07 崩しの倍率 / 2026-11-27 通常条件の通し試験
             else if (a == "-netAutoHost") role = "HOST";
             else if (a == "-netAutoJoin") { role = "JOIN"; joinIp = next; }
             else if (a == "-netAutoRoom") onlineRoom = next; // ONLINE: HOST が作る部屋の名前 / JOIN が一覧から探す名前
@@ -500,6 +500,7 @@ public partial class NetAutoTest : MonoBehaviour
         switch (step)
         {
             case Step.Connect:
+                if (!NatPreConnect(gm)) { stepTime = 0f; return; } // 2026-11-27 -netAutoNatural: 準備/保存の照合を先に
                 if (stepTime < 2f) return;
                 if (role == "OBS") { if (!onlineStarted) { onlineStarted = true; OnlineObserve(); } return; }
                 if (OnlineMode)
@@ -577,9 +578,9 @@ public partial class NetAutoTest : MonoBehaviour
                     distStartLogged = true;
                     L($"DISTSTART role={role} me=P{NetCombat.LocalPlayerNumber} runTime={runTime:F3} dist={PlayerController.Instance.DistanceExact:F3}");
                 }
-                KeepAlive(gm);
-                PickLevelUpCard(gm);
-                Bot();
+                if (Natural) NatTick(gm); // 2026-11-27: 通常条件(無敵/HP補充/速度/強制なし。入力は仮想のパッド)
+                else { KeepAlive(gm); PickLevelUpCard(gm); Bot(); }
+                if (step == Step.Done) break;
                 if (rematchTest) RematchTick();
                 if (exitAt > 0f && exitOpenedAt < 0f && runTime >= exitAt)
                 {
@@ -610,7 +611,7 @@ public partial class NetAutoTest : MonoBehaviour
                 BossRunLog(gm);
                 WorldTick(gm);
                 ChoiceTest(gm);
-                ChoiceMonitor(gm);
+                if (!Natural) ChoiceMonitor(gm); // 選択中の被弾の確かめ(試験の被弾を入れる)は通常条件では使わない
                 RemoteChoiceMonitor();
                 ResultConflictTest(gm);
                 Phase3Test(gm);
@@ -623,14 +624,13 @@ public partial class NetAutoTest : MonoBehaviour
                 BreakTest();
                 BreakComboTick();
                 BossFxTest();
-                if (runTime >= runSeconds) Finish("run time elapsed");
+                if (runTime >= runSeconds && !Natural) Finish("run time elapsed");
                 break;
             case Step.AfterLeave:
-                KeepAlive(gm);
-                PickLevelUpCard(gm);
-                Bot();
+                if (Natural) { runTime += Time.unscaledDeltaTime; NatTick(gm); }
+                else { KeepAlive(gm); PickLevelUpCard(gm); Bot(); }
                 PeriodicLog(gm);
-                if (stepTime > 4f) Finish("after leave");
+                if (stepTime > (Natural ? 25f : 4f)) { if (Natural) NatSnap("afterLeave"); Finish("after leave"); }
                 break;
         }
     }

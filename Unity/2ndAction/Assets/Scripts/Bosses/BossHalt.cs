@@ -22,6 +22,16 @@ public static class BossHalt
     //  ④ 平らな所を探して走るのは、分岐/上の道が理由なら SeekRelaxAfter 秒まで(上の道のボスへは BreakRouteLift で寄る)。穴の時だけ探し続ける
     public static bool ArenaV2 = true;
     public static float BossFrontMax = 20f, SeekRelaxAfter = 2.5f;
+    // 2026-11-27(マスター要望): マルチは HOST が決めた「全員が止まる共通の位置」へ、各自が残りの距離に合わせて減速してぴったり止まる。
+    //  先に着いた人はそこで止まり(距離も止まる)、後ろの人はボス戦中も走って追いつき、横に1列(LineSpacing 間隔、プレイヤー番号の順)に並んで一緒に戦う。
+    //  平らな所を探して走る(SafeToStop/Seek)のはソロだけ(共通の位置は HOST が穴/分岐の無い所に決めている)。開発版は -bossLine 0 で前の作り
+    public static bool SharedStop = true;
+    public static float LineSpacing = 1.2f;
+    public static float BrakeDistance(float speed) => Mathf.Max(1.5f, Mathf.Max(1f, speed) * DecelSeconds * 0.5f); // 時間で止めた時と同じ滑り(等加速度で止まる)
+    // この端末のプレイヤーが止まる所(論理X): 共通の位置から、番号の順に後ろへ並ぶ
+    static double LineStopLX(double anchor) => anchor - LineSpacing * Mathf.Clamp(NetCombat.LocalPlayerNumber - 1, 0, 7);
+    public static double MpStopLX { get; private set; } // 確認用: 最後に使った自分の止まる所
+    static bool MpLine => SharedStop && ArenaV2 && NetRunLauncher.IsMultiplayerRun;
     public static bool Stopped { get; private set; } // この遭遇で一度止まりきった(基準が決まった)
 
     public static float Factor { get; private set; } = 1f;
@@ -67,6 +77,7 @@ public static class BossHalt
         var a = System.Environment.GetCommandLineArgs();
         for (int i = 0; i + 1 < a.Length; i++) if (a[i] == "-haltOff" && a[i + 1] == "1") Enabled = false; // 開発用の比較: 前の作り(並走するボス戦)
         for (int i = 0; i + 1 < a.Length; i++) if (a[i] == "-haltArena" && a[i + 1] == "0") ArenaV2 = false; // 2026-11-25 の作り直しの前と比べる
+        for (int i = 0; i + 1 < a.Length; i++) if (a[i] == "-bossLine" && a[i + 1] == "0") SharedStop = false; // 2026-11-27 の共通の止まる位置の前と比べる
 #endif
     }
 
@@ -93,6 +104,26 @@ public static class BossHalt
         if (want) LastReason = why;
         wasHolding = want; Holding = want;
         float dt = Time.deltaTime;
+        // マルチ: 共通の位置(から自分の並び)まで、残りの距離に合わせて減速して止まる(等加速度: 速さ ∝ √残り)
+        if (want && MpLine && pc != null)
+        {
+            double stop = LineStopLX(NetCombat.Authority ? NetCombat.HoldAnchorLX : NetCombat.RemoteHoldAnchorLX);
+            MpStopLX = stop;
+            double rem = stop - (pc.transform.position.x + FloatingOrigin.Offset);
+            float brake = BrakeDistance(pc.AbilityRunSpeed);
+            float f = rem <= 0.05 ? 0f : Mathf.Clamp01(Mathf.Sqrt((float)(rem / brake)));
+            // 走りへ戻っている途中(減速の後にまた走り出す等)で急に速くならない: 上げる時は AccelSeconds で
+            Factor = f < Factor ? f : Mathf.MoveTowards(Factor, f, dt / Mathf.Max(0.05f, AccelSeconds));
+            if (Factor < 0.002f) Factor = 0f;
+            easeT = Factor; SeekingFlat = false;
+            if (!Stopped)
+            {
+                AnchorX = pc.transform.position.x; AnchorLX = AnchorX + FloatingOrigin.Offset;
+                if (Factor <= 0f) { Stopped = true; Debug.Log($"[BossHalt] stopped x={AnchorX:F1} slide={AnchorLX - HoldStartLX:F1}m line={AnchorLX:F1}/{stop:F1} (shared {(NetCombat.Authority ? NetCombat.HoldAnchorLX : NetCombat.RemoteHoldAnchorLX):F1})"); }
+            }
+            BossHaltWatch.Tick(pc, want, why);
+            return;
+        }
         // 止まる所が安全か(足元と前後に穴が無い・上下ルートの分岐の中でない・上の足場の上でない)。危ない所では止まらずに進み、
         // 平らな所まで来てから止まる(関門の手前の地形は TerrainManager が平地にしているので、通常はすぐ止まる)
         bool unsafeHere = want && easeT > 0.0001f && !SafeToStop(pc, out string unsafeWhy) && !SeekRelaxed(unsafeWhy);
@@ -205,7 +236,9 @@ public static class BossHalt
             if (NetCombat.Authority && !wasHolding && !holdAnchorTaken) { NetCombat.RefreshHoldAnchor(); holdAnchorTaken = true; } // 遭遇の最初のフレームに基準を決める(1フレーム遅れて前の値を使わない)
             double anchor = NetCombat.Authority ? NetCombat.HoldAnchorLX : NetCombat.RemoteHoldAnchorLX;
             double lx = pc.transform.position.x + FloatingOrigin.Offset;
-            if (lx < anchor - ArenaBehind) { why = "behind the fight area"; return false; }
+            // 共通の位置へ並ぶ時: 自分の止まる所の手前(止まりきるのに要る距離 + ArenaBehind)までは普通に走る
+            double behind = MpLine ? LineStopLX(anchor) - BrakeDistance(pc.AbilityRunSpeed) - ArenaBehind : anchor - ArenaBehind;
+            if (lx < behind) { why = "behind the fight area"; return false; }
         }
         if (gm.EscapeConfirmed) { why = "escape"; return false; }  // 脱出の確定後は脱出の演出(自分の減速)に任せる
         var fin = ReaperFinaleBattle.Instance;

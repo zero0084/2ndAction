@@ -1037,27 +1037,38 @@ public class TerrainManager : MonoBehaviour
     // マルチ Phase 3.1: minXより前(右)の雑魚だけ片付ける(ボス戦の開始。後ろの人の雑魚は残す)
     public void ClearEnemiesFrom(float minX)
     {
+        int clearedN = 0;
         foreach (RuntimeChunk c in chunks)
         {
             for (int i = c.enemies.Count - 1; i >= 0; i--)
             {
                 GameObject e = c.enemies[i];
                 if (e == null) { c.enemies.RemoveAt(i); continue; }
-                if (e.transform.position.x >= minX) { Destroy(e); c.enemies.RemoveAt(i); }
+                if (e.transform.position.x >= minX) { Destroy(e); c.enemies.RemoveAt(i); clearedN++; }
             }
         }
+        ClearLog("ClearEnemiesFrom", clearedN, minX);
+    }
+    // 2026-11-27 調査用(4人の通し試験): 生きた雑魚の片付けの回数と呼び出し元(開発版だけ)
+    static void ClearLog(string what, int n, float minX)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (n > 0 && NetRunLauncher.IsMultiplayerRun) Debug.Log($"[ENEMYCLEAR] {what} n={n} minX={minX + FloatingOrigin.Offset:F1}\n{System.Environment.StackTrace}");
+#endif
     }
 
     public void ClearAllEnemies()
     {
+        int clearedAll = 0;
         foreach (RuntimeChunk c in chunks)
         {
             for (int i = 0; i < c.enemies.Count; i++)
             {
-                if (c.enemies[i] != null) Destroy(c.enemies[i]);
+                if (c.enemies[i] != null) { Destroy(c.enemies[i]); clearedAll++; }
             }
             c.enemies.Clear();
         }
+        ClearLog("ClearAllEnemies", clearedAll, float.NaN);
     }
 
     // If x lands inside a pit (no ground), returns the solid ground just

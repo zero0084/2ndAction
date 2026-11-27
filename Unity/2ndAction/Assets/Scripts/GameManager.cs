@@ -2372,6 +2372,8 @@ public partial class GameManager : MonoBehaviour
     {
         if (Mathf.Abs(d) < 0.001f) return;
         if (bossExclusionBegun && !bossExclusionFolded) { Debug.Log($"[Distance] warp {d:+0.0;-0.0}m during a held boss fight - covered by the fight's exclusion"); return; }
+        float seg = MpSegPartOfWarp(d); // 2026-11-27: マルチのボス戦の区間を飛び越えた分は区間の側で除く(二重に除かない)
+        if (Mathf.Abs(seg) > 0.001f) { Debug.Log($"[Distance] warp {d:+0.0;-0.0}m crosses {seg:F1}m of boss segments (excluded there)"); d -= seg; if (Mathf.Abs(d) < 0.001f) return; }
         distanceExclusionOffset += d;
         distanceExclusionOffsetExact += d;
         WarpExclusions++; WarpExcludedMeters += d;
@@ -2413,6 +2415,7 @@ public partial class GameManager : MonoBehaviour
         // 開発用の闘技場(2026-10-04): 距離は「距離条件」のまま止める(敵の強さにだけ使う。距離のイベント/EXP/解放/保存を起こさない)
         if (ArenaMode.Active || TutorialMode.Active) return; // 操作の練習(2026-10-07)も同じ
         if (EscapeFrozen) return; // 脱出の成功の確定後: 演出の減速で進んだ分は数えない(2026-10-24)
+        MpSegmentTick(); // 2026-11-27: マルチのボス戦の区間(関門〜止まる所)は誰の距離にも数えない(GameManager.BossSegments.cs)
         float distance = rawDistance - distanceExclusionOffset;
 
         // Distance Level Design Ver.1.1, item 1 - Boss Gate: while a Boss
@@ -3774,6 +3777,14 @@ public partial class GameManager : MonoBehaviour
         EscapeLog($"defeat confirmed by HOST reason={reason}");
         Lives = 0;
         FinishRun();
+    }
+
+    // JOIN: ほかの人がボスを倒した(この端末の人は報酬を受け取らない)。HOST が報酬を他の人へ渡した時と同じく脱出を解放する(2026-11-27)
+    public void NetUnlockEscapeAfterSharedBoss()
+    {
+        if (IsGameOver || !HasStarted || escapeUnlocked) return;
+        UnlockEscape();
+        EscapeLog("unlocked: a boss was defeated by another player (the reward goes to them)");
     }
 
     // JOIN: HOSTから「ボス報酬はあなた」と届いた。既存のボス報酬の流れ(演出待ち→3枚選択)で出す。

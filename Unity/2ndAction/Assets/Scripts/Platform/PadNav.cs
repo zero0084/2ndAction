@@ -91,6 +91,9 @@ public class PadNav : MonoBehaviour
         if (key != lastScreenKey)
         {
             if (lastScreenKey != null && hasFocus) screenFocus[lastScreenKey] = focusPoint;
+            // 2026-11-27: RESULT は毎回「ホームへ戻る」から(覚えた位置を使わない)。勝ち/負け・マルチの行・MILE 2倍の有無で並びが変わるため、
+            //  前の RESULT の位置に一番近い物が別のボタン(設定の歯車)になり、2回目の RESULT で決定を押すと設定が開いていた
+            if (key == "result") screenFocus.Remove(key);
             if (key != null && screenFocus.TryGetValue(key, out var p)) { hasFocus = true; focusPoint = p; focusAny = true; }
             else { hasFocus = false; pendingDefault = key; } // 初めての画面: 主な操作(DefaultFocus)が描かれたらそこへ。無ければ左上から
 #if UNITY_EDITOR || DEVELOPMENT_BUILD

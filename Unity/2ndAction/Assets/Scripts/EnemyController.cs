@@ -314,7 +314,18 @@ public partial class EnemyController : MonoBehaviour
     // カードバランス v3(2026-10-03): 生きている雑魚の数(出現の安全の上限)/ 精鋭(ELITE/WANTED)
     public static int ActiveCount;
     void OnEnable() { ActiveCount++; }
-    void OnDisable() { ActiveCount = Mathf.Max(0, ActiveCount - 1); ComboOnDisable(); }
+    void OnDisable()
+    {
+        ActiveCount = Mathf.Max(0, ActiveCount - 1); ComboOnDisable();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // 2026-11-27 調査用(4人の通し試験): 協力の HOST で、生きたままの雑魚が仲間の近くで消えていた(撃破ではない片付け)。どこから消されたかを残す
+        if (!dying && NetCombat.Authority && NetRunLauncher.IsMultiplayerRun && !QuittingApp)
+            Debug.Log($"[ENEMYOFF] {name} x={transform.position.x + FloatingOrigin.Offset:F1} self={gameObject.activeSelf} parent={(transform.parent != null ? transform.parent.name : "-")}\n{System.Environment.StackTrace}");
+#endif
+    }
+    static bool QuittingApp;
+    public static int HitsOnInactive; // 確認用: 片付け済みの敵へ届いた参加者の命中(捨てた数)
+    void OnApplicationQuit() { QuittingApp = true; }
     [System.NonSerialized] public bool IsElite;
     [System.NonSerialized] public float KillExpMultiplier = 1f;
     [System.NonSerialized] public float MileDistanceFactor = 1f; // 2026-10-15: 出た時の距離の強さに合わせた MILE の係数
@@ -1380,6 +1391,8 @@ public partial class EnemyController : MonoBehaviour
     public void NetApplyRemoteHit(int attacker, int damage, PlayerAttackKind kind, Vector3 contactPoint)
     {
         if (dying || NetReplica) return;
+        // 2026-11-27(4人の通し試験): HOST で片付けた直後(同じフレーム)に届いた参加者の命中は捨てる(止まった敵に HP/演出を出さない。以前はコルーチンのエラー)
+        if (!isActiveAndEnabled) { HitsOnInactive++; return; }
         EnsureHp();
         int hpBefore = hp;
         hp -= Mathf.Max(1, damage);

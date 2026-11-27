@@ -265,20 +265,71 @@ public class NetCombat : MonoBehaviour
     }
     static bool holdAnchorFresh;
     // HOST: 戦闘範囲の基準 = 最前で走っている人の論理X(止まる遭遇の始まりに1回。BossHalt が同じフレームに先に呼んでもよい)
+    // 2026-11-27(マスター要望「ボス戦で距離/位置がずれる」): 基準は「全員が止まる共通の位置」。最前の人が関門に着いた所から、
+    //  止まりきるのに要る距離より先で、穴/上下ルートの分岐が無い所を HOST が1か所だけ決める(地形は全端末で同じ作り)。
+    //  以前は最前の人の位置だけを送り、止まる所は各端末が平らな所を探して決めていた → マルチは関門の前を平らにできないため
+    //  60〜200m 進んでから止まることがあり、同じボス戦なのに 4人が中央 31m・最大 100m 以上離れて止まっていた(4人の通し試験 L1)
     public static void RefreshHoldAnchor()
     {
+        // 2026-11-27: 1回のボス戦で1回だけ決める(合図を送る所と BossHalt の両方から呼ばれ、同じ遭遇で2回決めていた →
+        //  距離を数えない区間が 0.5m ずれて2つ開き、片方だけ閉じて、以後ずっと全員の距離が止まった。B4 で発見)
+        if (holdAnchorFresh) return;
         var f = WorldRange.FrontRunning();
         Transform t = f.T != null ? f.T : (PlayerController.Instance != null ? PlayerController.Instance.transform : null);
-        HoldAnchorLX = t != null ? t.position.x + FloatingOrigin.Offset : 0.0;
+        double front = t != null ? t.position.x + FloatingOrigin.Offset : 0.0;
+        float speed = PlayerController.Instance != null ? PlayerController.Instance.AbilityRunSpeed : 20f;
+        HoldAnchorLX = t != null && BossHalt.SharedStop ? SharedStopLX(front, speed) : front;
+        HoldGateLX = front;
+        if (t != null && BossHalt.SharedStop)
+        {
+            Debug.Log($"[BossHalt] shared stop for everyone at {HoldAnchorLX:F1} (front {front:F1}, +{HoldAnchorLX - front:F1}m)");
+            if (GameManager.Instance != null) GameManager.Instance.MpOpenBossSegment(front); // 関門から先はボス戦が終わるまで誰の距離にも数えない(全員が関門の距離で戦い、ボスの後もそろって進む)
+        }
         holdAnchorFresh = true;
     }
-    public static void ResetBossHold() { holdAnchorFresh = false; RemoteBossHold = false; RemoteHoldAnchorLX = 0.0; HoldAnchorLX = 0.0; if (Instance != null) Instance.lastHoldSent = false; }
+    public static double HoldGateLX { get; private set; } // HOST: 関門に着いた時の最前の人の論理X(距離を数えない区間の始まり)
+    // 最前の人の論理X から、止まりきるのに要る距離(+余裕)より先で、立つ所の前後に穴が無く、上下ルートの分岐の中でない最初の所
+    static double SharedStopLX(double frontLX, float speed)
+    {
+        var tm = TerrainManager.Instance;
+        // 並ぶ一番後ろ(8人目)も関門より前に立つ(関門の距離ちょうどで止まる)
+        double start = frontLX + Mathf.Max(BossHalt.BrakeDistance(speed) + 2f, BossHalt.LineSpacing * 7f + 1f);
+        if (tm == null) return start;
+        for (double lx = start; lx <= start + 240.0; lx += 2.0)
+        {
+            float x = (float)(lx - FloatingOrigin.Offset);
+            float a = x - BossHalt.LineSpacing * 8f - 4f, b = x + 10f; // 並ぶ所(8人分)と、その少し前
+            if (!tm.IsGenerated(b)) break;
+            if (tm.FirstPitBetween(a, b).HasValue) continue;
+            bool branch = false;
+            for (float s = a; s <= b; s += 2f) if (tm.IsInBranchRoute(s)) { branch = true; break; }
+            if (branch) continue;
+            return lx;
+        }
+        // 見つからない(地形が先までできていない等): 穴だけ避ける。それも無ければ止まりきれる所
+        for (double lx = start; lx <= start + 240.0; lx += 2.0)
+        {
+            float x = (float)(lx - FloatingOrigin.Offset);
+            if (!tm.IsGenerated(x + 6f)) break;
+            if (!tm.FirstPitBetween(x - 4f, x + 6f).HasValue) return lx;
+        }
+        return start;
+    }
+    public static void ResetBossHold() { holdAnchorFresh = false; RemoteBossHold = false; RemoteHoldAnchorLX = 0.0; HoldAnchorLX = 0.0; HoldGateLX = 0.0; if (Instance != null) Instance.lastHoldSent = false; }
     bool lastHoldSent; float holdResendAt;
     void TickBossHoldBroadcast()
     {
         var bm = BossManager.Instance;
         bool hold = bm != null && bm.HoldsRun;
         if (hold && !lastHoldSent && !holdAnchorFresh) RefreshHoldAnchor();
+        // 2026-11-27: ボス戦の終わり。距離を数えない区間を「止まる所」と「今の最前の人(戦いの踏み込みで前へ出た人)」の大きい方で閉じ、終わりを全員へ送る
+        if (!hold && lastHoldSent && BossHalt.SharedStop && HoldGateLX != 0.0)
+        {
+            double end = HoldAnchorLX;
+            foreach (var q in WorldRange.GetActivePlayers()) end = System.Math.Max(end, q.SceneX + FloatingOrigin.Offset);
+            HoldAnchorLX = end;
+            if (GameManager.Instance != null) GameManager.Instance.MpCloseBossSegment(HoldGateLX, end);
+        }
         if (!hold) holdAnchorFresh = false;
         if (hold == lastHoldSent && Time.unscaledTime < holdResendAt) return;
         lastHoldSent = hold; holdResendAt = Time.unscaledTime + 3f;
@@ -290,6 +341,7 @@ public class NetCombat : MonoBehaviour
             w.WriteValueSafe(OpBossHold);
             w.WriteValueSafe(hold);
             w.WriteValueSafe(HoldAnchorLX);
+            w.WriteValueSafe(HoldGateLX); // 通信の版 16
             SendReliableToClients(w);
         }
         BossHoldSent++;
@@ -1187,9 +1239,14 @@ public class NetCombat : MonoBehaviour
             case OpElemFx: NetElementFx.Handle(r); break;
             case OpBossHold:
             {
-                r.ReadValueSafe(out bool hold); r.ReadValueSafe(out double ax);
-                if (hold != RemoteBossHold) Log("BOSS", $"boss hold {(hold ? "ON" : "off")} anchor={ax:F1}");
+                r.ReadValueSafe(out bool hold); r.ReadValueSafe(out double ax); r.ReadValueSafe(out double gx); // 通信の版 16: 関門の位置(距離を数えない区間の始まり)
+                if (hold != RemoteBossHold) Log("BOSS", $"boss hold {(hold ? "ON" : "off")} anchor={ax:F1} gate={gx:F1}");
                 RemoteBossHold = hold; RemoteHoldAnchorLX = ax; BossHoldReceived++;
+                if (BossHalt.SharedStop && GameManager.Instance != null && gx != 0.0)
+                {
+                    if (hold) GameManager.Instance.MpOpenBossSegment(gx);   // ボス戦の間: 関門から先は数えない
+                    else GameManager.Instance.MpCloseBossSegment(gx, ax);   // 終わり: HOST が決めた終わりで閉じる(ax = 終わりの位置)
+                }
                 break;
             }
             case OpBanner:
@@ -1390,6 +1447,10 @@ public class NetCombat : MonoBehaviour
             if (e.Kind == Kind.Boss) GameManager.Instance.RegisterBossDefeat(mileBase, expMul, mine);
             else GameManager.Instance.RegisterEnemyKill(mileBase, expMul, mine);
         }
+        // 2026-11-27(4人の通し試験で発見): 脱出の解放は「ボスの撃破 + 報酬の完了」。報酬を受け取らない参加者(ラストヒットでない人)は
+        //  報酬の流れを通らないので、ランの最後まで一度も脱出できなかった。HOST は報酬を他の人へ渡した時点で解放している(GameManager の
+        //  「handed to remote recipient」)→ 参加者も同じく、ほかの人がボスを倒した時点で解放する(報酬を受け取る本人は今まで通り報酬の後)
+        if (e.Kind == Kind.Boss && rewardee != LocalPlayerNumber && GameManager.Instance != null) GameManager.Instance.NetUnlockEscapeAfterSharedBoss();
         if (GameManager.Instance != null && GameManager.Instance.DebugMode)
             NetDebugUI.Toast((e.Kind == Kind.Boss ? "BOSS LAST HIT: " : "ENEMY KILL: ") + P(lastHit > 0 ? lastHit : lastDamagedBy));
     }

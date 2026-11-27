@@ -75,7 +75,24 @@ public class FileSaveStore : ISaveStore
         }
         string tmp = path + ".tmp";
         System.IO.File.WriteAllText(tmp, JsonUtility.ToJson(f, true));
-        if (System.IO.File.Exists(path)) System.IO.File.Replace(tmp, path, null); else System.IO.File.Move(tmp, path);
+        // 2026-11-27: 続けて保存した時(ガチャを何回も引く等)、Windows がまだファイルを開いていて Replace が失敗することがある
+        //  → 本番の保存(SaveSystem)と同じく、少し待って試し直し、それでもだめなら消して移す(試験用の保存の道具の修正)
+        for (int attempt = 0; ; attempt++)
+        {
+            try
+            {
+                if (System.IO.File.Exists(path)) System.IO.File.Replace(tmp, path, null); else System.IO.File.Move(tmp, path);
+                break;
+            }
+            catch (System.IO.IOException e)
+            {
+                if (attempt < 4) { System.Threading.Thread.Sleep(20); continue; }
+                Debug.LogWarning("[FileSaveStore] Replace failed, using delete+move: " + e.Message);
+                if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
+                System.IO.File.Move(tmp, path);
+                break;
+            }
+        }
         Saves++;
     }
 

@@ -108,6 +108,10 @@ public class GameInput : MonoBehaviour
         sources.Clear();
         sources.AddRange(list);
     }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 自動試験(開発版だけ): 入力元を1つ足す(仮想のパッド。本物のパッド/キーと同じく行動の押下として読まれる)
+    public static void QaAddSource(IInputSource s) { if (s != null && !sources.Contains(s)) sources.Add(s); }
+#endif
 
     void Update() { Refresh(); }
 

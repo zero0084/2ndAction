@@ -79,6 +79,9 @@ public static class TeamDistance
     // RESULT: このランが協力なら確定したチーム走行距離(HOST = 共有値 / 参加者 = ランの終わりに HOST の値へそろえた値)。協力でなければ負
     public static double ResultTeamDistance { get { EnsureRun(); if (Active) coopRun = true; return coopRun ? (NetCombat.Replica ? shown : System.Math.Max(shown, WorldProgress.FrontHigh)) : -1.0; } }
     public static int Received { get; private set; } // 確認用
+    // 2026-11-27: ボス戦の区間が開いた(参加者)。次に HOST の値が届くまで、先へ伸ばしすぎた表示を関門まで戻してよい
+    static bool bossSnap, hostAfterOpen; static float bossSnapAt;
+    public static void NoteBossSegmentOpened() { bossSnap = true; bossSnapAt = Time.realtimeSinceStartup; }
 
     public static bool Active => MpRun.On && NetSession.IsActive && NetMatch.Active && NetMatch.Mode == MultiplayerGameMode.Coop;
 
@@ -110,6 +113,7 @@ public static class TeamDistance
         if (lastRecvAt >= 0f && now - lastRecvAt >= 0.2f) speed = System.Math.Max(0.0, (v - lastRecv) / (now - lastRecvAt)); // 近すぎる2回からは速さを出さない
         prevRecv = lastRecv; prevRecvAt = lastRecvAt;
         lastRecv = System.Math.Max(lastRecv, v); lastRecvAt = now; Received++;
+        if (bossSnap && now - bossSnapAt > 0.3f) { bossSnap = false; hostAfterOpen = true; } // 区間が開いた後の HOST の値が届いた
         recvFrontLX = FrontLX();
     }
 
@@ -126,13 +130,21 @@ public static class TeamDistance
             if (!NetCombat.Replica) target = WorldProgress.FrontHigh; // HOST
             else if (lastRecvAt < 0f) target = 0; // まだ届いていない(出発の直後だけ)
             else if (final) return shown;
+            else if (hostAfterOpen && GameManager.MpBossSegmentOpen)
+            {
+                // ボス戦の間はチーム距離が進まない(関門から先は数えない) → 先読みせず、HOST の値(関門の距離)をそのまま出す
+                target = lastRecv;
+                if (target < shown && shown - target < 30.0) shown = target;
+            }
             else
             {
-                double moved = System.Math.Max(0.0, FrontLX() - recvFrontLX);
+                hostAfterOpen = false;
+                double fx = FrontLX();
+                double moved = System.Math.Max(0.0, fx - recvFrontLX - GameManager.MpSegBetween(recvFrontLX, fx)); // 2026-11-27: ボス戦の区間の中の進みは数えない
                 double cap = System.Math.Max(speed, 5.0) * 1.5 + 2.0; // 位置の補間の乱れの用心(1.5秒ぶんの速さ)
                 target = lastRecv + System.Math.Min(moved, cap);
             }
-            if (target > shown) shown = target;
+            if (target > shown || (bossSnap && NetCombat.Replica && target < shown && shown - target < 30.0)) shown = target; // 2026-11-27: ボス戦の始まりは、合図が届く前に先へ伸ばした分(数 m)を関門まで戻す
             return shown;
         }
     }

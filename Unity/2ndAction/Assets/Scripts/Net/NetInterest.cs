@@ -32,6 +32,15 @@ public static class NetInterest
 
     static readonly List<Viewer> viewers = new List<Viewer>(MaxPlayers);
     static int builtFrame = -1;
+    // 2026-11-27: 浮動原点がずれたフレームは、組み立て済みの送り先の X も同じだけ戻す(ずれる前の X で範囲を判定しない。WorldRange と同じ)
+    static NetInterest()
+    {
+        FloatingOrigin.Shifted += s =>
+        {
+            if (builtFrame != Time.frameCount) return;
+            for (int i = 0; i < viewers.Count; i++) { var v = viewers[i]; v.SceneX -= s; viewers[i] = v; }
+        };
+    }
 
     // HOST: 送り先(JOIN)の一覧。1フレームに1回だけ組み立てる
     public static List<Viewer> Viewers()

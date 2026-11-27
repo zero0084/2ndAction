@@ -27,6 +27,21 @@ public static class WorldRange
         public bool Alive, Choosing, Down;
     }
 
+    // 2026-11-27(4人の通し試験で発見): 浮動原点がずれた(全員の場面の X が s だけ戻った)フレームは、組み立て済みの一覧を作り直す。
+    //  以前は同じフレームの前半(ずれる前)に組み立てた一覧を、ずれた後の NetCombat(後ろに残った敵の片付け)が使い、
+    //  「最後尾の X(ずれる前の大きい値)− 70m」より後ろ = 仲間のすぐ前の生きた敵まで、ずれた量(数百 m)の範囲をまとめて消していた
+    //  (長い協力の試験で、仲間の範囲の中の敵が 939 体、撃破ではなく消えていた。戦っている敵が急に消える)
+    //  ※ 組み立て直しはしない: 他の人の分身(RemotePlayerAvatar)はずらしの対象外で、位置を後から(NetPlayer, 順番 1100)自分で直すので、
+    //    ずれた直後に組み立て直すと分身だけ s 古い位置になり、最前の距離が約 1,024m 跳んだ(下げない値なので残る。B4 で確認)。
+    //    → 組み立て済みの一覧の場面の X を、全員 s だけ戻す(全員が正しいずれた後の値になる。距離の値は変わらない)
+    static WorldRange() { FloatingOrigin.Shifted += OnShifted; }
+    static void OnShifted(float s)
+    {
+        if (builtFrame != Time.frameCount) return; // このフレームはまだ組み立てていない(後で組み立てる時はずれた後の座標)
+        for (int i = 0; i < active.Count; i++) { var q = active[i]; q.SceneX -= s; active[i] = q; }
+        for (int i = 0; i < alive.Count; i++) { var q = alive[i]; q.SceneX -= s; alive[i] = q; }
+        front.SceneX -= s; back.SceneX -= s;
+    }
     static readonly List<PlayerPoint> active = new List<PlayerPoint>(8);
     static readonly List<PlayerPoint> alive = new List<PlayerPoint>(8);
     static int builtFrame = -1;
@@ -92,7 +107,7 @@ public static class WorldRange
                 if (!isAlive && !isDown) continue; // 脱落/退出
                 float x = a.transform.position.x;
                 Add(new PlayerPoint { Pn = p.PlayerNumber, T = a.transform, SceneX = x, RunSpeed = p.RemoteRunSpeed,
-                    Distance = pc != null ? localDist + (x - localX) : (float)p.RemoteDistance,
+                    Distance = pc != null ? localDist + (x - localX) - (float)GameManager.MpSegBetween(localX + FloatingOrigin.Offset, x + FloatingOrigin.Offset) : (float)p.RemoteDistance, // 2026-11-27: 間にあるボス戦の区間は数えない
                     Alive = isAlive, Down = isDown, Choosing = isAlive && NetMatch.IsPlayerChoosing(p.PlayerNumber) });
             }
         }
