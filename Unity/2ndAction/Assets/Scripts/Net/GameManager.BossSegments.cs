@@ -58,6 +58,17 @@ public partial class GameManager
         mpBossSegs.Add(new Vector2d { A = a, B = System.Math.Max(a, b) });
         Debug.Log($"[Distance] boss segment {a:F1}..{b:F1} added closed (the start was not received)");
     }
+    // 開いている区間を、この位置(論理X)で閉じる(HOST との接続が切れた時など)
+    public void MpCloseOpenBossSegment(double lx)
+    {
+        EnsureSegRun();
+        for (int i = 0; i < mpBossSegs.Count; i++)
+        {
+            if (!double.IsPositiveInfinity(mpBossSegs[i].B)) continue;
+            var g = mpBossSegs[i]; g.B = System.Math.Max(g.A, lx); mpBossSegs[i] = g;
+            Debug.Log($"[Distance] boss segment closed {g.A:F1}..{g.B:F1} (connection lost)");
+        }
+    }
     // 開いている区間(ボス戦の最中)があるか
     public static bool MpBossSegmentOpen { get { EnsureSegRun(); foreach (var s in mpBossSegs) if (double.IsPositiveInfinity(s.B)) return true; return false; } }
 

@@ -31,7 +31,7 @@ public static class BossHalt
     // この端末のプレイヤーが止まる所(論理X): 共通の位置から、番号の順に後ろへ並ぶ
     static double LineStopLX(double anchor) => anchor - LineSpacing * Mathf.Clamp(NetCombat.LocalPlayerNumber - 1, 0, 7);
     public static double MpStopLX { get; private set; } // 確認用: 最後に使った自分の止まる所
-    static bool MpLine => SharedStop && ArenaV2 && NetRunLauncher.IsMultiplayerRun;
+    static bool MpLine => SharedStop && ArenaV2 && NetRunLauncher.IsMultiplayerRun && (NetCombat.Authority || NetCombat.Replica);
     public static bool Stopped { get; private set; } // この遭遇で一度止まりきった(基準が決まった)
 
     public static float Factor { get; private set; } = 1f;
@@ -228,7 +228,8 @@ public static class BossHalt
         if (pc == null || gm == null || bm == null || !gm.HasStarted || gm.IsGameOver) { why = "no run"; return false; }
         if (ArenaMode.Active || TutorialMode.Active) { why = "arena"; return false; }
         // マルチ: JOIN は HOST から届いた「止まる遭遇の最中か」で決める。戦闘範囲(最前の人が関門に着いた所)より後ろの人は、着くまで走る
-        bool mp = NetRunLauncher.IsMultiplayerRun;
+        // 2026-11-27: HOST との接続が切れた参加者(以後はソロと同じ)は、自分の端末のボス戦で止まる(残った HOST の合図で止まり続けない)
+        bool mp = NetRunLauncher.IsMultiplayerRun && (NetCombat.Authority || NetCombat.Replica);
         bool holds = mp && !NetCombat.Authority ? NetCombat.RemoteBossHold : bm.HoldsRun;
         if (!holds) { why = "no boss hold"; holdAnchorTaken = false; return false; }
         if (mp)

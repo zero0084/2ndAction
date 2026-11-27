@@ -358,7 +358,14 @@ public class NetCombat : MonoBehaviour
         }
         entities.Clear();
         pendingReliable.Clear();
-        Log("SYNC", $"connection lost (JOIN) - removed {n} shared puppets, local spawning resumes");
+        // 2026-11-27(4人の通し試験 D3): HOST がボス戦の最中に切断すると、「ボス戦で止まる」(RemoteBossHold)が立ったまま残り、
+        //  参加者が全員その場で止まったまま動けなくなっていた(280秒) → 止める合図を解き、距離を数えない区間もここで閉じる
+        bool wasHold = RemoteBossHold;
+        RemoteBossHold = false;
+        var pc = PlayerController.Instance;
+        if (GameManager.MpBossSegmentOpen && GameManager.Instance != null && pc != null)
+            GameManager.Instance.MpCloseOpenBossSegment(pc.transform.position.x + FloatingOrigin.Offset);
+        Log("SYNC", $"connection lost (JOIN) - removed {n} shared puppets, local spawning resumes{(wasHold ? " (boss hold released)" : "")}");
     }
 
     void OnAuthorityLost()
