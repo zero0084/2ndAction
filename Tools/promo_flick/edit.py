@@ -19,6 +19,7 @@ BGM = os.path.join(ROOT, "Unity", "2ndAction", "Assets", "Audio", "Placeholder",
 OW, OH, FPS = 1080, 1920, 60
 LAND_H = int(round(OW * 1080 / 1920))      # 横画面を幅 1080 に収めた高さ(608)
 LAND_Y = (OH - LAND_H) // 2
+INSET_Y, FULL_Y = 300, 1000                 # 横画面の第2版: 上 = 戦闘部分の拡大、下 = 全体
 
 
 def font(size, weight="Bold"):
@@ -64,7 +65,7 @@ def touches(path):
     return strokes
 
 
-def draw_touch(img, strokes, src_f, to_xy):
+def draw_touch(img, strokes, src_f, to_xy, clip=None):
     # 指: 置いた所に白い丸、今の所まで金の線と矢印。離した後 0.3 秒で消える
     d = ImageDraw.Draw(img)
     for s in strokes:
@@ -73,6 +74,7 @@ def draw_touch(img, strokes, src_f, to_xy):
         a = 1.0 if src_f <= up else max(0.0, 1.0 - (src_f - up) / 18.0)
         pts = [to_xy(x, y) for f, x, y in s["pts"] if f <= src_f] or [to_xy(s["pts"][0][1], s["pts"][0][2])]
         sx, sy = pts[0]; ex, ey = pts[-1]
+        if clip and not (clip[0] <= sx <= clip[2] and clip[1] <= sy <= clip[3]): continue  # 拡大で映っていない所の指は描かない
         A = int(255 * a)
         r = 30
         d.ellipse([sx - r - 6, sy - r - 6, sx + r + 6, sy + r + 6], fill=(255, 255, 255, int(70 * a)))
@@ -86,6 +88,73 @@ def draw_touch(img, strokes, src_f, to_xy):
             p3 = (ex + L * 0.75 * math.cos(ang - 2.4), ey + L * 0.75 * math.sin(ang - 2.4))
             d.polygon([p1, p2, p3], fill=(240, 200, 90, A))
             d.ellipse([ex - 12, ey - 12, ex + 12, ey + 12], fill=(255, 255, 255, A))
+
+
+def note(img, text, y, size=36):
+    # 短い補足(上下2段の上下が何を映すか)。白い文字に暗い帯
+    d = ImageDraw.Draw(img); f = font(size)
+    tw = d.textlength(text, font=f)
+    d.rounded_rectangle([(OW - tw) / 2 - 22, y - 10, (OW + tw) / 2 + 22, y + size + 18], radius=12, fill=(6, 8, 22, 200))
+    d.text(((OW - tw) / 2, y), text, font=f, fill=(245, 245, 250, 255))
+
+
+def tag(img, text, x, y, size=30):
+    d = ImageDraw.Draw(img); f = font(size)
+    tw = d.textlength(text, font=f)
+    d.rounded_rectangle([x, y, x + tw + 28, y + size + 18], radius=10, fill=(6, 8, 22, 190))
+    d.text((x + 14, y + 6), text, font=f, fill=(232, 196, 102, 255))
+
+
+# 指の記録をどこに描くか: 画面全体 / 拡大(切り出しの中だけ)/ 横画面の全体 + 拡大
+def placements(s):
+    if s["layout"] == "land2":
+        z, zl, zt = s["inset"]
+        full = (lambda x, y: (x * OW, FULL_Y + (1 - y) * LAND_H), (0, FULL_Y, OW, FULL_Y + LAND_H))
+        inset = (lambda x, y: ((x - zl) / z * OW, INSET_Y + ((1 - y) - zt) / z * LAND_H), (0, INSET_Y, OW, INSET_Y + LAND_H))
+        return [full, inset]
+    if s["layout"] == "land":
+        return [(lambda x, y: (x * OW, LAND_Y + (1 - y) * LAND_H), None)]
+    if s.get("zoom"):
+        z, zl, zt = s["zoom"]
+        return [(lambda x, y: ((x - zl) / z * OW, ((1 - y) - zt) / z * OH), (0, 0, OW, OH))]
+    return [(lambda x, y: (x * OW, (1 - y) * OH), None)]
+
+
+# 操作と技の言葉(撮影の記録の向き/地上か空中か から決める。記録のある指だけ)
+def flick_actions(path):
+    out = []
+    if not os.path.exists(path): return out
+    for ln in io.open(path, encoding="utf-8").read().splitlines()[1:]:
+        f, d, res, g = ln.split("\t")[:4]
+        grounded = g.strip().lower() == "true"
+        if d == "Up": txt = "上フリック → 打ち上げ" if grounded else "上フリック → 上へ攻撃"
+        elif d == "Forward": txt = "前フリック → 追撃" if not grounded else "前フリック → 攻撃"
+        elif d == "Down": txt = "下フリック → 急降下" if not grounded else "下フリック → 下へ攻撃"
+        else: txt = "後ろフリック → 後ろへ攻撃"
+        out.append((int(f), txt))
+    return out
+
+
+def draw_action(img, acts, strokes, src_f, to_xy, fixed_y=None):
+    # 今の指(または直前 0.55 秒の指)の言葉を、指の丸の上に出す。続けて同じ操作の間は出したまま
+    cur = None
+    for f, txt in acts:
+        if f <= src_f <= f + 33: cur = (f, txt)
+    if cur is None: return
+    f0, txt = cur
+    st = next((s for s in strokes if s["pts"][0][0] == f0), None)
+    if st is None: return
+    sx, sy = to_xy(st["pts"][0][1], st["pts"][0][2])
+    a = 1.0 if src_f <= f0 + 24 else max(0.0, 1 - (src_f - f0 - 24) / 9)
+    d = ImageDraw.Draw(img); fnt = font(44, "Black")
+    tw = d.textlength(txt, font=fnt)
+    # 置き場所: 指の丸の下(下フリックだけは矢印が下へ伸びるので矢印の右横)。横画面は拡大と全体の間の帯(fixed_y)
+    x = min(max(24, sx - tw / 2), OW - 24 - tw)
+    if fixed_y is not None: x = (OW - tw) / 2; y = fixed_y
+    elif "下フリック" in txt: x = min(sx + 44, OW - 24 - tw); y = sy + 40  # 下へ伸びる矢印の右横(丸の上は上下2段の札と重なった)
+    else: y = sy + 58
+    d.rounded_rectangle([x - 22, y - 12, x + tw + 22, y + 62], radius=16, fill=(6, 8, 22, int(215 * a)), outline=(232, 196, 102, int(255 * a)), width=3)
+    d.text((x, y), txt, font=fnt, fill=(255, 255, 255, int(255 * a)))
 
 
 def end_card(a):
@@ -112,11 +181,23 @@ def main():
     for i, s in enumerate(segs):
         inputs += ["-i", os.path.join(cap_dir, s["view"], "raw", s["shot"] + ".mkv")]
         t = f"trim=start={s['start']:.4f}:end={s['end']:.4f},setpts=PTS-STARTPTS,fps={FPS}"
-        if s["layout"] == "land":
+        zoom = s.get("zoom")  # [幅の割合 z, 左, 上](縦横比はそのまま。上は画面の上から)
+        if s["layout"] == "land2":
+            # 2026-11-28 第2版: 横画面 = 全体(下)+ 同じ場面の戦闘部分の拡大(上)。背景はぼかした同じ映像
+            z, zl, zt = s["inset"]
+            vf.append(f"[{i}:v]{t},split=3[l{i}a][l{i}b][l{i}c]")
+            vf.append(f"[l{i}a]scale={OW * 4}:{OH}:force_original_aspect_ratio=increase,crop={OW}:{OH},boxblur=24:2,eq=brightness=-0.28:saturation=0.75[bg{i}]")
+            vf.append(f"[l{i}b]scale={OW}:{LAND_H}:flags=lanczos[fg{i}]")
+            vf.append(f"[l{i}c]crop=iw*{z}:ih*{z}:iw*{zl}:ih*{zt},scale={OW}:{LAND_H}:flags=lanczos[zi{i}]")
+            vf.append(f"[bg{i}][zi{i}]overlay=0:{INSET_Y}[bz{i}];[bz{i}][fg{i}]overlay=0:{FULL_Y},format=yuv420p,setsar=1[v{i}]")
+        elif s["layout"] == "land":
             vf.append(f"[{i}:v]{t},split[l{i}a][l{i}b]")
             vf.append(f"[l{i}a]scale={OW * 4}:{OH}:force_original_aspect_ratio=increase,crop={OW}:{OH},boxblur=24:2,eq=brightness=-0.22:saturation=0.8[bg{i}]")
             vf.append(f"[l{i}b]scale={OW}:{LAND_H}:flags=lanczos[fg{i}]")
             vf.append(f"[bg{i}][fg{i}]overlay=0:{LAND_Y},format=yuv420p,setsar=1[v{i}]")
+        elif zoom:
+            z, zl, zt = zoom  # 2026-11-28 第2版: コンボ紹介の拡大カット(キャラと敵の周り)
+            vf.append(f"[{i}:v]{t},crop=iw*{z}:ih*{z}:iw*{zl}:ih*{zt},scale={OW}:{OH}:flags=lanczos,format=yuv420p,setsar=1[v{i}]")
         else:
             vf.append(f"[{i}:v]{t},scale={OW}:{OH}:flags=lanczos,format=yuv420p,setsar=1[v{i}]")
     vf.append("".join(f"[v{i}]" for i in range(len(segs))) + f"concat=n={len(segs)}:v=1:a=0[vout]")
@@ -125,6 +206,7 @@ def main():
 
     # 2) 重ねる絵(字幕・見え方の名前・指・最後のロゴ)
     strokes = {(s["view"], s["shot"]): touches(os.path.join(cap_dir, s["view"], "raw", s["shot"] + "_touch.tsv")) for s in segs}
+    actions = {(s["view"], s["shot"]): flick_actions(os.path.join(cap_dir, s["view"], "raw", s["shot"] + "_flicks.tsv")) for s in segs}
     n = int(round(total * FPS))
     ov = os.path.join(work, "overlay.mov")
     p = subprocess.Popen([FF, "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgba", "-s", f"{OW}x{OH}", "-r", str(FPS), "-i", "-", "-c:v", "qtrle", ov], stdin=subprocess.PIPE)
@@ -137,18 +219,25 @@ def main():
         tt = i / FPS
         a0, a1, s = next(((a, b, s) for a, b, s in seg_t if a <= tt < b), seg_t[-1])
         src_f = int(round((s["start"] + (tt - a0)) * FPS))
-        key = (s.get("caption", ""), s.get("label", ""), s["layout"], s.get("caption_y"), s.get("caption_size"))
+        key = (s.get("caption", ""), s.get("label", ""), s["layout"], s.get("caption_y"), s.get("caption_size"), s.get("note", ""), str(s.get("zoom")))
         if key not in cache:
             img = Image.new("RGBA", (OW, OH), (0, 0, 0, 0))
-            cy = s.get("caption_y", 250 if s["layout"] == "land" else 1600)  # 縦(横から見る): 道(画面の上から 78% = 1500px)より下の地面。上は HUD とコンボ数
+            default_y = 90 if s["layout"] == "land2" else 250 if s["layout"] == "land" else 1600  # 縦(横から見る): 道(画面の上から 78% = 1500px)より下の地面。上は HUD とコンボ数
+            cy = s.get("caption_y", default_y)
             size = s.get("caption_size", 74)
             if s.get("caption"): caption(img, s["caption"], cy, size)
-            if s.get("label"): label(img, s["label"], cy + size + 66)
+            if s.get("label"): label(img, s["label"], s.get("label_y", cy + size + 66))
+            if s.get("note"): note(img, s["note"], s.get("note_y", cy + size + 66 + 92))
+            if s["layout"] == "land2":
+                tag(img, "拡大", 24, INSET_Y + 16); tag(img, "横画面(全体)", 24, FULL_Y + 16)
+                ImageDraw.Draw(img).rectangle([1, INSET_Y, OW - 2, INSET_Y + LAND_H], outline=(232, 196, 102, 220), width=4)
+            if s.get("zoom"): tag(img, "拡大", 24, 24)
             cache[key] = img
         img = cache[key].copy()
-        if s["layout"] == "land": to_xy = lambda x, y: (x * OW, LAND_Y + (1 - y) * LAND_H)
-        else: to_xy = lambda x, y: (x * OW, (1 - y) * OH)
-        if s.get("touch", True): draw_touch(img, strokes.get((s["view"], s["shot"]), []), src_f, to_xy)
+        pl = placements(s)
+        if s.get("touch", True):
+            for to_xy, clip in pl: draw_touch(img, strokes.get((s["view"], s["shot"]), []), src_f, to_xy, clip)
+        if s.get("actions", True): draw_action(img, actions.get((s["view"], s["shot"]), []), strokes.get((s["view"], s["shot"]), []), src_f, pl[0][0], INSET_Y + LAND_H + 22 if s["layout"] == "land2" else None)
         if tt >= end_from:
             img = Image.alpha_composite(img, end_card(min(1.0, (tt - end_from) / 0.6)))
         p.stdin.write(img.tobytes())

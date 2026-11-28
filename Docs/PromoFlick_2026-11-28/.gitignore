@@ -6,4 +6,4 @@ capture/*/save*
 _work/
 test1/
 check/*.png
-!check/final_all.png
+!check/final_all*.png

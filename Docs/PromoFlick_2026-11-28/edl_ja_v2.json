@@ -1,0 +1,119 @@
+{
+ "capture_dir": "Docs\\PromoFlick_2026-11-28\\capture",
+ "segments": [
+  {
+   "shot": "pf_combo",
+   "view": "side",
+   "layout": "portrait",
+   "start": 2.283,
+   "end": 4.683,
+   "caption": "フリックで、コンボをつなげ。",
+   "zoom": [
+    0.5,
+    0.12,
+    0.42
+   ]
+  },
+  {
+   "shot": "pf_land",
+   "view": "land",
+   "layout": "land2",
+   "start": 0.383,
+   "end": 5.883,
+   "inset": [
+    0.42,
+    0.12,
+    0.18
+   ],
+   "caption": "横でも、縦でも。"
+  },
+  {
+   "shot": "pf_launch",
+   "view": "side",
+   "layout": "portrait",
+   "start": 1.083,
+   "end": 5.283,
+   "caption": "縦画面は、3つの見え方から。",
+   "label": "① 横から見る"
+  },
+  {
+   "shot": "pf_launch",
+   "view": "fold",
+   "layout": "portrait",
+   "start": 1.083,
+   "end": 5.283,
+   "caption": "縦画面は、3つの見え方から。",
+   "label": "② 上下2段で見る",
+   "caption_y": 600,
+   "caption_size": 64,
+   "note": "下：今の走り ／ 上：その先（右端で折り返し）",
+   "note_y": 1700
+  },
+  {
+   "shot": "pf_launch",
+   "view": "oblique",
+   "layout": "portrait",
+   "start": 1.083,
+   "end": 5.283,
+   "caption": "縦画面は、3つの見え方から。",
+   "label": "③ 斜め上から見る",
+   "caption_y": 600,
+   "caption_size": 60
+  },
+  {
+   "shot": "pf_combo",
+   "view": "side",
+   "layout": "portrait",
+   "start": 4.683,
+   "end": 5.817,
+   "caption": "走りは自動。攻撃はフリック。"
+  },
+  {
+   "shot": "pf_combo",
+   "view": "side",
+   "layout": "portrait",
+   "start": 5.817,
+   "end": 8.4,
+   "caption": "走りは自動。攻撃はフリック。",
+   "zoom": [
+    0.5,
+    0.12,
+    0.42
+   ]
+  },
+  {
+   "shot": "pf_combo",
+   "view": "side",
+   "layout": "portrait",
+   "start": 8.4,
+   "end": 10.833,
+   "caption": "走りは自動。攻撃はフリック。"
+  },
+  {
+   "shot": "pf_combo",
+   "view": "side",
+   "layout": "portrait",
+   "start": 10.833,
+   "end": 13.367,
+   "caption": "",
+   "zoom": [
+    0.5,
+    0.12,
+    0.42
+   ]
+  },
+  {
+   "shot": "pf_combo",
+   "view": "side",
+   "layout": "portrait",
+   "start": 13.367,
+   "end": 15.967,
+   "caption": "",
+   "actions": false
+  }
+ ],
+ "end_card_seconds": 2.4,
+ "bgm_volume": 0.28,
+ "se_volume": 1.0,
+ "note": "start/end = 撮影の映像の秒(等速)。shot = raw の名前、view = 撮影のフォルダ(side/fold/oblique/land)。zoom/inset = [幅の割合, 左, 上]"
+}
