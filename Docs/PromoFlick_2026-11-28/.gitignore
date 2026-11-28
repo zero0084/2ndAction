@@ -1,0 +1,9 @@
+# 撮影の生の素材と作業ファイルは大きいので入れない(この PC に残す)
+capture/*/raw/*.mkv
+capture/*/raw/*.wav
+capture/*/stills/
+capture/*/save*
+_work/
+test1/
+check/*.png
+!check/final_all.png

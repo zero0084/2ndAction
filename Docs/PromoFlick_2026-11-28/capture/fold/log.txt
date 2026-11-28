@@ -1,0 +1,284 @@
+Mono path[0] = 'C:/GameProject/2ndAction/Unity/2ndAction/Builds/StoreCapture/OneMoreMile_Data/Managed'
+Mono config path = 'C:/GameProject/2ndAction/Unity/2ndAction/Builds/StoreCapture/MonoBleedingEdge/etc'
+CodeReloadManager initialized
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Initialize engine version: 6000.6.10f1 (40e81493c67d)
+[EntityIdStore] init: VM path (explicit commit), pageSize=4096, blockCount=262144, entitiesPerBlock=1024, blocksPerSlotPage=0, slots reserved=4294967296 bytes
+[Subsystems] Discovering subsystems at path C:/GameProject/2ndAction/Unity/2ndAction/Builds/StoreCapture/OneMoreMile_Data/UnitySubsystems
+[D3D12 Device Filter] Vendor Name: NVIDIA
+[D3D12 Device Filter] Device Name: NVIDIA GeForce RTX 3050 Laptop GPU
+[D3D12 Device Filter] Driver Version: 32.0.15.6081
+[D3D12 Device Filter] Feature Level: 12.2
+[D3D12 Device Filter] Graphics Memory: 3964 MB
+[D3D12 Device Filter] Processor Count: 16
+[D3D12 Device Filter] Device Type: Discrete
+GfxDevice: creating device client; kGfxThreadingModeSplitJobs
+d3d12: failed to query info queue interface (0x80004002).
+Direct3D:
+    Version:         Direct3D 12 [level 12.2]
+    Renderer:        NVIDIA GeForce RTX 3050 Laptop GPU (ID=0x25a2)
+    Vendor:          NVIDIA
+    VRAM:            3964 MB
+    App VRAM Budget: 3369 MB
+    Driver:          32.0.15.6081
+Begin MonoManager ReloadAssembly
+- Finished resetting the current domain, in  0.016 seconds
+[Physics::Module] Selected backend (deferred post-plugins).
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+[FileSaveStore] saves go to the dedicated test file C:\GameProject\2ndAction\Docs\PromoFlick_2026-11-28\capture\fold\save.json (normal save untouched)
+[SaveMigration] already migrated
+<RI> Initializing input.
+XInput1_3.dll not found. Trying XInput9_1_0.dll instead...
+<RI> Input initialized.
+[Boot] before splash t=0.44s unitySplash(show)=True
+UnloadTime: 1.089500 ms
+[Boot] before scene load t=0.36s unitySplashFinished=False
+[ONLINE] UGS Environment = development (dev build, dev build default)
+[Ranking] UGS environment 'development' (dev build, dev build default); 0 pending for this environment, 0 held (other environment or before the separation - never sent)
+[Save] boot: NewGame schema 0->3 generation 0->0 | new game (schema 3, generation 0)tutorial: new data -> first-time guides enabled; unlocks: new data -> Wasteland Road + Swordsman only; card map unlock: new data -> map cards unlock on their maps; challenges: initialized (restored 0, +0 MILE); 
+[DeckPreset] created 8 presets: preset 1 = the current deck (12 cards), 2-8 empty
+[GameInput] profile=mobile touch=True keyboard=False mouse=False gamepad=False rebind=False window=False resolution=False fps=False vibration=True orientation=True
+[Monetization] mode=None ads=none store=none platform=Windows adsProfile=test units=android-test
+[KeyNav] screen  -> home remembered=False focus=False
+[DistanceTier] Enter 0-1000m Tutorial (0-1000)
+[BGM] home -> TitleBgm fade 1.2s
+[WorldTime] Day
+[LoginBonus] +5000 MILE on 2026-11-28 (eligible by windows, via home) wallet=5000 claims=1
+[Boot] first frame t=2.74s unitySplashFinished=True
+21:48:05 [SafeArea] screen 608x1080 Portrait fullScreen=False focus=True raw=(0,0,608,1080) used=(0,0,608,1080) cutouts=0 reason=focus
+[Loading] done 'startup' in 1.84s (shown=True)
+[QA] [capture] bonus zones blocked for this capture
+[QA] [capture] screen 608x1080 lang=ja debugBuild=False devGate=True audio 48000Hz Stereo
+[QA] [capture] portrait window 608x1080 (video x2)
+[Debug] BestDistance set to 41872.6m -> Gacha Stage 3 (MECHANICAL)
+[QA] [capture] save: BEST 41873m, deck flame_blade,thunder_strike,frost_edge,wind_cutter,chain_lightning,inferno,tornado,double_attack,attack_speed_up,attack_up,heart_up,vampire
+[QA] == shot pf_launch ==
+[Stall] heavy frame 0.47s gc+0 heap 16MB/20MB cost[(none measured)] unity[] | hitstops 0 reasons 0 [(none)] | hits[] sameFrame 0 kills 0
+[Stall] heavy frame 0.47s gc+0 heap 16MB/20MB cost[(none measured)] unity[] | hitstops 0 reasons 0 [(none)] | hits[] sameFrame 0 kills 0
+[Gacha] departed wasteland_road -> gacha draws Wilderness
+[RunLedger] begin 9fd5c48d stage=wasteland_road char=dual_blade speed 100%
+[Journey] Activate stage=wasteland_road chapters=9 end=90000m interior=1200m
+[Scenery] Activate stage=wasteland_road segments=12 loop=120000m blend=1000m
+[Scenery] A 昼 @ 0m (loaded=0 loading=1 tex=0KB)
+[Reward] MILE share for this run: 1/1 (solo)
+[Journey] start/jump -1 -> 0m: gates before chapter 0 treated as cleared
+21:48:09 [HUD] 608x1080 best(28,90) lv(18,18) hp(370,18) raw=(x:0.00, y:0.00, width:608.00, height:1080.00) used=(x:0.00, y:0.00, width:608.00, height:1080.00) orient=Portrait stacked=True choice=False overlay=False reason=focus
+[KeyNav] screen home -> run remembered=False focus=False
+[BGM] stage:wasteland_road:Early -> GameplayBgm fade 1.2s
+[Challenge] auto was ON in this run (auto-off challenge not possible)
+[Encounter] NewRunReset (previous: BossActive=False BonusActive=False Paused=False Profile=NULL ProfileStage=-)
+[Encounter] Initialize Stage=wasteland_road Enabled=True Suppressed=False BossActive=False BonusActive=False Profile=OK NextSpawn=unset(set on the first frame of running)
+[ENCOUNTER] paused (countdown/finish) next anchor +-2m ahead 46m speed x1.00
+[Scenery] loaded Scenery/Wasteland/scn_B_evening in 217ms (async)
+[RunLedger] debug feature used: warp -> this run is excluded from official records/ranking
+[Debug] Warped to 1150m
+[Journey] start/jump 0 -> 1150m: gates before chapter 0 treated as cleared
+[DistanceTier] Enter 1000-5000m (1000-5000)
+[Unlock] provisional: unlock_elite_goblin_1000m at 1150m (confirmed only by finishing the run)
+[ENCOUNTER] #1 d=1212 band=500-1500 +elite/imp/wyvern intensity=Easy formation=ground_air terrain=[open clear=inf flatRun=0] span=5.8m members=2 [goblin(T0,GroundFront) air_sand_swallow(T1,AirLow)]
+[FreezeDiagnostics] HITCH: 実フレーム間隔183ms (閾値150ms)  timeScale=1.00  pauseReasons=(none) (logged to hitch_log.txt)
+[Loc] missing ja: ELITE GOBLIN
+TriggerLevelUpChoice: rewardCardSequence OK, starting sequence...
+RewardCardSequence: LevelUp Start
+[LevelUpPresentation] Started
+RewardCardSequence: Pause Complete
+[KeyNav] screen run -> choice remembered=False focus=False
+RewardCardSequence: Dim Fade Complete
+RewardCardSequence: Deck Show Start
+RewardCardSequence: Deck Show Complete
+RewardCardSequence: Draw Cards Start
+RewardCardSequence: Draw Card 0
+RewardCardSequence: Draw Card 1
+RewardCardSequence: Draw Card 2
+RewardCardSequence: Draw Cards Complete
+[LevelUpPresentation] Cards spawned
+RewardCardSequence: Flip Start
+RewardCardSequence: Flip Card 0
+RewardCardSequence: Flip Card 1
+RewardCardSequence: Flip Card 2
+RewardCardSequence: Flip Complete
+[LevelUpPresentation] Reveal complete
+RewardCardSequence: Card Showcase Complete
+[LevelUpPresentation] Card showcase complete
+RewardCardSequence: Cards As Choice UI Start
+RewardCardSequence: Cards As Choice UI Complete
+[ChoiceText] open #1 LEVEL UP portrait=True n=3 hl=-1 wait=False lang=ja fontRebuilds=0/0 screen=608x1080 | [0] id=tornado title='TORNADO' descLen=117 face=on:tornado:'TORNADO' desc=on/en len=238 same=True cull=False a=1.00/1.00 gen=-1 vp=790x302 scroll=0/0 | [1] id=heart_up title='HEART UP' descLen=57 face=on:heart_up:'HEART UP' desc=on/en len=179 same=True cull=False a=1.00/1.00 gen=-1 vp=790x302 scroll=0/0 | [2] id=chain_lightning title='CHAIN LIGHTNING' descLen=114 face=on:chain_lightning:'CHAIN LIGHTNING' desc=on/en len=243 same=True cull=False a=1.00/1.00 gen=-1 vp=790x302 scroll=0/0
+RewardCardSequence: Waiting For Selection
+RewardCardSequence: Selected 0
+[LevelUpPresentation] Card selected: tornado
+RewardCardSequence: Select Feedback Start
+RewardCardSequence: Select Feedback Complete
+RewardCardSequence: Confirm Glow Start
+RewardCardSequence: Confirm Glow Complete
+RewardCardSequence: Apply Upgrade
+[ChoiceText] picked #1 [0] tornado 'TORNADO' (fontRebuilds=1, rebuiltTexts=1, repairs=0)
+[LevelUpPresentation] Gameplay resumed
+RewardCardSequence: Apply Upgrade Complete
+[KeyNav] screen choice -> run remembered=False focus=False
+RewardCardSequence: Sequence Complete
+[LevelUpPresentation] Presentation finished
+TriggerLevelUpChoice: rewardCardSequence OK, starting sequence...
+RewardCardSequence: LevelUp Start
+[LevelUpPresentation] Started
+RewardCardSequence: Pause Complete
+[KeyNav] screen run -> choice remembered=False focus=False
+RewardCardSequence: Dim Fade Complete
+RewardCardSequence: Deck Show Start
+RewardCardSequence: Deck Show Complete
+RewardCardSequence: Draw Cards Start
+RewardCardSequence: Draw Card 0
+RewardCardSequence: Draw Card 1
+RewardCardSequence: Draw Card 2
+RewardCardSequence: Draw Cards Complete
+[LevelUpPresentation] Cards spawned
+RewardCardSequence: Flip Start
+RewardCardSequence: Flip Card 0
+RewardCardSequence: Flip Card 1
+RewardCardSequence: Flip Card 2
+RewardCardSequence: Flip Complete
+[LevelUpPresentation] Reveal complete
+RewardCardSequence: Card Showcase Complete
+[LevelUpPresentation] Card showcase complete
+RewardCardSequence: Cards As Choice UI Start
+RewardCardSequence: Cards As Choice UI Complete
+[ChoiceText] open #2 LEVEL UP portrait=True n=3 hl=-1 wait=False lang=ja fontRebuilds=0/0 screen=608x1080 | [0] id=attack_up title='ATTACK UP' descLen=45 face=on:attack_up:'ATTACK UP' desc=on/en len=168 same=True cull=False a=1.00/1.00 gen=238 vp=790x302 scroll=0/0 | [1] id=wind_cutter title='WIND CUTTER' descLen=98 face=on:wind_cutter:'WIND CUTTER' desc=on/en len=223 same=True cull=False a=1.00/1.00 gen=179 vp=790x302 scroll=0/0 | [2] id=chain_lightning title='CHAIN LIGHTNING' descLen=114 face=on:chain_lightning:'CHAIN LIGHTNING' desc=on/en len=243 same=True cull=False a=1.00/1.00 gen=243 vp=790x302 scroll=0/0
+RewardCardSequence: Waiting For Selection
+RewardCardSequence: Selected 0
+[LevelUpPresentation] Card selected: attack_up
+RewardCardSequence: Select Feedback Start
+RewardCardSequence: Select Feedback Complete
+RewardCardSequence: Confirm Glow Start
+RewardCardSequence: Confirm Glow Complete
+RewardCardSequence: Apply Upgrade
+[ChoiceText] picked #2 [0] attack_up 'ATTACK UP' (fontRebuilds=1, rebuiltTexts=1, repairs=0)
+[LevelUpPresentation] Gameplay resumed
+RewardCardSequence: Apply Upgrade Complete
+[KeyNav] screen choice -> run remembered=False focus=False
+RewardCardSequence: Sequence Complete
+[LevelUpPresentation] Presentation finished
+TriggerLevelUpChoice: rewardCardSequence OK, starting sequence...
+RewardCardSequence: LevelUp Start
+[LevelUpPresentation] Started
+RewardCardSequence: Pause Complete
+[KeyNav] screen run -> choice remembered=False focus=False
+RewardCardSequence: Dim Fade Complete
+RewardCardSequence: Deck Show Start
+RewardCardSequence: Deck Show Complete
+RewardCardSequence: Draw Cards Start
+RewardCardSequence: Draw Card 0
+RewardCardSequence: Draw Card 1
+RewardCardSequence: Draw Card 2
+RewardCardSequence: Draw Cards Complete
+[LevelUpPresentation] Cards spawned
+RewardCardSequence: Flip Start
+RewardCardSequence: Flip Card 0
+RewardCardSequence: Flip Card 1
+RewardCardSequence: Flip Card 2
+RewardCardSequence: Flip Complete
+[LevelUpPresentation] Reveal complete
+RewardCardSequence: Card Showcase Complete
+[LevelUpPresentation] Card showcase complete
+RewardCardSequence: Cards As Choice UI Start
+RewardCardSequence: Cards As Choice UI Complete
+[ChoiceText] open #3 LEVEL UP portrait=True n=3 hl=-1 wait=False lang=ja fontRebuilds=0/0 screen=608x1080 | [0] id=inferno title='INFERNO' descLen=106 face=on:inferno:'INFERNO' desc=on/en len=227 same=True cull=False a=1.00/1.00 gen=168 vp=790x302 scroll=0/0 | [1] id=flame_blade title='FLAME BLADE' descLen=60 face=on:flame_blade:'FLAME BLADE' desc=on/en len=185 same=True cull=False a=1.00/1.00 gen=223 vp=790x302 scroll=0/0 | [2] id=tornado title='TORNADO' descLen=117 face=on:tornado:'TORNADO' desc=on/en len=245 same=True cull=False a=1.00/1.00 gen=243 vp=790x302 scroll=0/0
+RewardCardSequence: Waiting For Selection
+RewardCardSequence: Selected 0
+[LevelUpPresentation] Card selected: inferno
+RewardCardSequence: Select Feedback Start
+RewardCardSequence: Select Feedback Complete
+RewardCardSequence: Confirm Glow Start
+RewardCardSequence: Confirm Glow Complete
+RewardCardSequence: Apply Upgrade
+[ChoiceText] picked #3 [0] inferno 'INFERNO' (fontRebuilds=1, rebuiltTexts=1, repairs=0)
+[LevelUpPresentation] Gameplay resumed
+RewardCardSequence: Apply Upgrade Complete
+[KeyNav] screen choice -> run remembered=False focus=False
+RewardCardSequence: Sequence Complete
+[LevelUpPresentation] Presentation finished
+TriggerLevelUpChoice: rewardCardSequence OK, starting sequence...
+RewardCardSequence: LevelUp Start
+[LevelUpPresentation] Started
+RewardCardSequence: Pause Complete
+[KeyNav] screen run -> choice remembered=False focus=False
+RewardCardSequence: Dim Fade Complete
+RewardCardSequence: Deck Show Start
+RewardCardSequence: Deck Show Complete
+RewardCardSequence: Draw Cards Start
+RewardCardSequence: Draw Card 0
+RewardCardSequence: Draw Card 1
+RewardCardSequence: Draw Card 2
+RewardCardSequence: Draw Cards Complete
+[LevelUpPresentation] Cards spawned
+RewardCardSequence: Flip Start
+RewardCardSequence: Flip Card 0
+RewardCardSequence: Flip Card 1
+RewardCardSequence: Flip Card 2
+RewardCardSequence: Flip Complete
+[LevelUpPresentation] Reveal complete
+RewardCardSequence: Card Showcase Complete
+[LevelUpPresentation] Card showcase complete
+RewardCardSequence: Cards As Choice UI Start
+RewardCardSequence: Cards As Choice UI Complete
+[ChoiceText] open #4 LEVEL UP portrait=True n=3 hl=-1 wait=False lang=ja fontRebuilds=0/0 screen=608x1080 | [0] id=inferno title='INFERNO' descLen=106 face=on:inferno:'INFERNO' desc=on/en len=234 same=True cull=False a=1.00/1.00 gen=227 vp=790x302 scroll=0/0 | [1] id=vampire title='VAMPIRE' descLen=80 face=on:vampire:'VAMPIRE' desc=on/en len=201 same=True cull=False a=1.00/1.00 gen=185 vp=790x302 scroll=0/0 | [2] id=wind_cutter title='WIND CUTTER' descLen=98 face=on:wind_cutter:'WIND CUTTER' desc=on/en len=223 same=True cull=False a=1.00/1.00 gen=245 vp=790x302 scroll=0/0
+RewardCardSequence: Waiting For Selection
+RewardCardSequence: Selected 0
+[LevelUpPresentation] Card selected: inferno
+RewardCardSequence: Select Feedback Start
+RewardCardSequence: Select Feedback Complete
+RewardCardSequence: Confirm Glow Start
+RewardCardSequence: Confirm Glow Complete
+RewardCardSequence: Apply Upgrade
+[ChoiceText] picked #4 [0] inferno 'INFERNO' (fontRebuilds=0, rebuiltTexts=0, repairs=0)
+[LevelUpPresentation] Gameplay resumed
+RewardCardSequence: Apply Upgrade Complete
+[KeyNav] screen choice -> run remembered=False focus=False
+[ENCOUNTER] #2 d=1249 band=500-1500 +elite/imp/wyvern intensity=Medium formation=route_air_vs_horde terrain=[branch fork=1250 merge=1338] span=67.0m members=7 [flying_wyvern(T0,AirLow,Upper) flying_wyvern(T0,AirHigh,Upper) air_sand_swallow(T0,AirLow,Upper) goblin_elite(T0,GroundMiddle,Lower) goblin(T1,GroundMiddle,Lower) goblin(T1,GroundMiddle,Lower) goblin_elite(T0,GroundMiddle,Lower)  UPPER=[air_swarm/Medium x3] LOWER=[goblin_horde/Medium x4]]
+RewardCardSequence: Sequence Complete
+[LevelUpPresentation] Presentation finished
+[QA] [capture] dual_blade wasteland_road at 1172m Lv5 speed 35km/h
+[QA] [capture] pf_launch: 1216x2160 RGBA32 -> rgba
+[FreezeDiagnostics] HITCH: 実フレーム間隔216ms (閾値150ms)  timeScale=1.00  pauseReasons=(none) (logged to hitch_log.txt)
+[QA] [pf] flick Up frame 101 -> jump (grounded before True, airborne now True)
+[QA] [pf] flick Forward frame 120 -> attack (grounded before False, airborne now True)
+[QA] [pf] flick Forward frame 136 -> attack (grounded before False, airborne now True)
+[QA] [pf] flick Forward frame 152 -> attack (grounded before False, airborne now True)
+[QA] [pf] flick Forward frame 168 -> attack (grounded before False, airborne now True)
+[QA] [pf] flick Down frame 196 -> none (grounded before False, airborne now False)
+[QA] [pf] flick Forward frame 304 -> attack (grounded before True, airborne now False)
+[QA] [capture] still pf_launch launch_end @frame 394
+[QA] [capture] pf_launch: 395 frames (6.6s, game time 6.5s), audio 6.6s
+[Stall] heavy frame 1.04s gc+0 heap 46MB/58MB cost[(none measured)] unity[] | hitstops 0 reasons 0 [(none)] | hits[Enemy/Up@17.85s Enemy/Normal/KILL@16.69s Enemy/Normal/KILL@6.28s ] sameFrame 1 kills 1
+[FreezeDiagnostics] HITCH: 実フレーム間隔1038ms (閾値150ms)  timeScale=1.00  pauseReasons=(none) (logged to hitch_log.txt)
+[Death] Retry -> Scene/Run reset start (reload scene, gameOver=False)
+[Stall] heavy frame 1.03s gc+1 heap 39MB/58MB cost[(none measured)] unity[] | hitstops 0 reasons 1 [Object] | hits[Enemy/Up@17.87s Enemy/Normal/KILL@16.71s Enemy/Normal/KILL@6.31s ] sameFrame 1 kills 1
+[ENCOUNTER] #3 d=1475 band=500-1500 +elite/imp/wyvern intensity=Medium formation=ground_line terrain=[open clear=inf flatRun=64 straight] span=6.1m members=3 [goblin(T1,GroundFront) goblin_elite(T0,GroundMiddle) goblin_elite(T1,GroundMiddle)]
+Unloading 5 Unused Serialized files (Serialized files now loaded: 0)
+[KeyNav] screen run ->  remembered=False focus=False
+UnloadTime: 0.966800 ms
+[KeyNav] screen  -> home remembered=False focus=False
+[DistanceTier] Enter 0-1000m Tutorial (0-1000)
+[BGM] home -> TitleBgm fade 1.2s
+[WorldTime] Day
+Unloading 54 unused Assets to reduce memory usage. Loaded Objects now: 39202.
+Total: 23.758700 ms (FindLiveObjects: 3.344500 ms CreateObjectMapping: 0.596100 ms MarkObjects: 18.606000 ms  DeleteObjects: 0.163200 ms)
+
+[Challenge] COMPLETE dist_10k 'REACH 10 KM' +30 MILE (1/26)
+[Loading] done 'reload (retry / home / run start)' in 0.50s (shown=True)
+[QA] 
+[QA] failures=0 warnings=0
+[QA] ALL CHECKS PASSED
+[QA] NO EXCEPTIONS LOGGED
+[Exit] SaveForExit (app quit (window/OS)): started False gameOver False multi False checkpointThisRun False
+[Exit] saved before leaving (app quit (window/OS)): suspended run saved True
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input Polling Thread exited.
+Input System module state changed to: Shutdown.
+CodeReloadManager destroyed

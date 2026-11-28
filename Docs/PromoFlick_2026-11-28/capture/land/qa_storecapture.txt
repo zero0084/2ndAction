@@ -1,0 +1,21 @@
+[capture] bonus zones blocked for this capture
+[capture] screen 1920x1080 lang=ja debugBuild=False devGate=True audio 48000Hz Stereo
+[capture] save: BEST 41873m, deck flame_blade,thunder_strike,frost_edge,wind_cutter,chain_lightning,inferno,tornado,double_attack,attack_speed_up,attack_up,heart_up,vampire
+== shot pf_land ==
+[capture] dual_blade wasteland_road at 6222m Lv5 speed 115km/h
+[capture] pf_land: 1920x1080 RGBA32 -> rgba
+[pf] flick Forward frame 77 -> attack (grounded before True, airborne now False)
+[pf] flick Forward frame 154 -> attack (grounded before True, airborne now False)
+[pf] flick Forward frame 231 -> attack (grounded before False, airborne now True)
+[pf] flick Up frame 289 -> jump (grounded before True, airborne now True)
+[pf] flick Forward frame 308 -> attack (grounded before False, airborne now True)
+[pf] flick Forward frame 324 -> attack (grounded before False, airborne now True)
+[pf] flick Forward frame 340 -> attack (grounded before False, airborne now True)
+[pf] flick Forward frame 356 -> attack (grounded before False, airborne now True)
+[pf] flick Down frame 384 -> none (grounded before False, airborne now True)
+[capture] still pf_land land_end @frame 462
+[capture] pf_land: 463 frames (7.7s, game time 7.2s), audio 7.7s
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

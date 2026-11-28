@@ -1,0 +1,74 @@
+{
+ "capture_dir": "Docs\\PromoFlick_2026-11-28\\capture",
+ "segments": [
+  {
+   "shot": "pf_combo",
+   "view": "side",
+   "layout": "portrait",
+   "start": 0.8,
+   "end": 4.683,
+   "caption": "フリックで、コンボをつなげ。"
+  },
+  {
+   "shot": "pf_land",
+   "view": "land",
+   "layout": "land",
+   "start": 0.383,
+   "end": 5.383,
+   "caption": "横でも、縦でも。",
+   "label": "横画面"
+  },
+  {
+   "shot": "pf_launch",
+   "view": "side",
+   "layout": "portrait",
+   "start": 1.083,
+   "end": 5.083,
+   "caption": "縦画面は、3つの見え方から。",
+   "label": "横から見る"
+  },
+  {
+   "shot": "pf_launch",
+   "view": "fold",
+   "layout": "portrait",
+   "start": 1.083,
+   "end": 5.083,
+   "caption": "縦画面は、3つの見え方から。",
+   "label": "上下2段で見る",
+   "caption_y": 700,
+   "caption_size": 64
+  },
+  {
+   "shot": "pf_launch",
+   "view": "oblique",
+   "layout": "portrait",
+   "start": 1.083,
+   "end": 5.083,
+   "caption": "縦画面は、3つの見え方から。",
+   "label": "斜め上から見る",
+   "caption_y": 600,
+   "caption_size": 60
+  },
+  {
+   "shot": "pf_combo",
+   "view": "side",
+   "layout": "portrait",
+   "start": 4.683,
+   "end": 10.833,
+   "caption": "走りは自動。攻撃はフリック。"
+  },
+  {
+   "shot": "pf_combo",
+   "view": "side",
+   "layout": "portrait",
+   "start": 10.833,
+   "end": 15.667,
+   "caption": "",
+   "touch": true
+  }
+ ],
+ "end_card_seconds": 3.0,
+ "bgm_volume": 0.28,
+ "se_volume": 1.0,
+ "note": "start/end = 撮影の映像の秒(等速)。shot = raw の名前、view = 撮影のフォルダ(side/fold/oblique/land)"
+}
