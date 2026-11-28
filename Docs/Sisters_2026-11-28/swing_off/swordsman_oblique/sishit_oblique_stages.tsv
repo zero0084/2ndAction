@@ -1,0 +1,5 @@
+view	stage	result	sec	hp	damageHits	damage	attacks	hits
+oblique	solo Eldest	TIMEOUT	20.0	Eldest:999999	1	20	109	36
+oblique	solo Second	TIMEOUT	20.0	Second:999999	0	0	110	46
+oblique	solo Youngest	TIMEOUT	20.0	Youngest:999999	0	0	109	41
+oblique	group	TIMEOUT	30.0	Eldest:999999/Second:999999/Youngest:999999	6	72	163	121

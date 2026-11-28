@@ -1065,21 +1065,23 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     public const float TurnAwayDistance = 3f, TurnBackDistance = 1.2f;
     bool turnAway;
     public static int TurnAways; // 確認用
+    // 技の立ち位置(間合い + 並びのずれ)。2026-11-28 依頼⑦: 死神三姉妹は上限を付ける(ReaperSisterBoss)。既定は今までどおり
+    protected virtual float StandGoal(float targetGap) => targetGap + slotOffset;
     protected IEnumerator MoveToGap(float targetGap, float speed, float timeout = 4f)
     {
         DebugAct = "MoveToGap";
         SetPose(Pose.Move);
         float t = 0f;
-        float want0 = targetGap + slotOffset;
+        float want0 = StandGoal(targetGap);
         bool away = !facingLocked && Mathf.Abs(want0) > Mathf.Abs(Gap) + TurnAwayDistance && Mathf.Sign(want0) == Mathf.Sign(Gap == 0f ? want0 : Gap);
         if (away) TurnAways++;
         try
         {
-        while (t < timeout && Mathf.Abs(Gap - (targetGap + slotOffset)) > 0.25f)
+        while (t < timeout && Mathf.Abs(Gap - StandGoal(targetGap)) > 0.25f)
         {
-            turnAway = away && !facingLocked && Mathf.Abs(Gap - (targetGap + slotOffset)) > TurnBackDistance;
-            ForeseeTick(Mathf.Min(timeout - t, (Mathf.Abs(Gap - (targetGap + slotOffset)) - 0.25f) / Mathf.Max(0.5f, speed)));
-            relVelocity = Mathf.Sign(targetGap + slotOffset - Gap) * speed;
+            turnAway = away && !facingLocked && Mathf.Abs(Gap - StandGoal(targetGap)) > TurnBackDistance;
+            ForeseeTick(Mathf.Min(timeout - t, (Mathf.Abs(Gap - StandGoal(targetGap)) - 0.25f) / Mathf.Max(0.5f, speed)));
+            relVelocity = Mathf.Sign(StandGoal(targetGap) - Gap) * speed;
             t += Time.deltaTime;
             yield return null;
         }
@@ -1259,11 +1261,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     bool MeleeReachableNow => player != null && hurtCol != null && hurtCol.enabled && !invulnerable && HurtEdgeFromPlayer <= MeleeEdge && LiveHurtBounds.min.y <= PlayerY + MeleeUp;
     public static int CloseIns; // 確認用
     protected virtual bool CloseInAllowed => true; // 技の都合で近づけないボスは上書き
+    protected virtual bool CloseInWhileRunning => false; // 2026-11-28 依頼⑦: 並走の戦い(死神三姉妹)でも近くへ来て隙を見せる
     bool CloseInDue
     {
         get
         {
-            if (!BossHalt.Halted || NetPuppet || dead || entering || Broken || UltimateRunning || freeGap || IntentionallyAway || !CloseInAllowed || player == null) return false;
+            if ((!BossHalt.Halted && !CloseInWhileRunning) || NetPuppet || dead || entering || Broken || UltimateRunning || freeGap || IntentionallyAway || !CloseInAllowed || player == null) return false;
             if (lastMeleeTime < 0f) { lastMeleeTime = Time.time; return false; } // 一度も近づいていない: ここから数える
             return Time.time - lastMeleeTime > CloseInAfter;
         }

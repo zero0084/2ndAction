@@ -262,7 +262,7 @@ public partial class BossManager : MonoBehaviour
         IsBossPhase = true;
         // 2026-11-28: マルチ(三姉妹戦)= 全員を戦いの並びで止める(前のラッシュで「再開」のままだと足止めの合図が出なかった)。
         //  三姉妹の入れ替わり(前半の1人ずつの間)でボスが居ない瞬間も、勝利までは止めたまま(scriptedHold)
-        if (MpRun.On) { RunResumed = false; scriptedHold = true; }
+        if (MpRun.On || ReaperSisterBoss.HaltFight) { RunResumed = false; scriptedHold = true; } // 2026-11-28 依頼⑦(追加): ソロも三姉妹を全員倒すまで止めたまま(前のラッシュの「再開」を持ち越さない)
         BossMusicTier = tier;
         BossMusicKey = musicKey;
         BossDefeatedThisPhase = false;

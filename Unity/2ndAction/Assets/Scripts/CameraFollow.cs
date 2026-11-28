@@ -159,6 +159,14 @@ public class CameraFollow : MonoBehaviour
             }
             BossZoomApplied = Mathf.Lerp(1f, bossZoom, BossEase(bossBlend));
             cam.orthographicSize *= BossZoomApplied;
+            // 2026-11-28 依頼⑦: 縦の横から見る表示(上下2段の下の段も同じ大きさ)で、死神三姉妹が映る範囲の外に立つ時だけ少し引く。見た目だけ(判定/間合いは GameView のまま)
+            if (!PortraitSide) PortraitFitZoom = 1f;
+            else if (Time.timeScale > 0f)
+            {
+                float want = PortraitSistersFitWant(cam.orthographicSize * aspect * (FoldView.Active ? Mathf.Clamp(FoldView.Zoom, 0.5f, 1.2f) : 1f));
+                PortraitFitZoom = Mathf.MoveTowards(PortraitFitZoom, want, Time.unscaledDeltaTime * (want > PortraitFitZoom ? 0.8f : 0.35f));
+            }
+            cam.orthographicSize *= PortraitFitZoom;
         }
 
         if (shakeTimer > 0f) shakeTimer = Mathf.Max(0f, shakeTimer - Time.unscaledDeltaTime);
@@ -237,6 +245,26 @@ public class CameraFollow : MonoBehaviour
         }
 
         transform.position = pos;
+    }
+
+    public static float PortraitFitMax = 1.3f; // 縦の三姉妹戦で引く上限(1 = 引かない)
+    public float PortraitFitZoom { get; private set; } = 1f;
+    float PortraitSistersFitWant(float visibleHalf)
+    {
+        var fin = ReaperFinaleBattle.Instance;
+        // マルチの参加者の端末には三姉妹戦の進行(ReaperFinaleBattle)が無い(HOST だけ)ので、姉妹(人形)が居るかで決める
+        if (PortraitFitMax <= 1.001f || !ReaperSisterBoss.ReachFix || (fin != null && fin.Current == ReaperFinaleBattle.Stage.Done) || visibleHalf <= 0.1f) return 1f;
+        float far = float.MinValue, near = float.MaxValue;
+        foreach (var s in ReaperSisterBoss.All)
+        {
+            if (s == null || s.IsDead || !s.isActiveAndEnabled || s.Retreating) continue;
+            var b = s.LiveHurtBounds;
+            far = Mathf.Max(far, b.max.x + 1.2f); near = Mathf.Min(near, b.min.x - 1.2f);
+        }
+        if (far == float.MinValue) return 1f;
+        float cx = transform.position.x;
+        float need = Mathf.Max(far - cx, cx - near) / visibleHalf;
+        return Mathf.Clamp(need, 1f, PortraitFitMax);
     }
 
     bool WantsBossFraming()

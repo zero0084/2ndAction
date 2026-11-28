@@ -21,6 +21,43 @@ public partial class ReaperSisterBoss : WildBossBase
     public bool Retreating { get; private set; }
     public float aggression = 1f;             // 後半は少し間隔を詰める(三人同時の分、個々は控えめ)
 
+    // 2026-11-28 マスター依頼⑦(試作値): ラスダンで戦う倒せる三姉妹だけの強化。HP は ReaperFinaleBattle.Hp で、攻撃力は三姉妹の攻撃(近接の判定/弾/噛みつき)で掛ける。
+    //  通常3マップの追跡の死神(ReaperBase)は別のクラスなので掛からない。予兆/溜め/攻撃の間隔は変えない(数値だけ)。
+    //  再戦の被弾倍率(BossManager.DamageMul)はこの後に掛かるが、三姉妹戦の間は 1(ラスダンの関門の終わりで戻る。試験で確認)
+    public static float FinaleHpMul = 1.5f, FinaleDamageMul = 1.2f;
+    public static int Dmg(int baseAmount) => FinaleDamageMul > 1.001f || FinaleDamageMul < 0.999f ? Mathf.Max(1, Mathf.RoundToInt(baseAmount * FinaleDamageMul)) : baseAmount;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void ReadBuffArgs()
+    {
+        var a = System.Environment.GetCommandLineArgs();
+        var ci = System.Globalization.CultureInfo.InvariantCulture; var ns = System.Globalization.NumberStyles.Float;
+        for (int i = 0; i < a.Length - 1; i++)
+        {
+            if (a[i] == "-sisBuff" && a[i + 1] == "0") { FinaleHpMul = 1f; FinaleDamageMul = 1f; } // 強化前と比べる
+            if (a[i] == "-sisReach" && a[i + 1] == "0") ReachFix = false; // 命中不良の修正の前と比べる
+            if (a[i] == "-sisHalt" && a[i + 1] == "0") HaltFight = false;  // 止まって戦う形の前(並走)と比べる
+            if (a[i] == "-sisHpMul") float.TryParse(a[i + 1], ns, ci, out FinaleHpMul);
+            if (a[i] == "-sisDmgMul") float.TryParse(a[i + 1], ns, ci, out FinaleDamageMul);
+        }
+    }
+#endif
+    // 2026-11-28 依頼⑦(縦画面で一部の姉妹に攻撃が通らない): 三姉妹戦は並走の戦いで、技の間合いに並び順のずれ(4.6m × 順番)が足され、
+    //  三人同時の三女は 12〜19m 先に立ち続けていた。縦画面の映す範囲はプレイヤーの前 約17m(上下2段の下の段は約14m)なので画面の端/外にいて、
+    //  近接はどの向きの画面でも届かなかった(横画面でも三女の「近接が届く時間」0%)。縦横で同じ動き(マルチで HOST が決める)のまま直す:
+    //   ① 立ち位置の上限 StandCap + 並び順 × StandCapStep(並びのずれを足しても約10〜14m まで)
+    //   ② 三人同時で姉妹が倒れたら、残りの並び順を詰める(ReaperFinaleBattle)
+    //   ③ 停止戦と同じ「近くへ来て隙を見せる」(CloseIn。近接が届く所に5秒来なかったら、攻撃の後の戻りで近くへ来る)を並走のまま使う
+    //  予兆/溜め/攻撃の速さ/間隔は変えない。開発版は -sisReach 0 で前の作り
+    public static bool ReachFix = true;
+    public static bool HaltFight = true; // 2026-11-28 依頼⑦(追加): 他のボスと同じ「止まって戦う」(BossHalt)。false = 前の作り(並走)
+    public static float StandCap = 10f, StandCapStep = 2.2f; // 三人同時: 長女 10m・次女 12.2m・三女 14.4m まで(1.2m 間隔では上限で三人の体が重なった)
+    protected override float StandGoal(float targetGap)
+    {
+        float g = base.StandGoal(targetGap);
+        return ReachFix && g > 0f ? Mathf.Min(g, StandCap + StandCapStep * slotIndex) : g;
+    }
+    protected override bool CloseInWhileRunning => ReachFix && !Retreating;
     public static readonly System.Collections.Generic.List<ReaperSisterBoss> All = new System.Collections.Generic.List<ReaperSisterBoss>();
     BossHitbox scythe, dive, slam, spin;
     BossTelegraphMarker scytheMark, diveMark, slamMark, spinMark;
@@ -47,7 +84,7 @@ public partial class ReaperSisterBoss : WildBossBase
         b.slotSpacing = 4.6f; // 2026-10-20: 三人同時で体が大きく重なっていた(3.6m)。正式な絵は横幅が広いので少し離す
         b.initialDelayPerSlot = 1.4f;
         b.startGap = gap;
-        b.maxGap = 18f;
+        b.maxGap = ReachFix ? 15.5f : 18f; // 2026-11-28 依頼⑦: 立ち位置の上限(StandGoal、三女 14.4m)と合わせて、遠くへ押し出されても 15.5m まで
         b.minGap = -5f;
         b.enterSpeed = 6f;
         b.artFacesLeft = false; // 三姉妹の絵は右向き
@@ -105,6 +142,8 @@ public partial class ReaperSisterBoss : WildBossBase
         spin = NewHitbox("ReaperSpin", new Vector2(0f, h * 0.45f), new Vector2(3.6f, h * 0.9f), BossFx.Slash(), new Color(1f, 0.5f, 0.85f, 0.95f));
         spinMark = NewMarker(new Vector2(0f, h * 0.45f), new Vector2(3.6f, h * 0.9f));
         InitMoves();
+        // 2026-11-28 マスター依頼⑦: ラスダンの三姉妹の攻撃力(試作 1.2倍)。近接の判定はここで1回だけ掛ける(参加者の端末の人形も同じ Create を通るので同じ値)
+        foreach (var hb in new[] { scythe, dive, slam, spin, sever, swoop }) if (hb != null) hb.damageAmount = Dmg(hb.damageAmount);
         supportsInterrupt = true; // 2026-10-20: 怯み/BREAK で技を止めてよい(OnInterrupted で浮き/予兆を戻す)
         if (!All.Contains(this)) All.Add(this);
         StartCoroutine(MotionLoop());
@@ -256,6 +295,7 @@ public partial class ReaperSisterBoss : WildBossBase
         Shake(0.06f, 0.15f);
         var p = BossProjectile.Create(BossFx.Slash(), new Color(0.75f, 0.4f, 1f, 0.95f), FrontWorld(0.3f, 0.55f), new Vector2(1.3f, 1.0f), new Vector2(facing * 7.5f, 0f), 3.2f, RenderOrder.CombatFx);
         p.hugGround = true; p.groundOffset = 0.5f;
+        p.damageAmount = Dmg(p.damageAmount);
         yield return Recover(0.9f);
     }
 
@@ -288,7 +328,8 @@ public partial class ReaperSisterBoss : WildBossBase
             Vector3 from = FrontWorld(0.2f, bodyHeight * 0.55f);
             Vector2 aim = AimFrom(from);
             aim = Quaternion.Euler(0f, 0f, (i - 1) * 9f) * aim;
-            BossProjectile.Create(BossFx.Orb(), new Color(0.55f, 0.85f, 1f, 0.95f), from, new Vector2(0.7f, 0.7f), aim * 6.5f, 3f, RenderOrder.CombatFx);
+            var orb = BossProjectile.Create(BossFx.Orb(), new Color(0.55f, 0.85f, 1f, 0.95f), from, new Vector2(0.7f, 0.7f), aim * 6.5f, 3f, RenderOrder.CombatFx);
+            orb.damageAmount = Dmg(orb.damageAmount);
             yield return Wait(0.32f);
         }
         yield return Recover(0.8f);

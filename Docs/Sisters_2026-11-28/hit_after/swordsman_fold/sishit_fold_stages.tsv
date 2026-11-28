@@ -1,0 +1,5 @@
+view	stage	result	sec	hp	damageHits	damage	attacks	hits
+fold	solo Eldest	TIMEOUT	20.0	Eldest:999999	3	44	109	32
+fold	solo Second	TIMEOUT	20.0	Second:999999	1	12	110	33
+fold	solo Youngest	TIMEOUT	20.0	Youngest:999999	1	12	110	33
+fold	group	TIMEOUT	30.0	Eldest:999999/Second:999999/Youngest:999999	7	84	164	82

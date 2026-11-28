@@ -304,7 +304,7 @@ public class ReaperBullet : MonoBehaviour
         if (reflected || !other.CompareTag("Player") || PlayerController.Instance == null) return;
         if (CheckPlayerAttacks()) return; // 同じ瞬間に攻撃も触れていれば攻撃を優先
         PlayerHits++;
-        PlayerController.Instance.TakeDamage(source: "ReaperBullet:" + sister + "/" + kind, amount: BossManager.ScaleDamage(CombatScale.PlayerHit));
+        PlayerController.Instance.TakeDamage(source: "ReaperBullet:" + sister + "/" + kind, amount: BossManager.ScaleDamage(ReaperSisterBoss.Dmg(CombatScale.PlayerHit))); // 2026-11-28 依頼⑦: 三姉妹の攻撃力
         Burst(0.8f);
         Destroy(gameObject);
     }

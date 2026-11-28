@@ -1,0 +1,5 @@
+view	stage	result	sec	hp	damageHits	damage	attacks	hits
+side	solo Eldest	TIMEOUT	20.0	Eldest:999999	0	0	109	41
+side	solo Second	TIMEOUT	20.0	Second:999999	0	0	109	47
+side	solo Youngest	TIMEOUT	20.0	Youngest:999999	0	0	109	43
+side	group	TIMEOUT	30.0	Eldest:999999/Second:999999/Youngest:999999	6	72	164	114

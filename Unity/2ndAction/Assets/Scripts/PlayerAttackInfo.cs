@@ -61,6 +61,27 @@ public class PlayerAttackInfo : MonoBehaviour
     // 判定を別の位置/大きさで出し直した(前の位置からの掃引はしない)
     public void Rearm() { NewSwing(); wasEnabled = false; }
     public static void RearmOf(Component c) { if (c == null) return; var i = c.GetComponent<PlayerAttackInfo>(); if (i != null) i.Rearm(); }
+    // 2026-11-28 依頼⑦(死神三姉妹の命中): 近接の振りを出す。前の振りの判定がまだ有効なまま次の振りになると(空中で上攻撃を続けた時など)、
+    //  物理は「重なったまま」とみなして新しい知らせを出さず、重なり始めの知らせでだけ当たるボスには2振り目以降が入らなかった
+    //  (雑魚はすり抜け対策の掃引で当たっていた)。有効ならいったん無効 → 有効にして、新しい重なりとして知らせ直させる。
+    //  近接の振りだけに使う(結界/燃える地面などの場の攻撃は今まで通り RearmOf)。開発版は -swingCycle 0 で前の作り
+    public static bool SwingCycle = true;
+    public static int SwingCycled; // 確認用
+    public static void EnableSwing(Collider2D c)
+    {
+        if (c == null) return;
+        if (c.enabled && SwingCycle) { c.enabled = false; SwingCycled++; }
+        c.enabled = true;
+        RearmOf(c);
+    }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void ReadSwingArgs()
+    {
+        var a = System.Environment.GetCommandLineArgs();
+        for (int i = 0; i < a.Length - 1; i++) if (a[i] == "-swingCycle" && a[i + 1] == "0") SwingCycle = false;
+    }
+#endif
     public static readonly System.Collections.Generic.List<PlayerAttackInfo> Active = new System.Collections.Generic.List<PlayerAttackInfo>();
     [System.NonSerialized] public Collider2D col;
     [System.NonSerialized] public bool wasEnabled;

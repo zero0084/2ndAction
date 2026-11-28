@@ -14,6 +14,7 @@ public partial class NetAutoTest
     readonly System.Collections.Generic.List<Vector2> condHp = new System.Collections.Generic.List<Vector2>();
     float condKillAt = -1f; bool condKillStarted, condKillDone; float condKillTimer;
     float condCardsAt = -1f; string condCards; bool condCardsDone;
+    float condAllCardsAt = -1f; int condAllCardsLv = 9; bool condAllCardsDone;
     float condFeAt = -1f; string condFeId; bool condFeDone;
     bool condOn, condNoRevive; float condLogNext; string condLastState = "";
     float condSpeedAt = -1f, condSpeed = 1f; bool condSpeedDone;
@@ -27,6 +28,7 @@ public partial class NetAutoTest
             case "-netAutoCondWarpAt": { var p = next.Split(':'); if (p.Length == 2) { float.TryParse(p[0], out condWarpAt); float.TryParse(p[1], out condWarpTo); } condOn = true; return true; }
             case "-netAutoCondHpAt": foreach (var e in next.Split(',')) { var p = e.Split(':'); if (p.Length == 2 && float.TryParse(p[0], out float t) && float.TryParse(p[1], out float hp)) condHp.Add(new Vector2(t, hp)); } condOn = true; return true;
             case "-netAutoCondKillAt": float.TryParse(next, out condKillAt); condOn = true; return true;
+            case "-netAutoCondAllCards": { var p = next.Split(':'); if (p.Length == 2) { float.TryParse(p[0], out condAllCardsAt); int.TryParse(p[1], out condAllCardsLv); } condOn = true; return true; } // 2026-11-28 依頼⑦(マスター): t 秒目に全カード(#100 ULTIMATE を除く)を Lv で持つ
             case "-netAutoCondCards": { int i = next.IndexOf(':'); if (i > 0) { float.TryParse(next.Substring(0, i), out condCardsAt); condCards = next.Substring(i + 1); } condOn = true; return true; }
             case "-netAutoCondNoRevive": condNoRevive = next != "0"; condOn = true; return true;
             case "-netAutoCondHpKeep": { var p = next.Split(':'); if (p.Length == 2) { float.TryParse(p[0], out condHpKeepFrom); int.TryParse(p[1], out condHpKeep); } condOn = true; return true; } // t:hp … t 秒目から、生きている間は HP をこの値に保つ(上回ったら戻す)
@@ -60,6 +62,17 @@ public partial class NetAutoTest
                 if (c != null) gm.ApplyCardEffectsStacked(c, kv.Length > 1 && int.TryParse(kv[1], out int lv) ? lv : 1);
                 L($"COND card {kv[0]} -> {(c != null ? "applied" : "NOT FOUND")} phoenixCharges={gm.PhoenixCharges}");
             }
+        }
+        if (condAllCardsAt >= 0f && !condAllCardsDone && t >= condAllCardsAt && !gm.IsGameOver)
+        {
+            condAllCardsDone = true;
+            int n = 0, fail = 0;
+            foreach (var c in CardDatabase.AllCards)
+            {
+                if (c == null || CardVariant.IsVariantKey(c.cardId) || c.cardId == "character_ultimate") continue; // #100 ULTIMATE はマルチ未対応
+                try { gm.ApplyCardEffectsStacked(c, condAllCardsLv); n++; } catch (System.Exception ex) { fail++; L($"COND all cards: {c.cardId} failed {ex.GetType().Name}"); }
+            }
+            L($"COND all cards Lv{condAllCardsLv}: applied {n} (failed {fail}) bossHpMul={gm.BossHpMultiplier:F2} lives={gm.Lives}/{gm.MaxLives} atk={(PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : 0)}");
         }
         if (condFeAt >= 0f && !condFeDone && t >= condFeAt && !gm.IsGameOver && alive)
         {

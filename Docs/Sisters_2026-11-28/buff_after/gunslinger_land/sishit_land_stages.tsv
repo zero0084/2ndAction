@@ -1,0 +1,5 @@
+view	stage	result	sec	hp	damageHits	damage	attacks	hits
+land	solo Eldest	cleared	77.7	Eldest:4200	9	108	424	144
+land	solo Second	cleared	65.7	Second:4200	1	12	359	130
+land	solo Youngest	cleared	93.1	Youngest:4200	6	72	508	149
+land	group	cleared	109.0	Eldest:3000/Second:3000/Youngest:3000	15	180	583	312

@@ -341,11 +341,14 @@ public partial class ReaperSisterBoss
         yield return Recover(0.7f);
     }
 
+    public static float RainTopAboveGround = 17.5f; // 横画面のボス戦の構図(地表が下から27%、縦の半分 約11.7m)の画面の上端 + 1.2m 前後
     IEnumerator RainWave(float[] offs, ReaperBulletKind[] kinds)
     {
         if (player == null) yield break;
-        var cam = Camera.main;
-        float top = cam != null ? cam.transform.position.y + cam.orthographicSize + 1.2f : player.position.y + 9f;
+        // 2026-11-28 依頼⑦: 刃の出る高さを見た目のカメラで決めていた → 縦画面(映す高さが約2倍)では刃が高すぎて地面まで届かず、
+        //  返せる刃も来なかった(マルチでは HOST の画面で決まる)。横画面のボス戦の画面の上端と同じ、足元の地面から一定の高さにする
+        float g0 = TerrainManager.Instance != null ? (TerrainManager.Instance.GetHeightAt(player.position.x) ?? player.position.y) : player.position.y;
+        float top = g0 + RainTopAboveGround;
         float px = player.position.x;
         // 列ごとの光の線(0.5秒前)
         foreach (float o in offs)
@@ -611,6 +614,6 @@ public class ReaperBite : MonoBehaviour
         if (hit || col == null || !col.enabled || !other.CompareTag("Player") || PlayerController.Instance == null) return;
         hit = true;
         PlayerHits++;
-        PlayerController.Instance.TakeDamage(source: "ReaperBite", amount: BossManager.ScaleDamage(CombatScale.PlayerHit));
+        PlayerController.Instance.TakeDamage(source: "ReaperBite", amount: BossManager.ScaleDamage(ReaperSisterBoss.Dmg(CombatScale.PlayerHit))); // 2026-11-28 依頼⑦
     }
 }

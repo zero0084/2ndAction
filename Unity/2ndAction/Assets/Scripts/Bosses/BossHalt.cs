@@ -243,7 +243,10 @@ public static class BossHalt
         }
         if (gm.EscapeConfirmed) { why = "escape"; return false; }  // 脱出の確定後は脱出の演出(自分の減速)に任せる
         var fin = ReaperFinaleBattle.Instance;
-        if (fin != null && fin.Current != ReaperFinaleBattle.Stage.Done) { why = "sisters finale"; return false; } // 三姉妹との最終戦は並走のまま(攻めて突破)
+        // 2026-11-28 依頼⑦(追加): 三姉妹戦も他のボスと同じく止まって戦う(以前は並走 = この例外で止めなかった)。
+        //  マルチは全員が止まって並んで戦う(以前は三姉妹戦を動かす HOST だけが走り続け、止まった参加者から数km離れて、HOST を狙う姉妹へ参加者の攻撃が届かなかった)。
+        //  開発版は -sisHalt 0 で前の作り(並走)
+        if (fin != null && fin.Current != ReaperFinaleBattle.Stage.Done && !ReaperSisterBoss.HaltFight && !mp) { why = "sisters finale"; return false; }
         var ex = Exempt != null ? Exempt() : null;
         if (!string.IsNullOrEmpty(ex)) { why = ex; return false; }
         why = bm.BossMusicKey ?? "boss";

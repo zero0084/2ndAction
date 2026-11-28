@@ -1,0 +1,43 @@
+[sishit] char=swordsman view=oblique screen=540x960 portraitSide=False fold=False oblique=True secs=20
+  ok: the finale started
+[sishit] solo Eldest
+[sishit] stage solo Eldest begin hp Eldest:999999 dmgMul(boss)=1.00 sisterDmg x1.20 hpMul x1.50 bossHpCard x1.00
+[sishit] stage solo Eldest TIMEOUT in 20.0s | damage taken 0 hits / 0 | attacks 109 hit 43
+[sishit] solo Second
+[sishit] stage solo Second begin hp Second:999999 dmgMul(boss)=1.00 sisterDmg x1.20 hpMul x1.50 bossHpCard x1.00
+[sishit] stage solo Second TIMEOUT in 20.0s | damage taken 2 hits / 40 | attacks 109 hit 43
+[sishit] solo Youngest
+[sishit] stage solo Youngest begin hp Youngest:999999 dmgMul(boss)=1.00 sisterDmg x1.20 hpMul x1.50 bossHpCard x1.00
+[sishit] stage solo Youngest TIMEOUT in 20.0s | damage taken 5 hits / 92 | attacks 110 hit 32
+[sishit] group 3
+[sishit] stage group begin hp Eldest:999999/Second:999999/Youngest:999999 dmgMul(boss)=1.00 sisterDmg x1.20 hpMul x1.50 bossHpCard x1.00
+[sishit] stage group TIMEOUT in 30.0s | damage taken 8 hits / 104 | attacks 164 hit 101
+  ok: the finale finished
+[sishit] whole finale: player moved 104.1m forward while sisters were up, halted 100% of the time, BossHalt starts 1 releases 1, last reason '*/Death'
+[sishit] damage reasons: DeathY=8, HPZero:BossCombatPart:Hitbox_ReaperSwoop=1, HPZero:BossCombatPart:Hitbox_ReaperSever=2, HPZero:ReaperBullet:Youngest/Hazard=2, HPZero:ReaperBullet:Eldest/Hazard=1, HPZero:ReaperBullet:Second/Reflectable=1, HPZero:ReaperBite=2
+  ok: the sisters fight is fought standing (auto-run stopped 100% of the fight)
+[sishit] portrait camera fit max x1.00 reachFix=True
+[sishit] summary (attacks: result counts)
+  group Eldest: attacks 40 hit 14 (35%) | OVERLAP_NOHIT=16 HIT=14 FAR_X=6 FAR_XY=2 HIGH=2
+  group Second: attacks 34 hit 33 (97%) | HIT=33 HIGH=1
+  group Youngest: attacks 90 hit 55 (61%) | HIT=55 OVERLAP_NOHIT=35
+  solo Eldest: attacks 109 hit 43 (39%) | OVERLAP_NOHIT=53 HIT=43 FAR_X=13
+  solo Second: attacks 109 hit 43 (39%) | OVERLAP_NOHIT=49 HIT=43 FAR_XY=9 FAR_X=5 NO_ATTACK=2 HIGH=1
+  solo Youngest: attacks 110 hit 33 (30%) | OVERLAP_NOHIT=44 HIT=33 FAR_XY=11 NO_ATTACK=9 HIGH=7 FAR_X=6
+  time group Eldest: 29.8s, melee reach 81%, on main camera 100%
+  time group Second: 29.8s, melee reach 46%, on main camera 100%
+  time group Youngest: 29.8s, melee reach 71%, on main camera 100%
+  time solo Eldest: 22.3s, melee reach 78%, on main camera 100%
+  time solo Second: 21.8s, melee reach 70%, on main camera 100%
+  time solo Youngest: 21.3s, melee reach 59%, on main camera 100%
+[sishit] swings that overlapped a hittable sister (1+ physics steps): hit / missed
+  group Eldest: swings 14 hit 14 missed 0 (missed with 2+ steps 0) cols 
+  group Second: swings 28 hit 28 missed 0 (missed with 2+ steps 0) cols 
+  group Youngest: swings 50 hit 50 missed 0 (missed with 2+ steps 0) cols 
+  solo Eldest: swings 41 hit 41 missed 0 (missed with 2+ steps 0) cols 
+  solo Second: swings 36 hit 36 missed 0 (missed with 2+ steps 0) cols 
+  solo Youngest: swings 32 hit 32 missed 0 (missed with 2+ steps 0) cols 
+  ok: no swing overlapped a hittable sister for 2+ physics steps without hitting (0)
+
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

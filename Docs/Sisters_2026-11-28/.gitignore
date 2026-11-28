@@ -1,0 +1,8 @@
+# 試験の大きな記録はこの PC に残す(報告とまとめだけ入れる)
+*.log
+*.png
+!evidence/*.png
+*/save/
+**/save/
+multi/*/saves/
+build*.log

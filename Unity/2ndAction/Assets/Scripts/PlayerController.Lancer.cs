@@ -268,8 +268,7 @@ public partial class PlayerController
         t.localScale = new Vector3(length, thick, 1f);
         lanceHitbox.size = Vector2.one;
         lanceHitbox.offset = Vector2.zero;
-        lanceHitbox.enabled = true;
-        { var li = lanceHitbox.GetComponent<PlayerAttackInfo>(); if (li != null) li.Rearm(); TagHitbox(lanceHitbox); }
+        PlayerAttackInfo.EnableSwing(lanceHitbox); TagHitbox(lanceHitbox); // 2026-11-28: 有効のままなら出し直す
         if (fxDuration > 0f) ShowLanceThrustFx(origin, dir, deg, lanceArtTipDistance, startX + length, fxDuration, fxThickness, fxTint);
     }
 

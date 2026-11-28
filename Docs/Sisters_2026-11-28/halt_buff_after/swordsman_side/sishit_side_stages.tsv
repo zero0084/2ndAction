@@ -1,0 +1,5 @@
+view	stage	result	sec	hp	damageHits	damage	attacks	hits
+side	solo Eldest	cleared	68.0	Eldest:4200	0	0	371	155
+side	solo Second	cleared	53.8	Second:4200	0	0	294	132
+side	solo Youngest	cleared	65.2	Youngest:4200	1	12	356	152
+side	group	cleared	69.3	Eldest:3000/Second:3000/Youngest:3000	15	180	367	284

@@ -48,11 +48,26 @@ public class ReaperFinaleBattle : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (DebugHpOverride > 0) return DebugHpOverride;
 #endif
+        m *= ReaperSisterBoss.FinaleHpMul; // 2026-11-28 マスター依頼⑦: 三姉妹の HP(試作 1.5倍)。ここだけで掛ける(参加者の端末は HOST の HP で上書きされる)
         return Mathf.Max(1, Mathf.RoundToInt(baseHp * Mathf.Max(0.01f, m)));
     }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public static int DebugHpOverride; // 自動テスト用
 #endif
+
+    // 2026-11-28 依頼⑦: 三人同時で姉妹が倒れたら、残りの並び順を前へ詰める(後ろの姉妹が遠くに立ち続けない)
+    void CompactSlots(WildBossBase gone)
+    {
+        if (!ReaperSisterBoss.ReachFix) return;
+        int rank = 0;
+        foreach (var s in Order)
+        {
+            var x = Active.Find(y => y != null && y != gone && !y.IsDead && y.sister == s);
+            if (x == null) continue;
+            if (x.slotIndex != rank) Debug.Log($"[ReaperBoss] {x.sister} slot {x.slotIndex} -> {rank}");
+            x.slotIndex = rank++;
+        }
+    }
 
     void Say(string text) { Banner = text; BannerTime = Time.time; Debug.Log("[LastDungeon][Finale] " + text); }
 
@@ -103,7 +118,7 @@ public class ReaperFinaleBattle : MonoBehaviour
             NetCombat.BeginBossSpawn(NetCombat.BossMethod.Sister, (int)Order[i], i, 7f);
             try { b = ReaperSisterBoss.Create(Order[i], player, i, Hp(groupHp), 7f); } finally { NetCombat.EndBossSpawn(); }
             b.aggression = 1.25f;
-            b.DefeatOverride = w => { GroupDefeated++; Debug.Log($"[LastDungeon][Finale] {w.bossName} defeated ({GroupDefeated}/3)"); };
+            b.DefeatOverride = w => { GroupDefeated++; Debug.Log($"[LastDungeon][Finale] {w.bossName} defeated ({GroupDefeated}/3)"); CompactSlots(w); };
             Active.Add(b);
             yield return new WaitForSeconds(0.5f);
         }

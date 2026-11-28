@@ -1,0 +1,22 @@
+[sishit] char=swordsman view=side screen=540x960 portraitSide=True fold=False oblique=False secs=20
+  ok: the finale started
+[sishit] solo Eldest
+[sishit] solo Second
+[sishit] solo Youngest
+[sishit] group 3
+  ok: the finale finished
+[sishit] summary (attacks: result counts)
+  group Eldest: attacks 102 hit 48 (47%) | HIT=48 OVERLAP_NOHIT=39 FAR_X=11 NO_ATTACK=4
+  group Second: attacks 47 hit 22 (47%) | HIT=22 OVERLAP_NOHIT=12 FAR_X=10 NO_ATTACK=3
+  group Youngest: attacks 15 hit 9 (60%) | HIT=9 NO_ATTACK=3 OVERLAP_NOHIT=2 FAR_X=1
+  solo -: attacks 329 hit 102 (31%) | OVERLAP_NOHIT=128 HIT=102 FAR_X=73 FAR_XY=11 HIGH=8 NO_ATTACK=7
+  time group Eldest: 29.5s, melee reach 51%, on main camera 96%
+  time group Second: 29.5s, melee reach 24%, on main camera 95%
+  time group Youngest: 29.5s, melee reach 7%, on main camera 89%
+  time solo Eldest: 22.5s, melee reach 51%, on main camera 87%
+  time solo Second: 21.8s, melee reach 54%, on main camera 91%
+  time solo Youngest: 21.3s, melee reach 47%, on main camera 94%
+  FAIL: no attack overlapped a hittable sister without hitting (181)
+
+1 CHECK(S) FAILED
+NO EXCEPTIONS LOGGED

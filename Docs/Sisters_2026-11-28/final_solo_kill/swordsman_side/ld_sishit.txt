@@ -1,0 +1,67 @@
+[sishit] char=swordsman view=side screen=540x960 portraitSide=True fold=False oblique=False secs=30
+  ok: the finale started
+[sishit] solo Eldest
+[sishit] stage solo Eldest begin hp Eldest:4200 dmgMul(boss)=1.00 sisterDmg x1.20 hpMul x1.50 bossHpCard x1.00
+[sishit] stage solo Eldest cleared in 68.1s | damage taken 1 hits / 20 | attacks 371 hit 155
+[sishit] solo Second
+[sishit] stage solo Second begin hp Second:4200 dmgMul(boss)=1.00 sisterDmg x1.20 hpMul x1.50 bossHpCard x1.00
+[sishit] stage solo Second cleared in 50.6s | damage taken 0 hits / 0 | attacks 276 hit 132
+[sishit] solo Youngest
+[sishit] stage solo Youngest begin hp Youngest:4200 dmgMul(boss)=1.00 sisterDmg x1.20 hpMul x1.50 bossHpCard x1.00
+[sishit] stage solo Youngest cleared in 65.1s | damage taken 2 hits / 24 | attacks 355 hit 151
+[sishit] group 3
+[sishit] stage group begin hp Eldest:3000/Second:3000/Youngest:3000 dmgMul(boss)=1.00 sisterDmg x1.20 hpMul x1.50 bossHpCard x1.00
+[sishit] stage group cleared in 131.5s | damage taken 13 hits / 156 | attacks 707 hit 326
+  ok: the finale finished
+[sishit] whole finale: player moved 122.9m forward while sisters were up, halted 100% of the time, BossHalt starts 1 releases 1, last reason '*/Death'
+[sishit] damage reasons: DeathY=2, HPZero:ReaperBullet:Youngest/Hazard=4, HPZero:BossCombatPart:Hitbox_ReaperSever=3, HPZero:ReaperBullet:Eldest/Hazard=3, HPZero:ReaperBite=2, HPZero:ReaperBullet:Eldest/Reflectable=2, HPZero:ReaperBullet:Eldest/Breakable=1
+  ok: the sisters fight is fought standing (auto-run stopped 100% of the fight)
+[sishit] credits and ONE MORE MILE? -> no
+  ok: credits road starts right after the finale (no fade/result)
+  credits: 184 letters, speed now 0km/h, bgm override:credits
+   stood on letters of 'CREATED BY' at height 1.25m
+   stood on letters of 'AI PROGRAMMING' at height 1.65m
+   stood on letters of 'AI ART / DESIGN' at height 1.70m
+   stood on letters of 'SOUNDFONT' at height 1.25m
+   stood on letters of 'PLAYTESTERS' at height 1.14m
+   stood on letters of 'SPECIAL THANKS' at height 1.14m
+  credits: 66s, max speed 29km/h, stood on 6 groups of letters, jumps 9, letter hits 71, letters broken 18, blocked by the wall 2.2s, wall hits 6 | fps avg 60 min 16 | mem 218MB mono 29MB
+  ok: the player can land on and ride the credit letters (6 groups; the bot only tries letters reachable with one jump)
+  ok: credit letters react to attacks
+  ok: some credit letters can be broken (YOU / the wall text)
+  ok: THANK YOU FOR PLAYING wall blocks the road until broken (blocked 2.2s, broken True)
+  ok: credits are run at a calm speed (29km/h)
+  ok: ONE MORE MILE? area appears
+  ok: auto-run stops in the choice area (the player stands)
+  ok: no forced movement / no time limit while choosing
+  ok: no enemies in the choice area
+  choice: after 3 forward + 3 backward attacks: YES 4/8 (crack 2), NO 4/8 (crack 2)
+  ok: both YES and NO can be damaged part way without deciding
+  ok: the last hit decides (NO)
+  ok: the other choice can no longer be damaged (hits stayed 4, ignored 0)
+[sishit] portrait camera fit max x1.30 reachFix=True
+[sishit] summary (attacks: result counts)
+  group Eldest: attacks 261 hit 115 (44%) | OVERLAP_NOHIT=131 HIT=115 FAR_X=15
+  group Second: attacks 194 hit 98 (51%) | HIT=98 OVERLAP_NOHIT=93 HIGH=2 BLOCKED:dead=1
+  group Youngest: attacks 252 hit 113 (45%) | OVERLAP_NOHIT=131 HIT=113 HIGH=8
+  solo Eldest: attacks 371 hit 155 (42%) | OVERLAP_NOHIT=201 HIT=155 FAR_X=13 HIGH=2
+  solo Second: attacks 276 hit 132 (48%) | HIT=132 OVERLAP_NOHIT=129 FAR_X=13 HIGH=2
+  solo Youngest: attacks 355 hit 151 (43%) | OVERLAP_NOHIT=192 HIT=151 FAR_X=12
+  time group Eldest: 97.0s, melee reach 51%, on main camera 99%
+  time group Second: 124.5s, melee reach 61%, on main camera 85%
+  time group Youngest: 58.3s, melee reach 82%, on main camera 98%
+  time solo Eldest: 68.0s, melee reach 92%, on main camera 97%
+  time solo Second: 50.5s, melee reach 86%, on main camera 97%
+  time solo Youngest: 64.0s, melee reach 89%, on main camera 98%
+[sishit] swings that overlapped a hittable sister (1+ physics steps): hit / missed
+  group Eldest: swings 108 hit 108 missed 0 (missed with 2+ steps 0) cols 
+  group Second: swings 89 hit 88 missed 1 (missed with 2+ steps 1) cols UpAttackHitbox=1
+  group Youngest: swings 109 hit 109 missed 0 (missed with 2+ steps 0) cols 
+  solo Eldest: swings 153 hit 153 missed 0 (missed with 2+ steps 0) cols 
+  solo Second: swings 103 hit 102 missed 1 (missed with 2+ steps 0) cols AttackHitbox=1
+  solo Youngest: swings 148 hit 148 missed 0 (missed with 2+ steps 0) cols 
+  MISSED swing 513 group Second frames=5 touching=5 depth=0.78 | t=219.76 col=UpAttackHitbox layer=Default/Default ignore=False trig=True rb=Kinematic hurtRb=True pcAttacking=False grounded=False ts=1.00 inv=False broken=False act=Wait owner=Player recentHitOfSwing=512
+  FAIL: no swing overlapped a hittable sister for 2+ physics steps without hitting (1)
+
+1 CHECK(S) FAILED
+NO EXCEPTIONS LOGGED

@@ -1,0 +1,40 @@
+[sishit] char=gunslinger view=side screen=540x960 portraitSide=True fold=False oblique=False secs=30
+  ok: the finale started
+[sishit] solo Eldest
+[sishit] stage solo Eldest begin hp Eldest:2800 dmgMul(boss)=1.00 sisterDmg x1.00 hpMul x1.00 bossHpCard x1.00
+[sishit] stage solo Eldest cleared in 48.7s | damage taken 4 hits / 40 | attacks 266 hit 96
+[sishit] solo Second
+[sishit] stage solo Second begin hp Second:2800 dmgMul(boss)=1.00 sisterDmg x1.00 hpMul x1.00 bossHpCard x1.00
+[sishit] stage solo Second cleared in 41.4s | damage taken 0 hits / 0 | attacks 226 hit 86
+[sishit] solo Youngest
+[sishit] stage solo Youngest begin hp Youngest:2800 dmgMul(boss)=1.00 sisterDmg x1.00 hpMul x1.00 bossHpCard x1.00
+[sishit] stage solo Youngest cleared in 58.4s | damage taken 4 hits / 40 | attacks 319 hit 98
+[sishit] group 3
+[sishit] stage group begin hp Eldest:2000/Second:2000/Youngest:2000 dmgMul(boss)=1.00 sisterDmg x1.00 hpMul x1.00 bossHpCard x1.00
+[sishit] stage group cleared in 89.3s | damage taken 23 hits / 230 | attacks 476 hit 212
+  ok: the finale finished
+[sishit] portrait camera fit max x1.30 reachFix=True
+[sishit] summary (attacks: result counts)
+  group Eldest: attacks 196 hit 78 (40%) | HIT=78 OVERLAP_NOHIT=52 FAR_X=49 NO_ATTACK=16 BLOCKED:dead=1
+  group Second: attacks 125 hit 68 (54%) | HIT=68 OVERLAP_NOHIT=47 FAR_X=6 NO_ATTACK=4
+  group Youngest: attacks 155 hit 66 (43%) | HIT=66 OVERLAP_NOHIT=56 FAR_X=20 NO_ATTACK=8 HIGH=3 FAR_XY=2
+  solo Eldest: attacks 266 hit 96 (36%) | OVERLAP_NOHIT=131 HIT=96 FAR_X=31 NO_ATTACK=7 BLOCKED:retreating=1
+  solo Second: attacks 226 hit 86 (38%) | HIT=86 OVERLAP_NOHIT=80 FAR_X=52 HIGH=7 NO_ATTACK=1
+  solo Youngest: attacks 319 hit 98 (31%) | OVERLAP_NOHIT=139 HIT=98 FAR_X=59 NO_ATTACK=11 HIGH=7 FAR_XY=4 BLOCKED:retreating=1
+  time group Eldest: 70.5s, melee reach 31%, on main camera 99%
+  time group Second: 69.3s, melee reach 29%, on main camera 99%
+  time group Youngest: 84.0s, melee reach 30%, on main camera 99%
+  time solo Eldest: 49.3s, melee reach 69%, on main camera 96%
+  time solo Second: 41.8s, melee reach 60%, on main camera 96%
+  time solo Youngest: 57.5s, melee reach 59%, on main camera 98%
+[sishit] swings that overlapped a hittable sister (1+ physics steps): hit / missed
+  group Eldest: swings 61 hit 61 missed 0 (missed with 2+ steps 0) cols 
+  group Second: swings 52 hit 52 missed 0 (missed with 2+ steps 0) cols 
+  group Youngest: swings 68 hit 68 missed 0 (missed with 2+ steps 0) cols 
+  solo Eldest: swings 88 hit 88 missed 0 (missed with 2+ steps 0) cols 
+  solo Second: swings 61 hit 61 missed 0 (missed with 2+ steps 0) cols 
+  solo Youngest: swings 90 hit 90 missed 0 (missed with 2+ steps 0) cols 
+  ok: no swing overlapped a hittable sister for 2+ physics steps without hitting (0)
+
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

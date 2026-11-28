@@ -1290,7 +1290,7 @@ public class TerrainManager : MonoBehaviour
     // 次のボスの関門の距離(BossManager.NextBossDistance)の手前 BossArenaBefore 〜 先 BossArenaAfter(走行距離)を、穴/坂/分岐/空中足場の無い平地にする。
     // 関門の距離は前から分かっているので、生成する前に決められる(生成済みの地形は変えない)。ソロ/CPU サポートだけ
     // (マルチは全端末の地形を同じにする必要があるので変えない。マルチは BossHalt が平らな所まで進んでから止まる)
-    public static float BossArenaBefore = 20f, BossArenaAfter = 55f;
+    public static float BossArenaBefore = 20f, BossArenaAfter = 55f, SisterArenaAfter = 120f;
     public static int BossArenaBranchPushes, BossArenaFlatChunks; // 確認用
     bool BossArenaRunOverlaps(float fromRun, float toRun, out float arenaTo)
     {
@@ -1302,6 +1302,12 @@ public class TerrainManager : MonoBehaviour
         {
             float ha = hold - BossArenaBefore, hb = hold + BossArenaAfter;
             if (toRun >= ha && fromRun <= hb) { arenaTo = hb; return true; }
+        }
+        // 2026-11-28 依頼⑦(追加): ラスダン 100,000m の三姉妹戦(止まって戦う)も平地に。三人同時まで長く同じ所で戦うので、先を長めに
+        if (ReaperSisterBoss.HaltFight && GameManager.Instance != null && GameManager.Instance.ActiveRunStageId == BossManager.LastStageId)
+        {
+            float fa = bm.deathSpawnDistance - BossArenaBefore, fb = bm.deathSpawnDistance + SisterArenaAfter;
+            if (toRun >= fa && fromRun <= fb) { arenaTo = fb; return true; }
         }
         float gate = bm.NextBossDistance;
         if (gate <= 0f || float.IsInfinity(gate)) return false;

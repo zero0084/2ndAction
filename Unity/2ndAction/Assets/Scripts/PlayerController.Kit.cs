@@ -398,8 +398,7 @@ public partial class PlayerController
         kitHitInfo.knockbackScale = knockbackScale;
         kitHitInfo.hitStop = hitStop;
         kitHitInfo.fixedReach = false;
-        kitHitbox.enabled = true;
-        kitHitInfo.Rearm();
+        PlayerAttackInfo.EnableSwing(kitHitbox); // 2026-11-28: 有効のままなら出し直す(Rearm も中で行う)
     }
 
     void DisarmKitBox(int token)

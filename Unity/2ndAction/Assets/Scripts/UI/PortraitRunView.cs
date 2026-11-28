@@ -16,6 +16,16 @@ public static class PortraitRunView
     public static bool IsPortraitScreen => Screen.height > Screen.width;
     // 実際に使っている表示(ラン中に設定で変えた時は、設定を閉じるまで前の表示のまま)
     static int applied = -1;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 2026-11-28 依頼⑦の試験: 端末ごとに縦の表示を決める(保存しない)。-pview side|fold|oblique
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void ReadArgs()
+    {
+        var a = System.Environment.GetCommandLineArgs();
+        for (int i = 0; i < a.Length - 1; i++)
+            if (a[i] == "-pview") applied = a[i + 1] == "fold" ? Fold : a[i + 1] == "oblique" ? Oblique : Side;
+    }
+#endif
     public static int Applied => applied < 0 ? Mode : applied;
     public static bool UseOblique => IsPortraitScreen && Applied == Oblique;
     public static bool UseFold => IsPortraitScreen && Applied == Fold;

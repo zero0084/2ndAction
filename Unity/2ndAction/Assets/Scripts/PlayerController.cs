@@ -1845,6 +1845,10 @@ public partial class PlayerController : MonoBehaviour
         // without needing failY itself to become relative/dynamic.
         if (!isGrounded && newY < failY)
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // 2026-11-28 依頼⑦: どこで落ちたか(穴の上で止まらない確認)。開発版だけ
+            if (!IsAlly) { var gmF = GameManager.Instance; var bmF = BossManager.Instance; Debug.Log($"[Fall] x={newX:F1} lx={newX + FloatingOrigin.Offset:F1} y={newY:F1} failY={failY:F1} dist={(gmF != null ? gmF.MaxDistance : 0f):F1} bossPhase={(bmF != null && bmF.IsBossPhase)} halted={BossHalt.Halted} sisters={ReaperFinaleBattle.Instance != null} groundAt={(TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(newX)?.ToString("F1") ?? "pit" : "-")}"); }
+#endif
             TakeDamage(isFall: true);
         }
     }
@@ -3088,7 +3092,7 @@ public partial class PlayerController : MonoBehaviour
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(comboCount);
 
         ApplyAttackDirection(dir);
-        if (attackHitbox != null) { attackHitbox.enabled = true; var ai = attackHitbox.GetComponent<PlayerAttackInfo>(); if (ai != null) ai.Rearm(); TagHitbox(attackHitbox); }
+        if (attackHitbox != null) { PlayerAttackInfo.EnableSwing(attackHitbox); TagHitbox(attackHitbox); } // 2026-11-28: 有効のままなら出し直す(EnableSwing)
         ApplyComboStageToHitbox(comboCount);
         // 品質改善 Bug #002(2026-09-09), item 8/9/11/12 - 通常攻撃も旧
         // 「巨大な紫剣」(framesベースのSetComboStage)から、上/空中/下降
@@ -3262,7 +3266,7 @@ public partial class PlayerController : MonoBehaviour
         {
             upAttackHitbox.transform.localScale = upHitboxBaseScale * AttackRangeMultiplier;
             upAttackHitbox.transform.localPosition = upHitboxBaseLocalPos * AttackRangeMultiplier;
-            upAttackHitbox.enabled = true; PlayerAttackInfo.RearmOf(upAttackHitbox);
+            PlayerAttackInfo.EnableSwing(upAttackHitbox); // 2026-11-28: 空中で上攻撃を続けた時、前の振りの判定が有効のままでボスに入らなかった
         }
 
         // 実機フィードバック(2026-09-12第5弾) - Pickup/Vacuum。剣を振り上げ
@@ -3330,7 +3334,7 @@ public partial class PlayerController : MonoBehaviour
         {
             downAttackHitbox.transform.localScale = downHitboxBaseScale * AttackRangeMultiplier;
             downAttackHitbox.transform.localPosition = downHitboxBaseLocalPos * AttackRangeMultiplier;
-            downAttackHitbox.enabled = true; PlayerAttackInfo.RearmOf(downAttackHitbox);
+            PlayerAttackInfo.EnableSwing(downAttackHitbox);
         }
         NobleOnDiveStart(); // お嬢様: 間合い/威力/振り下ろしのポーズ(2026-10-12)
     }
@@ -3364,7 +3368,7 @@ public partial class PlayerController : MonoBehaviour
         if (NobleOnDiveImpact()) return; // お嬢様: 大剣が地面に刺さる衝撃波(2026-10-12)
         if (downAttackLandHitbox != null)
         {
-            downAttackLandHitbox.enabled = true; PlayerAttackInfo.RearmOf(downAttackLandHitbox);
+            PlayerAttackInfo.EnableSwing(downAttackLandHitbox);
             StartCoroutine(DisableDiveImpactHitboxAfterDelay());
         }
         if (downAttackLandSlashVisual != null)
